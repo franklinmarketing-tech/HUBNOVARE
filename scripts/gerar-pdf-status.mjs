@@ -7,12 +7,21 @@
  * injetado com `setContent`, e uma checagem de transbordo antes de imprimir —
  * PDF com conteúdo cortado é pior do que PDF nenhum.
  *
- * O logo vem do site em execução (BASE), então o servidor precisa estar de pé.
+ * Não depende de servidor: o logo é lido do disco e vai embutido no HTML.
  */
 import { chromium } from "playwright";
+import { readFileSync } from "node:fs";
 
-const BASE = process.env.BASE ?? "http://localhost:3000";
-const DESTINO = "../docs/Novare-Workspace-Status.pdf";
+/**
+ * O logo entra como data URI, lido do disco.
+ *
+ * Antes vinha por URL do site em execução — e quando o servidor não estava de
+ * pé o Chrome embutia o ícone de imagem quebrada (14x16 px) sem reclamar,
+ * gerando um PDF sem marca. Lendo do arquivo, o relatório não depende de
+ * nada estar rodando.
+ */
+const LOGO = `data:image/png;base64,${readFileSync("public/marca/logo-novare.png").toString("base64")}`;
+const DESTINO = process.env.SAIDA ?? "../docs/Novare-Workspace-Status.pdf";
 
 const HOJE = new Date().toLocaleDateString("pt-BR", {
   day: "2-digit",
@@ -106,7 +115,6 @@ const CHECKOUTS = [
     perfil: "Conta digital e cobrança recorrente brasileira",
     forte: "Menor custo do comparativo e split automático na origem — o repasse sai sem ninguém transferir à mão.",
     fraco: "Exige integração por API: o checkout não vem pronto como nas plataformas de infoproduto.",
-    recomendado: true,
   },
   {
     nome: "Stripe",
@@ -115,8 +123,9 @@ const CHECKOUTS = [
     split: "Stripe Connect",
     teste: "Nativo",
     perfil: "Padrão internacional de assinatura",
-    forte: "A melhor gestão de assinatura, teste grátis e cobrança recorrente do mercado. Documentação impecável.",
-    fraco: "Foco em cartão; PIX é limitado no Brasil. Custo maior que o Asaas no ticket baixo.",
+    forte: "A melhor gestão de assinatura do mercado: teste de 7 dias, renovação, cancelamento e recuperação de cartão recusado funcionam sozinhos. Cobra pouco no ticket baixo e o painel mostra a receita recorrente sem planilha.",
+    fraco: "Foco em cartão — o PIX é limitado no Brasil. Precisa de integração, e o repasse ao parceiro exige o Stripe Connect.",
+    recomendado: true,
   },
   {
     nome: "Mercado Pago",
@@ -135,8 +144,9 @@ const CHECKOUTS = [
     split: "Coprodução",
     teste: "Sim",
     perfil: "Plataforma de infoproduto",
-    forte: "Checkout pronto, área de membros e coprodução para dividir a receita sem código.",
-    fraco: "Fica com quase 15% do ticket. Cara de infoproduto, não de consultoria.",
+    forte: "Começa a vender na mesma semana: checkout pronto, teste grátis nativo, recuperação de venda e coprodução que divide a receita sem uma linha de código. Aceita PIX, boleto e cartão, e trata nota fiscal e cobrança de inadimplente.",
+    fraco: "Fica com quase 15% do ticket — o preço da velocidade. A página de compra tem cara de infoproduto, não de consultoria.",
+    recomendado: true,
   },
   {
     nome: "Kiwify",
@@ -184,42 +194,30 @@ const VIDEOS = [
 const PENDENTE = [
   {
     n: "1",
-    titulo: "Link de pagamento",
+    titulo: "Vídeos",
     texto:
-      "Depois de escolher o modelo de checkout (páginas 4 e 5), preciso do link do produto já configurado. É uma linha de código para ligar — nenhuma tela muda.",
-    alerta:
-      "Ao cadastrar o produto no provedor, ativar o período de teste de 7 dias. Sem isso a primeira cobrança sai na hora e a promessa da página deixa de ser verdade.",
+      "Os sete vídeos detalhados na última página deste relatório. O espaço já existe em cada tela: quando o arquivo chegar, é só encaixar — nenhuma página precisa ser refeita.",
   },
   {
     n: "2",
-    titulo: "Vídeos",
+    titulo: "Nome do produto",
     texto:
-      "Os sete vídeos detalhados na página 6. O espaço já existe em cada página: é só encaixar.",
+      "O nome definitivo do formato hoje chamado “Acompanhamento Contínuo”, conforme o briefing pediu. É uma troca de texto: assim que definirem, entra no mesmo dia.",
   },
   {
     n: "3",
-    titulo: "Foto dos sócios da Nord",
+    titulo: "Escolher o provedor de pagamento, em reunião",
     texto:
-      "Uma imagem dos sócios da Nord junto à equipe Novare, para a página da Consultoria de Investimentos. Hoje temos só a foto dos sócios da Novare e o logo da Nord.",
-  },
-  {
-    n: "4",
-    titulo: "Nome do produto",
-    texto:
-      "O nome definitivo do formato hoje chamado “Acompanhamento Contínuo”, conforme o briefing pediu.",
-  },
-  {
-    n: "5",
-    titulo: "Páginas de venda no site institucional",
-    texto:
-      "Decidir se as landing pages dos cinco produtos serão criadas no site da Novare ou se ficam dentro do Workspace, como estão hoje. Enquanto isso, os links do site institucional continuam fora do ar.",
+      "É a decisão que destrava a venda do Vida Plan. As cinco opções estão comparadas nas próximas páginas, com o custo real de cada uma sobre uma cobrança de R$ 19,90. Depois de escolhido, preciso do link do produto já configurado — ligar leva uma linha de código.",
+    alerta:
+      "Ao cadastrar o produto no provedor, ativar o período de teste de 7 dias. Sem isso a primeira cobrança sai na hora e a promessa da página deixa de ser verdade.",
   },
 ];
 
 /* ------------------------------------------------------------------- html */
 
 const topo = (etiqueta) =>
-  `<div class="topo"><img src="${BASE}/marca/logo-novare.png" alt="Novare"><span>${etiqueta}</span></div>`;
+  `<div class="topo"><img src="${LOGO}" alt="Novare"><span>${etiqueta}</span></div>`;
 const rodape = (n) =>
   `<div class="rodape"><span>Workspace Novare · Relatório de status</span><span>${n}</span></div>`;
 
@@ -230,7 +228,7 @@ const folhas = [];
 
 /* 1 — capa */
 folhas.push(`<section class="folha capa">
-  <img class="logo" src="${BASE}/marca/logo-novare.png" alt="Novare">
+  <img class="logo" src="${LOGO}" alt="Novare">
   <div class="linha-laranja"></div>
   <p class="chapeu">Relatório de status</p>
   <h1>Workspace Novare</h1>
@@ -268,7 +266,10 @@ const metade = Math.ceil(ENTREGUE.length / 2);
 folhas.push(`<section class="folha">
   ${topo("O que falta a Novare enviar")}
   <h2>O que falta a Novare enviar</h2>
-  <p class="intro">São cinco pontos. Os dois primeiros destravam a venda.</p>
+  <p class="intro">
+    São três pontos. O terceiro é uma decisão de reunião, e é o que destrava a
+    venda do Vida Plan.
+  </p>
   ${PENDENTE.map(
     (p) => `<div class="pend">
     <span class="num">${p.n}</span>
@@ -287,9 +288,11 @@ folhas.push(`<section class="folha">
   ${topo("Escolha do checkout")}
   <h2>Qual checkout usar</h2>
   <p class="intro">
-    O ponto que decide: num ticket de <strong>R$ 19,90</strong>, a taxa <em>fixa</em> pesa
-    mais que o percentual. Por isso plataformas de infoproduto, feitas para
-    ticket alto, ficam caras aqui. A coluna que importa é a última.
+    Duas coisas decidem aqui. Primeira: num ticket de <strong>R$ 19,90</strong> a taxa
+    <em>fixa</em> pesa mais que o percentual — por isso a coluna que importa é a última,
+    e não a segunda. Segunda: o provedor precisa fazer <strong>teste grátis de 7 dias</strong>
+    de verdade, senão a promessa da página não se sustenta.
+    Marcamos as duas opções recomendadas.
   </p>
 
   <table class="tab">
@@ -330,20 +333,29 @@ folhas.push(`<section class="folha">
   ).join("")}
 
   <div class="recomendacao">
-    <h3>Minha recomendação</h3>
+    <h3>Recomendação: Hotmart ou Stripe</h3>
     <p>
-      <strong>Asaas.</strong> Numa assinatura de R$ 19,90, ele deixa
-      <strong>${brl(TICKET - custo(CHECKOUTS[0]))}</strong> contra
-      ${brl(TICKET - custo(CHECKOUTS[3]))} da Hotmart e
-      ${brl(TICKET - custo(CHECKOUTS[4]))} da Kiwify. A diferença para a Kiwify é de
-      <strong>${brl(custo(CHECKOUTS[4]) - custo(CHECKOUTS[0]))} por assinante, todo mês</strong> —
-      em cem assinantes, ${brl((custo(CHECKOUTS[4]) - custo(CHECKOUTS[0])) * 100)} por mês.
-      Além do custo, o split é nativo: a divisão sai na origem, sem ninguém transferir à mão.
+      As duas fazem teste grátis de verdade — o ponto onde as outras tropeçam. A escolha
+      entre elas não é de qualidade, é <strong>do que priorizar agora</strong>.
     </p>
     <p>
-      O preço disso é trabalho: o Asaas exige integração por API, enquanto Hotmart e
-      Kiwify entregam checkout pronto. Se a prioridade for começar a vender esta semana,
-      a Hotmart resolve; se for margem no longo prazo, o Asaas paga o esforço rápido.
+      <strong>Hotmart — para vender já.</strong> Checkout pronto, teste nativo, PIX e
+      boleto, coprodução que divide a receita sem código e emissão de nota. Publica na
+      mesma semana, sem desenvolvimento. Deixa
+      <strong>${brl(TICKET - custo(CHECKOUTS[3]))}</strong> dos R$ 19,90.
+    </p>
+    <p>
+      <strong>Stripe — para escalar.</strong> Renovação, cancelamento e cartão recusado
+      tratados sozinhos, com painel de receita recorrente pronto. Deixa
+      <strong>${brl(TICKET - custo(CHECKOUTS[1]))}</strong> — são
+      ${brl(custo(CHECKOUTS[3]) - custo(CHECKOUTS[1]))} a mais por assinante todo mês, ou
+      <strong>${brl((custo(CHECKOUTS[3]) - custo(CHECKOUTS[1])) * 100)}/mês em cem
+      assinantes</strong>. Em troca pede integração e foca em cartão.
+    </p>
+    <p>
+      <strong>Caminho prático:</strong> começar pela Hotmart para validar a demanda e
+      migrar para a Stripe quando a base fizer a diferença valer o trabalho. O Workspace
+      troca de provedor mexendo em um lugar só.
     </p>
   </div>
   ${rodape(folhas.length + 1)}
