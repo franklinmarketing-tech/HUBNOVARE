@@ -32,11 +32,6 @@ drop policy if exists "hub_leads: equipe le" on public.hub_leads;
 create policy "hub_leads: equipe le"
   on public.hub_leads for select
   to authenticated
-  using (
-    exists (
-      select 1 from public.hub_profiles p
-      where p.id = auth.uid() and p.role in ('admin', 'equipe')
-    )
-  );
+  using (public.hub_papel() in ('admin', 'equipe'));
 
 create index if not exists hub_leads_criado_idx on public.hub_leads (criado_em desc);

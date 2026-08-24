@@ -27,6 +27,18 @@ alter table public.hub_profiles
 
 alter table public.hub_profiles enable row level security;
 
+-- O papel do usuario logado, lido SEM passar pelas policies.
+-- Sem isto, uma policy de hub_profiles que pergunta o papel consultando
+-- hub_profiles entra em recursao infinita (erro 42P17).
+create or replace function public.hub_papel()
+returns text language sql security definer stable set search_path = public
+as $$
+  select role from public.hub_profiles where id = auth.uid();
+$$;
+
+revoke all on function public.hub_papel() from public;
+grant execute on function public.hub_papel() to anon, authenticated;
+
 -- Cada um lê o próprio perfil.
 drop policy if exists "hub_profiles: leitura propria" on public.hub_profiles;
 create policy "hub_profiles: leitura propria"
@@ -37,29 +49,14 @@ create policy "hub_profiles: leitura propria"
 drop policy if exists "hub_profiles: admin le tudo" on public.hub_profiles;
 create policy "hub_profiles: admin le tudo"
   on public.hub_profiles for select
-  using (
-    exists (
-      select 1 from public.hub_profiles p
-      where p.id = auth.uid() and p.role = 'admin'
-    )
-  );
+  using (public.hub_papel() = 'admin');
 
 -- Admin escreve.
 drop policy if exists "hub_profiles: admin escreve" on public.hub_profiles;
 create policy "hub_profiles: admin escreve"
   on public.hub_profiles for all
-  using (
-    exists (
-      select 1 from public.hub_profiles p
-      where p.id = auth.uid() and p.role = 'admin'
-    )
-  )
-  with check (
-    exists (
-      select 1 from public.hub_profiles p
-      where p.id = auth.uid() and p.role = 'admin'
-    )
-  );
+  using (public.hub_papel() = 'admin')
+  with check (public.hub_papel() = 'admin');
 
 -- Todo usuário novo entra como cliente (menor privilégio).
 create or replace function public.hub_criar_perfil()
