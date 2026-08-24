@@ -91,7 +91,7 @@ export function CalculadoraVidaPlan() {
           <CampoNum label="Quanto já tenho investido" value={jaTem} onChange={setJaTem} moeda />
           <CampoNum label="Quanto consigo guardar por mês" value={aporte} onChange={setAporte} moeda />
           <div className="flex items-end">
-            <p className="text-[11px] leading-snug text-slate-400">
+            <p className="text-[11px] leading-snug text-muted-foreground">
               Considera 5% a.a. de retorno real (acima da inflação) e a regra dos 4% para
               uma renda que dura a vida toda.
             </p>
@@ -123,7 +123,7 @@ export function CalculadoraVidaPlan() {
             </div>
             <p className="pt-1 text-xs text-white/80">
               {r.alcancou ? (
-                <>Você chega a <b>{brl(r.fv)}</b> — já passa da meta! 🎉</>
+                <>Você chega a <b>{brl(r.fv)}</b> — já passa da meta.</>
               ) : (
                 <>Você chega a <b>{brl(r.fv)}</b>. Faltam <b className="text-accent-claro">{brl(r.gap)}</b>.</>
               )}
@@ -166,7 +166,7 @@ export function CalculadoraVidaPlan() {
               Quero meu plano
               <ArrowRight className="h-4 w-4" />
             </button>
-            <p className="mt-2 flex items-center justify-center gap-1 text-[10px] text-slate-400">
+            <p className="mt-2 flex items-center justify-center gap-1 text-[10px] text-muted-foreground">
               <Lock className="h-3 w-3" /> Seus dados são tratados conforme a LGPD.
             </p>
           </div>

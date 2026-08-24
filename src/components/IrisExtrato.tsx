@@ -9,7 +9,6 @@ import {
   Loader2,
   Check,
   Lock,
-  Sparkles,
   TrendingDown,
 } from "lucide-react";
 import { brl } from "@/lib/calculos";
@@ -139,18 +138,22 @@ export function IrisExtrato() {
   }
 
   return (
-    <section id="analisar" className="mx-auto max-w-3xl px-5 py-14">
+    <section id="analisar" className="mt-10 scroll-mt-20 sm:mt-12">
       {/* Ela fala primeiro: quem chega quer saber o que fazer, não ler
           uma explicação sobre a ferramenta. */}
       <RoboIris lancamentos={itens.length} analisando={estado === "lendo"} />
 
-      <div className="mt-4 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
-        <div className="flex items-center gap-2">
-          <Sparkles className="h-4 w-4 text-accent-strong" />
-          <h2 className="font-display text-xl font-bold text-primary">
-            Seu extrato
-          </h2>
-        </div>
+      <div className="mt-5 rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-8">
+        <p className="text-2xs font-bold uppercase tracking-[0.14em] text-accent-strong">
+          Passo 1
+        </p>
+        <h2 className="mt-1.5 font-display text-xl font-bold text-primary">
+          Seu extrato
+        </h2>
+        <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
+          Arraste o arquivo do banco ou cole os lançamentos. Nada sai do seu
+          navegador enquanto você não pedir a leitura.
+        </p>
 
         {/* Zona de arraste: o caminho de quem exportou o arquivo do banco. */}
         <label
@@ -164,12 +167,12 @@ export function IrisExtrato() {
             setArrastando(false);
             void receberArquivo(e.dataTransfer.files?.[0]);
           }}
-          className={`mt-4 flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed px-5 py-7 text-center transition-colors ${
+          className={`mt-5 flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed px-4 py-7 text-center transition-colors focus-within:border-accent focus-within:ring-4 focus-within:ring-accent/12 ${
             arrastando
               ? "border-accent bg-accent/10"
               : arquivo
                 ? "border-success/40 bg-success/[0.06]"
-                : "border-slate-200 bg-slate-50 hover:border-accent/50 hover:bg-accent/[0.04]"
+                : "border-border bg-muted/40 hover:border-accent/50 hover:bg-accent-tint"
           }`}
         >
           <input
@@ -179,40 +182,49 @@ export function IrisExtrato() {
             onChange={(e) => void receberArquivo(e.target.files?.[0])}
           />
           <FileUp
-            className={`h-6 w-6 ${arquivo ? "text-success" : "text-slate-500"}`}
+            className={`h-6 w-6 ${arquivo ? "text-success" : "text-muted-foreground"}`}
             strokeWidth={1.75}
+            aria-hidden="true"
           />
-          <p className="mt-2 text-sm font-semibold text-slate-700">
+          <p className="mt-2 max-w-full break-words text-sm font-semibold text-foreground">
             {arquivo ?? "Arraste o extrato do seu banco ou clique para escolher"}
           </p>
-          <p className="mt-1 text-[11px] text-slate-500">
+          <p className="mt-1 text-2xs leading-relaxed text-muted-foreground">
             Aceita CSV e OFX — os formatos que Itaú, Bradesco, Nubank, Banco do
             Brasil, Caixa e Santander exportam.
           </p>
         </label>
 
-        <p className="mt-3 text-center text-[11px] font-medium uppercase tracking-wider text-slate-500">
-          ou cole aqui
-        </p>
+        <label
+          htmlFor="iris-extrato-texto"
+          className="mt-6 block text-2xs font-bold uppercase tracking-[0.14em] text-muted-foreground"
+        >
+          Ou cole os lançamentos aqui
+        </label>
 
         <textarea
+          id="iris-extrato-texto"
           value={texto}
           onChange={(e) => {
             setTexto(e.target.value);
             setArquivo(null);
           }}
           rows={7}
+          aria-describedby="iris-extrato-privacidade"
           placeholder={`01/06/2026;SALARIO;5000,00\n02/06/2026;ALUGUEL;-1800,00\n03/06/2026;NETFLIX.COM;-44,90`}
-          className="mt-2 w-full resize-y rounded-2xl border border-slate-200 bg-slate-50 p-4 font-mono text-[13px] outline-none focus:border-accent focus:bg-white focus:ring-4 focus:ring-accent/12"
+          className="mt-2 w-full resize-y rounded-2xl border border-border bg-muted/40 p-4 font-mono text-xs leading-relaxed outline-none focus:border-accent focus:bg-card focus:ring-4 focus:ring-accent/12"
         />
 
-        <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
-          <p className="flex items-center gap-1.5 text-[11px] text-slate-500">
-            <Lock className="h-3 w-3" />
+        <div className="mt-3 flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+          <p
+            id="iris-extrato-privacidade"
+            className="flex items-start gap-1.5 text-2xs leading-relaxed text-muted-foreground"
+          >
+            <Lock className="mt-0.5 h-3 w-3 shrink-0" aria-hidden="true" />
             O extrato é lido no seu navegador. Só os totais vão para a análise.
           </p>
           {itens.length > 0 && (
-            <p className="text-[11px] font-medium text-slate-500">
+            <p className="text-2xs font-semibold text-success-strong">
               {itens.length} lançamentos reconhecidos
             </p>
           )}
@@ -220,24 +232,40 @@ export function IrisExtrato() {
 
         {resumo && (
           <>
-            <div className="mt-5 grid gap-3 sm:grid-cols-3">
-              <Numero rotulo="Entrou" valor={brl(resumo.entradas)} tom="bom" />
-              <Numero rotulo="Saiu" valor={brl(resumo.saidas)} tom="ruim" />
-              <Numero
-                rotulo="Sobrou"
-                valor={brl(resumo.saldo)}
-                tom={resumo.saldo >= 0 ? "bom" : "ruim"}
-              />
+            <div className="mt-7 border-t border-border pt-6">
+              <h3 className="text-sm font-bold text-foreground">
+                O que os números já dizem
+              </h3>
+              <p className="mt-1 text-2xs text-muted-foreground">
+                Somado aqui no seu navegador, a partir de {itens.length}{" "}
+                lançamentos em {resumo.meses}{" "}
+                {resumo.meses === 1 ? "mês" : "meses"}.
+              </p>
+
+              <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                <Numero rotulo="Entrou" valor={brl(resumo.entradas)} tom="bom" />
+                <Numero rotulo="Saiu" valor={brl(resumo.saidas)} tom="ruim" />
+                <Numero
+                  rotulo="Sobrou"
+                  valor={brl(resumo.saldo)}
+                  tom={resumo.saldo >= 0 ? "bom" : "ruim"}
+                />
+              </div>
             </div>
 
             {resumo.totalVazado > 0 && (
-              <div className="mt-3 flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4">
-                <TrendingDown className="mt-0.5 h-4 w-4 shrink-0 text-amber-700" />
-                <p className="text-xs text-amber-900">
-                  <strong>{brl(resumo.totalVazado)}</strong> em tarifas, juros e
-                  IOF em {resumo.meses}{" "}
+              <div className="mt-3 flex items-start gap-3 rounded-2xl border border-warning/40 bg-warning/10 p-4">
+                <TrendingDown
+                  className="mt-0.5 h-4 w-4 shrink-0 text-accent-strong"
+                  aria-hidden="true"
+                />
+                <p className="text-xs leading-relaxed text-foreground">
+                  <strong className="font-bold">{brl(resumo.totalVazado)}</strong>{" "}
+                  em tarifas, juros e IOF em {resumo.meses}{" "}
                   {resumo.meses === 1 ? "mês" : "meses"}. No ritmo atual, são{" "}
-                  <strong>{brl((resumo.totalVazado / resumo.meses) * 12)}</strong>{" "}
+                  <strong className="font-bold">
+                    {brl((resumo.totalVazado / resumo.meses) * 12)}
+                  </strong>{" "}
                   por ano — dinheiro que sai sem você comprar nada.
                 </p>
               </div>
@@ -246,10 +274,10 @@ export function IrisExtrato() {
             {acabouOGratis && !leitura ? (
               <div className="mt-4 rounded-2xl border border-accent-soft bg-accent-tint p-5">
                 <p className="flex items-center gap-2 text-sm font-bold text-primary">
-                  <Lock className="h-4 w-4" />
+                  <Lock className="h-4 w-4" aria-hidden="true" />
                   Você já usou sua análise gratuita
                 </p>
-                <p className="mt-1.5 text-xs text-slate-600">
+                <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">
                   Os números acima continuam sendo calculados aqui, de graça e
                   sem limite. A leitura da Íris — com os achados e o que fazer
                   — faz parte do Workspace.
@@ -263,31 +291,42 @@ export function IrisExtrato() {
                 </Link>
               </div>
             ) : (
-              <button
-                type="button"
-                onClick={() => void analisar()}
-                disabled={estado === "lendo"}
-                className="mt-4 inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 text-sm font-bold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
-              >
-                {estado === "lendo" ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    A Íris está lendo seu extrato...
-                  </>
-                ) : (
-                  <>
-                    Pedir a leitura da Íris
-                    <ArrowRight className="h-4 w-4" />
-                  </>
-                )}
-              </button>
+              <>
+                <button
+                  type="button"
+                  onClick={() => void analisar()}
+                  disabled={estado === "lendo"}
+                  aria-busy={estado === "lendo"}
+                  className="mt-5 inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 text-sm font-bold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+                >
+                  {estado === "lendo" ? (
+                    <>
+                      <Loader2
+                        className="h-4 w-4 animate-spin"
+                        aria-hidden="true"
+                      />
+                      A Íris está lendo seu extrato...
+                    </>
+                  ) : (
+                    <>
+                      Pedir a leitura da Íris
+                      <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                    </>
+                  )}
+                </button>
+                <p className="mt-2.5 text-center text-2xs text-muted-foreground">
+                  Sobem só os totais acima — nunca o texto do extrato.
+                </p>
+              </>
             )}
-
-
           </>
         )}
 
-        {erro && <p className="mt-3 text-xs text-red-600">{erro}</p>}
+        {erro && (
+          <p role="alert" className="mt-4 text-xs text-destructive">
+            {erro}
+          </p>
+        )}
       </div>
 
       {/* O que a Íris entendeu */}

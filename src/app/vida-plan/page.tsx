@@ -12,6 +12,7 @@ import {
 import { Cabecalho } from "@/components/Cabecalho";
 import { RodapeNovare } from "@/components/RodapeNovare";
 import { CalculadoraVidaPlan } from "@/components/CalculadoraVidaPlan";
+import { OQueSignifica } from "@/components/OQueSignifica";
 import { falarNoWhatsApp } from "@/lib/contato";
 
 export const metadata: Metadata = {
@@ -72,6 +73,39 @@ export default function VidaPlanPage() {
         {/* CALCULADORA (lead-magnet) */}
         <section className="mt-8">
           <CalculadoraVidaPlan />
+        </section>
+
+        {/* O QUE ISSO SIGNIFICA — o número explicado, no padrão Nord Liberta */}
+        <section className="mt-10">
+          <OQueSignifica
+            itens={[
+              {
+                pergunta: "O que é o Marco Horizonte?",
+                resposta:
+                  "É o patrimônio que sustenta a renda que você quer receber, para sempre, sem depender de salário. É o seu número de independência financeira — a partir dele, trabalhar vira escolha.",
+              },
+              {
+                pergunta: "Como esse número é calculado?",
+                resposta:
+                  "Pela regra dos 4%: a cada ano você retira 4% do patrimônio, e o restante continua investido rendendo acima da inflação. Na prática, o alvo é 25 vezes a renda que você quer por ano — R$ 8.000 por mês pedem R$ 2,4 milhões.",
+              },
+              {
+                pergunta: "Por que a projeção usa 5% ao ano?",
+                resposta:
+                  "É uma estimativa conservadora de retorno REAL, já descontada a inflação. Uma carteira equilibrada de longo prazo costuma ficar nessa faixa. Trabalhamos com o pé no chão: prometer 12% ao ano em cima da inflação seria vender ilusão.",
+              },
+              {
+                pergunta: "Cheguei em 40%. Isso é ruim?",
+                resposta:
+                  "Não. O percentual mostra onde você chega mantendo exatamente o ritmo de hoje — ele não conta aumento de renda, herança, venda de bem nem melhora nos aportes. Serve para responder uma pergunta: o ritmo atual basta? Se não bastar, dá para ajustar aporte, prazo ou renda-alvo.",
+              },
+              {
+                pergunta: "E os meus dados?",
+                resposta:
+                  "A conta acontece no seu navegador. Só o que você digitar no campo de e-mail é enviado para a Novare, e apenas para um consultor entrar em contato. Os detalhes estão na Política de Privacidade.",
+              },
+            ]}
+          />
         </section>
 
         {/* COMO FUNCIONA */}

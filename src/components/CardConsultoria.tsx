@@ -8,6 +8,7 @@ import {
   Wallet,
   Sparkles,
   ArrowRight,
+  Clock,
   type LucideIcon,
 } from "lucide-react";
 import {
@@ -85,8 +86,9 @@ export function CardConsultoria({
         {item.chamada}
       </p>
 
-      <div className="mt-3 flex items-center gap-1 text-[11px] font-medium text-slate-400">
-        <span>⏱️ {item.duracao}</span>
+      <div className="mt-3 flex items-center gap-1.5 text-[11px] font-medium text-muted-foreground">
+        <Clock className="h-3 w-3 shrink-0" />
+        <span>{item.duracao}</span>
       </div>
 
       <div className="mt-auto flex items-center justify-between pt-4 border-t border-slate-100/80">

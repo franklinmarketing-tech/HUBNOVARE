@@ -89,7 +89,7 @@ export function CalculadoraSaudeFinanceira() {
           <CampoNum label="Reserva de emergência" value={reserva} onChange={setReserva} />
           <CampoNum label="Total investido" value={invest} onChange={setInvest} />
           <div className="flex items-end">
-            <p className="text-[11px] leading-snug text-slate-400">
+            <p className="text-[11px] leading-snug text-muted-foreground">
               Avaliamos 4 pilares: sobra mensal, reserva, endividamento e investimentos.
             </p>
           </div>
@@ -152,7 +152,7 @@ export function CalculadoraSaudeFinanceira() {
               Quero meu diagnóstico
               <ArrowRight className="h-4 w-4" />
             </button>
-            <p className="mt-2 flex items-center justify-center gap-1 text-[10px] text-slate-400">
+            <p className="mt-2 flex items-center justify-center gap-1 text-[10px] text-muted-foreground">
               <Lock className="h-3 w-3" /> Seus dados são tratados conforme a LGPD.
             </p>
           </div>

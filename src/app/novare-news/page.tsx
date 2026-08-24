@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
-import { ArrowRight, Clock, Sparkles } from "lucide-react";
+import { ArrowRight, ChevronLeft, ChevronRight, Clock } from "lucide-react";
 import { CabecalhoNews } from "@/components/CabecalhoNews";
 import { UltimosVideos } from "@/components/UltimosVideos";
 import { SigaInstagram } from "@/components/SigaInstagram";
@@ -18,9 +18,25 @@ export const metadata: Metadata = {
 
 const POR_PAGINA = 6;
 
+const MESES = [
+  "jan",
+  "fev",
+  "mar",
+  "abr",
+  "mai",
+  "jun",
+  "jul",
+  "ago",
+  "set",
+  "out",
+  "nov",
+  "dez",
+];
+
+/** "14 jul 2026" — data de jornal, não de formulário. */
 function formatarData(iso: string): string {
   const [ano, mes, dia] = iso.split("-");
-  return `${dia}/${mes}/${ano}`;
+  return `${Number(dia)} ${MESES[Number(mes) - 1] ?? ""} ${ano}`;
 }
 
 export default async function NovareNewsPage({
@@ -37,11 +53,25 @@ export default async function NovareNewsPage({
   // A vitrine de destaque só existe na home do canal, sem filtro — é o
   // convite de entrada. Filtrando por categoria, vai direto para a lista.
   const semFiltro = categoriaAtiva === "todos";
-  const destaques = semFiltro && pagina === 1 ? todos.filter((a) => a.destaque).slice(0, 3) : [];
+
+  // Manchete = a publicação mais recente. As duas chamadas ao lado são os
+  // destaques marcados na fonte. O conjunto é calculado SEMPRE (não só na
+  // página 1), senão a lista paginada mudaria de tamanho a cada página e
+  // os mesmos artigos apareceriam duas vezes.
+  const principal = semFiltro ? todos[0] : undefined;
+  const secundarias = principal
+    ? todos.filter((a) => a.destaque && a.slug !== principal.slug).slice(0, 2)
+    : [];
+  const noTopo = new Set([principal?.slug, ...secundarias.map((a) => a.slug)]);
+  const mostrarTopo = pagina === 1;
 
   const listaBase = semFiltro
-    ? todos.filter((a) => !destaques.includes(a))
+    ? todos.filter((a) => !noTopo.has(a.slug))
     : todos.filter((a) => a.categoria === categoriaAtiva);
+
+  const rotuloLista = semFiltro
+    ? "Todos os artigos"
+    : (FAMILIAS[categoriaAtiva as Familia] ?? "Artigos");
 
   const totalPaginas = Math.max(1, Math.ceil(listaBase.length / POR_PAGINA));
   const inicio = (pagina - 1) * POR_PAGINA;
@@ -52,19 +82,19 @@ export default async function NovareNewsPage({
     `/novare-news?${semFiltro ? "" : `categoria=${categoriaAtiva}&`}pagina=${n}`;
 
   return (
-    <div className="min-h-dvh bg-gradient-to-b from-slate-50 to-white">
+    <div className="min-h-dvh bg-white">
       <CabecalhoNews />
 
-      <main className="mx-auto max-w-6xl px-4 pb-16 pt-10">
+      <main className="mx-auto max-w-6xl px-4 pb-20 pt-10 sm:pt-14">
         <header className="max-w-2xl">
-          <p className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-primary">
-            <Sparkles className="h-3.5 w-3.5" />
+          <p className="flex items-center gap-3 text-2xs font-bold uppercase tracking-[0.2em] text-accent-strong">
             Novare News
+            <span aria-hidden className="h-px w-10 bg-accent-soft" />
           </p>
-          <h1 className="mt-4 font-display text-3xl font-bold leading-tight text-primary sm:text-4xl">
+          <h1 className="mt-4 font-display text-3xl font-bold leading-[1.1] tracking-tight text-primary sm:text-4xl">
             Dinheiro explicado, sem letra miúda
           </h1>
-          <p className="mt-3 text-muted-foreground">
+          <p className="mt-4 text-base leading-relaxed text-muted-foreground">
             Salário, rescisão, investimento e o dia a dia das contas — cada
             artigo termina na ferramenta que resolve o que você acabou de ler.
           </p>
@@ -72,36 +102,48 @@ export default async function NovareNewsPage({
 
         {/* Categorias: mesmas áreas do catálogo, para não inventar um
             segundo vocabulário de navegação. */}
-        <div className="-mx-4 mt-6 overflow-x-auto px-4 pb-1">
-          <div className="flex w-max gap-1.5">
-            <FiltroChip href={linkFiltro("todos")} ativo={semFiltro}>
-              Tudo
-            </FiltroChip>
-            {ORDEM_FAMILIAS.map((f) => (
-              <FiltroChip key={f} href={linkFiltro(f)} ativo={categoriaAtiva === f}>
-                {FAMILIAS[f]}
+        <nav
+          aria-label="Categorias"
+          className="mt-8 border-y border-border sm:mt-10"
+        >
+          <div className="-mx-4 overflow-x-auto px-4">
+            <div className="flex w-max gap-1 py-2.5">
+              <FiltroChip href={linkFiltro("todos")} ativo={semFiltro}>
+                Tudo
               </FiltroChip>
-            ))}
+              {ORDEM_FAMILIAS.map((f) => (
+                <FiltroChip key={f} href={linkFiltro(f)} ativo={categoriaAtiva === f}>
+                  {FAMILIAS[f]}
+                </FiltroChip>
+              ))}
+            </div>
           </div>
-        </div>
+        </nav>
 
-        <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_20rem]">
-          <div>
-            {/* Destaques: os 3 primeiros, maiores — só na home do canal. */}
-            {destaques.length > 0 && (
-              <section className="grid gap-4 sm:grid-cols-2">
-                {destaques.map((a, i) => (
-                  <div key={a.slug} className={i === 0 ? "sm:col-span-2" : ""}>
-                    <CardArtigo artigo={a} grande={i === 0} />
-                  </div>
-                ))}
-              </section>
-            )}
+        {/* A primeira dobra é uma capa de jornal: uma manchete grande e
+            duas chamadas ao lado — não uma parede de cards iguais. */}
+        {mostrarTopo && principal && <Manchete artigo={principal} />}
+
+        {mostrarTopo && secundarias.length > 0 && (
+          <section className="mt-10 grid gap-x-10 gap-y-8 border-t border-border pt-8 sm:grid-cols-2">
+            {secundarias.map((a) => (
+              <ChamadaSecundaria key={a.slug} artigo={a} />
+            ))}
+          </section>
+        )}
+
+        <div className="mt-12 grid gap-12 lg:mt-16 lg:grid-cols-[minmax(0,1fr)_19rem] lg:gap-14">
+          <div className="min-w-0">
+            <h2 className="flex flex-wrap items-baseline gap-x-3 gap-y-1 border-b border-border pb-3 font-display text-lg font-bold tracking-tight text-primary">
+              {rotuloLista}
+              <span className="text-2xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+                {listaBase.length}{" "}
+                {listaBase.length === 1 ? "publicação" : "publicações"}
+              </span>
+            </h2>
 
             {pagina_.length > 0 ? (
-              <section
-                className={`grid gap-4 sm:grid-cols-2 ${destaques.length > 0 ? "mt-8" : ""}`}
-              >
+              <section className="mt-8 grid gap-6 sm:grid-cols-2 sm:gap-7">
                 {pagina_.slice(0, 4).map((a) => (
                   <CardArtigo key={a.slug} artigo={a} />
                 ))}
@@ -117,20 +159,25 @@ export default async function NovareNewsPage({
                 ))}
               </section>
             ) : (
-              <p className="mt-8 rounded-2xl border border-slate-200 bg-white p-8 text-center text-sm text-muted-foreground">
+              <p className="mt-8 rounded-2xl border border-border bg-card p-10 text-center text-sm text-muted-foreground">
                 Ainda não tem artigo nessa categoria. Volte em breve.
               </p>
             )}
 
             {/* Paginação */}
             {totalPaginas > 1 && (
-              <nav className="mt-10 flex items-center justify-center gap-1.5">
+              <nav
+                aria-label="Paginação"
+                className="mt-12 flex items-center justify-center gap-1.5 border-t border-border pt-8"
+              >
                 {pagina > 1 && (
                   <Link
                     href={linkPagina(pagina - 1)}
-                    className="rounded-lg px-3 py-2 text-sm font-semibold text-slate-500 hover:bg-slate-100"
+                    aria-label="Página anterior"
+                    className="flex h-9 items-center gap-1 rounded-lg px-3 text-xs font-semibold text-muted-foreground transition-colors hover:bg-muted hover:text-primary"
                   >
-                    « Anterior
+                    <ChevronLeft className="h-3.5 w-3.5" />
+                    Anterior
                   </Link>
                 )}
                 {Array.from({ length: totalPaginas }, (_, i) => i + 1).map((n) => (
@@ -138,10 +185,10 @@ export default async function NovareNewsPage({
                     key={n}
                     href={linkPagina(n)}
                     aria-current={n === pagina ? "page" : undefined}
-                    className={`flex h-9 w-9 items-center justify-center rounded-lg text-sm font-semibold ${
+                    className={`flex h-9 w-9 items-center justify-center rounded-lg text-xs font-bold transition-colors ${
                       n === pagina
                         ? "bg-primary text-white"
-                        : "text-slate-500 hover:bg-slate-100"
+                        : "text-muted-foreground hover:bg-muted hover:text-primary"
                     }`}
                   >
                     {n}
@@ -150,9 +197,11 @@ export default async function NovareNewsPage({
                 {pagina < totalPaginas && (
                   <Link
                     href={linkPagina(pagina + 1)}
-                    className="rounded-lg px-3 py-2 text-sm font-semibold text-slate-500 hover:bg-slate-100"
+                    aria-label="Próxima página"
+                    className="flex h-9 items-center gap-1 rounded-lg px-3 text-xs font-semibold text-muted-foreground transition-colors hover:bg-muted hover:text-primary"
                   >
-                    Próxima »
+                    Próxima
+                    <ChevronRight className="h-3.5 w-3.5" />
                   </Link>
                 )}
               </nav>

@@ -4,6 +4,7 @@ import { ArrowRight, HeartPulse, ShieldCheck, Sparkles } from "lucide-react";
 import { Cabecalho } from "@/components/Cabecalho";
 import { RodapeNovare } from "@/components/RodapeNovare";
 import { CalculadoraSaudeFinanceira } from "@/components/CalculadoraSaudeFinanceira";
+import { OQueSignifica } from "@/components/OQueSignifica";
 import { falarNoWhatsApp } from "@/lib/contato";
 
 export const metadata: Metadata = {
@@ -64,6 +65,40 @@ export default function ExameSaudePage() {
               </div>
             ))}
           </div>
+        </section>
+
+        {/* O QUE ISSO SIGNIFICA — a nota explicada */}
+        <section className="mt-10">
+          <OQueSignifica
+            titulo="Como a nota é calculada"
+            itens={[
+              {
+                pergunta: "Sobra mensal — até 25 pontos",
+                resposta:
+                  "Quanto sobra da sua renda depois dos gastos. Guardar 30% ou mais vale a pontuação cheia; até 20% já é saudável. Sem sobra não há reserva nem investimento — por isso este é o pilar que sustenta os outros três.",
+              },
+              {
+                pergunta: "Reserva de emergência — até 25 pontos",
+                resposta:
+                  "Quantos meses de gasto você consegue cobrir com o dinheiro guardado. Seis meses valem a pontuação cheia. É o que impede que um imprevisto vire dívida de cartão.",
+              },
+              {
+                pergunta: "Endividamento — até 25 pontos",
+                resposta:
+                  "O total de dívidas comparado à sua renda mensal. Sem dívida é pontuação cheia; até uma renda ainda é confortável. Acima de doze meses de renda, a prioridade passa a ser quitar antes de investir.",
+              },
+              {
+                pergunta: "Investimentos — até 25 pontos",
+                resposta:
+                  "Quanto você já acumulou em relação à sua renda anual. Um ano de renda investido vale a pontuação cheia. Mede se o dinheiro que sobrou virou patrimônio de verdade.",
+              },
+              {
+                pergunta: "A nota é um diagnóstico definitivo?",
+                resposta:
+                  "Não. É um retrato rápido, com quatro perguntas, para mostrar onde olhar primeiro. Ela não conhece o seu contrato, a sua profissão nem os seus planos — por isso o passo seguinte é a conversa com um consultor, que é gratuita.",
+              },
+            ]}
+          />
         </section>
 
         {/* CTA FINAL */}
