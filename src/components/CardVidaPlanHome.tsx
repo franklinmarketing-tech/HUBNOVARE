@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ArrowRight, Target } from "lucide-react";
-import { VIDA_PLAN_PRECO_ROTULO } from "@/lib/vidaplan";
+import { VIDA_PLAN_PRECO_ROTULO, VIDA_PLAN_TRIAL_DIAS } from "@/lib/vidaplan";
 
 /**
  * O Vida Plan como PRIMEIRO card da home.
@@ -43,17 +43,17 @@ export function CardVidaPlanHome() {
           Vida Plan
         </h3>
         <p className="mt-1 line-clamp-2 text-xs leading-snug text-white/80">
-          Seus objetivos viram um número só, com um consultor acompanhando.
+          Seus objetivos viram um número só, com um consultor acompanhando. A Íris vai de brinde.
         </p>
       </div>
 
       <div className="relative mt-5 flex items-center justify-between border-t border-white/20 pt-3">
         <span className="flex items-center gap-1.5 text-sm font-bold">
-          Assinar
+          {VIDA_PLAN_TRIAL_DIAS} dias grátis
           <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
         </span>
         <span className="text-[11px] font-bold tabular-nums text-white/85">
-          {VIDA_PLAN_PRECO_ROTULO}/mês
+          depois {VIDA_PLAN_PRECO_ROTULO}/mês
         </span>
       </div>
     </Link>

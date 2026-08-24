@@ -1,11 +1,12 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Check, Lock, X } from "lucide-react";
+import { Check, Gift, Lock, X } from "lucide-react";
 import {
   VIDA_PLAN_CHECKOUT_URL,
   VIDA_PLAN_INCLUI,
   VIDA_PLAN_PRECO_ROTULO,
+  VIDA_PLAN_TRIAL_DIAS,
 } from "@/lib/vidaplan";
 import { falarNoWhatsApp } from "@/lib/contato";
 
@@ -48,7 +49,7 @@ export function ModalAssinarVidaPlan({
   const destino = temCheckout
     ? VIDA_PLAN_CHECKOUT_URL
     : falarNoWhatsApp(
-        `Olá! Quero assinar o Vida Plan (${VIDA_PLAN_PRECO_ROTULO} por mês).`,
+        `Olá! Quero começar o teste grátis de ${VIDA_PLAN_TRIAL_DIAS} dias do Vida Plan (depois ${VIDA_PLAN_PRECO_ROTULO}/mês, com a Íris de brinde).`,
       );
 
   return (
@@ -84,15 +85,27 @@ export function ModalAssinarVidaPlan({
             id="titulo-assinar-vidaplan"
             className="mt-1.5 font-display text-2xl font-bold leading-tight"
           >
-            Seu plano de vida, acompanhado de perto
+            Comece grátis por {VIDA_PLAN_TRIAL_DIAS} dias
           </h2>
 
           <div className="mt-5 flex items-baseline gap-1.5">
             <span className="font-display text-4xl font-black tabular-nums">
-              {VIDA_PLAN_PRECO_ROTULO}
+              R$ 0
             </span>
-            <span className="text-sm text-white/70">por mês</span>
+            <span className="text-sm text-white/70">
+              nos primeiros {VIDA_PLAN_TRIAL_DIAS} dias
+            </span>
           </div>
+          <p className="mt-1.5 text-xs text-white/70">
+            Depois {VIDA_PLAN_PRECO_ROTULO} por mês. Cancele antes do fim do teste e
+            não paga nada.
+          </p>
+
+          {/* O brinde é argumento de venda: entra em destaque, não numa lista. */}
+          <p className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-white/[0.14] px-2.5 py-1.5 text-xs font-bold">
+            <Gift className="h-3.5 w-3.5 text-accent-claro" />
+            A Íris vai junto, de brinde
+          </p>
         </div>
 
         {/* O que está incluso */}
@@ -113,7 +126,7 @@ export function ModalAssinarVidaPlan({
             onClick={() => !temCheckout && setFechando(true)}
             className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-accent-btn px-5 py-3.5 text-sm font-bold text-white transition-colors hover:bg-accent-strong"
           >
-            {temCheckout ? "Assinar agora" : "Quero assinar"}
+            {temCheckout ? "Começar teste grátis" : "Quero começar grátis"}
           </a>
 
           {!temCheckout && !fechando && (
@@ -125,7 +138,7 @@ export function ModalAssinarVidaPlan({
 
           <p className="mt-4 flex items-center justify-center gap-1.5 text-2xs text-muted-foreground">
             <Lock className="h-3 w-3" />
-            Cancele quando quiser. Seus dados seguem a LGPD.
+            Sem cobrança agora. Cancele quando quiser. Seus dados seguem a LGPD.
           </p>
         </div>
       </div>

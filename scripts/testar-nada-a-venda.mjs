@@ -41,7 +41,9 @@ const PROIBIDOS = [
   { nome: "porcentagem de desconto", re: /\d{1,2}\s?% ?OFF/i },
   { nome: "chamada para assinar", re: /assine j[áa]|assine agora|assinar agora|quero assinar|assinar por/i, vidaPlanPodeter: true },
   { nome: "chamada para comprar", re: /comprar agora|finalizar compra|adicionar ao carrinho|pagar agora/i },
-  { nome: "promessa a assinante", re: /para assinantes|assinantes t[êe]m|quem assina/i },
+  // Prometer benefício a assinante só faz sentido onde existe assinatura —
+  // hoje, só o Vida Plan. Em qualquer outra tela continua sendo promessa vazia.
+  { nome: "promessa a assinante", re: /para assinantes|assinantes t[êe]m|quem assina/i, vidaPlanPodeter: true },
 ];
 
 const falhas = [];

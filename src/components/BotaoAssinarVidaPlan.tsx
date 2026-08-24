@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { ArrowRight } from "lucide-react";
 import { ModalAssinarVidaPlan } from "@/components/ModalAssinarVidaPlan";
-import { VIDA_PLAN_PRECO_ROTULO } from "@/lib/vidaplan";
+import { VIDA_PLAN_TRIAL_DIAS } from "@/lib/vidaplan";
 
 /**
  * Abre o pop-up de assinatura. Fica na landing page, depois da pessoa já ter
@@ -29,7 +29,7 @@ export function BotaoAssinarVidaPlan({
         onClick={() => setAberto(true)}
         className={`inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-bold transition-colors ${estilo}`}
       >
-        Assinar por {VIDA_PLAN_PRECO_ROTULO}/mês
+        Começar {VIDA_PLAN_TRIAL_DIAS} dias grátis
         <ArrowRight className="h-4 w-4" />
       </button>
 
