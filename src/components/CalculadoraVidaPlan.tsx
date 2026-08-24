@@ -5,6 +5,7 @@ import { ArrowRight, Sparkles, Target, TrendingUp, Lock } from "lucide-react";
 import { formatarMoedaInput, digitosParaReais } from "@/lib/moeda";
 import { falarNoWhatsApp } from "@/lib/contato";
 import { salvarLead } from "@/lib/leads";
+import { CamposLead, leadCompleto, type DadosLead } from "@/components/CamposLead";
 
 const brl = (v: number) =>
   v.toLocaleString("pt-BR", {
@@ -21,7 +22,8 @@ const TAXA_RETIRADA = 0.04;
 /**
  * O lead-magnet do Vida Plan, no molde da calculadora "Reserva Ideal" do
  * Nord Liberta: a pessoa preenche, vê o próprio Marco Horizonte na hora e
- * deixa o e-mail para receber o plano detalhado. O lead vai para o comercial.
+ * deixa nome, WhatsApp e e-mail para receber o plano detalhado. O lead vai
+ * para o comercial.
  */
 export function CalculadoraVidaPlan() {
   const [idade, setIdade] = useState("35");
@@ -29,7 +31,7 @@ export function CalculadoraVidaPlan() {
   const [renda, setRenda] = useState("8000");
   const [jaTem, setJaTem] = useState("50000");
   const [aporte, setAporte] = useState("2000");
-  const [email, setEmail] = useState("");
+  const [dados, setDados] = useState<DadosLead>({ nome: "", telefone: "", email: "" });
   const [enviado, setEnviado] = useState(false);
 
   const r = useMemo(() => {
@@ -51,13 +53,15 @@ export function CalculadoraVidaPlan() {
     return { rendaN, anos, alvo, fv, gap, pct, alcancou };
   }, [idade, idadeLivre, renda, jaTem, aporte]);
 
-  const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const leadOk = leadCompleto(dados);
 
   const enviar = () => {
-    if (!emailOk) return;
+    if (!leadOk) return;
     setEnviado(true);
     salvarLead({
-      email,
+      email: dados.email,
+      nome: dados.nome.trim(),
+      telefone: dados.telefone,
       origem: "/vida-plan",
       tipo: "vida-plan",
       payload: { idade, idadeLivre, renda: r.rendaN, alvo: r.alvo, projecao: r.fv, pct: r.pct },
@@ -65,18 +69,29 @@ export function CalculadoraVidaPlan() {
     try {
       localStorage.setItem(
         "novare:vidaplan-lead",
-        JSON.stringify({ email, idade, idadeLivre, renda, jaTem, aporte, ts: Date.now() }),
+        JSON.stringify({
+          nome: dados.nome.trim(),
+          telefone: dados.telefone,
+          email: dados.email,
+          idade,
+          idadeLivre,
+          renda,
+          jaTem,
+          aporte,
+          ts: Date.now(),
+        }),
       );
     } catch {
       /* ambiente sem storage — segue mesmo assim */
     }
     const msg =
-      `Olá! Fiz o Vida Plan no site e quero receber meu plano detalhado.\n` +
+      `Olá! Aqui é ${dados.nome.trim()}. Fiz o Vida Plan no site e quero receber meu plano detalhado.\n` +
       `• Tenho ${idade} anos e quero parar de depender do salário aos ${idadeLivre}\n` +
       `• Renda desejada: ${brl(r.rendaN)}/mês\n` +
       `• Meu Marco Horizonte: ${brl(r.alvo)}\n` +
       `• No ritmo atual chego a ${brl(r.fv)} (${r.pct}%)\n` +
-      `• E-mail: ${email}`;
+      `• WhatsApp: ${dados.telefone}\n` +
+      `• E-mail: ${dados.email}`;
     window.open(falarNoWhatsApp(msg), "_blank", "noopener,noreferrer");
   };
 
@@ -136,7 +151,8 @@ export function CalculadoraVidaPlan() {
           <div className="rounded-3xl border border-emerald-300/50 bg-emerald-50 p-5 text-center">
             <Sparkles className="mx-auto h-6 w-6 text-emerald-600" />
             <p className="mt-2 font-display text-sm font-bold text-emerald-800">
-              Pronto! Um consultor da Novare vai te enviar o plano detalhado.
+              Pronto, {dados.nome.trim().split(" ")[0]}! Um consultor da Novare vai te enviar o
+              plano detalhado.
             </p>
             <p className="mt-1 text-xs text-emerald-700/80">
               Abrimos o WhatsApp com o seu resumo — é só enviar.
@@ -150,18 +166,13 @@ export function CalculadoraVidaPlan() {
             <p className="mt-1 text-xs text-slate-500">
               Como sair de {r.pct}% e chegar aos 100%, ano a ano, com a Novare.
             </p>
-            <input
-              type="email"
-              inputMode="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="seu@email.com"
-              className="mt-3 h-11 w-full rounded-xl border border-slate-200 bg-white px-3.5 text-[0.9375rem] outline-none focus:border-accent focus:ring-4 focus:ring-accent/12"
-            />
+            <div className="mt-3">
+              <CamposLead dados={dados} aoMudar={setDados} compacto />
+            </div>
             <button
               onClick={enviar}
-              disabled={!emailOk}
-              className="mt-2.5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-accent-btn px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-accent-strong disabled:cursor-not-allowed disabled:opacity-50"
+              disabled={!leadOk}
+              className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-accent-btn px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-accent-strong disabled:cursor-not-allowed disabled:opacity-50"
             >
               Quero meu plano
               <ArrowRight className="h-4 w-4" />

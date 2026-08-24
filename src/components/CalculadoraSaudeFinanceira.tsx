@@ -5,6 +5,7 @@ import { ArrowRight, HeartPulse, Lock, PiggyBank, Shield, TrendingUp, Wallet } f
 import { formatarMoedaInput, digitosParaReais } from "@/lib/moeda";
 import { falarNoWhatsApp } from "@/lib/contato";
 import { salvarLead } from "@/lib/leads";
+import { CamposLead, leadCompleto, type DadosLead } from "@/components/CamposLead";
 
 const brl = (v: number) =>
   v.toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 });
@@ -40,7 +41,7 @@ export function CalculadoraSaudeFinanceira() {
   const [divida, setDivida] = useState("12000");
   const [reserva, setReserva] = useState("15000");
   const [invest, setInvest] = useState("30000");
-  const [email, setEmail] = useState("");
+  const [dados, setDados] = useState<DadosLead>({ nome: "", telefone: "", email: "" });
   const [enviado, setEnviado] = useState(false);
 
   const r = useMemo(() => {
@@ -49,24 +50,41 @@ export function CalculadoraSaudeFinanceira() {
     return { ...p, f: faixa(p.score) };
   }, [renda, gastos, divida, reserva, invest]);
 
-  const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const leadOk = leadCompleto(dados);
 
   const enviar = () => {
-    if (!emailOk) return;
+    if (!leadOk) return;
     setEnviado(true);
     salvarLead({
-      email,
+      email: dados.email,
+      nome: dados.nome.trim(),
+      telefone: dados.telefone,
       origem: "/exame-saude-financeira",
       tipo: "saude-financeira",
       payload: { score: r.score, faixa: r.f.rotulo, renda, gastos, divida, reserva, invest },
     });
     try {
-      localStorage.setItem("novare:saude-lead", JSON.stringify({ email, renda, gastos, divida, reserva, invest, score: r.score, ts: Date.now() }));
+      localStorage.setItem(
+        "novare:saude-lead",
+        JSON.stringify({
+          nome: dados.nome.trim(),
+          telefone: dados.telefone,
+          email: dados.email,
+          renda,
+          gastos,
+          divida,
+          reserva,
+          invest,
+          score: r.score,
+          ts: Date.now(),
+        }),
+      );
     } catch {}
     const msg =
-      `Olá! Fiz o Exame de Saúde Financeira no site da Novare.\n` +
+      `Olá! Aqui é ${dados.nome.trim()}. Fiz o Exame de Saúde Financeira no site da Novare.\n` +
       `• Nota: ${r.score}/100 (${r.f.rotulo})\n` +
-      `• E-mail: ${email}\n` +
+      `• WhatsApp: ${dados.telefone}\n` +
+      `• E-mail: ${dados.email}\n` +
       `Quero receber o diagnóstico detalhado.`;
     window.open(falarNoWhatsApp(msg), "_blank", "noopener,noreferrer");
   };
@@ -129,25 +147,22 @@ export function CalculadoraSaudeFinanceira() {
         {enviado ? (
           <div className="rounded-3xl border border-emerald-300/50 bg-emerald-50 p-5 text-center">
             <HeartPulse className="mx-auto h-6 w-6 text-emerald-600" />
-            <p className="mt-2 font-display text-sm font-bold text-emerald-800">Diagnóstico a caminho!</p>
+            <p className="mt-2 font-display text-sm font-bold text-emerald-800">
+              Diagnóstico a caminho, {dados.nome.trim().split(" ")[0]}!
+            </p>
             <p className="mt-1 text-xs text-emerald-700/80">Abrimos o WhatsApp com sua nota — é só enviar pra falar com um especialista.</p>
           </div>
         ) : (
           <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
             <p className="font-display text-sm font-bold text-primary">Receba o diagnóstico completo</p>
             <p className="mt-1 text-xs text-slate-500">O que melhorar, na ordem certa, pra subir sua nota.</p>
-            <input
-              type="email"
-              inputMode="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="seu@email.com"
-              className="mt-3 h-11 w-full rounded-xl border border-slate-200 bg-white px-3.5 text-[0.9375rem] outline-none focus:border-accent focus:ring-4 focus:ring-accent/12"
-            />
+            <div className="mt-3">
+              <CamposLead dados={dados} aoMudar={setDados} compacto />
+            </div>
             <button
               onClick={enviar}
-              disabled={!emailOk}
-              className="mt-2.5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-accent-btn px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-accent-strong disabled:cursor-not-allowed disabled:opacity-50"
+              disabled={!leadOk}
+              className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-accent-btn px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-accent-strong disabled:cursor-not-allowed disabled:opacity-50"
             >
               Quero meu diagnóstico
               <ArrowRight className="h-4 w-4" />

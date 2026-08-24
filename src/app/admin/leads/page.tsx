@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Lock, Mail, Users } from "lucide-react";
+import { Lock, Mail, Phone, Users } from "lucide-react";
 import { Cabecalho } from "@/components/Cabecalho";
 import { createClient } from "@/lib/supabase/server";
 import { getPerfil } from "@/lib/perfil";
@@ -10,10 +10,18 @@ export const metadata = { title: "Leads captados" };
 type Lead = {
   id: string;
   email: string;
+  nome: string | null;
+  telefone: string | null;
   origem: string | null;
   tipo: string | null;
   payload: Record<string, unknown> | null;
   criado_em: string;
+};
+
+/** Só os dígitos, para montar o link do WhatsApp. */
+const zapDe = (tel: string) => {
+  const d = tel.replace(/\D/g, "");
+  return d.length >= 10 ? `https://wa.me/55${d}` : null;
 };
 
 const TIPO = {
@@ -45,7 +53,7 @@ export default async function AdminLeadsPage() {
     const supabase = await createClient();
     const { data } = await supabase
       .from("hub_leads")
-      .select("id, email, origem, tipo, payload, criado_em")
+      .select("id, email, nome, telefone, origem, tipo, payload, criado_em")
       .order("criado_em", { ascending: false })
       .limit(500);
     leads = (data as Lead[]) ?? [];
@@ -109,7 +117,7 @@ export default async function AdminLeadsPage() {
                   <thead>
                     <tr className="border-b border-slate-100 text-[11px] uppercase tracking-wider text-muted-foreground">
                       <th className="px-4 py-3 font-semibold">Quando</th>
-                      <th className="px-4 py-3 font-semibold">E-mail</th>
+                      <th className="px-4 py-3 font-semibold">Contato</th>
                       <th className="px-4 py-3 font-semibold">Origem</th>
                       <th className="px-4 py-3 font-semibold">Resumo</th>
                     </tr>
@@ -123,10 +131,33 @@ export default async function AdminLeadsPage() {
                             {new Date(l.criado_em).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit", timeZone: "America/Sao_Paulo" })}
                           </td>
                           <td className="px-4 py-3">
-                            <a href={`mailto:${l.email}`} className="flex items-center gap-1.5 font-medium text-primary hover:underline">
-                              <Mail className="h-3.5 w-3.5 shrink-0 text-slate-400" />
+                            {l.nome && (
+                              <p className="font-semibold text-foreground">{l.nome}</p>
+                            )}
+                            <a
+                              href={`mailto:${l.email}`}
+                              className="flex items-center gap-1.5 text-xs font-medium text-primary hover:underline"
+                            >
+                              <Mail className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
                               {l.email}
                             </a>
+                            {l.telefone &&
+                              (zapDe(l.telefone) ? (
+                                <a
+                                  href={zapDe(l.telefone)!}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="mt-0.5 flex items-center gap-1.5 text-xs font-medium text-success-strong hover:underline"
+                                >
+                                  <Phone className="h-3.5 w-3.5 shrink-0" />
+                                  {l.telefone}
+                                </a>
+                              ) : (
+                                <span className="mt-0.5 flex items-center gap-1.5 text-xs text-muted-foreground">
+                                  <Phone className="h-3.5 w-3.5 shrink-0" />
+                                  {l.telefone}
+                                </span>
+                              ))}
                           </td>
                           <td className="px-4 py-3">
                             <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${t.cls}`}>{t.rotulo}</span>

@@ -9,6 +9,7 @@ import { TopoApp } from "@/components/TopoApp";
 import { PaletaComandos } from "@/components/PaletaComandos";
 import { BarraMercado } from "@/components/BarraMercado";
 import { CardPortal } from "@/components/CardPortal";
+import { CardVidaPlanHome } from "@/components/CardVidaPlanHome";
 import { Rodape } from "@/components/Rodape";
 import { portais } from "@/lib/categorias";
 import { appsParaBusca } from "@/lib/navegacao";
@@ -77,6 +78,9 @@ export default async function Home() {
           </section>
 
           <RoboNovare />
+
+          {/* O único produto pago tem lugar só dele, antes das iscas grátis. */}
+          <CardVidaPlanHome />
 
           <div className="grid gap-3 lg:grid-cols-2">
             <CardDiagnosticoDestaque />

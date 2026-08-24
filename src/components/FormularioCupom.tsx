@@ -5,6 +5,7 @@ import { AlertCircle, ArrowRight, CheckCircle2, Lock, Tag } from "lucide-react";
 import { validarCupom } from "@/lib/cupons";
 import { salvarLead } from "@/lib/leads";
 import { falarNoWhatsApp } from "@/lib/contato";
+import { CamposLead, leadCompleto, type DadosLead } from "@/components/CamposLead";
 
 /**
  * Cupom como ISCA de captação (Briefing slide 13). Enquanto o checkout não
@@ -16,7 +17,7 @@ export function FormularioCupom() {
   const [codigo, setCodigo] = useState("");
   const [cupom, setCupom] = useState<{ codigo: string; desconto: number; descricao: string } | null>(null);
   const [erro, setErro] = useState<string | null>(null);
-  const [email, setEmail] = useState("");
+  const [dados, setDados] = useState<DadosLead>({ nome: "", telefone: "", email: "" });
   const [reservado, setReservado] = useState(false);
 
   const validar = (e: React.FormEvent) => {
@@ -32,20 +33,24 @@ export function FormularioCupom() {
     }
   };
 
-  const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const ok = leadCompleto(dados);
 
   const reservar = () => {
-    if (!emailOk || !cupom) return;
+    if (!ok || !cupom) return;
     setReservado(true);
     salvarLead({
-      email,
+      email: dados.email,
+      nome: dados.nome.trim(),
+      telefone: dados.telefone,
       tipo: "cupom",
       origem: `cupom:${cupom.codigo}`,
       payload: { cupom: cupom.codigo, desconto: cupom.desconto },
     });
     window.open(
       falarNoWhatsApp(
-        `Olá! Quero garantir o cupom ${cupom.codigo} (${cupom.desconto}% OFF) no Workspace Novare. Meu e-mail: ${email}`,
+        `Olá! Aqui é ${dados.nome.trim()}.\n` +
+          `Quero garantir o cupom ${cupom.codigo} (${cupom.desconto}% OFF) no Workspace Novare.\n` +
+          `WhatsApp: ${dados.telefone}\nE-mail: ${dados.email}`,
       ),
       "_blank",
       "noopener,noreferrer",
@@ -105,24 +110,19 @@ export function FormularioCupom() {
             Cupom válido — {cupom.desconto}% OFF
           </div>
           <p className="mt-0.5 text-xs text-emerald-800/80">{cupom.descricao}</p>
-          <div className="mt-3 flex gap-2">
-            <input
-              type="email"
-              inputMode="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="seu@email.com para reservar"
-              className="flex-1 rounded-xl border border-emerald-200 bg-white px-3.5 py-2 text-xs outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-200"
-            />
-            <button
-              onClick={reservar}
-              disabled={!emailOk}
-              className="inline-flex items-center gap-1 rounded-xl bg-emerald-600 px-4 py-2 text-xs font-bold text-white transition-colors hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              Reservar
-              <ArrowRight className="h-3 w-3" />
-            </button>
+
+          <div className="mt-3">
+            <CamposLead dados={dados} aoMudar={setDados} />
           </div>
+
+          <button
+            onClick={reservar}
+            disabled={!ok}
+            className="mt-3 inline-flex w-full items-center justify-center gap-1.5 rounded-xl bg-emerald-600 px-4 py-2.5 text-xs font-bold text-white transition-colors hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+          >
+            Reservar meu desconto
+            <ArrowRight className="h-3 w-3" />
+          </button>
           <p className="mt-2 flex items-center gap-1 text-[10px] text-emerald-700/70">
             <Lock className="h-3 w-3" /> Seus dados são tratados conforme a LGPD.
           </p>

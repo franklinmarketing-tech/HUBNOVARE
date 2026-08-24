@@ -13,6 +13,8 @@ import { Cabecalho } from "@/components/Cabecalho";
 import { RodapeNovare } from "@/components/RodapeNovare";
 import { CalculadoraVidaPlan } from "@/components/CalculadoraVidaPlan";
 import { OQueSignifica } from "@/components/OQueSignifica";
+import { BotaoAssinarVidaPlan } from "@/components/BotaoAssinarVidaPlan";
+import { VIDA_PLAN_PRECO_ROTULO } from "@/lib/vidaplan";
 import { falarNoWhatsApp } from "@/lib/contato";
 
 export const metadata: Metadata = {
@@ -73,6 +75,20 @@ export default function VidaPlanPage() {
         {/* CALCULADORA (lead-magnet) */}
         <section className="mt-8">
           <CalculadoraVidaPlan />
+        </section>
+
+        {/* ASSINATURA — logo depois da pessoa ver o próprio número */}
+        <section className="mt-8 flex flex-wrap items-center justify-between gap-4 rounded-3xl border border-accent-soft bg-accent-tint p-6">
+          <div>
+            <h2 className="font-display text-base font-bold text-primary">
+              Quer o plano completo, e não só o número?
+            </h2>
+            <p className="mt-1 max-w-lg text-sm text-slate-600">
+              Por {VIDA_PLAN_PRECO_ROTULO} ao mês, um consultor da Novare revisa o seu
+              Marco Horizonte, monta o plano de aportes e acompanha a evolução com você.
+            </p>
+          </div>
+          <BotaoAssinarVidaPlan />
         </section>
 
         {/* O QUE ISSO SIGNIFICA — o número explicado, no padrão Nord Liberta */}
@@ -151,26 +167,20 @@ export default function VidaPlanPage() {
               Pronto para montar o seu plano?
             </h2>
             <p className="max-w-lg text-sm text-white/75">
-              Faça o cálculo acima e receba o plano detalhado, ou fale agora com um consultor da
-              Novare — a primeira conversa é gratuita.
+              Assine o Vida Plan e tenha o plano completo, revisado por um consultor da
+              Novare e acompanhado mês a mês.
             </p>
           </div>
           <div className="mt-5 flex shrink-0 flex-col gap-2.5 sm:mt-0">
-            <Link
-              href="/consultoria#plano-vida"
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-accent-btn px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-accent-strong"
-            >
-              Conhecer o Plano Vida
-              <ArrowRight className="h-4 w-4" />
-            </Link>
+            <BotaoAssinarVidaPlan variante="clara" />
             <a
-              href={falarNoWhatsApp("Olá! Quero montar meu Vida Plan com a Novare.")}
+              href={falarNoWhatsApp("Olá! Tenho dúvidas sobre o Vida Plan da Novare.")}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/25 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-white/10"
             >
               <ShieldCheck className="h-4 w-4" />
-              Falar com um consultor
+              Tirar dúvidas antes
             </a>
           </div>
         </section>
