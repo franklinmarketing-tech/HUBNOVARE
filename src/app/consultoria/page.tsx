@@ -230,12 +230,20 @@ export default async function ConsultoriaPage() {
                     <ArrowRight className="h-4 w-4" />
                   </a>
 
+                  <Link
+                    href={`/consultoria/${item.slug}`}
+                    className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition-colors hover:border-primary/30 hover:text-primary"
+                  >
+                    Ver página completa
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+
                   {ISCA_DO_PRODUTO[item.slug] && (
                     <Link
                       href={ISCA_DO_PRODUTO[item.slug].href}
-                      className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50"
+                      className="inline-flex items-center gap-1.5 text-sm font-semibold text-accent-strong transition-colors hover:text-primary"
                     >
-                      <Sparkles className="h-4 w-4 text-accent-strong" />
+                      <Sparkles className="h-4 w-4" />
                       {ISCA_DO_PRODUTO[item.slug].rotulo}
                     </Link>
                   )}

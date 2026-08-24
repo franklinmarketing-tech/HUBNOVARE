@@ -216,3 +216,37 @@ export const ROTULO_DESCONTO_NEUTRO = "Desconto na consultoria";
 export function precoComDesconto(precoCheio: number): number {
   return Math.round(precoCheio * (1 - DESCONTO_ASSINANTE));
 }
+
+export function consultoriaPorSlug(slug: string): Consultoria | undefined {
+  return CONSULTORIAS.find((c) => c.slug === slug);
+}
+
+/**
+ * Foto de capa de cada produto.
+ *
+ * Mapa explícito, e não `capaDe(\`consultoria-${slug}\`)`: os slugs daqui são
+ * curtos e os do catálogo têm prefixo, então a derivação funcionava para
+ * quatro e gerava `consultoria-consultoria-financeira` no quinto — o pior
+ * tipo de bug, o que quase funciona.
+ */
+export const CAPA_PRODUTO: Record<string, string> = {
+  diagnostico: "/cards/card-score.webp",
+  investimentos: "/cards/card-comparador.webp",
+  "plano-vida": "/cards/card-objetivos.webp",
+  "consultoria-financeira": "/cards/card-calculadora.webp",
+  "revisao-carteira": "/cards/card-perfil.webp",
+};
+
+/** A isca gratuita do Workspace ligada ao produto, quando existe. */
+export const ISCA_PRODUTO: Record<string, { href: string; rotulo: string; chamada: string }> = {
+  diagnostico: {
+    href: "/exame-saude-financeira",
+    rotulo: "Fazer o Exame de Saúde (0–100)",
+    chamada: "Antes da conversa, descubra sua nota em 1 minuto — de graça.",
+  },
+  "plano-vida": {
+    href: "/vida-plan",
+    rotulo: "Calcular meu Vida Plan grátis",
+    chamada: "Calcule agora o seu Marco Horizonte: o número que te dá liberdade.",
+  },
+};

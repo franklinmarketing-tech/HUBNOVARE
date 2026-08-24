@@ -4,7 +4,7 @@ import { useState } from "react";
 import { usePathname } from "next/navigation";
 import { ArrowRight, Check, FileText } from "lucide-react";
 import { falarNoWhatsApp } from "@/lib/contato";
-import { salvarLead } from "@/lib/leads";
+import { salvarLead, type LeadTipo } from "@/lib/leads";
 
 /**
  * Lead-magnet padrão das ferramentas, no espírito do Nord Liberta: quem
@@ -12,7 +12,18 @@ import { salvarLead } from "@/lib/leads";
  * Fica no layout das ferramentas, então TODA calculadora capta lead sem
  * precisar colar nada. O lead vai pro comercial (WhatsApp) + localStorage.
  */
-export function CapturaLead() {
+export function CapturaLead({
+  titulo = "Receba o relatório completo no seu e-mail",
+  subtitulo = "Um especialista da Novare revisa o seu caso e envia o próximo passo — grátis, sem compromisso.",
+  tipo = "ferramenta",
+  produto,
+}: {
+  titulo?: string;
+  subtitulo?: string;
+  tipo?: LeadTipo;
+  /** Slug do produto, quando a captura vive numa página de produto. */
+  produto?: string;
+} = {}) {
   const pathname = usePathname();
   const [email, setEmail] = useState("");
   const [enviado, setEnviado] = useState(false);
@@ -21,16 +32,23 @@ export function CapturaLead() {
   const enviar = () => {
     if (!ok) return;
     setEnviado(true);
-    salvarLead({ email, origem: pathname, tipo: "ferramenta" });
+    salvarLead({
+      email,
+      origem: pathname,
+      tipo,
+      payload: produto ? { produto } : undefined,
+    });
     try {
       localStorage.setItem(
         "novare:lead",
-        JSON.stringify({ email, origem: pathname, ts: Date.now() }),
+        JSON.stringify({ email, origem: pathname, produto, ts: Date.now() }),
       );
     } catch {}
     window.open(
       falarNoWhatsApp(
-        `Olá! Usei as ferramentas da Novare e quero receber o relatório completo com um especialista. Meu e-mail: ${email}`,
+        produto
+          ? `Olá! Quero saber mais sobre o serviço da Novare (${produto}). Meu e-mail: ${email}`
+          : `Olá! Usei as ferramentas da Novare e quero receber o relatório completo com um especialista. Meu e-mail: ${email}`,
       ),
       "_blank",
       "noopener,noreferrer",
@@ -46,10 +64,10 @@ export function CapturaLead() {
           </span>
           <div>
             <h3 className="font-display text-base font-bold text-primary">
-              Receba o relatório completo no seu e-mail
+              {titulo}
             </h3>
             <p className="mt-0.5 text-xs text-slate-600">
-              Um especialista da Novare revisa o seu caso e envia o próximo passo — grátis, sem compromisso.
+              {subtitulo}
             </p>
           </div>
         </div>

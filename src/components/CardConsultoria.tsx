@@ -42,7 +42,7 @@ export function CardConsultoria({
 
   return (
     <Link
-      href={`/consultoria#${item.slug}`}
+      href={`/consultoria/${item.slug}`}
       className={`glass-card group flex h-full flex-col rounded-2xl p-5 transition-all duration-300 ${
         item.isIsca
           ? 'bg-secondary border-secondary'

@@ -20,6 +20,7 @@ const TIPO = {
   "vida-plan": { rotulo: "Vida Plan", cls: "bg-sky-100 text-sky-700" },
   "saude-financeira": { rotulo: "Exame de Saúde", cls: "bg-emerald-100 text-emerald-700" },
   cupom: { rotulo: "Cupom", cls: "bg-amber-100 text-amber-700" },
+  produto: { rotulo: "Produto", cls: "bg-indigo-100 text-indigo-700" },
   ferramenta: { rotulo: "Ferramenta", cls: "bg-slate-100 text-slate-600" },
 } as const;
 
@@ -29,6 +30,7 @@ function resumo(l: Lead): string {
   if (l.tipo === "vida-plan" && p.pct != null) return `${p.pct}% do Marco Horizonte`;
   if (l.tipo === "cupom" && p.cupom != null)
     return p.desconto != null ? `${p.cupom} · ${p.desconto}% OFF` : String(p.cupom);
+  if (l.tipo === "produto" && p.produto != null) return `Interesse: ${p.produto}`;
   return l.origem ?? "—";
 }
 

@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { APPS } from "@/lib/apps";
 import { ARTIGOS } from "@/lib/news";
+import { CONSULTORIAS } from "@/lib/consultoria";
 
 const SITE =
   process.env.NEXT_PUBLIC_SITE_URL ?? "https://novare-workspace.vercel.app";
@@ -38,6 +39,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.7,
   }));
 
+  // Uma página de venda por produto: é o que a busca precisa achar.
+  const produtos = CONSULTORIAS.map((c) => ({
+    url: `${SITE}/consultoria/${c.slug}`,
+    lastModified: new Date(),
+    changeFrequency: "monthly" as const,
+    priority: 0.9,
+  }));
+
   const ferramentas = APPS.filter(
     (a) =>
       !a.externo &&
@@ -53,5 +62,5 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   // Ferramenta com variação por query (financiamento) entra uma vez só.
   const unicas = new Map(ferramentas.map((f) => [f.url, f]));
-  return [...fixas, ...artigos, ...unicas.values()];
+  return [...fixas, ...produtos, ...artigos, ...unicas.values()];
 }

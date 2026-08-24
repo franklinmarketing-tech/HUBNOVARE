@@ -27,11 +27,14 @@ export default async function Home() {
     perfil?.plano === "pro" || (!!perfil && perfil.role !== "cliente");
 
   return (
-    <div className="aurora-clara flex min-h-dvh flex-col bg-gradient-to-b from-slate-50 to-white lg:h-dvh lg:overflow-hidden">
+    <div className="aurora-clara flex min-h-dvh flex-col bg-gradient-to-b from-slate-50 to-white">
       <PaletaComandos apps={apps} />
       <BarraLateral />
 
-      <div className="flex min-h-dvh flex-1 flex-col md:pl-[72px] lg:min-h-0">
+      {/* `flex-1` já estica esta coluna até o fim: repetir `min-h-dvh` aqui
+          (o pai já tem) somava altura que não dava para rolar, e os últimos
+          pixels do rodapé ficavam fora de alcance no celular. */}
+      <div className="flex flex-1 flex-col md:pl-[72px]">
         <TopoApp
           nome={perfil?.nome ?? null}
           assinante={assinante}
@@ -39,9 +42,12 @@ export default async function Home() {
           portais={areas}
         />
 
-        <main className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-3 px-5 pb-6 pt-3 lg:min-h-0 lg:overflow-hidden lg:pb-3 [@media(max-height:760px)]:gap-2.5">
-          {/* Fita de indicadores do mercado ao vivo (SELIC, CDI, IPCA...) —
-              é o PRIMEIRO bloco, então nunca é cortada pelo overflow. */}
+        {/* Sem `overflow-hidden` aqui de propósito: forçar a home a caber em
+            uma tela só cortava o conteúdo em silêncio e espremia o rodapé
+            contra a borda. Conteúdo visível vale mais do que ausência de
+            rolagem — em tela cheia ela continua cabendo. */}
+        <main className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-3 px-5 pb-8 pt-3 [@media(max-height:760px)]:gap-2.5">
+          {/* Fita de indicadores do mercado ao vivo (SELIC, CDI, IPCA...) */}
           <BarraMercado />
 
           <section className="surgir flex flex-wrap items-end justify-between gap-4">

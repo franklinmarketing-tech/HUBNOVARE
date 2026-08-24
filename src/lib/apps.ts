@@ -123,7 +123,7 @@ export const APPS: NovareApp[] = [
 
   // ============================== IA E CONSULTORIA (5 PRODUTOS OFICIAIS)
   // Os cinco produtos e formatos de consultoria da Novare (Briefing 2026).
-  app("ia", "consultoria-diagnostico", "Diagnóstico Gratuito", "Entenda onde você está de verdade", "/consultoria#diagnostico", "Novare Direct", {
+  app("ia", "consultoria-diagnostico", "Diagnóstico Gratuito", "Entenda onde você está de verdade", "/consultoria/diagnostico", "Novare Direct", {
     descricao:
       "Uma sessão personalizada para abrir os números: renda, gastos, dívidas, reserva e investimentos. Você sai sabendo exatamente seu ponto de partida.",
     pontosFortes: [
@@ -133,7 +133,7 @@ export const APPS: NovareApp[] = [
       "Primeira análise 100% gratuita",
     ],
   }),
-  app("ia", "consultoria-investimentos", "Consultoria de Investimentos", "Em parceria com a Nord Research", "/consultoria#investimentos", "Novare + Nord", {
+  app("ia", "consultoria-investimentos", "Consultoria de Investimentos", "Em parceria com a Nord Research", "/consultoria/investimentos", "Novare + Nord", {
     descricao:
       "Acompanhamento e alocação contínua de carteira unindo a inteligência da Novare com a análise independente da Nord Research.",
     pontosFortes: [
@@ -143,7 +143,7 @@ export const APPS: NovareApp[] = [
       "Sem comissões ocultas de corretoras",
     ],
   }),
-  app("ia", "consultoria-plano-vida", "Plano Vida (Humano)", "Do sonho ao número, com método", "/consultoria#plano-vida", "Nord Liberta", {
+  app("ia", "consultoria-plano-vida", "Plano Vida (Humano)", "Do sonho ao número, com método", "/consultoria/plano-vida", "Nord Liberta", {
     descricao:
       "Construímos juntos o seu Marco Horizonte: quanto você precisa acumular, em quanto tempo e com qual aporte para viver com tranquilidade.",
     pontosFortes: [
@@ -153,7 +153,7 @@ export const APPS: NovareApp[] = [
       "Consultor CFP® dedicado",
     ],
   }),
-  app("ia", "consultoria-financeira", "Consultoria Financeira", "Organize suas contas e zere dívidas", "/consultoria#consultoria-financeira", "Novare Direct", {
+  app("ia", "consultoria-financeira", "Consultoria Financeira", "Organize suas contas e zere dívidas", "/consultoria/consultoria-financeira", "Novare Direct", {
     descricao:
       "Planejamento financeiro completo para quem precisa organizar fluxo de caixa, renegociar passivos e voltar a poupar mensalmente.",
     pontosFortes: [
@@ -163,7 +163,7 @@ export const APPS: NovareApp[] = [
       "Opção de contratação direta",
     ],
   }),
-  app("ia", "consultoria-revisao-carteira", "Revisão e Montagem de Carteira", "Seu dinheiro está no lugar certo?", "/consultoria#revisao-carteira", "Novare Direct", {
+  app("ia", "consultoria-revisao-carteira", "Revisão e Montagem de Carteira", "Seu dinheiro está no lugar certo?", "/consultoria/revisao-carteira", "Novare Direct", {
     descricao:
       "Analisamos produto por produto da sua carteira e mostramos o custo real e o que rende menos do que deveria.",
     pontosFortes: [

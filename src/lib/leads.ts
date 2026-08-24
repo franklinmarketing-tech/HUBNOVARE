@@ -1,6 +1,11 @@
 import { createClient } from "@/lib/supabase/client";
 
-export type LeadTipo = "ferramenta" | "vida-plan" | "saude-financeira" | "cupom";
+export type LeadTipo =
+  | "ferramenta"
+  | "vida-plan"
+  | "saude-financeira"
+  | "cupom"
+  | "produto";
 
 /**
  * Grava um lead captado numa isca (calculadora ou landing page) na tabela
