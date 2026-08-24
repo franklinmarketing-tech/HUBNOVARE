@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { BotaoHome } from "@/components/BotaoHome";
 import { type FormEvent, type ReactNode, useMemo, useState } from "react";
 import {
   ArrowRight,
@@ -121,9 +122,12 @@ export default function CartoesPage() {
               priority
             />
           </Link>
+          <div className="flex items-center gap-2.5">
           <span className="text-xs font-medium text-slate-500 hidden sm:block">
             Controle de cartões
           </span>
+            <BotaoHome />
+          </div>
         </div>
       </header>
 

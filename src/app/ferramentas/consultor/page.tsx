@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { BotaoHome } from "@/components/BotaoHome";
 import {
   ArrowRight,
   Bot,
@@ -119,9 +120,12 @@ export default function ConsultorPage() {
               style={{ height: 26, width: "auto" }}
             />
           </Link>
+          <div className="flex items-center gap-2.5">
           <span className="hidden text-xs font-medium text-slate-500 sm:block">
             Consultor Financeiro IA
           </span>
+            <BotaoHome />
+          </div>
         </div>
       </header>
 

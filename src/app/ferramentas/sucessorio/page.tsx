@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { BotaoHome } from "@/components/BotaoHome";
 import { useMemo } from "react";
 import { ArrowRight, Check, ScrollText } from "lucide-react";
 import { pct } from "@/lib/calculos";
@@ -116,9 +117,12 @@ export default function SucessorioPage() {
               priority
             />
           </Link>
+          <div className="flex items-center gap-2.5">
           <span className="text-xs font-medium text-slate-500 hidden sm:block">
             Planejamento sucessório
           </span>
+            <BotaoHome />
+          </div>
         </div>
       </header>
 

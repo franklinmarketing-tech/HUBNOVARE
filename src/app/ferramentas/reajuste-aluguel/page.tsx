@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { BotaoHome } from "@/components/BotaoHome";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   Bar,
@@ -145,9 +146,12 @@ export default function ReajusteAluguelPage() {
               priority
             />
           </Link>
+          <div className="flex items-center gap-2.5">
           <span className="text-xs font-medium text-slate-500 hidden sm:block">
             Reajuste de aluguel
           </span>
+            <BotaoHome />
+          </div>
         </div>
       </header>
 

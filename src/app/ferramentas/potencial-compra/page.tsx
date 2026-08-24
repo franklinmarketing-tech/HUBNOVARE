@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { BotaoHome } from "@/components/BotaoHome";
 import { type ReactNode, useId, useMemo, useState } from "react";
 import {
   AlertTriangle,
@@ -69,9 +70,12 @@ export default function PotencialCompraPage() {
               priority
             />
           </Link>
+          <div className="flex items-center gap-2.5">
           <span className="text-xs font-medium text-slate-500 hidden sm:block">
             Potencial de compra
           </span>
+            <BotaoHome />
+          </div>
         </div>
       </header>
 

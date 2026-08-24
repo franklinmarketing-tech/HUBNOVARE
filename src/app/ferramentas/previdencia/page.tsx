@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { BotaoHome } from "@/components/BotaoHome";
 import { type FormEvent, type ReactNode, useMemo, useState } from "react";
 import {
   AlertTriangle,
@@ -189,9 +190,12 @@ export default function PrevidenciaPage() {
               priority
             />
           </Link>
+          <div className="flex items-center gap-2.5">
           <span className="text-xs font-medium text-slate-500 hidden sm:block">
             Organizador previdenciário
           </span>
+            <BotaoHome />
+          </div>
         </div>
       </header>
 
