@@ -89,39 +89,41 @@ export function RoboIris({
   const digitando = escrito.length < fala.length;
 
   return (
-    <div className="palco-iris relative overflow-hidden rounded-3xl p-6 sm:p-7">
-      <div className="relative flex items-start gap-4">
-        {/* O rosto dela: anel que pulsa como quem está ouvindo. */}
-        <span className="relative flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-[hsl(188_70%_50%_/_0.18)] ring-1 ring-inset ring-[hsl(188_80%_60%_/_0.35)]">
-          <span className="absolute inset-0 animate-ping rounded-2xl bg-[hsl(188_70%_50%_/_0.12)] [animation-duration:2.8s]" />
-          <Bot
-            className="relative h-7 w-7 text-[hsl(188_95%_78%)]"
-            strokeWidth={1.75}
-          />
+    <div className="rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-6">
+      <div className="flex items-start gap-4">
+        {/* O rosto dela: discreto, com o ponto verde de "estou aqui". */}
+        <span className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary/[0.06] ring-1 ring-inset ring-primary/10">
+          <Bot className="h-6 w-6 text-primary" strokeWidth={1.75} aria-hidden="true" />
           <span className="absolute -bottom-1 -right-1 flex h-3.5 w-3.5">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-success/60" />
-            <span className="relative inline-flex h-3.5 w-3.5 rounded-full border-2 border-[hsl(215_55%_11%)] bg-success" />
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-success/50" />
+            <span className="relative inline-flex h-3.5 w-3.5 rounded-full border-2 border-card bg-success" />
           </span>
         </span>
 
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-            <span className="font-display text-base font-bold text-white">
+            <span className="font-display text-base font-bold text-primary">
               Íris
             </span>
-            <span className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[hsl(188_95%_78%)]">
+            <span className="rounded-full bg-primary/[0.06] px-2 py-0.5 text-2xs font-bold uppercase tracking-wider text-primary">
               IA da Novare
             </span>
-            <span className="text-[11px] text-white/60">online agora</span>
+            <span className="text-2xs text-muted-foreground">online agora</span>
           </div>
 
-          {/* Altura reservada: sem isso o bloco pula a cada troca de frase. */}
-          <p className="mt-2 min-h-[3.25rem] text-[15px] leading-relaxed text-white/85 sm:min-h-[2.5rem]">
+          {/* Altura reservada: sem isso o bloco pula a cada troca de frase.
+              O texto que "digita" fica escondido do leitor de tela — ele
+              recebe a frase inteira de uma vez, e não letra por letra. */}
+          <p
+            aria-hidden="true"
+            className="mt-2 min-h-[5rem] break-words text-sm leading-relaxed text-foreground sm:min-h-[3.25rem] sm:text-base"
+          >
             {escrito}
             {digitando && (
-              <span className="ml-0.5 inline-block h-4 w-[2px] translate-y-0.5 animate-pulse bg-[hsl(188_95%_78%)] align-middle" />
+              <span className="ml-0.5 inline-block h-4 w-px translate-y-0.5 animate-pulse bg-accent align-middle" />
             )}
           </p>
+          <span className="sr-only">{fala}</span>
         </div>
       </div>
     </div>

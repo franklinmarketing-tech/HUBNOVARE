@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { CONTAGEM } from "@/lib/apps";
+import { falarNoWhatsApp } from "@/lib/contato";
 import { useEffect, useRef, useState } from "react";
 import {
   ArrowRight,
@@ -101,9 +102,11 @@ export function CabecalhoNews() {
   return (
     <header
       ref={raiz}
-      className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/90 backdrop-blur-md"
+      className="sticky top-0 z-40 border-b border-border bg-white/90 backdrop-blur-md"
     >
-      <div className="mx-auto flex h-16 max-w-6xl items-center gap-5 px-4">
+      {/* No celular a barra é mais baixa: com a trilha do ecossistema
+          embaixo, duas faixas altas comeriam meia tela de leitura. */}
+      <div className="mx-auto flex h-14 max-w-6xl items-center gap-4 px-4 sm:h-16 sm:gap-5">
         {/* A marca do canal: logo da casa + selo NEWS. */}
         <Link href="/novare-news" className="flex shrink-0 items-center gap-2">
           <Image
@@ -131,10 +134,10 @@ export function CabecalhoNews() {
               onMouseLeave={agendarFechamento}
               onClick={() => setAberto((v) => !v)}
               aria-expanded={aberto}
-              className={`flex h-10 items-center gap-1.5 rounded-xl px-3 text-[13px] font-bold uppercase tracking-wide transition-colors ${
+              className={`flex h-10 items-center gap-1.5 rounded-xl px-3 text-2xs font-bold uppercase tracking-[0.12em] transition-colors ${
                 aberto
-                  ? "bg-slate-100 text-primary"
-                  : "text-slate-600 hover:bg-slate-50 hover:text-primary"
+                  ? "bg-muted text-primary"
+                  : "text-muted-foreground hover:bg-muted hover:text-primary"
               }`}
             >
               Ecossistema Novare
@@ -149,42 +152,31 @@ export function CabecalhoNews() {
               <div
                 onMouseEnter={cancelarFechamento}
                 onMouseLeave={agendarFechamento}
-                className="absolute left-0 top-[calc(100%+6px)] z-50 w-[21rem] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_24px_60px_-24px_hsl(215_50%_23%_/_0.45)]"
+                className="absolute left-0 top-[calc(100%+6px)] z-50 w-[21rem] overflow-hidden rounded-2xl border border-border bg-white shadow-elevated"
               >
-                {ECOSSISTEMA.map((item) =>
-                  item.externo ? (
-                    <a
-                      key={item.nome}
-                      href={item.href}
-                      onClick={() => setAberto(false)}
-                      className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-slate-50"
-                    >
-                      <ItemEco item={item} />
-                    </a>
-                  ) : (
-                    <Link
-                      key={item.nome}
-                      href={item.href}
-                      onClick={() => setAberto(false)}
-                      className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-slate-50"
-                    >
-                      <ItemEco item={item} />
-                    </Link>
-                  ),
-                )}
+                {ECOSSISTEMA.map((item) => (
+                  <LinkEco
+                    key={item.nome}
+                    item={item}
+                    onClick={() => setAberto(false)}
+                    className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-muted"
+                  >
+                    <ItemEco item={item} />
+                  </LinkEco>
+                ))}
               </div>
             )}
           </div>
 
           <Link
             href="/aplicativos"
-            className="flex h-10 items-center rounded-xl px-3 text-[13px] font-bold uppercase tracking-wide text-slate-600 transition-colors hover:bg-slate-50 hover:text-primary"
+            className="flex h-10 items-center rounded-xl px-3 text-2xs font-bold uppercase tracking-[0.12em] text-muted-foreground transition-colors hover:bg-muted hover:text-primary"
           >
             Ferramentas
           </Link>
           <Link
             href="/consultoria"
-            className="flex h-10 items-center rounded-xl px-3 text-[13px] font-bold uppercase tracking-wide text-slate-600 transition-colors hover:bg-slate-50 hover:text-primary"
+            className="flex h-10 items-center rounded-xl px-3 text-2xs font-bold uppercase tracking-[0.12em] text-muted-foreground transition-colors hover:bg-muted hover:text-primary"
           >
             Consultoria
           </Link>
@@ -202,7 +194,7 @@ export function CabecalhoNews() {
                 rel="noopener noreferrer"
                 aria-label={`Novare no ${s.nome}`}
                 title={s.nome}
-                className="flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 text-slate-500 transition-colors hover:border-primary/30 hover:text-primary"
+                className="flex h-8 w-8 items-center justify-center rounded-full border border-border text-muted-foreground transition-colors hover:border-primary/30 hover:text-primary"
               >
                 <s.Icone className="h-3.5 w-3.5" />
               </a>
@@ -210,10 +202,12 @@ export function CabecalhoNews() {
           </div>
 
           <a
-            href="https://wa.me/5519983402827?text=Quero%20receber%20o%20Novare%20News%20no%20WhatsApp."
+            // Falar COM a Novare: precisa de destinatário — por isso o
+            // ajudante do lib de contato, não um wa.me escrito à mão.
+            href={falarNoWhatsApp("Quero receber o Novare News no WhatsApp.")}
             target="_blank"
             rel="noopener noreferrer"
-            className="hidden items-center gap-1.5 rounded-xl border border-slate-200 px-3 py-2 text-xs font-bold text-slate-600 transition-colors hover:border-primary/30 hover:text-primary md:flex"
+            className="hidden items-center gap-1.5 rounded-xl border border-border px-3 py-2 text-2xs font-bold text-muted-foreground transition-colors hover:border-primary/30 hover:text-primary md:flex"
           >
             <MessageCircle className="h-3.5 w-3.5" />
             Inscreva-se
@@ -221,7 +215,7 @@ export function CabecalhoNews() {
 
           <Link
             href="/assinar"
-            className="flex items-center gap-1.5 rounded-xl bg-accent-btn px-3.5 py-2 text-xs font-bold text-accent-foreground transition-colors hover:bg-accent-strong sm:px-4"
+            className="flex items-center gap-1.5 rounded-xl bg-accent-btn px-3.5 py-2 text-2xs font-bold text-accent-foreground transition-colors hover:bg-accent-strong sm:px-4"
           >
             <span className="hidden sm:inline">Quero meu Workspace</span>
             <span className="sm:hidden">Workspace</span>
@@ -229,7 +223,54 @@ export function CabecalhoNews() {
           </Link>
         </div>
       </div>
+
+      {/* No celular o menu inteiro não cabe na barra. Em vez de esconder o
+          ecossistema atrás de um hambúrguer, ele vira uma trilha rolável —
+          quem chega por um artigo continua enxergando a casa toda. */}
+      <div className="border-t border-border lg:hidden">
+        <div className="mx-auto max-w-6xl overflow-x-auto px-4">
+          <div className="flex w-max items-center gap-1 py-2">
+            {/* Sem o Workspace: o botão laranja dele está logo acima. */}
+            {ECOSSISTEMA.filter((item) => item.href !== "/assinar").map((item) => (
+              <LinkEco
+                key={item.nome}
+                item={item}
+                className="shrink-0 rounded-full px-3 py-1.5 text-2xs font-semibold text-muted-foreground transition-colors hover:bg-muted hover:text-primary"
+              >
+                {item.nome}
+              </LinkEco>
+            ))}
+          </div>
+        </div>
+      </div>
     </header>
+  );
+}
+
+/**
+ * Um item do ecossistema vira `<a>` ou `<Link>` conforme ele saia do app
+ * Next ou não. Fica num lugar só para o menu do desktop e a trilha do
+ * celular não divergirem com o tempo.
+ */
+function LinkEco({
+  item,
+  className,
+  onClick,
+  children,
+}: {
+  item: (typeof ECOSSISTEMA)[number];
+  className: string;
+  onClick?: () => void;
+  children: React.ReactNode;
+}) {
+  return item.externo ? (
+    <a href={item.href} className={className} onClick={onClick}>
+      {children}
+    </a>
+  ) : (
+    <Link href={item.href} className={className} onClick={onClick}>
+      {children}
+    </Link>
   );
 }
 
@@ -240,10 +281,8 @@ function ItemEco({ item }: { item: (typeof ECOSSISTEMA)[number] }) {
         <item.icone className="h-4 w-4 text-primary" strokeWidth={1.75} />
       </span>
       <span className="min-w-0">
-        <span className="block text-[13px] font-bold text-slate-800">
-          {item.nome}
-        </span>
-        <span className="block truncate text-[11px] text-slate-500">
+        <span className="block text-xs font-bold text-primary">{item.nome}</span>
+        <span className="block truncate text-2xs text-muted-foreground">
           {item.desc}
         </span>
       </span>

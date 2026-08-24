@@ -19,13 +19,13 @@ export function OQueSignifica({
   itens: { pergunta: string; resposta: React.ReactNode }[];
 }) {
   return (
-    <section className="rounded-3xl border border-slate-200 bg-white p-6 sm:p-7">
+    <section className="rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-7">
       <h2 className="font-display text-lg font-bold text-primary">{titulo}</h2>
 
-      <div className="mt-4 divide-y divide-slate-100">
+      <div className="mt-4 divide-y divide-border">
         {itens.map((item) => (
-          <details key={item.pergunta} className="group py-3 first:pt-0 last:pb-0">
-            <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-sm font-semibold text-slate-800 transition-colors hover:text-primary [&::-webkit-details-marker]:hidden">
+          <details key={item.pergunta} className="group py-3.5 first:pt-0 last:pb-0">
+            <summary className="flex cursor-pointer list-none items-center justify-between gap-4 rounded-lg text-sm font-semibold text-foreground transition-colors hover:text-primary [&::-webkit-details-marker]:hidden">
               {item.pergunta}
               <ChevronDown
                 className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-open:rotate-180"

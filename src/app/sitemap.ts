@@ -23,6 +23,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/vida-plan",
     "/exame-saude-financeira",
     "/privacidade",
+    "/termos",
     "/profissionais",
   ].map((rota) => ({
     url: `${SITE}${rota}`,

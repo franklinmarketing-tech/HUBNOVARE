@@ -70,8 +70,8 @@ export default async function NovareNewsPage({
     : todos.filter((a) => a.categoria === categoriaAtiva);
 
   const rotuloLista = semFiltro
-    ? "Todos os artigos"
-    : (FAMILIAS[categoriaAtiva as Familia] ?? "Artigos");
+    ? "Mais publicações"
+    : (FAMILIAS[categoriaAtiva as Familia] ?? "Publicações");
 
   const totalPaginas = Math.max(1, Math.ceil(listaBase.length / POR_PAGINA));
   const inicio = (pagina - 1) * POR_PAGINA;
@@ -91,7 +91,7 @@ export default async function NovareNewsPage({
             Novare News
             <span aria-hidden className="h-px w-10 bg-accent-soft" />
           </p>
-          <h1 className="mt-4 font-display text-3xl font-bold leading-[1.1] tracking-tight text-primary sm:text-4xl">
+          <h1 className="mt-4 text-balance font-display text-3xl font-bold leading-[1.1] tracking-tight text-primary sm:text-4xl">
             Dinheiro explicado, sem letra miúda
           </h1>
           <p className="mt-4 text-base leading-relaxed text-muted-foreground">
@@ -137,8 +137,7 @@ export default async function NovareNewsPage({
             <h2 className="flex flex-wrap items-baseline gap-x-3 gap-y-1 border-b border-border pb-3 font-display text-lg font-bold tracking-tight text-primary">
               {rotuloLista}
               <span className="text-2xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-                {listaBase.length}{" "}
-                {listaBase.length === 1 ? "publicação" : "publicações"}
+                {listaBase.length} {listaBase.length === 1 ? "artigo" : "artigos"}
               </span>
             </h2>
 
@@ -231,11 +230,11 @@ function FiltroChip({
   return (
     <Link
       href={href}
-      aria-pressed={ativo}
-      className={`shrink-0 rounded-full px-4 py-1.5 text-[13px] font-semibold transition-colors ${
+      aria-current={ativo ? "page" : undefined}
+      className={`shrink-0 rounded-full px-3.5 py-1.5 text-xs font-semibold transition-colors ${
         ativo
-          ? "bg-accent-btn text-accent-foreground shadow-[0_6px_16px_-6px_hsl(16_80%_45%_/_0.6)]"
-          : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+          ? "bg-primary text-white"
+          : "text-muted-foreground hover:bg-muted hover:text-primary"
       }`}
     >
       {children}
@@ -243,48 +242,124 @@ function FiltroChip({
   );
 }
 
-function CardArtigo({ artigo, grande = false }: { artigo: Artigo; grande?: boolean }) {
+/** Data e tempo de leitura, no mesmo formato em toda a página. */
+function MetaArtigo({ artigo }: { artigo: Artigo }) {
   return (
-    <Link
-      href={`/novare-news/${artigo.slug}`}
-      className="glass-card group flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white hover:border-primary/30"
-    >
-      <div className={`relative overflow-hidden ${grande ? "h-56 sm:h-64" : "h-32"}`}>
+    <>
+      <time dateTime={artigo.data}>{formatarData(artigo.data)}</time>
+      <span aria-hidden>·</span>
+      <span className="inline-flex items-center gap-1">
+        <Clock className="h-3 w-3" />
+        {artigo.tempoLeituraMin} min de leitura
+      </span>
+    </>
+  );
+}
+
+/**
+ * A manchete: a publicação mais recente ocupa a primeira dobra inteira,
+ * capa de um lado e texto do outro. É o que separa uma capa de jornal de
+ * uma grade de cards todos do mesmo tamanho.
+ */
+function Manchete({ artigo }: { artigo: Artigo }) {
+  return (
+    <section className="mt-10 sm:mt-12">
+      <Link
+        href={`/novare-news/${artigo.slug}`}
+        className="group grid gap-6 lg:grid-cols-[1.15fr_1fr] lg:items-center lg:gap-12"
+      >
+        <div className="relative aspect-[16/10] overflow-hidden rounded-2xl border border-border bg-muted">
+          <Image
+            src={artigo.capa}
+            alt=""
+            fill
+            priority
+            sizes="(min-width: 1024px) 620px, 100vw"
+            className="object-cover transition-transform duration-700 group-hover:scale-[1.03]"
+          />
+        </div>
+
+        <div className="min-w-0">
+          <p className="flex items-center gap-2 text-2xs font-bold uppercase tracking-[0.16em] text-accent-strong">
+            <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-accent" />
+            {FAMILIAS[artigo.categoria]}
+          </p>
+          <h2 className="mt-3 text-balance font-display text-2xl font-bold leading-[1.15] tracking-tight text-primary underline-offset-[6px] group-hover:underline sm:text-3xl lg:text-[2.25rem] lg:leading-[1.1]">
+            {artigo.titulo}
+          </h2>
+          <p className="mt-4 text-base leading-relaxed text-muted-foreground">
+            {artigo.resumo}
+          </p>
+          <p className="mt-5 flex flex-wrap items-center gap-x-2 gap-y-1 text-2xs text-muted-foreground">
+            <MetaArtigo artigo={artigo} />
+          </p>
+          <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-bold text-accent-strong">
+            Ler a matéria
+            <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5" />
+          </span>
+        </div>
+      </Link>
+    </section>
+  );
+}
+
+/** Chamada de apoio: texto na frente, miniatura como âncora visual. */
+function ChamadaSecundaria({ artigo }: { artigo: Artigo }) {
+  return (
+    <Link href={`/novare-news/${artigo.slug}`} className="group flex gap-4">
+      <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl border border-border bg-muted sm:h-24 sm:w-24">
         <Image
           src={artigo.capa}
           alt=""
           fill
-          sizes={grande ? "480px" : "320px"}
-          className="object-cover opacity-90 grayscale-[15%] transition-transform duration-500 group-hover:scale-105"
+          sizes="96px"
+          className="object-cover transition-transform duration-500 group-hover:scale-105"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-primary/70 via-primary/10 to-transparent" />
-        <span className="absolute left-3 top-3 rounded-full bg-white/90 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-primary backdrop-blur-sm">
-          {FAMILIAS[artigo.categoria]}
-        </span>
       </div>
-
-      <div className="flex flex-1 flex-col p-4">
-        <h3
-          className={`font-display font-bold leading-snug text-foreground ${
-            grande ? "text-xl sm:text-2xl" : "text-[15px]"
-          }`}
-        >
+      <div className="min-w-0">
+        <p className="text-2xs font-bold uppercase tracking-[0.14em] text-muted-foreground">
+          {FAMILIAS[artigo.categoria]}
+        </p>
+        <h3 className="mt-1.5 font-display text-base font-bold leading-snug tracking-tight text-primary underline-offset-4 group-hover:underline">
           {artigo.titulo}
         </h3>
-        <p
-          className={`mt-1.5 flex-1 leading-relaxed text-muted-foreground ${
-            grande ? "line-clamp-3 text-sm" : "line-clamp-2 text-xs"
-          }`}
-        >
+        <p className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-2xs text-muted-foreground">
+          <MetaArtigo artigo={artigo} />
+        </p>
+      </div>
+    </Link>
+  );
+}
+
+function CardArtigo({ artigo }: { artigo: Artigo }) {
+  return (
+    <Link
+      href={`/novare-news/${artigo.slug}`}
+      className="group flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-subtle transition-all duration-300 hover:border-accent-soft hover:shadow-card-hover"
+    >
+      <div className="relative aspect-[16/9] overflow-hidden bg-muted">
+        <Image
+          src={artigo.capa}
+          alt=""
+          fill
+          sizes="(min-width: 640px) 340px, 100vw"
+          className="object-cover transition-transform duration-500 group-hover:scale-105"
+        />
+      </div>
+
+      <div className="flex flex-1 flex-col p-5">
+        <p className="text-2xs font-bold uppercase tracking-[0.14em] text-muted-foreground">
+          {FAMILIAS[artigo.categoria]}
+        </p>
+        <h3 className="mt-2 font-display text-base font-bold leading-snug tracking-tight text-primary underline-offset-4 group-hover:underline">
+          {artigo.titulo}
+        </h3>
+        <p className="mt-2 line-clamp-2 flex-1 text-sm leading-relaxed text-muted-foreground">
           {artigo.resumo}
         </p>
-        <div className="mt-3 flex items-center gap-3 border-t border-slate-100 pt-2.5 text-[11px] text-slate-500">
-          <span>{formatarData(artigo.data)}</span>
-          <span className="flex items-center gap-1">
-            <Clock className="h-3 w-3" />
-            {artigo.tempoLeituraMin} min
-          </span>
-        </div>
+        <p className="mt-4 flex flex-wrap items-center gap-x-2 gap-y-1 border-t border-border pt-3 text-2xs text-muted-foreground">
+          <MetaArtigo artigo={artigo} />
+        </p>
       </div>
     </Link>
   );
@@ -294,41 +369,59 @@ function SidebarNews() {
   const recentes = artigosOrdenados().slice(0, 5);
 
   return (
-    <aside className="space-y-5">
+    <aside className="min-w-0 space-y-6">
+      <div className="rounded-2xl border border-border bg-card p-5 shadow-subtle">
+        <h2 className="font-display text-2xs font-bold uppercase tracking-[0.16em] text-primary">
+          Últimas publicações
+        </h2>
+        <ol className="mt-4 space-y-4">
+          {recentes.map((a, i) => (
+            <li
+              key={a.slug}
+              className="flex gap-3 border-t border-border pt-4 first:border-0 first:pt-0"
+            >
+              <span
+                aria-hidden
+                className="font-display text-xs font-bold tabular-nums text-muted-foreground"
+              >
+                {String(i + 1).padStart(2, "0")}
+              </span>
+              <div className="min-w-0">
+                <Link
+                  href={`/novare-news/${a.slug}`}
+                  className="block text-sm font-semibold leading-snug text-primary underline-offset-4 hover:underline"
+                >
+                  {a.titulo}
+                </Link>
+                <time
+                  dateTime={a.data}
+                  className="mt-1 block text-2xs text-muted-foreground"
+                >
+                  {formatarData(a.data)}
+                </time>
+              </div>
+            </li>
+          ))}
+        </ol>
+      </div>
+
       <UltimosVideos />
       <SigaInstagram />
 
-      <div className="rounded-2xl border border-slate-200 bg-white p-5">
-        <h2 className="text-sm font-bold text-foreground">Últimas publicações</h2>
-        <ul className="mt-3 space-y-3">
-          {recentes.map((a) => (
-            <li key={a.slug}>
-              <Link
-                href={`/novare-news/${a.slug}`}
-                className="block text-[13px] font-medium leading-snug text-slate-600 hover:text-primary"
-              >
-                {a.titulo}
-              </Link>
-              <span className="text-[11px] text-slate-500">{formatarData(a.data)}</span>
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      <div className="glass-card overflow-hidden rounded-2xl p-5 text-white">
-        <p className="text-[11px] font-bold uppercase tracking-wider text-[hsl(16_90%_75%)]">
+      <div className="glass-card overflow-hidden rounded-2xl bg-primary p-5 text-white">
+        <p className="text-2xs font-bold uppercase tracking-[0.16em] text-accent-claro">
           Sem cadastro
         </p>
         <h2 className="mt-1.5 font-display text-lg font-bold">
           Experimente o Vida Plan
         </h2>
-        <p className="mt-1.5 text-xs text-white/70">
+        <p className="mt-1.5 text-xs leading-relaxed text-white/75">
           Entre agora numa conta de demonstração — sem e-mail, sem senha — e
           veja o Marco Horizonte por dentro.
         </p>
         <a
           href="/vidaplan/login?demo=1"
-          className="mt-4 inline-flex items-center gap-1.5 rounded-xl bg-white px-4 py-2.5 text-xs font-bold text-primary hover:bg-white/90"
+          className="mt-4 inline-flex items-center gap-1.5 rounded-xl bg-white px-4 py-2.5 text-xs font-bold text-primary transition-colors hover:bg-white/90"
         >
           Ver por dentro
           <ArrowRight className="h-3.5 w-3.5" />
@@ -336,8 +429,10 @@ function SidebarNews() {
       </div>
 
       <div className="rounded-2xl border border-accent-soft bg-accent-tint p-5">
-        <h2 className="text-sm font-bold text-primary">Ferramentas mais usadas</h2>
-        <div className="mt-3 flex flex-wrap gap-1.5">
+        <h2 className="font-display text-2xs font-bold uppercase tracking-[0.16em] text-primary">
+          Ferramentas mais usadas
+        </h2>
+        <div className="mt-3.5 flex flex-wrap gap-1.5">
           {[
             { nome: "Salário Líquido", href: "/ferramentas/salario-liquido" },
             { nome: "Rescisão", href: "/ferramentas/rescisao" },
@@ -349,7 +444,7 @@ function SidebarNews() {
             <Link
               key={f.nome}
               href={f.href}
-              className="rounded-full border border-accent/25 bg-white px-3 py-1.5 text-[11px] font-semibold text-slate-600 transition-colors hover:border-accent hover:text-accent-strong"
+              className="rounded-full border border-accent/25 bg-white px-3 py-1.5 text-2xs font-semibold text-muted-foreground transition-colors hover:border-accent hover:text-accent-strong"
             >
               {f.nome}
             </Link>
@@ -373,21 +468,21 @@ function SidebarNews() {
  */
 function BannerWorkspace() {
   return (
-    <div className="glass-card flex flex-wrap items-center justify-between gap-4 rounded-2xl p-6 text-white">
+    <div className="glass-card flex flex-wrap items-center justify-between gap-5 rounded-2xl bg-primary p-6 text-white sm:p-7">
       <div className="min-w-0">
-        <p className="text-[11px] font-bold uppercase tracking-wider text-[hsl(16_90%_75%)]">
+        <p className="text-2xs font-bold uppercase tracking-[0.16em] text-accent-claro">
           Workspace Novare
         </p>
-        <h3 className="mt-1 font-display text-lg font-bold sm:text-xl">
+        <h3 className="mt-1.5 font-display text-lg font-bold leading-snug sm:text-xl">
           Todas as ferramentas, o Vida Plan e a Íris num lugar só
         </h3>
-        <p className="mt-1 text-sm text-white/70">
+        <p className="mt-1.5 text-sm leading-relaxed text-white/75">
           E desconto exclusivo nas consultorias — com a primeira análise grátis.
         </p>
       </div>
       <Link
         href="/assinar"
-        className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-bold text-primary transition-transform hover:-translate-y-0.5"
+        className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-bold text-primary transition-colors hover:bg-white/90"
       >
         Conhecer o Workspace
         <ArrowRight className="h-4 w-4" />

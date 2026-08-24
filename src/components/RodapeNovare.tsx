@@ -174,6 +174,14 @@ export function RodapeNovare() {
                   Privacidade & LGPD
                 </Link>
               </li>
+              <li>
+                <Link
+                  href="/termos"
+                  className="text-[13px] text-white/60 transition-colors hover:text-white"
+                >
+                  Termos de Uso
+                </Link>
+              </li>
             </ul>
           </div>
 

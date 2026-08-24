@@ -287,7 +287,7 @@ export function IrisExtrato() {
                   className="mt-4 inline-flex items-center gap-2 rounded-xl bg-accent-btn px-4 py-2.5 text-sm font-semibold text-accent-foreground transition-colors hover:bg-accent-strong"
                 >
                   Assinar o Workspace
-                  <ArrowRight className="h-4 w-4" />
+                  <ArrowRight className="h-4 w-4" aria-hidden="true" />
                 </Link>
               </div>
             ) : (
@@ -331,12 +331,16 @@ export function IrisExtrato() {
 
       {/* O que a Íris entendeu */}
       {leitura && (
-        <div className="mt-6 space-y-4">
-          <div className="palco-iris relative overflow-hidden rounded-3xl p-8 text-center">
-            <p className="relative text-[11px] font-bold uppercase tracking-[0.2em] text-[hsl(205_95%_75%)]">
+        <div className="mt-8 space-y-4">
+          <p className="text-2xs font-bold uppercase tracking-[0.14em] text-accent-strong">
+            Passo 2 · O resultado
+          </p>
+
+          <div className="palco-iris relative overflow-hidden rounded-3xl p-6 text-center sm:p-8">
+            <p className="relative text-2xs font-bold uppercase tracking-[0.2em] text-[hsl(205_95%_75%)]">
               A leitura da Íris
             </p>
-            <p className="surgir relative mt-3 font-display text-xl font-bold leading-snug text-white sm:text-2xl">
+            <p className="surgir relative mt-3 break-words font-display text-lg font-bold leading-snug text-white sm:text-2xl">
               {leitura.veredito}
             </p>
           </div>
@@ -347,23 +351,34 @@ export function IrisExtrato() {
                 key={i}
                 className={`rounded-2xl border p-5 ${
                   a.tipo === "vazamento"
-                    ? "border-red-200 bg-red-50"
+                    ? "border-destructive/25 bg-destructive/[0.04]"
                     : a.tipo === "bom"
-                      ? "border-emerald-200 bg-emerald-50"
-                      : "border-slate-200 bg-white"
+                      ? "border-success/30 bg-success/[0.06]"
+                      : "border-border bg-card"
                 }`}
               >
-                <div className="flex items-center gap-2">
+                <div className="flex items-start gap-2">
                   {a.tipo === "vazamento" ? (
-                    <TrendingDown className="h-4 w-4 text-red-600" />
+                    <TrendingDown
+                      className="mt-0.5 h-4 w-4 shrink-0 text-destructive"
+                      aria-hidden="true"
+                    />
                   ) : a.tipo === "bom" ? (
-                    <Check className="h-4 w-4 text-emerald-600" />
+                    <Check
+                      className="mt-0.5 h-4 w-4 shrink-0 text-success-strong"
+                      aria-hidden="true"
+                    />
                   ) : (
-                    <AlertTriangle className="h-4 w-4 text-amber-600" />
+                    <AlertTriangle
+                      className="mt-0.5 h-4 w-4 shrink-0 text-accent-strong"
+                      aria-hidden="true"
+                    />
                   )}
-                  <h3 className="text-sm font-bold text-slate-800">{a.titulo}</h3>
+                  <h3 className="text-sm font-bold text-foreground">
+                    {a.titulo}
+                  </h3>
                 </div>
-                <p className="mt-1.5 text-xs leading-relaxed text-slate-600">
+                <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
                   {a.texto}
                 </p>
               </div>
@@ -371,17 +386,19 @@ export function IrisExtrato() {
           </div>
 
           {leitura.acoes.length > 0 && (
-            <div className="rounded-2xl border border-slate-200 bg-white p-6">
-              <h3 className="text-sm font-bold text-slate-800">
+            <div className="rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-6">
+              <h3 className="font-display text-base font-bold text-primary">
                 Por onde começar
               </h3>
-              <ol className="mt-3 space-y-2.5">
+              <ol className="mt-4 space-y-3">
                 {leitura.acoes.map((acao, i) => (
                   <li key={i} className="flex gap-3">
                     <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-accent/15 text-xs font-bold text-accent-strong">
                       {i + 1}
                     </span>
-                    <span className="text-sm text-slate-600">{acao}</span>
+                    <span className="text-sm leading-relaxed text-muted-foreground">
+                      {acao}
+                    </span>
                   </li>
                 ))}
               </ol>
@@ -391,12 +408,12 @@ export function IrisExtrato() {
                 className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-accent-strong hover:underline"
               >
                 Quero um consultor olhando isso comigo
-                <ArrowRight className="h-4 w-4" />
+                <ArrowRight className="h-4 w-4" aria-hidden="true" />
               </Link>
             </div>
           )}
 
-          <p className="text-[11px] text-slate-500">
+          <p className="text-2xs leading-relaxed text-muted-foreground">
             A Íris lê o que você colou e escreve a interpretação. Os valores
             acima são somados aqui no navegador, não estimados. Conteúdo
             educacional — não é recomendação de investimento.
@@ -417,13 +434,13 @@ function Numero({
   tom: "bom" | "ruim";
 }) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-center">
-      <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+    <div className="rounded-2xl border border-border bg-muted/40 p-4 text-center">
+      <p className="text-2xs font-semibold uppercase tracking-wider text-muted-foreground">
         {rotulo}
       </p>
       <p
-        className={`mt-1 text-lg font-bold tabular-nums ${
-          tom === "bom" ? "text-emerald-700" : "text-slate-800"
+        className={`mt-1 break-words text-lg font-bold tabular-nums ${
+          tom === "bom" ? "text-success-strong" : "text-foreground"
         }`}
       >
         {valor}

@@ -11,7 +11,7 @@ import { InstagramLogo } from "@/components/LogosSociais";
  */
 export function SigaInstagram() {
   return (
-    <div className="glass-card overflow-hidden rounded-2xl p-5 text-white">
+    <div className="glass-card overflow-hidden rounded-2xl bg-primary p-5 text-white">
       <div className="flex items-center gap-3">
         <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white/10">
           <InstagramLogo className="h-5 w-5" />
