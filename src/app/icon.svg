@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Monograma do Workspace: navy da marca + ponto laranja do logo. -->
+  <rect width="64" height="64" rx="14" fill="hsl(215,50%,23%)"/>
+  <text x="30" y="45" font-family="Georgia, 'Times New Roman', serif" font-size="38" font-weight="bold" fill="#ffffff" text-anchor="middle">N</text>
+  <circle cx="47" cy="44" r="5" fill="hsl(16,80%,55%)"/>
+</svg>

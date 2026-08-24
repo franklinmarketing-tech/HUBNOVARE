@@ -1,0 +1,37 @@
+{
+  "name": "novare-hub",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit",
+    "test:motores": "node scripts/testar-trabalhista.mjs && node scripts/testar-previdencia.mjs && node scripts/testar-extrato.mjs",
+    "test:web": "node scripts/varredura.mjs && node scripts/garantia.mjs && node scripts/testar-nada-a-venda.mjs",
+    "test": "npm run typecheck && npm run test:motores"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@supabase/ssr": "^0.7.0",
+    "@supabase/supabase-js": "^2.58.0",
+    "lucide-react": "^1.29.0",
+    "next": "^15.5.4",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "recharts": "^3.10.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.1.13",
+    "@types/node": "^22.18.1",
+    "@types/react": "^19.1.12",
+    "@types/react-dom": "^19.1.9",
+    "axe-core": "^4.13.0",
+    "playwright": "^1.62.1",
+    "tailwindcss": "^4.1.13",
+    "typescript": "^5.9.2"
+  }
+}

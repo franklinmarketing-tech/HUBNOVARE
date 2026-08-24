@@ -1,0 +1,420 @@
+@import "tailwindcss";
+
+/* ==========================================================================
+   Tokens da Novare.
+   Extraídos do app em produção (novareapp) para o Hub ser a mesma marca.
+   ========================================================================== */
+@theme {
+  --color-background: hsl(0 0% 99%);
+  --color-foreground: hsl(220 20% 12%);
+
+  --color-card: hsl(0 0% 100%);
+  --color-border: hsl(220 13% 91%);
+  --color-muted: hsl(220 14% 95%);
+  --color-muted-foreground: hsl(220 9% 42%);
+
+  --color-primary: hsl(215 50% 23%);
+  --color-primary-foreground: hsl(0 0% 100%);
+  --color-primary-soft: hsl(215 45% 32%);
+  --color-primary-light: hsl(215 50% 96%);
+  --color-primary-bright: hsl(210 75% 62%);
+
+  --color-accent: hsl(16 80% 55%);
+  --color-accent-foreground: hsl(0 0% 100%);
+  --color-accent-strong: hsl(16 82% 36%);
+  --color-accent-soft: hsl(16 70% 82%);
+  --color-accent-tint: hsl(16 90% 96%);
+  /* Papéis do laranja, medidos pela régua da WCAG:
+     • accent (55%) é decoração — barras, ícones, detalhes.
+     • accent-btn (44%) é superfície que carrega TEXTO BRANCO: 4,77:1.
+       O laranja de 55% dava 3,40:1 e reprovava em todos os botões.
+     • accent-claro (68%) é TEXTO laranja sobre o navy escuro: 5,15:1.
+       O de 55% dava 3,59:1 nos chapéus das seções escuras. */
+  --color-accent-btn: hsl(16 80% 44%);
+  --color-accent-claro: hsl(16 88% 68%);
+
+  --color-success: hsl(152 55% 41%);
+  /* Verde que carrega texto branco: 5,52:1. O de 41% dava 3,23:1. */
+  --color-success-strong: hsl(152 55% 30%);
+  --color-warning: hsl(38 92% 50%);
+  /* Amarelo para texto pequeno sobre fundo escuro: 4,14:1 virava reprova. */
+  --color-warning-claro: hsl(38 95% 65%);
+  --color-destructive: hsl(0 72% 51%);
+
+  --font-sans: var(--font-inter), system-ui, -apple-system, sans-serif;
+  --font-display: var(--font-sora), system-ui, sans-serif;
+
+  /* Escala de fonte ENCOLHIDA — base 15px, não 16px.
+     É o que faz a interface parecer densa e cara em vez de inflada. */
+  --text-2xs: 0.75rem;
+  --text-2xs--line-height: 1.125rem;
+  --text-xs: 0.8125rem;
+  --text-xs--line-height: 1.25rem;
+  --text-sm: 0.875rem;
+  --text-sm--line-height: 1.375rem;
+  --text-base: 0.9375rem;
+  --text-base--line-height: 1.5625rem;
+  --text-lg: 1.0625rem;
+  --text-lg--line-height: 1.625rem;
+  --text-xl: 1.1875rem;
+  --text-xl--line-height: 1.75rem;
+  --text-2xl: 1.375rem;
+  --text-2xl--line-height: 1.875rem;
+  --text-3xl: 1.625rem;
+  --text-3xl--line-height: 2.125rem;
+  --text-4xl: 2.125rem;
+  --text-4xl--line-height: 2.625rem;
+  --text-5xl: 2.75rem;
+  --text-5xl--line-height: 3.25rem;
+
+  --radius: 0.75rem;
+
+  /* Sombras tintadas no navy da marca. Preto puro deixa a UI suja. */
+  --shadow-subtle: 0 1px 2px 0 hsl(220 20% 12% / 0.035);
+  --shadow-card: 0 1px 2px 0 hsl(220 20% 12% / 0.03),
+    0 1px 3px 0 hsl(220 20% 12% / 0.04);
+  --shadow-card-hover: 0 4px 14px -4px hsl(220 20% 12% / 0.08),
+    0 2px 6px -2px hsl(220 20% 12% / 0.05);
+  --shadow-elevated: 0 12px 32px -12px hsl(220 20% 12% / 0.12),
+    0 4px 12px -4px hsl(220 20% 12% / 0.05);
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    font-size: var(--text-base);
+    -webkit-font-smoothing: antialiased;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+
+  /* Headings com tracking negativo e escala fluida, como no app. */
+  h1 {
+    font-size: clamp(1.375rem, 1.2rem + 0.6vw, 1.625rem);
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    font-weight: 600;
+  }
+
+  h2 {
+    font-size: clamp(1.1875rem, 1.05rem + 0.45vw, 1.375rem);
+    line-height: 1.2;
+    letter-spacing: -0.018em;
+    font-weight: 600;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+}
+
+@layer components {
+  /* Item de catálogo: linha, não caixa. Densidade vem de tirar moldura. */
+  .item-linha {
+    transition:
+      background-color 180ms ease,
+      border-color 180ms ease;
+  }
+
+  .item-linha:hover {
+    background-color: hsl(215 50% 96% / 0.6);
+  }
+
+  /* Card com elevação discreta, usado só onde a hierarquia pede. */
+  .card-novare {
+    border-radius: 1rem;
+    border: 1px solid var(--color-border);
+    background: var(--color-card);
+    box-shadow: var(--shadow-card);
+    transition:
+      transform 200ms cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 200ms ease,
+      border-color 200ms ease;
+  }
+
+  .card-novare:hover {
+    transform: translateY(-2px);
+    border-color: var(--color-accent-soft);
+    box-shadow: var(--shadow-card-hover);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .card-novare:hover {
+      transform: none;
+    }
+  }
+
+  /* Card dos apps do Workspace: navy com duas auroras (laranja e azul).
+     É o palco do produto pago; aqui o cinema é bem-vindo. */
+
+
+  /* Aurora clara de fundo da página: luz suave nas bordas, sem sujar
+     o conteúdo. É o que separa "clean" de "sem vida". */
+  .aurora-clara {
+    position: relative;
+    isolation: isolate;
+  }
+
+  .aurora-clara::before {
+    content: "";
+    position: fixed;
+    inset: -12%;
+    z-index: -1;
+    pointer-events: none;
+    background:
+      radial-gradient(52rem 26rem at 88% -10%, hsl(16 90% 58% / 0.14), transparent 60%),
+      radial-gradient(46rem 24rem at -5% 5%, hsl(210 85% 60% / 0.12), transparent 55%),
+      radial-gradient(44rem 30rem at 55% 115%, hsl(152 60% 45% / 0.09), transparent 60%);
+    animation: aurora-deriva 26s ease-in-out infinite alternate;
+    will-change: transform;
+  }
+
+  /* A luz anda devagar pela página: vivo sem distrair. */
+  @keyframes aurora-deriva {
+    from { transform: translate3d(-2.5%, -1.5%, 0) scale(1); }
+    to { transform: translate3d(2.5%, 2%, 0) scale(1.06); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .aurora-clara::before { animation: none; }
+  }
+
+  /* Título de seção com profundidade: sombra em duas camadas (uma seca,
+     uma difusa na cor da marca) e o risco laranja que assina a Novare. */
+  .titulo-secao {
+    font-family: var(--font-display);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--color-primary);
+    text-shadow:
+      0 1px 0 hsl(0 0% 100% / 0.8),
+      0 6px 20px hsl(215 50% 23% / 0.25);
+  }
+
+  .titulo-secao::after {
+    content: "";
+    display: block;
+    margin-top: 7px;
+    height: 4px;
+    width: 46px;
+    border-radius: 9999px;
+    background: linear-gradient(90deg, hsl(16 80% 55%), hsl(16 80% 55% / 0));
+    box-shadow: 0 3px 10px -2px hsl(16 80% 45% / 0.5);
+  }
+
+  /* ------------------------------------------------------------------
+     Card cinematográfico: três camadas de luz que só acendem no hover.
+     Tudo em CSS puro e só transform/opacity, para rodar a 60fps.
+     ------------------------------------------------------------------ */
+  .glass-card {
+    position: relative;
+
+    isolation: isolate;
+    overflow: hidden;
+    transition:
+      transform 320ms cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 320ms cubic-bezier(0.22, 1, 0.36, 1),
+      border-color 320ms ease;
+  }
+
+  /* 1. Halo que segue o cursor (as coordenadas vêm de --mx/--my). */
+  .glass-card::before {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    z-index: 0;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 320ms ease;
+    background: radial-gradient(
+      18rem 18rem at var(--mx, 50%) var(--my, 0%),
+      var(--brilho, hsl(215 50% 45% / 0.16)),
+      transparent 60%
+    );
+  }
+
+  /* 2. Lâmina de luz que atravessa o card na diagonal. */
+  .glass-card::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: -60%;
+    width: 45%;
+    z-index: 0;
+    pointer-events: none;
+    transform: skewX(-18deg);
+    background: linear-gradient(
+      90deg,
+      transparent,
+      hsl(0 0% 100% / 0.42),
+      transparent
+    );
+    transition: left 620ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .glass-card:hover::before {
+    opacity: 1;
+  }
+
+  .glass-card:hover::after {
+    left: 130%;
+  }
+
+  /* O conteúdo fica acima das duas camadas de luz. */
+  .glass-card > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* 3. Elevação com sombra tintada na cor do próprio app. */
+  .glass-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--eleva, 0 18px 38px -16px hsl(215 50% 23% / 0.45));
+  }
+
+  /* Ícone do card acompanha o movimento, em profundidade. */
+  .glass-card:hover .tile-cine {
+    transform: translateY(-2px) scale(1.06);
+  }
+
+  .tile-cine {
+    transition: transform 320ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .glass-card,
+    .glass-card::after,
+    .tile-cine {
+      transition: none;
+    }
+    .glass-card:hover {
+      transform: none;
+    }
+    .glass-card:hover::after {
+      left: -60%;
+    }
+    .glass-card:hover .tile-cine {
+      transform: none;
+    }
+  }
+
+  /* Entrada suave das seções. */
+  .surgir {
+    animation: surgir 560ms cubic-bezier(0.2, 0.7, 0.3, 1) both;
+  }
+
+  @keyframes surgir {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: none; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .surgir { animation: none; }
+  }
+}
+
+/* ------------------------------------------------ fita de mercado ------ */
+
+/**
+ * O letreiro dos indicadores. Fundo navy da marca com duas luzes por cima,
+ * para o escuro não ficar chapado — é o mesmo tratamento dos cards, na
+ * horizontal.
+ */
+.fita-mercado {
+  background:
+    radial-gradient(
+      28rem 8rem at 12% 120%,
+      hsl(16 85% 55% / 0.22),
+      transparent 70%
+    ),
+    radial-gradient(
+      24rem 8rem at 88% -30%,
+      hsl(200 80% 55% / 0.18),
+      transparent 70%
+    ),
+    linear-gradient(100deg, hsl(215 50% 13%), hsl(215 55% 10%));
+  box-shadow:
+    inset 0 1px 0 hsl(0 0% 100% / 0.06),
+    0 10px 30px -18px hsl(215 50% 15% / 0.7);
+}
+
+/**
+ * A fita anda para a DIREITA. Como a lista está duplicada, sair de -50%
+ * (começo da segunda cópia) e chegar a 0 devolve o conteúdo à posição
+ * inicial — o laço fecha sem salto visível.
+ */
+@keyframes correr-fita {
+  from {
+    transform: translateX(-50%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+/* --------------------------------------------------- palco da Íris ----- */
+
+/**
+ * O fundo do veredito da Íris: navy com duas luzes e uma varredura lenta
+ * atravessando. É o único momento cinematográfico da tela, e vem logo
+ * depois da espera — quando a pessoa está olhando.
+ */
+.palco-iris {
+  background:
+    radial-gradient(32rem 12rem at 20% -20%, hsl(188 70% 50% / 0.28), transparent 70%),
+    radial-gradient(26rem 12rem at 85% 120%, hsl(16 85% 55% / 0.26), transparent 70%),
+    linear-gradient(150deg, hsl(215 50% 16%), hsl(215 55% 10%));
+}
+
+.palco-iris::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    100deg,
+    transparent 35%,
+    hsl(0 0% 100% / 0.07) 50%,
+    transparent 65%
+  );
+  transform: translateX(-100%);
+  animation: varrer-iris 3.6s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes varrer-iris {
+  0%, 100% { transform: translateX(-100%); }
+  55%      { transform: translateX(100%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .palco-iris::after { animation: none; }
+}
+
+
+/* ------------------------------------------------ rosto do Robô IA ---- */
+
+/**
+ * O palco do emoji do robô: navy da marca com um halo ciano por trás,
+ * para o personagem se destacar do card branco sem virar adesivo.
+ */
+.robo-novare-face {
+  background:
+    radial-gradient(circle at 50% 120%, hsl(188 70% 50% / 0.35), transparent 70%),
+    linear-gradient(145deg, hsl(215 50% 20%), hsl(215 55% 13%));
+  box-shadow:
+    inset 0 1px 0 hsl(0 0% 100% / 0.12),
+    0 8px 20px -10px hsl(215 50% 15% / 0.65);
+}
+
+/* Flutuar de leve: sinal de "vivo" que não rouba a atenção do texto. */
+@keyframes robo-flutua {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-2.5px); }
+}
