@@ -15,6 +15,7 @@ export const metadata: Metadata = {
     url: "/ferramentas/comprar-ou-alugar",
     type: "website",
     locale: "pt_BR",
+    images: ["/og.png"],
   },
 };
 

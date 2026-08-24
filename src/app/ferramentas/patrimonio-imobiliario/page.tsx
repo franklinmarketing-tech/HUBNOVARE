@@ -14,6 +14,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { brl, brlCurto, parseNumero, pct, rentabilidadeAluguel } from "@/lib/calculos";
+import { formatarMoedaInput, digitosParaReais } from "@/lib/moeda";
 import { novoId, useArmazenado } from "@/lib/useArmazenado";
 
 /* --------------------------------------------------------------------------
@@ -439,9 +440,9 @@ function CampoValor({
           R$
         </span>
         <input
-          inputMode="decimal"
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
+          inputMode="numeric"
+          value={formatarMoedaInput(value)}
+          onChange={(e) => onChange(digitosParaReais(e.target.value))}
           placeholder="0,00"
           className="h-11 w-full rounded-xl border border-slate-200 bg-white px-3.5 pl-9 text-[0.9375rem] tabular-nums outline-none focus:border-accent focus:ring-4 focus:ring-accent/12"
         />

@@ -15,6 +15,7 @@ export const metadata: Metadata = {
     url: "/ferramentas/juros-compostos",
     type: "website",
     locale: "pt_BR",
+    images: ["/og.png"],
   },
 };
 

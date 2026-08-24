@@ -11,6 +11,7 @@ import {
   Wallet,
 } from "lucide-react";
 import { brl, parseNumero, pct } from "@/lib/calculos";
+import { formatarMoedaInput, digitosParaReais } from "@/lib/moeda";
 import { novoId, useArmazenado } from "@/lib/useArmazenado";
 
 /* -------------------------------------------------------------------------- */
@@ -166,9 +167,9 @@ export default function OrcamentoPage() {
               </span>
               <input
                 id={idCampo}
-                inputMode="decimal"
-                value={dados.renda}
-                onChange={(e) => setRenda(e.target.value)}
+                inputMode="numeric"
+                value={formatarMoedaInput(dados.renda)}
+                onChange={(e) => setRenda(digitosParaReais(e.target.value))}
                 placeholder="5.000"
                 className="h-11 w-full rounded-xl border border-slate-200 bg-white px-3.5 pl-9 text-[0.9375rem] tabular-nums outline-none focus:border-accent focus:ring-4 focus:ring-accent/12"
               />
@@ -243,10 +244,12 @@ export default function OrcamentoPage() {
                       R$
                     </span>
                     <input
-                      inputMode="decimal"
-                      value={c.valor}
+                      inputMode="numeric"
+                      value={formatarMoedaInput(c.valor)}
                       onChange={(e) =>
-                        alterarCategoria(c.id, { valor: e.target.value })
+                        alterarCategoria(c.id, {
+                          valor: digitosParaReais(e.target.value),
+                        })
                       }
                       placeholder="0,00"
                       aria-label="Valor planejado"

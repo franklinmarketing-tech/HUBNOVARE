@@ -10,7 +10,7 @@ import { CONSULTORIAS, ROTULO_DESCONTO, ROTULO_DESCONTO_NEUTRO } from "@/lib/con
 import { getPerfil } from "@/lib/perfil";
 
 export const metadata: Metadata = {
-  title: ASSINATURA_ATIVA ? "Assine o Workspace" : "Novare Workspace",
+  title: ASSINATURA_ATIVA ? "Assine o Workspace" : "O que o Workspace inclui",
   description: ASSINATURA_ATIVA
     ? "Uma assinatura que libera o Vida Plan, a Íris e desconto exclusivo em toda consultoria particular da Novare."
     : `Hoje tudo está liberado, sem assinatura: as ${CONTAGEM.ferramentas} ferramentas, o Vida Plan e a Íris. Em breve o Workspace vira um plano PRO.`,

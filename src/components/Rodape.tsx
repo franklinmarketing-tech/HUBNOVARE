@@ -29,7 +29,9 @@ export function Rodape() {
           </p>
         </div>
 
-        <div className="flex items-center gap-4">
+        {/* flex-wrap + gap-y: com três redes sociais a linha não cabe em 390px
+            e empurrava a página inteira para o lado. */}
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
           <Link
             href="/profissionais"
             className="text-[11px] font-medium text-slate-500 transition-colors hover:text-primary"

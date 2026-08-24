@@ -1,6 +1,6 @@
 node_modules
-.next
-.next-dev
+# .next, .next-dev e variações (o dev server usa NEXT_DIST_DIR)
+.next*
 out
 build
 dist

@@ -16,7 +16,7 @@ import {
 import { Cabecalho } from "@/components/Cabecalho";
 
 export const metadata: Metadata = {
-  title: "Política de Privacidade | Novare",
+  title: "Política de Privacidade",
   description:
     "Como a Novare Consultoria de Investimentos coleta, usa, compartilha e protege os dados pessoais tratados no Workspace Novare, em conformidade com a LGPD (Lei nº 13.709/2018).",
 };

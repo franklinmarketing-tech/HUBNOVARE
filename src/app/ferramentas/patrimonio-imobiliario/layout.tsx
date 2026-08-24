@@ -15,6 +15,7 @@ export const metadata: Metadata = {
     url: "/ferramentas/patrimonio-imobiliario",
     type: "website",
     locale: "pt_BR",
+    images: ["/og.png"],
   },
 };
 

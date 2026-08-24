@@ -12,6 +12,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { brl, parseNumero, pct, reservaEmergencia } from "@/lib/calculos";
+import { formatarMoedaInput, digitosParaReais } from "@/lib/moeda";
 
 /* -------------------------------------------------------------------------- */
 
@@ -109,9 +110,9 @@ export default function ReservaPage() {
                   R$
                 </span>
                 <input id="custo-de-vida-mensal"
-                  inputMode="decimal"
-                  value={custo}
-                  onChange={(e) => setCusto(e.target.value)}
+                  inputMode="numeric"
+                  value={formatarMoedaInput(custo)}
+                  onChange={(e) => setCusto(digitosParaReais(e.target.value))}
                   placeholder="0,00"
                   className="h-11 w-full rounded-xl border border-slate-200 bg-white px-3.5 pl-9 text-[0.9375rem] tabular-nums outline-none focus:border-accent focus:ring-4 focus:ring-accent/12"
                 />
@@ -142,9 +143,9 @@ export default function ReservaPage() {
                   R$
                 </span>
                 <input id="quanto-ja-guardado"
-                  inputMode="decimal"
-                  value={jaGuardado}
-                  onChange={(e) => setJaGuardado(e.target.value)}
+                  inputMode="numeric"
+                  value={formatarMoedaInput(jaGuardado)}
+                  onChange={(e) => setJaGuardado(digitosParaReais(e.target.value))}
                   placeholder="0,00"
                   className="h-11 w-full rounded-xl border border-slate-200 bg-white px-3.5 pl-9 text-[0.9375rem] tabular-nums outline-none focus:border-accent focus:ring-4 focus:ring-accent/12"
                 />
@@ -159,9 +160,9 @@ export default function ReservaPage() {
                   R$
                 </span>
                 <input id="aporte-mensal"
-                  inputMode="decimal"
-                  value={aporte}
-                  onChange={(e) => setAporte(e.target.value)}
+                  inputMode="numeric"
+                  value={formatarMoedaInput(aporte)}
+                  onChange={(e) => setAporte(digitosParaReais(e.target.value))}
                   placeholder="0,00"
                   className="h-11 w-full rounded-xl border border-slate-200 bg-white px-3.5 pl-9 text-[0.9375rem] tabular-nums outline-none focus:border-accent focus:ring-4 focus:ring-accent/12"
                 />

@@ -15,6 +15,7 @@ export const metadata: Metadata = {
     url: "/ferramentas/dashboard-patrimonial",
     type: "website",
     locale: "pt_BR",
+    images: ["/og.png"],
   },
 };
 

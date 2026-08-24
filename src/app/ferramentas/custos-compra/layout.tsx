@@ -15,6 +15,7 @@ export const metadata: Metadata = {
     url: "/ferramentas/custos-compra",
     type: "website",
     locale: "pt_BR",
+    images: ["/og.png"],
   },
 };
 

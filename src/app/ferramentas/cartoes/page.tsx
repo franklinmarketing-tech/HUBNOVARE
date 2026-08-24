@@ -14,6 +14,7 @@ import {
   Wallet,
 } from "lucide-react";
 import { brl, parseNumero, pct } from "@/lib/calculos";
+import { formatarMoedaInput, digitosParaReais } from "@/lib/moeda";
 import { novoId, useArmazenado } from "@/lib/useArmazenado";
 
 /* -------------------------------------------------------------------------- */
@@ -168,9 +169,9 @@ export default function CartoesPage() {
                   R$
                 </span>
                 <input id="limite"
-                  inputMode="decimal"
-                  value={limite}
-                  onChange={(e) => setLimite(e.target.value)}
+                  inputMode="numeric"
+                  value={formatarMoedaInput(limite)}
+                  onChange={(e) => setLimite(digitosParaReais(e.target.value))}
                   placeholder="0,00"
                   className="h-11 w-full rounded-xl border border-slate-200 bg-white px-3.5 pl-9 text-[0.9375rem] tabular-nums outline-none focus:border-accent focus:ring-4 focus:ring-accent/12"
                 />
@@ -185,9 +186,9 @@ export default function CartoesPage() {
                   R$
                 </span>
                 <input id="fatura-atual"
-                  inputMode="decimal"
-                  value={fatura}
-                  onChange={(e) => setFatura(e.target.value)}
+                  inputMode="numeric"
+                  value={formatarMoedaInput(fatura)}
+                  onChange={(e) => setFatura(digitosParaReais(e.target.value))}
                   placeholder="0,00"
                   className="h-11 w-full rounded-xl border border-slate-200 bg-white px-3.5 pl-9 text-[0.9375rem] tabular-nums outline-none focus:border-accent focus:ring-4 focus:ring-accent/12"
                 />

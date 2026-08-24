@@ -111,11 +111,13 @@ for (const rota of PAGINAS_CRUD) {
 /* ============================== NÍVEL B ============================== */
 console.log("--- Nível B: valores exatos ---");
 
-// IR: renda 120.000 sem deduções = 22.248 (tabela anual ano-base 2025)
+// IR: renda 120.000 sem deduções = 22.248 (tabela anual ano-base 2025).
+// O campo usa a máscara de dinheiro estilo caixa: os dígitos entram como
+// CENTAVOS, então R$ 120.000,00 se digita como "12000000".
 await abrir("/ferramentas/ir");
 {
   const campos = pagina.locator('main input[placeholder="0,00"]');
-  await campos.first().fill("120000");
+  await campos.first().fill("12000000");
   await pagina.waitForTimeout(500);
   conferir(
     "IR anual de 120 mil = 22.248",
@@ -199,7 +201,8 @@ await abrir("/ferramentas/patrimonio");
   await pagina
     .locator('main input[placeholder="Apartamento, carro, CDB, conta corrente..."]')
     .fill("Apartamento");
-  await pagina.locator('main input[placeholder="0,00"]').first().fill("500000");
+  // Máscara de dinheiro: dígitos entram como CENTAVOS → R$ 500.000,00.
+  await pagina.locator('main input[placeholder="0,00"]').first().fill("50000000");
   await pagina.getByRole("button", { name: /adicionar ativo/i }).click();
   await pagina.waitForTimeout(400);
   const texto = await pagina.evaluate(() => document.body.innerText);

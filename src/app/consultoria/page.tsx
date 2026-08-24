@@ -26,7 +26,7 @@ import { falarNoWhatsApp } from "@/lib/contato";
 import { getPerfil } from "@/lib/perfil";
 
 export const metadata: Metadata = {
-  title: "Produtos e Consultoria Particular | Novare",
+  title: "Produtos e Consultoria Particular",
   description:
     "Conheça os 5 produtos e formatos de consultoria da Novare, do Diagnóstico Gratuito à Consultoria de Investimentos em parceria com a Nord Research.",
 };

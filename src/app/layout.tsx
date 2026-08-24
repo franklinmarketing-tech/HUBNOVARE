@@ -27,8 +27,10 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "Novare Hub",
-    template: "%s · Novare Hub",
+    // "Novare Workspace" é o nome do produto no briefing e no manifest —
+    // o site inteiro fala uma marca só.
+    default: "Novare Workspace",
+    template: "%s · Novare Workspace",
   },
   description:
     "O ponto de entrada da Novare: todos os seus planos, simuladores e ferramentas em um lugar só.",

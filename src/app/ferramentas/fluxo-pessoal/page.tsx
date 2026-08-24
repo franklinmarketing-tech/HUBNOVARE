@@ -22,6 +22,7 @@ import {
   Waves,
 } from "lucide-react";
 import { brl, parseNumero, pct } from "@/lib/calculos";
+import { formatarMoedaInput, digitosParaReais } from "@/lib/moeda";
 import { novoId, useArmazenado } from "@/lib/useArmazenado";
 
 /* -------------------------------------------------------------------------- */
@@ -192,9 +193,9 @@ export default function FluxoPessoalPage() {
                   R$
                 </span>
                 <input id="valor-por-mes"
-                  inputMode="decimal"
-                  value={valor}
-                  onChange={(e) => setValor(e.target.value)}
+                  inputMode="numeric"
+                  value={formatarMoedaInput(valor)}
+                  onChange={(e) => setValor(digitosParaReais(e.target.value))}
                   placeholder="0,00"
                   className="h-11 w-full rounded-xl border border-slate-200 bg-white px-3.5 pl-9 text-[0.9375rem] tabular-nums outline-none focus:border-accent focus:ring-4 focus:ring-accent/12"
                 />
