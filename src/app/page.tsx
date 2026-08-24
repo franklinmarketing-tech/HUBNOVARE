@@ -43,20 +43,19 @@ export default async function Home() {
           portais={areas}
         />
 
-        {/* Sem `overflow-hidden` aqui de propósito: forçar a home a caber em
-            uma tela só cortava o conteúdo em silêncio e espremia o rodapé
-            contra a borda. Conteúdo visível vale mais do que ausência de
-            rolagem — em tela cheia ela continua cabendo. */}
-        <main className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-3 px-5 pb-8 pt-3 [@media(max-height:760px)]:gap-2.5">
+        {/* A home cabe em uma tela porque o CONTEÚDO é compacto, não porque
+            está recortado: já tentamos `overflow-hidden` aqui e ele cortava
+            blocos em silêncio e espremia o rodapé contra a borda. */}
+        <main className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-2.5 px-5 pb-3 pt-2.5 [@media(max-height:800px)]:gap-2">
           {/* Fita de indicadores do mercado ao vivo (SELIC, CDI, IPCA...) */}
           <BarraMercado />
 
           <section className="surgir flex flex-wrap items-end justify-between gap-4">
             <div>
-              <h1 className="titulo-secao text-2xl sm:text-[1.9rem] [@media(max-height:760px)]:text-xl">
+              <h1 className="titulo-secao text-2xl sm:text-[1.9rem] [@media(max-height:820px)]:text-xl">
                 Ecossistema Novare
               </h1>
-              <p className="mt-1 max-w-lg text-sm text-muted-foreground [@media(max-height:760px)]:hidden">
+              <p className="mt-1 max-w-lg text-sm text-muted-foreground [@media(max-height:820px)]:hidden">
                 Organizar, investir e decidir com clareza. Sem comissão, sem
                 letra miúda.
               </p>
@@ -77,7 +76,11 @@ export default async function Home() {
             ))}
           </section>
 
-          <RoboNovare />
+          {/* Em tela baixa (notebook 768px) o robô sai para a home caber
+              inteira sem rolagem — ele é enfeite vivo, não conteúdo. */}
+          <div className="[@media(max-height:820px)]:hidden">
+            <RoboNovare />
+          </div>
 
           {/* O único produto pago tem lugar só dele, antes das iscas grátis. */}
           <CardVidaPlanHome />

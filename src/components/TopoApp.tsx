@@ -46,8 +46,10 @@ export function TopoApp({
           />
         </Link>
 
-        {/* Selo de parceria oficial com a Nord Investimentos */}
-        <div className="hidden shrink-0 items-center gap-2 border-l border-slate-200 pl-3 lg:flex">
+        {/* Selo de parceria oficial com a Nord Investimentos.
+            Só a partir de 2xl: entre 1280 e 1536 ele disputava espaço com o
+            menu de áreas e empurrava o botão "Entrar" para fora da tela. */}
+        <div className="hidden shrink-0 items-center gap-2 border-l border-slate-200 pl-3 2xl:flex">
           <span className="text-[9px] font-semibold uppercase tracking-wider text-slate-400">
             Parceiro
           </span>
