@@ -3,58 +3,59 @@ import { ArrowRight, Target } from "lucide-react";
 import { VIDA_PLAN_PRECO_ROTULO } from "@/lib/vidaplan";
 
 /**
- * O card do Vida Plan na home.
+ * O Vida Plan como PRIMEIRO card da home.
  *
- * É o único produto pago do Workspace, então ganha uma faixa só dele — navy,
- * enquanto o resto da home é claro. Compacto de propósito: a home cabe em uma
- * tela, e o detalhe do produto mora na landing page. O clique leva para lá,
- * onde a pessoa entende o produto antes de ver o pop-up de assinatura.
+ * Tem a mesma forma dos cards de área para a fileira não ficar torta, mas
+ * carrega o selo PRO e o laranja da marca — enquanto as áreas gratuitas
+ * ficam na cor delas com o selo "Grátis". É a única coisa que se compra no
+ * Workspace, e a home deixa isso explícito num olhar.
  */
 export function CardVidaPlanHome() {
   return (
     <Link
       href="/vida-plan"
-      className="glass-card group relative flex items-center gap-4 overflow-hidden rounded-2xl bg-primary px-5 py-4 text-white shadow-[0_10px_26px_-14px_hsl(215_50%_23%_/_0.5)]"
+      className="@container glass-card group relative flex h-full flex-col justify-between overflow-hidden rounded-2xl p-5 text-white shadow-[0_10px_26px_-14px_hsl(16_80%_35%_/_0.5)]"
+      style={{
+        background:
+          "linear-gradient(155deg, hsl(16 78% 40%) 0%, hsl(14 70% 26%) 100%)",
+      }}
     >
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0"
         style={{
           background:
-            "radial-gradient(14rem 8rem at 86% -20%, hsl(16 90% 58% / 0.34), transparent 62%)",
+            "radial-gradient(16rem 9rem at 82% -8%, hsl(38 95% 62% / 0.42), transparent 62%)",
         }}
       />
 
-      <span className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/[0.14]">
-        <Target className="h-5 w-5" strokeWidth={1.75} />
-      </span>
+      <div className="relative flex items-start justify-between">
+        <span className="tile-cine flex h-11 w-11 items-center justify-center rounded-xl bg-white/[0.18] backdrop-blur-sm">
+          <Target className="h-5 w-5" strokeWidth={1.75} />
+        </span>
+        <span className="rounded-md bg-white px-1.5 py-0.5 text-2xs font-extrabold uppercase tracking-wider text-accent-strong">
+          PRO
+        </span>
+      </div>
 
-      <div className="relative min-w-0 flex-1">
-        <div className="flex flex-wrap items-center gap-2">
-          <h3 className="font-display text-base font-bold leading-tight sm:text-lg">
-            Vida Plan
-          </h3>
-          <span className="rounded-md bg-accent-btn px-1.5 py-0.5 text-2xs font-extrabold uppercase tracking-wider">
-            Assinatura
-          </span>
-        </div>
-        <p className="mt-0.5 line-clamp-2 text-xs text-white/75 sm:line-clamp-1">
-          Seus objetivos viram um número só — o Marco Horizonte — com um consultor
-          acompanhando. Cancele quando quiser.
+      <div className="relative mt-5">
+        <h3 className="font-display text-lg font-extrabold uppercase tracking-tight @[15rem]:text-xl">
+          Vida Plan
+        </h3>
+        <p className="mt-1 line-clamp-2 text-xs leading-snug text-white/80">
+          Seus objetivos viram um número só, com um consultor acompanhando.
         </p>
       </div>
 
-      <div className="relative hidden shrink-0 text-right sm:block">
-        <p className="font-display text-lg font-black leading-none tabular-nums">
-          {VIDA_PLAN_PRECO_ROTULO}
-        </p>
-        <p className="text-2xs text-white/60">por mês</p>
+      <div className="relative mt-5 flex items-center justify-between border-t border-white/20 pt-3">
+        <span className="flex items-center gap-1.5 text-sm font-bold">
+          Assinar
+          <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+        </span>
+        <span className="text-[11px] font-bold tabular-nums text-white/85">
+          {VIDA_PLAN_PRECO_ROTULO}/mês
+        </span>
       </div>
-
-      <span className="relative inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-accent-btn px-4 py-2.5 text-xs font-bold transition-colors group-hover:bg-accent-strong sm:text-sm">
-        Conhecer
-        <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-      </span>
     </Link>
   );
 }

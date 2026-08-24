@@ -143,7 +143,7 @@ export const ARTIGOS: Artigo[] = [
     titulo: "Financiar carro é diferente de financiar casa — e a conta muda tudo",
     resumo:
       "O carro perde valor todo mês; a casa, historicamente, não. Isso muda qual sistema de amortização faz mais sentido, e por quanto tempo vale a pena esticar o prazo.",
-    categoria: "simuladores",
+    categoria: "organizacao",
     data: "2026-03-25",
     tempoLeituraMin: 5,
     capa: "/cards/card-dividas.webp",
@@ -357,7 +357,7 @@ export const ARTIGOS: Artigo[] = [
     titulo: "Juros compostos: o aporte pequeno que vence o grande",
     resumo:
       "No juro composto, o rendimento rende sobre o rendimento — e o tempo pesa mais que o valor. É por isso que começar cedo com pouco costuma vencer começar tarde com muito.",
-    categoria: "simuladores",
+    categoria: "organizacao",
     data: "2026-06-05",
     tempoLeituraMin: 4,
     capa: "/cards/card-simulador.webp",
@@ -379,7 +379,7 @@ export const ARTIGOS: Artigo[] = [
     titulo: "SAC ou Price: a diferença que o gerente não explica",
     resumo:
       "Na SAC a parcela começa maior e cai todo mês; na Price ela é fixa, mas o total de juros sai mais caro. A escolha é entre o orçamento de hoje e o custo do contrato inteiro.",
-    categoria: "simuladores",
+    categoria: "organizacao",
     data: "2026-05-20",
     tempoLeituraMin: 5,
     capa: "/cards/card-dividas.webp",
@@ -401,7 +401,7 @@ export const ARTIGOS: Artigo[] = [
     titulo: "Amortizar o financiamento: reduzir prazo ou parcela?",
     resumo:
       "Ao usar um dinheiro extra para abater o saldo, cortar PRAZO quase sempre economiza muito mais juros do que reduzir a parcela — e o motivo é mais simples do que parece.",
-    categoria: "simuladores",
+    categoria: "organizacao",
     data: "2026-04-28",
     tempoLeituraMin: 4,
     capa: "/cards/card-calculadora.webp",

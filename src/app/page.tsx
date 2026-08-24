@@ -63,13 +63,17 @@ export default async function Home() {
             <BuscaDestaque />
           </section>
 
-          {/* As cinco áreas, cada uma com a sua cor. */}
+          {/* O Vida Plan abre a fileira com o selo PRO; as áreas gratuitas
+              seguem com o selo Grátis. Um olhar já diz o que se compra. */}
           <section className="grid gap-3.5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+            <div className="surgir">
+              <CardVidaPlanHome />
+            </div>
             {areas.map((area, i) => (
               <div
                 key={area.chave}
                 className="surgir"
-                style={{ animationDelay: `${i * 70}ms` }}
+                style={{ animationDelay: `${(i + 1) * 70}ms` }}
               >
                 <CardPortal portal={area} />
               </div>
@@ -81,9 +85,6 @@ export default async function Home() {
           <div className="[@media(max-height:820px)]:hidden">
             <RoboNovare />
           </div>
-
-          {/* O único produto pago tem lugar só dele, antes das iscas grátis. */}
-          <CardVidaPlanHome />
 
           <div className="grid gap-3 lg:grid-cols-2">
             <CardDiagnosticoDestaque />

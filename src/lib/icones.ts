@@ -164,7 +164,6 @@ const TONS: Record<Familia | "workspace" | "interno", [number, number]> = {
   ia: [188, 62],
   organizacao: [215, 55],
   investimentos: [152, 55],
-  simuladores: [16, 70],
   trabalho: [40, 65],
   interno: [220, 12],
 };
@@ -202,7 +201,6 @@ const RAIOS: Record<Familia | "workspace" | "interno", string> = {
   ia: "rounded-[14px]",
   organizacao: "rounded-xl",
   investimentos: "rounded-full",
-  simuladores: "rounded-tl-2xl rounded-br-2xl rounded-tr-md rounded-bl-md",
   trabalho: "rounded-t-lg rounded-b-[22px]",
   interno: "rounded-lg",
 };

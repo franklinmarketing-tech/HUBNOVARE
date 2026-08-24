@@ -57,13 +57,6 @@ const CONFIG: Record<
     h: 152,
     s: 55,
   },
-  simuladores: {
-    curto: "Simuladores",
-    descricao: "Casa, carro, empréstimo e aportes",
-    capa: "/cards/card-dividas.webp",
-    h: 16,
-    s: 70,
-  },
   trabalho: {
     curto: "Trabalho",
     descricao: "Salário, férias, rescisão: a conta certa",

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import type { CSSProperties } from "react";
 import { iconeDe } from "@/lib/icones";
 import type { Portal } from "@/lib/categorias";
@@ -41,10 +41,10 @@ export function CardPortal({ portal }: { portal: Portal }) {
         <span className="tile-cine flex h-11 w-11 items-center justify-center rounded-xl bg-white/[0.14] backdrop-blur-sm">
           <IconePrincipal className="h-5 w-5" strokeWidth={1.75} />
         </span>
-        <ArrowUpRight
-          className="h-4 w-4 text-white/50 transition-colors group-hover:text-white"
-          strokeWidth={2}
-        />
+        {/* Selo Grátis: deixa explícito que só o Vida Plan é pago. */}
+        <span className="rounded-md bg-white/[0.16] px-1.5 py-0.5 text-2xs font-extrabold uppercase tracking-wider text-white/80">
+          Grátis
+        </span>
       </div>
 
       <div className="relative mt-5">
@@ -57,7 +57,10 @@ export function CardPortal({ portal }: { portal: Portal }) {
       </div>
 
       <div className="relative mt-5 flex items-center justify-between border-t border-white/[0.14] pt-3">
-        <span className="text-sm font-bold">Acessar</span>
+        <span className="flex items-center gap-1.5 text-sm font-bold">
+          Acessar
+          <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+        </span>
         <span className="text-[11px] font-medium text-white/55">
           {portal.total} ferramentas
         </span>

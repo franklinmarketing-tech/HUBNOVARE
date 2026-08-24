@@ -26,8 +26,7 @@ export type Familia =
   | "ia"
   | "organizacao"
   | "trabalho"
-  | "investimentos"
-  | "simuladores";
+  | "investimentos";
 
 export type NovareApp = {
   slug: string;
@@ -213,12 +212,12 @@ export const APPS: NovareApp[] = [
   // ============================================ SIMULADORES
   // O crédito que mais cresce no país: 53% dos brasileiros já usaram,
   // e o aplicativo nunca mostra a taxa.
-  app("simuladores", "juros-compostos", "Juros Compostos", "O tempo trabalhando por você", "/ferramentas/juros-compostos", "Investor.gov"),
+  app("organizacao", "juros-compostos", "Juros Compostos", "O tempo trabalhando por você", "/ferramentas/juros-compostos", "Investor.gov"),
 
   // =========================================== 31 a 40 · IMOBILIÁRIO
-  app("simuladores", "simulador-financiamento", "Financiamento da Casa", "A casa própria de olhos abertos", "/ferramentas/financiamento?tipo=casa", "Rocket Mortgage"),
-  app("simuladores", "financiamento-carro", "Financiamento do Carro", "A parcela e o custo real do veículo", "/ferramentas/financiamento?tipo=carro", "Bankrate"),
-  app("simuladores", "simulador-amortizacao", "Simulador de Amortização", "Prazo ou parcela? Veja a diferença", "/ferramentas/amortizacao", "Bankrate"),
+  app("organizacao", "simulador-financiamento", "Financiamento da Casa", "A casa própria de olhos abertos", "/ferramentas/financiamento?tipo=casa", "Rocket Mortgage"),
+  app("organizacao", "financiamento-carro", "Financiamento do Carro", "A parcela e o custo real do veículo", "/ferramentas/financiamento?tipo=carro", "Bankrate"),
+  app("organizacao", "simulador-amortizacao", "Simulador de Amortização", "Prazo ou parcela? Veja a diferença", "/ferramentas/amortizacao", "Bankrate"),
 
   // ============================================ 41 a 50 · PATRIMÔNIO
 
@@ -279,9 +278,9 @@ export const APPS: NovareApp[] = [
  * linha daqui, colar no `APPS` acima e conferir o ícone em `icones.ts`.
  * As páginas continuam todas no disco, em src/app/ferramentas/.
  *
- * app("simuladores", "pix-parcelado", "Pix Parcelado", "A taxa que o app não mostra", "/ferramentas/pix-parcelado", "Serasa"),
+ * app("organizacao", "pix-parcelado", "Pix Parcelado", "A taxa que o app não mostra", "/ferramentas/pix-parcelado", "Serasa"),
  *   motivo: fora do foco: o Workspace é sobre construir patrimônio, não sobre crédito caro
- * app("simuladores", "simulador-emprestimos", "Simulador de Empréstimos", "O custo real antes de assinar", "/ferramentas/emprestimos", "Bankrate"),
+ * app("organizacao", "simulador-emprestimos", "Simulador de Empréstimos", "O custo real antes de assinar", "/ferramentas/emprestimos", "Bankrate"),
  *   motivo: mesmo terreno do Pix Parcelado — crédito pessoal saiu junto
  *
  * app("ia", "assistente-ia", "Assistente Financeiro", "Pergunte como a um consultor", "/ferramentas/consultor", "Cleo AI", { status: "beta" }),
@@ -296,21 +295,21 @@ export const APPS: NovareApp[] = [
  *   motivo: pede os três últimos salários e só serve no mês da demissão
  * app("trabalho", "imposto-de-renda", "Imposto de Renda", "Quanto você paga no ano", "/ferramentas/ir", "Receita Federal"),
  *   motivo: pede total de deduções do ano, dado que ninguém tem de cabeça
- * app("simuladores", "calculadora-cet", "Calculadora CET", "O custo efetivo total, sem letra miúda", "/ferramentas/cet", "NerdWallet"),
+ * app("organizacao", "calculadora-cet", "Calculadora CET", "O custo efetivo total, sem letra miúda", "/ferramentas/cet", "NerdWallet"),
  *   motivo: mesma conta inversa do Pix Parcelado, que já revela a taxa escondida
- * app("simuladores", "credito-consignado", "Crédito Consignado", "Margem e custo do desconto em folha", "/ferramentas/consignado", "SoFi"),
+ * app("organizacao", "credito-consignado", "Crédito Consignado", "Margem e custo do desconto em folha", "/ferramentas/consignado", "SoFi"),
  *   motivo: pede margem consignável; só serve a aposentado, servidor ou CLT com convênio
- * app("simuladores", "capacidade-endividamento", "Capacidade de Endividamento", "Quanto cabe no seu orçamento", "/ferramentas/capacidade", "NerdWallet"),
+ * app("organizacao", "capacidade-endividamento", "Capacidade de Endividamento", "Quanto cabe no seu orçamento", "/ferramentas/capacidade", "NerdWallet"),
  *   motivo: pede a taxa de um crédito que ainda não existe
- * app("simuladores", "comprar-ou-alugar", "Comprar ou Alugar", "A conta que ninguém faz direito", "/ferramentas/comprar-ou-alugar", "NYT Rent vs Buy"),
+ * app("organizacao", "comprar-ou-alugar", "Comprar ou Alugar", "A conta que ninguém faz direito", "/ferramentas/comprar-ou-alugar", "NYT Rent vs Buy"),
  *   motivo: 9 campos, com valorização e inflação que ninguém sabe arbitrar
- * app("simuladores", "custos-compra", "Custos da Compra", "ITBI, cartório e o resto", "/ferramentas/custos-compra", "Realtor.com"),
+ * app("organizacao", "custos-compra", "Custos da Compra", "ITBI, cartório e o resto", "/ferramentas/custos-compra", "Realtor.com"),
  *   motivo: ITBI e cartório em %: só quem já está fechando escritura tem esses números
  * * app("patrimonio", "assistente-ia", "Assistente Financeiro com IA", "Pergunte como a um consultor", "/ferramentas/consultor", "Cleo AI", { status: "beta" }),
  *   motivo: canibaliza a Íris, que é o produto de IA da casa
  *
  * app("investimentos", "simulador-aportes", "Simulador de Aportes", "Quanto aportar para chegar lá", "/ferramentas/aportes", "Portfolio Visualizer"),
- * app("simuladores", "sac-x-price", "SAC x PRICE", "As duas tabelas lado a lado", "/ferramentas/sac-price", "Calculator.net"),
+ * app("organizacao", "sac-x-price", "SAC x PRICE", "As duas tabelas lado a lado", "/ferramentas/sac-price", "Calculator.net"),
  *
  * app("patrimonio", "patrimonio-liquido", "Patrimônio Líquido", "O número que resume sua vida", "/ferramentas/patrimonio", "Empower Dashboard"),
  * app("patrimonio", "dashboard-patrimonial", "Dashboard Patrimonial", "Tudo o que você tem, num painel", "/ferramentas/dashboard-patrimonial", "Monarch Money"),
@@ -332,17 +331,17 @@ export const APPS: NovareApp[] = [
  * app("investimentos", "calculadora-dividendos", "Calculadora de Dividendos", "Quanto sua carteira paga por mês", "/ferramentas/dividendos", "Snowball Analytics"),
  * app("investimentos", "rebalanceador", "Rebalanceador de Carteira", "Volte à alocação alvo", "/ferramentas/rebalanceador", "M1 Finance"),
  * app("investimentos", "raio-x-carteira", "Raio-X da Carteira", "Concentração e risco expostos", "/ferramentas/raio-x", "Morningstar X-Ray"),
- * app("simuladores", "portabilidade", "Portabilidade de Dívida", "Leve seu contrato para taxa menor", "/ferramentas/portabilidade", "LendingTree"),
- * app("simuladores", "renegociacao", "Renegociação de Dívidas", "Qual proposta aceitar", "/ferramentas/renegociacao", "Credit Karma"),
- * app("simuladores", "home-equity", "Home Equity", "Crédito com imóvel em garantia", "/ferramentas/home-equity", "Rocket Mortgage"),
- * app("simuladores", "simulador-consorcio", "Simulador de Consórcio", "Consórcio ou financiamento", "/ferramentas/consorcio", "Bankrate"),
- * app("simuladores", "quitacao-antecipada", "Quitação Antecipada", "Quanto você economiza adiantando", "/ferramentas/quitacao", "Bankrate"),
- * app("simuladores", "potencial-compra", "Potencial de Compra", "Qual imóvel cabe no seu bolso", "/ferramentas/potencial-compra", "Zillow Affordability"),
- * app("simuladores", "valorizacao-imoveis", "Valorização de Imóveis", "Quanto seu imóvel rendeu de verdade", "/ferramentas/valorizacao", "Zillow"),
- * app("simuladores", "rentabilidade-aluguel", "Rentabilidade de Aluguel", "O yield do seu investimento", "/ferramentas/rentabilidade-aluguel", "BiggerPockets"),
- * app("simuladores", "planejamento-entrada", "Planejamento da Entrada", "Quanto juntar e em quanto tempo", "/ferramentas/entrada", "Rocket Mortgage"),
- * app("simuladores", "comparador-bancos", "Comparador de Bancos", "Mesma casa, propostas diferentes", "/ferramentas/comparador-bancos", "LendingTree"),
- * app("simuladores", "patrimonio-imobiliario", "Patrimônio Imobiliário", "Seus imóveis num painel só", "/ferramentas/patrimonio-imobiliario", "Empower"),
+ * app("organizacao", "portabilidade", "Portabilidade de Dívida", "Leve seu contrato para taxa menor", "/ferramentas/portabilidade", "LendingTree"),
+ * app("organizacao", "renegociacao", "Renegociação de Dívidas", "Qual proposta aceitar", "/ferramentas/renegociacao", "Credit Karma"),
+ * app("organizacao", "home-equity", "Home Equity", "Crédito com imóvel em garantia", "/ferramentas/home-equity", "Rocket Mortgage"),
+ * app("organizacao", "simulador-consorcio", "Simulador de Consórcio", "Consórcio ou financiamento", "/ferramentas/consorcio", "Bankrate"),
+ * app("organizacao", "quitacao-antecipada", "Quitação Antecipada", "Quanto você economiza adiantando", "/ferramentas/quitacao", "Bankrate"),
+ * app("organizacao", "potencial-compra", "Potencial de Compra", "Qual imóvel cabe no seu bolso", "/ferramentas/potencial-compra", "Zillow Affordability"),
+ * app("organizacao", "valorizacao-imoveis", "Valorização de Imóveis", "Quanto seu imóvel rendeu de verdade", "/ferramentas/valorizacao", "Zillow"),
+ * app("organizacao", "rentabilidade-aluguel", "Rentabilidade de Aluguel", "O yield do seu investimento", "/ferramentas/rentabilidade-aluguel", "BiggerPockets"),
+ * app("organizacao", "planejamento-entrada", "Planejamento da Entrada", "Quanto juntar e em quanto tempo", "/ferramentas/entrada", "Rocket Mortgage"),
+ * app("organizacao", "comparador-bancos", "Comparador de Bancos", "Mesma casa, propostas diferentes", "/ferramentas/comparador-bancos", "LendingTree"),
+ * app("organizacao", "patrimonio-imobiliario", "Patrimônio Imobiliário", "Seus imóveis num painel só", "/ferramentas/patrimonio-imobiliario", "Empower"),
  */
 
 export const FAMILIAS: Record<Familia, string> = {
@@ -350,9 +349,6 @@ export const FAMILIAS: Record<Familia, string> = {
   organizacao: "Vida Financeira",
   trabalho: "Trabalho e Salário",
   investimentos: "Investimentos",
-  // Tudo o que se responde com uma simulação: a parcela da casa, do carro,
-  // o custo de um empréstimo, o quanto um aporte vira em dez anos.
-  simuladores: "Simuladores",
 };
 
 export const ORDEM_FAMILIAS: Familia[] = [
@@ -360,7 +356,6 @@ export const ORDEM_FAMILIAS: Familia[] = [
   "organizacao",
   "trabalho",
   "investimentos",
-  "simuladores",
 ];
 
 /**
@@ -370,8 +365,6 @@ export const ORDEM_FAMILIAS: Familia[] = [
 export const INTRO_FAMILIAS: Partial<Record<Familia, string>> = {
   organizacao:
     "Metade do estresse financeiro é não saber onde o dinheiro está. Comece pelo básico bem feito.",
-  simuladores:
-    "A parcela da casa, o custo do empréstimo, o aporte que vira patrimônio. Simule antes de assinar.",
 };
 
 export function appsPorPerfil(role: Role): NovareApp[] {
