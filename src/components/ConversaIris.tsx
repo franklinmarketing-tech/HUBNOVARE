@@ -213,7 +213,13 @@ export function ConversaIris() {
 
       {/* --------------------------------------------------------- redação */}
       <div className="border-t border-border bg-card px-4 py-4 sm:px-6">
-        {estado === "login" ? (
+        {estado === "checando" ? (
+          /* Enquanto o servidor não diz se a IA está disponível, a caixa fica
+             neutra. Mostrar o campo de digitação aqui e trocá-lo pelo convite
+             de conta um instante depois é um pisca-pisca que faz a tela
+             parecer quebrada — e engana quem já começou a digitar. */
+          <div className="h-11 animate-pulse rounded-xl bg-muted" aria-hidden />
+        ) : estado === "login" ? (
           <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-accent-tint px-4 py-3">
             <p className="flex min-w-0 items-center gap-2 text-xs text-slate-600">
               <Lock className="h-3.5 w-3.5 shrink-0 text-accent-strong" />

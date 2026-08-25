@@ -42,8 +42,7 @@ await p.waitForSelector("#iris-extrato-texto", { timeout: 20000 });
 await p
   .locator('a[href*="modo=criar"], #campo-iris')
   .first()
-  .waitFor({ state: "visible", timeout: 20000 })
-  .catch(() => {});
+  .waitFor({ state: "visible", timeout: 25000 });
 
 // Seletor por ID, não por tag: a página ganhou um segundo textarea (o campo
 // da conversa com a Íris) e `locator("textarea")` virou ambíguo.
