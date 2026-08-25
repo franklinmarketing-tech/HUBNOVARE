@@ -33,15 +33,47 @@ const erros = [];
 p.on("pageerror", (e) => erros.push(String(e)));
 
 await p.goto(`${BASE}/iris`, { waitUntil: "domcontentloaded" });
-await p.waitForTimeout(1200);
+// Espera o conteúdo, não o relógio: a página ganhou herói e caixa de conversa
+// e ficou mais pesada — tempo fixo passa num servidor quente e falha num frio.
+await p.waitForSelector("#iris-extrato-texto", { timeout: 20000 });
+// A caixa de conversa decide o que mostrar depois de perguntar ao servidor se
+// a IA está disponível. Sem esperar essa resposta, o teste lê a tela no estado
+// "checando" e acusa ausência do que ainda vai aparecer.
+await p
+  .locator('a[href*="modo=criar"], #campo-iris')
+  .first()
+  .waitFor({ state: "visible", timeout: 20000 })
+  .catch(() => {});
 
-conferir("a Íris oferece colar o extrato", await p.locator("textarea").isVisible());
+// Seletor por ID, não por tag: a página ganhou um segundo textarea (o campo
+// da conversa com a Íris) e `locator("textarea")` virou ambíguo.
+conferir("a Íris oferece colar o extrato", await p.locator("#iris-extrato-texto").isVisible());
 conferir(
   "não promete mais Open Finance",
   !(await p.locator("body").innerText()).includes("Open Finance"),
 );
 
-await p.locator("textarea").fill(EXTRATO);
+/* ------------------------------------------------- a conversa com a Íris */
+// Sem custo de OpenAI: só confere que a caixa existe, que ela pede conta a
+// quem não está logado (é o que protege a cota) e que o aviso de limite
+// regulatório está na tela.
+const corpoIris = await p.locator("body").innerText();
+conferir("tem caixa de conversa com a Íris", /conversar com a íris/i.test(corpoIris));
+conferir("mostra sugestões de pergunta", /por onde eu começo/i.test(corpoIris));
+conferir(
+  "pede conta a quem não está logado",
+  /criar conta grátis/i.test(corpoIris),
+);
+conferir(
+  "avisa que não indica produto",
+  /não indica produto|não recomenda/i.test(corpoIris),
+);
+conferir(
+  "o campo de conversa não some junto com o do extrato",
+  (await p.locator("#campo-iris").count()) + (await p.locator('a[href*="modo=criar"]').count()) > 0,
+);
+
+await p.locator("#iris-extrato-texto").fill(EXTRATO);
 await p.waitForTimeout(600);
 
 const corpo = () => p.locator("body").innerText();

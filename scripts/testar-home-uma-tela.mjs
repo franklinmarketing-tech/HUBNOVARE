@@ -23,8 +23,13 @@ const b = await chromium.launch();
 for (const tela of TELAS) {
   const ctx = await b.newContext({ viewport: { width: tela.width, height: tela.height } });
   const p = await ctx.newPage();
-  await p.goto(BASE, { waitUntil: "networkidle" });
-  await p.waitForTimeout(900);
+  // Espera o conteúdo, não o relógio: em tela baixa a home usa media queries
+  // de ALTURA para se compactar, e medir antes do layout assentar dá leitura
+  // de página vazia — foi assim que este teste acusou "portais invisíveis"
+  // numa home que estava perfeita.
+  await p.goto(BASE, { waitUntil: "domcontentloaded" });
+  await p.waitForSelector(".glass-card", { state: "visible", timeout: 20000 });
+  await p.waitForTimeout(700);
 
   const m = await p.evaluate(() => ({
     altura: document.documentElement.scrollHeight,
@@ -43,19 +48,31 @@ for (const tela of TELAS) {
 
   // Tudo o que precisa estar visível de cara.
   for (const [oque, loc] of [
-    ["os portais", p.locator(".card-cine")],
-    ["o Robô IA Novare", p.getByText(/Robô IA Novare/).first()],
+    ["os portais", p.locator(".glass-card")],
+    // O Robô só aparece acima de 820px de ALTURA ÚTIL: em notebook baixo o
+    // layout o esconde de propósito, para a home caber numa tela. Exigir que
+    // ele apareça sempre é cobrar o contrário do que o design decidiu.
+    ...(tela.height > 820
+      ? [["o Robô IA Novare", p.getByText(/Robô IA Novare/).first()]]
+      : []),
     ["o rodapé", p.locator("footer")],
   ]) {
     const visivel = await loc.first().isVisible().catch(() => false);
     conferir(`${tela.nome}: ${oque} aparece`, visivel);
   }
 
-  // Seis áreas, incluindo a de IA que abre a fileira. O card do Workspace
-  // saiu: enquanto Vida Plan e Íris estão liberados, não há o que vender ali.
-  // 5 áreas + o card do Novare News, que também usa .card-cine.
-  const cards = await p.locator(".card-cine").count();
-  conferir(`${tela.nome}: as 5 áreas + o News na tela`, cards === 6, `${cards} cards`);
+  // O que precisa caber numa tela só, nomeado em vez de contado: contar cards
+  // deixa o teste refém de qualquer card novo, e foi assim que ele apodreceu.
+  for (const [oque, seletor] of [
+    ["o card do produto pago", 'a[href="/planejamento"]'],
+    ["as quatro áreas de ferramenta", 'a[href^="/aplicativos?area"]'],
+    ["o card do Novare News", 'a[href="/novare-news"]'],
+  ]) {
+    const quantos = await p.locator(seletor).count();
+    conferir(`${tela.nome}: ${oque} na tela`, quantos > 0, `${quantos}`);
+  }
+  const areas = await p.locator('a[href^="/aplicativos?area"]').count();
+  conferir(`${tela.nome}: são 4 áreas`, areas === 4, `${areas}`);
 
   await ctx.close();
 }
@@ -66,8 +83,9 @@ const p = await ctx.newPage();
 await p.goto(BASE, { waitUntil: "networkidle" });
 await p.waitForTimeout(600);
 
+// Quatro áreas desde que os Simuladores foram absorvidos por Vida Financeira.
 const botoes = p.locator("header nav button");
-conferir("menu tem uma entrada por área", (await botoes.count()) === 5, `${await botoes.count()}`);
+conferir("menu tem uma entrada por área", (await botoes.count()) === 4, `${await botoes.count()}`);
 
 await botoes.first().hover();
 await p.waitForTimeout(400);

@@ -8,7 +8,7 @@
  */
 
 /**
- * Capa dos produtos da casa: Vida Plan, Íris e as quatro consultorias.
+ * Capa dos produtos da casa: Planejamento Financeiro, Íris e as consultorias.
  *
  * Só eles têm foto, e de propósito — são o que a Novare vende. As
  * ferramentas gratuitas ficam no tile de gradiente, o que mantém a
@@ -30,7 +30,7 @@
  */
 export const CAPAS: Record<string, string> = {
   // IA e Consultoria — slugs alinhados com apps.ts (5 produtos oficiais)
-  "vida-plan": "/cards/card-projeto-vida.webp",
+  "planejamento": "/cards/card-projeto-vida.webp",
   iris: "/cards/card-openfinance.webp",
   "consultoria-diagnostico": "/cards/card-score.webp",
   "consultoria-investimentos": "/cards/card-comparador.webp",
@@ -70,7 +70,7 @@ export const CAPAS: Record<string, string> = {
  */
 export const EMBLEMAS: Record<string, string> = {
   // Produtos da casa — slugs alinhados com apps.ts (5 produtos oficiais)
-  "vida-plan": "/icones-3d/icon-vault-3d.png",
+  "planejamento": "/icones-3d/icon-vault-3d.png",
   iris: "/icones-3d/icon-premium-3d.png",
   "consultoria-diagnostico": "/icones-3d/clipboard-3d.png",
   "consultoria-investimentos": "/icones-3d/icon-growth-3d.png",

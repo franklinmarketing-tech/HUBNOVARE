@@ -16,3 +16,6 @@ next-env.d.ts
 .vercel
 
 .vercel
+
+# Cache do CLI do Supabase — versão baixada, não é código do projeto.
+supabase/.temp

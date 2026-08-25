@@ -2,6 +2,8 @@ import { createClient } from "@/lib/supabase/client";
 
 export type LeadTipo =
   | "ferramenta"
+  // Valor gravado no banco desde o lançamento: mantido apesar do renome do
+  // produto, senão os leads já salvos perdem a etiqueta.
   | "vida-plan"
   | "saude-financeira"
   | "cupom"

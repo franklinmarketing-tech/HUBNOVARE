@@ -67,7 +67,7 @@ import { APPS, type Familia } from "@/lib/apps";
 
 const ICONES: Record<string, LucideIcon> = {
   // Workspace
-  "vida-plan": Compass,
+  "planejamento": Compass,
   iris: Eye,
 
   // Organização

@@ -10,6 +10,8 @@ import {
   Sunrise,
 } from "lucide-react";
 import { Cabecalho } from "@/components/Cabecalho";
+import { ConversaIris } from "@/components/ConversaIris";
+import { RevelarAoRolar } from "@/components/RevelarAoRolar";
 import { CapturaLead } from "@/components/CapturaLead";
 import { IrisExtrato } from "@/components/IrisExtrato";
 import { OQueSignifica } from "@/components/OQueSignifica";
@@ -19,7 +21,7 @@ import { getPerfil } from "@/lib/perfil";
 export const metadata: Metadata = {
   title: "Íris, sua IA financeira",
   description:
-    "Cole o extrato do seu banco e a Íris mostra para onde vai o seu dinheiro: assinatura esquecida, tarifa e juro escondido. Sem comissão, sem conectar conta.",
+    "Converse com a IA financeira da Novare e cole o extrato do seu banco: a Íris mostra para onde vai o seu dinheiro — assinatura esquecida, tarifa e juro escondido. Sem comissão, sem conectar conta.",
 };
 
 const O_QUE_FAZ = [
@@ -39,7 +41,7 @@ const O_QUE_FAZ = [
     icone: Sunrise,
     titulo: "Liga tudo ao seu plano",
     texto:
-      "O que você economiza não some: vai para o seu Marco Horizonte e vira patrimônio no Vida Plan.",
+      "O que você economiza não some: vai para o seu Marco Horizonte e vira patrimônio no seu Planejamento.",
   },
   {
     icone: Link2Off,
@@ -143,44 +145,72 @@ export default async function IrisPage() {
         }
       />
 
-      <main className="mx-auto max-w-3xl px-4 pb-16 pt-10 sm:px-6">
-        {/* HERÓI — o que ela faz, em uma frase, antes de qualquer campo. */}
-        <section>
-          <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-3 py-1 text-xs font-medium text-primary">
-            <Eye className="h-3.5 w-3.5" aria-hidden="true" />
-            Íris · copiloto financeiro da Novare
-          </div>
-          <h1 className="mt-4 max-w-2xl font-display text-3xl font-bold tracking-tight text-primary sm:text-[2.6rem] sm:leading-[1.1]">
-            Ela enxerga o dinheiro que some.
+      <RevelarAoRolar />
+
+      {/* HERÓI — palco navy, como as outras páginas de produto. A Íris é o
+          rosto da IA da casa; um badge discreto não estava à altura. */}
+      <section
+        className="palco-vivo relative overflow-hidden text-white"
+        style={{
+          background:
+            "linear-gradient(157deg, hsl(215 52% 21%) 0%, hsl(216 58% 11%) 100%)",
+        }}
+      >
+        <div className="revelar relative mx-auto max-w-3xl px-4 py-14 sm:px-6 sm:py-16">
+          <span className="inline-flex items-center gap-2 rounded-full bg-white/[0.12] px-3 py-1.5 text-2xs font-bold uppercase tracking-wider backdrop-blur-sm">
+            <Eye className="h-3.5 w-3.5 text-accent-claro" aria-hidden="true" />
+            Íris · a IA financeira da Novare
+          </span>
+
+          <h1 className="mt-5 max-w-2xl font-display text-4xl font-black leading-[1.05] tracking-tight sm:text-5xl">
+            Ela enxerga o dinheiro
+            <br />
+            <span className="text-accent-claro">que some.</span>
           </h1>
-          <p className="mt-4 max-w-xl text-base leading-relaxed text-muted-foreground">
-            Cole o extrato do seu banco e a Íris diz, em português, para onde
-            vai o seu dinheiro:{" "}
-            <strong className="font-semibold text-foreground">
+
+          <p className="mt-5 max-w-xl text-base leading-relaxed text-white/80">
+            Converse com ela ou cole o extrato do seu banco: a Íris diz, em
+            português, para onde vai o seu dinheiro —{" "}
+            <strong className="font-semibold text-white">
               assinatura esquecida, tarifa e juro escondido
             </strong>
-            . Como não ganha comissão de ninguém, fala a verdade — e não precisa
-            conectar conta nenhuma.
+            . Como não ganha comissão de ninguém, fala a verdade.
           </p>
 
-          <ul className="mt-6 flex flex-wrap gap-x-5 gap-y-2.5">
+          <ul className="mt-7 flex flex-wrap gap-x-5 gap-y-2.5">
             {PROVAS.map((prova) => (
               <li
                 key={prova.texto}
-                className="flex items-center gap-2 text-xs font-medium text-muted-foreground"
+                className="flex items-center gap-2 text-xs font-medium text-white/70"
               >
                 <prova.icone
-                  className="h-3.5 w-3.5 shrink-0 text-success"
+                  className="h-3.5 w-3.5 shrink-0 text-accent-claro"
                   aria-hidden="true"
                 />
                 {prova.texto}
               </li>
             ))}
           </ul>
+        </div>
+      </section>
+
+      <main className="mx-auto max-w-3xl px-4 pb-16 pt-10 sm:px-6">
+        {/* A CONVERSA — o que a pessoa espera de uma IA, logo de cara. */}
+        <section className="revelar">
+          <ConversaIris />
         </section>
 
-        {/* A Íris trabalhando, antes de qualquer explicação sobre ela. */}
-        <IrisExtrato />
+        {/* A leitura de extrato: o superpoder que nenhum chat genérico tem. */}
+        <section className="revelar mt-14">
+          <h2 className="font-display text-xl font-bold text-primary">
+            Ou deixe ela ler o seu extrato
+          </h2>
+          <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground">
+            Aqui não tem conversa: tem aritmética. A Íris varre lançamento por
+            lançamento e mostra quanto vaza por mês — tudo no seu navegador.
+          </p>
+          <IrisExtrato />
+        </section>
 
         {/* EDUCATIVO — o que o número quer dizer, depois do resultado. */}
         <section className="mt-14">
@@ -233,22 +263,22 @@ export default async function IrisPage() {
 
         {/* BETA — único bloco escuro depois do resultado. */}
         <section className="mt-14 rounded-3xl bg-primary p-7 text-white sm:p-9">
-          <span className="inline-block rounded bg-warning/20 px-2 py-0.5 text-2xs font-bold uppercase tracking-wide text-warning-claro">
-            beta fechado
+          <span className="inline-block rounded bg-accent/20 px-2 py-0.5 text-2xs font-bold uppercase tracking-wide text-accent-claro">
+            incluída na assinatura
           </span>
           <h2 className="mt-3 font-display text-xl font-bold sm:text-2xl">
-            A Íris ainda está aprendendo.
+            A Íris vem junto com o Workspace.
           </h2>
           <p className="mt-2.5 max-w-xl text-sm leading-relaxed text-white/75">
-            A leitura do extrato e o caça-vazamentos já funcionam. O cérebro de
-            IA está sendo treinado agora — e tudo o que já existe está liberado,
-            sem custo nenhum.
+            Ela não é vendida à parte: quem assina o Workspace Novare leva a
+            Íris sem limite de leitura, junto com o Planejamento Financeiro
+            completo e o desconto na consultoria — tudo por uma assinatura só.
           </p>
           <Link
             href="/assinar"
-            className="mt-6 inline-flex items-center gap-2 rounded-xl bg-accent-btn px-5 py-2.5 text-sm font-semibold text-accent-foreground transition-colors hover:bg-accent-strong"
+            className="mt-6 inline-flex items-center gap-2 rounded-xl bg-accent-btn px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-accent-strong"
           >
-            Entrar na fila do beta
+            Ver o que entra na assinatura
             <ArrowRight className="h-4 w-4" aria-hidden="true" />
           </Link>
         </section>

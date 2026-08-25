@@ -50,7 +50,7 @@ export const ACOMPANHAMENTO = {
         "Antes de assinar contrato, aceitar proposta ou comprar no financiamento, você pergunta. Resposta em até um dia útil.",
     },
     {
-      titulo: "Vida Plan e Íris liberados",
+      titulo: "Planejamento e Íris liberados",
       texto:
         "O plano de vida sempre atualizado e a leitura do extrato quando você quiser, sem custo adicional.",
     },

@@ -245,8 +245,8 @@ export const ISCA_PRODUTO: Record<string, { href: string; rotulo: string; chamad
     chamada: "Antes da conversa, descubra sua nota em 1 minuto — de graça.",
   },
   "plano-vida": {
-    href: "/vida-plan",
-    rotulo: "Calcular meu Vida Plan grátis",
+    href: "/planejamento",
+    rotulo: "Montar meu plano grátis",
     chamada: "Calcule agora o seu Marco Horizonte: o número que te dá liberdade.",
   },
 };

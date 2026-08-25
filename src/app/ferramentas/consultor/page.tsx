@@ -19,7 +19,7 @@ import { useArmazenado } from "@/lib/useArmazenado";
  * Consultor Financeiro IA.
  *
  * Chat REAL: chama a edge function `vidaplan-assist` do Supabase da Novare
- * (a mesma que atende o Vida Plan em produção, com a chave de IA no
+ * (a mesma que atende o Planejamento Financeiro em produção, com a chave de IA no
  * servidor). Exige login porque a função valida o token do usuário — e é
  * isso que protege o custo de IA de uso anônimo.
  */
@@ -142,7 +142,7 @@ export default function ConsultorPage() {
             Pergunte como se fosse para um consultor.
           </h1>
           <p className="mt-3 max-w-xl text-slate-500">
-            A mesma IA que atende o Vida Plan, treinada com o jeito Novare de
+            A mesma IA que atende o Planejamento Financeiro, treinada com o jeito Novare de
             orientar: educativa, sem vender produto e sem comissão.
           </p>
         </section>

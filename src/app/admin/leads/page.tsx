@@ -25,7 +25,7 @@ const zapDe = (tel: string) => {
 };
 
 const TIPO = {
-  "vida-plan": { rotulo: "Vida Plan", cls: "bg-sky-100 text-sky-700" },
+  "vida-plan": { rotulo: "Planejamento", cls: "bg-sky-100 text-sky-700" },
   "saude-financeira": { rotulo: "Exame de Saúde", cls: "bg-emerald-100 text-emerald-700" },
   cupom: { rotulo: "Cupom", cls: "bg-amber-100 text-amber-700" },
   produto: { rotulo: "Produto", cls: "bg-indigo-100 text-indigo-700" },
@@ -93,7 +93,7 @@ export default async function AdminLeadsPage() {
                 {[
                   { n: leads.length, r: "Total" },
                   { n: porTipo("saude-financeira"), r: "Exame" },
-                  { n: porTipo("vida-plan"), r: "Vida Plan" },
+                  { n: porTipo("vida-plan"), r: "Planejamento" },
                 ].map((c) => (
                   <div key={c.r} className="rounded-2xl border border-slate-200 bg-white px-4 py-2 shadow-sm">
                     <p className="font-display text-xl font-black tabular-nums text-primary">{c.n}</p>

@@ -1,0 +1,12 @@
+# O que NÃO sobe para a Vercel.
+#
+# A Vercel ignora `.next` sozinha, mas não as variações: aqui o dev server e os
+# testes usam NEXT_DIST_DIR (`.next-dev`, `.next-test`, `.next-pdf`…) para não
+# destruírem o build de produção um do outro. Cada uma dessas pastas tem
+# centenas de megabytes — sem esta linha o upload passa de 400 MB e o deploy
+# morre no limite de 100 MB por arquivo.
+.next-*
+
+# Artefatos locais: scripts de teste e geração de arte não rodam em produção.
+node_modules
+*.log

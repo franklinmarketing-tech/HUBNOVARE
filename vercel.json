@@ -1,9 +1,23 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "functions": {
-    "src/app/api/iris/route.ts": { "maxDuration": 40 },
-    "src/app/api/iris-duvida/route.ts": { "maxDuration": 40 },
-    "src/app/api/dicas/route.ts": { "maxDuration": 35 },
-    "src/app/api/preencher/route.ts": { "maxDuration": 30 }
+    "src/app/api/iris/route.ts": {
+      "maxDuration": 40
+    },
+    "src/app/api/iris-duvida/route.ts": {
+      "maxDuration": 40
+    },
+    "src/app/api/dicas/route.ts": {
+      "maxDuration": 35
+    },
+    "src/app/api/preencher/route.ts": {
+      "maxDuration": 30
+    },
+    "src/app/api/plano/route.ts": {
+      "maxDuration": 40
+    },
+    "src/app/api/iris-chat/route.ts": {
+      "maxDuration": 40
+    }
   }
 }

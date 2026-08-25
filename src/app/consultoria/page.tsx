@@ -45,7 +45,7 @@ const ICONE: Record<string, LucideIcon> = {
  */
 const ISCA_DO_PRODUTO: Record<string, { href: string; rotulo: string }> = {
   diagnostico: { href: "/exame-saude-financeira", rotulo: "Fazer o Exame de Saúde (0–100)" },
-  "plano-vida": { href: "/vida-plan", rotulo: "Calcular meu Vida Plan grátis" },
+  "plano-vida": { href: "/planejamento", rotulo: "Montar meu plano grátis" },
 };
 
 const brl = (v: number) =>

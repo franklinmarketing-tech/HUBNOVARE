@@ -1,8 +1,5 @@
 import type { NextConfig } from "next";
 
-/** De onde o Vida Plan é servido de verdade. */
-const NOVAREAPP = "https://novareapp.com.br";
-
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   outputFileTracingRoot: __dirname,
@@ -18,22 +15,21 @@ const nextConfig: NextConfig = {
   distDir: process.env.NEXT_DIST_DIR || ".next",
 
   /**
-   * O Vida Plan vive no `novareapp` (Vite + React) e é publicado pelo
-   * Lovable. Reescrever em vez de redirecionar mantém o cliente num
-   * endereço só: ele navega em /vidaplan sem sair do Workspace, e a marca
-   * na barra do navegador continua sendo a mesma o tempo todo.
+   * O App Novare Planejamento Financeiro passou a ser construído aqui dentro,
+   * em `/planejamento`. Antes o Workspace apenas reescrevia `/vidaplan` para o
+   * SPA publicado pelo Lovable — junto com `/assets/*`, `/icons/*` e
+   * `/~flock.js`, que o SPA referenciava a partir da raiz.
    *
-   * Os caminhos de asset entram junto porque o SPA os referencia a partir
-   * da RAIZ (`/assets/...`) — sem eles a página abriria em branco.
-   * Nenhum conflita com o Next, que serve o dele em `/_next/`.
+   * Esses rewrites saíram: `/assets` e `/icons` deixaram de ser rotas
+   * reservadas e voltaram a ser do Next. Os endereços antigos continuam
+   * funcionando como redirect permanente, para link salvo, e-mail antigo e
+   * resultado de busca não caírem em 404.
    */
-  async rewrites() {
+  async redirects() {
     return [
-      { source: "/vidaplan", destination: `${NOVAREAPP}/vidaplan` },
-      { source: "/vidaplan/:caminho*", destination: `${NOVAREAPP}/vidaplan/:caminho*` },
-      { source: "/assets/:arquivo*", destination: `${NOVAREAPP}/assets/:arquivo*` },
-      { source: "/icons/:arquivo*", destination: `${NOVAREAPP}/icons/:arquivo*` },
-      { source: "/~flock.js", destination: `${NOVAREAPP}/~flock.js` },
+      { source: "/vidaplan", destination: "/planejamento", permanent: true },
+      { source: "/vidaplan/:caminho*", destination: "/planejamento", permanent: true },
+      { source: "/vida-plan", destination: "/planejamento", permanent: true },
     ];
   },
 };

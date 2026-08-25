@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, Sora } from "next/font/google";
 import { LuzDoCursor } from "@/components/LuzDoCursor";
 import { BannerConsentimento } from "@/components/BannerConsentimento";
+import { ConviteDeSaida } from "@/components/ConviteDeSaida";
 import "./globals.css";
 
 const inter = Inter({
@@ -73,6 +74,7 @@ export default function RootLayout({
         {children}
         <LuzDoCursor />
         <BannerConsentimento />
+        <ConviteDeSaida />
       </body>
     </html>
   );

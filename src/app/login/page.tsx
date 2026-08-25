@@ -13,7 +13,17 @@ function FormularioLogin() {
   const params = useSearchParams();
   const proximo = params.get("proximo") || "/hub";
 
-  const [modo, setModo] = useState<Modo>("entrar");
+  /**
+   * `?modo=criar` abre direto no cadastro.
+   *
+   * É o que faz o botão "7 dias grátis" da página de venda cair numa tela que
+   * já pede nome e senha, em vez de numa tela de login onde a pessoa precisa
+   * primeiro achar o link de criar conta. Cada clique a mais aqui é venda
+   * perdida.
+   */
+  const modoInicial: Modo = params.get("modo") === "criar" ? "criar" : "entrar";
+
+  const [modo, setModo] = useState<Modo>(modoInicial);
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [erro, setErro] = useState<string | null>(null);

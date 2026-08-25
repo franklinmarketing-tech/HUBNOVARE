@@ -1,5 +1,5 @@
 /**
- * O card do Novare News na home substituiu o banner "Vida Plan e Íris
+ * O card do Novare News na home substituiu o banner "Planejamento e Íris
  * liberados" — o canal agora é um produto gratuito da casa, com porta
  * fixa na home e no topo de qualquer página.
  */

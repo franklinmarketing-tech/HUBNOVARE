@@ -30,7 +30,7 @@ for (const tela of telas) {
   const pagina = await ctx.newPage();
   await pagina.goto(BASE, { waitUntil: "networkidle" });
 
-  const card = pagina.locator(".card-cine").first();
+  const card = pagina.locator('a[href^="/aplicativos?area"]').first();
   await card.scrollIntoViewIfNeeded();
   await card.hover();
   await pagina.waitForTimeout(500);
@@ -73,7 +73,7 @@ for (const aparelho of ["iPhone 13", "Pixel 7", "iPad (gen 7)"]) {
   const pagina = await ctx.newPage();
   await pagina.goto(BASE, { waitUntil: "networkidle" });
 
-  const card = pagina.locator(".card-cine").first();
+  const card = pagina.locator('a[href^="/aplicativos?area"]').first();
   await card.scrollIntoViewIfNeeded();
 
   const botao = card.getByRole("button", { name: /ferramentas/ });

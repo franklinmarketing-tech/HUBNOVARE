@@ -36,11 +36,10 @@ const ECOSSISTEMA = [
     icone: Sparkles,
   },
   {
-    href: "/vidaplan/login?demo=1",
-    nome: "Vida Plan",
-    desc: "Seu plano de vida em números · demo aberta",
+    href: "/planejamento",
+    nome: "Planejamento",
+    desc: "Retrato, diagnóstico e plano — em 10 minutos",
     icone: Sunrise,
-    externo: true,
   },
   {
     href: "/iris",
@@ -248,9 +247,12 @@ export function CabecalhoNews() {
 }
 
 /**
- * Um item do ecossistema vira `<a>` ou `<Link>` conforme ele saia do app
- * Next ou não. Fica num lugar só para o menu do desktop e a trilha do
- * celular não divergirem com o tempo.
+ * Um item do ecossistema.
+ *
+ * Já foi `<a>` ou `<Link>` conforme o destino saísse do app Next: o antigo
+ * Vida Plan morava em outro host. Agora todo o ecossistema é servido aqui
+ * dentro, então é sempre `<Link>` — mas o componente continua existindo
+ * para o menu do desktop e a trilha do celular não divergirem.
  */
 function LinkEco({
   item,
@@ -263,11 +265,7 @@ function LinkEco({
   onClick?: () => void;
   children: React.ReactNode;
 }) {
-  return item.externo ? (
-    <a href={item.href} className={className} onClick={onClick}>
-      {children}
-    </a>
-  ) : (
+  return (
     <Link href={item.href} className={className} onClick={onClick}>
       {children}
     </Link>

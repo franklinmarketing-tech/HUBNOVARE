@@ -418,3 +418,177 @@
   0%, 100% { transform: translateY(0); }
   50%      { transform: translateY(-2.5px); }
 }
+
+/* ==========================================================================
+   Palco do Workspace — os efeitos da página de assinatura.
+
+   Ficam aqui, e não numa tag <style> da página, porque dependem dos tokens do
+   @theme e porque a página de venda é servida como server component: CSS-in-JS
+   ali custaria hidratação por nada.
+
+   Toda animação daqui é DECORATIVA. Nada de conteúdo aparece por causa delas —
+   é o que permite desligá-las inteiras em prefers-reduced-motion sem esconder
+   informação de ninguém.
+   ========================================================================== */
+
+/* Luz que respira atrás do herói. Duas camadas em ritmos diferentes: sozinha,
+   uma só lê como "gradiente parado"; desencontradas, o fundo ganha vida sem
+   chamar atenção para si. */
+.palco-vivo::before,
+.palco-vivo::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.palco-vivo::before {
+  background: radial-gradient(
+    38rem 22rem at 82% -12%,
+    hsl(16 88% 56% / 0.34),
+    transparent 62%
+  );
+  animation: respirar-luz 14s ease-in-out infinite;
+}
+.palco-vivo::after {
+  background: radial-gradient(
+    32rem 20rem at 4% 108%,
+    hsl(205 88% 56% / 0.26),
+    transparent 60%
+  );
+  animation: respirar-luz 19s ease-in-out infinite reverse;
+}
+
+@keyframes respirar-luz {
+  0%, 100% { opacity: 0.75; transform: translate3d(0, 0, 0) scale(1); }
+  50%      { opacity: 1;    transform: translate3d(-1.5%, 2%, 0) scale(1.08); }
+}
+
+/* Brilho que atravessa o preço uma vez a cada ciclo, como reflexo em metal.
+   O texto continua legível o tempo todo: o gradiente é o PRÓPRIO preenchimento
+   do texto, não uma camada por cima. */
+.preco-lustro {
+  background: linear-gradient(
+    100deg,
+    var(--color-primary) 0%,
+    var(--color-primary) 38%,
+    var(--color-accent-btn) 50%,
+    var(--color-primary) 62%,
+    var(--color-primary) 100%
+  );
+  background-size: 260% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: lustro 5.5s ease-in-out infinite;
+}
+
+@keyframes lustro {
+  0%, 22%  { background-position: 130% 0; }
+  55%, 100% { background-position: -30% 0; }
+}
+
+/* Anel que pulsa no selo de oferta — chama o olho para o "7 dias grátis" sem
+   piscar nem mudar cor. */
+.selo-pulsa {
+  position: relative;
+}
+.selo-pulsa::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: 1px solid hsl(16 90% 62% / 0.9);
+  animation: pulso-anel 2.8s ease-out infinite;
+  pointer-events: none;
+}
+
+@keyframes pulso-anel {
+  0%   { opacity: 0.9; transform: scale(1); }
+  70%  { opacity: 0;   transform: scale(1.22); }
+  100% { opacity: 0;   transform: scale(1.22); }
+}
+
+/* Revelação ao rolar. O estado inicial só é aplicado depois que o JS marca
+   `data-revelar="pronto"` no <html>: sem isso, quem estiver com JS bloqueado
+   ficaria com a página inteira invisível — o pior defeito possível numa
+   página de venda. */
+[data-revelar="pronto"] .revelar {
+  opacity: 0;
+  transform: translateY(18px);
+  transition:
+    opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+[data-revelar="pronto"] .revelar.visivel {
+  opacity: 1;
+  transform: none;
+}
+
+/* Escada: filhos entram em cascata em vez de todos de uma vez. */
+[data-revelar="pronto"] .revelar-escada > * {
+  opacity: 0;
+  transform: translateY(14px);
+  transition:
+    opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+[data-revelar="pronto"] .revelar-escada.visivel > * {
+  opacity: 1;
+  transform: none;
+}
+[data-revelar="pronto"] .revelar-escada.visivel > *:nth-child(2) { transition-delay: 90ms; }
+[data-revelar="pronto"] .revelar-escada.visivel > *:nth-child(3) { transition-delay: 180ms; }
+[data-revelar="pronto"] .revelar-escada.visivel > *:nth-child(4) { transition-delay: 270ms; }
+[data-revelar="pronto"] .revelar-escada.visivel > *:nth-child(5) { transition-delay: 360ms; }
+[data-revelar="pronto"] .revelar-escada.visivel > *:nth-child(6) { transition-delay: 450ms; }
+
+/* Borda que ganha luz laranja no hover — usada no cartão de preço. */
+.borda-viva {
+  position: relative;
+  isolation: isolate;
+}
+.borda-viva::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    140deg,
+    hsl(16 90% 60% / 0.7),
+    hsl(38 95% 62% / 0.35) 40%,
+    transparent 70%
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  z-index: -1;
+}
+.borda-viva:hover::before {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .palco-vivo::before,
+  .palco-vivo::after,
+  .preco-lustro,
+  .selo-pulsa::after {
+    animation: none;
+  }
+  .preco-lustro {
+    background: none;
+    -webkit-background-clip: border-box;
+    background-clip: border-box;
+    color: var(--color-primary);
+  }
+  [data-revelar="pronto"] .revelar,
+  [data-revelar="pronto"] .revelar-escada > * {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}

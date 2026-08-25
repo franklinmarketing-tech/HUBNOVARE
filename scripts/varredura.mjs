@@ -11,6 +11,10 @@ const destino = process.argv[2] || "C:/tmp/novare-shots";
 
 import { readFileSync } from "node:fs";
 
+// A porta vem de fora: o dev server ocupa a 3000, e validar por build
+// exige subir o `next start` noutra porta.
+const BASE = process.env.BASE ?? "http://localhost:3000";
+
 /**
  * A lista sai do próprio catálogo: ferramenta nova entra na varredura
  * sozinha. Lista escrita à mão envelhece calada — foi o que aconteceu.
@@ -46,7 +50,7 @@ for (const [nome, largura] of [["mobile", 390], ["desktop", 1440]]) {
   pagina.on("pageerror", (e) => errosConsole.push(e.message));
 
   for (const rota of ROTAS) {
-    const resposta = await pagina.goto(`http://localhost:3000${rota}`, {
+    const resposta = await pagina.goto(`${BASE}${rota}`, {
       waitUntil: "networkidle",
       timeout: 60000,
     });
@@ -70,7 +74,7 @@ for (const [nome, largura] of [["mobile", 390], ["desktop", 1440]]) {
 
 // Screenshot mobile da home para inspeção visual.
 const pagina = await navegador.newPage({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2 });
-await pagina.goto("http://localhost:3000/", { waitUntil: "networkidle" });
+await pagina.goto(BASE + "/", { waitUntil: "networkidle" });
 await pagina.screenshot({ path: `${destino}/home-mobile.png` });
 await navegador.close();
 

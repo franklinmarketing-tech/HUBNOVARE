@@ -20,12 +20,12 @@ const RENT_REAL_ANUAL = 0.05;
 const TAXA_RETIRADA = 0.04;
 
 /**
- * O lead-magnet do Vida Plan, no molde da calculadora "Reserva Ideal" do
+ * O lead-magnet do Planejamento Financeiro, no molde da calculadora "Reserva Ideal" do
  * Nord Liberta: a pessoa preenche, vê o próprio Marco Horizonte na hora e
  * deixa nome, WhatsApp e e-mail para receber o plano detalhado. O lead vai
  * para o comercial.
  */
-export function CalculadoraVidaPlan() {
+export function CalculadoraMarcoHorizonte() {
   const [idade, setIdade] = useState("35");
   const [idadeLivre, setIdadeLivre] = useState("60");
   const [renda, setRenda] = useState("8000");
@@ -62,7 +62,7 @@ export function CalculadoraVidaPlan() {
       email: dados.email,
       nome: dados.nome.trim(),
       telefone: dados.telefone,
-      origem: "/vida-plan",
+      origem: "/planejamento",
       tipo: "vida-plan",
       payload: { idade, idadeLivre, renda: r.rendaN, alvo: r.alvo, projecao: r.fv, pct: r.pct },
     });
@@ -85,7 +85,7 @@ export function CalculadoraVidaPlan() {
       /* ambiente sem storage — segue mesmo assim */
     }
     const msg =
-      `Olá! Aqui é ${dados.nome.trim()}. Fiz o Vida Plan no site e quero receber meu plano detalhado.\n` +
+      `Olá! Aqui é ${dados.nome.trim()}. Calculei meu Marco Horizonte no site e quero receber meu plano detalhado.\n` +
       `• Tenho ${idade} anos e quero parar de depender do salário aos ${idadeLivre}\n` +
       `• Renda desejada: ${brl(r.rendaN)}/mês\n` +
       `• Meu Marco Horizonte: ${brl(r.alvo)}\n` +

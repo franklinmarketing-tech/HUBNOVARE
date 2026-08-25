@@ -78,23 +78,20 @@ function app(
 export const APPS: NovareApp[] = [
   // ================================================== WORKSPACE (assinatura)
   {
-    slug: "vida-plan",
-    nome: "Vida Plan",
-    chamada: "Seu plano de vida em números",
+    slug: "planejamento",
+    nome: "Planejamento Financeiro",
+    chamada: "Seu plano completo, sem depender de ninguém",
     descricao:
-      "Transforma seus sonhos num único número, o Marco Horizonte, e mostra o caminho até ele: quanto guardar, em quanto tempo, com qual aporte.",
+      "Você preenche seu retrato financeiro em 10 minutos e o app faz o resto: diagnóstico, Marco Horizonte, plano de ação com valor e prazo, e acompanhamento mês a mês com relatório em PDF.",
     pontosFortes: [
-      "Marco Horizonte: seus sonhos viram um número só",
-      "Projeção ano a ano até a independência financeira",
-      "Plano de ação com aportes, prazos e carteira sugerida",
-      "Conecte um consultor humano quando quiser, à parte",
+      "Trilha de 8 blocos curtos — dá para parar e voltar",
+      "Diagnóstico e plano prontos na hora, sem esperar consultor",
+      "Marco Horizonte: seus objetivos viram um número só",
+      "Fecha o mês sozinho e mostra a sua evolução",
     ],
-    href: "/vidaplan",
+    href: "/planejamento",
     roles: TODOS,
-    // LIBERADO enquanto o produto é construído. Quando for hora de vender,
-    // basta voltar para "pago": a assinatura mestre do Workspace já é o
-    // caminho, e nada mais precisa mudar.
-    plano: "gratis",
+    plano: "pago",
     status: "ativo",
     familia: "ia",
     referencia: "Monarch Money",
@@ -113,7 +110,7 @@ export const APPS: NovareApp[] = [
     ],
     href: "/iris",
     roles: TODOS,
-    // Liberada junto com o Vida Plan enquanto está sendo construída.
+    // Liberada junto com o Planejamento Financeiro enquanto é construída.
     plano: "gratis",
     status: "beta",
     familia: "ia",
@@ -174,7 +171,7 @@ export const APPS: NovareApp[] = [
   }),
 
   // ================================== INTELIGÊNCIA ARTIFICIAL
-  // O diferencial da casa. Vida Plan e Íris estão logo acima, no bloco
+  // O diferencial da casa. Planejamento e Íris estão logo acima, no bloco
   // do Workspace, porque também são produto próprio.
 
   // ========================================== ORGANIZAÇÃO
@@ -406,7 +403,7 @@ export const CONTAGEM = {
       (a) => a.familia && a.status !== "em-breve" && a.href.includes("/ferramentas/"),
     ).length;
   },
-  /** Aplicativos com login e estado próprio: Vida Plan e Íris. */
+  /** Aplicativos com login e estado próprio: Planejamento e Íris. */
   get aplicativos() {
     return APPS.filter(
       (a) =>

@@ -1,19 +1,19 @@
 import Link from "next/link";
 import { ArrowRight, Target } from "lucide-react";
-import { VIDA_PLAN_PRECO_ROTULO, VIDA_PLAN_TRIAL_DIAS } from "@/lib/vidaplan";
+import { PLANO_PRECO_ROTULO, PLANO_TRIAL_DIAS } from "@/lib/planejamento/oferta";
 
 /**
- * O Vida Plan como PRIMEIRO card da home.
+ * O Planejamento Financeiro como PRIMEIRO card da home.
  *
  * Tem a mesma forma dos cards de área para a fileira não ficar torta, mas
  * carrega o selo PRO e o laranja da marca — enquanto as áreas gratuitas
  * ficam na cor delas com o selo "Grátis". É a única coisa que se compra no
  * Workspace, e a home deixa isso explícito num olhar.
  */
-export function CardVidaPlanHome() {
+export function CardPlanejamentoHome() {
   return (
     <Link
-      href="/vida-plan"
+      href="/planejamento"
       className="@container glass-card group relative flex h-full flex-col justify-between overflow-hidden rounded-2xl p-5 text-white shadow-[0_10px_26px_-14px_hsl(16_80%_35%_/_0.5)]"
       style={{
         background:
@@ -40,20 +40,20 @@ export function CardVidaPlanHome() {
 
       <div className="relative mt-5">
         <h3 className="font-display text-lg font-extrabold uppercase tracking-tight @[15rem]:text-xl">
-          Vida Plan
+          Planejamento
         </h3>
         <p className="mt-1 line-clamp-2 text-xs leading-snug text-white/80">
-          Seus objetivos viram um número só, com um consultor acompanhando. A Íris vai de brinde.
+          Seu retrato, seu diagnóstico e seu plano — prontos em 10 minutos, sem depender de ninguém.
         </p>
       </div>
 
       <div className="relative mt-5 flex items-center justify-between border-t border-white/20 pt-3">
         <span className="flex items-center gap-1.5 text-sm font-bold">
-          {VIDA_PLAN_TRIAL_DIAS} dias grátis
+          {PLANO_TRIAL_DIAS} dias grátis
           <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
         </span>
         <span className="text-[11px] font-bold tabular-nums text-white/85">
-          depois {VIDA_PLAN_PRECO_ROTULO}/mês
+          depois {PLANO_PRECO_ROTULO}/mês
         </span>
       </div>
     </Link>

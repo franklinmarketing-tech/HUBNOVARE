@@ -25,21 +25,23 @@ import {
 } from "lucide-react";
 import { Cabecalho } from "@/components/Cabecalho";
 import { RodapeNovare } from "@/components/RodapeNovare";
-import { CalculadoraVidaPlan } from "@/components/CalculadoraVidaPlan";
+import { CalculadoraMarcoHorizonte } from "@/components/CalculadoraMarcoHorizonte";
 import { OQueSignifica } from "@/components/OQueSignifica";
-import { BotaoAssinarVidaPlan } from "@/components/BotaoAssinarVidaPlan";
+import { BotaoAssinarPlano } from "@/components/BotaoAssinarPlano";
 import {
-  VIDA_PLAN_INCLUI,
-  VIDA_PLAN_OFERTA,
-  VIDA_PLAN_PRECO_ROTULO,
-  VIDA_PLAN_TRIAL_DIAS,
-} from "@/lib/vidaplan";
+  PLANO_INCLUI,
+  PLANO_OFERTA,
+  PLANO_PRECO_ROTULO,
+  PLANO_TRIAL_DIAS,
+} from "@/lib/planejamento/oferta";
+import { ASSINATURA_NOME } from "@/lib/assinatura";
+import { ROTULO_DESCONTO } from "@/lib/consultoria";
 import { falarNoWhatsApp } from "@/lib/contato";
 
 export const metadata: Metadata = {
-  title: "Vida Plan — seus objetivos viram um número só",
+  title: "Planejamento Financeiro — seus objetivos viram um número só",
   description:
-    `O Marco Horizonte é o patrimônio que sustenta a renda que você quer, para sempre. Calcule o seu de graça e teste o Vida Plan por ${VIDA_PLAN_TRIAL_DIAS} dias sem pagar nada — depois ${VIDA_PLAN_PRECO_ROTULO} ao mês, com a Íris incluída.`,
+    `O Marco Horizonte é o patrimônio que sustenta a renda que você quer, para sempre. Calcule o seu de graça e teste por ${PLANO_TRIAL_DIAS} dias sem pagar nada — depois ${PLANO_PRECO_ROTULO} ao mês, com a Íris e o desconto na consultoria inclusos.`,
 };
 
 /**
@@ -121,7 +123,7 @@ const PASSOS: { icone: LucideIcon; titulo: string; texto: string }[] = [
   },
 ];
 
-/** Um ícone para cada linha de `VIDA_PLAN_INCLUI`, na mesma ordem. */
+/** Um ícone para cada linha de `PLANO_INCLUI`, na mesma ordem. */
 const ICONES_INCLUI: LucideIcon[] = [
   Sparkles, // 7 dias grátis
   Target, // Marco Horizonte
@@ -139,14 +141,21 @@ const GRATIS = [
   "Resumo do seu caso pelo WhatsApp",
 ];
 
-/** O que só existe com a assinatura. */
+/**
+ * O que só existe com a assinatura.
+ *
+ * ⚠️ Assinar este app É assinar o Workspace: a mesma mensalidade libera a Íris,
+ * as ferramentas e o desconto na consultoria. Omitir isso aqui faria a página
+ * vender menos do que a casa entrega — e faria duas páginas prometerem coisas
+ * diferentes pelo mesmo preço.
+ */
 const SO_NO_PRO = [
-  "Revisão do número por um consultor CFP®",
+  "Seu plano salvo, revisado e acompanhado mês a mês",
   "Projeção ano a ano até a independência",
   "Plano de aportes que cabe no seu mês",
-  "Acompanhamento da evolução do patrimônio",
-  "Revisão sempre que a vida muda",
-  "A Íris incluída: a IA que acha o dinheiro que some",
+  "Relatório completo em PDF, quando quiser",
+  `A Íris incluída: a IA que acha o dinheiro que some`,
+  `${ROTULO_DESCONTO} na consultoria particular da Novare`,
 ];
 
 /** Os selos de confiança — só o que é verdade sobre a Novare. */
@@ -183,7 +192,7 @@ export default function VidaPlanPage() {
               <div className="surgir">
                 <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-2xs font-bold uppercase tracking-[0.14em] text-white">
                   <Sparkles className="h-3.5 w-3.5 text-accent-claro" />
-                  Vida Plan · Produto PRO
+                  Planejamento Financeiro · Produto PRO
                 </span>
 
                 <h1 className="mt-5 font-display text-[1.75rem] font-extrabold leading-[1.12] tracking-tight sm:text-[2.4rem] lg:text-[2.75rem]">
@@ -193,7 +202,7 @@ export default function VidaPlanPage() {
 
                 <p className="mt-4 max-w-xl text-base leading-relaxed text-white/80">
                   Casa própria, faculdade dos filhos, parar de depender do
-                  salário: cada objetivo tem um preço. O Vida Plan junta todos
+                  salário: cada objetivo tem um preço. O app junta todos
                   eles em um único alvo de patrimônio — o seu{" "}
                   <strong className="font-semibold text-white">
                     Marco Horizonte
@@ -206,20 +215,20 @@ export default function VidaPlanPage() {
                     consequência, não como barreira de entrada. */}
                 <div className="mt-7 flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
                   <span className="font-display text-3xl font-black leading-none tabular-nums sm:text-4xl">
-                    {VIDA_PLAN_TRIAL_DIAS} dias grátis
+                    {PLANO_TRIAL_DIAS} dias grátis
                   </span>
                   <span className="text-sm text-white/70">
-                    depois {VIDA_PLAN_PRECO_ROTULO}/mês · cancele quando quiser
+                    depois {PLANO_PRECO_ROTULO}/mês · cancele quando quiser
                   </span>
                 </div>
 
                 <p className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-white/[0.12] px-2.5 py-1.5 text-xs font-bold">
                   <Gift className="h-3.5 w-3.5 text-accent-claro" />
-                  Quem assina leva a Íris de brinde
+                  Uma assinatura, tudo liberado
                 </p>
 
                 <div className="mt-5 flex flex-col gap-2.5 sm:flex-row sm:flex-wrap sm:items-center">
-                  <BotaoAssinarVidaPlan variante="clara" />
+                  <BotaoAssinarPlano variante="clara" />
                   <a
                     href="#calcular"
                     className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/25 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-white/10"
@@ -355,7 +364,7 @@ export default function VidaPlanPage() {
             </div>
 
             <div className="mt-6">
-              <CalculadoraVidaPlan />
+              <CalculadoraMarcoHorizonte />
             </div>
           </section>
 
@@ -365,7 +374,7 @@ export default function VidaPlanPage() {
               Como funciona a assinatura
             </h2>
             <p className="mt-4 max-w-2xl text-base text-muted-foreground">
-              A calculadora dá a fotografia. O Vida Plan é o filme — do primeiro
+              A calculadora dá a fotografia. O app é o filme — do primeiro
               número até a revisão que mantém o plano de pé.
             </p>
 
@@ -400,13 +409,13 @@ export default function VidaPlanPage() {
               O que vem na assinatura
             </h2>
             <p className="mt-4 max-w-2xl text-base text-muted-foreground">
-              São {VIDA_PLAN_TRIAL_DIAS} dias para testar sem pagar nada. Depois,{" "}
-              {VIDA_PLAN_PRECO_ROTULO} ao mês — sem taxa de entrada e sem
+              São {PLANO_TRIAL_DIAS} dias para testar sem pagar nada. Depois,{" "}
+              {PLANO_PRECO_ROTULO} ao mês — sem taxa de entrada e sem
               fidelidade.
             </p>
 
             <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {VIDA_PLAN_INCLUI.map((item, i) => {
+              {PLANO_INCLUI.map((item, i) => {
                 const Icone = ICONES_INCLUI[i] ?? Check;
                 return (
                   <div
@@ -487,13 +496,13 @@ export default function VidaPlanPage() {
               >
                 <div className="flex flex-wrap items-center gap-2">
                   <h3 className="font-display text-lg font-bold text-primary">
-                    Vida Plan
+                    Planejamento Financeiro
                   </h3>
                   <span className="rounded-md bg-accent-btn px-2 py-0.5 text-2xs font-black uppercase tracking-wider text-white">
                     PRO
                   </span>
                   <span className="text-sm font-bold text-accent-strong">
-                    {VIDA_PLAN_OFERTA}
+                    {PLANO_OFERTA}
                   </span>
                 </div>
                 <p className="mt-1.5 text-sm text-muted-foreground">
@@ -517,7 +526,7 @@ export default function VidaPlanPage() {
                 </ul>
 
                 <div className="mt-6">
-                  <BotaoAssinarVidaPlan />
+                  <BotaoAssinarPlano />
                 </div>
               </div>
             </div>
@@ -597,23 +606,25 @@ export default function VidaPlanPage() {
 
                   <h2 className="mt-4 font-display text-2xl font-extrabold leading-tight text-primary sm:text-3xl">
                     <span className="whitespace-nowrap tabular-nums text-accent-strong">
-                      {VIDA_PLAN_TRIAL_DIAS} dias grátis
+                      {PLANO_TRIAL_DIAS} dias grátis
                     </span>
                     . Depois,{" "}
                     <span className="whitespace-nowrap tabular-nums">
-                      {VIDA_PLAN_PRECO_ROTULO}
+                      {PLANO_PRECO_ROTULO}
                     </span>{" "}
                     ao mês.
                   </h2>
 
                   <p className="mt-3 max-w-lg text-sm leading-relaxed text-muted-foreground">
-                    Sem taxa de entrada, sem fidelidade e sem comissão embutida
-                    em produto nenhum. Você testa primeiro e só paga se o plano
-                    valer a pena — e a Íris vem junto, sem custo.
+                    É a assinatura do {ASSINATURA_NOME}: a mesma mensalidade
+                    libera este app, a Íris, todas as ferramentas e{" "}
+                    {ROTULO_DESCONTO} na consultoria particular. Sem taxa de
+                    entrada, sem fidelidade e sem comissão embutida em produto
+                    nenhum.
                   </p>
 
                   <ul className="mt-5 flex flex-wrap gap-x-5 gap-y-2">
-                    {["Cancele quando quiser, sem multa", "Consultor CFP® dedicado", "A Íris incluída"].map(
+                    {["Cancele quando quiser, sem multa", "A Íris incluída", `${ROTULO_DESCONTO} na consultoria`].map(
                       (linha) => (
                         <li
                           key={linha}
@@ -628,10 +639,10 @@ export default function VidaPlanPage() {
                 </div>
 
                 <div className="flex flex-col gap-2.5">
-                  <BotaoAssinarVidaPlan />
+                  <BotaoAssinarPlano />
                   <a
                     href={falarNoWhatsApp(
-                      "Olá! Tenho dúvidas sobre o Vida Plan da Novare antes de assinar.",
+                      "Olá! Tenho dúvidas sobre o App Novare Planejamento Financeiro antes de assinar.",
                     )}
                     target="_blank"
                     rel="noopener noreferrer"
@@ -642,7 +653,7 @@ export default function VidaPlanPage() {
                   </a>
                   <p className="flex items-center justify-center gap-1.5 text-2xs text-muted-foreground">
                     <Lock className="h-3 w-3 shrink-0" />
-                    Sem cobrança nos primeiros {VIDA_PLAN_TRIAL_DIAS} dias.
+                    Sem cobrança nos primeiros {PLANO_TRIAL_DIAS} dias.
                   </p>
                 </div>
               </div>
@@ -675,13 +686,13 @@ export default function VidaPlanPage() {
                     "Não. O percentual mostra onde você chega mantendo exatamente o ritmo de hoje — ele não conta aumento de renda, herança, venda de bem nem melhora nos aportes. Serve para responder uma pergunta: o ritmo atual basta? Se não bastar, dá para ajustar aporte, prazo ou renda-alvo.",
                 },
                 {
-                  pergunta: `Como funcionam os ${VIDA_PLAN_TRIAL_DIAS} dias grátis?`,
-                  resposta: `Você entra no plano completo na hora e não paga nada nos primeiros ${VIDA_PLAN_TRIAL_DIAS} dias. A primeira cobrança de ${VIDA_PLAN_PRECO_ROTULO} só acontece quando o prazo vence — e se você cancelar antes disso, ela não acontece.`,
+                  pergunta: `Como funcionam os ${PLANO_TRIAL_DIAS} dias grátis?`,
+                  resposta: `Você entra no plano completo na hora e não paga nada nos primeiros ${PLANO_TRIAL_DIAS} dias. A primeira cobrança de ${PLANO_PRECO_ROTULO} só acontece quando o prazo vence — e se você cancelar antes disso, ela não acontece.`,
                 },
                 {
-                  pergunta: `O que eu recebo pagando ${VIDA_PLAN_PRECO_ROTULO} por mês?`,
+                  pergunta: `O que eu recebo pagando ${PLANO_PRECO_ROTULO} por mês?`,
                   resposta:
-                    "O seu Marco Horizonte revisado por um consultor, a projeção ano a ano até a independência, um plano de aportes que cabe no seu mês e o acompanhamento da evolução do patrimônio. Vem junto a Íris, a IA financeira da casa, sem custo adicional. A calculadora dá o número; a assinatura dá o caminho e a companhia até lá.",
+                    `Tudo. Assinar este app é assinar o ${ASSINATURA_NOME}: você leva o planejamento completo (retrato, diagnóstico, plano de ação, acompanhamento mensal e relatório em PDF), a Íris sem custo adicional, todas as ferramentas da casa e ${ROTULO_DESCONTO} na consultoria particular. Não existe plano mais caro com mais coisas — é uma assinatura só.`,
                 },
                 {
                   pergunta: "Preciso já ter dinheiro investido para assinar?",
@@ -695,7 +706,7 @@ export default function VidaPlanPage() {
                 },
                 {
                   pergunta: "Como faço para cancelar?",
-                  resposta: `É só avisar a gente: a cobrança para, sem multa e sem fidelidade. Cancelando dentro dos ${VIDA_PLAN_TRIAL_DIAS} dias de teste, você não paga nada. E a calculadora gratuita continua aberta para você de qualquer jeito.`,
+                  resposta: `É só avisar a gente: a cobrança para, sem multa e sem fidelidade. Cancelando dentro dos ${PLANO_TRIAL_DIAS} dias de teste, você não paga nada. E a calculadora gratuita continua aberta para você de qualquer jeito.`,
                 },
                 {
                   pergunta: "E os meus dados?",
@@ -719,13 +730,13 @@ export default function VidaPlanPage() {
                 <p className="max-w-lg text-sm leading-relaxed text-white/75">
                   Calcule o seu Marco Horizonte agora, de graça. E quando quiser
                   o caminho inteiro — ano a ano, revisado por um consultor da
-                  Novare — são {VIDA_PLAN_OFERTA}, com a Íris incluída e sem
+                  Novare — são {PLANO_OFERTA}, com tudo liberado e sem
                   fidelidade nenhuma.
                 </p>
               </div>
 
               <div className="mt-6 flex shrink-0 flex-col gap-2.5 sm:mt-0 sm:w-64">
-                <BotaoAssinarVidaPlan variante="clara" />
+                <BotaoAssinarPlano variante="clara" />
                 <a
                   href="#calcular"
                   className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/25 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-white/10"
@@ -734,7 +745,7 @@ export default function VidaPlanPage() {
                   Calcular de graça antes
                 </a>
                 <p className="text-center text-2xs text-white/70">
-                  Os primeiros {VIDA_PLAN_TRIAL_DIAS} dias não são cobrados.
+                  Os primeiros {PLANO_TRIAL_DIAS} dias não são cobrados.
                 </p>
               </div>
             </div>

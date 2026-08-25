@@ -24,7 +24,7 @@ await p.waitForTimeout(1500);
 
 /* --------------------------------------------------- as 4 consultorias */
 const consultoria = p
-  .locator("a.card-cine", { hasText: "Diagnóstico Financeiro" })
+  .locator("a.glass-card", { hasText: "Diagnóstico Financeiro" })
   .first();
 conferir("card da consultoria existe", (await consultoria.count()) > 0);
 
@@ -44,10 +44,10 @@ await p.waitForTimeout(400);
 conferir("Esc fecha", (await p.locator("[role='dialog']").count()) === 0);
 
 /* ------------------------------------- o clique no card continua direto */
-const vidaPlan = p.locator("a.card-cine", { hasText: "Vida Plan" }).first();
-await vidaPlan.click({ position: { x: 40, y: 30 } });
-await p.waitForURL((u) => u.pathname.startsWith("/vidaplan"), { timeout: 15000 }).catch(() => {});
-conferir("clicar no card abre o app direto", p.url().includes("/vidaplan"), p.url());
+const planejamento = p.locator("a.glass-card", { hasText: "Planejamento" }).first();
+await planejamento.click({ position: { x: 40, y: 30 } });
+await p.waitForURL((u) => u.pathname.startsWith("/planejamento"), { timeout: 15000 }).catch(() => {});
+conferir("clicar no card abre o app direto", p.url().includes("/planejamento"), p.url());
 
 conferir("sem erros de página", erros.length === 0, erros.slice(0, 2).join(" | "));
 

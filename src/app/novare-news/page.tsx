@@ -16,7 +16,6 @@ export const metadata: Metadata = {
     "Conteúdo educativo da Novare sobre salário, rescisão, investimentos e o dia a dia do dinheiro — sempre ligado à ferramenta que resolve o que acabou de ser explicado.",
 };
 
-const POR_PAGINA = 6;
 
 const MESES = [
   "jan",
@@ -42,11 +41,10 @@ function formatarData(iso: string): string {
 export default async function NovareNewsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ categoria?: string; pagina?: string }>;
+  searchParams: Promise<{ categoria?: string }>;
 }) {
   const params = await searchParams;
   const categoriaAtiva = (params.categoria ?? "todos") as Familia | "todos";
-  const pagina = Math.max(1, Number(params.pagina) || 1);
 
   const todos = artigosOrdenados();
 
@@ -55,15 +53,13 @@ export default async function NovareNewsPage({
   const semFiltro = categoriaAtiva === "todos";
 
   // Manchete = a publicação mais recente. As duas chamadas ao lado são os
-  // destaques marcados na fonte. O conjunto é calculado SEMPRE (não só na
-  // página 1), senão a lista paginada mudaria de tamanho a cada página e
-  // os mesmos artigos apareceriam duas vezes.
+  // destaques marcados na fonte.
   const principal = semFiltro ? todos[0] : undefined;
   const secundarias = principal
     ? todos.filter((a) => a.destaque && a.slug !== principal.slug).slice(0, 2)
     : [];
   const noTopo = new Set([principal?.slug, ...secundarias.map((a) => a.slug)]);
-  const mostrarTopo = pagina === 1;
+  const mostrarTopo = true;
 
   const listaBase = semFiltro
     ? todos.filter((a) => !noTopo.has(a.slug))
@@ -73,13 +69,11 @@ export default async function NovareNewsPage({
     ? "Mais publicações"
     : (FAMILIAS[categoriaAtiva as Familia] ?? "Publicações");
 
-  const totalPaginas = Math.max(1, Math.ceil(listaBase.length / POR_PAGINA));
-  const inicio = (pagina - 1) * POR_PAGINA;
-  const pagina_ = listaBase.slice(inicio, inicio + POR_PAGINA);
+  // Tudo numa tela só: sem fatia, sem "página 2".
+  const pagina_ = listaBase;
 
-  const linkFiltro = (cat: string) => (cat === "todos" ? "/novare-news" : `/novare-news?categoria=${cat}`);
-  const linkPagina = (n: number) =>
-    `/novare-news?${semFiltro ? "" : `categoria=${categoriaAtiva}&`}pagina=${n}`;
+  const linkFiltro = (cat: string) =>
+    cat === "todos" ? "/novare-news" : `/novare-news?categoria=${cat}`;
 
   return (
     <div className="min-h-dvh bg-white">
@@ -163,48 +157,6 @@ export default async function NovareNewsPage({
               </p>
             )}
 
-            {/* Paginação */}
-            {totalPaginas > 1 && (
-              <nav
-                aria-label="Paginação"
-                className="mt-12 flex items-center justify-center gap-1.5 border-t border-border pt-8"
-              >
-                {pagina > 1 && (
-                  <Link
-                    href={linkPagina(pagina - 1)}
-                    aria-label="Página anterior"
-                    className="flex h-9 items-center gap-1 rounded-lg px-3 text-xs font-semibold text-muted-foreground transition-colors hover:bg-muted hover:text-primary"
-                  >
-                    <ChevronLeft className="h-3.5 w-3.5" />
-                    Anterior
-                  </Link>
-                )}
-                {Array.from({ length: totalPaginas }, (_, i) => i + 1).map((n) => (
-                  <Link
-                    key={n}
-                    href={linkPagina(n)}
-                    aria-current={n === pagina ? "page" : undefined}
-                    className={`flex h-9 w-9 items-center justify-center rounded-lg text-xs font-bold transition-colors ${
-                      n === pagina
-                        ? "bg-primary text-white"
-                        : "text-muted-foreground hover:bg-muted hover:text-primary"
-                    }`}
-                  >
-                    {n}
-                  </Link>
-                ))}
-                {pagina < totalPaginas && (
-                  <Link
-                    href={linkPagina(pagina + 1)}
-                    aria-label="Próxima página"
-                    className="flex h-9 items-center gap-1 rounded-lg px-3 text-xs font-semibold text-muted-foreground transition-colors hover:bg-muted hover:text-primary"
-                  >
-                    Próxima
-                    <ChevronRight className="h-3.5 w-3.5" />
-                  </Link>
-                )}
-              </nav>
-            )}
           </div>
 
           <SidebarNews />
@@ -413,14 +365,14 @@ function SidebarNews() {
           Sem cadastro
         </p>
         <h2 className="mt-1.5 font-display text-lg font-bold">
-          Experimente o Vida Plan
+          Monte o seu plano
         </h2>
         <p className="mt-1.5 text-xs leading-relaxed text-white/75">
           Entre agora numa conta de demonstração — sem e-mail, sem senha — e
           veja o Marco Horizonte por dentro.
         </p>
         <a
-          href="/vidaplan/login?demo=1"
+          href="/planejamento"
           className="mt-4 inline-flex items-center gap-1.5 rounded-xl bg-white px-4 py-2.5 text-xs font-bold text-primary transition-colors hover:bg-white/90"
         >
           Ver por dentro
@@ -474,7 +426,7 @@ function BannerWorkspace() {
           Workspace Novare
         </p>
         <h3 className="mt-1.5 font-display text-lg font-bold leading-snug sm:text-xl">
-          Todas as ferramentas, o Vida Plan e a Íris num lugar só
+          Todas as ferramentas, o Planejamento e a Íris num lugar só
         </h3>
         <p className="mt-1.5 text-sm leading-relaxed text-white/75">
           E desconto exclusivo nas consultorias — com a primeira análise grátis.

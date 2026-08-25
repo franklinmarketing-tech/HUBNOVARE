@@ -21,7 +21,7 @@ p.on("pageerror", (e) => erros.push(String(e).slice(0, 120)));
 await p.goto(`${BASE}/aplicativos?area=ia`, { waitUntil: "domcontentloaded" });
 await p.waitForTimeout(1500);
 
-const card = p.locator("a.card-cine", { hasText: "Vida Plan" }).first();
+const card = p.locator("a.glass-card", { hasText: "Planejamento" }).first();
 conferir("o card existe", (await card.count()) > 0);
 
 const lampada = card.locator("button[aria-label*='Saber mais']").first();
@@ -87,8 +87,8 @@ conferir("Esc fecha o modal", (await p.locator("[role='dialog']").count()) === 0
 
 // Clicar no corpo do card (longe da lâmpada) navega para o app.
 await card.click({ position: { x: 40, y: 30 } });
-await p.waitForURL((u) => u.pathname.startsWith("/vidaplan"), { timeout: 15000 }).catch(() => {});
-conferir("clicar no card abre o app", p.url().includes("/vidaplan"), p.url());
+await p.waitForURL((u) => u.pathname.startsWith("/planejamento"), { timeout: 15000 }).catch(() => {});
+conferir("clicar no card abre o app", p.url().includes("/planejamento"), p.url());
 
 conferir("sem erro de página", erros.length === 0, erros.slice(0, 2).join(" | "));
 

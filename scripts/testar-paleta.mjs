@@ -7,6 +7,7 @@ import { chromium } from "playwright";
  * Cada asserção compara valor exato. Checar só "o item aparece na lista"
  * passa mesmo quando o filtro não filtrou nada.
  */
+const BASE = process.env.BASE ?? "http://localhost:3000";
 const destino = process.argv[2] || "C:/tmp/novare-shots";
 let falhas = 0;
 
@@ -40,7 +41,7 @@ async function abrirPaleta() {
   }
 }
 
-await pagina.goto("http://localhost:3000/", { waitUntil: "networkidle" });
+await pagina.goto(`${BASE}/`, { waitUntil: "networkidle" });
 
 // 1. Atalho abre e o campo recebe foco
 await abrirPaleta();
@@ -60,7 +61,7 @@ await pagina.goto("http://localhost:3000/aplicativos", { waitUntil: "domcontentl
 await pagina.waitForTimeout(1500);
 const noCatalogo = await pagina.locator("a.card-cine").count();
 conferir("a busca lista o catálogo inteiro", naPaleta, noCatalogo);
-await pagina.goto("http://localhost:3000/", { waitUntil: "domcontentloaded" });
+await pagina.goto(`${BASE}/`, { waitUntil: "domcontentloaded" });
 await pagina.waitForTimeout(1200);
 await pagina.keyboard.press("Control+K");
 await pagina.waitForTimeout(600);
@@ -100,7 +101,7 @@ conferir(
 // 4. Seta para baixo muda a seleção. O termo devolve vários resultados e o
 // teste cobra o SEGUNDO — lido da própria lista, para não quebrar toda vez
 // que o catálogo é podado ou reordenado.
-await pagina.goto("http://localhost:3000/", { waitUntil: "networkidle" });
+await pagina.goto(`${BASE}/`, { waitUntil: "networkidle" });
 await abrirPaleta();
 await pagina.waitForTimeout(150);
 // "salario" casa com ferramentas LOCAIS: app externo abre em nova aba
@@ -124,17 +125,21 @@ await pagina
   .catch(() => {});
 conferir(
   "seta + Enter abre o segundo da lista",
-  Boolean(segundoNome?.length) && pagina.url() !== "http://localhost:3000/",
+  Boolean(segundoNome?.length) && pagina.url() !== `${BASE}/`,
   true,
 );
 
 // 5. Esc fecha
-await pagina.goto("http://localhost:3000/", { waitUntil: "networkidle" });
+await pagina.goto(`${BASE}/`, { waitUntil: "networkidle" });
 await abrirPaleta();
 await pagina.waitForTimeout(150);
 await pagina.keyboard.press("Escape");
 await pagina.waitForTimeout(300);
-conferir("Esc fecha", await pagina.isVisible('[role="dialog"]'), "false");
+conferir(
+  "Esc fecha",
+  !(await pagina.isVisible('[role="dialog"][aria-label*="omando"], [role="dialog"] input[type="search"]')),
+  "a paleta continuou aberta",
+);
 
 // 6. App bloqueado leva para a assinatura
 await abrirPaleta();

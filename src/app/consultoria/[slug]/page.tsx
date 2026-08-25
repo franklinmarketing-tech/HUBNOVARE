@@ -17,9 +17,20 @@ import {
   Users,
   Wallet,
   type LucideIcon,
+  Clock3,
+  Compass,
+  FileCheck,
+  FolderOpen,
+  Layers,
+  MessageSquare,
+  SearchCheck,
 } from "lucide-react";
 import { Cabecalho } from "@/components/Cabecalho";
 import { RodapeNovare } from "@/components/RodapeNovare";
+import { OQueSignifica } from "@/components/OQueSignifica";
+import { RevelarAoRolar } from "@/components/RevelarAoRolar";
+import { Etapa, Persona, TituloSecao } from "@/components/SecoesVenda";
+import { ASSINATURA_NOME, ASSINATURA_PRECO_ROTULO } from "@/lib/assinatura";
 import { CapturaLead } from "@/components/CapturaLead";
 import {
   CAPA_PRODUTO,
@@ -30,6 +41,7 @@ import {
   buildTrackingUrl,
   consultoriaPorSlug,
   temVideoReal,
+  ROTULO_DESCONTO,
 } from "@/lib/consultoria";
 import { falarNoWhatsApp } from "@/lib/contato";
 
@@ -43,6 +55,90 @@ const ICONE: Record<string, LucideIcon> = {
 
 const brl = (v: number) =>
   v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+
+/**
+ * Como uma consultoria da Novare acontece, do primeiro contato à entrega.
+ *
+ * É o mesmo processo para os cinco formatos — o que muda entre eles é a
+ * profundidade da análise e o que sai no relatório, não o rito. Descrever o
+ * caminho tira a maior objeção de quem nunca contratou consultoria: o medo de
+ * não saber no que está entrando.
+ */
+const COMO_ACONTECE = [
+  {
+    icone: MessageSquare,
+    titulo: "Conversa inicial",
+    texto:
+      "Você conta o seu caso e a gente diz, com franqueza, se este formato é o certo para você — ou se outro resolve melhor e mais barato.",
+  },
+  {
+    icone: FolderOpen,
+    titulo: "Você envia o material",
+    texto:
+      "Extratos, informe de rendimentos, apólices, contratos: o que existir. Nada é obrigatório, e o que faltar a gente levanta junto na conversa.",
+  },
+  {
+    icone: SearchCheck,
+    titulo: "Análise técnica",
+    texto:
+      "Um consultor CFP® estuda o material com research independente da Nord por trás. Sem comissão de corretora no meio: nenhuma conclusão paga nada a ninguém.",
+  },
+  {
+    icone: FileCheck,
+    titulo: "Entrega e devolutiva",
+    texto:
+      "Você recebe o material escrito e a gente lê junto, numa reunião. Sai com as decisões claras e os próximos passos por escrito.",
+  },
+];
+
+/** Quem procura consultoria — e por quê. */
+const PARA_QUEM = [
+  {
+    icone: Compass,
+    titulo: "Você quer uma segunda opinião isenta",
+    texto:
+      "Alguém já te recomendou alguma coisa e você quer ouvir quem não ganha nada com a sua decisão.",
+  },
+  {
+    icone: Layers,
+    titulo: "Seu caso ficou complexo demais",
+    texto:
+      "Mais de uma fonte de renda, PJ, imóvel, sucessão, sócio. A partir de certo ponto, planilha não resolve.",
+  },
+  {
+    icone: Clock3,
+    titulo: "Você tem o número, falta a decisão",
+    texto:
+      "O app te deu o diagnóstico e o plano. Agora é uma escolha grande, e você quer um humano do lado antes de puxar o gatilho.",
+  },
+];
+
+const PERGUNTAS_CONSULTORIA = [
+  {
+    pergunta: "Quanto custa?",
+    resposta:
+      "O investimento é definido depois da conversa inicial, porque depende do tamanho e da complexidade do seu caso — escopo de gente não cabe numa tabela. O que a gente garante é que o valor sai na conversa, antes de qualquer compromisso, e que assinante do Workspace entra com desconto.",
+  },
+  {
+    pergunta: "Vocês ganham comissão do que recomendam?",
+    resposta:
+      "Não. A Novare é consultoria independente e não recebe comissão de corretora, banco ou seguradora. A única receita nessa relação é o que você paga pela consultoria — é isso que permite dizer 'não compre' quando é o caso.",
+  },
+  {
+    pergunta: "Preciso transferir meu dinheiro para algum lugar?",
+    resposta:
+      "Não. Seu dinheiro continua onde está, na sua conta e no seu nome. A Novare não custodia, não movimenta e não tem acesso ao seu patrimônio — a entrega é análise e recomendação, não gestão.",
+  },
+  {
+    pergunta: "Meus dados ficam em sigilo?",
+    resposta:
+      "Sim. O material que você envia é usado só para a análise, tratado conforme a LGPD e não é compartilhado com terceiros. Você pode pedir a exclusão a qualquer momento.",
+  },
+  {
+    pergunta: "E se eu já uso o app da Novare?",
+    resposta: `Melhor ainda: o consultor abre o seu planejamento já preenchido e a conversa começa do diagnóstico pronto, em vez do zero. Além disso, assinante do ${ASSINATURA_NOME} (${ASSINATURA_PRECO_ROTULO}/mês) tem desconto em qualquer formato de consultoria.`,
+  },
+];
 
 export function generateStaticParams() {
   return CONSULTORIAS.map((c) => ({ slug: c.slug }));
@@ -105,6 +201,8 @@ export default async function ProdutoPage({
       />
 
       <main className="mx-auto max-w-5xl px-4 pb-16 pt-8 sm:px-6">
+        <RevelarAoRolar />
+
         {/* ─── HERÓI: foto + véu navy + a marca por cima ─── */}
         <section className="relative overflow-hidden rounded-3xl">
           <Image
@@ -339,6 +437,76 @@ export default async function ProdutoPage({
             </a>
           </p>
         )}
+
+        {/* ─── PARA QUEM É ─── */}
+        <section className="revelar mt-16">
+          <TituloSecao
+            sobre="Para quem é"
+            titulo="Quando vale sentar com um consultor"
+            apoio="Nem todo mundo precisa. Boa parte do que trava o dinheiro se resolve com método e disciplina — e para isso o app já basta. Consultoria é para os casos abaixo."
+          />
+          <div className="revelar-escada mt-10 grid gap-5 lg:grid-cols-3">
+            {PARA_QUEM.map((item) => (
+              <Persona key={item.titulo} {...item} />
+            ))}
+          </div>
+        </section>
+
+        {/* ─── COMO ACONTECE ─── */}
+        <section className="revelar mt-16">
+          <TituloSecao
+            sobre="Como acontece"
+            titulo="Do primeiro contato à devolutiva"
+            apoio="O mesmo rito nos cinco formatos. O que muda é a profundidade da análise, não o caminho."
+          />
+          <ol className="revelar-escada mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {COMO_ACONTECE.map((etapa, i) => (
+              <Etapa
+                key={etapa.titulo}
+                numero={i + 1}
+                total={COMO_ACONTECE.length}
+                {...etapa}
+              />
+            ))}
+          </ol>
+        </section>
+
+        {/* ─── DESCONTO DO ASSINANTE ─── */}
+        {!c.isIsca && (
+          <section className="revelar mt-16 overflow-hidden rounded-3xl border border-accent-soft bg-accent-tint p-6 sm:p-8">
+            <div className="flex flex-wrap items-center justify-between gap-5">
+              <div className="min-w-0 max-w-xl">
+                <p className="text-2xs font-bold uppercase tracking-[0.14em] text-accent-strong">
+                  {ROTULO_DESCONTO} para assinante
+                </p>
+                <h2 className="mt-2 font-display text-2xl font-bold tracking-tight text-primary">
+                  Quem assina o Workspace paga menos aqui
+                </h2>
+                <p className="mt-2.5 text-sm leading-relaxed text-slate-600">
+                  A assinatura de {ASSINATURA_PRECO_ROTULO}/mês libera o
+                  Planejamento Financeiro e a Íris — e dá desconto em qualquer
+                  formato de consultoria. Um único atendimento com desconto
+                  costuma devolver mais do que o ano inteiro de assinatura.
+                </p>
+              </div>
+              <Link
+                href="/assinar"
+                className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-accent-btn px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-accent-strong"
+              >
+                Ver a assinatura
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
+          </section>
+        )}
+
+        {/* ─── PERGUNTAS ─── */}
+        <section className="revelar mt-16">
+          <OQueSignifica
+            titulo="Perguntas frequentes"
+            itens={PERGUNTAS_CONSULTORIA}
+          />
+        </section>
 
         {/* ─── OUTROS PRODUTOS ─── */}
         <section className="mt-14">

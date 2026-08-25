@@ -32,7 +32,7 @@ export type AppLeve = {
 };
 
 /**
- * Grupo do app. Pago SEM família é o Workspace (Vida Plan, Íris);
+ * Grupo do app. Pago SEM família é o Workspace (Planejamento, Íris);
  * pago COM família (o Assistente IA) fica na prateleira da categoria dele.
  */
 function filtroDe(app: NovareApp): string {
@@ -48,12 +48,25 @@ function rotuloDe(app: NovareApp): string {
   return FAMILIAS[filtro as keyof typeof FAMILIAS];
 }
 
+/**
+ * Para onde o card leva quem ainda não tem acesso.
+ *
+ * Um app pago cujo `href` já É a própria página de venda continua indo para
+ * ela: mandar para `/assinar` seria pior do que não linkar, porque essa página
+ * anuncia que está tudo liberado — o visitante clica no produto pago e lê que
+ * nada está à venda. Só cai em `/assinar` o que não tem vitrine própria.
+ */
+function destinoBloqueado(app: NovareApp): string {
+  const temVitrinePropria = app.plano === "pago" && !app.externo;
+  return temVitrinePropria ? app.href : `/assinar?app=${app.slug}`;
+}
+
 export function appsParaBusca(role: Role, plano: PlanoCliente): AppLeve[] {
   return APPS.filter((a) => a.roles.includes(role)).map((a) => ({
     slug: a.slug,
     nome: a.nome,
     chamada: a.chamada,
-    href: podeAbrir(a, role, plano) ? a.href : `/assinar?app=${a.slug}`,
+    href: podeAbrir(a, role, plano) ? a.href : destinoBloqueado(a),
     externo: !!a.externo && podeAbrir(a, role, plano),
     referencia: a.referencia,
     grupo: rotuloDe(a),

@@ -21,39 +21,52 @@ const destinos = [
   ...new Set([...fonte.matchAll(/href:\s*"([^"]+)"/g)].map((m) => m[1])),
 ];
 
-conferir("news.ts tem os 18 artigos", slugs.length === 18, `${slugs.length} artigos`);
+// Número solto envelhece a cada artigo publicado. O que interessa é que a
+// biblioteca não encolha por acidente e que nenhum slug se repita.
+conferir("news.ts tem pelo menos 18 artigos", slugs.length >= 18, `${slugs.length} artigos`);
+conferir("nenhum slug repetido", new Set(slugs).size === slugs.length);
 
 const b = await chromium.launch();
 const p = await b.newPage({ viewport: { width: 1440, height: 1200 } });
 const erros = [];
 p.on("pageerror", (e) => erros.push(String(e).slice(0, 120)));
 
+/**
+ * Espera o CONTEÚDO, não o relógio.
+ *
+ * As páginas aparecem atrás de um "Carregando…" até o React terminar. Espera
+ * por tempo fixo passa num servidor quente e falha num frio, o que faz o teste
+ * acusar bug onde não há.
+ */
+async function abrir(rota, ancora = "h1") {
+  await p.goto(`${BASE}${rota}`, { waitUntil: "domcontentloaded" });
+  await p.waitForSelector(ancora, { timeout: 20000 });
+}
+
 /* ------------------------------------------------------------ listagem */
-await p.goto(`${BASE}/novare-news`, { waitUntil: "domcontentloaded" });
-await p.waitForTimeout(1500);
+await abrir("/novare-news");
 
 const corpo = await p.locator("body").innerText();
 conferir("a listagem abre", /novare news/i.test(corpo));
 conferir("mostra artigos", (await p.locator("main a[href^='/novare-news/']").count()) >= 6);
 conferir("tem filtro de categoria", /trabalho e sal[áa]rio/i.test(corpo));
-conferir("convida para a demo do Vida Plan", /ver por dentro/i.test(corpo));
+conferir("convida para o Planejamento", /ver por dentro/i.test(corpo));
 conferir("cabeçalho do canal tem o Ecossistema", /ecossistema novare/i.test(corpo));
 conferir("CTA do Workspace no topo", /quero meu workspace/i.test(corpo));
-conferir("banner do Workspace no meio da grade", /todas as ferramentas, o vida plan e a íris/i.test(corpo));
+conferir("banner do Workspace no meio da grade", /todas as ferramentas, o planejamento e a íris/i.test(corpo));
 conferir("sidebar tem as ferramentas mais usadas", /ferramentas mais usadas/i.test(corpo));
 
 // O dropdown do ecossistema abre e lista os produtos.
 await p.hover("header button:has-text('Ecossistema')").catch(() => {});
 await p.waitForTimeout(400);
 const drop = await p.locator("header").first().innerText();
-conferir("dropdown lista Vida Plan e Íris", /vida plan/i.test(drop) && /íris/i.test(drop));
+conferir("dropdown lista Planejamento e Íris", /planejamento/i.test(drop) && /íris/i.test(drop));
 
 // Paginação: com 11 artigos e 6 por página, tem de existir página 2.
 conferir("tem paginação", /próxima|«|»/i.test(corpo) || (await p.locator("nav a").count()) > 0);
 
 /* -------------------------------------------------------------- filtro */
-await p.goto(`${BASE}/novare-news?categoria=investimentos`, { waitUntil: "domcontentloaded" });
-await p.waitForTimeout(1200);
+await abrir("/novare-news?categoria=investimentos");
 const filtrado = await p.locator("main a[href^='/novare-news/']").count();
 conferir("filtro por categoria devolve artigos", filtrado >= 1, `${filtrado} artigos`);
 
@@ -80,8 +93,7 @@ for (const destino of destinos) {
 }
 
 /* ---------------------------------------------------------- navegação */
-await p.goto(`${BASE}/`, { waitUntil: "domcontentloaded" });
-await p.waitForTimeout(1000);
+await abrir("/");
 conferir(
   "Novare News está na navegação",
   (await p.locator("a[href='/novare-news']").count()) > 0,

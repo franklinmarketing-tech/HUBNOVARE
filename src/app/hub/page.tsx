@@ -112,8 +112,8 @@ export default async function HubPage() {
               </h2>
               <p className="mt-1 text-sm text-muted-foreground">
                 {ASSINATURA_ATIVA
-                  ? `Vida Plan, Íris e ${ROTULO_DESCONTO} em qualquer consultoria.`
-                  : "Vida Plan, Íris e todas as ferramentas, sem assinatura."}
+                  ? `Planejamento Financeiro, Íris e ${ROTULO_DESCONTO} em qualquer consultoria.`
+                  : "Planejamento Financeiro, Íris e todas as ferramentas, sem assinatura."}
               </p>
             </div>
             <Link

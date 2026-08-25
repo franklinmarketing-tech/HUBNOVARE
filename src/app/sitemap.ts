@@ -20,7 +20,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/novare-news",
     // As iscas de captação: são as páginas feitas para trazer gente de busca,
     // então ficar de fora do sitemap anulava o próprio motivo delas existirem.
-    "/vida-plan",
+    "/planejamento",
     "/exame-saude-financeira",
     "/privacidade",
     "/termos",

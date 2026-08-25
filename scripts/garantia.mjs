@@ -1,7 +1,7 @@
 import { chromium } from "playwright";
 
 /**
- * GARANTIA FUNCIONAL das ferramentas locais (fora Vida Plan, Íris e IA).
+ * GARANTIA FUNCIONAL das ferramentas locais (fora Planejamento, Íris e IA).
  *
  * Nível A (todas): a página responde, não lança erro de console, mostra
  * valores e REAGE quando o usuário digita — prova de que o motor está vivo.
