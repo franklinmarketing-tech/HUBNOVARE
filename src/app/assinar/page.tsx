@@ -17,7 +17,10 @@ import {
   LineChart,
   Lock,
   Receipt,
+  EyeOff,
+  FileLock2,
   Rocket,
+  ServerCog,
   ShieldCheck,
   Sparkles,
   Target,
@@ -46,9 +49,11 @@ import { CONTAGEM } from "@/lib/apps";
 import { falarNoWhatsApp } from "@/lib/contato";
 import {
   Comparativo,
+  ContaAberta,
   Etapa,
   LinkSecao,
   Persona,
+  Pilar,
   TituloSecao,
   type LinhaComparativo,
 } from "@/components/SecoesVenda";
@@ -198,6 +203,78 @@ const SELOS = [
 ];
 
 const ICONES_INCLUI = [Gift, Target, Bot, Sparkles, BadgePercent, Receipt, InfinityIcon];
+
+/**
+ * Por que a Novare pode dizer o que diz.
+ *
+ * Não é lista de qualidades — é o conjunto de fatos verificáveis que sustenta
+ * cada recomendação da casa. Sem eles, "análise isenta" é adjetivo; com eles,
+ * é uma descrição do modelo de negócio.
+ */
+const PILARES_CREDIBILIDADE = [
+  {
+    destaque: "R$ 0",
+    titulo: "de comissão sobre o que você investe",
+    texto:
+      "A Novare não recebe rebate de corretora, banco ou seguradora. Nenhuma conclusão da análise paga nada a ninguém aqui dentro — é o que permite dizer “não compre” quando é o caso.",
+  },
+  {
+    destaque: "CFP®",
+    titulo: "certificação de planejamento financeiro",
+    texto:
+      "A metodologia que virou software é a mesma que os consultores usam no atendimento: reserva antes de risco, dívida cara antes de investimento, proteção antes de acelerar.",
+  },
+  {
+    destaque: "Nord",
+    titulo: "research independente por trás",
+    texto:
+      "Parceria oficial com a Nord Investimentos, casa de análise cujo modelo é assinatura de research — não comissão sobre o que o leitor compra. Dois independentes do mesmo lado da mesa.",
+  },
+  {
+    destaque: "5% a.a.",
+    titulo: "de retorno real nas projeções",
+    texto:
+      "Já descontada a inflação, e escrito na tela. Prometer 12% acima da inflação renderia um gráfico mais bonito e um plano que não acontece.",
+  },
+];
+
+/**
+ * O comparativo que importa de verdade: não é contra outro app, é contra o
+ * modelo de quem vive de comissão. Cada linha aqui é fato sobre o modelo de
+ * negócio, não opinião sobre concorrente — por isso a coluna da direita fala
+ * de "quem vive de comissão", e não de nenhuma empresa com nome.
+ */
+const CONTRA_TRADICIONAL: LinhaComparativo[] = [
+  { criterio: "Quem paga pela recomendação", sem: "O produto vendido", com: "Você" },
+  { criterio: "Recebe comissão do que indica", sem: "Sim", com: "Não" },
+  { criterio: "Precisa transferir seu dinheiro", sem: "Quase sempre", com: "Nunca" },
+  { criterio: "O plano existe antes do produto", sem: false, com: true },
+  { criterio: "Diz “não compre” quando é o caso", sem: false, com: true },
+  { criterio: "Você enxerga a conta por trás", sem: false, com: true },
+  { criterio: "Custo para começar", sem: "Aparentemente zero", com: ASSINATURA_PRECO_ROTULO },
+];
+
+/** O que acontece com o que você digita. Sem promessa que o produto não cumpre. */
+const SIGILO = [
+  {
+    icone: FileLock2,
+    titulo: "Os dados são seus",
+    texto:
+      "O retrato financeiro fica na sua conta e só você o enxerga. Pode editar, exportar em PDF ou pedir a exclusão a qualquer momento.",
+  },
+  {
+    icone: EyeOff,
+    titulo: "Nada vira lista de venda",
+    texto:
+      "O que você preenche não é usado para prospecção de terceiros, não é vendido e não alimenta oferta de banco nenhum.",
+  },
+  {
+    icone: ServerCog,
+    titulo: "Tratamento declarado",
+    texto:
+      "A política de privacidade nomeia cada suboperador e cada finalidade, inclusive o processamento de texto por IA. Está escrito lá porque é assim que funciona.",
+  },
+];
 
 const brl = (v: number) =>
   v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -429,6 +506,24 @@ export default function AssinarPage() {
           </div>
         </section>
 
+        {/* =================================================== por que confiar */}
+        <section className="border-y border-border bg-muted/30">
+          <div className="mx-auto max-w-5xl px-5 py-16 sm:py-20">
+            <div className="revelar">
+              <TituloSecao
+                sobre="Por que a Novare pode falar a verdade"
+                titulo="Quatro fatos, não quatro adjetivos"
+                apoio="Isenção não se declara, se demonstra pelo modelo de negócio. Estes são os quatro que sustentam tudo o que o app e a consultoria dizem."
+              />
+            </div>
+            <div className="revelar-escada mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+              {PILARES_CREDIBILIDADE.map((p) => (
+                <Pilar key={p.titulo} {...p} />
+              ))}
+            </div>
+          </div>
+        </section>
+
         {/* ========================================================== a conta */}
         <section className="border-y border-border bg-muted/30">
           <div className="mx-auto max-w-5xl px-5 py-16 sm:py-20">
@@ -451,10 +546,34 @@ export default function AssinarPage() {
                     </>
                   }
                 />
+                {/* A conta na tela, linha por linha. Afirmar "se paga
+                    sozinho" é barato; mostrar as três linhas deixa o leitor
+                    conferir — e quem confere e vê que bate confia no resto. */}
+                <div className="mt-6">
+                  <ContaAberta
+                    linhas={[
+                      {
+                        rotulo: "Assinatura por um ano",
+                        valor: porAno,
+                        obs: `${ASSINATURA_PRECO_ROTULO} × 12 meses`,
+                      },
+                      {
+                        rotulo: "Desconto do assinante",
+                        valor: ROTULO_DESCONTO,
+                        obs: "em qualquer formato de consultoria",
+                      },
+                    ]}
+                    resultado={{
+                      rotulo: "Uma consultoria a partir de",
+                      valor: limiarConsultoria,
+                    }}
+                  />
+                </div>
+
                 <p className="mt-4 max-w-xl text-sm leading-relaxed text-muted-foreground">
                   Os formatos de consultoria são orçados caso a caso, porque
-                  escopo de gente não cabe numa tabela. Por isso a conta acima
-                  mostra o limiar, e não um preço que a casa não pratica.
+                  escopo de gente não cabe numa tabela. Por isso a conta mostra
+                  o limiar, e não um preço que a casa não pratica.
                 </p>
                 <div className="mt-6">
                   <LinkSecao href="/consultoria">
@@ -512,6 +631,67 @@ export default function AssinarPage() {
               contexto="workspace"
               rotulo={`Começar ${ASSINATURA_TRIAL_DIAS} dias grátis`}
             />
+          </div>
+        </section>
+
+        {/* =============================================== contra o tradicional */}
+        <section className="border-y border-border bg-muted/30">
+          <div className="mx-auto max-w-4xl px-5 py-16 sm:py-20">
+            <div className="revelar">
+              <TituloSecao
+                sobre="O modelo, não o concorrente"
+                titulo="De que lado da mesa está quem te aconselha"
+                apoio="A pergunta que decide tudo não é “qual produto?”, é “quem paga a pessoa que está me recomendando?”. Enquanto a resposta for “o produto”, a recomendação nasce contaminada."
+              />
+            </div>
+
+            <div className="revelar mt-12">
+              <Comparativo
+                linhas={CONTRA_TRADICIONAL}
+                rotuloSem="Quem vive de comissão"
+                rotuloCom="Novare"
+              />
+            </div>
+
+            <p className="revelar mt-5 text-center text-xs leading-relaxed text-muted-foreground">
+              A coluna da esquerda descreve um modelo de remuneração, não uma
+              empresa. Há gente séria trabalhando nele — o ponto é que o
+              conflito existe por desenho, e não por má-fé de ninguém.
+            </p>
+          </div>
+        </section>
+
+        {/* ========================================================== sigilo */}
+        <section className="mx-auto max-w-5xl px-5 py-16 sm:py-20">
+          <div className="revelar">
+            <TituloSecao
+              sobre="Seus dados"
+              titulo="O que acontece com o que você digita"
+              apoio="Você vai colocar aqui renda, dívida e patrimônio. É justo saber para onde isso vai antes de digitar a primeira linha."
+            />
+          </div>
+
+          <div className="revelar-escada mt-12 grid gap-5 lg:grid-cols-3">
+            {SIGILO.map(({ icone: Icone, titulo, texto }) => (
+              <article
+                key={titulo}
+                className="glass-card flex h-full flex-col rounded-2xl border border-border bg-card p-6 shadow-subtle"
+              >
+                <span className="tile-cine flex h-11 w-11 items-center justify-center rounded-xl bg-primary text-white">
+                  <Icone className="h-5 w-5" strokeWidth={1.75} />
+                </span>
+                <h3 className="mt-5 font-display text-base font-bold leading-snug text-primary">
+                  {titulo}
+                </h3>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                  {texto}
+                </p>
+              </article>
+            ))}
+          </div>
+
+          <div className="revelar mt-8 text-center">
+            <LinkSecao href="/privacidade">Ler a política de privacidade</LinkSecao>
           </div>
         </section>
 

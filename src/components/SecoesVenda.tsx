@@ -187,3 +187,76 @@ export function LinkSecao({ href, children }: { href: string; children: React.Re
     </Link>
   );
 }
+
+/**
+ * Pilar de credibilidade: um número/afirmação grande com a explicação embaixo.
+ *
+ * Diferente do card de persona — ali o objetivo é a pessoa se reconhecer; aqui
+ * é provar uma coisa sobre a casa. Por isso o destaque é a afirmação, não o
+ * ícone.
+ */
+export function Pilar({
+  destaque,
+  titulo,
+  texto,
+}: {
+  destaque: string;
+  titulo: string;
+  texto: string;
+}) {
+  return (
+    <article className="rounded-2xl border border-border bg-card p-6 shadow-subtle">
+      <p className="font-display text-3xl font-black leading-none tracking-tight text-accent-strong">
+        {destaque}
+      </p>
+      <h3 className="mt-3.5 font-display text-base font-bold leading-snug text-primary">
+        {titulo}
+      </h3>
+      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{texto}</p>
+    </article>
+  );
+}
+
+/**
+ * Bloco de conta aberta: a matemática do argumento, passo a passo.
+ *
+ * Existe porque afirmar "se paga sozinho" é fácil e vale nada. Mostrar as
+ * três linhas da conta deixa o leitor conferir — e quem confere e vê que bate
+ * confia no resto da página.
+ */
+export function ContaAberta({
+  linhas,
+  resultado,
+}: {
+  linhas: { rotulo: string; valor: string; obs?: string }[];
+  resultado: { rotulo: string; valor: string };
+}) {
+  return (
+    <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-subtle">
+      {linhas.map((l) => (
+        <div
+          key={l.rotulo}
+          className="flex items-baseline justify-between gap-4 border-b border-border/60 px-5 py-3.5"
+        >
+          <div className="min-w-0">
+            <p className="text-sm font-medium text-foreground">{l.rotulo}</p>
+            {l.obs && (
+              <p className="mt-0.5 text-[11px] leading-snug text-muted-foreground">
+                {l.obs}
+              </p>
+            )}
+          </div>
+          <span className="shrink-0 text-sm font-bold tabular-nums text-slate-600">
+            {l.valor}
+          </span>
+        </div>
+      ))}
+      <div className="flex items-baseline justify-between gap-4 bg-primary/[0.04] px-5 py-4">
+        <p className="text-sm font-bold text-primary">{resultado.rotulo}</p>
+        <span className="font-display text-lg font-extrabold tabular-nums text-accent-strong">
+          {resultado.valor}
+        </span>
+      </div>
+    </div>
+  );
+}
