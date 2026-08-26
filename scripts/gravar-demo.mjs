@@ -23,8 +23,27 @@ const TEMP = "/tmp/novare-demo";
 const DESTINO = "public/demo";
 const NOME = "app-em-uso.webm";
 
-const EMAIL = process.env.DEMO_EMAIL ?? "acesso@novareapp.com.br";
-const SENHA = process.env.DEMO_SENHA ?? "Novare@2026";
+/**
+ * Credenciais vêm do ambiente, sem valor padrão.
+ *
+ * Este repositório é PÚBLICO: senha escrita no código vira senha vazada no
+ * segundo em que o push acontece. Rodar assim:
+ *
+ *   DEMO_EMAIL=... DEMO_SENHA=... node scripts/gravar-demo.mjs
+ */
+const EMAIL = exigir("DEMO_EMAIL");
+const SENHA = exigir("DEMO_SENHA");
+
+function exigir(nome) {
+  const v = process.env[nome];
+  if (!v) {
+    console.log(
+      `FALTA a variável ${nome}. Rode com DEMO_EMAIL=... DEMO_SENHA=... para não deixar credencial no código.`,
+    );
+    process.exit(1);
+  }
+  return v;
+}
 
 /**
  * 16:9 em 960x540, não 720p: num banner de landing ninguém percebe a

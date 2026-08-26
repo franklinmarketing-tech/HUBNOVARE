@@ -29,9 +29,17 @@ const HOJE = new Date().toLocaleDateString("pt-BR", {
 
 /* -------------------------------------------------------------------------- */
 
+/**
+ * A conta que vai impressa no PDF.
+ *
+ * Vem do ambiente porque este repositório é público — senha em código-fonte
+ * publicado é senha queimada. O PDF em si é entregue à mão, e aí tudo bem.
+ *
+ *   PDF_USUARIO=... PDF_SENHA=... node scripts/gerar-pdf-acessos.mjs
+ */
 const CONTA = {
-  usuario: "acesso@novareapp.com.br",
-  senha: "Novare@2026",
+  usuario: process.env.PDF_USUARIO ?? "(defina PDF_USUARIO)",
+  senha: process.env.PDF_SENHA ?? "(defina PDF_SENHA)",
 };
 
 const SECOES = [
