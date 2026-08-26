@@ -55,6 +55,7 @@ import {
   Persona,
   Pilar,
   TituloSecao,
+  tomPor,
   type LinhaComparativo,
 } from "@/components/SecoesVenda";
 
@@ -82,18 +83,21 @@ const PERSONAS = [
   {
     icone: TrendingUp,
     titulo: "Você ganha bem, mas não sabe para onde vai",
+    rotulo: "O caso mais comum",
     texto:
       "O salário entra, o mês acaba e sobra pouco — sem que dê para apontar exatamente onde ficou. A trilha mostra o caminho do dinheiro em números, não em impressão.",
   },
   {
     icone: Target,
     titulo: "Você tem objetivos soltos, sem um número",
+    rotulo: "O caso mais frustrante",
     texto:
       "Casa, viagem, faculdade dos filhos, parar de trabalhar um dia. Cada um vira uma conta separada na sua cabeça. O Marco Horizonte junta todos num alvo só.",
   },
   {
     icone: UserCheck,
     titulo: "Você quer decidir sozinho, com base boa",
+    rotulo: "O caso mais nosso",
     texto:
       "Não quer alguém vendendo produto no seu ouvido, mas também não quer decidir no escuro. Aqui o método é o mesmo da consultoria — só que na sua mão.",
   },
@@ -324,10 +328,19 @@ export default function AssinarPage() {
                 {ASSINATURA_TRIAL_DIAS} dias grátis, sem cartão
               </span>
 
-              <h1 className="mt-5 font-display text-4xl font-black leading-[1.05] tracking-tight sm:text-5xl lg:text-[3.4rem]">
+              {/* Peso 600 num tamanho grande: é assim que o site oficial da
+                  Novare escreve, e é o que separa "publicação" de "anúncio".
+                  O filete ciano embaixo da promessa é o detalhe da casa. */}
+              <h1 className="mt-5 font-display text-4xl font-semibold leading-[1.05] tracking-tight sm:text-5xl lg:text-[3.4rem]">
                 Uma assinatura.
                 <br />
-                <span className="text-accent-claro">Tudo liberado.</span>
+                <span className="relative inline-block text-accent-claro">
+                  Tudo liberado.
+                  <span
+                    aria-hidden
+                    className="absolute -bottom-1 left-0 h-0.5 w-2/3 rounded-full bg-ciano-claro"
+                  />
+                </span>
               </h1>
 
               <p className="mt-5 max-w-xl text-base leading-relaxed text-white/80 sm:text-lg">
@@ -410,25 +423,25 @@ export default function AssinarPage() {
           <div className="revelar">
             <TituloSecao
               sobre="Para quem é"
-              titulo="Feito para quem quer parar de decidir no escuro"
+              titulo={<>Feito para quem quer <span className="text-accent">parar de decidir no escuro</span></>}
               apoio="Não é para quem procura dica de ação nem promessa de rentabilidade. É para quem quer método, número e um caminho que dê para seguir sozinho."
             />
           </div>
 
           <div className="revelar-escada mt-12 grid gap-5 lg:grid-cols-3">
-            {PERSONAS.map((p) => (
-              <Persona key={p.titulo} {...p} />
+            {PERSONAS.map((p, i) => (
+              <Persona key={p.titulo} {...p} tom={tomPor(i)} />
             ))}
           </div>
         </section>
 
         {/* ===================================================== como funciona */}
-        <section id="como-funciona" className="scroll-mt-16 border-y border-border bg-muted/30">
+        <section id="como-funciona" className="scroll-mt-16 border-y border-border bg-gelo">
           <div className="mx-auto max-w-5xl px-5 py-16 sm:py-20">
             <div className="revelar">
               <TituloSecao
                 sobre="Como funciona"
-                titulo="Do cadastro ao plano pronto, em quatro passos"
+                titulo={<>Do cadastro ao plano pronto, <span className="text-accent">em quatro passos</span></>}
                 apoio="Nenhum deles depende de alguém da Novare liberar nada. O produto é autônomo por decisão de projeto."
               />
             </div>
@@ -461,25 +474,39 @@ export default function AssinarPage() {
           <div className="revelar">
             <TituloSecao
               sobre="O que entra"
-              titulo="Três produtos, um preço"
+              titulo={<>Três produtos, <span className="text-accent">um preço</span></>}
               apoio="Não é um pacote com enchimento. São os três produtos que a Novare construiu, e o desconto que faz a conta fechar."
             />
           </div>
 
           <div className="revelar-escada mt-12 grid gap-5 lg:grid-cols-3">
-            {PILARES.map(({ icone: Icone, selo, nome, promessa, itens, href, rotuloLink }) => (
+            {PILARES.map(({ icone: Icone, selo, nome, promessa, itens, href, rotuloLink }, i) => {
+              const ciano = tomPor(i) === "ciano";
+              return (
               <article
                 key={nome}
-                className="glass-card flex h-full flex-col rounded-2xl border border-border bg-card p-6 shadow-subtle"
+                className="relative flex h-full flex-col overflow-hidden rounded-3xl border border-border bg-card p-6 shadow-subtle transition-all hover:-translate-y-0.5 hover:shadow-card"
               >
-                <span className="tile-cine flex h-12 w-12 items-center justify-center rounded-xl bg-primary text-white">
+                <span
+                  aria-hidden
+                  className={`absolute inset-x-0 top-0 h-1 ${ciano ? "bg-ciano" : "bg-accent"}`}
+                />
+                <span
+                  className={`flex h-12 w-12 items-center justify-center rounded-2xl ${
+                    ciano ? "bg-ciano-tint text-ciano-forte" : "bg-accent-tint text-accent-strong"
+                  }`}
+                >
                   <Icone className="h-5 w-5" strokeWidth={1.75} />
                 </span>
 
-                <p className="mt-5 text-2xs font-bold uppercase tracking-wider text-accent-strong">
+                <p
+                  className={`mt-5 text-2xs font-bold uppercase tracking-[0.14em] ${
+                    ciano ? "text-ciano-forte" : "text-accent-strong"
+                  }`}
+                >
                   {selo}
                 </p>
-                <h3 className="mt-1 font-display text-lg font-bold leading-snug text-primary">
+                <h3 className="mt-1.5 font-display text-lg font-semibold leading-snug text-primary">
                   {nome}
                 </h3>
                 <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
@@ -502,37 +529,38 @@ export default function AssinarPage() {
                   <LinkSecao href={href}>{rotuloLink}</LinkSecao>
                 </div>
               </article>
-            ))}
+              );
+            })}
           </div>
         </section>
 
         {/* =================================================== por que confiar */}
-        <section className="border-y border-border bg-muted/30">
+        <section className="border-y border-border bg-gelo">
           <div className="mx-auto max-w-5xl px-5 py-16 sm:py-20">
             <div className="revelar">
               <TituloSecao
                 sobre="Por que a Novare pode falar a verdade"
-                titulo="Quatro fatos, não quatro adjetivos"
+                titulo={<>Quatro fatos, <span className="text-accent">não quatro adjetivos</span></>}
                 apoio="Isenção não se declara, se demonstra pelo modelo de negócio. Estes são os quatro que sustentam tudo o que o app e a consultoria dizem."
               />
             </div>
             <div className="revelar-escada mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-              {PILARES_CREDIBILIDADE.map((p) => (
-                <Pilar key={p.titulo} {...p} />
+              {PILARES_CREDIBILIDADE.map((p, i) => (
+                <Pilar key={p.titulo} {...p} tom={tomPor(i)} />
               ))}
             </div>
           </div>
         </section>
 
         {/* ========================================================== a conta */}
-        <section className="border-y border-border bg-muted/30">
+        <section className="border-y border-border bg-gelo">
           <div className="mx-auto max-w-5xl px-5 py-16 sm:py-20">
             <div className="revelar grid gap-10 lg:grid-cols-2 lg:items-center [&>*]:min-w-0">
               <div>
                 <TituloSecao
                   centro={false}
                   sobre="A conta, aberta"
-                  titulo="O desconto sozinho devolve o ano"
+                  titulo={<>O desconto sozinho <span className="text-accent">devolve o ano</span></>}
                   apoio={
                     <>
                       A assinatura custa {porAno} por ano. Como o assinante entra
@@ -613,7 +641,7 @@ export default function AssinarPage() {
           <div className="revelar">
             <TituloSecao
               sobre="Sem assinatura × com assinatura"
-              titulo="O que muda, linha por linha"
+              titulo={<>O que muda, <span className="text-accent">linha por linha</span></>}
               apoio={`Boa parte do Workspace continua aberta a todo mundo, sem login — são ${CONTAGEM.ferramentas} calculadoras que seguem gratuitas mesmo se você cancelar.`}
             />
           </div>
@@ -635,12 +663,12 @@ export default function AssinarPage() {
         </section>
 
         {/* =============================================== contra o tradicional */}
-        <section className="border-y border-border bg-muted/30">
+        <section className="border-y border-border bg-gelo">
           <div className="mx-auto max-w-4xl px-5 py-16 sm:py-20">
             <div className="revelar">
               <TituloSecao
                 sobre="O modelo, não o concorrente"
-                titulo="De que lado da mesa está quem te aconselha"
+                titulo={<>De que lado da mesa está <span className="text-accent">quem te aconselha</span></>}
                 apoio="A pergunta que decide tudo não é “qual produto?”, é “quem paga a pessoa que está me recomendando?”. Enquanto a resposta for “o produto”, a recomendação nasce contaminada."
               />
             </div>
@@ -666,21 +694,33 @@ export default function AssinarPage() {
           <div className="revelar">
             <TituloSecao
               sobre="Seus dados"
-              titulo="O que acontece com o que você digita"
+              titulo={<>O que acontece com <span className="text-accent">o que você digita</span></>}
               apoio="Você vai colocar aqui renda, dívida e patrimônio. É justo saber para onde isso vai antes de digitar a primeira linha."
             />
           </div>
 
           <div className="revelar-escada mt-12 grid gap-5 lg:grid-cols-3">
-            {SIGILO.map(({ icone: Icone, titulo, texto }) => (
+            {SIGILO.map(({ icone: Icone, titulo, texto }, i) => (
               <article
                 key={titulo}
-                className="glass-card flex h-full flex-col rounded-2xl border border-border bg-card p-6 shadow-subtle"
+                className="relative flex h-full flex-col overflow-hidden rounded-3xl border border-border bg-card p-6 shadow-subtle"
               >
-                <span className="tile-cine flex h-11 w-11 items-center justify-center rounded-xl bg-primary text-white">
+                <span
+                  aria-hidden
+                  className={`absolute inset-x-0 top-0 h-1 ${
+                    tomPor(i) === "ciano" ? "bg-ciano" : "bg-accent"
+                  }`}
+                />
+                <span
+                  className={`flex h-12 w-12 items-center justify-center rounded-2xl ${
+                    tomPor(i) === "ciano"
+                      ? "bg-ciano-tint text-ciano-forte"
+                      : "bg-accent-tint text-accent-strong"
+                  }`}
+                >
                   <Icone className="h-5 w-5" strokeWidth={1.75} />
                 </span>
-                <h3 className="mt-5 font-display text-base font-bold leading-snug text-primary">
+                <h3 className="mt-5 font-display text-base font-semibold leading-snug text-primary">
                   {titulo}
                 </h3>
                 <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
@@ -696,7 +736,7 @@ export default function AssinarPage() {
         </section>
 
         {/* ========================================================= quem faz */}
-        <section className="border-y border-border bg-muted/30">
+        <section className="border-y border-border bg-gelo">
           <div className="mx-auto max-w-5xl px-5 py-16 sm:py-20">
             <div className="revelar grid gap-8 lg:grid-cols-[0.85fr_1.15fr] lg:items-center [&>*]:min-w-0">
               <div className="overflow-hidden rounded-3xl border border-border">
@@ -713,7 +753,7 @@ export default function AssinarPage() {
                 <TituloSecao
                   centro={false}
                   sobre="Quem construiu isto"
-                  titulo="Consultoria de verdade, por trás do app"
+                  titulo={<>Consultoria de verdade, <span className="text-accent">por trás do app</span></>}
                   apoio="A Novare é uma consultoria de investimentos que atende clientes de verdade, todo dia. O Workspace é a mesma metodologia escrita em software — por isso o app fala de reserva antes de falar de rentabilidade, e não indica produto nenhum."
                 />
                 <p className="mt-4 text-base leading-relaxed text-muted-foreground">

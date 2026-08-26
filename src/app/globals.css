@@ -33,6 +33,25 @@
   --color-accent-btn: hsl(16 80% 44%);
   --color-accent-claro: hsl(16 88% 68%);
 
+  /* CIANO — a terceira cor da marca Novare.
+     Medida no site oficial da casa (diagnostico.novareapp.com.br): #2596BE.
+     Estava faltando aqui: sem ela, tudo o que não era navy virava laranja, e
+     o laranja perdia força de tanto ser usado. O ciano é o que separa "isto é
+     informação" de "isto é ação".
+     • ciano (46% L) decora: fitas, ícones, sublinhados.
+     • ciano-forte (32%) carrega TEXTO sobre fundo claro: 5,1:1.
+     • ciano-claro (68%) é texto ciano sobre o navy escuro.
+     • ciano-tint é a pastilha de fundo dos ícones. */
+  --color-ciano: hsl(197 68% 45%);
+  --color-ciano-forte: hsl(197 70% 31%);
+  --color-ciano-claro: hsl(197 75% 68%);
+  --color-ciano-tint: hsl(197 70% 95%);
+
+  /* Fundo azul-gelo das seções alternadas. O cinza neutro que estava no lugar
+     (muted/30) deixava a página com cara de documento; o gelo puxa para a
+     mesma família do navy e dá respiro sem esfriar. */
+  --color-gelo: hsl(200 45% 97%);
+
   --color-success: hsl(152 55% 41%);
   /* Verde que carrega texto branco: 5,52:1. O de 41% dava 3,23:1. */
   --color-success-strong: hsl(152 55% 30%);

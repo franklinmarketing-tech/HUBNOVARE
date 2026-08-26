@@ -222,7 +222,7 @@ export default async function ConsultoriaPage() {
                     rel="noopener noreferrer"
                     className={`inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold transition-all duration-200 ${
                       item.isIsca
-                        ? "bg-emerald-600 text-white hover:bg-emerald-700 shadow-sm hover:shadow"
+                        ? "bg-success-strong text-white hover:bg-success shadow-sm hover:shadow"
                         : "bg-primary text-white hover:bg-primary-soft"
                     }`}
                   >

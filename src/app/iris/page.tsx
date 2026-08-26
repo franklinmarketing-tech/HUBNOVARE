@@ -263,7 +263,7 @@ export default async function IrisPage() {
 
         {/* BETA — único bloco escuro depois do resultado. */}
         <section className="mt-14 rounded-3xl bg-primary p-7 text-white sm:p-9">
-          <span className="inline-block rounded bg-accent/20 px-2 py-0.5 text-2xs font-bold uppercase tracking-wide text-accent-claro">
+          <span className="inline-block rounded bg-accent-btn px-2 py-0.5 text-2xs font-bold uppercase tracking-wide text-white">
             incluída na assinatura
           </span>
           <h2 className="mt-3 font-display text-xl font-bold sm:text-2xl">

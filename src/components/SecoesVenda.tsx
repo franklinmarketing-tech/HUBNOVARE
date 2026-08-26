@@ -2,12 +2,49 @@ import Link from "next/link";
 import { ArrowRight, Check, Minus } from "lucide-react";
 
 /**
- * As peças estruturais da página de assinatura.
+ * As peças estruturais das páginas de venda.
  *
  * Vivem fora da página porque ela ficou longa o bastante para que ler o
  * conteúdo e ler a marcação ao mesmo tempo atrapalhe. Aqui ficam as formas;
  * lá, o argumento de venda.
+ *
+ * A LINGUAGEM VISUAL veio medida do site oficial da Novare
+ * (diagnostico.novareapp.com.br): card branco com FITA COLORIDA no topo,
+ * ícone em pastilha do tom da fita, rótulo em caixa alta com tracking largo na
+ * cor da fita, e raio grande. A fita é o que dá profundidade sem sombra
+ * pesada — o card parece uma ficha com marcador, não um retângulo.
  */
+
+/**
+ * O tom de cada peça. Alternar ciano e laranja pela lista é o que impede a
+ * página de virar uma parede laranja: o laranja só tem força enquanto é
+ * exceção.
+ */
+export type Tom = "ciano" | "laranja" | "navy";
+
+const TONS: Record<Tom, { fita: string; pastilha: string; icone: string; rotulo: string }> = {
+  ciano: {
+    fita: "bg-ciano",
+    pastilha: "bg-ciano-tint",
+    icone: "text-ciano-forte",
+    rotulo: "text-ciano-forte",
+  },
+  laranja: {
+    fita: "bg-accent",
+    pastilha: "bg-accent-tint",
+    icone: "text-accent-strong",
+    rotulo: "text-accent-strong",
+  },
+  navy: {
+    fita: "bg-primary",
+    pastilha: "bg-primary/8",
+    icone: "text-primary",
+    rotulo: "text-primary",
+  },
+};
+
+/** Alterna ciano e laranja pela posição, para nenhuma fileira ficar monocor. */
+export const tomPor = (i: number): Tom => (i % 2 === 0 ? "ciano" : "laranja");
 
 /** Cabeçalho de seção: sobretítulo curto, título grande, uma linha de apoio. */
 export function TituloSecao({
@@ -24,11 +61,13 @@ export function TituloSecao({
   return (
     <div className={centro ? "mx-auto max-w-2xl text-center" : "max-w-2xl"}>
       {sobre && (
-        <p className="text-2xs font-bold uppercase tracking-[0.14em] text-accent-strong">
+        <p className="text-2xs font-bold uppercase tracking-[0.18em] text-accent-strong">
           {sobre}
         </p>
       )}
-      <h2 className="mt-2 font-display text-3xl font-bold leading-tight tracking-tight text-primary sm:text-4xl">
+      {/* Peso 600, não 800: o site oficial da casa usa títulos GRANDES e
+          LEVES, e é o que dá o ar de publicação séria em vez de anúncio. */}
+      <h2 className="mt-2 font-display text-3xl font-semibold leading-[1.12] tracking-tight text-primary sm:text-[2.6rem]">
         {titulo}
       </h2>
       {apoio && (
@@ -41,7 +80,7 @@ export function TituloSecao({
 }
 
 /**
- * Etapa numerada, no formato 01/04.
+ * Etapa numerada, no formato 01/04, com fita do tom no topo.
  *
  * O denominador é deliberado: dizer "01 de 04" desde o primeiro passo mostra
  * que o processo é curto e tem fim. Numeração solta ("01", "02") deixa a
@@ -53,28 +92,34 @@ export function Etapa({
   titulo,
   texto,
   icone: Icone,
+  tom,
 }: {
   numero: number;
   total: number;
   titulo: string;
   texto: string;
   icone: React.ComponentType<{ className?: string; strokeWidth?: number }>;
+  tom?: Tom;
 }) {
   const pad = (n: number) => String(n).padStart(2, "0");
+  const t = TONS[tom ?? tomPor(numero - 1)];
 
   return (
-    <li className="glass-card relative flex h-full flex-col rounded-2xl border border-border bg-card p-6 shadow-subtle">
-      <div className="flex items-center justify-between">
-        <span className="tile-cine flex h-11 w-11 items-center justify-center rounded-xl bg-primary text-white">
-          <Icone className="h-5 w-5" strokeWidth={1.75} />
-        </span>
-        <span className="font-display text-xs font-bold tabular-nums text-muted-foreground">
-          {pad(numero)}
-          <span className="text-slate-300">/{pad(total)}</span>
-        </span>
-      </div>
+    <li className="relative flex h-full flex-col overflow-hidden rounded-3xl border border-border bg-card p-6 shadow-subtle transition-all hover:-translate-y-0.5 hover:shadow-card">
+      <span aria-hidden className={`absolute inset-x-0 top-0 h-1 ${t.fita}`} />
 
-      <h3 className="mt-5 font-display text-lg font-bold leading-snug text-primary">
+      <span
+        className={`flex h-12 w-12 items-center justify-center rounded-2xl ${t.pastilha} ${t.icone}`}
+      >
+        <Icone className="h-5 w-5" strokeWidth={1.75} />
+      </span>
+
+      <p
+        className={`mt-5 text-2xs font-bold uppercase tracking-[0.14em] tabular-nums ${t.rotulo}`}
+      >
+        {pad(numero)} · de {pad(total)}
+      </p>
+      <h3 className="mt-1.5 font-display text-lg font-semibold leading-snug text-primary">
         {titulo}
       </h3>
       <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{texto}</p>
@@ -157,17 +202,36 @@ export function Persona({
   icone: Icone,
   titulo,
   texto,
+  rotulo,
+  tom = "ciano",
 }: {
   icone: React.ComponentType<{ className?: string; strokeWidth?: number }>;
   titulo: string;
   texto: string;
+  /** Caixa alta acima do título, na cor da fita. */
+  rotulo?: string;
+  tom?: Tom;
 }) {
+  const t = TONS[tom];
+
   return (
-    <article className="glass-card flex h-full flex-col rounded-2xl border border-border bg-card p-6 shadow-subtle">
-      <span className="tile-cine flex h-11 w-11 items-center justify-center rounded-xl bg-accent-tint text-accent-strong">
+    <article className="relative flex h-full flex-col overflow-hidden rounded-3xl border border-border bg-card p-6 shadow-subtle transition-all hover:-translate-y-0.5 hover:shadow-card">
+      <span aria-hidden className={`absolute inset-x-0 top-0 h-1 ${t.fita}`} />
+
+      <span
+        className={`flex h-12 w-12 items-center justify-center rounded-2xl ${t.pastilha} ${t.icone}`}
+      >
         <Icone className="h-5 w-5" strokeWidth={1.75} />
       </span>
-      <h3 className="mt-5 font-display text-base font-bold leading-snug text-primary">
+
+      {rotulo && (
+        <p className={`mt-5 text-2xs font-bold uppercase tracking-[0.14em] ${t.rotulo}`}>
+          {rotulo}
+        </p>
+      )}
+      <h3
+        className={`font-display text-lg font-semibold leading-snug text-primary ${rotulo ? "mt-1.5" : "mt-5"}`}
+      >
         {titulo}
       </h3>
       <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{texto}</p>
@@ -192,24 +256,29 @@ export function LinkSecao({ href, children }: { href: string; children: React.Re
  * Pilar de credibilidade: um número/afirmação grande com a explicação embaixo.
  *
  * Diferente do card de persona — ali o objetivo é a pessoa se reconhecer; aqui
- * é provar uma coisa sobre a casa. Por isso o destaque é a afirmação, não o
- * ícone.
+ * é provar uma coisa sobre a casa. Por isso o destaque é a afirmação, e a
+ * fita fica na lateral em vez do topo: sinaliza sem competir com o número.
  */
 export function Pilar({
   destaque,
   titulo,
   texto,
+  tom = "ciano",
 }: {
   destaque: string;
   titulo: string;
   texto: string;
+  tom?: Tom;
 }) {
+  const t = TONS[tom];
+
   return (
-    <article className="rounded-2xl border border-border bg-card p-6 shadow-subtle">
-      <p className="font-display text-3xl font-black leading-none tracking-tight text-accent-strong">
+    <article className="relative h-full overflow-hidden rounded-3xl border border-border bg-card p-6 pl-7 shadow-subtle">
+      <span aria-hidden className={`absolute inset-y-0 left-0 w-1 ${t.fita}`} />
+      <p className={`font-display text-3xl font-bold leading-none tracking-tight ${t.rotulo}`}>
         {destaque}
       </p>
-      <h3 className="mt-3.5 font-display text-base font-bold leading-snug text-primary">
+      <h3 className="mt-3.5 font-display text-base font-semibold leading-snug text-primary">
         {titulo}
       </h3>
       <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{texto}</p>

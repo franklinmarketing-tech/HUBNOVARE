@@ -87,7 +87,9 @@ export function RodapeNovare() {
             </p>
 
             {/* Co-branding: parceria oficial com a Nord Investimentos */}
-            <p className="mt-5 text-[10px] font-semibold uppercase tracking-[0.14em] text-white/40">
+            {/* 70%, não 40%: a 40% este rótulo de 10px dava 3,29:1 e reprovava
+                no axe. Continua discreto e agora é legível. */}
+            <p className="mt-5 text-[10px] font-semibold uppercase tracking-[0.14em] text-white/70">
               Parceiro oficial
             </p>
             <div className="mt-2 inline-flex items-center rounded-lg bg-white px-2.5 py-1.5">
