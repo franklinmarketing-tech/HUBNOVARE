@@ -9,27 +9,33 @@ import { CalendarCheck, FileText, Target, TrendingUp } from "lucide-react";
  * com os mesmos tokens e a mesma tipografia — se o design mudar, a peça muda
  * junto. E fica nítida em qualquer densidade de tela, o que print não fica.
  *
- * OS NÚMEROS SÃO DE EXEMPLO, e a peça diz isso na cara. São coerentes entre si
- * (a sobra bate com renda menos despesa; o Marco Horizonte é a renda desejada
- * anual dividida por 4%), porque exemplo com conta errada é o tipo de detalhe
- * que quem entende percebe na hora.
+ * OS NÚMEROS SÃO DE EXEMPLO, e a peça diz isso na cara — mas não são
+ * inventados: veja o bloco abaixo.
  */
 
-/* Exemplo: renda de R$ 12.000, custo de R$ 7.400, parcela de R$ 900.
-   Sobra = 12.000 − 7.400 − 900 = R$ 3.700 (30,8% da renda).
-   Renda desejada de R$ 8.000/mês ÷ 4% ao ano → 8.000 × 12 ÷ 0,04 = R$ 2,4 mi. */
+/**
+ * Os números são os que o motor REALMENTE devolve para o caso de demonstração
+ * — o mesmo caso que roda no vídeo desta página (ver
+ * `scripts/preparar-conta-demo.mjs`). Foram lidos da tela do app, não
+ * inventados: peça estática e vídeo contam a mesma história, com os mesmos
+ * valores, porque um visitante atento compara os dois.
+ *
+ * O caso: renda de R$ 12.800, custo de R$ 9.700, parcela de R$ 900 → sobra de
+ * R$ 2.200 (17%). É de propósito alguém no meio do caminho: uma landing que
+ * mostra quem já chegou não vende nada.
+ */
 const INDICADORES = [
-  { rotulo: "Sobra por mês", valor: "R$ 3.700", detalhe: "31% do que entra", tom: "bom" },
-  { rotulo: "Reserva", valor: "4,2 meses", detalhe: "faltam R$ 13.300", tom: "atencao" },
-  { rotulo: "Patrimônio líquido", valor: "R$ 486 mil", detalhe: "já sem as dívidas", tom: "neutro" },
-  { rotulo: "Saúde financeira", valor: "72/100", detalhe: "Boa", tom: "bom" },
+  { rotulo: "Sobra por mês", valor: "R$ 2.200", detalhe: "17% do que entra", tom: "bom" },
+  { rotulo: "Reserva", valor: "1,5 meses", detalhe: "faltam R$ 43.700", tom: "atencao" },
+  { rotulo: "Patrimônio líquido", valor: "R$ 458 mil", detalhe: "já sem as dívidas", tom: "neutro" },
+  { rotulo: "Saúde financeira", valor: "59/100", detalhe: "Atenção", tom: "atencao" },
 ];
 
 const PILARES = [
-  { nome: "Reserva de emergência", pct: 70 },
-  { nome: "Endividamento", pct: 84 },
-  { nome: "Capacidade de poupança", pct: 100 },
-  { nome: "Proteção", pct: 45 },
+  { nome: "Reserva de emergência", pct: 25 },
+  { nome: "Endividamento", pct: 77 },
+  { nome: "Capacidade de poupança", pct: 85 },
+  { nome: "Proteção", pct: 80 },
 ];
 
 const ABAS = [
@@ -98,16 +104,16 @@ export function PainelExemplo() {
               Seu Marco Horizonte
             </p>
             <p className="mt-1.5 font-display text-3xl font-bold tabular-nums sm:text-4xl">
-              R$ 2,4 milhões
+              R$ 2,1 milhões
             </p>
 
             <div className="mt-4 max-w-sm">
               <div className="mb-1.5 flex items-baseline justify-between text-[10px] font-semibold">
                 <span className="text-white/65">No caminho atual você chega a</span>
-                <span className="tabular-nums">68%</span>
+                <span className="tabular-nums">48%</span>
               </div>
               <div className="h-1.5 overflow-hidden rounded-full bg-white/20">
-                <div className="h-full w-[68%] rounded-full bg-accent-claro" />
+                <div className="h-full w-[48%] rounded-full bg-accent-claro" />
               </div>
             </div>
           </div>

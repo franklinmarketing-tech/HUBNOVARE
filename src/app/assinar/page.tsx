@@ -34,6 +34,7 @@ import { OQueSignifica } from "@/components/OQueSignifica";
 import { BotaoAssinarPlano } from "@/components/BotaoAssinarPlano";
 import { RevelarAoRolar } from "@/components/RevelarAoRolar";
 import { PainelExemplo } from "@/components/PainelExemplo";
+import { BannerDemo } from "@/components/BannerDemo";
 import { PROFISSOES } from "@/lib/profissoes";
 import {
   ASSINATURA_INCLUI,
@@ -426,7 +427,11 @@ export default function AssinarPage() {
               />
             </div>
 
-            <div className="revelar moldura-produto mt-12">
+            <div className="revelar mt-12">
+              <BannerDemo legenda="Gravação do app em uso, com um caso de exemplo. Nada aqui é encenação: são as telas de verdade." />
+            </div>
+
+            <div className="revelar moldura-produto mt-6">
               <PainelExemplo />
             </div>
           </div>
