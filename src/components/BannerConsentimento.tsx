@@ -42,8 +42,14 @@ export function BannerConsentimento() {
   if (!visivel) return null;
 
   return (
+    /* `region`, não `dialog`.
+       Um `dialog` promete comportamento modal: prende o foco e bloqueia o
+       resto da página. Este banner não faz nem uma coisa nem outra — a pessoa
+       continua navegando com ele na tela —, e prometer modal sem entregar
+       confunde leitor de tela. Também deixava de ser possível saber, no
+       código, se havia um modal DE VERDADE aberto. */
     <div
-      role="dialog"
+      role="region"
       aria-live="polite"
       aria-label="Aviso de privacidade e cookies"
       className="fixed inset-x-0 bottom-0 z-50 print:hidden"

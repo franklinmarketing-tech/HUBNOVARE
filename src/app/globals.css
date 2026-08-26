@@ -611,3 +611,123 @@
     transition: none;
   }
 }
+
+/* ==========================================================================
+   CTA cinematográfico — o botão que precisa ser achado.
+
+   Três camadas, cada uma resolvendo um problema diferente:
+   halo respirando (achar de longe), varredura de luz (recompensar o hover),
+   e sombra colorida (descolar da página). Juntas dão profundidade; sozinhas
+   cada uma passa despercebida.
+
+   Tudo aqui é decoração pura: nenhum texto ou ação depende delas.
+   ========================================================================== */
+
+/* Halo que pulsa atrás do botão principal. Devagar (3,2s) de propósito —
+   pulso rápido lê como alerta de erro, não como convite. */
+.cta-halo {
+  position: relative;
+  isolation: isolate;
+}
+.cta-halo::before {
+  content: "";
+  position: absolute;
+  inset: -5px;
+  border-radius: inherit;
+  background: radial-gradient(
+    60% 120% at 50% 50%,
+    hsl(16 88% 58% / 0.5),
+    transparent 70%
+  );
+  filter: blur(10px);
+  z-index: -1;
+  animation: cta-respira 3.2s ease-in-out infinite;
+}
+.cta-halo.cta-halo-claro::before {
+  background: radial-gradient(
+    60% 120% at 50% 50%,
+    hsl(0 0% 100% / 0.55),
+    transparent 70%
+  );
+}
+
+@keyframes cta-respira {
+  0%, 100% { opacity: 0.5; transform: scale(0.97); }
+  50%      { opacity: 1;   transform: scale(1.04); }
+}
+
+/* Lâmina de luz que atravessa o botão no hover. Só no hover: em repouso ela
+   viraria ruído, e a página já tem movimento suficiente no fundo. */
+.cta-varredura {
+  position: relative;
+  overflow: hidden;
+}
+.cta-varredura::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 45%;
+  left: -60%;
+  background: linear-gradient(
+    100deg,
+    transparent,
+    hsl(0 0% 100% / 0.38),
+    transparent
+  );
+  transform: skewX(-18deg);
+  pointer-events: none;
+}
+.cta-varredura:hover::after,
+.cta-varredura:focus-visible::after {
+  animation: cta-lamina 0.75s ease-out;
+}
+
+@keyframes cta-lamina {
+  to { left: 115%; }
+}
+
+/* O bloco onde o CTA vive: luz que segue o cursor, como no glass-card, mas
+   mais aberta — aqui o alvo é a seção inteira, não um card. */
+.palco-cta {
+  position: relative;
+  overflow: hidden;
+}
+.palco-cta::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    28rem 18rem at var(--mx, 50%) var(--my, 40%),
+    hsl(16 88% 58% / 0.22),
+    transparent 62%
+  );
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  pointer-events: none;
+}
+.palco-cta:hover::before {
+  opacity: 1;
+}
+
+/* Moldura de imagem com profundidade: a peça do produto não pode parecer
+   colada na página. Leve inclinação que se desfaz no hover. */
+.moldura-produto {
+  transform: perspective(1600px) rotateX(2.4deg) rotateY(-2deg);
+  transform-origin: center top;
+  transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.moldura-produto:hover {
+  transform: perspective(1600px) rotateX(0deg) rotateY(0deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cta-halo::before,
+  .cta-varredura:hover::after,
+  .cta-varredura:focus-visible::after {
+    animation: none;
+  }
+  .cta-halo::before { opacity: 0.7; transform: none; }
+  .moldura-produto,
+  .moldura-produto:hover { transform: none; transition: none; }
+}

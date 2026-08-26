@@ -1,5 +1,7 @@
 import { chromium } from "playwright";
 
+const BASE = process.env.BASE ?? "http://localhost:3000";
+
 /**
  * GARANTIA FUNCIONAL das ferramentas locais (fora Planejamento, Íris e IA).
  *
@@ -23,9 +25,16 @@ const errosConsole = [];
 pagina.on("pageerror", (e) => errosConsole.push(e.message));
 
 async function abrir(rota) {
-  await pagina.goto(`http://localhost:3000${rota}`, {
-    waitUntil: "networkidle",
+  await pagina.goto(`${BASE}${rota}`, {
+    waitUntil: "domcontentloaded",
     timeout: 60000,
+  });
+  // Espera o CONTEÚDO, não a rede: com animação de fundo, `networkidle` é um
+  // cronômetro disfarçado e às vezes devolve a página antes de ela pintar —
+  // aí a checagem "tem R$ na tela" reprova uma calculadora que está sã.
+  await pagina.waitForSelector("main h1, main input", {
+    state: "visible",
+    timeout: 25000,
   });
   await pagina.waitForTimeout(400);
 }

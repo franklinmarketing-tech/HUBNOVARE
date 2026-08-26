@@ -1,5 +1,7 @@
 import { chromium } from "playwright";
 
+const BASE = process.env.BASE ?? "http://localhost:3000";
+
 /**
  * Fluxo CRUD do Controle de Gastos: adicionar, persistir após reload,
  * remover. É o que separa as ferramentas de uso diário das calculadoras.
@@ -16,7 +18,7 @@ function conferir(rotulo, obtido, esperado) {
 const navegador = await chromium.launch();
 const pagina = await navegador.newPage({ viewport: { width: 1440, height: 900 } });
 
-await pagina.goto("http://localhost:3000/ferramentas/gastos", {
+await pagina.goto(`${BASE}/ferramentas/gastos`, {
   waitUntil: "networkidle",
 });
 

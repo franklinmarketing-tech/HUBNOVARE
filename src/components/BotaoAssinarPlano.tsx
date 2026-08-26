@@ -15,6 +15,7 @@ import { PLANO_TRIAL_DIAS } from "@/lib/planejamento/oferta";
  */
 export function BotaoAssinarPlano({
   variante = "principal",
+  destaque = false,
   contexto = "plano",
   objetivo = "comecar",
   rotulo,
@@ -30,6 +31,9 @@ export function BotaoAssinarPlano({
   rotulo?: string;
   /** `grande` é para o herói e o bloco de preço. */
   tamanho?: "normal" | "grande";
+  /** Liga o halo pulsante. Só no CTA principal de cada tela — dois botões
+      pulsando na mesma dobra brigam entre si e nenhum vence. */
+  destaque?: boolean;
 }) {
   const [aberto, setAberto] = useState(false);
 
@@ -48,7 +52,9 @@ export function BotaoAssinarPlano({
       <button
         type="button"
         onClick={() => setAberto(true)}
-        className={`group inline-flex items-center justify-center gap-2 rounded-xl font-bold transition-all hover:-translate-y-0.5 ${estilo} ${medida}`}
+        className={`cta-varredura group inline-flex items-center justify-center gap-2 rounded-xl font-bold transition-all hover:-translate-y-0.5 ${estilo} ${medida} ${
+          destaque ? `cta-halo${variante === "clara" ? " cta-halo-claro" : ""}` : ""
+        }`}
       >
         {rotulo ?? `Começar ${PLANO_TRIAL_DIAS} dias grátis`}
         <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />

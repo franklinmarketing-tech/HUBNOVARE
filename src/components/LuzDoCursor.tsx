@@ -19,8 +19,10 @@ export function LuzDoCursor() {
     let ultimo: { alvo: HTMLElement; x: number; y: number } | null = null;
 
     function aoMover(evento: MouseEvent) {
+      // `.palco-cta` entrou junto: as seções de CTA usam a mesma luz que
+      // segue o cursor, só que numa área bem maior. Um seletor, dois usos.
       const alvo = (evento.target as HTMLElement | null)?.closest<HTMLElement>(
-        ".glass-card",
+        ".glass-card, .palco-cta",
       );
       if (!alvo) return;
 

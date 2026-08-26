@@ -33,6 +33,8 @@ import { RodapeNovare } from "@/components/RodapeNovare";
 import { OQueSignifica } from "@/components/OQueSignifica";
 import { BotaoAssinarPlano } from "@/components/BotaoAssinarPlano";
 import { RevelarAoRolar } from "@/components/RevelarAoRolar";
+import { PainelExemplo } from "@/components/PainelExemplo";
+import { PROFISSOES } from "@/lib/profissoes";
 import {
   ASSINATURA_INCLUI,
   ASSINATURA_NOME,
@@ -356,6 +358,7 @@ export default function AssinarPage() {
                   contexto="workspace"
                   variante="clara"
                   tamanho="grande"
+                  destaque
                   rotulo={`Começar ${ASSINATURA_TRIAL_DIAS} dias grátis`}
                 />
                 <a
@@ -401,6 +404,31 @@ export default function AssinarPage() {
                 </ul>
               </div>
             </aside>
+          </div>
+        </section>
+
+        {/* ========================================================= o produto */}
+        {/* A peça mais importante da página depois do preço: o que a pessoa
+            vai ver quando entrar. Landing de software sem a tela do software
+            pede um ato de fé que ninguém precisa fazer. */}
+        <section className="border-b border-border bg-gelo">
+          <div className="mx-auto max-w-5xl px-5 py-16 sm:py-20">
+            <div className="revelar">
+              <TituloSecao
+                sobre="É isto que você recebe"
+                titulo={
+                  <>
+                    Dez minutos preenchendo,{" "}
+                    <span className="text-accent">e o painel é seu</span>
+                  </>
+                }
+                apoio="Nada de planilha, nada de esperar alguém montar. Você responde oito blocos curtos e a tela abaixo se monta com os seus números."
+              />
+            </div>
+
+            <div className="revelar moldura-produto mt-12">
+              <PainelExemplo />
+            </div>
           </div>
         </section>
 
@@ -735,6 +763,57 @@ export default function AssinarPage() {
           </div>
         </section>
 
+        {/* ==================================================== quem já atendemos */}
+        <section className="border-y border-border bg-card">
+          <div className="mx-auto max-w-5xl px-5 py-12 sm:py-14">
+            <div className="revelar text-center">
+              <p className="text-2xs font-bold uppercase tracking-[0.18em] text-accent-strong">
+                Carreiras que a Novare atende
+              </p>
+              <h2 className="mt-2 font-display text-xl font-semibold tracking-tight text-primary sm:text-2xl">
+                O que trava o dinheiro depende da profissão
+              </h2>
+            </div>
+
+            <ul className="revelar-escada mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
+              {PROFISSOES.map((prof) => (
+                <li key={prof.slug}>
+                  <Link
+                    href={`/profissionais/${prof.slug}`}
+                    className="group/prof relative block h-32 overflow-hidden rounded-2xl border border-border transition-all hover:-translate-y-0.5 hover:shadow-card sm:h-36"
+                  >
+                    <Image
+                      src={`/profissoes/${prof.slug}.jpg`}
+                      alt=""
+                      fill
+                      unoptimized
+                      sizes="(max-width: 640px) 45vw, 240px"
+                      className="object-cover transition-transform duration-500 group-hover/prof:scale-105"
+                      style={{ objectPosition: prof.foco }}
+                    />
+                    <span
+                      aria-hidden
+                      className="absolute inset-0"
+                      style={{
+                        background:
+                          "linear-gradient(180deg, hsl(215 55% 15% / 0.25) 0%, hsl(215 60% 10% / 0.9) 74%)",
+                      }}
+                    />
+                    <span className="absolute inset-0 flex flex-col justify-end p-3 text-white">
+                      <span className="font-display text-sm font-semibold leading-tight">
+                        {prof.nome}
+                      </span>
+                      <span className="mt-0.5 line-clamp-2 text-[10px] leading-tight text-white/70">
+                        {prof.dores[0]?.titulo}
+                      </span>
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+
         {/* ========================================================= quem faz */}
         <section className="border-y border-border bg-gelo">
           <div className="mx-auto max-w-5xl px-5 py-16 sm:py-20">
@@ -780,8 +859,8 @@ export default function AssinarPage() {
         </section>
 
         {/* ============================================================ preço */}
-        <section className="bg-accent-tint">
-          <div className="mx-auto max-w-3xl px-5 py-16 text-center sm:py-20">
+        <section className="palco-cta bg-accent-tint">
+          <div className="relative mx-auto max-w-3xl px-5 py-16 text-center sm:py-20">
             <div className="revelar">
               <p className="text-2xs font-bold uppercase tracking-[0.14em] text-accent-strong">
                 Uma assinatura só
@@ -809,6 +888,7 @@ export default function AssinarPage() {
                 <BotaoAssinarPlano
                   contexto="workspace"
                   tamanho="grande"
+                  destaque
                   rotulo={`Começar ${ASSINATURA_TRIAL_DIAS} dias grátis`}
                 />
                 <a
@@ -880,7 +960,10 @@ export default function AssinarPage() {
         </section>
 
         {/* =========================================================== fecho */}
-        <section className="palco-vivo relative overflow-hidden text-white" style={PALCO}>
+        <section
+          className="palco-vivo palco-cta relative overflow-hidden text-white"
+          style={PALCO}
+        >
           <div className="revelar relative mx-auto max-w-3xl px-5 py-16 text-center sm:py-20">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-white/[0.12] px-3 py-1.5 text-2xs font-bold uppercase tracking-wider">
               <Rocket className="h-3.5 w-3.5 text-accent-claro" />
@@ -903,6 +986,7 @@ export default function AssinarPage() {
                 contexto="workspace"
                 variante="clara"
                 tamanho="grande"
+                destaque
                 rotulo={`Começar ${ASSINATURA_TRIAL_DIAS} dias grátis`}
               />
             </div>

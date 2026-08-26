@@ -41,7 +41,8 @@ async function abrirPaleta() {
   }
 }
 
-await pagina.goto(`${BASE}/`, { waitUntil: "networkidle" });
+await pagina.goto(`${BASE}/`, { waitUntil: "domcontentloaded" });
+await pagina.waitForSelector(".glass-card", { state: "visible", timeout: 20000 });
 
 // 1. Atalho abre e o campo recebe foco
 await abrirPaleta();
@@ -57,9 +58,9 @@ conferir(
 // busca — o que importa é a busca listar o mesmo que a prateleira mostra.
 const naPaleta = await pagina.locator('[role="dialog"] button').count();
 await pagina.keyboard.press("Escape");
-await pagina.goto("http://localhost:3000/aplicativos", { waitUntil: "domcontentloaded" });
+await pagina.goto(`${BASE}/aplicativos`, { waitUntil: "domcontentloaded" });
 await pagina.waitForTimeout(1500);
-const noCatalogo = await pagina.locator("a.card-cine").count();
+const noCatalogo = await pagina.locator('a.glass-card[href]').count();
 conferir("a busca lista o catálogo inteiro", naPaleta, noCatalogo);
 await pagina.goto(`${BASE}/`, { waitUntil: "domcontentloaded" });
 await pagina.waitForTimeout(1200);
@@ -94,14 +95,15 @@ await pagina.keyboard.press("Enter");
 await pagina.waitForURL("**/ferramentas/amortizacao", { timeout: 20000 }).catch(() => {});
 conferir(
   "Enter navega",
-  pagina.url().replace("http://localhost:3000", ""),
+  pagina.url().replace(BASE, ""),
   "/ferramentas/amortizacao",
 );
 
 // 4. Seta para baixo muda a seleção. O termo devolve vários resultados e o
 // teste cobra o SEGUNDO — lido da própria lista, para não quebrar toda vez
 // que o catálogo é podado ou reordenado.
-await pagina.goto(`${BASE}/`, { waitUntil: "networkidle" });
+await pagina.goto(`${BASE}/`, { waitUntil: "domcontentloaded" });
+await pagina.waitForSelector(".glass-card", { state: "visible", timeout: 20000 });
 await abrirPaleta();
 await pagina.waitForTimeout(150);
 // "salario" casa com ferramentas LOCAIS: app externo abre em nova aba
@@ -130,16 +132,16 @@ conferir(
 );
 
 // 5. Esc fecha
-await pagina.goto(`${BASE}/`, { waitUntil: "networkidle" });
+await pagina.goto(`${BASE}/`, { waitUntil: "domcontentloaded" });
+await pagina.waitForSelector(".glass-card", { state: "visible", timeout: 20000 });
 await abrirPaleta();
 await pagina.waitForTimeout(150);
 await pagina.keyboard.press("Escape");
 await pagina.waitForTimeout(300);
-conferir(
-  "Esc fecha",
-  !(await pagina.isVisible('[role="dialog"][aria-label*="omando"], [role="dialog"] input[type="search"]')),
-  "a paleta continuou aberta",
-);
+// `conferir` compara o obtido com o esperado como STRING — por isso o "false"
+// entre aspas. E agora `[role="dialog"]` só casa com modal de verdade: o
+// banner de cookies deixou de se declarar dialog.
+conferir("Esc fecha", await pagina.isVisible('[role="dialog"]'), "false");
 
 // 6. App bloqueado leva para a assinatura
 await abrirPaleta();
@@ -150,7 +152,7 @@ await pagina.keyboard.press("Enter");
 await pagina.waitForURL("**/assinar?app=iris", { timeout: 20000 }).catch(() => {});
 conferir(
   "Íris está liberada e abre direto",
-  pagina.url().replace("http://localhost:3000", ""),
+  pagina.url().replace(BASE, ""),
   "/iris",
 );
 
