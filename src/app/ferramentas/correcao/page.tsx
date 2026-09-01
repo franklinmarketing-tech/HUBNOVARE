@@ -42,13 +42,21 @@ const MESES = [
 ];
 
 const ANO_ATUAL = new Date().getFullYear();
-const ANOS = Array.from({ length: ANO_ATUAL - 1995 + 1 }, (_, i) => ANO_ATUAL - i);
+// Volta até 1980: o IPCA existe desde lá, e é o que permite corrigir um
+// salário ou um imóvel de décadas atrás. Índices que nasceram depois
+// (IGP-M em 1989, TR em 1991) simplesmente não retornam nada antes disso.
+const ANOS = Array.from({ length: ANO_ATUAL - 1980 + 1 }, (_, i) => ANO_ATUAL - i);
+
+/** O mês corrente, "08" para agosto — usado como padrão dos dois seletores. */
+const MES_ATUAL = String(new Date().getMonth() + 1).padStart(2, "0");
 
 export default function CorrecaoPage() {
   const [valor, setValor] = useState("1000");
   const [indice, setIndice] = useState<Chave>("ipca");
 
-  const [mesDe, setMesDe] = useState("01");
+  // Padrão: o MESMO mês de hoje, dez anos atrás — a pergunta natural é
+  // "quanto isso valia há X anos", não "quanto valia em janeiro".
+  const [mesDe, setMesDe] = useState(MES_ATUAL);
   const [anoDe, setAnoDe] = useState(String(ANO_ATUAL - 10));
   // O mês corrente ainda não tem índice publicado; o mês anterior tem.
   const [mesAte, setMesAte] = useState(

@@ -16,7 +16,11 @@ const ANO = new Date().getFullYear();
  * número na tela é justamente quem está pronto para falar com gente. Vive
  * no layout das ferramentas, então cada tela nova já nasce com ele.
  */
-export function RodapeNovare() {
+export function RodapeNovare({
+  /** Desligue em páginas cuja conversão é OUTRA (a landing /assinar): ali o
+      convite navy compete com a assinatura e vira um terceiro CTA. */
+  convite = true,
+}: { convite?: boolean } = {}) {
   // As quatro primeiras do catálogo vivo: nunca aponta para rota podada.
   const ferramentas = APPS.filter(
     (a) => a.familia && a.plano === "gratis" && a.status !== "em-breve",
@@ -29,6 +33,7 @@ export function RodapeNovare() {
   return (
     <>
       {/* Convite: o único bloco navy da página depois do resultado. */}
+      {convite && (
       <section className="mx-auto max-w-3xl px-4 pb-12">
         <div className="relative overflow-hidden rounded-3xl bg-primary sm:flex sm:items-stretch">
           <div className="relative z-10 p-7 sm:flex-1 sm:p-9">
@@ -68,6 +73,7 @@ export function RodapeNovare() {
           </div>
         </div>
       </section>
+      )}
 
       {/* Rodapé institucional */}
       <footer className="pb-24 sm:pb-16 bg-primary text-white/70">

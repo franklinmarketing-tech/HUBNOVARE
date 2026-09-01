@@ -38,28 +38,28 @@ const CONFIG: Record<
 > = {
   ia: {
     curto: "IA e Consultoria",
-    descricao: "A inteligência da casa, com gente por trás",
+    descricao: "Onde seu dinheiro some",
     capa: "/cards/card-novare.webp",
     h: 188,
     s: 62,
   },
   organizacao: {
     curto: "Vida Financeira",
-    descricao: "O dia a dia sob controle, sem planilha",
+    descricao: "Saia do vermelho, sem planilha",
     capa: "/cards/card-score.webp",
     h: 215,
     s: 55,
   },
   investimentos: {
     curto: "Investimentos",
-    descricao: "Simule antes de aplicar seu dinheiro",
+    descricao: "Renda mais que a poupança",
     capa: "/cards/card-simulador.webp",
     h: 152,
     s: 55,
   },
   trabalho: {
     curto: "Trabalho",
-    descricao: "Salário, férias, rescisão: a conta certa",
+    descricao: "Receba o que é seu",
     capa: "/cards/card-projeto-vida.webp",
     h: 40,
     s: 65,

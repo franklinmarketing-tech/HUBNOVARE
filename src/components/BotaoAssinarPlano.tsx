@@ -1,9 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import {
   ModalAssinarPlano,
+  ROTA_COMECAR,
   type ContextoAssinatura,
   type ObjetivoAssinatura,
 } from "@/components/ModalAssinarPlano";
@@ -20,6 +22,7 @@ export function BotaoAssinarPlano({
   objetivo = "comecar",
   rotulo,
   tamanho = "normal",
+  direto = false,
 }: {
   /** `clara` é para usar sobre o bloco navy do fim da página. */
   variante?: "principal" | "clara";
@@ -34,6 +37,15 @@ export function BotaoAssinarPlano({
   /** Liga o halo pulsante. Só no CTA principal de cada tela — dois botões
       pulsando na mesma dobra brigam entre si e nenhum vence. */
   destaque?: boolean;
+  /** Vai direto para a criação de conta, sem o pop-up.
+   *
+   * Use onde a oferta INTEIRA já está na tela (a landing /assinar): ali o
+   * modal só repete o cartão de preço e cobra um clique a mais. Onde a
+   * oferta ainda não foi apresentada, o pop-up continua sendo o certo.
+   *
+   * Com `direto`, `contexto` e `objetivo` ficam inertes — não combine com
+   * `objetivo="pagar"` esperando checkout. */
+  direto?: boolean;
 }) {
   const [aberto, setAberto] = useState(false);
 
@@ -47,17 +59,28 @@ export function BotaoAssinarPlano({
       ? "px-7 py-4 text-base shadow-[0_14px_34px_-16px_hsl(16_80%_35%_/_0.75)]"
       : "px-5 py-3 text-sm";
 
+  const classe = `cta-varredura group inline-flex items-center justify-center gap-2 rounded-xl font-bold transition-all hover:-translate-y-0.5 ${estilo} ${medida} ${
+    destaque ? `cta-halo${variante === "clara" ? " cta-halo-claro" : ""}` : ""
+  }`;
+  const conteudo = (
+    <>
+      {rotulo ?? `Começar ${PLANO_TRIAL_DIAS} dias grátis`}
+      <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+    </>
+  );
+
+  if (direto) {
+    return (
+      <Link href={ROTA_COMECAR} className={classe}>
+        {conteudo}
+      </Link>
+    );
+  }
+
   return (
     <>
-      <button
-        type="button"
-        onClick={() => setAberto(true)}
-        className={`cta-varredura group inline-flex items-center justify-center gap-2 rounded-xl font-bold transition-all hover:-translate-y-0.5 ${estilo} ${medida} ${
-          destaque ? `cta-halo${variante === "clara" ? " cta-halo-claro" : ""}` : ""
-        }`}
-      >
-        {rotulo ?? `Começar ${PLANO_TRIAL_DIAS} dias grátis`}
-        <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+      <button type="button" onClick={() => setAberto(true)} className={classe}>
+        {conteudo}
       </button>
 
       <ModalAssinarPlano

@@ -2,69 +2,65 @@
 
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import type { CSSProperties } from "react";
 import { iconeDe } from "@/lib/icones";
 import type { Portal } from "@/lib/categorias";
 
 /**
- * A porta de entrada de uma área: superfície COLORIDA com a cor da própria
- * área (isso dá a vida), mas limpa — sem foto de fundo nem véu empilhado, que
- * era o que poluía. Gradiente sólido + um halo suave, título branco, ícone e
- * "Acessar". A lista completa abre em /aplicativos?area=<chave>.
+ * A porta de entrada de uma área, no formato "vitrine": um palco navy com o
+ * nome da área grande e centrado, e o botão Acessar FORA da imagem, num
+ * rodapé branco. A separação palco/rodapé é o que dá a limpeza — o olho lê a
+ * área primeiro e encontra a ação depois, sempre no mesmo lugar.
  */
 export function CardPortal({ portal }: { portal: Portal }) {
-  const { h, s } = portal;
   const href = `/aplicativos?area=${portal.chave}`;
   const IconePrincipal = iconeDe(portal.destaques[0] ?? portal.chave);
-
-  const estilo = {
-    background: `linear-gradient(155deg, hsl(${h} ${s}% 24%) 0%, hsl(${h} ${s + 6}% 14%) 100%)`,
-    "--eleva": `0 24px 48px -20px hsl(${h} ${s}% 20% / 0.55)`,
-  } as CSSProperties;
 
   return (
     <Link
       href={href}
-      className="@container glass-card group relative flex h-full flex-col justify-between overflow-hidden rounded-2xl p-5 text-white shadow-[0_10px_26px_-14px_hsl(215_50%_23%_/_0.4)]"
-      style={estilo}
+      className="group flex h-full flex-col overflow-hidden rounded-2xl bg-white shadow-card ring-1 ring-primary/5 transition-all hover:-translate-y-0.5 hover:shadow-card-hover"
     >
-      {/* Halo de luz da própria cor — o que dá o brilho "vivo" sem sujar. */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0"
+      {/* O palco: navy profundo com o fio de luz no topo. */}
+      <span
+        className="relative flex min-h-[10.5rem] flex-1 flex-col items-center justify-center gap-2 px-4 text-center text-white transition-[filter] duration-300 group-hover:brightness-[1.12]"
         style={{
-          background: `radial-gradient(16rem 9rem at 82% -8%, hsl(${h} ${s + 18}% 55% / 0.45), transparent 62%)`,
+          background:
+            "linear-gradient(160deg, hsl(216 44% 27%) 0%, hsl(218 50% 16%) 60%, hsl(220 55% 12%) 100%)",
+          boxShadow: "inset 0 1px 0 hsl(210 60% 80% / 0.18)",
         }}
-      />
-
-      <div className="relative flex items-start justify-between">
-        <span className="tile-cine flex h-11 w-11 items-center justify-center rounded-xl bg-white/[0.14] backdrop-blur-sm">
-          <IconePrincipal className="h-5 w-5" strokeWidth={1.75} />
-        </span>
-        {/* Selo Grátis: deixa explícito que só o Planejamento é pago. */}
-        <span className="rounded-md bg-white/[0.16] px-1.5 py-0.5 text-2xs font-extrabold uppercase tracking-wider text-white/80">
+      >
+        <span
+          aria-hidden
+          className="pointer-events-none absolute inset-0"
+          style={{
+            background:
+              "radial-gradient(16rem 9rem at 50% -20%, hsl(208 75% 62% / 0.25), transparent 65%)",
+          }}
+        />
+        <span className="absolute right-3 top-3 text-2xs font-extrabold uppercase tracking-wider text-white/55">
           Grátis
         </span>
-      </div>
-
-      <div className="relative mt-5">
-        <h3 className="font-display text-lg font-extrabold uppercase tracking-tight @[15rem]:text-xl">
-          {portal.curto}
-        </h3>
-        <p className="mt-1 line-clamp-2 text-xs leading-snug text-white/70">
-          {portal.descricao}
-        </p>
-      </div>
-
-      <div className="relative mt-5 flex items-center justify-between border-t border-white/[0.14] pt-3">
-        <span className="flex items-center gap-1.5 text-sm font-bold">
-          Acessar
-          <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+        <span className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-white/[0.10] ring-1 ring-white/[0.14]">
+          <IconePrincipal className="h-5 w-5" strokeWidth={1.75} />
         </span>
-        <span className="text-[11px] font-medium text-white/55">
+        <span className="relative font-display text-lg font-extrabold uppercase tracking-tight">
+          {portal.curto}
+        </span>
+        <span className="relative text-xs leading-snug text-white/70">
+          {portal.descricao}
+        </span>
+      </span>
+
+      {/* O rodapé branco com a ação, como no padrão de hub limpo. */}
+      <span className="flex items-center justify-between border-t border-primary/5 px-4 py-3">
+        <span className="flex items-center gap-1.5 text-sm font-bold text-primary transition-colors group-hover:text-accent-strong">
+          Acessar
+          <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+        </span>
+        <span className="text-2xs font-medium text-muted-foreground">
           {portal.total} ferramentas
         </span>
-      </div>
+      </span>
     </Link>
   );
 }

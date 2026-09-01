@@ -6,6 +6,7 @@ import { PaletaComandos } from "@/components/PaletaComandos";
 import { CatalogoFiltrado } from "@/components/CatalogoFiltrado";
 import { appsParaBusca, filtrosDoTopo } from "@/lib/navegacao";
 import { getPerfil } from "@/lib/perfil";
+import { getNotificacoes } from "@/lib/notificacoes";
 
 export const metadata: Metadata = {
   title: "Aplicativos",
@@ -16,6 +17,7 @@ export const metadata: Metadata = {
 /** O catálogo completo. Os portais da home entram aqui já filtrados. */
 export default async function AplicativosPage() {
   const perfil = await getPerfil();
+  const notificacoes = await getNotificacoes();
   const apps = appsParaBusca("cliente", "free");
   const filtros = filtrosDoTopo("cliente");
   const assinante =
@@ -29,8 +31,11 @@ export default async function AplicativosPage() {
       <div className="md:pl-[72px]">
         <TopoApp
           nome={perfil?.nome ?? null}
+          email={perfil?.email}
           assinante={assinante}
+          admin={perfil?.role === "admin"}
           logado={!!perfil}
+          notificacoes={notificacoes}
         />
 
         <main className="mx-auto max-w-6xl px-5 pb-16 pt-8">

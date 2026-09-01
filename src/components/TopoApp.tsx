@@ -2,9 +2,12 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { Crown, Newspaper, Search } from "lucide-react";
+import { Newspaper, Search } from "lucide-react";
 import { MenuAreas } from "@/components/MenuAreas";
+import { MenuConta } from "@/components/MenuConta";
+import { SinoNotificacoes } from "@/components/SinoNotificacoes";
 import type { Portal } from "@/lib/categorias";
+import type { Notificacao } from "@/lib/notificacoes";
 
 /**
  * Topo do aplicativo: saudação à esquerda, o menu das áreas no centro e o
@@ -16,15 +19,21 @@ import type { Portal } from "@/lib/categorias";
  */
 export function TopoApp({
   nome,
+  email = "",
   assinante,
+  admin = false,
   logado,
   portais = [],
+  notificacoes = [],
   comBusca = false,
 }: {
   nome: string | null;
+  email?: string;
   assinante: boolean;
+  admin?: boolean;
   logado: boolean;
   portais?: Portal[];
+  notificacoes?: Notificacao[];
   /** Telas sem busca própria (as internas) mantêm o campo aqui. */
   comBusca?: boolean;
 }) {
@@ -77,10 +86,16 @@ export function TopoApp({
           <MenuAreas portais={portais} />
         </div>
 
+        {/* O News com pulso de "ao vivo": o canal publica sempre, e o ponto
+            pulsando é o jeito de dizer isso sem mais um botão colorido. */}
         <Link
           href="/novare-news"
-          className="hidden shrink-0 items-center gap-1.5 rounded-xl border border-slate-200 px-3 py-2 text-xs font-bold text-slate-600 transition-colors hover:border-primary/30 hover:text-primary md:flex"
+          className="hidden shrink-0 items-center gap-2 rounded-xl bg-ciano-tint px-3 py-2 text-xs font-bold text-ciano-forte ring-1 ring-ciano/20 transition-all hover:-translate-y-px hover:ring-ciano/40 md:flex"
         >
+          <span className="relative flex h-2 w-2">
+            <span className="absolute inline-flex h-full w-full rounded-full bg-ciano opacity-60 motion-safe:animate-ping" />
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-ciano" />
+          </span>
           <Newspaper className="h-3.5 w-3.5" />
           News
         </Link>
@@ -110,31 +125,19 @@ export function TopoApp({
           </button>
         )}
 
+        {/* Sino e avatar: o selo de plano que ficava aqui só informava, e o
+            plano continua visível — agora dentro do menu, junto do caminho
+            para trocá-lo, ver o cadastro e sair. */}
         {logado ? (
-          <div
-            className={`hidden shrink-0 items-center gap-2 rounded-xl border px-3 py-2 sm:flex ${
-              assinante
-                ? "border-accent-soft bg-accent-tint"
-                : "border-slate-200 bg-white"
-            }`}
-          >
-            <Crown
-              className={`h-4 w-4 ${assinante ? "text-accent" : "text-slate-500"}`}
+          <>
+            <SinoNotificacoes notificacoes={notificacoes} />
+            <MenuConta
+              nome={nome ?? ""}
+              email={email}
+              assinante={assinante}
+              admin={admin}
             />
-            <div className="leading-tight">
-              <p className="text-xs font-bold text-foreground">
-                {assinante ? "Workspace" : "Plano Free"}
-              </p>
-              <p className="flex items-center gap-1 text-[10px] text-muted-foreground">
-                <span
-                  className={`h-1.5 w-1.5 rounded-full ${
-                    assinante ? "bg-success" : "bg-slate-300"
-                  }`}
-                />
-                {assinante ? "Ativo" : "Gratuito"}
-              </p>
-            </div>
-          </div>
+          </>
         ) : (
           <Link
             href="/login"

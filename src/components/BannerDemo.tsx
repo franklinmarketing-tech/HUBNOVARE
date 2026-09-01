@@ -8,7 +8,7 @@ import { Play } from "lucide-react";
  *
  * COMO ELE SE COMPORTA
  * Não carrega nada até chegar perto da tela (`preload="none"` + observer). Um
- * WebM de ~2,8 MB baixando no primeiro byte da página atrasaria justamente o
+ * WebM de ~2,9 MB baixando no primeiro byte da página atrasaria justamente o
  * herói, que é o que decide se a pessoa fica.
  *
  * Toca sozinho, mudo e em laço — é banner, não filme: ninguém veio aqui para
@@ -17,26 +17,39 @@ import { Play } from "lucide-react";
  *
  * QUEM PEDIU MENOS MOVIMENTO não recebe autoplay: fica o pôster com um botão
  * de play de verdade. Vídeo que roda sozinho é exatamente o que a preferência
- * de movimento reduzido existe para evitar.
+ * de movimento reduzido existe para evitar. E os controles CONTINUAM na tela
+ * depois que a pessoa dá play: `reduzido` é fixo e alimenta `controls`,
+ * enquanto o clique só esconde a capa. Sem isso, quem pediu menos movimento
+ * ficava preso num laço infinito sem botão de pausa (WCAG 2.2.2).
+ *
+ * DOIS FORMATOS: o WebM é menor, mas iPhones em iOS 15/16 (parque relevante
+ * no Brasil) não o leem e mostrariam um retângulo preto na dobra da prova. O
+ * MP4 em H.264 é o fallback que salva essa gente.
  */
 export function BannerDemo({
-  src = "/demo/app-em-uso.webm",
-  poster,
+  webm = "/demo/app-em-uso.webm",
+  mp4 = "/demo/app-em-uso.mp4",
+  poster = "/demo/poster-app.jpg",
   legenda,
 }: {
-  src?: string;
+  webm?: string;
+  mp4?: string;
   poster?: string;
   legenda?: string;
 }) {
   const caixaRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [perto, setPerto] = useState(false);
-  const [manual, setManual] = useState(false);
+  /** Preferência do sistema. Nunca muda depois de lida. */
+  const [reduzido, setReduzido] = useState(false);
+  /** A capa com o botão de play, que some ao primeiro clique. */
+  const [capa, setCapa] = useState(false);
 
   useEffect(() => {
     const semMovimento = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (semMovimento) {
-      setManual(true);
+      setReduzido(true);
+      setCapa(true);
       return;
     }
 
@@ -58,29 +71,38 @@ export function BannerDemo({
     return () => obs.disconnect();
   }, []);
 
+  // As <source> só entram no DOM quando é hora de carregar; `load()` é o que
+  // faz o vídeo enxergar as fontes recém-inseridas (trocar o `src` sozinho
+  // bastaria, mas com <source> o navegador precisa do aviso).
+  const carregar = perto || reduzido;
+  useEffect(() => {
+    if (carregar) videoRef.current?.load();
+  }, [carregar]);
+
   return (
     <figure ref={caixaRef} className="overflow-hidden rounded-3xl border border-border bg-primary shadow-elevated">
       <div className="relative aspect-video">
         <video
           ref={videoRef}
-          src={perto || manual ? src : undefined}
           poster={poster}
           muted
           loop
           playsInline
-          autoPlay={perto && !manual}
+          autoPlay={perto && !reduzido}
           preload="none"
-          controls={manual}
+          controls={reduzido}
           aria-label="Gravação do App Novare Planejamento Financeiro em uso"
           className="h-full w-full object-cover"
-        />
+        >
+          {carregar && <source src={webm} type="video/webm" />}
+          {carregar && <source src={mp4} type="video/mp4" />}
+        </video>
 
-        {manual && (
+        {capa && (
           <button
             type="button"
             onClick={() => {
-              setManual(false);
-              setPerto(true);
+              setCapa(false);
               videoRef.current?.play();
             }}
             className="absolute inset-0 flex items-center justify-center bg-primary/40 text-white transition-colors hover:bg-primary/30"

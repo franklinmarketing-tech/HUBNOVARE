@@ -35,8 +35,14 @@ export type ContextoAssinatura = "plano" | "workspace";
  */
 export type ObjetivoAssinatura = "comecar" | "pagar";
 
-/** Onde a pessoa cria a senha e cai direto no produto. */
-const ROTA_COMECAR = "/login?modo=criar&proximo=%2Fplanejamento%2Fapp";
+/**
+ * Onde a pessoa cria a senha e cai direto no produto.
+ *
+ * Exportada porque o `BotaoAssinarPlano` em modo `direto` aponta para cá sem
+ * abrir o pop-up: em telas onde a oferta INTEIRA já está à vista (a landing
+ * /assinar), o modal só repetiria o cartão de preço e custaria um clique.
+ */
+export const ROTA_COMECAR = "/login?modo=criar&proximo=%2Fplanejamento%2Fapp";
 
 const CONTEXTOS = {
   plano: {
