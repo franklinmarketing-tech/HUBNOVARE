@@ -178,3 +178,30 @@ export function BotaoPrincipal({
     </Link>
   );
 }
+
+/**
+ * A sessão caiu no meio do uso.
+ *
+ * Era um `return null` em seis telas: tela branca absoluta, sem pista. Quem
+ * volta do almoço com o app aberto merece saber o que houve e ter o botão
+ * de voltar — com `proximo` apontando para cá, para cair de volta onde
+ * estava.
+ */
+export function SessaoExpirada() {
+  return (
+    <div className="mx-auto max-w-md py-16 text-center">
+      <h1 className="font-display text-xl font-bold text-primary">
+        Sua sessão expirou
+      </h1>
+      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+        Nada foi perdido: é só entrar de novo que você volta para onde estava.
+      </p>
+      <a
+        href="/login?proximo=%2Fplanejamento%2Fapp"
+        className="mt-6 inline-flex items-center justify-center rounded-xl bg-primary px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-primary-soft"
+      >
+        Entrar de novo
+      </a>
+    </div>
+  );
+}

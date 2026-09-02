@@ -5,6 +5,7 @@ import { ArrowRight, Sparkles, Target, TrendingUp, Lock } from "lucide-react";
 import { formatarMoedaInput, digitosParaReais } from "@/lib/moeda";
 import { falarNoWhatsApp } from "@/lib/contato";
 import { salvarLead } from "@/lib/leads";
+import { marcoRapido } from "@/lib/planejamento/montarPlano";
 import { CamposLead, leadCompleto, type DadosLead } from "@/components/CamposLead";
 
 const brl = (v: number) =>
@@ -14,10 +15,10 @@ const brl = (v: number) =>
     maximumFractionDigits: 0,
   });
 
-/** Premissa conservadora: 5% a.a. de retorno REAL (acima da inflação). */
-const RENT_REAL_ANUAL = 0.05;
-/** Regra dos 4% (25× a renda anual) para uma renda que dura a vida toda. */
-const TAXA_RETIRADA = 0.04;
+/* A conta vem de `marcoRapido` — a MESMA do app. A versão anterior usava a
+   regra dos 4% (25× a renda anual): anunciava R$ 2,4 milhões para um caso em
+   que o app, depois da assinatura, mostrava R$ 1,7 milhão. A vitrine e o
+   produto têm de dar o mesmo número. */
 
 /**
  * O lead-magnet do Planejamento Financeiro, no molde da calculadora "Reserva Ideal" do
@@ -40,8 +41,7 @@ export function CalculadoraMarcoHorizonte() {
     const aporteN = parseFloat(aporte) || 0;
     const anos = Math.max(0, (parseInt(idadeLivre) || 0) - (parseInt(idade) || 0));
     const n = anos * 12;
-    const i = Math.pow(1 + RENT_REAL_ANUAL, 1 / 12) - 1;
-    const alvo = (rendaN * 12) / TAXA_RETIRADA;
+    const { alvo, taxaMensal: i } = marcoRapido(rendaN, parseInt(idadeLivre) || 60);
     const fv =
       n > 0
         ? jaTemN * Math.pow(1 + i, n) +
@@ -122,7 +122,7 @@ export function CalculadoraMarcoHorizonte() {
           </p>
           <p className="mt-1 font-display text-4xl font-black tabular-nums">{brl(r.alvo)}</p>
           <p className="mt-1 text-xs text-white/70">
-            é o patrimônio que te dá {brl(r.rendaN)} por mês, para sempre.
+            é o patrimônio que te dá {brl(r.rendaN)} por mês até os 90 anos.
           </p>
 
           <div className="mt-4 space-y-1.5">

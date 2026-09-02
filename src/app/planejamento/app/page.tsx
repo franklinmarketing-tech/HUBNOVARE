@@ -14,6 +14,7 @@ import {
   brl,
   brlCurto,
   pct,
+  SessaoExpirada,
 } from "./pecas";
 
 export default function PainelPage() {
@@ -21,7 +22,7 @@ export default function PainelPage() {
 
   if (r.fase === "carregando") return <Carregando />;
   if (r.fase === "sem-ficha") return <SemFicha />;
-  if (r.fase === "sem-sessao") return null;
+  if (r.fase === "sem-sessao") return <SessaoExpirada />;
 
   const { plano, saude, reserva, diagnostico, entrada, vazio } = r.dados;
 
@@ -29,7 +30,7 @@ export default function PainelPage() {
     return (
       <PrecisaPreencher
         titulo="Bem-vindo ao seu planejamento"
-        texto="São oito blocos curtos. Ao final, seu diagnóstico e seu plano ficam prontos na hora — sem esperar ninguém."
+        texto="São blocos curtos. Ao final, seu diagnóstico e seu plano ficam prontos na hora — sem esperar ninguém."
       />
     );
   }
@@ -72,7 +73,7 @@ export default function PainelPage() {
 
           <div className="mt-5 max-w-md">
             <div className="mb-1.5 flex items-baseline justify-between text-2xs font-semibold">
-              <span className="text-white/70">No caminho atual você chega a</span>
+              <span className="text-white/70">Da aposentadoria, o ritmo de hoje cobre</span>
               <span className="tabular-nums">{pct(plano.pctAtingido)}</span>
             </div>
             <div className="h-2 overflow-hidden rounded-full bg-white/20">

@@ -18,6 +18,7 @@ import {
   TituloTela,
   brl,
   pct,
+  SessaoExpirada,
 } from "../pecas";
 
 export default function DiagnosticoPage() {
@@ -60,7 +61,7 @@ export default function DiagnosticoPage() {
 
   if (r.fase === "carregando") return <Carregando />;
   if (r.fase === "sem-ficha") return <SemFicha />;
-  if (r.fase === "sem-sessao") return null;
+  if (r.fase === "sem-sessao") return <SessaoExpirada />;
 
   const { diagnostico: d, vazio } = r.dados;
   if (vazio) return <PrecisaPreencher />;

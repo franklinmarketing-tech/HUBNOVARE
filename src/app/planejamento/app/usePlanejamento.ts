@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { lerPremissas } from "@/lib/planejamento/premissas";
 import {
   carregarRetrato,
   resolverCliente,
@@ -20,7 +21,7 @@ import {
 import { computeActionPlan, type ActionPlan } from "@/lib/planejamento/actionplan";
 import { montarEntrada } from "@/lib/planejamento/montarPlano";
 import { mesAtual } from "@/lib/planejamento/catalogos";
-import { PERFIS, type PerfilComportamental } from "@/lib/planejamento/perfil";
+import { PERFIS, type PerfilComportamental, houveResposta, respostasIniciais } from "@/lib/planejamento/perfil";
 
 export type Reserva = ReturnType<typeof reservaEmergencia>;
 
@@ -30,6 +31,9 @@ export type Reserva = ReturnType<typeof reservaEmergencia>;
  */
 function lerPerfil(bruto: unknown): PerfilComportamental | null {
   if (!bruto || typeof bruto !== "object") return null;
+  // Registro antigo com tudo no valor inicial carrega o "Construtor" que o
+  // empate carimbava em quem nunca respondeu — perfil inventado não passa.
+  if (!houveResposta({ ...respostasIniciais(), ...(bruto as object) })) return null;
   const valor = (bruto as { computed_profile?: unknown }).computed_profile;
   return typeof valor === "string" && valor in PERFIS
     ? (valor as PerfilComportamental)
@@ -83,19 +87,28 @@ export function usePlanejamento(mes = mesAtual()): Resultado {
       if (estado.tipo === "sem-ficha") return setResultado({ fase: "sem-ficha" });
 
       const supabase = createClient();
-      const [retrato, cliente] = await Promise.all([
+      const [retrato, cliente, escolhidas] = await Promise.all([
         carregarRetrato(estado.clientId, mes),
         supabase
           .from("clients")
           .select("date_of_birth, status, dependents_count, behavioral_profile")
           .eq("id", estado.clientId)
           .maybeSingle(),
+        lerPremissas(),
       ]);
       if (!ativo) return;
 
-      const entrada = montarEntrada(retrato, {
-        nascimento: cliente.data?.date_of_birth ?? null,
-      });
+      // As premissas que a pessoa escolheu na trilha entram na conta; campo
+      // não respondido fica undefined e o motor usa o padrão de sempre.
+      const entrada = montarEntrada(
+        retrato,
+        { nascimento: cliente.data?.date_of_birth ?? null },
+        {
+          idadeAposentadoria: escolhidas.idadeAposentadoria ?? undefined,
+          rendaDesejada: escolhidas.rendaDesejadaMes ?? undefined,
+          rendaINSS: escolhidas.rendaINSSMes ?? undefined,
+        },
+      );
       const plano = computeLifePlan(entrada);
 
       setResultado({

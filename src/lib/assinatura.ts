@@ -41,9 +41,22 @@ export const ASSINATURA_OFERTA = `${ASSINATURA_TRIAL_DIAS} dias grátis, depois 
  * cobra nada queima a confiança de quem clica. Basta preencher aqui quando o
  * link existir: nenhuma tela precisa mudar.
  *
- * ⚠️ Ao configurar o produto no provedor, lembre de ligar o período de teste
- * de 7 dias — senão a primeira cobrança sai na hora e a promessa da página
- * deixa de ser verdade.
+ * PROVEDOR ESCOLHIDO: Kiwify ou Hotmart (assinatura recorrente).
+ * O caminho para ligar a venda de verdade:
+ *
+ *   1. Criar o produto no painel (Kiwify: Produtos → Novo → Assinatura;
+ *      Hotmart: Produto → Assinatura), preço R$ 19,90/mês.
+ *   2. NÃO configurar trial no provedor: o teste de 7 dias já acontece
+ *      dentro do app, sem cartão (vidaplan_subscriptions). O checkout é
+ *      para quem decidiu pagar.
+ *   3. Colar aqui a URL do checkout. Só isso liga o botão em todo o site.
+ *   4. Quando alguém pagar, marcar o plano no Supabase:
+ *        update hub_profiles set plano='pro' where id =
+ *          (select id from auth.users where email='CLIENTE@AQUI');
+ *      O app libera na hora (trial.ts lê hub_profiles primeiro).
+ *   5. Depois, automatizar o passo 4 com o webhook do provedor apontando
+ *      para uma rota /api/webhook-pagamento com a service role key —
+ *      pendência conhecida, hoje a ativação é manual.
  */
 export const ASSINATURA_CHECKOUT_URL = "";
 

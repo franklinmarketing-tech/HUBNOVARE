@@ -34,7 +34,7 @@ export default async function LayoutPlanejamento({
 
   return (
     <div className="aurora-clara min-h-dvh bg-gradient-to-b from-slate-50 to-white">
-      <header className="sticky top-0 z-20 border-b border-border/70 bg-white/80 backdrop-blur-md">
+      <header className="nao-imprimir sticky top-0 z-20 border-b border-border/70 bg-white/80 backdrop-blur-md">
         <div className="mx-auto flex h-16 max-w-5xl items-center gap-4 px-5">
           <Link href="/" aria-label="Novare, início">
             <Image

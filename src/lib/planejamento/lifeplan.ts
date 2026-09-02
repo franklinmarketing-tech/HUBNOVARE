@@ -247,7 +247,7 @@ function simulate(inp: LifePlanInput, opts: { extraMensal?: number; rate?: numbe
   return { serie, patrimonioNaApos };
 }
 
-const annuityPV = (pmtAnnual: number, n: number, i: number) =>
+export const annuityPV = (pmtAnnual: number, n: number, i: number) =>
   n <= 0 ? 0 : (i === 0 ? pmtAnnual * n : pmtAnnual * (1 - Math.pow(1 + i, -n)) / i);
 
 // Projeção de um objetivo até a independência: quanto ele custa no total e em que período.

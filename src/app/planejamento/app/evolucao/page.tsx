@@ -10,6 +10,7 @@ import {
   Tooltip,
   XAxis,
   YAxis,
+  Legend,
 } from "recharts";
 import { createClient } from "@/lib/supabase/client";
 import { usePlanejamento } from "../usePlanejamento";
@@ -23,6 +24,7 @@ import {
   brl,
   brlCurto,
   pct,
+  SessaoExpirada,
 } from "../pecas";
 
 type Fechamento = {
@@ -64,7 +66,7 @@ export default function EvolucaoPage() {
 
   if (r.fase === "carregando") return <Carregando />;
   if (r.fase === "sem-ficha") return <SemFicha />;
-  if (r.fase === "sem-sessao") return null;
+  if (r.fase === "sem-sessao") return <SessaoExpirada />;
   if (r.dados.vazio) return <PrecisaPreencher />;
   if (fechamentos === null) return <Carregando />;
 
@@ -100,13 +102,13 @@ export default function EvolucaoPage() {
 
   const serie = fechamentos.map((f) => ({
     mes: mesCurto(f.month_ref),
-    patrimonio: Math.round(f.net_worth),
-    guardado: Math.round(f.total_income - f.total_expenses),
+    patrimonio: Math.round(f.net_worth ?? 0),
+    guardado: Math.round((f.total_income ?? 0) - (f.total_expenses ?? 0)),
   }));
 
   const primeiro = fechamentos[0];
   const ultimo = fechamentos[fechamentos.length - 1];
-  const variacao = ultimo.net_worth - primeiro.net_worth;
+  const variacao = (ultimo.net_worth ?? 0) - (primeiro.net_worth ?? 0);
   const meses = fechamentos.length;
 
   return (
@@ -132,9 +134,9 @@ export default function EvolucaoPage() {
         />
         <Indicador
           rotulo="Plano cumprido"
-          valor={pct(ultimo.plan_completion_pct)}
+          valor={pct(ultimo.plan_completion_pct ?? 0)}
           detalhe="Metas que já bateram o alvo"
-          tom={ultimo.plan_completion_pct >= 50 ? "bom" : "atencao"}
+          tom={(ultimo.plan_completion_pct ?? 0) >= 50 ? "bom" : "atencao"}
         />
       </section>
 
@@ -177,6 +179,10 @@ export default function EvolucaoPage() {
                   fontSize: 12,
                 }}
               />
+              <Legend
+                wrapperStyle={{ fontSize: 12 }}
+                iconType="plainline"
+              />
               <Area
                 type="monotone"
                 dataKey="patrimonio"
@@ -184,6 +190,14 @@ export default function EvolucaoPage() {
                 stroke="var(--color-accent-btn)"
                 strokeWidth={2}
                 fill="url(#gradPatrimonio)"
+              />
+              <Area
+                type="monotone"
+                dataKey="guardado"
+                name="Guardado no mês"
+                stroke="var(--color-ciano)"
+                strokeWidth={2}
+                fill="transparent"
               />
             </AreaChart>
           </ResponsiveContainer>
@@ -228,7 +242,7 @@ export default function EvolucaoPage() {
                       {brl(sobra)}
                     </td>
                     <td className="px-4 py-2.5 text-right tabular-nums text-slate-600">
-                      {f.emergency_reserve_months.toLocaleString("pt-BR", {
+                      {(f.emergency_reserve_months ?? 0).toLocaleString("pt-BR", {
                         maximumFractionDigits: 1,
                       })}{" "}
                       meses

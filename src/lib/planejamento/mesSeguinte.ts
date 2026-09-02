@@ -65,10 +65,14 @@ export async function cloneToNextMonth(
   ]);
 
   // ── Etapa 1: lê o ÚLTIMO valor lançado em acompanhamento_entradas para cada item.
-  // O valor_atual representa o PROGRESSO (delta) em direção à meta:
-  //   - expenses/debts/insurance: redução conseguida (subtrai do original)
-  //   - income/assets: aumento conseguido (soma ao original)
-  // Ex.: despesa cadastrada R$ 2.500, lançou redução de R$ 200 → próximo mês = R$ 2.300
+  //
+  // O valor_atual é o VALOR ABSOLUTO de hoje — é o que a tela do mês pede
+  // ("Onde está hoje", com a meta logo abaixo). O código herdado do app
+  // antigo tratava esse número como DELTA e fazia original − valor: uma
+  // dívida de R$ 12.000 em que a pessoa lançasse "10.000" viraria R$ 2.000
+  // no mês seguinte. O bug nunca chegou a rodar porque o clone era chamado
+  // depois de as entradas virarem snapshot (deltaMap sempre vazio) — a
+  // ordem foi corrigida junto com esta semântica.
   const { data: lancamentos } = await supabase
     .from("acompanhamento_entradas")
     .select("source_table, source_id, valor_atual, snapshotted_at")
@@ -85,15 +89,12 @@ export async function cloneToNextMonth(
     }
   });
 
-  // Direção da meta por tabela: -1 reduz (despesa/divida/seguro), +1 cresce (renda/patrimonio)
-  const isReducing = (table: string) =>
-    table === "expenses" || table === "debts" || table === "insurance";
-
-  const applyDelta = (table: string, id: string, original: number): number => {
-    const delta = deltaMap.get(`${table}:${id}`);
-    if (delta == null) return original;
-    const next = isReducing(table) ? original - delta : original + delta;
-    return Math.max(0, next); // nunca negativo
+  const applyDelta = (_table: string, id: string, original: number): number => {
+    // O nome ficou por compatibilidade com os call sites; a conta é
+    // substituição: lançou um valor, ele É o valor do mês seguinte.
+    const lancado = deltaMap.get(`${_table}:${id}`);
+    if (lancado == null) return original;
+    return Math.max(0, lancado); // nunca negativo
   };
 
   // Mapping oldId → newId por tabela — usado depois para clonar parecer_metas

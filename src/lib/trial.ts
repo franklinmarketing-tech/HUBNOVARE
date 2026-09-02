@@ -1,29 +1,39 @@
 "use client";
 
 /**
- * O teste grátis de 7 dias, self-service.
+ * O teste grátis de 7 dias, self-service — e a leitura ÚNICA de "pode usar?".
  *
  * A pessoa clica em "começar grátis", cria a senha, entra no app e usa. Não há
  * cartão na porta de entrada e não há ninguém para liberar nada — o relógio
  * começa a correr sozinho na primeira vez que ela abre o produto.
  *
- * ONDE ISSO É GRAVADO
- * Na tabela `vidaplan_subscriptions`, que nasceu com o Vida Plan antigo mas é
- * exatamente a peça certa: chave por `user_id`, e as policies permitem que o
- * próprio dono LEIA e INICIE a assinatura, sem passar por admin. O nome ficou
- * do produto anterior; o papel é o da assinatura da casa. Renomear a tabela
- * exigiria migração e derrubaria quem já tem linha lá.
+ * DUAS FONTES, UMA RESPOSTA
+ * A assinatura vive em dois lugares por herança: o Hub grava plano em
+ * `hub_profiles` (é lá que o admin libera alguém e que o pagamento será
+ * marcado), e o teste corre em `vidaplan_subscriptions` (nasceu com o Vida
+ * Plan antigo). Antes desta versão os dois sistemas não se falavam: dava
+ * para ser `pro` no Hub e "vencido" aqui. Agora a ordem é explícita:
  *
- * ⚠️ O usuário pode INSERIR, mas NÃO pode dar UPDATE (é o que impede alguém de
- * estender o próprio teste para sempre pelo console do navegador). Quem vira
- * `ativo` depois do pagamento é o webhook do provedor, com service role.
+ *   1. `hub_profiles` manda: role admin/equipe OU plano `pro` válido → ativo.
+ *   2. Senão, vale o teste de `vidaplan_subscriptions`.
+ *
+ * ONDE O TESTE É GRAVADO
+ * Na tabela `vidaplan_subscriptions`: chave por `user_id`, e as policies
+ * permitem que o próprio dono LEIA e INICIE a assinatura, sem passar por
+ * admin. O usuário pode INSERIR, mas NÃO pode dar UPDATE (é o que impede
+ * alguém de estender o próprio teste pelo console do navegador).
+ *
+ * ATIVAÇÃO PÓS-PAGAMENTO
+ * Quem compra (checkout Kiwify/Hotmart) é marcado `pro` em `hub_profiles` —
+ * pelo webhook quando existir, ou pelo admin enquanto não existe. Este
+ * módulo já entende isso hoje: marcou `pro`, liberou.
  */
 
 import { createClient } from "@/lib/supabase/client";
 import { ASSINATURA_TRIAL_DIAS } from "@/lib/assinatura";
 
 export type Assinatura = {
-  /** `trial` durante o teste, `active` pago, `inactive` quando venceu. */
+  /** `trial` durante o teste, `active` pago/liberado, `inactive` vencido. */
   status: "inactive" | "trial" | "active";
   plano: "free" | "gold";
   trialAte: Date | null;
@@ -34,6 +44,14 @@ export type Assinatura = {
 };
 
 const DIA_MS = 24 * 60 * 60 * 1000;
+
+const ATIVA: Assinatura = {
+  status: "active",
+  plano: "gold",
+  trialAte: null,
+  diasRestantes: null,
+  liberado: true,
+};
 
 function montar(linha: {
   status?: string | null;
@@ -72,6 +90,22 @@ export async function garantirTeste(): Promise<Assinatura | null> {
   } = await supabase.auth.getUser();
   if (!user) return null;
 
+  // 1) O Hub manda. Admin/equipe e assinante `pro` não têm relógio nenhum.
+  const { data: perfil } = await supabase
+    .from("hub_profiles")
+    .select("role, plano, plano_expira_em")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (perfil) {
+    const expirou =
+      !!perfil.plano_expira_em && new Date(perfil.plano_expira_em) < new Date();
+    const proValido = perfil.plano === "pro" && !expirou;
+    const equipe = perfil.role === "admin" || perfil.role === "equipe";
+    if (proValido || equipe) return ATIVA;
+  }
+
+  // 2) Senão, o teste.
   const { data: existente } = await supabase
     .from("vidaplan_subscriptions")
     .select("status, plano, trial_until")

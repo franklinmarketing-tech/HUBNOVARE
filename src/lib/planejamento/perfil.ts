@@ -83,6 +83,25 @@ export const PERFIS: Record<
  * a risco; Explorador é risco sem ansiedade; Despreocupado é o oposto do
  * Construtor.
  */
+/**
+ * A pessoa realmente respondeu, ou está tudo no valor inicial?
+ *
+ * Todas as escalas nascem em 5. Se ninguém mexeu em nada, calcular um perfil
+ * seria inventar personalidade: o empate 15×15×15×15 fazia o desempate do
+ * sort carimbar todo mundo como "Construtor".
+ */
+export function houveResposta(r: RespostasComportamentais): boolean {
+  const iniciais = respostasIniciais();
+  const escalas = Object.keys(iniciais).filter(
+    (k) => typeof iniciais[k as keyof RespostasComportamentais] === "number",
+  ) as (keyof RespostasComportamentais)[];
+  return (
+    escalas.some((k) => r[k] !== iniciais[k]) ||
+    (typeof r.spending_triggers === "string" && r.spending_triggers.trim() !== "") ||
+    (typeof r.family_money_history === "string" && r.family_money_history.trim() !== "")
+  );
+}
+
 export function calcularPerfil(
   r: RespostasComportamentais,
 ): PerfilComportamental {

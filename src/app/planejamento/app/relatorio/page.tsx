@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { Printer } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { AcaoAssinante } from "@/components/AcaoAssinante";
 import { usePlanejamento } from "../usePlanejamento";
 import { NOTA_RISCO } from "@/lib/planejamento/diagnostico";
 import { PERFIS } from "@/lib/planejamento/perfil";
@@ -17,6 +18,7 @@ import {
   brl,
   brlCurto,
   pct,
+  SessaoExpirada,
 } from "../pecas";
 
 type MetaSalva = { source_label: string; meta_text: string | null; prazo: string | null };
@@ -66,7 +68,7 @@ export default function RelatorioPage() {
 
   if (r.fase === "carregando") return <Carregando />;
   if (r.fase === "sem-ficha") return <SemFicha />;
-  if (r.fase === "sem-sessao") return null;
+  if (r.fase === "sem-sessao") return <SessaoExpirada />;
   if (r.dados.vazio) return <PrecisaPreencher />;
 
   const { diagnostico: d, plano, saude, reserva, acoes, entrada, perfil } = r.dados;
@@ -81,9 +83,12 @@ export default function RelatorioPage() {
     <div className="surgir">
       <style>{`
         @media print {
-          /* Só o relatório vai para o papel: cabeçalho do app, barra de etapas
-             e o próprio botão de imprimir ficam de fora. */
-          header, nav, .nao-imprimir { display: none !important; }
+          /* Só o relatório vai para o papel. O cabeçalho do app carrega a
+             classe .nao-imprimir na origem (layout.tsx) — a regra global por
+             elemento "header" que existia aqui apagava também o <header> do
+             próprio relatório: logo, título, nome do cliente e data sumiam
+             do PDF. */
+          nav, .nao-imprimir { display: none !important; }
           main { max-width: none !important; padding: 0 !important; }
           .folha { break-inside: avoid; }
           body { background: #fff !important; }
@@ -93,14 +98,16 @@ export default function RelatorioPage() {
       <div className="nao-imprimir">
         <TituloTela numero={etapa.numero} titulo={etapa.titulo} resumo={etapa.resumo} />
         <div className="mb-6 flex flex-wrap items-center gap-3 rounded-2xl border border-border bg-white p-4">
-          <button
-            type="button"
-            onClick={() => window.print()}
-            className="flex items-center gap-2 rounded-xl bg-accent-btn px-5 py-2.5 text-sm font-bold text-white shadow-sm transition-opacity hover:opacity-95"
-          >
-            <Printer className="h-4 w-4" />
-            Baixar em PDF
-          </button>
+          <AcaoAssinante acao="baixar o relatório em PDF">
+            <button
+              type="button"
+              onClick={() => window.print()}
+              className="flex items-center gap-2 rounded-xl bg-accent-btn px-5 py-2.5 text-sm font-bold text-white shadow-sm transition-opacity hover:opacity-95"
+            >
+              <Printer className="h-4 w-4" />
+              Baixar em PDF
+            </button>
+          </AcaoAssinante>
           <p className="text-xs text-muted-foreground">
             Escolha <strong>Salvar como PDF</strong> no destino da impressão.
           </p>
@@ -151,8 +158,9 @@ export default function RelatorioPage() {
           </h2>
           <p className="mt-2 text-sm leading-relaxed text-slate-600">
             Para sustentar a vida que você descreveu, seu patrimônio precisa chegar
-            a <strong>{brlCurto(plano.capitalDeVida)}</strong>. No ritmo de hoje
-            você alcança <strong>{pct(plano.pctAtingido)}</strong> disso até os{" "}
+            a <strong>{brlCurto(plano.capitalDeVida)}</strong> — objetivos somados
+            à aposentadoria. Da parte de aposentadoria, o ritmo de hoje cobre{" "}
+            <strong>{pct(plano.pctAtingido)}</strong> até os{" "}
             {entrada.idadeAposentadoria} anos.
           </p>
           {!plano.viavel && (
@@ -279,8 +287,10 @@ export default function RelatorioPage() {
         <footer className="folha border-t border-border pt-4 text-[11px] leading-relaxed text-slate-500">
           Este relatório é um estudo de planejamento financeiro pessoal, gerado a
           partir dos dados que você informou. As projeções usam 5% ao ano de
-          retorno real (acima da inflação) e a regra dos 4% para renda perpétua;
-          são estimativas, não promessa de rentabilidade. O documento{" "}
+          retorno real bruto (cerca de 3,8% líquidos de imposto de renda, acima
+          da inflação) e calculam o capital necessário para sustentar a renda
+          desejada até os 90 anos; são estimativas, não promessa de
+          rentabilidade. O documento{" "}
           <strong>não é recomendação de investimento</strong> e não indica
           produto, corretora ou instituição. Para uma recomendação personalizada,
           fale com um consultor da Novare.

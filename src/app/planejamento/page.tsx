@@ -41,7 +41,7 @@ import { falarNoWhatsApp } from "@/lib/contato";
 export const metadata: Metadata = {
   title: "Planejamento Financeiro — seus objetivos viram um número só",
   description:
-    `O Marco Horizonte é o patrimônio que sustenta a renda que você quer, para sempre. Calcule o seu de graça e teste por ${PLANO_TRIAL_DIAS} dias sem pagar nada — depois ${PLANO_PRECO_ROTULO} ao mês, com a Íris e o desconto na consultoria inclusos.`,
+    `O Marco Horizonte é o patrimônio que sustenta a renda que você quer até os 90 anos. Calcule o seu de graça e teste por ${PLANO_TRIAL_DIAS} dias sem pagar nada — depois ${PLANO_PRECO_ROTULO} ao mês, com a Íris e o desconto na consultoria inclusos.`,
 };
 
 /**
@@ -107,11 +107,11 @@ const PASSOS: { icone: LucideIcon; titulo: string; texto: string }[] = [
     icone: Target,
     titulo: "Aparece o seu Marco Horizonte",
     texto:
-      "O patrimônio que sustenta essa renda para sempre — e quanto do caminho você já andou, mantendo exatamente o ritmo de hoje.",
+      "O patrimônio que sustenta essa renda até os 90 anos — e quanto do caminho você já andou, mantendo exatamente o ritmo de hoje.",
   },
   {
     icone: Route,
-    titulo: "Um consultor desenha o caminho",
+    titulo: "O app desenha o caminho",
     texto:
       "Aporte que cabe no seu mês, prazo realista e alocação coerente com o tempo que você tem. Ano a ano, não só o número final.",
   },
@@ -119,17 +119,18 @@ const PASSOS: { icone: LucideIcon; titulo: string; texto: string }[] = [
     icone: RefreshCw,
     titulo: "A rota é recalculada",
     texto:
-      "Mudou o salário, nasceu um filho, virou o ciclo de juros? O plano é revisado com você, para continuar valendo no mundo real.",
+      "Mudou o salário, nasceu um filho, virou o ciclo de juros? Atualize os dados e o plano inteiro se recalcula na hora.",
   },
 ];
 
 /** Um ícone para cada linha de `PLANO_INCLUI`, na mesma ordem. */
 const ICONES_INCLUI: LucideIcon[] = [
-  Sparkles, // 7 dias grátis
-  Target, // Marco Horizonte
-  ChartLine, // projeção ano a ano
-  Wallet, // plano de aportes
-  Gift, // Íris de brinde
+  Sparkles, // 7 dias grátis para testar
+  Wallet, // retrato financeiro completo
+  Target, // diagnóstico e Marco Horizonte
+  Route, // plano de ação com valor e prazo
+  ChartLine, // acompanhamento mês a mês + PDF
+  Gift, // Íris incluída
   ShieldCheck, // cancele quando quiser
 ];
 
@@ -208,7 +209,7 @@ export default function VidaPlanPage() {
                     Marco Horizonte
                   </strong>{" "}
                   — mostra a que distância você está dele hoje e desenha o
-                  caminho até lá, com um consultor da Novare do seu lado.
+                  caminho até lá, sem depender de ninguém liberar nada.
                 </p>
 
                 {/* A oferta lidera pelo teste: o preço vem depois, como
@@ -283,9 +284,9 @@ export default function VidaPlanPage() {
                   <strong className="font-semibold text-white">
                     R$ 8.000 por mês
                   </strong>{" "}
-                  pede um Marco Horizonte de{" "}
+                  aos 60 anos pede um Marco Horizonte de cerca de{" "}
                   <strong className="font-semibold text-white">
-                    R$ 2,4 milhões
+                    R$ 1,7 milhão
                   </strong>
                   .
                 </p>
@@ -506,7 +507,7 @@ export default function VidaPlanPage() {
                   </span>
                 </div>
                 <p className="mt-1.5 text-sm text-muted-foreground">
-                  O filme completo, com gente acompanhando.
+                  O filme completo, calculado com os seus números.
                 </p>
 
                 <ul className="mt-5 space-y-2.5">
@@ -668,12 +669,12 @@ export default function VidaPlanPage() {
                 {
                   pergunta: "O que é o Marco Horizonte?",
                   resposta:
-                    "É o patrimônio que sustenta a renda que você quer receber, para sempre, sem depender de salário. É o seu número de independência financeira — a partir dele, trabalhar vira escolha.",
+                    "É o patrimônio que sustenta a renda que você quer receber até os 90 anos, sem depender de salário. É o seu número de independência financeira — a partir dele, trabalhar vira escolha.",
                 },
                 {
                   pergunta: "Como esse número é calculado?",
                   resposta:
-                    "Pela regra dos 4%: a cada ano você retira 4% do patrimônio, e o restante continua investido rendendo acima da inflação. Na prática, o alvo é 25 vezes a renda que você quer por ano — R$ 8.000 por mês pedem R$ 2,4 milhões.",
+                    "O app calcula quanto precisa estar investido para pagar a sua renda mensal da idade em que você parar até os 90 anos, com retorno real de 5% ao ano já descontando inflação e imposto de renda. Uma renda de R$ 8.000 por mês a partir dos 60 pede cerca de R$ 1,7 milhão.",
                 },
                 {
                   pergunta: "Por que a projeção usa 5% ao ano?",

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { CalendarCheck, Check, Loader2, TriangleAlert } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { AcaoAssinante } from "@/components/AcaoAssinante";
 import { usePlanejamento } from "../usePlanejamento";
 import { liberarLancamento } from "@/lib/planejamento/cliente";
 import { mesAtual } from "@/lib/planejamento/catalogos";
@@ -18,6 +19,7 @@ import {
   SemFicha,
   TituloTela,
   brl,
+  SessaoExpirada,
 } from "../pecas";
 import { formatarMoedaInput, digitosParaReais } from "@/lib/moeda";
 
@@ -159,6 +161,9 @@ export default function MesPage() {
    */
   const fecharMes = useCallback(async () => {
     if (r.fase !== "pronto" || !clientId) return;
+    // Dois cliques rápidos tentariam dois inserts em monthly_closings; o
+    // estado `fechando` só desabilita o botão no re-render seguinte.
+    if (fechando || jaFechado) return;
     setFechando(true);
     setErro(null);
 
@@ -201,26 +206,42 @@ export default function MesPage() {
       return;
     }
 
-    // Marca as entradas do mês como histórico e clona tudo para o mês seguinte.
-    await supabase
+    // O CLONE vem ANTES de marcar as entradas como histórico: ele lê
+    // exatamente `is_closing_snapshot = false` para saber o que a pessoa
+    // lançou. Na ordem invertida (como era), o clone nunca via lançamento
+    // nenhum e o mês seguinte abria ignorando tudo que foi registrado.
+    try {
+      await cloneToNextMonth(clientId, mes);
+    } catch {
+      // O fechamento em si já está gravado. Sem o clone, o mês seguinte
+      // abre com os valores antigos — ruim, mas recuperável; avisa e segue.
+      setErro(
+        "O mês foi fechado, mas não consegui preparar o mês seguinte. Abra esta tela de novo mais tarde.",
+      );
+    }
+
+    const { error: eSnapshot } = await supabase
       .from("acompanhamento_entradas")
       .update({ is_closing_snapshot: true })
       .eq("client_id", clientId)
       .eq("is_closing_snapshot", false);
-
-    await cloneToNextMonth(clientId, mes);
-    await supabase
+    const { error: eStatus } = await supabase
       .from("clients")
       .update({ status: "em_acompanhamento" })
       .eq("id", clientId);
+    if (eSnapshot || eStatus) {
+      setErro("O mês foi fechado, mas uma parte do registro falhou. Recarregue a página para conferir.");
+      setFechando(false);
+      return;
+    }
 
     setFechando(false);
     router.push("/planejamento/app/evolucao");
-  }, [r, clientId, mes, metas, valores, router]);
+  }, [r, clientId, mes, metas, valores, router, fechando, jaFechado]);
 
   if (r.fase === "carregando") return <Carregando />;
   if (r.fase === "sem-ficha") return <SemFicha />;
-  if (r.fase === "sem-sessao") return null;
+  if (r.fase === "sem-sessao") return <SessaoExpirada />;
   if (r.dados.vazio) return <PrecisaPreencher />;
 
   return (
@@ -366,19 +387,21 @@ export default function MesPage() {
             </button>
 
             {!jaFechado && (
-              <button
-                type="button"
-                onClick={() => void fecharMes()}
-                disabled={fechando}
-                className="flex items-center gap-2 rounded-xl bg-accent-btn px-5 py-2.5 text-sm font-bold text-white shadow-sm transition-opacity hover:opacity-95 disabled:opacity-60"
-              >
-                {fechando ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <CalendarCheck className="h-4 w-4" />
-                )}
-                Fechar {nomeDoMes(mes)}
-              </button>
+              <AcaoAssinante acao="fechar o mês">
+                <button
+                  type="button"
+                  onClick={() => void fecharMes()}
+                  disabled={fechando}
+                  className="flex items-center gap-2 rounded-xl bg-accent-btn px-5 py-2.5 text-sm font-bold text-white shadow-sm transition-opacity hover:opacity-95 disabled:opacity-60"
+                >
+                  {fechando ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <CalendarCheck className="h-4 w-4" />
+                  )}
+                  Fechar {nomeDoMes(mes)}
+                </button>
+              </AcaoAssinante>
             )}
           </div>
 

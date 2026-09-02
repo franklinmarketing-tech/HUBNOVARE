@@ -1,26 +1,30 @@
 -- ============================================================================
--- NOVARE HUB — INSTALACAO COMPLETA DO BANCO
+-- NOVARE HUB - INSTALACAO COMPLETA DO BANCO
 --
 -- Cole TUDO isto de uma vez no SQL Editor do Supabase e clique em RUN.
 -- Projeto: hjikeevfzfswqydduars
 --
--- Este arquivo e a juncao dos scripts abaixo, ja na ordem certa de dependencia
--- (hub_leads depende de hub_profiles, porque a regra de leitura consulta o
--- papel do usuario). Rodar de novo e seguro: tudo usa
--- `if not exists` / `or replace` / `on conflict do nothing`.
+-- Rodar de novo e SEGURO: tudo usa `if not exists` / `or replace` /
+-- `drop policy if exists` / `on conflict do nothing`. Nada e apagado.
 --
---   1. hub_profiles.sql           perfis, papeis e planos
---   2. hub_profiles_completo.sql  campos de cadastro
---   3. hub_leads.sql              leads captados pelas ferramentas
---   4. tool_states.sql            estado das ferramentas por usuario
---   5. conta_consultores.sql      acesso de equipe aos consultores
+-- ORDEM (importa: hub_leads consulta o papel em hub_profiles):
+--   1. hub_profiles            perfis, papeis e planos
+--   2. hub_profiles_completo   campos de cadastro
+--   3. hub_leads               leads captados pelas ferramentas
+--   4. tool_states             estado das ferramentas + premissas do plano
+--   5. conta_consultores       acesso de equipe aos consultores
+--   6. planejamento_autonomo   o app de Planejamento sem consultor
+--   7. hub_notificacoes        o sino de avisos
+--
+-- DEPOIS DE RODAR: veja o bloco 8 no fim para se promover a admin.
 -- ============================================================================
 
 
 
 
 -- ==========================================================================
--- hub_profiles.sql
+-- 1. PERFIS, PAPEIS E PLANOS
+-- (origem: supabase/hub_profiles.sql)
 -- ==========================================================================
 
 -- ============================================================================
@@ -123,7 +127,8 @@ on conflict (id) do nothing;
 
 
 -- ==========================================================================
--- hub_profiles_completo.sql
+-- 2. CAMPOS DE CADASTRO
+-- (origem: supabase/hub_profiles_completo.sql)
 -- ==========================================================================
 
 -- Perfil completo do cliente no Novare Workspace.
@@ -176,7 +181,8 @@ create policy "perfil proprio: atualizar"
 
 
 -- ==========================================================================
--- hub_leads.sql
+-- 3. LEADS DAS FERRAMENTAS
+-- (origem: supabase/hub_leads.sql)
 -- ==========================================================================
 
 -- ============================================================================
@@ -219,7 +225,8 @@ create index if not exists hub_leads_criado_idx on public.hub_leads (criado_em d
 
 
 -- ==========================================================================
--- tool_states.sql
+-- 4. ESTADO DAS FERRAMENTAS (e premissas do plano)
+-- (origem: supabase/tool_states.sql)
 -- ==========================================================================
 
 -- Estado das ferramentas sincronizado por usuario. Execute no SQL Editor do Supabase.
@@ -269,7 +276,8 @@ create trigger tool_states_updated_at
 
 
 -- ==========================================================================
--- conta_consultores.sql
+-- 5. ACESSO DE EQUIPE
+-- (origem: supabase/conta_consultores.sql)
 -- ==========================================================================
 
 -- ============================================================================
@@ -308,3 +316,358 @@ select u.email, p.role, p.plano, p.nome
 -- ============================================================================
 
 
+-- ==========================================================================
+-- 6. PLANEJAMENTO FINANCEIRO (autonomo)
+-- (origem: supabase/planejamento_autonomo.sql)
+-- ==========================================================================
+
+-- ============================================================================
+-- App Novare Planejamento Financeiro — permissões do produto autônomo
+-- ----------------------------------------------------------------------------
+-- Rodar UMA vez no SQL Editor do Supabase (projeto hjikeevfzfswqydduars).
+-- É idempotente: pode rodar de novo sem quebrar nada.
+--
+-- POR QUE ISTO EXISTE
+-- O banco foi desenhado para a consultoria ASSISTIDA: o cliente escreve o
+-- próprio retrato financeiro (income, expenses, debts, assets, insurance,
+-- goals — isso já funciona desde a migration 20260226030202), mas tudo o que o
+-- consultor produzia a partir desses dados é só-leitura para ele: diagnóstico,
+-- metas, plano de ação e fechamento do mês.
+--
+-- No produto autônomo não existe consultor. Quem gera essas linhas é o próprio
+-- dono dos dados, a partir de cálculo determinístico. Estas policies dão a ele
+-- esse direito — e SÓ sobre as linhas dele.
+--
+-- O QUE ISTO **NÃO** FAZ
+-- Não altera, não remove e não enfraquece nenhuma policy de admin ou de
+-- super_admin. É puramente aditivo. O app dos consultores continua idêntico.
+--
+-- Não mexe em investment_recommendations de propósito: recomendar produto de
+-- investimento sem suitability é risco regulatório, e o produto autônomo fala
+-- de classe de ativo, não de produto.
+--
+-- Também não mexe em acompanhamento_entradas: as policies de lá já permitem a
+-- escrita do dono quando clients.client_can_log_acompanhamento = true, e o
+-- cliente pode ligar essa flag sozinho (a policy de UPDATE em clients não tem
+-- WITH CHECK). O app faz isso na primeira visita à tela do mês.
+-- ============================================================================
+
+-- ----------------------------------------------------------------------------
+-- diagnosis — os números derivados do retrato financeiro
+-- ----------------------------------------------------------------------------
+drop policy if exists "client_insert_own_diagnosis" on public.diagnosis;
+create policy "client_insert_own_diagnosis"
+  on public.diagnosis for insert to authenticated
+  with check (
+    exists (
+      select 1 from public.clients c
+      where c.id = diagnosis.client_id and c.user_id = auth.uid()
+    )
+  );
+
+drop policy if exists "client_update_own_diagnosis" on public.diagnosis;
+create policy "client_update_own_diagnosis"
+  on public.diagnosis for update to authenticated
+  using (
+    exists (
+      select 1 from public.clients c
+      where c.id = diagnosis.client_id and c.user_id = auth.uid()
+    )
+  )
+  with check (
+    exists (
+      select 1 from public.clients c
+      where c.id = diagnosis.client_id and c.user_id = auth.uid()
+    )
+  );
+
+-- ----------------------------------------------------------------------------
+-- parecer_metas — as metas do plano
+--
+-- DELETE entra junto porque o cliente refaz o próprio plano quando os dados
+-- mudam: sem DELETE, meta antiga vira lixo que nunca some da tela.
+-- ----------------------------------------------------------------------------
+drop policy if exists "client_insert_own_parecer_metas" on public.parecer_metas;
+create policy "client_insert_own_parecer_metas"
+  on public.parecer_metas for insert to authenticated
+  with check (
+    exists (
+      select 1 from public.clients c
+      where c.id = parecer_metas.client_id and c.user_id = auth.uid()
+    )
+  );
+
+drop policy if exists "client_update_own_parecer_metas" on public.parecer_metas;
+create policy "client_update_own_parecer_metas"
+  on public.parecer_metas for update to authenticated
+  using (
+    exists (
+      select 1 from public.clients c
+      where c.id = parecer_metas.client_id and c.user_id = auth.uid()
+    )
+  )
+  with check (
+    exists (
+      select 1 from public.clients c
+      where c.id = parecer_metas.client_id and c.user_id = auth.uid()
+    )
+  );
+
+drop policy if exists "client_delete_own_parecer_metas" on public.parecer_metas;
+create policy "client_delete_own_parecer_metas"
+  on public.parecer_metas for delete to authenticated
+  using (
+    exists (
+      select 1 from public.clients c
+      where c.id = parecer_metas.client_id and c.user_id = auth.uid()
+    )
+  );
+
+-- ----------------------------------------------------------------------------
+-- action_plans — o cabeçalho do plano de ação
+-- ----------------------------------------------------------------------------
+drop policy if exists "client_insert_own_action_plans" on public.action_plans;
+create policy "client_insert_own_action_plans"
+  on public.action_plans for insert to authenticated
+  with check (
+    exists (
+      select 1 from public.clients c
+      where c.id = action_plans.client_id and c.user_id = auth.uid()
+    )
+  );
+
+drop policy if exists "client_update_own_action_plans" on public.action_plans;
+create policy "client_update_own_action_plans"
+  on public.action_plans for update to authenticated
+  using (
+    exists (
+      select 1 from public.clients c
+      where c.id = action_plans.client_id and c.user_id = auth.uid()
+    )
+  )
+  with check (
+    exists (
+      select 1 from public.clients c
+      where c.id = action_plans.client_id and c.user_id = auth.uid()
+    )
+  );
+
+drop policy if exists "client_delete_own_action_plans" on public.action_plans;
+create policy "client_delete_own_action_plans"
+  on public.action_plans for delete to authenticated
+  using (
+    exists (
+      select 1 from public.clients c
+      where c.id = action_plans.client_id and c.user_id = auth.uid()
+    )
+  );
+
+-- ----------------------------------------------------------------------------
+-- action_items — as tarefas
+--
+-- action_items não tem client_id: o vínculo é action_plan_id -> action_plans.
+-- Por isso o EXISTS aqui tem dois níveis.
+-- ----------------------------------------------------------------------------
+drop policy if exists "client_insert_own_action_items" on public.action_items;
+create policy "client_insert_own_action_items"
+  on public.action_items for insert to authenticated
+  with check (
+    exists (
+      select 1 from public.action_plans p
+      join public.clients c on c.id = p.client_id
+      where p.id = action_items.action_plan_id and c.user_id = auth.uid()
+    )
+  );
+
+drop policy if exists "client_update_own_action_items" on public.action_items;
+create policy "client_update_own_action_items"
+  on public.action_items for update to authenticated
+  using (
+    exists (
+      select 1 from public.action_plans p
+      join public.clients c on c.id = p.client_id
+      where p.id = action_items.action_plan_id and c.user_id = auth.uid()
+    )
+  )
+  with check (
+    exists (
+      select 1 from public.action_plans p
+      join public.clients c on c.id = p.client_id
+      where p.id = action_items.action_plan_id and c.user_id = auth.uid()
+    )
+  );
+
+drop policy if exists "client_delete_own_action_items" on public.action_items;
+create policy "client_delete_own_action_items"
+  on public.action_items for delete to authenticated
+  using (
+    exists (
+      select 1 from public.action_plans p
+      join public.clients c on c.id = p.client_id
+      where p.id = action_items.action_plan_id and c.user_id = auth.uid()
+    )
+  );
+
+-- ----------------------------------------------------------------------------
+-- monthly_closings — o fechamento do mês
+--
+-- Era o gargalo do produto: cloneToNextMonth() só rodava no botão do consultor,
+-- e sem ele o mês seguinte nunca nascia. Agora o dono fecha o próprio mês.
+-- O UPDATE existe para reabrir um mês (evento atípico: demissão, doença).
+-- ----------------------------------------------------------------------------
+drop policy if exists "client_insert_own_closings" on public.monthly_closings;
+create policy "client_insert_own_closings"
+  on public.monthly_closings for insert to authenticated
+  with check (
+    exists (
+      select 1 from public.clients c
+      where c.id = monthly_closings.client_id and c.user_id = auth.uid()
+    )
+  );
+
+drop policy if exists "client_update_own_closings" on public.monthly_closings;
+create policy "client_update_own_closings"
+  on public.monthly_closings for update to authenticated
+  using (
+    exists (
+      select 1 from public.clients c
+      where c.id = monthly_closings.client_id and c.user_id = auth.uid()
+    )
+  )
+  with check (
+    exists (
+      select 1 from public.clients c
+      where c.id = monthly_closings.client_id and c.user_id = auth.uid()
+    )
+  );
+
+-- ============================================================================
+-- Conferência: deve listar 14 linhas, todas começando com "client_".
+-- ============================================================================
+select tablename, policyname, cmd
+from pg_policies
+where schemaname = 'public'
+  and policyname like 'client\_%own%'
+  and tablename in (
+    'diagnosis','parecer_metas','action_plans','action_items','monthly_closings'
+  )
+order by tablename, policyname;
+
+
+-- ==========================================================================
+-- 7. SINO DE NOTIFICACOES
+-- (origem: supabase/hub_notificacoes.sql)
+-- ==========================================================================
+
+-- ============================================================================
+-- Novare Hub — notificações do usuário
+-- Projeto Supabase: hjikeevfzfswqydduars (mesmo do novareapp)
+--
+-- Rode este script UMA VEZ no SQL Editor do Supabase.
+-- Só cria coisa nova com prefixo `hub_` — não toca em nada existente.
+--
+-- O Hub funciona sem esta tabela: enquanto ela não existir, o sino aparece
+-- vazio (ver src/lib/notificacoes.ts). Rodar isto é o que liga o recurso.
+-- ============================================================================
+
+create table if not exists public.hub_notificacoes (
+  id         uuid primary key default gen_random_uuid(),
+  -- Dono da notificação. Nulo = aviso da casa para TODO mundo (ver policy).
+  usuario_id uuid references auth.users (id) on delete cascade,
+  titulo     text not null,
+  texto      text,
+  -- Para onde o clique leva. Caminho interno do Hub, ex.: '/planejamento'.
+  href       text,
+  -- Muda só o ícone e a cor da bolinha no sino.
+  tipo       text not null default 'aviso'
+             check (tipo in ('aviso', 'novidade', 'conta', 'alerta')),
+  lida_em    timestamptz,
+  criado_em  timestamptz not null default now()
+);
+
+-- O sino sempre pede "as minhas, mais recentes primeiro".
+create index if not exists hub_notificacoes_usuario_idx
+  on public.hub_notificacoes (usuario_id, criado_em desc);
+
+alter table public.hub_notificacoes enable row level security;
+
+-- Cada um lê as suas e os avisos gerais da casa (usuario_id nulo).
+drop policy if exists "hub_notificacoes: leitura propria" on public.hub_notificacoes;
+create policy "hub_notificacoes: leitura propria"
+  on public.hub_notificacoes for select
+  to authenticated
+  using (usuario_id = auth.uid() or usuario_id is null);
+
+-- Marcar como lida é a ÚNICA escrita que o usuário pode fazer, e só nas
+-- próprias linhas: o aviso geral (usuario_id nulo) é compartilhado, então
+-- deixá-lo ser marcado por um usuário apagaria o aviso para todos.
+drop policy if exists "hub_notificacoes: marcar lida" on public.hub_notificacoes;
+create policy "hub_notificacoes: marcar lida"
+  on public.hub_notificacoes for update
+  to authenticated
+  using (usuario_id = auth.uid())
+  with check (usuario_id = auth.uid());
+
+-- Quem cria notificação é o admin (ou o service_role, pelo backend).
+drop policy if exists "hub_notificacoes: admin escreve" on public.hub_notificacoes;
+create policy "hub_notificacoes: admin escreve"
+  on public.hub_notificacoes for all
+  to authenticated
+  using (public.hub_papel() = 'admin')
+  with check (public.hub_papel() = 'admin');
+
+-- ============================================================================
+-- Exemplos — rode depois, trocando o e-mail.
+-- ============================================================================
+-- Aviso da casa para todo mundo:
+-- insert into public.hub_notificacoes (titulo, texto, href, tipo)
+-- values ('Íris agora lê extrato em PDF',
+--         'Cole ou suba o arquivo e ela devolve o resumo do mês.',
+--         '/iris', 'novidade');
+--
+-- Aviso para uma pessoa só:
+-- insert into public.hub_notificacoes (usuario_id, titulo, texto, href, tipo)
+-- select id, 'Seu plano está pronto', 'O Vida Plan já tem seus objetivos.',
+--        '/planejamento', 'conta'
+-- from auth.users where email = 'CLIENTE@AQUI';
+
+
+-- ==========================================================================
+-- 8. SE PROMOVER A ADMIN  <<< TROQUE O E-MAIL ABAIXO PELO SEU >>>
+-- ==========================================================================
+--
+-- 'admin' abre tudo: Planejamento, Iris e /meu-dia, sem depender do campo
+-- `plano`. O Hub trata qualquer papel diferente de 'cliente' como assinante.
+
+update public.hub_profiles
+   set role = 'admin'
+ where id = (select id from auth.users where email = 'SEU-EMAIL@AQUI');
+
+
+-- Confira (deve mostrar role = admin):
+select p.role, p.plano, u.email
+  from public.hub_profiles p
+  join auth.users u on u.id = p.id
+ where u.email = 'SEU-EMAIL@AQUI';
+
+
+-- ==========================================================================
+-- 9. OPCIONAL - liberar o PRO para a conta de teste
+-- ==========================================================================
+-- Ela ja tem 7 dias gratis automaticos. Rode so se quiser testar como
+-- assinante pagante (e o mesmo comando que voce usara quando alguem comprar).
+
+-- update public.hub_profiles
+--    set plano = 'pro', plano_expira_em = now() + interval '1 year'
+--  where id = (select id from auth.users
+--              where email = 'marketingcastriani+teste2@gmail.com');
+
+
+-- ==========================================================================
+-- 10. OPCIONAL - criar um aviso de teste no sino
+-- ==========================================================================
+
+-- insert into public.hub_notificacoes (titulo, texto, href, tipo)
+-- values ('Iris agora le extrato em PDF',
+--         'Cole ou suba o arquivo e ela devolve o resumo do mes.',
+--         '/iris', 'novidade');

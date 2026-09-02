@@ -30,10 +30,12 @@ import {
   PERGUNTAS_COMPORTAMENTAIS,
   PERFIS,
   calcularPerfil,
+  houveResposta,
   respostasIniciais,
   type RespostasComportamentais,
 } from "@/lib/planejamento/perfil";
 import { conferir } from "@/lib/planejamento/plausibilidade";
+import { gravarPremissas, lerPremissas } from "@/lib/planejamento/premissas";
 import { Chips, Escala, Escolha, Lista, Marcar, Texto } from "./campos";
 
 /* -------------------------------------------------------------------------- */
@@ -80,7 +82,7 @@ const textoOuNulo = (s: string) => (s.trim() === "" ? null : s.trim());
 /* -------------------------------------------------------------------------- */
 
 const BLOCOS = [
-  { chave: "abertura", titulo: "Vamos montar o seu plano", subtitulo: "São oito blocos curtos. Dá para parar no meio e voltar depois — o que você preencher fica salvo." },
+  { chave: "abertura", titulo: "Vamos montar o seu plano", subtitulo: "São blocos curtos. Dá para parar no meio e voltar depois — o que você preencher fica salvo." },
   { chave: "identificacao", titulo: "Quem é você", subtitulo: "O básico para o plano falar da sua vida, não de uma média." },
   { chave: "renda", titulo: "Sua renda", subtitulo: "Tudo que entra. Valor líquido, o que cai na conta." },
   { chave: "despesas", titulo: "Suas despesas", subtitulo: "Para onde vai. Estimativa já ajuda — não precisa ser exato." },
@@ -88,6 +90,7 @@ const BLOCOS = [
   { chave: "patrimonio", titulo: "Seu patrimônio", subtitulo: "O que você já tem, líquido ou não." },
   { chave: "seguros", titulo: "Sua proteção", subtitulo: "Seguro é o que impede um imprevisto de derrubar o plano." },
   { chave: "objetivos", titulo: "Seus objetivos", subtitulo: "Sonho com número e prazo vira meta." },
+  { chave: "aposentadoria", titulo: "Sua aposentadoria", subtitulo: "As duas respostas que valem mais no plano inteiro: quando parar e com quanto viver." },
   { chave: "comportamento", titulo: "Seu jeito com dinheiro", subtitulo: "Seis escalas, sem resposta certa. É sobre você, não sobre acerto." },
   { chave: "revisao", titulo: "Confira antes de fechar", subtitulo: "Depois disso o seu diagnóstico já fica pronto." },
 ] as const;
@@ -114,6 +117,7 @@ export default function MeusDadosPage() {
   const [seguros, setSeguros] = useState<Seguro[]>([]);
   const [objetivos, setObjetivos] = useState<Objetivo[]>([]);
   const [comportamento, setComportamento] = useState<RespostasComportamentais>(respostasIniciais());
+  const [apos, setApos] = useState({ idade: "", renda: "", inss: "" });
 
   /* Carga inicial: quem volta encontra o que já preencheu. */
   useEffect(() => {
@@ -131,10 +135,16 @@ export default function MeusDadosPage() {
         carregarRetrato(resolvido.clientId),
       ]);
 
-      const [perfilRow, clienteRow] = await Promise.all([
+      const [perfilRow, clienteRow, premissas] = await Promise.all([
         supabase.from("profiles").select("full_name").eq("user_id", user.user!.id).maybeSingle(),
         supabase.from("clients").select("*").eq("id", resolvido.clientId).maybeSingle(),
+        lerPremissas(),
       ]);
+      setApos({
+        idade: premissas.idadeAposentadoria?.toString() ?? "",
+        renda: premissas.rendaDesejadaMes?.toString() ?? "",
+        inss: premissas.rendaINSSMes?.toString() ?? "",
+      });
 
       const c = clienteRow.data;
       if (c) {
@@ -197,8 +207,17 @@ export default function MeusDadosPage() {
     switch (chave) {
       case "identificacao": {
         const { data: user } = await supabase.auth.getUser();
+        if (!user.user) return "Sua sessão expirou. Entre de novo.";
         if (ident.nome.trim()) {
-          await supabase.from("profiles").update({ full_name: ident.nome.trim() }).eq("user_id", user.user!.id);
+          const nome = ident.nome.trim();
+          // O nome vive em DOIS lugares por herança: profiles.full_name (o
+          // app do planejamento) e hub_profiles.nome (a saudação do Hub).
+          // Gravar só num deles fazia o cabeçalho ignorar a correção.
+          await Promise.all([
+            supabase.from("profiles").update({ full_name: nome }).eq("user_id", user.user.id),
+            supabase.from("hub_profiles").update({ nome }).eq("id", user.user.id),
+            supabase.auth.updateUser({ data: { nome } }),
+          ]);
         }
         const { error } = await supabase.from("clients").update({
           cpf: textoOuNulo(ident.cpf),
@@ -277,9 +296,30 @@ export default function MeusDadosPage() {
         return (await salvarSecao("goals", clientId, linhas, mes)).erro;
       }
 
+      case "aposentadoria": {
+        // Vazio é resposta válida: o motor volta ao padrão automático.
+        const idade = num(apos.idade);
+        if (apos.idade.trim() && (idade < 30 || idade > 90)) {
+          return "A idade de aposentadoria precisa estar entre 30 e 90 anos.";
+        }
+        return (
+          await gravarPremissas({
+            idadeAposentadoria: apos.idade.trim() ? idade : null,
+            rendaDesejadaMes: apos.renda.trim() ? num(apos.renda) : null,
+            rendaINSSMes: apos.inss.trim() ? num(apos.inss) : null,
+          })
+        ).erro;
+      }
+
       case "comportamento": {
+        // Sem interação, não existe perfil: todas as escalas em 5 (o valor
+        // inicial) produziam empate e o desempate do sort carimbava TODO
+        // MUNDO como "Construtor" — um perfil que a pessoa nunca deu.
+        const respondeu = houveResposta(comportamento);
         const { error } = await supabase.from("clients").update({
-          behavioral_profile: { ...comportamento, computed_profile: calcularPerfil(comportamento) },
+          behavioral_profile: respondeu
+            ? { ...comportamento, computed_profile: calcularPerfil(comportamento) }
+            : null,
         }).eq("id", clientId);
         return error?.message ?? null;
       }
@@ -484,6 +524,39 @@ export default function MeusDadosPage() {
           />
         )}
 
+        {atual.chave === "aposentadoria" && (
+          <div className="space-y-4">
+            <div className="grid gap-3 sm:grid-cols-3">
+              <Texto
+                label="Parar de trabalhar aos"
+                sufixo="anos"
+                valor={apos.idade}
+                aoMudar={(v) => setApos({ ...apos, idade: v })}
+                placeholder="60"
+              />
+              <Texto
+                label="Renda desejada por mês"
+                prefixo="R$"
+                valor={apos.renda}
+                aoMudar={(v) => setApos({ ...apos, renda: v })}
+                placeholder="igual ao seu custo de hoje"
+              />
+              <Texto
+                label="INSS ou pensão esperada"
+                prefixo="R$"
+                valor={apos.inss}
+                aoMudar={(v) => setApos({ ...apos, inss: v })}
+                placeholder="0"
+              />
+            </div>
+            <p className="text-xs leading-relaxed text-muted-foreground">
+              Pode deixar em branco o que não souber: o plano usa um padrão
+              honesto (parar aos 60 ou daqui a 5 anos, renda igual ao custo de
+              hoje, INSS zero) e você ajusta quando quiser.
+            </p>
+          </div>
+        )}
+
         {atual.chave === "comportamento" && (
           <div className="space-y-3">
             {PERGUNTAS_COMPORTAMENTAIS.map((p) => (
@@ -502,7 +575,9 @@ export default function MeusDadosPage() {
               aoMudar={(v) => setComportamento({ ...comportamento, spending_triggers: v })}
               placeholder="Estresse, promoção, viagem…"
             />
-            <PerfilResultado respostas={comportamento} />
+            {houveResposta(comportamento) && (
+              <PerfilResultado respostas={comportamento} />
+            )}
           </div>
         )}
 

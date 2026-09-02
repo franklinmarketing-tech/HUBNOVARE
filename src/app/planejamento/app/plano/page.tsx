@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ArrowRight, Loader2, RefreshCw, Sparkles } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { AcaoAssinante } from "@/components/AcaoAssinante";
+import { BarrasPatrimonio } from "@/components/BarrasPatrimonio";
 import { usePlanejamento } from "../usePlanejamento";
 import { gerarMetas, paraTabelaMetas, type Meta } from "@/lib/planejamento/metas";
 import { PERFIS } from "@/lib/planejamento/perfil";
@@ -15,6 +17,7 @@ import {
   SemFicha,
   TituloTela,
   brl,
+  SessaoExpirada,
 } from "../pecas";
 
 const ROTULO_AREA: Record<string, { titulo: string; emoji: string }> = {
@@ -32,6 +35,7 @@ export default function PlanoPage() {
 
   const [metas, setMetas] = useState<Meta[] | null>(null);
   const [polindo, setPolindo] = useState(false);
+  const [erroSalvar, setErroSalvar] = useState<string | null>(null);
   const jaMontou = useRef(false);
 
   /**
@@ -80,9 +84,47 @@ export default function PlanoPage() {
 
     // Persistir é o que faz o consultor enxergar este plano, caso o cliente
     // contrate a consultoria depois. A tela não depende disso para funcionar.
+    //
+    // PRESERVANDO OS IDS: a versão anterior apagava tudo e reinseria com ids
+    // novos — e `acompanhamento_entradas.meta_id` aponta para esses ids, então
+    // cada visita a esta tela orfanava os lançamentos do mês. Agora o casamento
+    // é por `source_id`: meta que já existe é ATUALIZADA (id intacto), meta
+    // nova entra, e só sai a que deixou de existir.
     const supabase = createClient();
-    await supabase.from("parecer_metas").delete().eq("client_id", clientId);
-    await supabase.from("parecer_metas").insert(paraTabelaMetas(clientId, finais));
+    const linhas = paraTabelaMetas(clientId, finais);
+
+    const { data: existentes, error: erroLer } = await supabase
+      .from("parecer_metas")
+      .select("id, source_id")
+      .eq("client_id", clientId);
+
+    if (erroLer || !existentes) {
+      // Sem conseguir ler o que existe, não se apaga nada: a tela continua
+      // funcionando e a próxima visita tenta persistir de novo.
+      return;
+    }
+
+    const porSource = new Map(existentes.map((e) => [e.source_id as string, e.id as string]));
+    const sourcesNovas = new Set(linhas.map((l) => l.source_id));
+
+    for (const linha of linhas) {
+      const idExistente = porSource.get(linha.source_id);
+      const { error } = idExistente
+        ? await supabase.from("parecer_metas").update(linha).eq("id", idExistente)
+        : await supabase.from("parecer_metas").insert(linha);
+      if (error) {
+        setErroSalvar("O plano está na tela, mas não consegui gravá-lo agora.");
+        return;
+      }
+    }
+
+    const idsMortos = existentes
+      .filter((e) => !sourcesNovas.has(e.source_id as string))
+      .map((e) => e.id as string);
+    if (idsMortos.length > 0) {
+      await supabase.from("parecer_metas").delete().in("id", idsMortos);
+    }
+    setErroSalvar(null);
   }, [r]);
 
   useEffect(() => {
@@ -93,7 +135,7 @@ export default function PlanoPage() {
 
   if (r.fase === "carregando") return <Carregando />;
   if (r.fase === "sem-ficha") return <SemFicha />;
-  if (r.fase === "sem-sessao") return null;
+  if (r.fase === "sem-sessao") return <SessaoExpirada />;
 
   const { acoes, plano, reserva, entrada, vazio, perfil: perfilSalvo } = r.dados;
   if (vazio) return <PrecisaPreencher />;
@@ -163,6 +205,43 @@ export default function PlanoPage() {
         />
       </section>
 
+      {/* A projeção ano a ano: o item "Projeção ano a ano até a independência"
+          da lista do PRO. O motor sempre a calculou (plan.serie); ela só
+          nunca tinha sido posta na tela. */}
+      <section className="mb-5 rounded-2xl border border-border bg-white p-5">
+        <h2 className="font-display text-base font-bold text-primary">
+          Sua projeção, ano a ano
+        </h2>
+        <p className="mt-0.5 text-xs text-muted-foreground">
+          O patrimônio estimado seguindo o plano, da idade de hoje até a
+          aposentadoria. Valores de hoje, já descontada a inflação.
+        </p>
+        <div className="mt-4">
+          <BarrasPatrimonio serie={plano.serie} />
+        </div>
+      </section>
+
+      {/* Previdência e sucessão: os números sempre saíram do motor
+          (actionplan.ts) e nunca apareciam em tela nenhuma. */}
+      {(acoes.previdenciaMes > 0 || acoes.custoSucessaoEstimado > 0) && (
+        <section className="mb-5 grid gap-3 sm:grid-cols-2">
+          {acoes.previdenciaMes > 0 && (
+            <Cartao
+              rotulo="Previdência sugerida"
+              valor={`${brl(acoes.previdenciaMes)}/mês`}
+              detalhe={`Sendo ${brl(acoes.pgblMes)} em PGBL (até 12% da renda tributável) e ${brl(acoes.vgblMes)} em VGBL`}
+            />
+          )}
+          {acoes.custoSucessaoEstimado > 0 && (
+            <Cartao
+              rotulo="Custo de sucessão estimado"
+              valor={brl(acoes.custoSucessaoEstimado)}
+              detalhe={`Cerca de ${Math.round(acoes.sucessaoPct)}% do patrimônio em impostos e custos de inventário, sem planejamento`}
+            />
+          )}
+        </section>
+      )}
+
       {/* Carteira por CLASSE, nunca por produto — o produto autônomo não faz
           suitability, então não recomenda ativo específico. */}
       <section className="mb-5 rounded-2xl border border-border bg-white p-5">
@@ -194,20 +273,28 @@ export default function PlanoPage() {
           <h2 className="font-display text-lg font-bold text-primary">
             O que fazer, em ordem
           </h2>
-          <button
-            type="button"
-            onClick={() => void montar()}
-            disabled={polindo}
-            className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-2xs font-semibold text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-50"
-          >
-            {polindo ? (
-              <Loader2 className="h-3.5 w-3.5 animate-spin" />
-            ) : (
-              <RefreshCw className="h-3.5 w-3.5" />
-            )}
-            Refazer o plano
-          </button>
+          <AcaoAssinante acao="gerar o plano de novo">
+            <button
+              type="button"
+              onClick={() => void montar()}
+              disabled={polindo}
+              className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-2xs font-semibold text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-50"
+            >
+              {polindo ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <RefreshCw className="h-3.5 w-3.5" />
+              )}
+              Refazer o plano
+            </button>
+          </AcaoAssinante>
         </div>
+
+        {erroSalvar && (
+          <p className="mb-3 rounded-xl border border-warning/40 bg-warning/10 px-4 py-2.5 text-xs text-slate-700">
+            {erroSalvar}
+          </p>
+        )}
 
         {metas === null ? (
           <Carregando />

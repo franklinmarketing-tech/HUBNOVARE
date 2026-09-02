@@ -112,13 +112,20 @@ export async function carregarRetrato(
 }
 
 /**
- * Substitui uma seção inteira do retrato: apaga as linhas do mês e grava as
- * novas.
+ * Substitui uma seção inteira do retrato: grava as linhas novas e SÓ ENTÃO
+ * apaga as antigas do mês.
  *
  * Trocar tudo em vez de casar item a item evita o problema clássico da lista
  * editável — item removido na tela que continua vivo no banco. As linhas são do
  * mês corrente e são poucas; o custo é irrelevante perto da confusão que a
  * alternativa gera.
+ *
+ * A ORDEM É O QUE PROTEGE O DADO. A versão anterior fazia DELETE → INSERT:
+ * se o insert falhasse (RLS, rede caindo, valor inválido), a seção já tinha
+ * sido apagada e a pessoa perdia o que havia preenchido. Invertendo, a falha
+ * no meio do caminho deixa no pior caso linhas DUPLICADAS por um instante —
+ * chato, visível e recuperável — em vez de um buraco silencioso. Sem
+ * transação no supabase-js, escolhe-se qual metade pode falhar.
  */
 export async function salvarSecao<T extends Record<string, unknown>>(
   tabela: "income" | "expenses" | "debts" | "assets" | "insurance" | "goals",
@@ -128,23 +135,41 @@ export async function salvarSecao<T extends Record<string, unknown>>(
 ): Promise<{ erro: string | null }> {
   const supabase = createClient();
 
-  const { error: erroApagar } = await supabase
+  // Guarda os ids do que existe hoje, para apagar exatamente estas linhas
+  // depois — e não as recém-inseridas.
+  const { data: antigas, error: erroLer } = await supabase
     .from(tabela)
-    .delete()
+    .select("id")
     .eq("client_id", clientId)
     .eq("month_ref", monthRef);
-  if (erroApagar) return { erro: erroApagar.message };
+  if (erroLer) return { erro: erroLer.message };
 
-  if (linhas.length === 0) return { erro: null };
+  if (linhas.length > 0) {
+    const comChaves = linhas.map((linha) => ({
+      ...linha,
+      client_id: clientId,
+      month_ref: monthRef,
+    }));
+    const { error } = await supabase.from(tabela).insert(comChaves);
+    if (error) return { erro: error.message };
+  }
 
-  const comChaves = linhas.map((linha) => ({
-    ...linha,
-    client_id: clientId,
-    month_ref: monthRef,
-  }));
+  const idsAntigos = (antigas ?? []).map((l) => l.id);
+  if (idsAntigos.length > 0) {
+    const { error: erroApagar } = await supabase
+      .from(tabela)
+      .delete()
+      .in("id", idsAntigos);
+    if (erroApagar) {
+      // O dado novo está salvo; sobrou o antigo junto. Avisar é melhor que
+      // fingir sucesso e deixar a duplicata aparecer sem explicação.
+      return {
+        erro: "Salvei os dados novos, mas não consegui limpar os antigos. Recarregue e confira a lista.",
+      };
+    }
+  }
 
-  const { error } = await supabase.from(tabela).insert(comChaves);
-  return { erro: error?.message ?? null };
+  return { erro: null };
 }
 
 /**

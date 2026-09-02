@@ -9,6 +9,7 @@
 
 import { emergencyReserveBase } from "./finance";
 import type { Debt, Goal, LifePlanInput, Seguro } from "./lifeplan";
+import { annuityPV, rentRealLiquida } from "./lifeplan";
 import type { Retrato } from "./cliente";
 
 /**
@@ -109,6 +110,25 @@ export function premissasPadrao(
     idadeAposentadoria: Math.max(idadeAtual + 5, 60),
     rendaDesejada: Math.round(custoMensal) || 5000,
     rendaINSS: 0,
+  };
+}
+
+/**
+ * O Marco Horizonte "de bolso", com as MESMAS premissas do app.
+ *
+ * Existe porque a calculadora da landing usava outra conta (regra dos 4%,
+ * 25x a renda anual) e anunciava R$ 2,4 milhões para um caso em que o app,
+ * depois da assinatura, mostrava R$ 1,7 milhão. Divergir da vitrine para o
+ * produto é o jeito mais caro de perder confiança. Aqui: anuidade finita
+ * até os 90 anos, à taxa real líquida de IR que o motor usa.
+ */
+export function marcoRapido(rendaMensalDesejada: number, idadeAposentadoria: number) {
+  const i = rentRealLiquida(RENT_REAL_ANUAL_PCT, INFLACAO_PCT) / 100;
+  const anosDeRenda = Math.max(0, IDADE_FIM - idadeAposentadoria);
+  return {
+    alvo: annuityPV(rendaMensalDesejada * 12, anosDeRenda, i),
+    /** A taxa mensal líquida equivalente, para projetar aportes na mesma régua. */
+    taxaMensal: Math.pow(1 + i, 1 / 12) - 1,
   };
 }
 

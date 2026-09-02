@@ -1,8 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { Clock, Sparkles } from "lucide-react";
-import { garantirTeste, type Assinatura } from "@/lib/trial";
+import { useAssinatura } from "@/lib/planejamento/useAssinatura";
 import { BotaoAssinarPlano } from "@/components/BotaoAssinarPlano";
 import { ASSINATURA_PRECO_ROTULO } from "@/lib/assinatura";
 
@@ -15,24 +14,21 @@ import { ASSINATURA_PRECO_ROTULO } from "@/lib/assinatura";
  * continuar". Por isso a faixa fala do que ela perde, não do que ela ganha.
  *
  * Enquanto o teste está correndo a faixa é discreta. Quando falta pouco, ou
- * quando venceu, ela toma a tela — mas nunca bloqueia: cortar o acesso de
- * quem está no meio de um plano é a forma mais rápida de perder o cliente e
- * o dado dele junto.
+ * quando venceu, ela toma a tela. LER continua sempre liberado — cortar a
+ * visão de quem está no meio de um plano é perder o cliente e o dado junto —
+ * mas as três AÇÕES do produto (gerar plano, fechar o mês, baixar o
+ * relatório) passam a pedir assinatura, via <AcaoAssinante>. É exatamente o
+ * que esta faixa sempre prometeu.
  */
 export function FaixaTeste() {
-  const [assinatura, setAssinatura] = useState<Assinatura | null>(null);
-
-  useEffect(() => {
-    let ativo = true;
-    garantirTeste().then((a) => {
-      if (ativo) setAssinatura(a);
-    });
-    return () => {
-      ativo = false;
-    };
-  }, []);
+  // A leitura vem do módulo compartilhado: uma consulta por carga, com o
+  // erro tratado lá (antes, uma rejeição de rede sumia com a faixa em
+  // silêncio, porque a promise não tinha .catch).
+  const estado = useAssinatura();
 
   // Quem paga não precisa ver nada disso.
+  if (estado.fase === "carregando") return null;
+  const assinatura = estado.assinatura;
   if (!assinatura || assinatura.status === "active") return null;
 
   const dias = assinatura.diasRestantes ?? 0;
@@ -41,7 +37,7 @@ export function FaixaTeste() {
 
   if (venceu) {
     return (
-      <div className="mb-5 rounded-2xl border border-accent-soft bg-accent-tint p-5">
+      <div className="nao-imprimir mb-5 rounded-2xl border border-accent-soft bg-accent-tint p-5">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="min-w-0">
             <p className="flex items-center gap-1.5 font-display text-base font-bold text-primary">
@@ -62,7 +58,7 @@ export function FaixaTeste() {
 
   if (acabando) {
     return (
-      <div className="mb-5 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-warning/40 bg-warning/5 p-4">
+      <div className="nao-imprimir mb-5 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-warning/40 bg-warning/5 p-4">
         <p className="min-w-0 text-sm text-slate-600">
           <strong className="text-foreground">
             {dias === 1 ? "Último dia" : `Faltam ${dias} dias`} do seu teste.
@@ -76,7 +72,7 @@ export function FaixaTeste() {
   }
 
   return (
-    <div className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-card px-4 py-2.5">
+    <div className="nao-imprimir mb-5 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-card px-4 py-2.5">
       <p className="flex items-center gap-1.5 text-2xs font-semibold text-muted-foreground">
         <Sparkles className="h-3.5 w-3.5 text-accent-strong" />
         Teste grátis · {dias} {dias === 1 ? "dia restante" : "dias restantes"}
