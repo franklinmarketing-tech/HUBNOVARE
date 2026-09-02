@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     url: "/ferramentas/sucessorio",
     type: "website",
     locale: "pt_BR",
-    images: ["/og.png"],
+    images: ["/api/og?t=Planejamento%20Sucess%C3%B3rio&s=Proteja%20quem%20fica"],
   },
 };
 

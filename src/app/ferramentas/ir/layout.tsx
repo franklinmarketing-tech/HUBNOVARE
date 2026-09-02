@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     url: "/ferramentas/ir",
     type: "website",
     locale: "pt_BR",
-    images: ["/og.png"],
+    images: ["/api/og?t=Imposto%20de%20Renda&s=Quanto%20voc%C3%AA%20paga%20no%20ano"],
   },
 };
 

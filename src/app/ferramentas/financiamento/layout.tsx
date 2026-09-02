@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     url: "/ferramentas/financiamento",
     type: "website",
     locale: "pt_BR",
-    images: ["/og.png"],
+    images: ["/api/og?t=Financiamento%20do%20Carro&s=A%20parcela%20e%20o%20custo%20real%20do%20ve%C3%ADculo"],
   },
 };
 

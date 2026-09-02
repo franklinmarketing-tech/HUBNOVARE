@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     url: "/ferramentas/potencial-compra",
     type: "website",
     locale: "pt_BR",
-    images: ["/og.png"],
+    images: ["/api/og?t=Potencial%20de%20Compra&s=Qual%20im%C3%B3vel%20cabe%20no%20seu%20bolso"],
   },
 };
 

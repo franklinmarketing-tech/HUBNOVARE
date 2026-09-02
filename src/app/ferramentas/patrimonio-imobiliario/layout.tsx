@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     url: "/ferramentas/patrimonio-imobiliario",
     type: "website",
     locale: "pt_BR",
-    images: ["/og.png"],
+    images: ["/api/og?t=Patrim%C3%B4nio%20Imobili%C3%A1rio&s=Seus%20im%C3%B3veis%20num%20painel%20s%C3%B3"],
   },
 };
 

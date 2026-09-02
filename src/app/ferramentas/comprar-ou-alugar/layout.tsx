@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     url: "/ferramentas/comprar-ou-alugar",
     type: "website",
     locale: "pt_BR",
-    images: ["/og.png"],
+    images: ["/api/og?t=Comprar%20ou%20Alugar&s=A%20conta%20que%20ningu%C3%A9m%20faz%20direito"],
   },
 };
 

@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     url: "/ferramentas/fluxo-pessoal",
     type: "website",
     locale: "pt_BR",
-    images: ["/og.png"],
+    images: ["/api/og?t=Fluxo%20de%20Caixa%20Pessoal&s=Entradas%20e%20sa%C3%ADdas%20do%20m%C3%AAs"],
   },
 };
 

@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     url: "/ferramentas/reserva",
     type: "website",
     locale: "pt_BR",
-    images: ["/og.png"],
+    images: ["/api/og?t=Reserva%20de%20Emerg%C3%AAncia&s=Quanto%20guardar%20antes%20de%20investir"],
   },
 };
 

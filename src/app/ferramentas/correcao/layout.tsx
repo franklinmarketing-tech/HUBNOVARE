@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     url: "/ferramentas/correcao",
     type: "website",
     locale: "pt_BR",
-    images: ["/og.png"],
+    images: ["/api/og?t=Corre%C3%A7%C3%A3o%20pela%20Infla%C3%A7%C3%A3o&s=Quanto%20aquele%20valor%20vale%20hoje"],
   },
 };
 

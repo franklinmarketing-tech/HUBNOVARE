@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     url: "/ferramentas/consultor",
     type: "website",
     locale: "pt_BR",
-    images: ["/og.png"],
+    images: ["/api/og?t=Assistente%20Financeiro%20com%20IA&s=Pergunte%20como%20a%20um%20consultor"],
   },
 };
 

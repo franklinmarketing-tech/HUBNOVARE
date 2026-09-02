@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     url: "/ferramentas/inventario",
     type: "website",
     locale: "pt_BR",
-    images: ["/og.png"],
+    images: ["/api/og?t=Invent%C3%A1rio%20Digital&s=Contas%20e%20acessos%20documentados"],
   },
 };
 

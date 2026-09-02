@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     url: "/ferramentas/cartoes",
     type: "website",
     locale: "pt_BR",
-    images: ["/og.png"],
+    images: ["/api/og?t=Controle%20de%20Cart%C3%B5es&s=Faturas%2C%20limites%20e%20o%20melhor%20dia%20de%20compra"],
   },
 };
 

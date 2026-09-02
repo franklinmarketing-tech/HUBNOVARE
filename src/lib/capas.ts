@@ -22,11 +22,18 @@
  * não parece um espaço vazio esperando arte.
  */
 /**
- * São só 13 fotos reais — as mesmas 13 do app da Novare em produção.
- * Para cobrir as 22 ferramentas do catálogo, cada foto aparece em mais de
- * um card, mas nunca duas vezes dentro da MESMA área: quem rola a página
- * inteira não repete foto, só quem pula de área em área — e aí a
- * distância já disfarça a repetição.
+ * Uma capa por card. Nenhuma se repete.
+ *
+ * Durante muito tempo foram 13 fotos cobrindo 24 entradas: cada arte
+ * aparecia em dois ou três cards, e o texto que morava aqui explicava que a
+ * distância entre as áreas disfarçava a repetição. Disfarçava mal — no
+ * catálogo completo, que mostra tudo numa página só, as repetidas caíam
+ * lado a lado.
+ *
+ * As 13 originais vieram do app da Novare em produção e continuam nos
+ * produtos da casa. As outras 11 foram desenhadas depois, no mesmo dialeto:
+ * cena conceitual em navy com luz ciano e laranja, e nenhuma letra dentro —
+ * arte de fundo com texto gerado sai torta e envelhece mal.
  */
 export const CAPAS: Record<string, string> = {
   // IA e Consultoria — slugs alinhados com apps.ts (5 produtos oficiais)
@@ -39,7 +46,7 @@ export const CAPAS: Record<string, string> = {
   "consultoria-revisao-carteira": "/cards/card-perfil.webp",
 
   // Vida Financeira
-  "orcamento-inteligente": "/cards/card-calculadora.webp",
+  "orcamento-inteligente": "/cards/card-orcamento-inteligente.webp",
   "reserva-emergencia": "/cards/card-leads-objetivos.webp",
   "correcao-inflacao": "/cards/card-leads-simulador.webp",
   "reajuste-aluguel": "/cards/card-dividas.webp",
@@ -48,20 +55,20 @@ export const CAPAS: Record<string, string> = {
   "salario-liquido": "/cards/card-novare.webp",
   rescisao: "/cards/card-aposentadoria.webp",
   ferias: "/cards/card-simulador.webp",
-  "decimo-terceiro": "/cards/card-score.webp",
+  "decimo-terceiro": "/cards/card-decimo-terceiro.webp",
 
   // Investimentos
-  "simulador-aposentadoria": "/cards/card-objetivos.webp",
-  "simulador-cdi": "/cards/card-comparador.webp",
-  "tesouro-direto": "/cards/card-perfil.webp",
-  "rentabilidade-real": "/cards/card-leads-simulador.webp",
-  "raio-x-previdencia": "/cards/card-openfinance.webp",
+  "simulador-aposentadoria": "/cards/card-simulador-aposentadoria.webp",
+  "simulador-cdi": "/cards/card-simulador-cdi.webp",
+  "tesouro-direto": "/cards/card-tesouro-direto.webp",
+  "rentabilidade-real": "/cards/card-rentabilidade-real.webp",
+  "raio-x-previdencia": "/cards/card-raio-x-previdencia.webp",
 
   // Simuladores
-  "juros-compostos": "/cards/card-calculadora.webp",
-  "simulador-financiamento": "/cards/card-leads-objetivos.webp",
-  "financiamento-carro": "/cards/card-dividas.webp",
-  "simulador-amortizacao": "/cards/card-openfinance.webp",
+  "juros-compostos": "/cards/card-juros-compostos.webp",
+  "simulador-financiamento": "/cards/card-simulador-financiamento.webp",
+  "financiamento-carro": "/cards/card-financiamento-carro.webp",
+  "simulador-amortizacao": "/cards/card-simulador-amortizacao.webp",
 };
 
 /**

@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     url: "/ferramentas/reajuste-aluguel",
     type: "website",
     locale: "pt_BR",
-    images: ["/og.png"],
+    images: ["/api/og?t=Reajuste%20de%20Aluguel&s=IGP-M%20ou%20IPCA%2C%20sem%20erro%20no%20contrato"],
   },
 };
 

@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     url: "/ferramentas/documentos",
     type: "website",
     locale: "pt_BR",
-    images: ["/og.png"],
+    images: ["/api/og?t=Central%20de%20Documentos&s=Contratos%20e%20ap%C3%B3lices%20%C3%A0%20m%C3%A3o"],
   },
 };
 

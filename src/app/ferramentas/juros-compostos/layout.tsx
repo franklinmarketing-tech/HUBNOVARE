@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     url: "/ferramentas/juros-compostos",
     type: "website",
     locale: "pt_BR",
-    images: ["/og.png"],
+    images: ["/api/og?t=Juros%20Compostos&s=O%20tempo%20trabalhando%20por%20voc%C3%AA"],
   },
 };
 

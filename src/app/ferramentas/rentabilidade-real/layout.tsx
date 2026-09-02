@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     url: "/ferramentas/rentabilidade-real",
     type: "website",
     locale: "pt_BR",
-    images: ["/og.png"],
+    images: ["/api/og?t=Rentabilidade%20Real&s=O%20ganho%20acima%20da%20infla%C3%A7%C3%A3o"],
   },
 };
 

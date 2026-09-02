@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     url: "/ferramentas/dashboard-patrimonial",
     type: "website",
     locale: "pt_BR",
-    images: ["/og.png"],
+    images: ["/api/og?t=Dashboard%20Patrimonial&s=Tudo%20o%20que%20voc%C3%AA%20tem%2C%20num%20painel"],
   },
 };
 

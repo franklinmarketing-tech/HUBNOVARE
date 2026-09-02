@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     url: "/ferramentas/tributario",
     type: "website",
     locale: "pt_BR",
-    images: ["/og.png"],
+    images: ["/api/og?t=Planejamento%20Tribut%C3%A1rio&s=Pague%20s%C3%B3%20o%20imposto%20devido"],
   },
 };
 

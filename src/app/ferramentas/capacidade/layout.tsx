@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     url: "/ferramentas/capacidade",
     type: "website",
     locale: "pt_BR",
-    images: ["/og.png"],
+    images: ["/api/og?t=Capacidade%20de%20Endividamento&s=Quanto%20cabe%20no%20seu%20or%C3%A7amento"],
   },
 };
 

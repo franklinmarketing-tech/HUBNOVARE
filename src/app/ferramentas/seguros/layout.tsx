@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     url: "/ferramentas/seguros",
     type: "website",
     locale: "pt_BR",
-    images: ["/og.png"],
+    images: ["/api/og?t=Organizador%20de%20Seguros&s=Coberturas%20sem%20sobreposi%C3%A7%C3%A3o"],
   },
 };
 

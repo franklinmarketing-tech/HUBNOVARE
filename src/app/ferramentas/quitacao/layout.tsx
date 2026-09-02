@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     url: "/ferramentas/quitacao",
     type: "website",
     locale: "pt_BR",
-    images: ["/og.png"],
+    images: ["/api/og?t=Quita%C3%A7%C3%A3o%20Antecipada&s=Quanto%20voc%C3%AA%20economiza%20adiantando"],
   },
 };
 

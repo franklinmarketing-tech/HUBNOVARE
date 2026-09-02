@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     url: "/ferramentas/consorcio",
     type: "website",
     locale: "pt_BR",
-    images: ["/og.png"],
+    images: ["/api/og?t=Simulador%20de%20Cons%C3%B3rcio&s=Cons%C3%B3rcio%20ou%20financiamento"],
   },
 };
 

@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     url: "/ferramentas/assinaturas",
     type: "website",
     locale: "pt_BR",
-    images: ["/og.png"],
+    images: ["/api/og?t=Organizador%20de%20Assinaturas&s=Cace%20as%20cobran%C3%A7as%20esquecidas"],
   },
 };
 

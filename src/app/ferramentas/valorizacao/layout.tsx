@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     url: "/ferramentas/valorizacao",
     type: "website",
     locale: "pt_BR",
-    images: ["/og.png"],
+    images: ["/api/og?t=Valoriza%C3%A7%C3%A3o%20de%20Im%C3%B3veis&s=Quanto%20seu%20im%C3%B3vel%20rendeu%20de%20verdade"],
   },
 };
 

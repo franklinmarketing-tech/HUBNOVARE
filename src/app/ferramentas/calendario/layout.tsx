@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     url: "/ferramentas/calendario",
     type: "website",
     locale: "pt_BR",
-    images: ["/og.png"],
+    images: ["/api/og?t=Calend%C3%A1rio%20Financeiro&s=Nenhum%20vencimento%20esquecido"],
   },
 };
 

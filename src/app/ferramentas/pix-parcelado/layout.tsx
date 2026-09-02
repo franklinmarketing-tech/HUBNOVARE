@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     url: "/ferramentas/pix-parcelado",
     type: "website",
     locale: "pt_BR",
-    images: ["/og.png"],
+    images: ["/api/og?t=Pix%20Parcelado&s=A%20taxa%20que%20o%20app%20n%C3%A3o%20mostra"],
   },
 };
 

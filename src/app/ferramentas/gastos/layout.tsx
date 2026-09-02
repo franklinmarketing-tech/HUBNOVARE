@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     url: "/ferramentas/gastos",
     type: "website",
     locale: "pt_BR",
-    images: ["/og.png"],
+    images: ["/api/og?t=Controle%20de%20Gastos&s=Para%20onde%20vai%20o%20seu%20dinheiro"],
   },
 };
 

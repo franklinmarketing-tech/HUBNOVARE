@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     url: "/ferramentas/consignado",
     type: "website",
     locale: "pt_BR",
-    images: ["/og.png"],
+    images: ["/api/og?t=Cr%C3%A9dito%20Consignado&s=Margem%20e%20custo%20do%20desconto%20em%20folha"],
   },
 };
 

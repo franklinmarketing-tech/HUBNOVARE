@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     url: "/ferramentas/fgts",
     type: "website",
     locale: "pt_BR",
-    images: ["/og.png"],
+    images: ["/api/og?t=FGTS&s=Saldo%2C%20multa%20e%20saque"],
   },
 };
 

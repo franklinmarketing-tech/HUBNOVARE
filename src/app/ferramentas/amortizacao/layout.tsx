@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     url: "/ferramentas/amortizacao",
     type: "website",
     locale: "pt_BR",
-    images: ["/og.png"],
+    images: ["/api/og?t=Simulador%20de%20Amortiza%C3%A7%C3%A3o&s=Prazo%20ou%20parcela%3F%20Veja%20a%20diferen%C3%A7a"],
   },
 };
 

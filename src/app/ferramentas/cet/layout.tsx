@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     url: "/ferramentas/cet",
     type: "website",
     locale: "pt_BR",
-    images: ["/og.png"],
+    images: ["/api/og?t=Calculadora%20CET&s=O%20custo%20efetivo%20total%2C%20sem%20letra%20mi%C3%BAda"],
   },
 };
 

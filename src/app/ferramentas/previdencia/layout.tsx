@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     url: "/ferramentas/previdencia",
     type: "website",
     locale: "pt_BR",
-    images: ["/og.png"],
+    images: ["/api/og?t=Organizador%20Previdenci%C3%A1rio&s=INSS%20e%20privada%20no%20mesmo%20lugar"],
   },
 };
 

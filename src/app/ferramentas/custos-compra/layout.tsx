@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     url: "/ferramentas/custos-compra",
     type: "website",
     locale: "pt_BR",
-    images: ["/og.png"],
+    images: ["/api/og?t=Custos%20da%20Compra&s=ITBI%2C%20cart%C3%B3rio%20e%20o%20resto"],
   },
 };
 

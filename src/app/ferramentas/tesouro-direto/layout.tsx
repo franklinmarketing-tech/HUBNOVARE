@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     url: "/ferramentas/tesouro-direto",
     type: "website",
     locale: "pt_BR",
-    images: ["/og.png"],
+    images: ["/api/og?t=Simulador%20Tesouro%20Direto&s=Selic%2C%20prefixado%20e%20IPCA%2B"],
   },
 };
 

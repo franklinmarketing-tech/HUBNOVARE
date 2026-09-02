@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     url: "/ferramentas/seguro-desemprego",
     type: "website",
     locale: "pt_BR",
-    images: ["/og.png"],
+    images: ["/api/og?t=Seguro-Desemprego&s=Valor%20e%20quantas%20parcelas"],
   },
 };
 

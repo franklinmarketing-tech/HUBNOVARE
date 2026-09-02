@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     url: "/ferramentas/comparador-bancos",
     type: "website",
     locale: "pt_BR",
-    images: ["/og.png"],
+    images: ["/api/og?t=Comparador%20de%20Bancos&s=Mesma%20casa%2C%20propostas%20diferentes"],
   },
 };
 

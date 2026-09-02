@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     url: "/ferramentas/metas",
     type: "website",
     locale: "pt_BR",
-    images: ["/og.png"],
+    images: ["/api/og?t=Metas%20Financeiras&s=Objetivos%20com%20data%20e%20valor"],
   },
 };
 

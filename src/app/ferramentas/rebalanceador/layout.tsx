@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     url: "/ferramentas/rebalanceador",
     type: "website",
     locale: "pt_BR",
-    images: ["/og.png"],
+    images: ["/api/og?t=Rebalanceador%20de%20Carteira&s=Volte%20%C3%A0%20aloca%C3%A7%C3%A3o%20alvo"],
   },
 };
 

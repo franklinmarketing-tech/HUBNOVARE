@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     url: "/ferramentas/aportes",
     type: "website",
     locale: "pt_BR",
-    images: ["/og.png"],
+    images: ["/api/og?t=Simulador%20de%20Aportes&s=Quanto%20aportar%20para%20chegar%20l%C3%A1"],
   },
 };
 

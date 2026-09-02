@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     url: "/ferramentas/raio-x",
     type: "website",
     locale: "pt_BR",
-    images: ["/og.png"],
+    images: ["/api/og?t=Raio-X%20da%20Carteira&s=Concentra%C3%A7%C3%A3o%20e%20risco%20expostos"],
   },
 };
 

@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     url: "/ferramentas/portabilidade",
     type: "website",
     locale: "pt_BR",
-    images: ["/og.png"],
+    images: ["/api/og?t=Portabilidade%20de%20D%C3%ADvida&s=Leve%20seu%20contrato%20para%20taxa%20menor"],
   },
 };
 

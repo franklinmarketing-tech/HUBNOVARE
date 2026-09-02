@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     url: "/ferramentas/renegociacao",
     type: "website",
     locale: "pt_BR",
-    images: ["/og.png"],
+    images: ["/api/og?t=Renegocia%C3%A7%C3%A3o%20de%20D%C3%ADvidas&s=Qual%20proposta%20aceitar"],
   },
 };
 

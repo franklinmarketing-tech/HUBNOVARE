@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     url: "/ferramentas/emprestimos",
     type: "website",
     locale: "pt_BR",
-    images: ["/og.png"],
+    images: ["/api/og?t=Simulador%20de%20Empr%C3%A9stimos&s=O%20custo%20real%20antes%20de%20assinar"],
   },
 };
 

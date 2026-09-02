@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     url: "/ferramentas/home-equity",
     type: "website",
     locale: "pt_BR",
-    images: ["/og.png"],
+    images: ["/api/og?t=Home%20Equity&s=Cr%C3%A9dito%20com%20im%C3%B3vel%20em%20garantia"],
   },
 };
 

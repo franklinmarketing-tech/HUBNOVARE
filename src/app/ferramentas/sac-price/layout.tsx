@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     url: "/ferramentas/sac-price",
     type: "website",
     locale: "pt_BR",
-    images: ["/og.png"],
+    images: ["/api/og?t=SAC%20x%20PRICE&s=As%20duas%20tabelas%20lado%20a%20lado"],
   },
 };
 

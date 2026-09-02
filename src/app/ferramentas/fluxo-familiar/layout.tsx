@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     url: "/ferramentas/fluxo-familiar",
     type: "website",
     locale: "pt_BR",
-    images: ["/og.png"],
+    images: ["/api/og?t=Fluxo%20de%20Caixa%20Familiar&s=A%20casa%20inteira%20no%20azul"],
   },
 };
 

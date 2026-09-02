@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     url: "/ferramentas/decimo-terceiro",
     type: "website",
     locale: "pt_BR",
-    images: ["/og.png"],
+    images: ["/api/og?t=13%C2%BA%20Sal%C3%A1rio&s=As%20duas%20parcelas%2C%20sem%20surpresa"],
   },
 };
 

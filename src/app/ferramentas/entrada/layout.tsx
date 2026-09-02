@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     url: "/ferramentas/entrada",
     type: "website",
     locale: "pt_BR",
-    images: ["/og.png"],
+    images: ["/api/og?t=Planejamento%20da%20Entrada&s=Quanto%20juntar%20e%20em%20quanto%20tempo"],
   },
 };
 

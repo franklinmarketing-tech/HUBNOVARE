@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     url: "/ferramentas/score",
     type: "website",
     locale: "pt_BR",
-    images: ["/og.png"],
+    images: ["/api/og?t=Score%20Financeiro&s=Entenda%20e%20melhore%20sua%20nota"],
   },
 };
 

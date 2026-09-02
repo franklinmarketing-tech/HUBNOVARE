@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     url: "/ferramentas/radar",
     type: "website",
     locale: "pt_BR",
-    images: ["/og.png"],
+    images: ["/api/og?t=Radar%20Financeiro&s=O%20dinheiro%20parado%20que%20rende%20pouco"],
   },
 };
 

@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     url: "/ferramentas/patrimonio",
     type: "website",
     locale: "pt_BR",
-    images: ["/og.png"],
+    images: ["/api/og?t=Patrim%C3%B4nio%20L%C3%ADquido&s=O%20n%C3%BAmero%20que%20resume%20sua%20vida"],
   },
 };
 

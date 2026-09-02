@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     url: "/ferramentas/salario-liquido",
     type: "website",
     locale: "pt_BR",
-    images: ["/og.png"],
+    images: ["/api/og?t=Sal%C3%A1rio%20L%C3%ADquido&s=Quanto%20de%20fato%20cai%20na%20conta"],
   },
 };
 

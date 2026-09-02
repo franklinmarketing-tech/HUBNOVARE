@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     url: "/ferramentas/rescisao",
     type: "website",
     locale: "pt_BR",
-    images: ["/og.png"],
+    images: ["/api/og?t=C%C3%A1lculo%20de%20Rescis%C3%A3o&s=Confira%20antes%20de%20assinar"],
   },
 };
 

@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     url: "/ferramentas/dividendos",
     type: "website",
     locale: "pt_BR",
-    images: ["/og.png"],
+    images: ["/api/og?t=Calculadora%20de%20Dividendos&s=Quanto%20sua%20carteira%20paga%20por%20m%C3%AAs"],
   },
 };
 

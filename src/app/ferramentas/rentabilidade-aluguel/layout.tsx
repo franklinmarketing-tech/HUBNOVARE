@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     url: "/ferramentas/rentabilidade-aluguel",
     type: "website",
     locale: "pt_BR",
-    images: ["/og.png"],
+    images: ["/api/og?t=Rentabilidade%20de%20Aluguel&s=O%20yield%20do%20seu%20investimento"],
   },
 };
 

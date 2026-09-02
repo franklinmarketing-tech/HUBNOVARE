@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     url: "/ferramentas/orcamento",
     type: "website",
     locale: "pt_BR",
-    images: ["/og.png"],
+    images: ["/api/og?t=Or%C3%A7amento%20Inteligente&s=Cada%20real%20com%20destino"],
   },
 };
 

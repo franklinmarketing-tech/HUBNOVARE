@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     url: "/ferramentas/ferias",
     type: "website",
     locale: "pt_BR",
-    images: ["/og.png"],
+    images: ["/api/og?t=F%C3%A9rias&s=Com%20o%20ter%C3%A7o%20e%20a%20venda%20de%20dias"],
   },
 };
 
