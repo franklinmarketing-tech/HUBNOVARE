@@ -665,21 +665,39 @@ export default function AssinarPage() {
               ))}
             </div>
 
-            {/* Aqui entraria a foto dos sócios, mas o único arquivo que existe
-                (marca/novare-site/socios-novare.jpg) tem 236x235 px: é a
-                miniatura de um vídeo, não uma fotografia. Ampliada para a
-                largura desta seção ficaria borrada, e foto borrada numa
-                página de venda tira credibilidade em vez de dar. Assim que
-                houver uma foto em resolução decente, ela entra aqui. */}
-            <div className="cine mt-10 text-center">
-              <h3 className="font-display text-xl font-bold leading-snug text-primary sm:text-2xl">
-                Tem gente de verdade atrás disso.
-              </h3>
-              <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground">
-                A Novare não é um app que apareceu do nada. É uma consultoria
-                de investimentos que resolveu abrir as próprias ferramentas
-                para quem não tem patrimônio para contratar uma.
-              </p>
+            {/* A foto dos sócios finalmente cabe aqui.
+            
+                O arquivo era uma miniatura de vídeo de 236x235 px com o botão
+                de play gravado em cima — e por isso esta seção vinha sem foto
+                nenhuma: borrada, ela tirava a credibilidade que deveria dar.
+                Agora está em 944 px, ampliada por upscaler de PRECISÃO (o
+                modo criativo inventa feições, e são rostos de pessoas reais)
+                e com o play retocado fora.
+            
+                O arquivo tem NOME NOVO de propósito: o otimizador de imagem
+                do Next indexa o cache pelo caminho, então sobrescrever o
+                original continuaria servindo a miniatura antiga por dias. */}
+            <div className="cine mt-10 flex flex-col items-center gap-7 sm:flex-row sm:items-center sm:gap-9">
+              <div className="relative aspect-square w-40 shrink-0 overflow-hidden rounded-3xl shadow-card ring-1 ring-primary/10 sm:w-48">
+                <Image
+                  src="/marca/novare-site/socios-novare-alta.jpg"
+                  alt="Os sócios da Novare Consultoria de Investimentos"
+                  fill
+                  sizes="(max-width: 640px) 160px, 192px"
+                  className="object-cover"
+                />
+              </div>
+
+              <div className="text-center sm:text-left">
+                <h3 className="font-display text-xl font-bold leading-snug text-primary sm:text-2xl">
+                  Tem gente de verdade atrás disso.
+                </h3>
+                <p className="mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground">
+                  A Novare não é um app que apareceu do nada. É uma consultoria
+                  de investimentos que resolveu abrir as próprias ferramentas
+                  para quem não tem patrimônio para contratar uma.
+                </p>
+              </div>
             </div>
 
             {/* O modelo de negócio como argumento: é o que separa a Novare

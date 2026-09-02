@@ -18,6 +18,7 @@ import {
   TituloTela,
   brl,
   pct,
+  FalhouAoCarregar,
   SessaoExpirada,
 } from "../pecas";
 
@@ -62,6 +63,7 @@ export default function DiagnosticoPage() {
   if (r.fase === "carregando") return <Carregando />;
   if (r.fase === "sem-ficha") return <SemFicha />;
   if (r.fase === "sem-sessao") return <SessaoExpirada />;
+  if (r.fase === "erro") return <FalhouAoCarregar />;
 
   const { diagnostico: d, vazio } = r.dados;
   if (vazio) return <PrecisaPreencher />;
@@ -155,7 +157,11 @@ export default function DiagnosticoPage() {
                       {brl(c.valor)} · {c.fatia}%
                     </span>
                   </div>
-                  <Barra valor={c.fatia} tom={c.fatia > 40 ? "warning" : "accent"} />
+                  <Barra
+                    valor={c.fatia}
+                    tom={c.fatia > 40 ? "warning" : "accent"}
+                    rotulo={`${conhecida?.rotulo ?? c.categoria}, fatia das suas despesas`}
+                  />
                 </li>
                 );
               })}

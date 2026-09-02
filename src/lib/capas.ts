@@ -30,7 +30,7 @@
  */
 export const CAPAS: Record<string, string> = {
   // IA e Consultoria — slugs alinhados com apps.ts (5 produtos oficiais)
-  "planejamento": "/cards/card-projeto-vida.webp",
+  "planejamento": "/cards/card-planejamento.webp",
   iris: "/cards/card-openfinance.webp",
   "consultoria-diagnostico": "/cards/card-score.webp",
   "consultoria-investimentos": "/cards/card-comparador.webp",

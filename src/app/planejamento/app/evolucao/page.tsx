@@ -24,6 +24,7 @@ import {
   brl,
   brlCurto,
   pct,
+  FalhouAoCarregar,
   SessaoExpirada,
 } from "../pecas";
 
@@ -47,19 +48,30 @@ export default function EvolucaoPage() {
   const etapa = etapaPorSlug("evolucao")!;
   const [fechamentos, setFechamentos] = useState<Fechamento[] | null>(null);
 
+  /** A leitura do histórico falhou — diferente de não haver histórico. */
+  const [falhou, setFalhou] = useState(false);
+
   const clientId = r.fase === "pronto" ? r.dados.clientId : null;
 
   useEffect(() => {
     if (!clientId) return;
     (async () => {
       const supabase = createClient();
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("monthly_closings")
         .select(
           "month_ref, net_worth, total_income, total_expenses, total_debts, total_assets, savings_rate, emergency_reserve_months, plan_completion_pct",
         )
         .eq("client_id", clientId)
         .order("month_ref", { ascending: true });
+      // `data ?? []` sozinho fazia a consulta que FALHOU parecer com a que não
+      // achou nada: quem tem oito meses fechados via "comece pelo primeiro
+      // fechamento" e podia fechar o mês de novo em cima do histórico.
+      if (error) {
+        console.error("[evolucao] ler fechamentos", error);
+        setFalhou(true);
+        return;
+      }
       setFechamentos(data ?? []);
     })();
   }, [clientId]);
@@ -67,6 +79,7 @@ export default function EvolucaoPage() {
   if (r.fase === "carregando") return <Carregando />;
   if (r.fase === "sem-ficha") return <SemFicha />;
   if (r.fase === "sem-sessao") return <SessaoExpirada />;
+  if (r.fase === "erro" || falhou) return <FalhouAoCarregar />;
   if (r.dados.vazio) return <PrecisaPreencher />;
   if (fechamentos === null) return <Carregando />;
 

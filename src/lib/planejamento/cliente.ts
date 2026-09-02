@@ -66,6 +66,18 @@ export interface Retrato {
     amount_applied: number | null;
     completed_at: string | null;
   }[];
+  /**
+   * Alguma das seis consultas falhou.
+   *
+   * Existe porque "não consegui ler" e "a pessoa não preencheu nada" chegavam
+   * aqui como a mesma coisa — as listas vinham vazias nos dois casos. E vazio,
+   * neste app, é permissão para gravar: o primeiro "Salvar e continuar"
+   * substituía a seção inteira por nada, apagando o que estava no banco.
+   *
+   * Quem carrega o retrato para EDITAR precisa checar isto antes de deixar
+   * gravar. Quem só exibe pode ignorar.
+   */
+  falhou: boolean;
 }
 
 const VAZIO: Retrato = {
@@ -75,6 +87,7 @@ const VAZIO: Retrato = {
   patrimonio: [],
   seguros: [],
   objetivos: [],
+  falhou: false,
 };
 
 /**
@@ -100,8 +113,18 @@ export async function carregarRetrato(
       supabase.from("goals").select("*").eq("client_id", clientId).eq("month_ref", monthRef),
     ]);
 
+  const consultas = [rendas, despesas, dividas, patrimonio, seguros, objetivos];
+  const falhou = consultas.some((c) => c.error);
+  if (falhou) {
+    console.error(
+      "[carregarRetrato] falha ao ler o retrato:",
+      consultas.filter((c) => c.error).map((c) => c.error?.message),
+    );
+  }
+
   return {
     ...VAZIO,
+    falhou,
     rendas: rendas.data ?? [],
     despesas: despesas.data ?? [],
     dividas: dividas.data ?? [],

@@ -5,6 +5,7 @@ import { ArrowRight, Loader2, RefreshCw, Sparkles } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { AcaoAssinante } from "@/components/AcaoAssinante";
 import { BarrasPatrimonio } from "@/components/BarrasPatrimonio";
+import { OQueSignifica } from "@/components/OQueSignifica";
 import { usePlanejamento } from "../usePlanejamento";
 import { gerarMetas, paraTabelaMetas, type Meta } from "@/lib/planejamento/metas";
 import { PERFIS } from "@/lib/planejamento/perfil";
@@ -17,6 +18,7 @@ import {
   SemFicha,
   TituloTela,
   brl,
+  FalhouAoCarregar,
   SessaoExpirada,
 } from "../pecas";
 
@@ -136,6 +138,7 @@ export default function PlanoPage() {
   if (r.fase === "carregando") return <Carregando />;
   if (r.fase === "sem-ficha") return <SemFicha />;
   if (r.fase === "sem-sessao") return <SessaoExpirada />;
+  if (r.fase === "erro") return <FalhouAoCarregar />;
 
   const { acoes, plano, reserva, entrada, vazio, perfil: perfilSalvo } = r.dados;
   if (vazio) return <PrecisaPreencher />;
@@ -262,7 +265,7 @@ export default function PlanoPage() {
                   {fatia.pct}%
                 </span>
               </div>
-              <Barra valor={fatia.pct} />
+              <Barra valor={fatia.pct} rotulo={`Fatia sugerida em ${fatia.classe}`} />
             </li>
           ))}
         </ul>
@@ -356,6 +359,43 @@ export default function PlanoPage() {
           </p>
         </section>
       )}
+
+      {/* O glossário desta tela.
+      
+          Esta é a página do app com mais jargão: PGBL, VGBL, retorno real,
+          custo de sucessão. Termo que a pessoa não entende não vira decisão —
+          vira desconfiança, ou uma ligação para o suporte.
+      
+          `OQueSignifica` já existia e rodava só nas páginas públicas. É
+          `<details>` nativo: abre e fecha sem JavaScript, funciona no teclado
+          e no leitor de tela, e não custa um byte de bundle. */}
+      <section className="mt-6">
+        <OQueSignifica
+          titulo="O que significam os termos desta tela"
+          itens={[
+            {
+              pergunta: "PGBL e VGBL — qual a diferença?",
+              resposta:
+                "São os dois tipos de previdência privada. No PGBL você abate o que aportou da base do Imposto de Renda, até 12% da sua renda tributável no ano — só vale a pena para quem faz a declaração completa. No VGBL não há esse abatimento, mas o imposto no resgate incide só sobre o rendimento, não sobre tudo. Por isso o plano costuma dividir entre os dois.",
+            },
+            {
+              pergunta: "O que é retorno real?",
+              resposta:
+                "É o que sobra do rendimento depois de descontar a inflação. Um investimento que rende 10% no ano com inflação de 5% teve retorno real de aproximadamente 5%. O plano trabalha sempre em retorno real para que os valores futuros signifiquem, em poder de compra, o mesmo que significam hoje.",
+            },
+            {
+              pergunta: "Custo de sucessão — o que é isso?",
+              resposta:
+                "É quanto a sua família gastaria em impostos e custos de inventário para receber o que é seu, se nada for organizado antes. Envolve o ITCMD (imposto estadual sobre herança), custas de cartório e honorários. É uma estimativa sobre o seu patrimônio atual, e serve para mostrar o tamanho do problema — não é cobrança de nada.",
+            },
+            {
+              pergunta: "Por que o plano fala em classes e não em produtos?",
+              resposta:
+                "Porque recomendar um ativo específico exige análise de perfil feita por pessoa (suitability), e este app é uma ferramenta que você usa sozinho. Ele mostra quanto faz sentido em cada classe — renda fixa, renda variável, no exterior — e a escolha do produto é sua, ou de uma conversa com um consultor.",
+            },
+          ]}
+        />
+      </section>
 
       <div className="mt-6 text-center">
         <BotaoPrincipal href="/planejamento/app/mes">

@@ -319,7 +319,7 @@ export const ARTIGOS: Artigo[] = [
     categoria: "ia",
     data: "2026-08-25",
     tempoLeituraMin: 6,
-    capa: "/cards/card-projeto-vida.webp",
+    capa: "/cards/card-planejamento.webp",
     destaque: true,
     corpo: [
       "Planejamento financeiro sempre teve um gargalo: alguém precisava sentar com você, ouvir sua vida, montar a planilha e devolver o plano. Isso funciona, mas custa caro e depende da agenda de outra pessoa — por isso a maioria nunca chega a ter um plano de verdade.",

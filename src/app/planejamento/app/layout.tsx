@@ -58,7 +58,7 @@ export default async function LayoutPlanejamento({
             </p>
             <Link
               href="/"
-              className="text-[10px] text-muted-foreground underline-offset-2 hover:underline"
+              className="text-[11px] text-muted-foreground underline-offset-2 hover:underline"
             >
               Voltar ao Workspace
             </Link>

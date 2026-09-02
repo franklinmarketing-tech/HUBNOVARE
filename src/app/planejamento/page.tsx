@@ -542,7 +542,7 @@ export default function VidaPlanPage() {
             <div className="mt-6 overflow-hidden rounded-3xl border border-border bg-card sm:flex sm:items-stretch">
               <div className="relative aspect-[16/10] w-full sm:aspect-auto sm:w-[38%] sm:shrink-0">
                 <Image
-                  src="/marca/novare-site/socios-novare.jpg"
+                  src="/marca/novare-site/socios-novare-alta.jpg"
                   alt="Sócios e consultores da Novare"
                   fill
                   sizes="(max-width: 640px) 100vw, 380px"

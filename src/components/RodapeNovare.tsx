@@ -63,7 +63,7 @@ export function RodapeNovare({
           {/* Foto real dos sócios/consultores da Novare, mesclada no navy. */}
           <div className="relative hidden w-2/5 shrink-0 sm:block">
             <Image
-              src="/marca/novare-site/socios-novare.jpg"
+              src="/marca/novare-site/socios-novare-alta.jpg"
               alt="Sócios e consultores da Novare"
               fill
               sizes="340px"

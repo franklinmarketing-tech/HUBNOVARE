@@ -18,6 +18,7 @@ import {
   brl,
   brlCurto,
   pct,
+  FalhouAoCarregar,
   SessaoExpirada,
 } from "../pecas";
 
@@ -69,6 +70,7 @@ export default function RelatorioPage() {
   if (r.fase === "carregando") return <Carregando />;
   if (r.fase === "sem-ficha") return <SemFicha />;
   if (r.fase === "sem-sessao") return <SessaoExpirada />;
+  if (r.fase === "erro") return <FalhouAoCarregar />;
   if (r.dados.vazio) return <PrecisaPreencher />;
 
   const { diagnostico: d, plano, saude, reserva, acoes, entrada, perfil } = r.dados;
@@ -204,7 +206,11 @@ export default function RelatorioPage() {
           <h2 className="font-display text-base font-bold text-primary">
             4 · Para onde vai o seu dinheiro
           </h2>
-          <table className="mt-2 w-full text-sm">
+          {/* As duas tabelas desta página eram as únicas do projeto sem
+              contentor de rolagem: em três colunas elas apertavam no celular.
+              O `min-w` mantém as colunas legíveis e o contentor rola. */}
+          <div className="mt-2 overflow-x-auto">
+            <table className="w-full min-w-[22rem] text-sm">
             <tbody>
               {d.despesasPorCategoria.slice(0, 10).map((c) => (
                 <tr key={c.categoria} className="border-b border-border/60 last:border-0">
@@ -222,6 +228,7 @@ export default function RelatorioPage() {
               ))}
             </tbody>
           </table>
+          </div>
         </section>
 
         <section className="folha">
@@ -265,7 +272,8 @@ export default function RelatorioPage() {
             mês, num horizonte de {acoes.anosAteIndependencia} ano(s). Reserva de
             emergência alvo: {brl(reserva.meta)}.
           </p>
-          <table className="mt-2 w-full text-sm">
+          <div className="mt-2 overflow-x-auto">
+            <table className="w-full min-w-[22rem] text-sm">
             <tbody>
               {acoes.carteira.map((f) => (
                 <tr key={f.classe} className="border-b border-border/60 last:border-0">
@@ -277,6 +285,7 @@ export default function RelatorioPage() {
               ))}
             </tbody>
           </table>
+          </div>
           {perfil && (
             <p className="mt-3 text-sm text-slate-600">
               <strong>Seu perfil: {perfil}.</strong> {PERFIS[perfil].comoUsar}

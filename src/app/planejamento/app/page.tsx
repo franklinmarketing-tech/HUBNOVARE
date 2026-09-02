@@ -14,6 +14,7 @@ import {
   brl,
   brlCurto,
   pct,
+  FalhouAoCarregar,
   SessaoExpirada,
 } from "./pecas";
 
@@ -23,6 +24,7 @@ export default function PainelPage() {
   if (r.fase === "carregando") return <Carregando />;
   if (r.fase === "sem-ficha") return <SemFicha />;
   if (r.fase === "sem-sessao") return <SessaoExpirada />;
+  if (r.fase === "erro") return <FalhouAoCarregar />;
 
   const { plano, saude, reserva, diagnostico, entrada, vazio } = r.dados;
 
@@ -138,6 +140,7 @@ export default function PainelPage() {
                 <Barra
                   valor={p.score}
                   tom={p.score >= 70 ? "success" : p.score >= 40 ? "accent" : "warning"}
+                  rotulo={`Pilar ${p.nome}`}
                 />
                 <p className="mt-1 text-[11px] text-slate-500">{p.dica}</p>
               </li>

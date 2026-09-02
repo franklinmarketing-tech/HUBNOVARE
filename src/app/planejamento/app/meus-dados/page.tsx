@@ -34,6 +34,7 @@ import {
   respostasIniciais,
   type RespostasComportamentais,
 } from "@/lib/planejamento/perfil";
+import { traduzirErro } from "@/lib/planejamento/erros";
 import { conferir } from "@/lib/planejamento/plausibilidade";
 import { gravarPremissas, lerPremissas } from "@/lib/planejamento/premissas";
 import { Chips, Escala, Escolha, Lista, Marcar, Texto } from "./campos";
@@ -52,14 +53,34 @@ type Despesa = { categoria: string; descricao: string; valor: string; fixa: bool
 type Divida = { tipo: string; credor: string; total: string; parcela: string; juros: string; mesesRestantes: string };
 type Bem = { tipo: string; descricao: string; valor: string };
 type Seguro = { tipo: string; seguradora: string; premio: string; cobertura: string };
-type Objetivo = { descricao: string; alvo: string; prazo: string; prioridade: string };
+/**
+ * `aplicado` e `concluidoEm` NÃO aparecem neste formulário — quem move esses
+ * dois é a tela "Meu mês". Eles viajam aqui dentro por um motivo: `salvarSecao`
+ * substitui a seção inteira, então tudo que não for reenviado é APAGADO.
+ *
+ * Sem eles, editar a data de um objetivo zerava o valor que a pessoa já tinha
+ * aplicado nele e desmarcava as metas concluídas — silenciosamente, a cada
+ * "Salvar e continuar" neste bloco.
+ */
+type Objetivo = {
+  descricao: string;
+  alvo: string;
+  prazo: string;
+  prioridade: string;
+  aplicado: number | null;
+  concluidoEm: string | null;
+};
 
 const novaRenda = (): Renda => ({ descricao: "", valor: "", frequencia: "mensal", principal: false, estabilidade: "media" });
 const novaDespesa = (): Despesa => ({ categoria: "", descricao: "", valor: "", fixa: true, diaVencimento: "" });
 const novaDivida = (): Divida => ({ tipo: "", credor: "", total: "", parcela: "", juros: "", mesesRestantes: "" });
 const novoBem = (): Bem => ({ tipo: "", descricao: "", valor: "" });
 const novoSeguro = (): Seguro => ({ tipo: "", seguradora: "", premio: "", cobertura: "" });
-const novoObjetivo = (): Objetivo => ({ descricao: "", alvo: "", prazo: "", prioridade: "media" });
+const novoObjetivo = (): Objetivo => ({
+  descricao: "", alvo: "", prazo: "", prioridade: "media",
+  // Objetivo recém-criado na tela ainda não tem progresso nenhum.
+  aplicado: null, concluidoEm: null,
+});
 
 type Identificacao = {
   nome: string; cpf: string; nascimento: string; estadoCivil: string; regimeBens: string;
@@ -104,6 +125,8 @@ export default function MeusDadosPage() {
   const [salvando, setSalvando] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
   const [carregando, setCarregando] = useState(true);
+  /** A ficha não pôde ser lida. Ver o guard na carga inicial. */
+  const [falhaDeLeitura, setFalhaDeLeitura] = useState(false);
 
   const [ident, setIdent] = useState<Identificacao>({
     nome: "", cpf: "", nascimento: "", estadoCivil: "", regimeBens: "",
@@ -118,6 +141,45 @@ export default function MeusDadosPage() {
   const [objetivos, setObjetivos] = useState<Objetivo[]>([]);
   const [comportamento, setComportamento] = useState<RespostasComportamentais>(respostasIniciais());
   const [apos, setApos] = useState({ idade: "", renda: "", inss: "" });
+
+  const clientId = estado?.tipo === "ok" ? estado.clientId : null;
+
+  /**
+   * Rascunho do bloco em edição.
+   *
+   * O banco só recebe dado nos LIMITES de bloco (avançar/voltar). Entre um
+   * limite e outro, o que está digitado vive só no estado do React — e um F5
+   * levava tudo embora.
+   *
+   * Gravar no banco a cada tecla foi descartado: `salvarSecao` substitui a
+   * seção inteira a cada chamada, então digitar viraria dezenas de reescritas
+   * da ficha, com linhas meio-preenchidas gravadas como verdade.
+   *
+   * `sessionStorage` e não `localStorage`: aqui passam CPF, renda e dívidas.
+   * A aba guarda enquanto está aberta — cobre recarregar e navegar, que é o
+   * caso real — e não deixa nada em disco depois que ela fecha. Quem fecha a
+   * aba não perde o que já concluiu: isso está no banco, bloco a bloco.
+   */
+  const chaveRascunho = clientId ? `novare:meus-dados:${clientId}` : null;
+
+  useEffect(() => {
+    if (!chaveRascunho || carregando) return;
+    try {
+      sessionStorage.setItem(
+        chaveRascunho,
+        JSON.stringify({
+          v: 1, bloco,
+          ident, rendas, despesas, dividas, bens, seguros, objetivos, comportamento, apos,
+        }),
+      );
+    } catch {
+      // Cota cheia, modo privado, storage bloqueado: o rascunho é uma rede de
+      // segurança, não pode ser o motivo de a tela quebrar.
+    }
+  }, [
+    chaveRascunho, carregando, bloco,
+    ident, rendas, despesas, dividas, bens, seguros, objetivos, comportamento, apos,
+  ]);
 
   /* Carga inicial: quem volta encontra o que já preencheu. */
   useEffect(() => {
@@ -134,6 +196,15 @@ export default function MeusDadosPage() {
         supabase.auth.getUser(),
         carregarRetrato(resolvido.clientId),
       ]);
+
+      // Leitura falhou: NÃO montar o formulário. Ele abriria em branco, e o
+      // primeiro "Salvar e continuar" substituiria a seção por nada — ou seja,
+      // uma falha de rede apagaria a ficha de quem só queria conferir um campo.
+      if (retrato.falhou) {
+        setFalhaDeLeitura(true);
+        setCarregando(false);
+        return;
+      }
 
       const [perfilRow, clienteRow, premissas] = await Promise.all([
         supabase.from("profiles").select("full_name").eq("user_id", user.user!.id).maybeSingle(),
@@ -190,13 +261,39 @@ export default function MeusDadosPage() {
       setObjetivos(retrato.objetivos.map((o) => ({
         descricao: o.description, alvo: String(o.target_amount ?? ""),
         prazo: o.deadline ?? "", prioridade: o.priority ?? "media",
+        aplicado: o.amount_applied, concluidoEm: o.completed_at,
       })));
+
+      // O rascunho entra POR CIMA do banco, e por definição: ele só existe
+      // quando havia algo digitado que ainda não tinha sido gravado. Como a
+      // gravação acontece nos limites de bloco, o rascunho é sempre igual ou
+      // mais novo que a ficha — não precisa de mesclagem campo a campo.
+      try {
+        const cru = sessionStorage.getItem(`novare:meus-dados:${resolvido.clientId}`);
+        if (cru) {
+          const r = JSON.parse(cru);
+          if (r?.v === 1) {
+            if (r.ident) setIdent(r.ident);
+            if (r.rendas) setRendas(r.rendas);
+            if (r.despesas) setDespesas(r.despesas);
+            if (r.dividas) setDividas(r.dividas);
+            if (r.bens) setBens(r.bens);
+            if (r.seguros) setSeguros(r.seguros);
+            if (r.objetivos) setObjetivos(r.objetivos);
+            if (r.comportamento) setComportamento(r.comportamento);
+            if (r.apos) setApos(r.apos);
+            if (typeof r.bloco === "number") setBloco(r.bloco);
+          }
+        }
+      } catch {
+        // Rascunho corrompido ou storage indisponível: seguir com o banco, que
+        // é a fonte confiável. Melhor abrir sem o rascunho do que não abrir.
+      }
 
       setCarregando(false);
     })();
   }, []);
 
-  const clientId = estado?.tipo === "ok" ? estado.clientId : null;
 
   /** Grava o bloco que está saindo. Linha sem o campo essencial é descartada. */
   async function gravarBloco(chave: string): Promise<string | null> {
@@ -292,6 +389,10 @@ export default function MeusDadosPage() {
             description: o.descricao.trim(),
             target_amount: num(o.alvo) > 0 ? num(o.alvo) : null,
             deadline: textoOuNulo(o.prazo), priority: o.prioridade,
+            // Devolvidos intactos: são do "Meu mês", e omiti-los aqui os
+            // apagaria — ver o comentário do tipo Objetivo.
+            amount_applied: o.aplicado,
+            completed_at: o.concluidoEm,
           }));
         return (await salvarSecao("goals", clientId, linhas, mes)).erro;
       }
@@ -335,6 +436,7 @@ export default function MeusDadosPage() {
     const falha = await gravarBloco(BLOCOS[bloco].chave);
     setSalvando(false);
     if (falha) {
+      console.error("[meus-dados] avancar", BLOCOS[bloco].chave, falha);
       setErro(falha);
       return;
     }
@@ -344,6 +446,34 @@ export default function MeusDadosPage() {
     }
   }
 
+  /**
+   * Voltar um bloco, GRAVANDO o que está na tela.
+   *
+   * Antes daqui o botão só trocava o número do bloco. Quem preenchia seis
+   * despesas, voltava para conferir a renda e recarregava a página perdia as
+   * seis — enquanto o primeiro bloco promete que "o que você preencher fica
+   * salvo". `gravarBloco` substitui a seção inteira e é idempotente, então
+   * chamá-lo aqui é seguro.
+   *
+   * A falha NÃO impede de voltar: prender a pessoa num bloco porque a rede
+   * caiu é pior do que deixá-la navegar: o rascunho local segura o conteúdo, e
+   * o aviso conta o que aconteceu. (No `avancar` a regra é outra, e continua
+   * bloqueando — ali o botão promete "salvar e continuar".)
+   */
+  async function voltar() {
+    if (bloco === 0) return;
+    setErro(null);
+    setSalvando(true);
+    const falha = await gravarBloco(BLOCOS[bloco].chave);
+    setSalvando(false);
+    if (falha) {
+      console.error("[meus-dados] voltar", BLOCOS[bloco].chave, falha);
+      setErro(falha);
+    }
+    setBloco((b) => Math.max(0, b - 1));
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
   async function finalizar() {
     if (!clientId) return;
     setSalvando(true);
@@ -351,6 +481,13 @@ export default function MeusDadosPage() {
     // De 'onboarding_pendente' para 'em_diagnostico'. No app do consultor esse
     // avanço era efeito colateral de alguém abrir uma aba admin.
     await supabase.from("clients").update({ status: "em_diagnostico" }).eq("id", clientId);
+    // Trilha concluída: tudo está no banco, e o rascunho passa a ser só uma
+    // cópia de dado financeiro sem dono. Apagar.
+    try {
+      if (chaveRascunho) sessionStorage.removeItem(chaveRascunho);
+    } catch {
+      // Storage indisponível: não há rascunho para limpar.
+    }
     setSalvando(false);
     router.push("/planejamento/app/diagnostico");
   }
@@ -367,6 +504,32 @@ export default function MeusDadosPage() {
   }
 
   if (estado?.tipo === "sem-ficha") return <SemFicha />;
+
+  // Vem ANTES do formulário de propósito: aqui a resposta certa é não deixar
+  // editar. Seus dados continuam no banco; o que falhou foi a leitura.
+  if (falhaDeLeitura) {
+    return (
+      <div className="mx-auto max-w-md rounded-2xl border border-border bg-white p-7 text-center">
+        <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-warning/15 text-accent-strong">
+          <TriangleAlert className="h-5 w-5" strokeWidth={1.75} />
+        </span>
+        <h2 className="mt-4 font-display text-xl font-bold text-primary">
+          Não consegui abrir a sua ficha
+        </h2>
+        <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+          A conexão falhou no meio do caminho. Nada foi perdido — seus dados
+          continuam guardados. Tente de novo em instantes.
+        </p>
+        <button
+          type="button"
+          onClick={() => window.location.reload()}
+          className="mt-5 inline-block rounded-xl bg-accent-btn px-5 py-2.5 text-sm font-bold text-white transition-opacity hover:opacity-95"
+        >
+          Tentar de novo
+        </button>
+      </div>
+    );
+  }
 
   const atual = BLOCOS[bloco];
   const progresso = Math.round((bloco / (BLOCOS.length - 1)) * 100);
@@ -575,8 +738,20 @@ export default function MeusDadosPage() {
               aoMudar={(v) => setComportamento({ ...comportamento, spending_triggers: v })}
               placeholder="Estresse, promoção, viagem…"
             />
-            {houveResposta(comportamento) && (
+            {houveResposta(comportamento) ? (
               <PerfilResultado respostas={comportamento} />
+            ) : (
+              /* Sem mexer em nenhuma escala, nenhum perfil é gravado — e é a
+                 decisão certa: todas em 5 dariam empate e o desempate
+                 carimbaria todo mundo com um perfil que a pessoa nunca deu.
+                 O que faltava era CONTAR isso. Antes, o card do perfil
+                 simplesmente não existia depois e ninguém sabia por quê. */
+              <p className="rounded-2xl bg-gelo p-4 text-xs leading-relaxed text-muted-foreground">
+                Arraste as escalas acima para descobrir o seu perfil. Enquanto
+                nenhuma for movida, não registramos nenhum — preferimos não ter
+                perfil a te dar um que você não escolheu. Dá para pular e
+                responder depois.
+              </p>
             )}
           </div>
         )}
@@ -595,16 +770,21 @@ export default function MeusDadosPage() {
       </div>
 
       {erro && (
-        <p className="mt-5 flex items-start gap-2 rounded-xl border border-destructive/30 bg-destructive/5 p-3 text-xs text-destructive">
+        <p
+          // O texto técnico fica no title: quem der suporte inspeciona e vê a
+          // mensagem original; o cliente lê a frase que diz o que fazer.
+          title={traduzirErro(erro).tecnico}
+          className="mt-5 flex items-start gap-2 rounded-xl border border-destructive/30 bg-destructive/5 p-3 text-xs text-destructive"
+        >
           <TriangleAlert className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-          Não consegui salvar: {erro}
+          {traduzirErro(erro).texto}
         </p>
       )}
 
       <div className="mt-8 flex items-center justify-between gap-3 border-t border-border/70 pt-5">
         <button
           type="button"
-          onClick={() => setBloco((b) => Math.max(0, b - 1))}
+          onClick={() => void voltar()}
           disabled={bloco === 0 || salvando}
           className="flex items-center gap-1.5 rounded-xl px-3 py-2 text-2xs font-semibold text-muted-foreground transition-colors hover:bg-muted disabled:invisible"
         >

@@ -6,6 +6,7 @@ import { CalendarCheck, Check, Loader2, TriangleAlert } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { AcaoAssinante } from "@/components/AcaoAssinante";
 import { usePlanejamento } from "../usePlanejamento";
+import { traduzirErro } from "@/lib/planejamento/erros";
 import { liberarLancamento } from "@/lib/planejamento/cliente";
 import { mesAtual } from "@/lib/planejamento/catalogos";
 import { computeMonthlyTotals } from "@/lib/planejamento/finance";
@@ -19,6 +20,7 @@ import {
   SemFicha,
   TituloTela,
   brl,
+  FalhouAoCarregar,
   SessaoExpirada,
 } from "../pecas";
 import { formatarMoedaInput, digitosParaReais } from "@/lib/moeda";
@@ -51,6 +53,8 @@ export default function MesPage() {
   const [fechando, setFechando] = useState(false);
   const [jaFechado, setJaFechado] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
+  /** Passo de confirmação do fechamento — ver o bloco no fim do arquivo. */
+  const [confirmando, setConfirmando] = useState(false);
 
   const clientId = r.fase === "pronto" ? r.dados.clientId : null;
 
@@ -145,7 +149,10 @@ export default function MesPage() {
 
     if (linhas.length > 0) {
       const { error } = await supabase.from("acompanhamento_entradas").insert(linhas);
-      if (error) setErro(error.message);
+      if (error) {
+        console.error("[mes] salvar lancamento", error);
+        setErro(error.message);
+      }
     }
 
     setSalvando(false);
@@ -201,8 +208,12 @@ export default function MesPage() {
     });
 
     if (error) {
+      console.error("[mes] fechar mes", error);
       setErro(error.message);
       setFechando(false);
+      // Volta ao estado normal para o aviso de erro aparecer no lugar da
+      // caixa de confirmação, em vez de ficar escondido atrás dela.
+      setConfirmando(false);
       return;
     }
 
@@ -242,6 +253,7 @@ export default function MesPage() {
   if (r.fase === "carregando") return <Carregando />;
   if (r.fase === "sem-ficha") return <SemFicha />;
   if (r.fase === "sem-sessao") return <SessaoExpirada />;
+  if (r.fase === "erro") return <FalhouAoCarregar />;
   if (r.dados.vazio) return <PrecisaPreencher />;
 
   return (
@@ -360,6 +372,7 @@ export default function MesPage() {
                       <Barra
                         valor={pct}
                         tom={pct >= 100 ? "success" : pct < 0 ? "warning" : "accent"}
+                        rotulo={`Progresso: ${m.source_label}`}
                       />
                     </div>
                   )}
@@ -369,9 +382,12 @@ export default function MesPage() {
           </div>
 
           {erro && (
-            <p className="mt-4 flex items-start gap-2 rounded-xl border border-destructive/30 bg-destructive/5 p-3 text-xs text-destructive">
+            <p
+              title={traduzirErro(erro).tecnico}
+              className="mt-4 flex items-start gap-2 rounded-xl border border-destructive/30 bg-destructive/5 p-3 text-xs text-destructive"
+            >
               <TriangleAlert className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-              {erro}
+              {traduzirErro(erro).texto}
             </p>
           )}
 
@@ -386,8 +402,46 @@ export default function MesPage() {
               {salvo ? "Salvo" : "Salvar o lançamento"}
             </button>
 
-            {!jaFechado && (
+            {!jaFechado && !confirmando && (
               <AcaoAssinante acao="fechar o mês">
+                <button
+                  type="button"
+                  onClick={() => setConfirmando(true)}
+                  disabled={fechando}
+                  className="flex items-center gap-2 rounded-xl bg-accent-btn px-5 py-2.5 text-sm font-bold text-white shadow-sm transition-opacity hover:opacity-95 disabled:opacity-60"
+                >
+                  <CalendarCheck className="h-4 w-4" />
+                  Fechar {nomeDoMes(mes)}
+                </button>
+              </AcaoAssinante>
+            )}
+          </div>
+
+          {/* A explicação vem ANTES do botão, não depois: quem lê "fechar o
+              mês" precisa saber o que isso faz enquanto decide, e não quando
+              já clicou. */}
+          {!confirmando && (
+            <p className="mt-3 text-xs leading-relaxed text-slate-500">
+              Fechar o mês guarda uma foto de como as coisas estão e abre o mês
+              seguinte com os mesmos números, para você só ajustar o que mudou.
+            </p>
+          )}
+
+          {/* Fechar o mês grava o histórico, clona o mês seguinte e leva a
+              pessoa para outra tela — e não existe botão de desfazer. Um passo
+              irreversível não pode acontecer a um clique de distância. */}
+          {confirmando && !jaFechado && (
+            <div className="mt-4 rounded-2xl border border-warning/40 bg-warning/5 p-5">
+              <p className="flex items-center gap-2 font-display text-sm font-bold text-primary">
+                <TriangleAlert className="h-4 w-4 text-accent-strong" />
+                Fechar {nomeDoMes(mes)} de vez?
+              </p>
+              <p className="mt-2 text-xs leading-relaxed text-slate-600">
+                Guarda uma foto deste mês na sua evolução e abre o próximo com
+                os mesmos números. <strong>Não dá para desfazer</strong> — se
+                ainda falta lançar alguma coisa, é melhor lançar antes.
+              </p>
+              <div className="mt-4 flex flex-wrap items-center gap-3">
                 <button
                   type="button"
                   onClick={() => void fecharMes()}
@@ -399,16 +453,19 @@ export default function MesPage() {
                   ) : (
                     <CalendarCheck className="h-4 w-4" />
                   )}
-                  Fechar {nomeDoMes(mes)}
+                  Sim, fechar o mês
                 </button>
-              </AcaoAssinante>
-            )}
-          </div>
-
-          <p className="mt-3 text-[11px] leading-relaxed text-slate-500">
-            Fechar o mês guarda uma foto de como as coisas estão e abre o mês
-            seguinte com os mesmos números, para você só ajustar o que mudou.
-          </p>
+                <button
+                  type="button"
+                  onClick={() => setConfirmando(false)}
+                  disabled={fechando}
+                  className="rounded-xl px-4 py-2.5 text-sm font-semibold text-muted-foreground transition-colors hover:bg-muted disabled:opacity-60"
+                >
+                  Ainda não
+                </button>
+              </div>
+            </div>
+          )}
         </>
       )}
     </div>

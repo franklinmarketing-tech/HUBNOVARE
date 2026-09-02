@@ -167,9 +167,18 @@ export function Indicador({
 export function Barra({
   valor,
   tom = "accent",
+  rotulo,
 }: {
   valor: number;
   tom?: "accent" | "success" | "warning";
+  /**
+   * O que esta barra mede. Vira o `aria-label`.
+   *
+   * Sem ele o leitor de tela anuncia só "78 por cento" — e o painel mostra
+   * várias barras em sequência, então a pessoa ouve uma fila de porcentagens
+   * sem saber a que cada uma se refere.
+   */
+  rotulo?: string;
 }) {
   const cor = {
     accent: "bg-accent-btn",
@@ -182,7 +191,9 @@ export function Barra({
     <div
       className="h-2 overflow-hidden rounded-full bg-slate-200"
       role="progressbar"
+      aria-label={rotulo}
       aria-valuenow={Math.round(largura)}
+      aria-valuetext={rotulo ? `${Math.round(largura)}% — ${rotulo}` : undefined}
       aria-valuemin={0}
       aria-valuemax={100}
     >
@@ -234,6 +245,38 @@ export function SessaoExpirada() {
       >
         Entrar de novo
       </a>
+    </div>
+  );
+}
+
+/**
+ * A leitura da ficha falhou.
+ *
+ * Irmã da `SessaoExpirada`, e existe pelo mesmo motivo: dizer o que houve em
+ * vez de deixar a tela mentir. Antes desta peça, uma queda de rede aparecia
+ * como "você ainda não preencheu nada" — para quem tem meses de dados.
+ *
+ * O recado que importa está na segunda linha: nada foi perdido. Quem lê "não
+ * consegui carregar" num app de dinheiro pensa primeiro que perdeu o que
+ * digitou.
+ */
+export function FalhouAoCarregar() {
+  return (
+    <div className="mx-auto max-w-md py-16 text-center">
+      <h1 className="font-display text-xl font-bold text-primary">
+        Não consegui carregar seus dados
+      </h1>
+      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+        A conexão falhou no meio do caminho. Nada foi perdido — seus números
+        continuam guardados. Tente de novo em instantes.
+      </p>
+      <button
+        type="button"
+        onClick={() => window.location.reload()}
+        className="mt-6 inline-flex items-center justify-center rounded-xl bg-primary px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-primary-soft"
+      >
+        Tentar de novo
+      </button>
     </div>
   );
 }

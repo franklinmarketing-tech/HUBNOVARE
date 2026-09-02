@@ -60,7 +60,7 @@ const CONFIG: Record<
   trabalho: {
     curto: "Trabalho",
     descricao: "Receba o que é seu",
-    capa: "/cards/card-projeto-vida.webp",
+    capa: "/cards/card-planejamento.webp",
     h: 40,
     s: 65,
   },

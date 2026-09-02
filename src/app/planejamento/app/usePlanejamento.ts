@@ -62,6 +62,14 @@ type Resultado =
   | { fase: "carregando" }
   | { fase: "sem-sessao" }
   | { fase: "sem-ficha" }
+  /**
+   * A leitura falhou.
+   *
+   * Sem esta fase, uma queda de rede era indistinguível de ficha vazia: as
+   * listas voltavam vazias e a tela dizia "você ainda não preencheu nada" a
+   * quem tem meses de dados lançados. Pior conselho possível na hora errada.
+   */
+  | { fase: "erro" }
   | { fase: "pronto"; dados: DadosPlanejamento };
 
 /**
@@ -97,6 +105,10 @@ export function usePlanejamento(mes = mesAtual()): Resultado {
         lerPremissas(),
       ]);
       if (!ativo) return;
+
+      // Retrato ilegível: não dá para calcular nada honesto em cima disso, e
+      // seguir mostraria zeros como se fossem os números da pessoa.
+      if (retrato.falhou) return setResultado({ fase: "erro" });
 
       // As premissas que a pessoa escolheu na trilha entram na conta; campo
       // não respondido fica undefined e o motor usa o padrão de sempre.

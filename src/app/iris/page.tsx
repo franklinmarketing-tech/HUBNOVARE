@@ -13,6 +13,7 @@ import { Cabecalho } from "@/components/Cabecalho";
 import { ConversaIris } from "@/components/ConversaIris";
 import { RevelarAoRolar } from "@/components/RevelarAoRolar";
 import { CapturaLead } from "@/components/CapturaLead";
+import { FundoCena } from "@/components/FundoCena";
 import { IrisExtrato } from "@/components/IrisExtrato";
 import { OQueSignifica } from "@/components/OQueSignifica";
 import { RodapeNovare } from "@/components/RodapeNovare";
@@ -165,6 +166,19 @@ export default async function IrisPage({
             "linear-gradient(157deg, hsl(215 52% 21%) 0%, hsl(216 58% 11%) 100%)",
         }}
       >
+        {/* A página do produto de IA não tinha uma única imagem: só gradiente.
+            A cena entra ESPELHADA porque a esfera nasce à esquerda e o texto
+            do herói também mora à esquerda — invertida, a luz cai no lado
+            vazio em vez de brigar com a headline. */}
+        <FundoCena
+          src="/cenas/cena-iris-hero.webp"
+          opacidade={0.62}
+          posicao="center 45%"
+          espelhada
+          prioridade
+          fundir
+        />
+
         <div className="revelar relative mx-auto max-w-3xl px-4 py-14 sm:px-6 sm:py-16">
           <span className="inline-flex items-center gap-2 rounded-full bg-white/[0.12] px-3 py-1.5 text-2xs font-bold uppercase tracking-wider backdrop-blur-sm">
             <Eye className="h-3.5 w-3.5 text-accent-claro" aria-hidden="true" />

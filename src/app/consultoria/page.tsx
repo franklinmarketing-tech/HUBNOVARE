@@ -262,7 +262,7 @@ export default async function ConsultoriaPage() {
         <section className="mt-10 rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 sm:flex sm:items-center sm:gap-7">
           <div className="relative aspect-[5/4] w-full overflow-hidden rounded-2xl sm:w-64 sm:shrink-0">
             <Image
-              src="/marca/novare-site/socios-novare.jpg"
+              src="/marca/novare-site/socios-novare-alta.jpg"
               alt="Sócios e consultores da Novare"
               fill
               sizes="(max-width: 640px) 100vw, 256px"
