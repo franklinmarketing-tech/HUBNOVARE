@@ -3,6 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ArrowRight, Crown } from "lucide-react";
 import { BarraLateral } from "@/components/BarraLateral";
+import { BarraInferior } from "@/components/BarraInferior";
 import { TopoApp } from "@/components/TopoApp";
 import { PaletaComandos } from "@/components/PaletaComandos";
 import { Rodape } from "@/components/Rodape";
@@ -65,10 +66,11 @@ export default async function MeuDiaPage() {
     : undefined;
 
   return (
-    <div className="aurora-clara flex min-h-dvh flex-col bg-gradient-to-b from-creme via-creme to-white">
+    <div className="aurora-clara flex min-h-dvh flex-col bg-gradient-to-b from-creme via-creme to-white pb-14 md:pb-0">
       <RevelarAoRolar />
       <PaletaComandos apps={apps} />
       <BarraLateral />
+      <BarraInferior />
 
       <div className="flex flex-1 flex-col md:pl-[72px]">
         <TopoApp

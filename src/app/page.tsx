@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowRight, ChevronDown, Crown, ShieldCheck } from "lucide-react";
 import { BuscaDestaque } from "@/components/BuscaDestaque";
 import { BarraLateral } from "@/components/BarraLateral";
+import { BarraInferior } from "@/components/BarraInferior";
 import { TopoApp } from "@/components/TopoApp";
 import { PaletaComandos } from "@/components/PaletaComandos";
 import { BarraMercado } from "@/components/BarraMercado";
@@ -9,6 +10,7 @@ import { CardPortal } from "@/components/CardPortal";
 import { CardPlanejamentoHome } from "@/components/CardPlanejamentoHome";
 import { BannerEbooks } from "@/components/BannerEbooks";
 import { FerramentasHome } from "@/components/FerramentasHome";
+import { Recentes } from "@/components/Recentes";
 import { BannerIris } from "@/components/BannerIris";
 import { PerguntarIris } from "@/components/PerguntarIris";
 import { PainelMeuDia } from "@/components/PainelMeuDia";
@@ -16,7 +18,7 @@ import { Rodape } from "@/components/Rodape";
 import { RevelarAoRolar } from "@/components/RevelarAoRolar";
 import { portais } from "@/lib/categorias";
 import { appsParaBusca } from "@/lib/navegacao";
-import { getPerfil } from "@/lib/perfil";
+import { getPerfil, temFichaPreenchida } from "@/lib/perfil";
 import { getNotificacoes } from "@/lib/notificacoes";
 
 /**
@@ -28,6 +30,9 @@ import { getNotificacoes } from "@/lib/notificacoes";
 export default async function Home() {
   const perfil = await getPerfil();
   const notificacoes = await getNotificacoes();
+  // Quem já respondeu a trilha inteira não pode ser tratado como quem nunca
+  // abriu o app — ver o convite do painel, no fim do arquivo.
+  const temFicha = perfil ? await temFichaPreenchida(perfil.id) : false;
   // "cliente"/"free" continua o padrão para visitante anônimo; logado=!!perfil
   // é o que diferencia um cliente em teste de um visitante sem conta — sem
   // isso o Planejamento aparecia bloqueado até para quem já tinha acesso.
@@ -56,10 +61,11 @@ export default async function Home() {
     : undefined;
 
   return (
-    <div className="aurora-clara flex min-h-dvh flex-col bg-gradient-to-b from-creme via-creme to-white">
+    <div className="aurora-clara flex min-h-dvh flex-col bg-gradient-to-b from-creme via-creme to-white pb-14 md:pb-0">
       <RevelarAoRolar />
       <PaletaComandos apps={apps} />
       <BarraLateral />
+      <BarraInferior />
 
       {/* `flex-1` já estica esta coluna até o fim: repetir `min-h-dvh` aqui
           (o pai já tem) somava altura que não dava para rolar, e os últimos
@@ -134,6 +140,15 @@ export default async function Home() {
               ))}
           </section>
 
+          {/* "Continue de onde parou".
+          
+              O histórico já era gravado a cada visita a uma ferramenta (ver
+              AssistenteFerramentas) e este componente já sabia exibi-lo — só
+              nunca tinham sido ligados um no outro. Some sozinho para quem
+              ainda não usou nada, então não custa altura na primeira visita,
+              que é justamente quando a home precisa caber na dobra. */}
+          <Recentes apps={apps} />
+
           <FerramentasHome />
 
           {/* Duas faixas finas: a Íris (o diferencial da casa) e a estante. */}
@@ -153,7 +168,11 @@ export default async function Home() {
               href="#meu-painel"
               className="mx-auto -mb-1 mt-1 flex w-fit items-center gap-1.5 rounded-full px-3 py-1 text-2xs font-bold text-muted-foreground transition-colors hover:text-primary"
             >
-              Seu painel logo abaixo
+              {/* A seta dizia "Seu painel logo abaixo" para TODO logado — mas
+                  quem não assina encontra lá embaixo um convite de assinatura,
+                  não um painel. Prometer o que a rolagem não entrega gasta a
+                  confiança de quem clica. */}
+              {assinante ? "Seu painel logo abaixo" : "Veja o que tem mais abaixo"}
               <ChevronDown className="h-3.5 w-3.5 motion-safe:animate-bounce" />
             </a>
           )}
@@ -168,7 +187,11 @@ export default async function Home() {
             Só para quem tem sessão: visitante deslogado não tem painel
             nenhum, e mostrar a casca vazia seria pior do que não mostrar. */}
         {perfil && (
-          <SegundaParte assinante={assinante} primeiroNome={primeiroNome} />
+          <SegundaParte
+            assinante={assinante}
+            primeiroNome={primeiroNome}
+            temFicha={temFicha}
+          />
         )}
 
         <Rodape />
@@ -192,9 +215,12 @@ export default async function Home() {
 function SegundaParte({
   assinante,
   primeiroNome,
+  temFicha,
 }: {
   assinante: boolean;
   primeiroNome?: string;
+  /** Já respondeu a trilha do Planejamento — muda o convite, não o acesso. */
+  temFicha: boolean;
 }) {
   return (
     <section id="meu-painel" className="scroll-mt-4 border-t border-primary/8 bg-white/40">
@@ -211,15 +237,26 @@ function SegundaParte({
         {assinante ? (
           <PainelMeuDia />
         ) : (
-          <ConvitePainelHome />
+          <ConvitePainelHome temFicha={temFicha} />
         )}
       </div>
     </section>
   );
 }
 
-/** Free logado: o painel existe, mas ainda não é dele. */
-function ConvitePainelHome() {
+/**
+ * Free logado: o painel existe, mas ainda não é dele.
+ *
+ * Duas versões, e a diferença importa: quem já respondeu as oito perguntas
+ * inteiras via exatamente o mesmo texto de quem nunca abriu o app — "aqui
+ * entra o seu painel", como se não tivesse dado nada. Depois de dez minutos
+ * preenchendo, isso lê como se o trabalho não tivesse sido registrado.
+ *
+ * O acesso continua igual (o painel é o produto pago). O que muda é o
+ * reconhecimento: para quem preencheu, os números JÁ existem e o que falta é
+ * destravar — que por acaso é também o argumento de venda mais forte.
+ */
+function ConvitePainelHome({ temFicha }: { temFicha: boolean }) {
   return (
     <div
       className="cine palco-cta mt-5 overflow-hidden rounded-3xl p-7 text-white sm:p-9"
@@ -230,19 +267,35 @@ function ConvitePainelHome() {
     >
       <Crown className="h-6 w-6 text-warning-claro" strokeWidth={1.75} />
       <h3 className="mt-4 font-display text-2xl font-bold leading-tight">
-        Aqui entra o seu painel
+        {temFicha
+          ? "Seus números já estão prontos"
+          : "Aqui entra o seu painel"}
       </h3>
       <p className="mt-3 max-w-lg text-sm leading-relaxed text-white/70">
-        Nota de saúde financeira, patrimônio, dívidas, objetivos e projeção —
-        calculados a partir dos seus números, atualizados a cada mês.
+        {temFicha
+          ? "Você já respondeu a trilha, e o diagnóstico foi calculado com os seus dados. O painel completo — saúde financeira, patrimônio, dívidas, objetivos e projeção, mês a mês — abre com a assinatura."
+          : "Nota de saúde financeira, patrimônio, dívidas, objetivos e projeção — calculados a partir dos seus números, atualizados a cada mês."}
       </p>
-      <Link
-        href="/assinar"
-        className="group mt-6 inline-flex items-center gap-2 rounded-xl bg-warning-claro px-5 py-3 text-sm font-bold text-primary transition-colors hover:bg-warning"
-      >
-        Liberar meu painel
-        <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-      </Link>
+      <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-3">
+        <Link
+          href="/assinar"
+          className="group inline-flex items-center gap-2 rounded-xl bg-warning-claro px-5 py-3 text-sm font-bold text-primary transition-colors hover:bg-warning"
+        >
+          {temFicha ? "Liberar meus números" : "Liberar meu painel"}
+          <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+        </Link>
+
+        {/* Quem preencheu tem para onde ir sem pagar: o diagnóstico é a parte
+            que já é dele. Esconder isso seria cobrar pelo que já entregamos. */}
+        {temFicha && (
+          <Link
+            href="/planejamento/app/diagnostico"
+            className="text-xs font-semibold text-white/70 underline-offset-4 hover:text-white hover:underline"
+          >
+            Rever meu diagnóstico
+          </Link>
+        )}
+      </div>
     </div>
   );
 }
@@ -271,8 +324,12 @@ function ConviteWorkspace({ assinante }: { assinante: boolean }) {
             </p>
           </div>
         </div>
+        {/* `/planejamento/app`, e não `/planejamento`: quem já assina não pode
+            ser mandado para a página que vende o que ele acabou de comprar —
+            era para lá que este botão ia, enquanto o card do topo já levava
+            direto ao app. */}
         <Link
-          href="/planejamento"
+          href="/planejamento/app"
           className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-xs font-bold text-white transition-colors hover:bg-primary-soft"
         >
           Abrir meu plano

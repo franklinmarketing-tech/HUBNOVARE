@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { Search } from "lucide-react";
 import { PaletaComandos } from "@/components/PaletaComandos";
 import type { AppLeve } from "@/lib/navegacao";
+import { useAtalhoPaleta } from "@/lib/atalho";
 
 /**
  * Camada de workspace presente em TODAS as ferramentas:
@@ -19,6 +20,7 @@ import type { AppLeve } from "@/lib/navegacao";
 const MAXIMO_RECENTES = 8;
 
 export function AssistenteFerramentas({ apps }: { apps: AppLeve[] }) {
+  const atalho = useAtalhoPaleta();
   const pathname = usePathname();
 
   useEffect(() => {
@@ -57,7 +59,7 @@ export function AssistenteFerramentas({ apps }: { apps: AppLeve[] }) {
         <Search className="h-4 w-4" />
         <span className="hidden sm:block">Buscar</span>
         <kbd className="hidden rounded bg-white/15 px-1.5 py-0.5 text-[10px] sm:block">
-          ⌘K
+          {atalho}
         </kbd>
       </button>
     </>

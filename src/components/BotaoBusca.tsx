@@ -1,12 +1,15 @@
 "use client";
 
 import { Search } from "lucide-react";
+import { useAtalhoPaleta } from "@/lib/atalho";
 
 /**
  * Dispara a paleta de comandos por evento, para não precisar de estado
  * global só por causa de um botão.
  */
 export function BotaoBusca({ claro = false }: { claro?: boolean }) {
+  const atalho = useAtalhoPaleta();
+
   return (
     <button
       type="button"
@@ -24,7 +27,7 @@ export function BotaoBusca({ claro = false }: { claro?: boolean }) {
           claro ? "bg-white/10 text-white/50" : "bg-muted text-muted-foreground"
         }`}
       >
-        ⌘K
+        {atalho}
       </kbd>
     </button>
   );

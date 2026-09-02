@@ -36,8 +36,13 @@ type Leitura = { veredito: string; achados: Achado[]; acoes: string[] };
  * ver o próprio retrato antes de decidir pagar. Cadeado antes da prova de
  * valor só espanta.
  */
-// Enquanto tudo está liberado, não há teto. Voltar para 1 quando a
-// assinatura do Workspace entrar no ar.
+// Enquanto tudo está liberado, não há teto AQUI. Voltar para 1 quando a
+// assinatura do Workspace entrar no ar — hoje seria cadeado sem caixa: não
+// existe checkout para quem quisesse pagar (ver ASSINATURA_CHECKOUT_URL).
+//
+// O que impede abuso não é este número, e nunca foi: contador em
+// `localStorage` some quando a pessoa limpa o site. Quem segura é o servidor,
+// em /api/iris — seis por minuto e trinta por dia, por usuário logado.
 const ANALISES_GRATIS = Number.POSITIVE_INFINITY;
 const CHAVE_USO = "novare:iris-analises";
 

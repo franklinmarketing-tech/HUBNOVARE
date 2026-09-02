@@ -1,4 +1,8 @@
 import { NextResponse } from "next/server";
+import {
+  contextoIrisComCache,
+  type ContextoCliente,
+} from "@/lib/planejamento/contextoIris";
 import { exigirUsuarioApi } from "@/lib/api-security";
 
 /**
@@ -89,6 +93,67 @@ const SISTEMA = [
   "  sem insistir.",
 ].join("\n");
 
+/* ------------------------------------------------- os números da pessoa */
+
+const brl = (v: number) =>
+  v.toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+    maximumFractionDigits: 0,
+  });
+
+/**
+ * O bloco com a ficha, quando ela existe.
+ *
+ * A página da Íris promete que ela "responde olhando os seus números de
+ * verdade" — e até aqui a chamada mandava só o prompt de sistema e o
+ * histórico. Nenhum número. Era um ChatGPT com sotaque da casa.
+ *
+ * Entra como uma SEGUNDA mensagem `system`, não concatenada ao SISTEMA: assim
+ * ela some inteira para quem não tem ficha, e o prompt fixo continua fixo.
+ *
+ * As regras de uso vêm junto com os números de propósito. A mais importante é
+ * a última: dar patrimônio e sobra a um modelo aumenta muito a tentação de ele
+ * emitir alocação — que é exatamente o risco regulatório que o SISTEMA existe
+ * para conter. A proibição precisa ser repetida no mesmo bloco que dá a
+ * tentação.
+ */
+function blocoFicha(c: ContextoCliente): string {
+  return [
+    "OS NÚMEROS DESTA PESSOA (da ficha que ela mesma preencheu no Planejamento Novare):",
+    `- Renda por mês: ${brl(c.rendaMensal)}`,
+    `- Sobra por mês, já descontadas despesas e parcelas: ${brl(c.sobraMensal)}`,
+    `- Patrimônio líquido: ${brl(c.patrimonioLiquido)}`,
+    `- Reserva de emergência: ${c.reservaMeses.toString().replace(".", ",")} meses de despesa`,
+    `- Mês de referência: ${c.mesRef}`,
+    "",
+    "COMO USAR ESSES NÚMEROS:",
+    "- Vieram da ficha que a PRÓPRIA PESSOA preencheu. Não são extrato de banco,",
+    "  não são auditados e podem estar desatualizados.",
+    "- Cite no máximo dois por resposta, e só os que a pergunta pedir. Não",
+    "  recite a lista de volta.",
+    "- Se o número for decisivo para a resposta, confirme antes: 'pela sua ficha,",
+    "  sobram cerca de X por mês — ainda é assim?'.",
+    "- Se o que ela disser agora contradisser a ficha, acredite nela e sugira",
+    "  atualizar o Planejamento.",
+    "- Você NÃO tem as despesas por categoria, as dívidas por credor nem os",
+    "  objetivos dela. Se a pergunta depender disso, diga que não tem e pergunte.",
+    "- Número baixo, zerado ou negativo não vira sermão: descreva o fato e o",
+    "  próximo passo.",
+    "- Continua valendo tudo do bloco anterior: mesmo vendo esses números, você",
+    "  NÃO recomenda produto, ativo, fundo, corretora nem banco.",
+  ].join("\n");
+}
+
+/** Sem ficha, ela precisa saber que não sabe — senão inventa. */
+const SEM_FICHA = [
+  "VOCÊ NÃO TEM OS NÚMEROS DESTA PESSOA: a ficha do Planejamento dela está",
+  "vazia ou não existe.",
+  "Não invente valores e não finja ter consultado nada. Se a pergunta depender",
+  "dos números dela, peça o número na conversa ou convide-a a preencher o",
+  "Planejamento Novare — uma vez, sem insistir.",
+].join("\n");
+
 type Mensagem = { papel: "voce" | "iris"; texto: string };
 
 export async function GET() {
@@ -130,6 +195,11 @@ export async function POST(req: Request) {
     return NextResponse.json({ erro: "mensagem muito longa" }, { status: 400 });
   }
 
+  // A ficha da pessoa, se existir. Vem DEPOIS das validações de entrada: não
+  // vale ir ao banco para uma mensagem que será rejeitada por ser curta.
+  // Falha aqui não derruba a conversa — a Íris só responde sem os números.
+  const ficha = await contextoIrisComCache(user.id);
+
   // Só as últimas trocas viram contexto: histórico longo encarece a chamada e
   // faz o modelo se perder no que já foi resolvido.
   const historico = (corpo.historico ?? [])
@@ -153,6 +223,10 @@ export async function POST(req: Request) {
         max_tokens: 420,
         messages: [
           { role: "system", content: SISTEMA },
+          {
+            role: "system",
+            content: ficha ? blocoFicha(ficha) : SEM_FICHA,
+          },
           ...historico,
           { role: "user", content: mensagem },
         ],

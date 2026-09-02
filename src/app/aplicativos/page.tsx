@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
 import { BarraLateral } from "@/components/BarraLateral";
+import { BarraInferior } from "@/components/BarraInferior";
 import { TopoApp } from "@/components/TopoApp";
 import { PaletaComandos } from "@/components/PaletaComandos";
 import { CatalogoFiltrado } from "@/components/CatalogoFiltrado";
@@ -24,9 +25,10 @@ export default async function AplicativosPage() {
     perfil?.plano === "pro" || (!!perfil && perfil.role !== "cliente");
 
   return (
-    <div className="aurora-clara min-h-dvh bg-gradient-to-b from-slate-50 to-white">
+    <div className="aurora-clara min-h-dvh bg-gradient-to-b from-slate-50 to-white pb-14 md:pb-0">
       <PaletaComandos apps={apps} />
       <BarraLateral />
+      <BarraInferior />
 
       <div className="md:pl-[72px]">
         <TopoApp

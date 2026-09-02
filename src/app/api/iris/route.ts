@@ -64,6 +64,25 @@ export async function POST(req: Request) {
     );
   }
 
+  // Teto do DIA, além do teto do minuto.
+  //
+  // O contador que a tela mostra vive no `localStorage` (ver IrisExtrato) e
+  // hoje está liberado de propósito, enquanto não existe assinatura para
+  // vender. Só que contador no navegador não é limite: limpar o site zera.
+  // Seis por minuto o dia inteiro dá milhares de chamadas pagas por pessoa.
+  //
+  // Trinta por dia não incomoda quem usa de verdade — extrato se lê uma ou
+  // duas vezes por mês — e fecha a torneira para uso automatizado.
+  if (excedeuLimite(user.id, "iris-dia", 30, 86_400_000)) {
+    return NextResponse.json(
+      {
+        erro:
+          "Você já usou muitas leituras hoje. Amanhã libera de novo — ou fale com a gente se precisar de mais.",
+      },
+      { status: 429 },
+    );
+  }
+
   let corpo: Corpo;
   try {
     corpo = await req.json();
