@@ -17,6 +17,8 @@ import { useEffect } from "react";
  *    entrada, não de ida e volta: reanimar a cada rolagem embrulha o estômago
  *    e distrai de um conteúdo que a pessoa já leu.
  */
+const SELETOR = ".revelar, .revelar-escada, .cine, .cortina";
+
 export function RevelarAoRolar() {
   useEffect(() => {
     const raiz = document.documentElement;
@@ -35,9 +37,7 @@ export function RevelarAoRolar() {
     void raiz.offsetHeight;
     raiz.classList.remove("revelar-congelado");
 
-    const alvos = document.querySelectorAll<HTMLElement>(
-      ".revelar, .revelar-escada, .cine, .cortina",
-    );
+    const alvos = document.querySelectorAll<HTMLElement>(SELETOR);
 
     // A `.cortina` precisa de um observer PRÓPRIO, com threshold 0.
     //
@@ -74,7 +74,8 @@ export function RevelarAoRolar() {
       },
     );
 
-    for (const alvo of alvos) {
+    const registrar = (alvo: HTMLElement) => {
+      if (alvo.classList.contains("visivel")) return;
       const caixa = alvo.getBoundingClientRect();
       if (caixa.top < window.innerHeight * 0.9) {
         // O `.cine` do herói é a exceção: ele DEVE animar na primeira carga,
@@ -92,15 +93,36 @@ export function RevelarAoRolar() {
         } else {
           alvo.classList.add("visivel");
         }
-        continue;
+        return;
       }
       if (alvo.classList.contains("cortina")) observadorCortina.observe(alvo);
       else observador.observe(alvo);
-    }
+    };
+
+    for (const alvo of alvos) registrar(alvo);
+
+    // Conteúdo que chega DEPOIS da montagem também precisa ser revelado.
+    //
+    // O painel do cliente troca esqueleto por conteudo quando os motores
+    // terminam, e esses blocos nasciam com `.cine` sem observer nenhum: como
+    // o estado inicial de `.cine` é opacity 0, a seção inteira ficava
+    // invisível na tela. Sem este observer de mutação o defeito volta em
+    // qualquer bloco carregado no cliente.
+    const observadorDom = new MutationObserver((mutacoes) => {
+      for (const m of mutacoes) {
+        for (const no of m.addedNodes) {
+          if (!(no instanceof HTMLElement)) continue;
+          if (no.matches(SELETOR)) registrar(no);
+          no.querySelectorAll<HTMLElement>(SELETOR).forEach(registrar);
+        }
+      }
+    });
+    observadorDom.observe(document.body, { childList: true, subtree: true });
 
     return () => {
       observador.disconnect();
       observadorCortina.disconnect();
+      observadorDom.disconnect();
       delete raiz.dataset.revelar;
     };
   }, []);

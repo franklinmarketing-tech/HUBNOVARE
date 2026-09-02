@@ -400,27 +400,110 @@ function Esqueleto() {
   );
 }
 
-/** Assina, mas ainda não preencheu a trilha. */
+/**
+ * Assina, mas ainda não preencheu a trilha.
+ *
+ * Em vez de um card solto de "preencha seus dados", esta tela mostra o
+ * ESQUELETO do painel real: as mesmas seis seções, na mesma ordem, com o
+ * nome do que vai aparecer em cada uma. A pessoa entende o que ganha antes
+ * de gastar 10 minutos respondendo — e o espaço deixa de parecer um bug.
+ */
+const PREVIA: { titulo: string; itens: string[] }[] = [
+  {
+    titulo: "Como eu estou",
+    itens: [
+      "Nota de saúde financeira",
+      "% do plano de vida já projetado",
+      "Reserva de emergência",
+    ],
+  },
+  {
+    titulo: "Meu mês",
+    itens: ["Quanto entra e quanto sai", "A sobra do mês", "Para onde vai o dinheiro"],
+  },
+  {
+    titulo: "O que é meu",
+    itens: ["Patrimônio por classe", "O retrato do seu dinheiro"],
+  },
+  {
+    titulo: "Compromissos e metas",
+    itens: ["Objetivos e prazos", "Dívidas, juros e quitação"],
+  },
+  {
+    titulo: "Meu futuro",
+    itens: ["Projeção de patrimônio até a aposentadoria", "Proteção da família"],
+  },
+  {
+    titulo: "O que fazer agora",
+    itens: ["Aporte recomendado por mês", "Reserva alvo", "Leitura do extrato com a Íris"],
+  },
+];
+
 function SemFicha() {
   return (
-    <section className="cine mt-6 rounded-3xl bg-white p-8 text-center shadow-card ring-1 ring-primary/10">
-      <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-accent-tint text-accent-strong">
-        <Target className="h-5 w-5" strokeWidth={1.75} />
-      </span>
-      <h2 className="mt-4 font-display text-xl font-bold text-primary">
-        Seu painel começa com 8 perguntas
-      </h2>
-      <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-muted-foreground">
-        São 10 minutos, em português simples, sobre quanto entra e quanto sai.
-        Depois disso tudo aqui passa a ser calculado com os seus números.
+    <div className="mt-6">
+      <section className="cine flex flex-wrap items-center justify-between gap-5 rounded-3xl bg-white p-6 shadow-card ring-1 ring-primary/10 sm:p-7">
+        <div className="flex min-w-0 items-start gap-4">
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-accent-tint text-accent-strong">
+            <Target className="h-5 w-5" strokeWidth={1.75} />
+          </span>
+          <div className="min-w-0">
+            <h3 className="font-display text-xl font-bold text-primary">
+              Seu painel começa com 8 perguntas
+            </h3>
+            <p className="mt-1.5 max-w-xl text-sm leading-relaxed text-muted-foreground">
+              São 10 minutos, em português simples, sobre quanto entra e quanto
+              sai. Depois disso tudo abaixo passa a ser calculado com os seus
+              números e atualizado a cada mês.
+            </p>
+          </div>
+        </div>
+        <Link
+          href="/planejamento/app/meus-dados"
+          className="group inline-flex shrink-0 items-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-primary-soft"
+        >
+          Preencher meus dados
+          <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+        </Link>
+      </section>
+
+      <p className="cine mt-8 text-2xs font-bold uppercase tracking-[0.14em] text-ciano-forte">
+        O que vai aparecer aqui
       </p>
-      <Link
-        href="/planejamento/app/meus-dados"
-        className="group mt-6 inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-primary-soft"
+
+      <div
+        className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3"
+        aria-label="Prévia das seções do painel"
       >
-        Preencher meus dados
-        <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-      </Link>
-    </section>
+        {PREVIA.map((secao, i) => (
+          <section
+            key={secao.titulo}
+            className="cine rounded-3xl border border-dashed border-primary/15 bg-white/50 p-5"
+            style={{ transitionDelay: `${i * 60}ms` }}
+          >
+            <h4 className="font-display text-sm font-extrabold text-primary/70">
+              {secao.titulo}
+            </h4>
+            <ul className="mt-4 space-y-3">
+              {secao.itens.map((item) => (
+                <li key={item}>
+                  <p className="text-xs font-semibold text-muted-foreground">
+                    {item}
+                  </p>
+                  {/* Barra cinza no lugar do número: mostra a forma do dado
+                      que vem sem inventar um valor que a pessoa poderia ler
+                      como se fosse dela. */}
+                  <span
+                    aria-hidden
+                    className="mt-1.5 block h-2.5 rounded-full bg-primary/8"
+                    style={{ width: `${45 + ((item.length * 7) % 45)}%` }}
+                  />
+                </li>
+              ))}
+            </ul>
+          </section>
+        ))}
+      </div>
+    </div>
   );
 }
