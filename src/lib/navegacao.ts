@@ -52,13 +52,13 @@ function rotuloDe(app: NovareApp): string {
  * Para onde o card leva quem ainda não tem acesso.
  *
  * Um app pago cujo `href` já É a própria página de venda continua indo para
- * ela: mandar para `/assinar/workspace` seria pior do que não linkar, porque a
+ * ela: mandar para `/assinar` seria pior do que não linkar, porque essa página
  * anuncia que está tudo liberado — o visitante clica no produto pago e lê que
- * página nada tem à venda. Só cai na assinatura o que não tem vitrine.
+ * nada está à venda. Só cai em `/assinar` o que não tem vitrine própria.
  */
 function destinoBloqueado(app: NovareApp): string {
   const temVitrinePropria = app.plano === "pago" && !app.externo;
-  return temVitrinePropria ? app.href : `/assinar/workspace?app=${app.slug}`;
+  return temVitrinePropria ? app.href : `/assinar?app=${app.slug}`;
 }
 
 export function appsParaBusca(

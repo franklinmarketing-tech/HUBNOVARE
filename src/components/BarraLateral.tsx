@@ -23,7 +23,7 @@ const ITENS = [
   { href: "/meu-dia", rotulo: "Meu dia", icone: LayoutDashboard },
   { href: "/aplicativos", rotulo: "Aplicativos", icone: LayoutGrid },
   { href: "/novare-news", rotulo: "Novare News", icone: Newspaper },
-  { href: "/assinar/workspace", rotulo: "Workspace", icone: Sparkles },
+  { href: "/assinar", rotulo: "Workspace", icone: Sparkles },
 ];
 
 export function BarraLateral() {
@@ -106,7 +106,7 @@ export function BarraLateral() {
       </Link>
 
       <Link
-        href="/assinar/workspace"
+        href="/assinar"
         title="Assinar o Workspace"
         aria-label="Assinar o Workspace"
         className="mt-1.5 flex h-11 w-11 items-center justify-center rounded-xl bg-slate-100 text-slate-500 transition-colors hover:bg-accent-btn hover:text-white"

@@ -149,7 +149,7 @@ await pagina.waitForTimeout(150);
 await pagina.keyboard.type("iris");
 await pagina.waitForTimeout(300);
 await pagina.keyboard.press("Enter");
-await pagina.waitForURL("**/assinar/workspace?app=iris", { timeout: 20000 }).catch(() => {});
+await pagina.waitForURL("**/assinar?app=iris", { timeout: 20000 }).catch(() => {});
 conferir(
   "Íris está liberada e abre direto",
   pagina.url().replace(BASE, ""),

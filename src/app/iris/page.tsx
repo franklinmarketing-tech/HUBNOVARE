@@ -284,7 +284,7 @@ export default async function IrisPage({
             completo e o desconto na consultoria — tudo por uma assinatura só.
           </p>
           <Link
-            href="/assinar/workspace"
+            href="/assinar"
             className="mt-6 inline-flex items-center gap-2 rounded-xl bg-accent-btn px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-accent-strong"
           >
             Ver o que entra na assinatura

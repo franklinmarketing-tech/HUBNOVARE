@@ -19,7 +19,7 @@ const BASE = process.env.BASE ?? "http://localhost:3000";
  * A lista sai do próprio catálogo: ferramenta nova entra na varredura
  * sozinha. Lista escrita à mão envelhece calada — foi o que aconteceu.
  */
-const FIXAS = ["/", "/aplicativos", "/assinar", "/assinar/workspace", "/iris", "/consultoria", "/login"];
+const FIXAS = ["/", "/aplicativos", "/assinar", "/iris", "/consultoria", "/login"];
 
 const arquivo = readFileSync(
   new URL("../src/lib/apps.ts", import.meta.url),

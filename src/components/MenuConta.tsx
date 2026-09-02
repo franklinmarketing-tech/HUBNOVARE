@@ -113,7 +113,7 @@ export function MenuConta({
 
             {!assinante && (
               <Link
-                href="/assinar/workspace"
+                href="/assinar"
                 onClick={fechar}
                 className="flex items-center gap-2.5 px-4 py-2.5 text-[13px] font-bold text-accent-strong transition-colors hover:bg-accent-tint"
               >

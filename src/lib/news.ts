@@ -355,7 +355,7 @@ export const ARTIGOS: Artigo[] = [
     ferramenta: {
       slug: "assinar",
       nome: "Ver o que entra na assinatura",
-      href: "/assinar/workspace",
+      href: "/assinar",
     },
   },
   {

@@ -168,7 +168,7 @@ export function RodapeNovare({
               </li>
               <li>
                 <Link
-                  href="/assinar/workspace"
+                  href="/assinar"
                   className="text-[13px] text-white/60 transition-colors hover:text-white"
                 >
                   Workspace

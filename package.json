@@ -9,7 +9,7 @@
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "test:motores": "node scripts/testar-trabalhista.mjs && node scripts/testar-previdencia.mjs && node scripts/testar-extrato.mjs && node scripts/testar-planejamento-motores.mjs",
-    "test:web": "node scripts/varredura.mjs && node scripts/garantia.mjs && node scripts/testar-nada-a-venda.mjs && node scripts/testar-diagnostico.mjs && node scripts/testar-planejamento.mjs",
+    "test:web": "node scripts/varredura.mjs && node scripts/garantia.mjs && node scripts/testar-nada-a-venda.mjs && node scripts/testar-assinar.mjs && node scripts/testar-planejamento.mjs",
     "test": "npm run typecheck && npm run test:motores"
   },
   "engines": {

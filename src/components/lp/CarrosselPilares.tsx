@@ -6,17 +6,18 @@ import {
   ArrowLeft,
   ArrowRight,
   ArrowUpRight,
-  FileText,
-  MessagesSquare,
-  Percent,
-  Radar,
-  ScanSearch,
+  Bot,
+  Newspaper,
+  Target,
+  Users,
+  Wrench,
   type LucideIcon,
 } from "lucide-react";
-import { ENTREGAS } from "@/lib/diagnostico-lp";
+import { PILARES } from "@/lib/hub-lp";
 
 /**
- * O carrossel de entregas, reconstruído a partir do print 120605.
+ * O carrossel do que a assinatura libera, reconstruído da referência de
+ * cartões com foto.
  *
  * O que a referência faz e precisa ser mantido:
  *   • os cartões SANGRAM do container — o primeiro entra cortado pela
@@ -32,14 +33,14 @@ import { ENTREGAS } from "@/lib/diagnostico-lp";
  */
 
 const ICONES: Record<string, LucideIcon> = {
-  ScanSearch,
-  Percent,
-  Radar,
-  FileText,
-  MessagesSquare,
+  Target,
+  Bot,
+  Wrench,
+  Users,
+  Newspaper,
 };
 
-export function CarrosselEntregas() {
+export function CarrosselPilares() {
   const trilho = useRef<HTMLDivElement>(null);
   const [naEsquerda, setNaEsquerda] = useState(true);
   const [naDireita, setNaDireita] = useState(false);
@@ -80,11 +81,11 @@ export function CarrosselEntregas() {
       <div className="mx-auto flex max-w-6xl items-end justify-between gap-6 px-5">
         <div className="max-w-2xl">
           <h2 className="nv-h2 text-[#0f1b2b]">
-            O que a Novare coloca na mesa
+            Cinco produtos. Uma assinatura só.
           </h2>
           <p className="nv-lead mt-5 max-w-xl">
-            Não é um resumo bonito da sua carteira. É a leitura técnica de tudo
-            o que ela faz — inclusive do que ela faz contra você.
+            Não existe plano básico e nada é vendido à parte. Tudo abaixo fica
+            liberado no primeiro dia do teste.
           </p>
         </div>
 
@@ -121,7 +122,7 @@ export function CarrosselEntregas() {
         ref={trilho}
         tabIndex={0}
         role="region"
-        aria-label="Entregas do diagnóstico patrimonial"
+        aria-label="O que a assinatura do Workspace libera"
         className="nv-trilho mt-12"
         style={
           {
@@ -131,8 +132,8 @@ export function CarrosselEntregas() {
           } as React.CSSProperties
         }
       >
-        {ENTREGAS.map((e) => {
-          const Icone = ICONES[e.icone] ?? ScanSearch;
+        {PILARES.map((e) => {
+          const Icone = ICONES[e.icone] ?? Target;
           return (
             <article
               key={e.titulo}

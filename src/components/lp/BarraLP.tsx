@@ -16,11 +16,11 @@ import { falarNoWhatsApp } from "@/lib/contato";
  *   • some quando o formulário entra em cena — barra fixa cobrindo o próprio
  *     formulário é o clássico tiro no pé de landing page em celular.
  */
-export function BarraDiagnostico() {
+export function BarraLP() {
   const [visivel, setVisivel] = useState(false);
 
   useEffect(() => {
-    const alvo = document.getElementById("solicitar");
+    const alvo = document.getElementById("preco");
 
     const aoRolar = () => {
       const passouDoHeroi = window.scrollY > window.innerHeight * 0.9;
@@ -52,7 +52,7 @@ export function BarraDiagnostico() {
       <div className="nv-navy-fundo flex items-center gap-2.5 rounded-[20px] border border-white/12 p-2.5 shadow-[0_-8px_40px_-12px_rgba(11,22,38,0.6)]">
         <a
           href={falarNoWhatsApp(
-            "Olá! Vi a página do Diagnóstico Patrimonial da Novare e queria entender melhor.",
+            "Olá! Vi a página do Workspace Novare e queria tirar uma dúvida antes de assinar.",
           )}
           target="_blank"
           rel="noopener noreferrer"
@@ -63,11 +63,11 @@ export function BarraDiagnostico() {
           <MessageCircle className="h-5 w-5" />
         </a>
         <a
-          href="#solicitar"
+          href="#preco"
           tabIndex={visivel ? 0 : -1}
           className="nv-btn nv-btn-branco !h-12 !min-h-0 flex-1 !text-[0.875rem]"
         >
-          Solicitar diagnóstico
+          Começar grátis
           <ArrowRight className="h-4 w-4" />
         </a>
       </div>

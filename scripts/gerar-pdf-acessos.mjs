@@ -49,7 +49,7 @@ const SECOES = [
     links: [
       {
         rotulo: "Assinatura Workspace",
-        caminho: "/assinar", "/assinar/workspace",
+        caminho: "/assinar",
         desc: "A página de venda. Planejamento + Íris + 30% OFF na consultoria.",
         destaque: true,
       },

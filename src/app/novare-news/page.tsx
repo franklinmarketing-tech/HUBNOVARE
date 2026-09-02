@@ -433,7 +433,7 @@ function BannerWorkspace() {
         </p>
       </div>
       <Link
-        href="/assinar/workspace"
+        href="/assinar"
         className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-bold text-primary transition-colors hover:bg-white/90"
       >
         Conhecer o Workspace

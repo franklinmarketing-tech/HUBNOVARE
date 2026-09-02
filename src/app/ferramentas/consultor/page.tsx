@@ -282,7 +282,7 @@ export default function ConsultorPage() {
               </p>
             </div>
             <Link
-              href="/assinar/workspace"
+              href="/assinar"
               className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-accent-btn px-5 py-2.5 text-sm font-semibold text-accent-foreground transition-colors hover:bg-accent-strong"
             >
               Ver o Workspace da Novare

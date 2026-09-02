@@ -124,7 +124,7 @@ function ConvitePainel() {
         ações — calculados a partir dos seus números, atualizados a cada mês.
       </p>
       <Link
-        href="/assinar/workspace"
+        href="/assinar"
         className="group mt-7 inline-flex items-center gap-2 rounded-xl bg-warning-claro px-5 py-3 text-sm font-bold text-primary transition-colors hover:bg-warning"
       >
         Começar {ASSINATURA_TRIAL_DIAS} dias grátis

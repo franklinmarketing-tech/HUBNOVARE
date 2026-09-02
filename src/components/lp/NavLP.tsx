@@ -24,13 +24,13 @@ import { ArrowUpRight, Menu, X } from "lucide-react";
 
 const LINKS = [
   { href: "#problema", rotulo: "O problema" },
-  { href: "#diagnostico", rotulo: "O diagnóstico" },
-  { href: "#processo", rotulo: "Como funciona" },
-  { href: "#socios", rotulo: "Quem analisa" },
+  { href: "#incluido", rotulo: "O que inclui" },
+  { href: "#processo", rotulo: "Como começa" },
+  { href: "#preco", rotulo: "Preço" },
   { href: "#duvidas", rotulo: "Dúvidas" },
 ];
 
-export function NavDiagnostico() {
+export function NavLP() {
   const [rolou, setRolou] = useState(false);
   const [aberto, setAberto] = useState(false);
 
@@ -85,10 +85,10 @@ export function NavDiagnostico() {
           </ul>
 
           <a
-            href="#solicitar"
+            href="#preco"
             className="nv-btn nv-btn-navy ml-auto hidden !h-12 !min-h-0 !px-5 !text-[0.8125rem] lg:ml-0 lg:inline-flex"
           >
-            Solicitar diagnóstico
+            Ver a assinatura
             <ArrowUpRight className="h-4 w-4" />
           </a>
 
@@ -140,11 +140,11 @@ export function NavDiagnostico() {
           </ul>
 
           <a
-            href="#solicitar"
+            href="#preco"
             onClick={() => setAberto(false)}
             className="nv-btn nv-btn-branco mt-auto w-full"
           >
-            Solicitar diagnóstico
+            Ver a assinatura
             <ArrowUpRight className="h-4 w-4" />
           </a>
         </div>

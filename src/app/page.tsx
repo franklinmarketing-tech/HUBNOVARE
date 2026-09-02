@@ -237,7 +237,7 @@ function ConvitePainelHome() {
         calculados a partir dos seus números, atualizados a cada mês.
       </p>
       <Link
-        href="/assinar/workspace"
+        href="/assinar"
         className="group mt-6 inline-flex items-center gap-2 rounded-xl bg-warning-claro px-5 py-3 text-sm font-bold text-primary transition-colors hover:bg-warning"
       >
         Liberar meu painel
@@ -308,7 +308,7 @@ function ConviteWorkspace({ assinante }: { assinante: boolean }) {
         </div>
       </div>
       <Link
-        href="/assinar/workspace"
+        href="/assinar"
         className="group inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-warning-claro px-4 py-2 text-xs font-bold text-primary transition-colors hover:bg-warning"
       >
         Experimentar gratuitamente
