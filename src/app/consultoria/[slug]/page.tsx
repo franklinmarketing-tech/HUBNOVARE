@@ -490,7 +490,7 @@ export default async function ProdutoPage({
                 </p>
               </div>
               <Link
-                href="/assinar"
+                href="/assinar/workspace"
                 className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-accent-btn px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-accent-strong"
               >
                 Ver a assinatura

@@ -1,54 +1,59 @@
-import Link from "next/link";
 import Image from "next/image";
+import Link from "next/link";
 import type { Metadata } from "next";
 import {
   ArrowRight,
-  BadgePercent,
-  Bot,
+  ArrowUpRight,
   Check,
-  ClipboardList,
-  CreditCard,
-  FileSearch,
+  EyeOff,
+  FileText,
+  Handshake,
+  Layers,
   Lock,
-  Receipt,
-  ShieldCheck,
-  Sparkles,
-  Target,
-  TrendingUp,
   MessageCircle,
-  Wallet,
-  X,
+  MessagesSquare,
+  Minus,
+  ScanSearch,
+  ShieldCheck,
+  Upload,
+  type LucideIcon,
 } from "lucide-react";
-import { Cabecalho } from "@/components/Cabecalho";
-import { RodapeNovare } from "@/components/RodapeNovare";
-import { OQueSignifica } from "@/components/OQueSignifica";
-import { BotaoAssinarPlano } from "@/components/BotaoAssinarPlano";
-import { BarraAssinarFixa } from "@/components/BarraAssinarFixa";
-import { TituloCine } from "@/components/TituloCine";
-import { FundoCena } from "@/components/FundoCena";
-import { CenaParallax } from "@/components/CenaParallax";
-import { BannerDemo } from "@/components/BannerDemo";
-import { CenaFoto } from "@/components/CenaFoto";
-import { Icone3D } from "@/components/Icone3D";
-import { EcossistemaConectado } from "@/components/EcossistemaConectado";
+
 import { RevelarAoRolar } from "@/components/RevelarAoRolar";
-import { Etapa, Pilar, tomPor } from "@/components/SecoesVenda";
+import { NavDiagnostico } from "@/components/lp/NavDiagnostico";
+import { BarraDiagnostico } from "@/components/lp/BarraDiagnostico";
+import { CarrosselEntregas } from "@/components/lp/CarrosselEntregas";
+import { AcordeaoDuvidas } from "@/components/lp/AcordeaoDuvidas";
+import { FormularioDiagnostico } from "@/components/lp/FormularioDiagnostico";
+import { CONTATO, falarNoWhatsApp } from "@/lib/contato";
 import {
-  ASSINATURA_NOME,
-  ASSINATURA_PRECO,
-  ASSINATURA_PRECO_ROTULO,
-  ASSINATURA_TRIAL_DIAS,
-} from "@/lib/assinatura";
-import { ROTULO_DESCONTO } from "@/lib/consultoria";
-import { falarNoWhatsApp } from "@/lib/contato";
+  CASO_ACHADOS,
+  CASO_ANTES,
+  CASO_DEPOIS,
+  CASO_GANHOS,
+  COMPARATIVO,
+  DEPOIMENTOS,
+  DIMENSOES,
+  ETAPAS,
+  FATOS,
+  MODO_DE_TRABALHO,
+  NORD_NUMEROS,
+  NORD_ROSTOS,
+  SINTOMAS,
+  SOCIOS,
+} from "@/lib/diagnostico-lp";
+
+import "./lp.css";
 
 export const metadata: Metadata = {
-  title: `${ASSINATURA_NOME}: sua vida financeira inteira, num lugar só`,
-  description: `O 1º hub financeiro do Brasil: plano financeiro, IA que lê seu extrato, calculadoras e consultores CFP® por ${ASSINATURA_PRECO_ROTULO}/mês. ${ASSINATURA_TRIAL_DIAS} dias grátis, sem cartão.`,
+  title: "Diagnóstico Patrimonial · Novare Consultoria de Investimentos",
+  description:
+    "Uma leitura independente da sua carteira: alocação, custos, tributação, liquidez e concentração. Sem trocar de banco, sem mover um real e sem comissão de produto.",
   alternates: { canonical: "/assinar" },
   openGraph: {
-    title: `${ASSINATURA_NOME}: sua vida financeira inteira, num lugar só`,
-    description: `Tudo o que a Novare construiu, por ${ASSINATURA_PRECO_ROTULO}/mês. Comece com ${ASSINATURA_TRIAL_DIAS} dias grátis.`,
+    title: "Seu patrimônio cresceu. A estratégia ficou onde estava.",
+    description:
+      "O Diagnóstico Patrimonial da Novare mostra o que sua carteira está fazendo hoje — e o que ela está custando. Análise independente, assinada pelos sócios.",
     url: "/assinar",
     type: "website",
     locale: "pt_BR",
@@ -58,874 +63,1200 @@ export const metadata: Metadata = {
 
 /* -------------------------------------------------------------------------- */
 
-const PALCO: React.CSSProperties = {
-  background: "linear-gradient(157deg, hsl(215 52% 21%) 0%, hsl(216 58% 11%) 100%)",
-};
-
-/** Fundo navy chapado das seções escuras intercaladas. */
-const NAVY: React.CSSProperties = {
-  background: "linear-gradient(140deg, hsl(216 54% 14%) 0%, hsl(219 58% 10%) 100%)",
+const ICONES_SINTOMA: Record<string, LucideIcon> = { Layers, EyeOff, Handshake };
+const ICONES_ETAPA: Record<string, LucideIcon> = {
+  Upload,
+  ScanSearch,
+  FileText,
+  MessagesSquare,
 };
 
 /**
- * A landing de venda no formato de tráfego pago: uma coluna, leitura
- * vertical, blocos escuros e claros alternados, e um CTA em cada dobra.
+ * A escada de tom dos quatro passos (prints 120608 e 120611).
  *
- * REGRA DESTA PÁGINA: nada aqui é fabricado para vender. Sem depoimento
- * (a casa não publicou nenhum), sem preço "de/por" (não existe preço cheio
- * de referência) e sem contador regressivo (a assinatura é recorrente e não
- * tem vaga limitada). A urgência que a página usa é a real — os
- * 7 dias grátis sem cartão. Numa casa que vende confiança financeira, o
- * truque de conversão custa mais caro do que rende.
+ * Não é decoração: o cartão escurece a cada etapa porque a página está
+ * contando uma progressão, e o olho lê o gradiente antes de ler os números.
+ * O passo 04 — a devolutiva, onde a decisão volta para a pessoa — é o mais
+ * escuro e o mais denso, e é dele que a página cai direto no CTA.
  */
+type TomEtapa = {
+  caixa: string;
+  numero: string;
+  titulo: string;
+  texto: string;
+  tile: string;
+  brilho: string;
+  seta: string;
+  /** Só os dois últimos passos trocam a superfície inteira por um gradiente. */
+  fundo?: string;
+};
 
-/** A dor, dita como a pessoa diz para si mesma. */
-const SINTOMAS = [
+const TOM_ETAPA: TomEtapa[] = [
   {
-    icone: Receipt,
-    texto: "O mês acaba antes do dinheiro e você não sabe explicar onde foi.",
+    caixa: "bg-white border border-[#e7edf4]",
+    numero: "text-[#cdd8e4]",
+    titulo: "text-[#0f1b2b]",
+    texto: "text-[#46586e]",
+    tile: "bg-[#f2f7fb] text-[#2596be] border border-[#e2ecf3]",
+    brilho: "rgba(37,150,190,0.14)",
+    seta: "text-[#b6c4d3]",
   },
   {
-    icone: FileSearch,
-    texto: "Você paga assinatura que esqueceu e tarifa que nem sabia que existia.",
+    caixa: "bg-[#eaf2f8] border border-[#dbe8f1]",
+    numero: "text-[#b6cbdc]",
+    titulo: "text-[#0f1b2b]",
+    texto: "text-[#46586e]",
+    tile: "bg-white text-[#2596be] border border-[#dbe8f1]",
+    brilho: "rgba(37,150,190,0.2)",
+    seta: "text-[#9fb5c9]",
   },
   {
-    icone: ClipboardList,
-    texto: "Já começou três planilhas. Nenhuma sobreviveu ao segundo mês.",
+    caixa: "border border-transparent text-white",
+    numero: "text-white/62",
+    titulo: "text-white",
+    texto: "text-white/72",
+    tile: "bg-white/12 text-white border border-white/20",
+    brilho: "rgba(109,198,230,0.42)",
+    seta: "text-white/55",
+    fundo: "linear-gradient(140deg,#1d3a58 0%,#15304f 100%)",
   },
   {
-    icone: TrendingUp,
-    texto: "Quer investir, mas ninguém te diz quanto dá para guardar sem apertar.",
+    caixa: "border border-transparent text-white",
+    numero: "text-white/42",
+    titulo: "text-white",
+    texto: "text-white/65",
+    tile: "bg-white/8 text-[#6dc6e6] border border-white/14",
+    brilho: "rgba(37,150,190,0.36)",
+    seta: "text-white/55",
+    fundo: "linear-gradient(140deg,#0d1a2c 0%,#070e19 100%)",
   },
 ];
 
-/** O antes e o depois, frase contra frase. */
-const VIRADA = [
-  {
-    antes: "Você olha o extrato e não entende para onde foi.",
-    depois: "A Íris lê o extrato e aponta cada tarifa, juro e assinatura.",
-  },
-  {
-    antes: "Seus objetivos são um desejo vago, sem prazo.",
-    depois: "Cada objetivo vira um valor por mês e uma data.",
-  },
-  {
-    antes: "Fechar o mês é uma planilha que você abandona.",
-    depois: "O app fecha o mês e mostra sua evolução sozinho.",
-  },
-  {
-    antes: "Quem te orienta ganha comissão do que te vende.",
-    depois: `Consultor CFP® com ${ROTULO_DESCONTO} e comissão zero.`,
-  },
-];
-
-/** O caminho, em quatro passos curtos: o medo real é o do trabalho. */
-const PASSOS = [
-  {
-    icone: CreditCard,
-    titulo: "Crie a conta em 1 minuto",
-    texto: "E-mail e senha. Nenhum cartão é pedido para começar o teste.",
-  },
-  {
-    icone: ClipboardList,
-    titulo: "Responda 8 perguntas",
-    texto: "Em português simples, sobre quanto entra e quanto sai. Leva 10 minutos.",
-  },
-  {
-    icone: Target,
-    titulo: "Receba seu plano",
-    texto: "Nota de saúde financeira, seus objetivos em um número e um prazo.",
-  },
-  {
-    icone: Bot,
-    titulo: "Cole seu extrato",
-    texto: "A Íris mostra as tarifas, juros e assinaturas que somem com seu dinheiro.",
-  },
-];
-
-/** O pacote, item a item. Os emblemas 3D vinham do app e estavam parados em
-    /public/icones-3d: arte já produzida, com acabamento que ícone de traço
-    não dá. `wrench-3d` e `users-3d` nunca tinham sido usados. */
-const PACOTE = [
-  {
-    emblema: "/icones-3d/icon-vault-3d.png",
-    nome: "Planejamento Financeiro completo",
-    texto:
-      "Diagnóstico, nota de saúde financeira, plano de ação com valor e prazo, e relatório em PDF que é seu.",
-  },
-  {
-    emblema: "/icones-3d/icon-perfil.png",
-    nome: "Íris, a IA que lê seu extrato",
-    texto:
-      "Cole o extrato do banco e ela acha assinatura esquecida, tarifa repetida e juro escondido.",
-  },
-  {
-    emblema: "/icones-3d/wrench-3d.png",
-    nome: "Todas as ferramentas liberadas",
-    texto:
-      "As 22 calculadoras e simuladores da casa, das trabalhistas às de investimento.",
-  },
-  {
-    emblema: "/icones-3d/users-3d.png",
-    nome: `${ROTULO_DESCONTO} na consultoria particular`,
-    texto:
-      "Consultores certificados CFP®, sem comissão de banco. Válido enquanto a assinatura estiver ativa.",
-  },
-];
-
-/** Por que confiar. SÓ o que a casa comprova. */
-const CONFIANCA = [
-  {
-    destaque: "Nord",
-    titulo: "Parceria com a Nord Research",
-    texto:
-      "A consultoria de investimentos une o método da Novare à análise independente da Nord.",
-  },
-  {
-    destaque: "CFP®",
-    titulo: "Consultores certificados",
-    texto:
-      "O padrão internacional de planejamento financeiro pessoal, do outro lado da mesa.",
-  },
-  {
-    destaque: "0%",
-    titulo: "Nenhuma comissão",
-    texto:
-      "A Novare não recebe de banco, corretora ou seguradora. É você quem paga, então é para você que a gente trabalha.",
-  },
-  {
-    destaque: "LGPD",
-    titulo: "Seu extrato não sai do navegador",
-    texto:
-      "Nada aqui se conecta à sua conta. Você cola o extrato e a leitura acontece no seu dispositivo.",
-  },
-];
-
-/** Os números que a casa pode provar. Nada aqui é estimativa de marketing. */
-const NUMEROS = [
-  { valor: "22", rotulo: "ferramentas e calculadoras" },
-  { valor: `${ASSINATURA_TRIAL_DIAS} dias`, rotulo: "grátis, sem pedir cartão" },
-  { valor: ROTULO_DESCONTO, rotulo: "na consultoria com CFP®" },
-  { valor: "0%", rotulo: "de comissão de banco" },
-];
-
-const SELOS = [
-  { icone: CreditCard, texto: "Sem cartão para testar" },
-  { icone: Lock, texto: "Cancele quando quiser" },
-  { icone: ShieldCheck, texto: "Consultoria CFP®" },
-  { icone: Wallet, texto: "Sem comissão de corretora" },
-];
-
-const brl = (v: number) =>
-  v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
-
-const INCLUI = [
-  `${ASSINATURA_TRIAL_DIAS} dias grátis, sem cartão`,
-  "Planejamento Financeiro completo",
-  "Íris, a IA que lê seu extrato",
-  "Todas as ferramentas e calculadoras",
-  `${ROTULO_DESCONTO} na consultoria particular`,
-  "Novare News e indicadores ao vivo",
-  "Cancele quando quiser, sem multa",
-];
+const WPP_GERAL = falarNoWhatsApp(
+  "Olá! Vi a página do Diagnóstico Patrimonial da Novare e queria entender melhor.",
+);
 
 /* -------------------------------------------------------------------------- */
 
-export default function AssinarPage() {
-  const porDia = brl(ASSINATURA_PRECO / 30);
-
+export default function DiagnosticoPatrimonialPage() {
   return (
-    <div className="min-h-dvh bg-background">
+    <div className="lp-novare" id="topo">
       <RevelarAoRolar />
-      <BarraAssinarFixa />
-
-      <Cabecalho
-        direita={
-          <Link
-            href="/"
-            className="inline-flex min-h-11 items-center text-xs font-semibold text-muted-foreground transition-colors hover:text-foreground"
-          >
-            Voltar ao início
-          </Link>
-        }
-      />
+      <NavDiagnostico />
+      <BarraDiagnostico />
 
       <main>
-        {/* ============================================= 1. HERO DE IMPACTO */}
-        <section
-          className="palco-vivo cine-grade relative overflow-hidden text-white"
-          style={PALCO}
-        >
-          {/* A cena holográfica atrás da promessa. Opacidade baixa: ela dá
-              profundidade à dobra sem disputar leitura com a headline. */}
-          <FundoCena
-            src="/cenas/cena-holo.webp"
-            opacidade={0.75}
-            posicao="center 32%"
-            prioridade
-            fundir
-          />
+        {/* ================================================== 1. HERÓI ===== */}
+        {/*
+            Reconstrução do print 120600: dois painéis lado a lado, a cápsula
+            de navegação flutuando por cima da emenda, e um cartão branco
+            escapando do painel da direita para dentro do vão. O que faz a
+            composição funcionar é o cartão INVADIR o painel navy — sem essa
+            sobreposição vira "texto à esquerda, foto à direita".
+        */}
+        <section className="bg-white px-3 pb-4 pt-3 sm:px-4 sm:pt-4">
+          <div className="mx-auto grid max-w-[1440px] gap-3 lg:grid-cols-[1.06fr_0.94fr]">
+            {/* ---------------------------------------- painel da promessa */}
+            <div className="nv-navy-fundo nv-grade relative overflow-hidden rounded-[28px] px-7 pb-12 pt-28 text-white sm:px-12 sm:pb-16 sm:pt-32 lg:rounded-[34px] lg:px-14 lg:pb-16 xl:px-16">
+              <div className="relative flex h-full flex-col">
+                <span className="cine nv-pill nv-pill-escura nv-chapeu w-fit">
+                  <ShieldCheck className="h-3.5 w-3.5" />
+                  Consultoria independente · Novare + Nord Wealth
+                </span>
 
-          <div className="relative mx-auto max-w-5xl px-5 py-16 text-center sm:py-20 lg:py-24">
-            <span className="cine inline-flex items-center gap-1.5 rounded-full bg-white/[0.12] px-3 py-1.5 text-2xs font-bold uppercase tracking-wider backdrop-blur-sm">
-              <Sparkles className="h-3.5 w-3.5 text-ciano-claro" />
-              O 1º hub financeiro do Brasil
-            </span>
+                <h1 className="cine nv-display mt-8 max-w-[16ch] text-white">
+                  Seu patrimônio
+                  <br className="hidden sm:block" /> cresceu. A estratégia
+                  <br className="hidden sm:block" />{" "}
+                  <span className="text-[#6dc6e6]">ficou onde estava.</span>
+                </h1>
 
-            {/* A headline ocupa a dobra inteira: em tráfego pago, quem chega
-                decide em três segundos se continua lendo. Entra palavra por
-                palavra — ver TituloCine. */}
-            <TituloCine
-              texto="Seu plano. Sua IA. Seu consultor."
-              destaque="Num Workspace só."
-              className="mx-auto mt-6 max-w-4xl font-display text-4xl font-bold leading-[1.06] tracking-tight sm:text-5xl"
-            />
+                <p className="cine nv-lead mt-7 max-w-lg text-white/72">
+                  Posições que ninguém revisitou, custos que não aparecem no
+                  extrato e uma concentração que você não escolheu. O
+                  Diagnóstico Patrimonial mostra o que a sua carteira está
+                  fazendo hoje — sem trocar de banco e sem mover um real.
+                </p>
 
-            <p className="cine mx-auto mt-7 max-w-2xl text-lg leading-relaxed text-white/80 sm:text-xl">
-              Planejamento completo, a Íris lendo seu extrato, 22 calculadoras
-              e consultoria CFP® com {ROTULO_DESCONTO}. Por{" "}
-              {ASSINATURA_PRECO_ROTULO} por mês.
-            </p>
-
-            <div className="cine mt-9 flex flex-col items-center gap-4">
-              <BotaoAssinarPlano
-                contexto="workspace"
-                tamanho="grande"
-                destaque
-                direto
-                rotulo={`Começar meus ${ASSINATURA_TRIAL_DIAS} dias grátis`}
-              />
-              <p className="text-sm text-white/60">
-                Sem cartão de crédito · cancele quando quiser
-              </p>
-            </div>
-
-            {/* O app de verdade na moldura de navegador. Sangra para baixo:
-                sugere que tem mais produto além da dobra. */}
-            <CenaParallax intensidade={-34} className="mx-auto mt-14 max-w-3xl">
-              <div className="cine moldura-produto cine-reflexo relative overflow-hidden rounded-t-2xl border border-white/15 border-b-0 bg-white/[0.06] shadow-[0_40px_90px_-30px_rgba(0,0,0,0.8)] backdrop-blur-sm">
-                <div className="flex h-8 items-center gap-1.5 bg-white/10 pl-3">
-                  <span className="h-2.5 w-2.5 rounded-full bg-white/25" />
-                  <span className="h-2.5 w-2.5 rounded-full bg-white/25" />
-                  <span className="h-2.5 w-2.5 rounded-full bg-white/25" />
+                <div className="cine mt-9 flex flex-col gap-3 sm:flex-row">
+                  <a href="#solicitar" className="nv-btn nv-btn-branco">
+                    Quero meu diagnóstico
+                    <ArrowUpRight className="h-4 w-4" />
+                  </a>
+                  <a
+                    href={WPP_GERAL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="nv-btn nv-btn-fantasma"
+                  >
+                    <MessageCircle className="h-4.5 w-4.5" />
+                    Falar no WhatsApp
+                  </a>
                 </div>
-                {/* O print é um recorte e corta um botão ao meio na borda
-                    direita. O fade transforma o corte seco em "continua além
-                    da moldura", que é o que a janela já sugere. */}
-                <div className="relative">
-                  <Image
-                    src="/demo/poster-app.jpg"
-                    alt="Tela de diagnóstico do Planejamento Financeiro da Novare"
-                    width={1140}
-                    height={642}
-                    priority
-                    className="block w-full"
-                  />
-                  <span
-                    aria-hidden
-                    className="pointer-events-none absolute inset-y-0 right-0 w-16"
-                    style={{
-                      background:
-                        "linear-gradient(90deg, transparent, hsl(216 58% 11% / 0.55))",
-                    }}
-                  />
+
+                {/* O rodapé do painel, separado por um fio: é a resposta à
+                    pergunta que nasce logo depois da promessa — "quem está
+                    falando comigo e o que isso me custa?". */}
+                <div className="cine mt-12 flex items-start gap-4 border-t border-white/12 pt-7 lg:mt-auto">
+                  <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl border border-white/14 bg-white/[0.07]">
+                    <FileText className="h-5 w-5 text-[#6dc6e6]" strokeWidth={1.7} />
+                  </span>
+                  <div>
+                    <p className="text-[0.875rem] font-semibold tracking-[-0.025em] text-white">
+                      Relatório escrito e reunião de devolutiva.
+                    </p>
+                    <p className="mt-0.5 text-[0.8125rem] leading-snug tracking-[-0.015em] text-white/55">
+                      Sem comissão de banco, corretora ou seguradora. Sem
+                      obrigação de contratar nada depois.
+                    </p>
+                  </div>
                 </div>
               </div>
-            </CenaParallax>
-          </div>
+            </div>
 
-          {/* Os números da casa, grandes, fechando a dobra. Ficam FORA do
-              herói de propósito: faixa de prova dentro do herói disputa
-              atenção com a promessa e o botão. */}
-          <div className="relative border-t border-white/10 bg-black/20">
-            <ul className="mx-auto grid max-w-5xl grid-cols-2 gap-px overflow-hidden px-5 py-8 sm:grid-cols-4">
-              {NUMEROS.map(({ valor, rotulo }, i) => (
-                <li
-                  key={rotulo}
-                  className="cine px-3 text-center"
-                  style={{ transitionDelay: `${i * 70}ms` }}
-                >
-                  <p className="font-display text-3xl font-black leading-none tracking-tight text-accent-claro sm:text-4xl">
-                    {valor}
-                  </p>
-                  <p className="mt-2 text-2xs leading-snug text-white/55">
-                    {rotulo}
-                  </p>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Selos e a parceria, numa linha fina abaixo dos números. */}
-          <div className="relative border-t border-white/10 bg-black/15">
-            <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-center gap-x-8 gap-y-3 px-5 py-4">
-              <span className="flex items-center gap-2 text-2xs font-semibold uppercase tracking-wider text-white/45">
-                Parceria oficial
+            {/* ------------------------------------------- painel da imagem */}
+            <div className="relative">
+              <div className="cortina relative h-[420px] overflow-hidden rounded-[28px] bg-[#e9eef4] sm:h-[520px] lg:h-full lg:min-h-[680px] lg:rounded-[34px]">
                 <Image
-                  src="/marca/novare-site/logo-nord.png"
-                  alt="Nord Investimentos"
-                  width={72}
-                  height={23}
-                  style={{ height: 16, width: "auto" }}
+                  src="/lp/hero-socios.webp"
+                  alt="Leonardo Freitas e Jefferson Freitas, sócios da Novare Consultoria de Investimentos"
+                  fill
+                  priority
+                  sizes="(max-width: 1024px) 100vw, 46vw"
+                  className="object-cover object-[center_22%]"
                 />
-              </span>
-              {SELOS.map(({ icone: Icone, texto }) => (
+                {/* Véu navy só na base: dá contraste para o cartão flutuante
+                    sem lavar os rostos. */}
                 <span
-                  key={texto}
-                  className="flex items-center gap-1.5 text-2xs font-semibold text-white/55"
-                >
-                  <Icone className="h-3.5 w-3.5 text-white/40" />
-                  {texto}
-                </span>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ========================================================= 2. A DOR */}
-        <section className="bg-background">
-          <div className="mx-auto max-w-4xl px-5 py-16 text-center sm:py-20">
-            <p className="cine text-2xs font-bold uppercase tracking-[0.18em] text-accent-strong">
-              Se você se reconhecer aqui
-            </p>
-            <h2 className="cine mx-auto mt-3 max-w-3xl font-display text-3xl font-bold leading-[1.1] tracking-tight text-primary sm:text-[2.8rem]">
-              O problema quase nunca é o quanto você ganha.{" "}
-              <span className="text-accent-strong">É não enxergar.</span>
-            </h2>
-            <p className="cine mx-auto mt-4 max-w-xl text-base leading-relaxed text-muted-foreground">
-              <span className="font-semibold text-foreground">
-                Ninguém organiza o que não consegue ver.
-              </span>{" "}
-              É por isso que a planilha morre no segundo mês: ela cobra trabalho
-              e não devolve resposta.
-            </p>
-
-            <ul className="revelar-escada mt-10 grid gap-3 text-left sm:grid-cols-2">
-              {SINTOMAS.map(({ icone: Icone, texto }) => (
-                <li
-                  key={texto}
-                  className="flex items-start gap-3 rounded-2xl border border-border bg-card p-4 shadow-subtle"
-                >
-                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-accent-tint text-accent-strong">
-                    <Icone className="h-4 w-4" strokeWidth={1.75} />
-                  </span>
-                  <p className="text-sm leading-relaxed text-foreground">{texto}</p>
-                </li>
-              ))}
-            </ul>
-
-            {/* Fecha o último vão acima de duas telas. Quem se reconheceu na
-                lista acima é exatamente quem quer sair dela. */}
-            <div className="cine mt-9 flex justify-center">
-              <BotaoAssinarPlano
-                contexto="workspace"
-                direto
-                rotulo={`Começar meus ${ASSINATURA_TRIAL_DIAS} dias grátis`}
-              />
-            </div>
-          </div>
-        </section>
-
-        {/* ===================================================== 3. A VIRADA */}
-        <section className="relative overflow-hidden text-white" style={NAVY}>
-          <FundoCena src="/cenas/cena-luz.webp" opacidade={0.6} />
-
-          <div className="relative mx-auto max-w-4xl px-5 py-16 sm:py-20">
-            <div className="cine text-center">
-              <h2 className="font-display text-3xl font-bold leading-[1.1] tracking-tight sm:text-[2.6rem]">
-                De onde você está para onde dá para chegar
-              </h2>
-            </div>
-
-            <ul className="revelar-escada mt-10 space-y-3">
-              {VIRADA.map(({ antes, depois }) => (
-                <li
-                  key={antes}
-                  className="grid items-stretch gap-3 sm:grid-cols-2"
-                >
-                  <div className="flex items-start gap-3 rounded-2xl border border-white/10 bg-white/[0.04] p-4">
-                    <X className="mt-0.5 h-4 w-4 shrink-0 text-white/35" />
-                    <p className="text-sm leading-relaxed text-white/55 line-through decoration-white/25">
-                      {antes}
-                    </p>
-                  </div>
-                  <div className="flex items-start gap-3 rounded-2xl border border-ciano/25 bg-ciano/10 p-4">
-                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-ciano-claro" />
-                    <p className="text-sm font-medium leading-relaxed text-white">
-                      {depois}
-                    </p>
-                  </div>
-                </li>
-              ))}
-            </ul>
-
-            <div className="revelar mt-10 flex justify-center">
-              <BotaoAssinarPlano
-                contexto="workspace"
-                variante="clara"
-                direto
-                rotulo={`Começar meus ${ASSINATURA_TRIAL_DIAS} dias grátis`}
-              />
-            </div>
-          </div>
-        </section>
-
-        {/* =============================================== 4. COMO FUNCIONA */}
-        <section id="como-funciona" className="scroll-mt-16 bg-gelo">
-          <div className="mx-auto max-w-5xl px-5 py-16 sm:py-20">
-            <div className="cine text-center">
-              <p className="text-2xs font-bold uppercase tracking-[0.18em] text-accent-strong">
-                Do zero ao plano
-              </p>
-              <h2 className="mt-3 font-display text-3xl font-bold leading-[1.1] tracking-tight text-primary sm:text-[2.6rem]">
-                Quatro passos, menos de 15 minutos
-              </h2>
-              <p className="mx-auto mt-4 max-w-xl text-base text-muted-foreground">
-                Sem instalar nada, sem conectar seu banco e sem precisar
-                entender de investimento.
-              </p>
-            </div>
-
-            <ol className="revelar-escada mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-              {PASSOS.map(({ icone, titulo, texto }, i) => (
-                <Etapa
-                  key={titulo}
-                  numero={i + 1}
-                  total={PASSOS.length}
-                  titulo={titulo}
-                  texto={texto}
-                  icone={icone}
+                  aria-hidden
+                  className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2"
+                  style={{
+                    background:
+                      "linear-gradient(180deg, transparent, rgba(11,22,38,0.55))",
+                  }}
                 />
-              ))}
-            </ol>
+              </div>
+
+              {/* O cartão que escapa do painel (print 120600). Em telas
+                  grandes ele invade o vão à esquerda; no celular volta para
+                  dentro, senão sangraria fora da tela. */}
+              <figure className="cine absolute bottom-4 left-4 right-4 rounded-[22px] border border-white/70 bg-white/95 p-4 shadow-[0_24px_60px_-26px_rgba(11,22,38,0.6)] backdrop-blur-md sm:bottom-6 sm:left-6 sm:right-auto sm:max-w-[330px] lg:-left-10">
+                <div className="flex items-center gap-3">
+                  <div className="flex -space-x-3">
+                    {SOCIOS.map((s) => (
+                      <span
+                        key={s.nome}
+                        className="relative h-10 w-10 overflow-hidden rounded-full border-2 border-white bg-[#e9eef4]"
+                      >
+                        <Image
+                          src={s.foto}
+                          alt={s.nome}
+                          fill
+                          sizes="40px"
+                          className="object-cover object-[center_18%]"
+                        />
+                      </span>
+                    ))}
+                  </div>
+                  <span className="rounded-full bg-[#eaf6fb] px-2.5 py-1 text-[0.6875rem] font-bold tracking-[-0.01em] text-[#17789c]">
+                    Sócios
+                  </span>
+                </div>
+                <figcaption className="mt-3 text-[0.8125rem] leading-snug tracking-[-0.02em] text-[#46586e]">
+                  <strong className="font-semibold text-[#0f1b2b]">
+                    Leonardo e Jefferson Freitas.
+                  </strong>{" "}
+                  Toda análise passa pelas mãos deles. Nada terceirizado, nada
+                  automatizado.
+                </figcaption>
+              </figure>
+            </div>
           </div>
         </section>
 
-        {/* ======================================== 4B. O ECOSSISTEMA, DESENHADO
-
-            A página afirmava "hub" o tempo todo sem nunca mostrar o que isso
-            quer dizer. Layout dividido: o argumento à esquerda, o desenho à
-            direita, como o diagrama de produto que serviu de referência. */}
-        <section className="relative overflow-hidden text-white" style={NAVY}>
-          <FundoCena src="/cenas/cena-luz.webp" opacidade={0.55} espelhada />
-
-          <div className="relative mx-auto grid max-w-5xl items-center gap-10 px-5 py-16 sm:py-20 lg:grid-cols-2">
-            <div className="cine">
-              <h2 className="font-display text-3xl font-bold leading-[1.1] tracking-tight sm:text-[2.6rem]">
-                Uma só superfície para
-                <br />
-                <span className="text-accent-claro">a sua vida financeira.</span>
-              </h2>
-              <p className="mt-5 max-w-md text-base leading-relaxed text-white/70">
-                Plano, IA, calculadoras, consultoria e conteúdo deixam de ser
-                cinco lugares diferentes.{" "}
-                <span className="font-semibold text-white">
-                  Tudo lê os mesmos números
-                </span>
-                , então o que você responde uma vez vale em todos.
-              </p>
-
-              {/* Lista numerada com o trilho ligando os itens. */}
-              <ol className="mt-8 space-y-4">
-                {[
-                  "Você preenche uma vez",
-                  "Todo o Workspace entende",
-                  "As decisões saem prontas",
-                ].map((item, i) => (
-                  <li key={item} className="relative flex items-center gap-4 pl-1">
-                    <span className="font-display text-xl font-black tabular-nums text-ciano-claro">
-                      {String(i + 1).padStart(2, "0")}
-                    </span>
-                    <span className="relative flex h-2 w-2 shrink-0">
-                      <span className="h-2 w-2 rounded-full bg-ciano" />
-                      {i < 2 && (
-                        <span
-                          aria-hidden
-                          className="absolute left-1/2 top-2 h-8 w-px -translate-x-1/2 bg-ciano/25"
-                        />
-                      )}
-                    </span>
-                    <span className="text-sm font-medium text-white/85">{item}</span>
+        {/* ============================== 2. LETREIRO DO QUE SE OLHA ======= */}
+        {/*
+            A faixa dos prints 120719 e 120705: uma linha só, caixa alta,
+            andando devagar. Ela responde de imediato "diagnóstico de quê?" e
+            faz a transição da promessa para o problema sem gastar uma seção.
+        */}
+        <section className="nv-navy-fundo overflow-hidden py-4">
+          <div className="nv-letreiro">
+            {[0, 1].map((copia) => (
+              <ul
+                key={copia}
+                aria-hidden={copia === 1}
+                className="flex shrink-0 items-center"
+              >
+                {DIMENSOES.map((d) => (
+                  <li
+                    key={`${copia}-${d}`}
+                    className="flex items-center whitespace-nowrap px-6 text-[0.75rem] font-semibold uppercase tracking-[0.16em] text-white/72"
+                  >
+                    {d}
+                    <span className="ml-6 h-1 w-1 rounded-full bg-[#2596be]" />
                   </li>
                 ))}
-              </ol>
+              </ul>
+            ))}
+          </div>
+        </section>
 
-              <div className="cine mt-9">
-                <BotaoAssinarPlano
-                  contexto="workspace"
-                  variante="clara"
-                  direto
-                  rotulo={`Começar meus ${ASSINATURA_TRIAL_DIAS} dias grátis`}
-                />
-              </div>
+        {/* ================================================ 3. O PROBLEMA == */}
+        {/*
+            Print 120603, reconstruído: pastilha com a linha pontilhada saindo
+            até a margem, título em duas linhas à esquerda, três cartões
+            empilhados com ícone em pastilha quadrada, e a foto à direita numa
+            moldura arredondada com o bloco navy deslocado por trás.
+        */}
+        {/* `overflow-x-clip` e não `overflow-hidden`: o bloco navy do
+            `.nv-carimbo` escapa 30px à direita da foto e, entre 768px e
+            1180px, esses 30px caíam fora da janela e criavam rolagem
+            horizontal na página inteira. `clip` corta sem virar contêiner de
+            rolagem — o que preservaria o `sticky` da foto. */}
+        <section id="problema" className="overflow-x-clip bg-white py-20 sm:py-28">
+          <div className="mx-auto max-w-6xl px-5">
+            <div className="revelar nv-marcador">
+              <span className="nv-pill nv-chapeu">
+                <span className="nv-ponto" />O problema real
+              </span>
             </div>
 
-            <div className="cine" style={{ transitionDelay: "140ms" }}>
-              <EcossistemaConectado />
+            <div className="mt-10 grid items-start gap-12 lg:grid-cols-[1.03fr_0.97fr] lg:gap-16">
+              <div>
+                <h2 className="revelar nv-h2 max-w-[15ch] text-[#0f1b2b]">
+                  Sua carteira não foi construída.{" "}
+                  <span className="text-[#5b6d81]">Ela foi acumulando.</span>
+                </h2>
+                <p className="revelar nv-lead mt-6 max-w-lg">
+                  Cada aplicação fez sentido no dia em que foi feita. O problema
+                  aparece quando ninguém nunca olha todas ao mesmo tempo — é aí
+                  que mora o custo, e é exatamente aí que ninguém olha.
+                </p>
+
+                <ul className="revelar-escada mt-10 space-y-3.5">
+                  {SINTOMAS.map((s) => {
+                    const Icone = ICONES_SINTOMA[s.icone] ?? Layers;
+                    return (
+                      <li
+                        key={s.titulo}
+                        className="group flex gap-4 rounded-[18px] border border-transparent bg-[#f5f8fb] p-5 transition-colors duration-300 hover:border-[#dcecf4] hover:bg-[#f0f8fc]"
+                      >
+                        <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-white text-[#2596be] shadow-[0_1px_3px_rgba(15,27,43,0.06)]">
+                          <Icone className="h-5 w-5" strokeWidth={1.7} />
+                        </span>
+                        <div>
+                          <h3 className="text-[0.8125rem] font-bold uppercase tracking-[0.075em] text-[#0f1b2b]">
+                            {s.titulo}
+                          </h3>
+                          <p className="nv-corpo mt-1.5 text-[0.875rem]">
+                            {s.texto}
+                          </p>
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+
+              {/* A moldura com o carimbo navy por trás (print 120614): duas
+                  superfícies deslocadas, não uma sombra. */}
+              <div className="nv-carimbo revelar lg:sticky lg:top-28">
+                <div className="cortina relative aspect-[4/5] overflow-hidden rounded-[28px] bg-[#e9eef4] shadow-[0_30px_70px_-40px_rgba(15,27,43,0.5)]">
+                  <Image
+                    src="/lp/problema.webp"
+                    alt="Casal revendo extratos e posições de investimento sobre a mesa de casa"
+                    fill
+                    sizes="(max-width: 1024px) 100vw, 46vw"
+                    className="object-cover"
+                  />
+                </div>
+              </div>
             </div>
           </div>
         </section>
 
-        {/* ============================================ 5. O QUE VOCÊ RECEBE */}
-        <section className="bg-background">
-          <div className="mx-auto max-w-4xl px-5 py-16 sm:py-20">
-            <div className="cine text-center">
-              <h2 className="font-display text-3xl font-bold leading-[1.1] tracking-tight text-primary sm:text-[2.6rem]">
-                O que você recebe hoje
+        {/* ========================== 4. O CUSTO INVISÍVEL, EM NÚMEROS ===== */}
+        {/*
+            O problema precisa virar algo que se VÊ. Este é o estudo de caso
+            que a Novare publica com nomes e valores omitidos — as barras de
+            concentração à esquerda, a recomendação à direita. É a peça que
+            transforma "talvez eu tenha um problema" em "isto se parece com a
+            minha carteira".
+        */}
+        <section className="nv-navy-fundo nv-grade relative overflow-hidden py-20 text-white sm:py-28">
+          <div className="relative mx-auto max-w-6xl px-5">
+            <div className="revelar nv-marcador">
+              <span className="nv-pill nv-pill-escura nv-chapeu">
+                <span className="nv-ponto" />
+                Estudo de caso
+              </span>
+            </div>
+
+            <h2 className="revelar nv-h2 mt-9 max-w-[19ch] text-white">
+              O que aparece quando alguém finalmente olha o conjunto
+            </h2>
+            <p className="revelar nv-lead mt-5 max-w-2xl text-white/68">
+              Um exemplo real do tipo de achado que aparece em toda análise que
+              a Novare faz. Nomes e valores foram omitidos por sigilo.
+            </p>
+
+            <div className="mt-14 grid gap-4 lg:grid-cols-2 lg:gap-5">
+              {/* ------------------------------------------------- antes -- */}
+              <article className="revelar rounded-[28px] border border-white/10 bg-white/[0.045] p-7 backdrop-blur-sm sm:p-9">
+                <header className="flex items-baseline justify-between gap-4">
+                  <span className="nv-chapeu text-[#f08a5f]">
+                    Antes da análise
+                  </span>
+                  <span className="text-[0.75rem] font-medium tracking-[-0.01em] text-white/58">
+                    Concentração 72%
+                  </span>
+                </header>
+
+                <ul className="mt-7 space-y-4">
+                  {CASO_ANTES.map((c) => (
+                    <li key={c.rotulo}>
+                      <div className="flex items-baseline justify-between gap-4">
+                        <span className="text-[0.875rem] tracking-[-0.02em] text-white/78">
+                          {c.rotulo}
+                        </span>
+                        <span className="font-mono text-[0.8125rem] font-semibold text-white/90">
+                          {c.peso}%
+                        </span>
+                      </div>
+                      <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/10">
+                        <span
+                          className="block h-full rounded-full"
+                          style={{
+                            width: `${c.peso}%`,
+                            background:
+                              "linear-gradient(90deg,#f08a5f,#c9491a)",
+                          }}
+                        />
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+
+                <div className="mt-8 border-t border-white/10 pt-6">
+                  <p className="nv-chapeu text-white/58">O que apareceu</p>
+                  <ul className="mt-4 space-y-2.5">
+                    {CASO_ACHADOS.map((a) => (
+                      <li
+                        key={a}
+                        className="flex gap-3 text-[0.875rem] leading-snug tracking-[-0.02em] text-white/72"
+                      >
+                        <Minus className="mt-1 h-3.5 w-3.5 shrink-0 text-[#f08a5f]" />
+                        {a}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </article>
+
+              {/* ------------------------------------------------ depois -- */}
+              <article className="revelar rounded-[28px] border border-[#2596be]/35 bg-[#2596be]/[0.09] p-7 backdrop-blur-sm sm:p-9">
+                <header className="flex items-baseline justify-between gap-4">
+                  <span className="nv-chapeu text-[#6dc6e6]">
+                    Depois da recomendação
+                  </span>
+                  <span className="text-[0.75rem] font-medium tracking-[-0.01em] text-white/58">
+                    Diversificação estratégica
+                  </span>
+                </header>
+
+                <ul className="mt-7 grid gap-2.5">
+                  {CASO_DEPOIS.map((d) => (
+                    <li
+                      key={d}
+                      className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-[0.875rem] tracking-[-0.02em] text-white/85"
+                    >
+                      <span className="grid h-6 w-6 shrink-0 place-items-center rounded-lg bg-[#2596be] text-white">
+                        <Check className="h-3.5 w-3.5" strokeWidth={3} />
+                      </span>
+                      {d}
+                    </li>
+                  ))}
+                </ul>
+
+                <div className="mt-8 border-t border-white/10 pt-6">
+                  <p className="nv-chapeu text-white/58">O que o cliente ganha</p>
+                  <ul className="mt-4 space-y-2.5">
+                    {CASO_GANHOS.map((g) => (
+                      <li
+                        key={g}
+                        className="flex gap-3 text-[0.875rem] leading-snug tracking-[-0.02em] text-white/72"
+                      >
+                        <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#6dc6e6]" />
+                        {g}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </article>
+            </div>
+
+            {/* A pergunta que fecha a seção é o CTA. Ela devolve o caso para a
+                pessoa em vez de pedir que ela compre alguma coisa. */}
+            <div className="revelar mt-12 flex flex-col items-center gap-6 rounded-[28px] border border-white/10 bg-white/[0.04] px-7 py-9 text-center sm:flex-row sm:justify-between sm:text-left">
+              <p className="nv-h3 max-w-lg text-white">
+                A sua carteira se parece com qual dessas duas?
+              </p>
+              <a href="#solicitar" className="nv-btn nv-btn-branco shrink-0">
+                Quero descobrir
+                <ArrowRight className="h-4 w-4" />
+              </a>
+            </div>
+          </div>
+        </section>
+
+        {/* ================================= 5. A VIRADA / QUEM É A NOVARE = */}
+        {/*
+            A pausa da página. Depois de mostrar o custo, o leitor pergunta
+            "e por que vocês seriam diferentes?" — a resposta é estrutural, não
+            promissória: sem comissão, não sobra nada para vender.
+        */}
+        <section className="nv-gelo-fundo py-20 sm:py-28">
+          <div className="mx-auto max-w-4xl px-5 text-center">
+            <span className="revelar nv-chapeu text-[#c9491a]">
+              A diferença é estrutural
+            </span>
+            <h2 className="revelar nv-h2 mx-auto mt-6 max-w-[20ch] text-[#0f1b2b]">
+              O objetivo não é te convencer de nada.{" "}
+              <span className="text-[#2596be]">
+                É te fazer enxergar o que já é seu.
+              </span>
+            </h2>
+            <p className="revelar nv-lead mx-auto mt-6 max-w-2xl">
+              A Novare não distribui produto, não recebe comissão de banco,
+              corretora ou seguradora e não tem carteira para empurrar. Sem nada
+              para vender do outro lado da mesa, sobra uma coisa só a fazer:
+              analisar.
+            </p>
+          </div>
+
+          <ul className="revelar-escada mx-auto mt-16 grid max-w-5xl grid-cols-2 gap-px overflow-hidden rounded-[26px] border border-[#e2e8f0] bg-[#e2e8f0] px-0 sm:grid-cols-4">
+            {FATOS.map((f) => (
+              <li key={f.rotulo} className="bg-white px-5 py-9 text-center">
+                <p className="text-[2.25rem] font-semibold leading-none tracking-[-0.05em] text-[#152a44] sm:text-[2.75rem]">
+                  {f.valor}
+                </p>
+                <p className="nv-corpo mx-auto mt-3 max-w-[16ch] text-[0.8125rem]">
+                  {f.rotulo}
+                </p>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        {/* =============================================== 6. AS ENTREGAS == */}
+        <section id="diagnostico" className="bg-white py-20 sm:py-28">
+          <div className="mx-auto max-w-6xl px-5">
+            <div className="revelar nv-marcador">
+              <span className="nv-pill nv-chapeu">
+                <span className="nv-ponto" />O diagnóstico patrimonial
+              </span>
+            </div>
+          </div>
+          <div className="mt-10">
+            <CarrosselEntregas />
+          </div>
+        </section>
+
+        {/* ================================================ 7. O PROCESSO == */}
+        {/*
+            A reprodução mais literal do conjunto: prints 120608 e 120611. Os
+            quatro cartões largos, empilhados, com o número gigante e o traço
+            ao lado, o texto à esquerda e a pastilha de ícone à direita com a
+            seta diagonal no canto. O fundo escurece a cada passo.
+        */}
+        <section id="processo" className="nv-gelo-fundo py-20 sm:py-28">
+          <div className="mx-auto max-w-5xl px-5">
+            <div className="text-center">
+              <span className="revelar nv-pill nv-chapeu">
+                <span className="nv-ponto" />
+                Como funciona na prática
+              </span>
+              <h2 className="revelar nv-h2 mx-auto mt-7 max-w-[18ch] text-[#0f1b2b]">
+                Quatro passos. Nenhum deles move o seu dinheiro.
               </h2>
-              <p className="mx-auto mt-4 max-w-xl text-base text-muted-foreground">
-                Tudo numa assinatura só. Nenhum recurso fica de fora, nada é
-                vendido à parte.
+              <p className="revelar nv-lead mx-auto mt-5 max-w-xl">
+                Você sabe exatamente o que acontece depois de clicar — antes de
+                clicar.
               </p>
             </div>
 
-            <ul className="revelar-escada mt-10 space-y-3">
-              {PACOTE.map(({ emblema, nome, texto }, i) => {
-                const ciano = tomPor(i) === "ciano";
+            <ol className="mt-14 space-y-4 sm:space-y-5">
+              {ETAPAS.map((e, i) => {
+                const t = TOM_ETAPA[i];
+                const Icone = ICONES_ETAPA[e.icone] ?? Upload;
                 return (
                   <li
-                    key={nome}
-                    className="glass-card flex items-start gap-4 rounded-2xl border border-border bg-card p-5 shadow-subtle transition-all hover:-translate-y-0.5 hover:shadow-card"
+                    key={e.numero}
+                    className={`revelar nv-etapa ${t.caixa}`}
+                    style={
+                      {
+                        "--nv-brilho": t.brilho,
+                        ...(t.fundo ? { background: t.fundo } : {}),
+                      } as React.CSSProperties
+                    }
                   >
-                    <Icone3D
-                      src={emblema}
-                      tamanho={64}
-                      tom={ciano ? "ciano" : "accent"}
-                    />
-                    <div className="min-w-0">
-                      <h3 className="font-display text-lg font-bold leading-snug text-primary">
-                        {nome}
-                      </h3>
-                      <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-                        {texto}
-                      </p>
+                    <div className="relative flex items-start justify-between gap-6">
+                      <div className="max-w-lg">
+                        <div className="flex items-center gap-3">
+                          <span
+                            className={`text-[2rem] font-semibold leading-none tracking-[-0.05em] sm:text-[2.5rem] ${t.numero}`}
+                          >
+                            {e.numero}
+                          </span>
+                          <span
+                            className={`h-px w-8 ${
+                              t.fundo ? "bg-white/25" : "bg-[#c6d3e0]"
+                            }`}
+                          />
+                        </div>
+
+                        <h3
+                          className={`mt-5 text-[1.25rem] font-semibold leading-tight tracking-[-0.035em] sm:text-[1.5rem] ${t.titulo}`}
+                        >
+                          {e.titulo}
+                        </h3>
+                        <p
+                          className={`mt-2.5 max-w-md text-[0.875rem] leading-relaxed tracking-[-0.018em] sm:text-[0.9375rem] ${t.texto}`}
+                        >
+                          {e.texto}
+                        </p>
+                      </div>
+
+                      <div
+                        className={`relative grid h-16 w-16 shrink-0 place-items-center rounded-[20px] sm:h-[104px] sm:w-[104px] sm:rounded-[26px] ${t.tile}`}
+                      >
+                        <Icone
+                          className="h-6 w-6 sm:h-8 sm:w-8"
+                          strokeWidth={1.4}
+                        />
+                        <ArrowUpRight
+                          className={`absolute right-2.5 top-2.5 h-3.5 w-3.5 ${t.seta}`}
+                        />
+                      </div>
                     </div>
-                    <Check className="ml-auto mt-1 hidden h-5 w-5 shrink-0 text-success sm:block" />
                   </li>
                 );
               })}
-            </ul>
+            </ol>
 
-            {/* O app rodando, em vídeo. O arquivo foi recortado: os 2,2s de
-                tela de login que abriam a gravação saíram, e a faixa do
-                aviso de cookies foi cortada do quadro. */}
-            <div className="cortina mt-10 overflow-hidden rounded-3xl">
-              <BannerDemo legenda="O app de verdade, sem retoque. Os números do exemplo são fictícios; os seus entram quando você criar sua conta." />
+            <p className="revelar mt-10 text-center text-[0.875rem] tracking-[-0.02em] text-[#5b6d81]">
+              Nada é transferido, nada muda de custódia, nada é movimentado.{" "}
+              <a
+                href="#solicitar"
+                className="font-semibold text-[#17789c] underline underline-offset-4"
+              >
+                Começar pelo passo 01
+              </a>
+            </p>
+          </div>
+        </section>
+
+        {/* ============================================= 8. O COMPARATIVO == */}
+        <section className="bg-white py-20 sm:py-28">
+          <div className="mx-auto max-w-5xl px-5">
+            <div className="revelar nv-marcador">
+              <span className="nv-pill nv-chapeu">
+                <span className="nv-ponto" />
+                Por que com a Novare
+              </span>
+            </div>
+
+            <h2 className="revelar nv-h2 mt-9 max-w-[20ch] text-[#0f1b2b]">
+              A diferença entre uma recomendação e uma venda com jeito de
+              conselho
+            </h2>
+
+            <div className="revelar mt-12 overflow-hidden rounded-[26px] border border-[#e2e8f0]">
+              <div className="grid grid-cols-2">
+                <div className="nv-navy-fundo px-5 py-5 text-white sm:px-8">
+                  <p className="nv-chapeu text-[#6dc6e6]">Consultoria</p>
+                  <p className="mt-1 text-[1.0625rem] font-semibold tracking-[-0.035em] sm:text-[1.25rem]">
+                    Novare
+                  </p>
+                </div>
+                <div className="bg-[#f5f8fb] px-5 py-5 sm:px-8">
+                  <p className="nv-chapeu text-[#5b6d81]">Modelo tradicional</p>
+                  <p className="mt-1 text-[1.0625rem] font-semibold tracking-[-0.035em] text-[#5b6d81] sm:text-[1.25rem]">
+                    Bancos e assessorias
+                  </p>
+                </div>
+              </div>
+
+              <ul>
+                {COMPARATIVO.map((c, i) => (
+                  <li
+                    key={c.novare}
+                    className={`grid grid-cols-2 ${
+                      i > 0 ? "border-t border-[#eaf0f6]" : ""
+                    }`}
+                  >
+                    <div className="flex gap-3 px-5 py-5 sm:px-8">
+                      <span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-md bg-[#e6f6ec] text-[#1f7a4d]">
+                        <Check className="h-3 w-3" strokeWidth={3} />
+                      </span>
+                      <span className="text-[0.875rem] font-medium leading-snug tracking-[-0.022em] text-[#0f1b2b]">
+                        {c.novare}
+                      </span>
+                    </div>
+                    <div className="flex gap-3 bg-[#fafcfd] px-5 py-5 sm:px-8">
+                      <span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-md bg-[#f0f3f7] text-[#5b6d81]">
+                        <Minus className="h-3 w-3" strokeWidth={3} />
+                      </span>
+                      <span className="text-[0.875rem] leading-snug tracking-[-0.022em] text-[#5b6d81]">
+                        {c.mercado}
+                      </span>
+                    </div>
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
         </section>
 
-        {/* Faixa de CTA no meio do maior vão da página. Medido: eram 2853px
-          (3,2 telas) entre um botão e o próximo, e quem se convence aqui não
-          deveria ter de rolar duas telas para achar onde clicar. */}
-      <section className="bg-background">
-        <div className="mx-auto flex max-w-4xl flex-wrap items-center justify-center gap-x-6 gap-y-4 px-5 pb-4">
-          <p className="cine text-sm text-muted-foreground">
-            Tudo isso por{" "}
-            <span className="font-bold text-primary">
-              {ASSINATURA_PRECO_ROTULO}/mês
-            </span>
-            , começando sem pagar nada.
-          </p>
-          <div className="cine">
-            <BotaoAssinarPlano
-              contexto="workspace"
-              direto
-              rotulo={`Começar meus ${ASSINATURA_TRIAL_DIAS} dias grátis`}
-            />
-          </div>
-        </div>
-      </section>
+        {/* ================================================== 9. OS SÓCIOS = */}
+        {/*
+            Prints 120614 e 120713 combinados: a foto na moldura com o bloco
+            navy deslocado por trás, e as pastilhas de credencial flutuando
+            sobre a imagem. Aqui a foto é real — Leonardo e Jefferson —, então
+            as pastilhas dizem o que a casa de fato afirma, e nada além.
+        */}
+        <section id="socios" className="nv-gelo-fundo py-20 sm:py-28">
+          <div className="mx-auto max-w-6xl px-5">
+            <div className="revelar nv-marcador">
+              <span className="nv-pill nv-chapeu">
+                <span className="nv-ponto" />
+                Quem vai olhar a sua carteira
+              </span>
+            </div>
 
-      {/* ================================================ 6. A AUTORIDADE */}
-        <section className="bg-gelo">
-          <div className="mx-auto max-w-5xl px-5 py-16 sm:py-20">
-            <div className="cine text-center">
-              <p className="text-2xs font-bold uppercase tracking-[0.18em] text-accent-strong">
-                Por que confiar
-              </p>
-              <h2 className="mt-3 font-display text-3xl font-bold leading-[1.1] tracking-tight text-primary sm:text-[2.6rem]">
-                Com quem você está falando
+            {/* Cabeçalho editorial: manchete à esquerda, argumento à direita.
+                As fotos ficam FORA dele, em largura cheia — na referência
+                (print 120713) o retrato é o elemento GRANDE da seção, e
+                espremê-lo numa coluna era o jeito mais rápido de perder o que
+                a seção tem para dizer. */}
+            <div className="mt-10 grid gap-8 lg:grid-cols-2 lg:gap-16">
+              <h2 className="revelar nv-h2 max-w-[15ch] text-[#0f1b2b]">
+                Toda análise passa pelas mãos dos sócios.
               </h2>
-              <p className="mx-auto mt-4 max-w-xl text-base text-muted-foreground">
-                A Novare é consultoria de investimentos. O Workspace é a
-                ferramenta que ela abriu para todo mundo.
+              <p className="revelar nv-lead lg:mt-2">
+                A Novare foi construída para fazer o que banco não faz: olhar a
+                sua carteira sem ter comissão em jogo. Cada análise é feita com
+                método, tempo e olhar clínico.{" "}
+                <strong className="font-semibold text-[#0f1b2b]">
+                  Nada terceirizado, nada automatizado.
+                </strong>
               </p>
             </div>
 
-            <div className="revelar-escada mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-              {CONFIANCA.map(({ destaque, titulo, texto }, i) => (
-                <Pilar
-                  key={titulo}
-                  destaque={destaque}
-                  titulo={titulo}
-                  texto={texto}
-                  tom={tomPor(i)}
-                />
+            <div className="mt-14 grid gap-5 sm:grid-cols-2">
+              {SOCIOS.map((s, i) => (
+                <figure key={s.nome} className="revelar">
+                  <div className="cortina relative aspect-[4/5] overflow-hidden rounded-[30px] bg-[#dfe7ee] shadow-[0_34px_70px_-42px_rgba(15,27,43,0.6)]">
+                    <Image
+                      src={s.foto}
+                      alt={s.nome}
+                      fill
+                      sizes="(max-width: 640px) 100vw, 560px"
+                      className="object-cover"
+                    />
+
+                    {/* As pastilhas flutuantes do print 120713: duas por foto,
+                        em alturas e lados diferentes, para nunca empilharem
+                        nem cobrirem o rosto. */}
+                    <span
+                      className={`absolute ${
+                        i === 0 ? "left-5 top-[30%]" : "right-5 top-[24%]"
+                      } flex items-center gap-2 rounded-full bg-[#152a44]/90 py-2 pl-2 pr-4 text-[0.75rem] font-semibold tracking-[-0.015em] text-white shadow-[0_12px_32px_-12px_rgba(0,0,0,0.85)] backdrop-blur-md`}
+                    >
+                      <span className="grid h-6 w-6 place-items-center rounded-full bg-[#2596be]">
+                        <Check className="h-3.5 w-3.5" strokeWidth={3} />
+                      </span>
+                      {s.selos[0]}
+                    </span>
+
+                    <span
+                      className={`absolute bottom-[30%] ${
+                        i === 0 ? "right-5" : "left-5"
+                      } flex items-center gap-2.5 rounded-full bg-white/94 py-2 pl-3.5 pr-4 text-[0.75rem] font-semibold tracking-[-0.015em] text-[#152a44] shadow-[0_12px_32px_-12px_rgba(0,0,0,0.55)] backdrop-blur-md`}
+                    >
+                      <Image
+                        src="/lp/nord-logo.png"
+                        alt=""
+                        width={155}
+                        height={40}
+                        className="h-3.5 w-auto"
+                      />
+                      {s.selos[1]}
+                    </span>
+
+                    <span
+                      aria-hidden
+                      className="pointer-events-none absolute inset-x-0 bottom-0 h-2/5"
+                      style={{
+                        background:
+                          "linear-gradient(180deg, transparent, rgba(11,22,38,0.78))",
+                      }}
+                    />
+
+                    <figcaption className="absolute inset-x-0 bottom-0 p-7">
+                      <p className="text-[1.375rem] font-semibold tracking-[-0.035em] text-white">
+                        {s.nome}
+                      </p>
+                      <p className="mt-1 text-[0.8125rem] tracking-[-0.015em] text-white/72">
+                        {s.papel}
+                      </p>
+                    </figcaption>
+                  </div>
+                </figure>
               ))}
             </div>
 
-            {/* Aqui entraria a foto dos sócios, mas o único arquivo que existe
-                (marca/novare-site/socios-novare.jpg) tem 236x235 px: é a
-                miniatura de um vídeo, não uma fotografia. Ampliada para a
-                largura desta seção ficaria borrada, e foto borrada numa
-                página de venda tira credibilidade em vez de dar. Assim que
-                houver uma foto em resolução decente, ela entra aqui. */}
-            <div className="cine mt-10 text-center">
-              <h3 className="font-display text-xl font-bold leading-snug text-primary sm:text-2xl">
-                Tem gente de verdade atrás disso.
-              </h3>
-              <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground">
-                A Novare não é um app que apareceu do nada. É uma consultoria
-                de investimentos que resolveu abrir as próprias ferramentas
-                para quem não tem patrimônio para contratar uma.
-              </p>
-            </div>
-
-            {/* O modelo de negócio como argumento: é o que separa a Novare
-                de quem ganha comissão pelo que indica. */}
-            <div className="revelar mt-10 grid overflow-hidden rounded-3xl border border-border sm:grid-cols-2">
-              <div className="bg-card p-6 sm:p-7">
-                <p className="text-2xs font-bold uppercase tracking-wider text-muted-foreground">
-                  O banco
-                </p>
-                <p className="mt-2 font-display text-lg font-semibold leading-snug text-foreground">
-                  Ganha quando você paga tarifa e compra o que ele indica.
-                </p>
-              </div>
-              <div className="bg-primary p-6 text-white sm:p-7">
-                <p className="text-2xs font-bold uppercase tracking-wider text-ciano-claro">
-                  A Novare
-                </p>
-                <p className="mt-2 font-display text-lg font-semibold leading-snug">
-                  Ganha quando você se organiza. Comissão de banco ou corretora:
-                  zero.
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* ===================================================== 7. A OFERTA */}
-        <section className="relative overflow-hidden text-white" style={PALCO}>
-          {/* A mesma cena holográfica do topo fecha a página: quem rolou até
-              aqui volta ao ambiente da promessa na hora de decidir. */}
-          <FundoCena
-            src="/cenas/cena-holo.webp"
-            opacidade={0.6}
-            posicao="center 40%"
-            espelhada
-          />
-
-          <div className="relative mx-auto max-w-3xl px-5 py-16 sm:py-20">
-            <div className="cine text-center">
-              <p className="text-2xs font-bold uppercase tracking-[0.18em] text-accent-claro">
-                Um preço só, sem letra miúda
-              </p>
-              <h2 className="mt-3 font-display text-3xl font-bold leading-[1.1] tracking-tight sm:text-[2.6rem]">
-                Comece hoje sem pagar nada
-              </h2>
-            </div>
-
-            {/* A caixa da oferta: tudo o que entra, o preço e o botão no mesmo
-                retângulo. Quem rolou até aqui não deve precisar procurar. */}
-            <div className="cine borda-viva mt-10 rounded-3xl border border-white/15 bg-white/[0.07] p-6 backdrop-blur-sm sm:p-9">
-              <p className="text-center text-2xs font-bold uppercase tracking-wider text-white/55">
-                {ASSINATURA_NOME}
-              </p>
-
-              <div className="mt-5 flex items-end justify-center gap-2">
-                <span className="preco-lustro font-display text-[3.5rem] font-black leading-none tabular-nums sm:text-7xl">
-                  {ASSINATURA_PRECO_ROTULO}
-                </span>
-                <span className="pb-3 text-lg font-semibold text-white/60">
-                  /mês
-                </span>
-              </div>
-              <p className="mt-2 text-center text-sm text-white/60">
-                Menos que um lanche. {porDia} por dia.
-              </p>
-
-              <ul className="mx-auto mt-8 grid max-w-xl gap-2.5 border-t border-white/15 pt-7 sm:grid-cols-2">
-                {INCLUI.map((item) => (
-                  <li
-                    key={item}
-                    className="flex items-start gap-2.5 text-sm text-white/85"
-                  >
-                    {/* Ciano, não laranja: o laranja é reservado à ação. */}
-                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-ciano-claro" />
-                    <span>{item}</span>
+            <div className="mt-12 flex flex-col gap-8 lg:flex-row lg:items-center lg:gap-12">
+              <ul className="revelar-escada grid flex-1 gap-px overflow-hidden rounded-[22px] border border-[#e2e8f0] bg-[#e2e8f0] sm:grid-cols-2 lg:grid-cols-4">
+                {MODO_DE_TRABALHO.map((m) => (
+                  <li key={m.titulo} className="bg-white px-5 py-6">
+                    <p className="text-[0.875rem] font-semibold tracking-[-0.028em] text-[#0f1b2b]">
+                      {m.titulo}
+                    </p>
+                    <p className="nv-corpo mt-1.5 text-[0.8125rem]">{m.texto}</p>
                   </li>
                 ))}
               </ul>
 
-              <div className="mt-9 flex flex-col items-center gap-4">
-                <BotaoAssinarPlano
-                  contexto="workspace"
-                  tamanho="grande"
-                  destaque
-                  direto
-                  rotulo={`Começar meus ${ASSINATURA_TRIAL_DIAS} dias grátis`}
-                />
-                <p className="text-xs text-white/55">
-                  Sem cartão de crédito · cancele quando quiser
-                </p>
-              </div>
-            </div>
-
-            {/* ======================================== 8. A GARANTIA (selo) */}
-            <div className="revelar mt-8 flex flex-col items-center gap-4 rounded-3xl border border-ciano/25 bg-ciano/10 p-6 text-center sm:flex-row sm:text-left">
-              <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full border-2 border-ciano-claro/50 bg-ciano/15">
-                <ShieldCheck className="h-7 w-7 text-ciano-claro" strokeWidth={1.75} />
-              </span>
-              <div>
-                <p className="font-display text-lg font-bold text-white">
-                  Risco zero para testar
-                </p>
-                <p className="mt-1.5 text-sm leading-relaxed text-white/70">
-                  Nenhum cartão é pedido para começar. Nos{" "}
-                  {ASSINATURA_TRIAL_DIAS} dias de teste não existe cobrança
-                  nenhuma. Se você não voltar, a conta simplesmente não vira
-                  assinatura. Se ficar e depois cancelar, a cobrança para na
-                  hora, sem multa.
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* ========================================================= 9. FAQ
-
-            Layout dividido: as perguntas de um lado, a saída para quem ainda
-            tem dúvida do outro. Quem chegou até aqui e não clicou geralmente
-            não quer ler mais uma resposta, quer falar com alguém. */}
-        <section className="bg-background">
-          <div className="mx-auto grid max-w-6xl items-start gap-10 px-5 py-16 sm:py-20 lg:grid-cols-[1.25fr_0.75fr]">
-            <div className="min-w-0">
-            <OQueSignifica
-              titulo="O que você deve estar se perguntando"
-              itens={[
-                {
-                  pergunta: "É grátis mesmo? Qual a pegadinha?",
-                  resposta: `Não tem. Você cria a conta com e-mail e senha, sem pedir cartão, e usa tudo por ${ASSINATURA_TRIAL_DIAS} dias. A cobrança de ${ASSINATURA_PRECO_ROTULO} só existe se você continuar depois disso.`,
-                },
-                {
-                  pergunta: "A Íris vê a senha do meu banco?",
-                  resposta:
-                    "Não. Nada aqui se conecta ao seu banco: você copia o extrato e cola no app, e ele é lido no seu próprio navegador. Sem senha, sem acesso à sua conta.",
-                },
-                {
-                  pergunta: "Preciso entender de investimento?",
-                  resposta:
-                    "Não. O app pergunta em português simples quanto entra e quanto sai, e faz as contas por você. Foi feito justamente para quem odeia planilha.",
-                },
-                {
-                  pergunta: "Vocês vão tentar me vender produto de banco?",
-                  resposta:
-                    "Nunca. A Novare não recebe comissão de banco, corretora ou seguradora. É você quem paga, então é para você que a gente trabalha. É o que nos permite dizer “não compre” quando é o caso.",
-                },
-                {
-                  pergunta: "E se eu cancelar? Perco tudo?",
-                  resposta:
-                    "A cobrança para na hora, sem multa. As calculadoras continuam abertas para você, e os dados do seu planejamento ficam guardados na sua conta. Se voltar, está tudo lá.",
-                },
-              ]}
-            />
-            </div>
-
-            {/* A coluna da dúvida. O "FAQ" gigante atrás é marca d'água:
-                aria-hidden porque a seção já se nomeia no título ao lado. */}
-            <aside className="cine relative lg:sticky lg:top-8">
-              <span
-                aria-hidden
-                className="pointer-events-none absolute -top-8 left-0 select-none font-display text-[7rem] font-black leading-none tracking-tighter text-primary/[0.06] lg:text-[9rem]"
-              >
-                FAQ
-              </span>
-
-              <div className="relative pt-10">
-                <h2 className="font-display text-2xl font-bold leading-tight tracking-tight text-primary sm:text-3xl">
-                  Ainda ficou com
-                  <br />
-                  alguma dúvida?
-                </h2>
-                <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
-                  Chame no WhatsApp. Do outro lado tem gente da Novare, não
-                  robô de atendimento.
-                </p>
-
-                <a
-                  href={falarNoWhatsApp(
-                    `Olá! Tenho dúvidas sobre o ${ASSINATURA_NOME} antes de assinar.`,
-                  )}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group mt-6 inline-flex items-center gap-2 rounded-xl bg-success-strong px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-success"
-                >
-                  <MessageCircle className="h-4 w-4" />
-                  Chamar no WhatsApp
-                </a>
-              </div>
-            </aside>
-          </div>
-        </section>
-
-        {/* =================================================== 10. O FECHO
-
-            Fecho em cena: a arte do "caminho até o pôr do sol" entra como
-            fundo em parallax, com vinheta e camada escura fixa por cima. O
-            texto não depende da foto para ter contraste. */}
-        {/* A arte que estava aqui (`cards/card-projeto-vida.webp`) tem
-            placas com texto inventado por IA — "Urisdoams planoking" e
-            companhia. Legível a olho nu, e nada custa
-            mais caro numa página de venda do que parecer falsa. Trocada por
-            uma cena limpa, sem nenhuma letra. */}
-        <CenaFoto
-          src="/cenas/cena-fecho.webp"
-          intensidade={70}
-          className="border-t border-primary/20"
-        >
-          <div className="mx-auto max-w-2xl px-5 py-20 text-center sm:py-28">
-            <h2 className="cine font-display text-3xl font-bold leading-[1.1] tracking-tight text-white sm:text-[2.6rem]">
-              Seu dinheiro já está indo embora.
-              <br />
-              <span className="text-accent-claro">
-                Descobrir para onde é grátis.
-              </span>
-            </h2>
-
-            <div className="revelar mt-9 flex flex-col items-center gap-4">
-              <BotaoAssinarPlano
-                contexto="workspace"
-                tamanho="grande"
-                destaque
-                direto
-                rotulo={`Começar meus ${ASSINATURA_TRIAL_DIAS} dias grátis`}
-              />
-              <p className="text-2xs text-white/60">
-                {ASSINATURA_TRIAL_DIAS} dias grátis · sem cartão · cancele
-                quando quiser
-              </p>
               <a
                 href={falarNoWhatsApp(
-                  `Olá! Tenho dúvidas sobre o ${ASSINATURA_NOME} antes de assinar.`,
+                  "Olá! Queria falar com os sócios da Novare sobre o Diagnóstico Patrimonial.",
                 )}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-white/70 underline-offset-4 hover:text-white hover:underline"
+                className="revelar nv-btn nv-btn-navy shrink-0"
               >
-                Prefiro tirar uma dúvida no WhatsApp
-                <ArrowRight className="h-3.5 w-3.5" />
+                <MessageCircle className="h-4.5 w-4.5" />
+                Falar com os sócios
               </a>
             </div>
           </div>
-        </CenaFoto>
+        </section>
+
+        {/* ================================================ 10. A PARCERIA = */}
+        {/*
+            Print 120642: a palavra gigante ao fundo, o cartão escuro à
+            esquerda com os números, e a imagem escapando por cima da palavra.
+            A palavra é ornamento — fica `aria-hidden` e atrás de tudo.
+        */}
+        <section className="relative overflow-hidden bg-white py-20 sm:py-28">
+          <div className="relative mx-auto max-w-6xl px-5">
+            <span
+              aria-hidden
+              className="nv-palavra-fundo absolute -top-10 right-[-2%] z-0 text-[#eaf1f7] sm:-top-16"
+            >
+              NORD
+            </span>
+
+            <div className="relative z-10 grid items-center gap-6 lg:grid-cols-[1.08fr_0.92fr] lg:gap-0">
+              <article className="nv-navy-fundo revelar rounded-[30px] px-7 py-11 text-white sm:px-11 sm:py-14 lg:pr-24">
+                <span className="nv-chapeu text-[#6dc6e6]">
+                  Parceria técnica
+                </span>
+                <h2 className="nv-h3 mt-5 max-w-[22ch] text-white">
+                  O diagnóstico é da Novare. A inteligência por trás vem também
+                  da Nord.
+                </h2>
+                <p className="nv-corpo mt-5 max-w-lg text-white/68">
+                  A Nord é uma das maiores casas de análise independente do
+                  Brasil. Não distribui produto, não recebe comissão de banco e
+                  não tem carteira para empurrar. Pela Nord Wealth B2B, a Novare
+                  acessa esse research e o traduz em decisões concretas sobre o
+                  seu patrimônio.
+                </p>
+
+                <ul className="mt-9 grid gap-6 border-t border-white/12 pt-8 sm:grid-cols-3">
+                  {NORD_NUMEROS.map((n) => (
+                    <li key={n.rotulo}>
+                      <p className="text-[1.75rem] font-semibold leading-none tracking-[-0.05em] text-white">
+                        {n.valor}
+                      </p>
+                      <p className="mt-2 text-[0.75rem] leading-snug tracking-[-0.012em] text-white/62">
+                        {n.rotulo}
+                      </p>
+                    </li>
+                  ))}
+                </ul>
+              </article>
+
+              {/* A imagem sobrepõe o cartão pela esquerda em telas grandes —
+                  é o vazamento da referência, não uma coluna ao lado. */}
+              <div className="revelar relative mx-auto w-full max-w-[380px] lg:-ml-16">
+                <div className="cortina relative aspect-[4/5] overflow-hidden rounded-[26px] bg-[#dfe7ee] shadow-[0_36px_80px_-40px_rgba(15,27,43,0.65)]">
+                  <Image
+                    src={NORD_ROSTOS[0].foto}
+                    alt="Renato Breia, Nord Wealth"
+                    fill
+                    sizes="380px"
+                    className="object-cover"
+                  />
+                </div>
+
+                <figure className="absolute -bottom-5 left-4 right-4 rounded-[20px] border border-[#e6ecf3] bg-white/95 p-4 shadow-[0_20px_50px_-24px_rgba(15,27,43,0.5)] backdrop-blur-md sm:left-6 sm:right-6">
+                  <p className="nv-chapeu text-[#5b6d81]">
+                    Time técnico Nord Wealth
+                  </p>
+                  <ul className="mt-3 flex flex-wrap gap-x-5 gap-y-3">
+                    {NORD_ROSTOS.map((r) => (
+                      <li key={r.nome} className="flex items-center gap-2.5">
+                        <span className="relative h-9 w-9 overflow-hidden rounded-full bg-[#e9eef4]">
+                          <Image
+                            src={r.foto}
+                            alt={r.nome}
+                            fill
+                            sizes="36px"
+                            className="object-cover object-top"
+                          />
+                        </span>
+                        <span>
+                          <span className="block text-[0.8125rem] font-semibold leading-tight tracking-[-0.025em] text-[#0f1b2b]">
+                            {r.nome}
+                          </span>
+                          <span className="block text-[0.6875rem] leading-tight text-[#5b6d81]">
+                            {r.papel}
+                          </span>
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </figure>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ============================================ 11. O PAREDÃO ====== */}
+        {/*
+            Print 120617: a fileira de avatares acima do título centralizado, e
+            embaixo a "parede" de depoimentos desbotando nas laterais — a
+            sugestão de que a parede continua além do container.
+        */}
+        <section className="nv-gelo-fundo overflow-hidden py-20 sm:py-28">
+          <div className="mx-auto max-w-6xl px-5">
+            <div className="revelar nv-marcador">
+              <span className="nv-pill nv-chapeu">
+                <span className="nv-ponto" />
+                Depoimentos
+              </span>
+            </div>
+
+            <div className="mt-12 text-center">
+              <div className="revelar flex justify-center -space-x-3">
+                {DEPOIMENTOS.slice(0, 4).map((d) => (
+                  <span
+                    key={d.nome}
+                    aria-hidden
+                    className="grid h-12 w-12 place-items-center rounded-full border-[3px] border-[#f4f7fa] bg-[#152a44] text-[0.8125rem] font-semibold text-white"
+                  >
+                    {d.nome.charAt(0)}
+                  </span>
+                ))}
+              </div>
+              <h2 className="revelar nv-h2 mx-auto mt-8 max-w-[20ch] text-[#0f1b2b]">
+                O que diz quem já sentou do outro lado da mesa
+              </h2>
+              <p className="revelar nv-lead mx-auto mt-4 max-w-lg">
+                Relatos publicados pela Novare, de clientes que passaram pelo
+                diagnóstico.
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-14">
+            <ul className="revelar-escada mx-auto grid max-w-[1500px] grid-cols-1 gap-4 px-5 sm:grid-cols-2 lg:grid-cols-3">
+              {DEPOIMENTOS.map((d) => (
+                <li
+                  key={d.nome}
+                  className="flex flex-col rounded-[20px] border border-[#e4ebf2] bg-white p-6"
+                >
+                  <p className="text-[0.9375rem] leading-relaxed tracking-[-0.022em] text-[#46586e]">
+                    &ldquo;{d.texto}&rdquo;
+                  </p>
+                  <div className="mt-6 flex items-center gap-3 border-t border-[#eef2f7] pt-5">
+                    <span
+                      aria-hidden
+                      className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#eaf2f8] text-[0.8125rem] font-semibold text-[#17789c]"
+                    >
+                      {d.nome.charAt(0)}
+                    </span>
+                    <span>
+                      <span className="block text-[0.875rem] font-semibold leading-tight tracking-[-0.025em] text-[#0f1b2b]">
+                        {d.nome}
+                      </span>
+                      <span className="block text-[0.6875rem] uppercase tracking-[0.09em] text-[#5b6d81]">
+                        {d.papel}
+                      </span>
+                    </span>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+
+        {/* =============================================== 12. AS DÚVIDAS == */}
+        {/*
+            Print 120724: título à esquerda com o cartão de suporte embaixo, e
+            o acordeão numerado ocupando a coluna da direita.
+        */}
+        <section id="duvidas" className="bg-white py-20 sm:py-28">
+          <div className="mx-auto grid max-w-6xl gap-12 px-5 lg:grid-cols-[0.82fr_1.18fr] lg:gap-16">
+            <div>
+              <span className="revelar nv-pill nv-chapeu">
+                <span className="nv-ponto" />
+                Dúvidas frequentes
+              </span>
+              <h2 className="revelar nv-h2 mt-7 max-w-[12ch] text-[#0f1b2b]">
+                Antes de pedir,{" "}
+                <span className="text-[#2596be]">tire suas dúvidas</span>
+              </h2>
+
+              <div className="revelar mt-10 max-w-[280px] overflow-hidden rounded-[20px] border border-[#e6ecf3] bg-[#f5f9fc]">
+                <div className="relative aspect-[16/10]">
+                  <Image
+                    src="/lp/hero-socios.webp"
+                    alt=""
+                    fill
+                    sizes="280px"
+                    className="object-cover object-[center_28%]"
+                  />
+                </div>
+                <div className="flex items-center gap-3 p-4">
+                  <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#152a44] text-white">
+                    <MessageCircle className="h-4.5 w-4.5" />
+                  </span>
+                  <div>
+                    <p className="text-[0.8125rem] font-semibold tracking-[-0.025em] text-[#0f1b2b]">
+                      Ficou alguma dúvida?
+                    </p>
+                    <a
+                      href={WPP_GERAL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[0.75rem] font-medium text-[#17789c] underline underline-offset-2"
+                    >
+                      Fale direto com a Novare
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="revelar">
+              <AcordeaoDuvidas />
+            </div>
+          </div>
+        </section>
+
+        {/* ============================================= 13. O CTA FINAL === */}
+        {/*
+            Prints 120721 e 120726: o cartão escuro de duas colunas — o
+            argumento e a lista à esquerda, o cartão branco de ação à direita.
+            No lugar do preço da referência entra o formulário: aqui o próximo
+            passo não é pagar, é ser lido.
+        */}
+        <section
+          id="solicitar"
+          className="nv-navy-fundo nv-grade relative scroll-mt-24 overflow-hidden py-20 sm:py-28"
+        >
+          <div className="relative mx-auto max-w-6xl px-5">
+            <div className="grid overflow-hidden rounded-[32px] border border-white/10 bg-white/[0.035] backdrop-blur-sm lg:grid-cols-[1.02fr_0.98fr]">
+              {/* ------------------------------------------- o argumento -- */}
+              <div className="p-8 text-white sm:p-11 lg:p-14">
+                <span className="revelar nv-pill nv-pill-escura nv-chapeu">
+                  <span className="nv-ponto" />
+                  Seu próximo passo
+                </span>
+
+                <h2 className="revelar nv-h2 mt-7 max-w-[15ch] text-white">
+                  Uma conversa.{" "}
+                  <span className="text-[#6dc6e6]">
+                    Toda a clareza que faltava.
+                  </span>
+                </h2>
+                <p className="revelar nv-lead mt-6 max-w-md text-white/68">
+                  Você não está contratando um investimento. Está pedindo que
+                  alguém sem nada a te vender leia a sua carteira e te diga, por
+                  escrito, o que ela está fazendo.
+                </p>
+
+                <ul className="revelar-escada mt-10 space-y-3.5 border-t border-white/12 pt-9">
+                  {[
+                    "Análise da carteira atual, ativo por ativo",
+                    "Mapa de custos, riscos, tributação e concentração",
+                    "Relatório escrito e sob medida para o seu momento",
+                    "Reunião de devolutiva para ler o documento junto",
+                    "Sigilo absoluto e zero obrigação de continuar",
+                  ].map((l) => (
+                    <li key={l} className="flex gap-3">
+                      <span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-md bg-[#2596be] text-white">
+                        <Check className="h-3 w-3" strokeWidth={3} />
+                      </span>
+                      <span className="text-[0.9375rem] leading-snug tracking-[-0.022em] text-white/82">
+                        {l}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+
+                {/* O bloco de redução de risco (print 120721): número grande
+                    à esquerda, promessa à direita. Aqui o número é zero, que é
+                    a coisa mais tranquilizadora que a página pode dizer. */}
+                <div className="revelar mt-10 flex items-center gap-5 rounded-[22px] border border-white/12 bg-white/[0.05] p-5">
+                  <span className="grid h-16 w-16 shrink-0 place-items-center rounded-[18px] bg-[#2596be]/18 text-[2rem] font-semibold leading-none tracking-[-0.05em] text-[#6dc6e6]">
+                    0
+                  </span>
+                  <div>
+                    <p className="text-[0.9375rem] font-semibold tracking-[-0.03em] text-white">
+                      Nenhuma obrigação depois
+                    </p>
+                    <p className="mt-1 text-[0.8125rem] leading-snug tracking-[-0.015em] text-white/58">
+                      Recebeu o relatório, o trabalho está encerrado. Você segue
+                      livre — e no controle.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* ------------------------------------------ o formulário --- */}
+              <div className="p-4 sm:p-6 lg:py-14 lg:pl-4 lg:pr-14">
+                <div className="revelar overflow-hidden rounded-[26px] bg-white shadow-[0_40px_90px_-40px_rgba(0,0,0,0.7)]">
+                  <FormularioDiagnostico />
+                </div>
+
+                <p className="mt-5 flex items-center justify-center gap-2 text-[0.75rem] tracking-[-0.01em] text-white/58">
+                  <Lock className="h-3.5 w-3.5" />
+                  Solicitação gratuita e sem compromisso de contratação.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ================================================== 14. RODAPÉ === */}
+        <footer className="bg-[#070e19] px-5 pb-10 pt-14 text-white/60">
+          <div className="mx-auto max-w-6xl">
+            <div className="flex flex-col gap-10 border-b border-white/10 pb-10 md:flex-row md:items-start md:justify-between">
+              <div className="max-w-sm">
+                <Image
+                  src="/lp/novare-logo-branca.png"
+                  alt="Novare Consultoria de Investimentos"
+                  width={700}
+                  height={200}
+                  className="h-7 w-auto"
+                />
+                <p className="mt-5 text-[0.8125rem] leading-relaxed tracking-[-0.015em]">
+                  Consultoria de investimentos independente. Sem comissão de
+                  banco, corretora ou seguradora — em parceria técnica com a
+                  Nord Wealth.
+                </p>
+                <Image
+                  src="/lp/nord-logo-branca.png"
+                  alt="Nord Wealth"
+                  width={155}
+                  height={40}
+                  className="mt-6 h-4 w-auto opacity-55"
+                />
+              </div>
+
+              <div className="grid gap-8 sm:grid-cols-3 md:gap-12">
+                <div>
+                  <p className="nv-chapeu text-white/62">Contato</p>
+                  <ul className="mt-4 space-y-2.5 text-[0.875rem] tracking-[-0.02em]">
+                    <li>
+                      <a
+                        href={WPP_GERAL}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="transition-colors hover:text-white"
+                      >
+                        {CONTATO.telefone}
+                      </a>
+                    </li>
+                    <li>
+                      <a
+                        href={`mailto:${CONTATO.email}`}
+                        className="transition-colors hover:text-white"
+                      >
+                        {CONTATO.email}
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+
+                <div>
+                  <p className="nv-chapeu text-white/62">Legal</p>
+                  <ul className="mt-4 space-y-2.5 text-[0.875rem] tracking-[-0.02em]">
+                    <li>
+                      <Link
+                        href="/privacidade"
+                        className="transition-colors hover:text-white"
+                      >
+                        Política de Privacidade
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        href="/termos"
+                        className="transition-colors hover:text-white"
+                      >
+                        Termos de Uso
+                      </Link>
+                    </li>
+                  </ul>
+                </div>
+
+                <div>
+                  <p className="nv-chapeu text-white/62">Nesta página</p>
+                  <ul className="mt-4 space-y-2.5 text-[0.875rem] tracking-[-0.02em]">
+                    {[
+                      { href: "#problema", rotulo: "O problema" },
+                      { href: "#diagnostico", rotulo: "O diagnóstico" },
+                      { href: "#processo", rotulo: "Como funciona" },
+                      { href: "#duvidas", rotulo: "Dúvidas" },
+                    ].map((l) => (
+                      <li key={l.href}>
+                        <a
+                          href={l.href}
+                          className="transition-colors hover:text-white"
+                        >
+                          {l.rotulo}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            {/* O aviso legal existe porque a atividade é regulada e porque a
+                página inteira se sustenta em não prometer rentabilidade. */}
+            <p className="mt-8 max-w-3xl text-[0.75rem] leading-relaxed tracking-[-0.01em] text-white/58">
+              Material de caráter informativo. Não constitui oferta,
+              recomendação individualizada de investimento nem garantia de
+              rentabilidade. Rentabilidade passada não representa garantia de
+              resultado futuro. Toda análise é conduzida sem qualquer
+              movimentação, transferência ou custódia dos ativos do cliente.
+            </p>
+
+            <p className="mt-6 text-[0.75rem] tracking-[-0.01em] text-white/62">
+              © {new Date().getFullYear()} Novare Consultoria de Investimentos.
+              Todos os direitos reservados.
+            </p>
+          </div>
+        </footer>
       </main>
-
-      {/* Espaço para a barra fixa não tapar o rodapé no celular. */}
-      <div aria-hidden className="h-20 lg:hidden" />
-
-      <RodapeNovare convite={false} />
     </div>
   );
 }

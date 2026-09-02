@@ -186,7 +186,7 @@ export function PreenchimentoIA({
             com <strong>todas as suas contas</strong>, todo mês, e avisa quando
             algo foge do lugar.{" "}
             <Link
-              href="/assinar"
+              href="/assinar/workspace"
               className="font-semibold underline underline-offset-2"
             >
               Ver o Workspace

@@ -22,7 +22,7 @@ const AXE = readFileSync("node_modules/axe-core/axe.min.js", "utf8");
 
 const ROTAS = [
   "/", "/aplicativos", "/profissionais", "/profissionais/medicos",
-  "/acompanhamento", "/consultoria", "/assinar",
+  "/acompanhamento", "/consultoria", "/assinar", "/assinar/workspace",
   "/ferramentas/raio-x-previdencia", "/ferramentas/juros-compostos",
   "/ferramentas/salario-liquido", "/novare-news", "/iris", "/login",
 ];

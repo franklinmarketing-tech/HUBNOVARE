@@ -45,7 +45,7 @@ export function Rodape() {
             Consultoria
           </Link>
           <Link
-            href="/assinar"
+            href="/assinar/workspace"
             className="text-[11px] font-medium text-slate-500 transition-colors hover:text-primary"
           >
             Workspace

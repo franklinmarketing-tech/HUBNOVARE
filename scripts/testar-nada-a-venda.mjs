@@ -19,7 +19,7 @@ const ROTAS = [
   "/", "/aplicativos", "/aplicativos?area=ia", "/profissionais",
   "/profissionais/medicos", "/profissionais/engenheiros-e-arquitetos",
   "/profissionais/advogados", "/profissionais/dentistas",
-  "/acompanhamento", "/consultoria", "/assinar", "/iris", "/novare-news",
+  "/acompanhamento", "/consultoria", "/iris", "/novare-news",
   "/ferramentas/raio-x-previdencia", "/ferramentas/salario-liquido",
   "/planejamento", "/exame-saude-financeira",
 ];
@@ -29,7 +29,7 @@ const ROTAS = [
  * Planejamento e a landing da assinatura. Em qualquer outra rota, preço
  * continua proibido.
  */
-const ROTAS_COM_OFERTA = new Set(["/", "/planejamento", "/assinar"]);
+const ROTAS_COM_OFERTA = new Set(["/", "/planejamento", "/assinar/workspace"]);
 
 /** O preço aprovado. Qualquer outro valor mensal segue sendo erro. */
 const PRECO_APROVADO = /R\$\s?19,90/;
@@ -93,7 +93,7 @@ for (const rota of ROTAS) {
 
 // E o contrário: a página de assinatura precisa dizer o preço e a promessa
 // central. Uma landing de venda sem preço visível é pior do que não existir.
-await p.goto(BASE + "/assinar", { waitUntil: "domcontentloaded" });
+await p.goto(BASE + "/assinar/workspace", { waitUntil: "domcontentloaded" });
 await p.waitForSelector("h1", { timeout: 20000 });
 const tAssinar = await p.locator("body").innerText();
 
@@ -104,13 +104,13 @@ for (const [nome, re] of [
   ["explica o desconto na consultoria", /consultoria/i],
 ]) {
   if (re.test(tAssinar)) oks++;
-  else falhas.push(`/assinar: não ${nome}`);
+  else falhas.push(`/assinar/workspace: não ${nome}`);
 }
 
 // O desconto anunciado tem de ser o que o código pratica (DESCONTO_ASSINANTE).
 // Um número solto na página é a forma mais fácil de prometer o que não se dá.
 if (/30\s?% ?OFF/i.test(tAssinar)) oks++;
-else falhas.push("/assinar: não mostra o desconto de 30% do assinante");
+else falhas.push("/assinar/workspace: não mostra o desconto de 30% do assinante");
 
 await b.close();
 console.log(`\n${oks} conferências passaram em ${ROTAS.length} rotas`);

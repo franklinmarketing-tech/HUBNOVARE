@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Sora } from "next/font/google";
+import { DM_Sans, Inter, Sora } from "next/font/google";
 import { LuzDoCursor } from "@/components/LuzDoCursor";
 import { InclinaAoCursor } from "@/components/InclinaAoCursor";
 import { FitaProgresso } from "@/components/FitaProgresso";
@@ -22,6 +22,18 @@ const sora = Sora({
   subsets: ["latin"],
   variable: "--font-sora",
   weight: ["500", "600", "700", "800"],
+  display: "swap",
+});
+
+/**
+ * DM Sans — a tipografia da landing do Diagnóstico Patrimonial (/assinar).
+ * Fica no <html> como variável e só é aplicada por quem pede (`.lp-novare`),
+ * então o resto do Hub continua em Inter/Sora sem mudar um pixel.
+ */
+const dmSans = DM_Sans({
+  subsets: ["latin"],
+  variable: "--font-dm",
+  weight: ["400", "500", "600", "700"],
   display: "swap",
 });
 
@@ -71,7 +83,7 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="pt-BR" className={`${inter.variable} ${sora.variable}`}>
+    <html lang="pt-BR" className={`${inter.variable} ${sora.variable} ${dmSans.variable}`}>
       <body>
         {children}
         <LuzDoCursor />

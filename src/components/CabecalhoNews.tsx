@@ -30,7 +30,7 @@ import { InstagramLogo, YoutubeLogo } from "@/components/LogosSociais";
 
 const ECOSSISTEMA = [
   {
-    href: "/assinar",
+    href: "/assinar/workspace",
     nome: "Workspace",
     desc: "Todos os produtos numa assinatura",
     icone: Sparkles,
@@ -213,7 +213,7 @@ export function CabecalhoNews() {
           </a>
 
           <Link
-            href="/assinar"
+            href="/assinar/workspace"
             className="flex items-center gap-1.5 rounded-xl bg-accent-btn px-3.5 py-2 text-2xs font-bold text-accent-foreground transition-colors hover:bg-accent-strong sm:px-4"
           >
             <span className="hidden sm:inline">Quero meu Workspace</span>
@@ -230,7 +230,7 @@ export function CabecalhoNews() {
         <div className="mx-auto max-w-6xl overflow-x-auto px-4">
           <div className="flex w-max items-center gap-1 py-2">
             {/* Sem o Workspace: o botão laranja dele está logo acima. */}
-            {ECOSSISTEMA.filter((item) => item.href !== "/assinar").map((item) => (
+            {ECOSSISTEMA.filter((item) => item.href !== "/assinar/workspace").map((item) => (
               <LinkEco
                 key={item.nome}
                 item={item}

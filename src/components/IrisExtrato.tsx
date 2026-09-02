@@ -283,7 +283,7 @@ export function IrisExtrato() {
                   — faz parte do Workspace.
                 </p>
                 <Link
-                  href="/assinar"
+                  href="/assinar/workspace"
                   className="mt-4 inline-flex items-center gap-2 rounded-xl bg-accent-btn px-4 py-2.5 text-sm font-semibold text-accent-foreground transition-colors hover:bg-accent-strong"
                 >
                   Assinar o Workspace

@@ -15,6 +15,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "",
     "/aplicativos",
     "/assinar",
+    "/assinar/workspace",
     "/consultoria",
     "/iris",
     "/novare-news",

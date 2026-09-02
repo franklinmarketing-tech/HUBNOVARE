@@ -42,6 +42,8 @@ const ESPERA_MS = 12_000;
  * é cliente; quem está no login está no meio de um formulário. Interromper
  * qualquer um dos três é atrapalhar, não converter.
  */
+// "/assinar" cobre as duas landings: a do Diagnóstico Patrimonial e a da
+// assinatura, em "/assinar/workspace" (a checagem abaixo casa o prefixo).
 const MUDO_EM = ["/assinar", "/login", "/hub", "/admin", "/perfil", "/planejamento/app"];
 
 export function ConviteDeSaida() {
@@ -203,7 +205,7 @@ export function ConviteDeSaida() {
           </ul>
 
           <Link
-            href="/assinar"
+            href="/assinar/workspace"
             onClick={fechar}
             className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-white px-5 py-3.5 text-sm font-bold text-primary transition-transform hover:-translate-y-0.5"
           >

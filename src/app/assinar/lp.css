@@ -1,0 +1,555 @@
+/* ==========================================================================
+   LANDING DO DIAGNÓSTICO PATRIMONIAL — Novare Consultoria de Investimentos
+   --------------------------------------------------------------------------
+   Tudo aqui vive dentro de `.lp-novare`. O Hub inteiro continua em Inter/Sora
+   com os tokens de `globals.css`: esta folha não vaza para fora da landing.
+
+   TIPOGRAFIA
+   DM Sans com `letter-spacing: -0.03em`. O tracking negativo é o que dá o
+   aperto editorial das referências — em títulos grandes ele é a diferença
+   entre "página de banco" e "peça de design".
+
+   COR
+   A paleta é a da marca, não a da referência. O azul royal dos prints virou:
+   • navy Novare  (#152A44 → #0B1626) para as superfícies escuras;
+   • ciano  #2596BE — a terceira cor da marca, medida no site oficial — para
+     ação, links e sublinhados;
+   • laranja da casa só em chapéu de seção e marcadores, em dose pequena.
+   ========================================================================== */
+
+.lp-novare {
+  --nv-navy: #152a44;
+  --nv-navy-fundo: #0b1626;
+  --nv-navy-2: #1d3a58;
+  --nv-navy-3: #24486c;
+
+  --nv-ciano: #2596be;
+  --nv-ciano-forte: #17789c;
+  --nv-ciano-claro: #6dc6e6;
+  --nv-ciano-tint: #eaf6fb;
+
+  --nv-laranja: #c9491a;
+  --nv-laranja-claro: #f08a5f;
+
+  --nv-tinta: #0f1b2b;
+  --nv-tinta-2: #46586e;
+  --nv-tinta-3: #7d8d9f;
+
+  --nv-papel: #ffffff;
+  --nv-gelo: #f4f7fa;
+  --nv-gelo-2: #e9eef4;
+  --nv-borda: #e2e8f0;
+
+  --nv-raio: 24px;
+  --nv-raio-g: 32px;
+
+  font-family: var(--font-dm), system-ui, -apple-system, sans-serif;
+  letter-spacing: -0.03em;
+  color: var(--nv-tinta);
+  background: var(--nv-papel);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ==========================================================================
+   AS DUAS CAMADAS DESTA FOLHA — e por que elas existem
+   --------------------------------------------------------------------------
+   `@layer base` guarda só o reset de heading. Ele precisa PERDER para tudo:
+   para as classes .nv-* daqui e para qualquer `text-[…]` escrito no JSX.
+
+   `@layer components` guarda todo o resto. A ordem de camadas do Tailwind é
+   theme → base → components → utilities, então:
+
+     • .nv-display vence `.lp-novare h1` do reset (components > base);
+     • `hidden`, `text-white/72` e `bg-…` do JSX vencem as classes daqui
+       (utilities > components).
+
+   A segunda metade não é detalhe de estilo: sem ela, `.nv-btn` — que declara
+   `display: inline-flex` — ganhava do `hidden` do Tailwind e o CTA de desktop
+   aparecia dentro da cápsula de navegação do celular, espremendo o menu.
+   ========================================================================== */
+
+@layer base {
+  .lp-novare h1,
+  .lp-novare h2,
+  .lp-novare h3,
+  .lp-novare h4 {
+    font-size: inherit;
+    line-height: inherit;
+    font-weight: inherit;
+    letter-spacing: inherit;
+    color: inherit;
+  }
+}
+
+@layer components {
+  .lp-novare :focus-visible {
+    outline: 2px solid var(--nv-ciano);
+    outline-offset: 3px;
+    border-radius: 6px;
+  }
+
+  /* --------------------------------------------------------------- escala -- */
+
+  /* Display gigante do herói e dos títulos de virada. O clamp encolhe pelo
+     viewport, e o line-height cai conforme o tamanho sobe — título grande com
+     entrelinha de parágrafo é o erro mais comum em LP. */
+  .nv-display {
+    font-size: clamp(2.35rem, 1.45rem + 3.1vw, 3.9rem);
+    line-height: 1.02;
+    letter-spacing: -0.042em;
+    font-weight: 500;
+  }
+
+  .nv-h2 {
+    font-size: clamp(2rem, 1.3rem + 2.6vw, 3.1rem);
+    line-height: 1.06;
+    letter-spacing: -0.04em;
+    font-weight: 500;
+  }
+
+  .nv-h3 {
+    font-size: clamp(1.35rem, 1.15rem + 0.8vw, 1.75rem);
+    line-height: 1.15;
+    letter-spacing: -0.035em;
+    font-weight: 600;
+  }
+
+  .nv-lead {
+    font-size: clamp(1rem, 0.95rem + 0.35vw, 1.1875rem);
+    line-height: 1.55;
+    letter-spacing: -0.022em;
+    color: var(--nv-tinta-2);
+  }
+
+  .nv-corpo {
+    font-size: 0.9375rem;
+    line-height: 1.62;
+    letter-spacing: -0.018em;
+    color: var(--nv-tinta-2);
+  }
+
+  /* Chapéu de seção: caixa alta, pequeno, com tracking POSITIVO. É a única
+     tipografia da página que abre o espacejamento — texto miúdo apertado vira
+     mancha cinza. */
+  .nv-chapeu {
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  /* ------------------------------------------------------------ pastilhas -- */
+
+  /* A pastilha das referências: cápsula de borda fina com a linha pontuada
+     saindo pela direita até a margem do container (prints 120603 e 120605).
+     A linha é um pseudo-elemento do WRAPPER, não da pastilha — assim ela
+     começa exatamente onde a cápsula termina e some antes da borda. */
+  .nv-marcador {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .nv-marcador::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      var(--nv-ciano) 0%,
+      rgba(37, 150, 190, 0.35) 35%,
+      rgba(37, 150, 190, 0.12) 100%
+    );
+    position: relative;
+  }
+
+  .nv-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    flex: none;
+    padding: 8px 16px;
+    border-radius: 999px;
+    border: 1px solid rgba(37, 150, 190, 0.32);
+    background: var(--nv-ciano-tint);
+    color: var(--nv-ciano-forte);
+  }
+
+  .nv-pill-escura {
+    border-color: rgba(255, 255, 255, 0.18);
+    background: rgba(255, 255, 255, 0.08);
+    color: #cfe6f2;
+    backdrop-filter: blur(6px);
+  }
+
+  .nv-ponto {
+    width: 6px;
+    height: 6px;
+    border-radius: 999px;
+    background: currentColor;
+    flex: none;
+  }
+
+  /* --------------------------------------------------------------- botões -- */
+
+  .nv-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-height: 54px;
+    padding: 0 26px;
+    border-radius: 999px;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    white-space: nowrap;
+    transition:
+      transform 220ms cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 220ms ease,
+      background-color 200ms ease,
+      color 200ms ease,
+      border-color 200ms ease;
+  }
+
+  .nv-btn:hover {
+    transform: translateY(-2px);
+  }
+
+  .nv-btn:active {
+    transform: translateY(0);
+  }
+
+  /* Primário sobre fundo claro: navy cheio. */
+  .nv-btn-navy {
+    background: var(--nv-navy);
+    color: #fff;
+    box-shadow: 0 12px 30px -14px rgba(21, 42, 68, 0.75);
+  }
+  .nv-btn-navy:hover {
+    background: var(--nv-navy-2);
+    box-shadow: 0 20px 40px -16px rgba(21, 42, 68, 0.7);
+  }
+
+  /* Primário sobre fundo escuro: branco cheio (prints 120600 e 120655). */
+  .nv-btn-branco {
+    background: #fff;
+    color: var(--nv-navy);
+    box-shadow: 0 14px 34px -16px rgba(0, 0, 0, 0.6);
+  }
+  .nv-btn-branco:hover {
+    background: #eef5f9;
+  }
+
+  .nv-btn-ciano {
+    background: var(--nv-ciano);
+    color: #fff;
+    box-shadow: 0 14px 34px -14px rgba(37, 150, 190, 0.8);
+  }
+  .nv-btn-ciano:hover {
+    background: var(--nv-ciano-forte);
+  }
+
+  .nv-btn-fantasma {
+    background: rgba(255, 255, 255, 0.07);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    backdrop-filter: blur(8px);
+  }
+  .nv-btn-fantasma:hover {
+    background: rgba(255, 255, 255, 0.14);
+  }
+
+  .nv-btn-linha {
+    background: #fff;
+    color: var(--nv-navy);
+    border: 1px solid var(--nv-borda);
+  }
+  .nv-btn-linha:hover {
+    border-color: var(--nv-ciano);
+    color: var(--nv-ciano-forte);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .lp-novare .nv-btn:hover {
+      transform: none;
+    }
+  }
+
+  /* --------------------------------------------------------------- fundos -- */
+
+  .nv-navy-fundo {
+    background:
+      radial-gradient(60rem 34rem at 82% -12%, rgba(37, 150, 190, 0.22), transparent 62%),
+      radial-gradient(48rem 30rem at 6% 108%, rgba(201, 73, 26, 0.13), transparent 60%),
+      linear-gradient(158deg, #152a44 0%, #0b1626 100%);
+  }
+
+  .nv-gelo-fundo {
+    background: linear-gradient(180deg, #f7fafc 0%, #eef3f8 100%);
+  }
+
+  /* Grade fina que some nas bordas: profundidade sem imagem e sem peso. */
+  .nv-grade {
+    position: relative;
+    isolation: isolate;
+  }
+  .nv-grade::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.045) 1px, transparent 1px);
+    background-size: 66px 66px;
+    mask-image: radial-gradient(80% 65% at 50% 40%, #000 30%, transparent 100%);
+  }
+
+  /* -------------------------------------------------- cartão com carimbo --- */
+
+  /* O bloco navy deslocado ATRÁS da foto (print 120614). Não é sombra: é uma
+     segunda superfície, deslocada no eixo x/y, que aparece nas bordas. */
+  .nv-carimbo {
+    position: relative;
+  }
+  .nv-carimbo::before {
+    content: "";
+    position: absolute;
+    inset: 34px -30px -34px 34px;
+    border-radius: var(--nv-raio-g);
+    background: linear-gradient(150deg, var(--nv-navy-2), var(--nv-navy));
+    z-index: 0;
+  }
+  .nv-carimbo > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  @media (max-width: 767px) {
+    .nv-carimbo::before {
+      inset: 22px -14px -22px 22px;
+    }
+  }
+
+  /* ------------------------------------------------------- palavra-fundo --- */
+
+  /* A tipografia gigante que vaza atrás da composição (print 120642). Fica em
+     z-index 0 e é `aria-hidden`: é ornamento, não conteúdo. */
+  .nv-palavra-fundo {
+    font-size: clamp(5rem, 15vw, 15rem);
+    font-weight: 700;
+    letter-spacing: -0.06em;
+    line-height: 0.78;
+    user-select: none;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+
+  /* ------------------------------------------------------------- letreiro -- */
+
+  .nv-letreiro {
+    display: flex;
+    width: max-content;
+    animation: nv-anda 46s linear infinite;
+  }
+
+  @keyframes nv-anda {
+    from {
+      transform: translate3d(0, 0, 0);
+    }
+    to {
+      transform: translate3d(-50%, 0, 0);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .nv-letreiro {
+      animation: none;
+    }
+  }
+
+  /* ------------------------------------------------------------ carrossel -- */
+
+  /* A margem de entrada do trilho vem de uma variável porque ela precisa ser
+     escrita DUAS vezes: em `padding-left`, que empurra o primeiro cartão para
+     a coluna do texto, e em `scroll-padding-left`, que move o início do
+     snapport junto.
+
+     Sem a segunda, o `scroll-snap-type: x mandatory` rola o trilho sozinho
+     para encostar o primeiro cartão na borda do scrollport — e a margem some
+     no carregamento, sem nenhum erro no console. */
+  .nv-trilho {
+    display: flex;
+    gap: 20px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    padding-bottom: 4px;
+    padding-left: var(--nv-margem, 0px);
+    scroll-padding-left: var(--nv-margem, 0px);
+  }
+  .nv-trilho::-webkit-scrollbar {
+    display: none;
+  }
+  .nv-trilho > * {
+    scroll-snap-align: start;
+    flex: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .nv-trilho {
+      scroll-behavior: auto;
+    }
+  }
+
+  /* --------------------------------------------------------------- etapas -- */
+
+  /* Os quatro cartões empilhados que escurecem a cada passo (prints 120608 e
+     120611). O gradiente radial no canto direito é o que impede o cartão
+     escuro de virar um retângulo chapado. */
+  .nv-etapa {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--nv-raio-g);
+    padding: clamp(28px, 4vw, 52px);
+  }
+
+  .nv-etapa::after {
+    content: "";
+    position: absolute;
+    right: -4%;
+    bottom: -40%;
+    width: 46%;
+    aspect-ratio: 1;
+    border-radius: 999px;
+    background: var(--nv-brilho, transparent);
+    filter: blur(52px);
+    pointer-events: none;
+  }
+
+  /* --------------------------------------------------------------- campos -- */
+
+  .nv-campo {
+    width: 100%;
+    height: 52px;
+    border-radius: 14px;
+    border: 1px solid var(--nv-borda);
+    background: #fff;
+    padding: 0 16px;
+    font-size: 0.9375rem;
+    letter-spacing: -0.02em;
+    color: var(--nv-tinta);
+    transition:
+      border-color 180ms ease,
+      box-shadow 180ms ease;
+  }
+  .nv-campo::placeholder {
+    color: #a6b4c4;
+  }
+  .nv-campo:focus {
+    outline: none;
+    border-color: var(--nv-ciano);
+    box-shadow: 0 0 0 4px rgba(37, 150, 190, 0.14);
+  }
+
+  /* Ficha de escolha do formulário em etapas: alvo grande, estado óbvio. */
+  .nv-ficha {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    text-align: left;
+    padding: 15px 17px;
+    border-radius: 15px;
+    border: 1px solid var(--nv-borda);
+    background: #fff;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    color: var(--nv-tinta);
+    transition:
+      border-color 170ms ease,
+      background-color 170ms ease,
+      box-shadow 170ms ease;
+  }
+  .nv-ficha:hover {
+    border-color: rgba(37, 150, 190, 0.5);
+    background: #fbfdfe;
+  }
+  .nv-ficha[data-marcada="sim"] {
+    border-color: var(--nv-ciano);
+    background: var(--nv-ciano-tint);
+    box-shadow: 0 0 0 3px rgba(37, 150, 190, 0.12);
+  }
+
+  .nv-caixa {
+    width: 22px;
+    height: 22px;
+    flex: none;
+    border-radius: 7px;
+    border: 1.5px solid #cbd6e2;
+    display: grid;
+    place-items: center;
+    color: #fff;
+    transition:
+      background-color 170ms ease,
+      border-color 170ms ease;
+  }
+  .nv-ficha[data-marcada="sim"] .nv-caixa {
+    background: var(--nv-ciano);
+    border-color: var(--nv-ciano);
+  }
+
+  /* ----------------------------------------------------------- acordeão ---- */
+
+  .nv-resposta {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 340ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .nv-resposta[data-aberta="sim"] {
+    grid-template-rows: 1fr;
+  }
+  .nv-resposta > div {
+    overflow: hidden;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .nv-resposta {
+      transition: none;
+    }
+  }
+
+  /* -------------------------------------------------------------- máscara -- */
+
+  /* O "paredão" de depoimentos das referências desbota nas laterais para
+     sugerir que a parede continua além do container (print 120617). */
+  .nv-desbota-lados {
+    mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
+  }
+  .nv-desbota-baixo {
+    mask-image: linear-gradient(180deg, #000 55%, transparent);
+  }
+
+  /* ------------------------------------------------------------- barra CTA - */
+
+  .nv-barra-fixa {
+    transform: translateY(120%);
+    transition: transform 380ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .nv-barra-fixa[data-visivel="sim"] {
+    transform: translateY(0);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .nv-barra-fixa {
+      transition: none;
+    }
+  }
+}
