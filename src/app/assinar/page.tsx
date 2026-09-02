@@ -25,6 +25,7 @@ import { OQueSignifica } from "@/components/OQueSignifica";
 import { BotaoAssinarPlano } from "@/components/BotaoAssinarPlano";
 import { BarraAssinarFixa } from "@/components/BarraAssinarFixa";
 import { TituloCine } from "@/components/TituloCine";
+import { FundoCena } from "@/components/FundoCena";
 import { CenaParallax } from "@/components/CenaParallax";
 import { BannerDemo } from "@/components/BannerDemo";
 import { CenaFoto } from "@/components/CenaFoto";
@@ -255,6 +256,16 @@ export default function AssinarPage() {
           className="palco-vivo cine-grade relative overflow-hidden text-white"
           style={PALCO}
         >
+          {/* A cena holográfica atrás da promessa. Opacidade baixa: ela dá
+              profundidade à dobra sem disputar leitura com a headline. */}
+          <FundoCena
+            src="/cenas/cena-holo.webp"
+            opacidade={0.75}
+            posicao="center 32%"
+            prioridade
+            fundir
+          />
+
           <div className="relative mx-auto max-w-5xl px-5 py-16 text-center sm:py-20 lg:py-24">
             <span className="cine inline-flex items-center gap-1.5 rounded-full bg-white/[0.12] px-3 py-1.5 text-2xs font-bold uppercase tracking-wider backdrop-blur-sm">
               <Sparkles className="h-3.5 w-3.5 text-ciano-claro" />
@@ -417,7 +428,9 @@ export default function AssinarPage() {
 
         {/* ===================================================== 3. A VIRADA */}
         <section className="relative overflow-hidden text-white" style={NAVY}>
-          <div className="mx-auto max-w-4xl px-5 py-16 sm:py-20">
+          <FundoCena src="/cenas/cena-luz.webp" opacidade={0.6} />
+
+          <div className="relative mx-auto max-w-4xl px-5 py-16 sm:py-20">
             <div className="cine text-center">
               <h2 className="font-display text-3xl font-bold leading-[1.1] tracking-tight sm:text-[2.6rem]">
                 De onde você está para onde dá para chegar
@@ -494,7 +507,9 @@ export default function AssinarPage() {
             quer dizer. Layout dividido: o argumento à esquerda, o desenho à
             direita, como o diagrama de produto que serviu de referência. */}
         <section className="relative overflow-hidden text-white" style={NAVY}>
-          <div className="mx-auto grid max-w-5xl items-center gap-10 px-5 py-16 sm:py-20 lg:grid-cols-2">
+          <FundoCena src="/cenas/cena-luz.webp" opacidade={0.55} espelhada />
+
+          <div className="relative mx-auto grid max-w-5xl items-center gap-10 px-5 py-16 sm:py-20 lg:grid-cols-2">
             <div className="cine">
               <h2 className="font-display text-3xl font-bold leading-[1.1] tracking-tight sm:text-[2.6rem]">
                 Uma só superfície para
@@ -693,7 +708,16 @@ export default function AssinarPage() {
 
         {/* ===================================================== 7. A OFERTA */}
         <section className="relative overflow-hidden text-white" style={PALCO}>
-          <div className="mx-auto max-w-3xl px-5 py-16 sm:py-20">
+          {/* A mesma cena holográfica do topo fecha a página: quem rolou até
+              aqui volta ao ambiente da promessa na hora de decidir. */}
+          <FundoCena
+            src="/cenas/cena-holo.webp"
+            opacidade={0.6}
+            posicao="center 40%"
+            espelhada
+          />
+
+          <div className="relative mx-auto max-w-3xl px-5 py-16 sm:py-20">
             <div className="cine text-center">
               <p className="text-2xs font-bold uppercase tracking-[0.18em] text-accent-claro">
                 Um preço só, sem letra miúda
@@ -851,8 +875,13 @@ export default function AssinarPage() {
             Fecho em cena: a arte do "caminho até o pôr do sol" entra como
             fundo em parallax, com vinheta e camada escura fixa por cima. O
             texto não depende da foto para ter contraste. */}
+        {/* A arte que estava aqui (`cards/card-projeto-vida.webp`) tem
+            placas com texto inventado por IA — "Urisdoams planoking" e
+            companhia. Legível a olho nu, e nada custa
+            mais caro numa página de venda do que parecer falsa. Trocada por
+            uma cena limpa, sem nenhuma letra. */}
         <CenaFoto
-          src="/cards/card-projeto-vida.webp"
+          src="/cenas/cena-fecho.webp"
           intensidade={70}
           className="border-t border-primary/20"
         >

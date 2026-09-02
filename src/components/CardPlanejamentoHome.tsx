@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Target } from "lucide-react";
 import { PLANO_PRECO_ROTULO, PLANO_TRIAL_DIAS } from "@/lib/planejamento/oferta";
@@ -29,6 +30,18 @@ export function CardPlanejamentoHome({
           boxShadow: "inset 0 1px 0 hsl(35 90% 80% / 0.28)",
         }}
       >
+        {/* O render dos painéis de vidro por trás do laranja. Entra em
+            `soft-light` e com opacidade baixa: vira textura e brilho, não
+            uma segunda imagem competindo com o título do card. */}
+        <Image
+          aria-hidden
+          alt=""
+          src="/cenas/cena-painel-3d.webp"
+          fill
+          sizes="(max-width: 640px) 100vw, 25vw"
+          className="pointer-events-none object-cover opacity-25 mix-blend-soft-light transition-transform duration-500 group-hover:scale-105"
+        />
+
         <span
           aria-hidden
           className="pointer-events-none absolute inset-0"

@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
@@ -17,13 +18,26 @@ export function BannerIris({ className = "" }: { className?: string }) {
   return (
     <Link
       href="/iris"
-      className={`glass-card group cine flex min-w-0 items-center gap-3 rounded-2xl bg-gradient-to-r from-ciano-tint/80 via-white to-white p-3 shadow-card ring-1 ring-ciano/15 transition-all hover:-translate-y-0.5 hover:shadow-card-hover hover:ring-ciano/30 ${className}`}
+      className={`glass-card group cine relative flex min-w-0 items-center gap-3 overflow-hidden rounded-2xl bg-gradient-to-r from-ciano-tint/80 via-white to-white p-3 shadow-card ring-1 ring-ciano/15 transition-all hover:-translate-y-0.5 hover:shadow-card-hover hover:ring-ciano/30 ${className}`}
     >
-      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-ciano-tint">
-        <RoboIlustrado />
+      {/* O avatar dela é o holograma, redondo.
+      
+          A cena chegou a entrar como retangulo de fundo no canto direito da
+          faixa, mas arte escura sobre uma faixa clara vira uma caixa colada:
+          via-se a borda, não a imagem. Recortada em círculo no lugar do
+          ícone ela faz o mesmo trabalho — dizer "isso é a IA" antes da
+          leitura — sem sujar o bloco. */}
+      <span className="relative h-9 w-9 shrink-0 overflow-hidden rounded-full bg-primary ring-1 ring-ciano/30">
+        <Image
+          alt=""
+          src="/cenas/cena-iris.webp"
+          fill
+          sizes="36px"
+          className="object-cover transition-transform duration-500 group-hover:scale-110"
+        />
       </span>
 
-      <span className="min-w-0 flex-1">
+      <span className="relative min-w-0 flex-1">
         {/* flex-wrap + min-w-0: sem os dois, o título e o selo "beta" se
             recusam a quebrar e empurram a faixa para fora da tela no
             celular — foi assim que a home passou a rolar de lado. */}
@@ -40,26 +54,7 @@ export function BannerIris({ className = "" }: { className?: string }) {
         </span>
       </span>
 
-      <ArrowRight className="h-4 w-4 shrink-0 text-ciano-forte transition-transform group-hover:translate-x-0.5" />
+      <ArrowRight className="relative h-4 w-4 shrink-0 text-ciano-forte transition-transform group-hover:translate-x-0.5" />
     </Link>
-  );
-}
-
-/** O rosto dela. Decorativo — o texto ao lado é quem nomeia a faixa. */
-function RoboIlustrado() {
-  return (
-    <svg aria-hidden viewBox="0 0 64 64" className="h-5 w-5">
-      <g fill="currentColor" className="text-ciano-forte">
-        <rect x="6" y="26" width="6" height="13" rx="3" opacity="0.55" />
-        <rect x="52" y="26" width="6" height="13" rx="3" opacity="0.55" />
-        <rect x="13" y="13" width="38" height="35" rx="13" />
-      </g>
-      <line x1="32" y1="7" x2="32" y2="13" stroke="currentColor" strokeWidth="2.5"
-        strokeLinecap="round" className="text-ciano-forte" />
-      <circle cx="32" cy="6" r="2.6" className="fill-ciano" />
-      <rect x="18" y="19" width="28" height="21" rx="9.5" className="fill-white/95" />
-      <circle cx="26" cy="29" r="3.2" className="fill-ciano" />
-      <circle cx="38" cy="29" r="3.2" className="fill-ciano" />
-    </svg>
   );
 }
