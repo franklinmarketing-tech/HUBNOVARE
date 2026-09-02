@@ -1,7 +1,9 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { Loader2 } from "lucide-react";
+import { ETAPAS } from "./etapas";
 
 /** Dinheiro sem centavos — em plano de vida, centavo é ruído. */
 export const brl = (v: number) =>
@@ -39,15 +41,45 @@ export function TituloTela({
   titulo: string;
   resumo: string;
 }) {
+  // O emblema vem do número, não de mais uma prop: as seis telas já chamam
+  // esta peça com `etapa.numero`, e trocar a assinatura obrigaria a mexer em
+  // todas elas para não ganhar nada.
+  const icone = ETAPAS.find((e) => e.numero === numero)?.icone;
+
   return (
-    <header className="mb-6">
-      <p className="text-2xs font-semibold uppercase tracking-wider text-accent-strong">
-        Etapa {numero}
-      </p>
-      <h1 className="mt-1 font-display text-2xl font-bold tracking-tight text-primary sm:text-3xl">
-        {titulo}
-      </h1>
-      <p className="mt-1.5 text-sm text-muted-foreground">{resumo}</p>
+    <header className="mb-6 flex items-start gap-4">
+      {icone && (
+        <span className="relative hidden h-14 w-14 shrink-0 items-center justify-center sm:flex">
+          {/* O halo atrás assenta o emblema no fundo claro — sem ele o PNG
+              recortado parece colado na página. */}
+          <span
+            aria-hidden
+            className="absolute inset-0 rounded-full blur-lg"
+            style={{
+              background:
+                "radial-gradient(circle, hsl(197 80% 55% / 0.32), transparent 70%)",
+            }}
+          />
+          <Image
+            src={icone}
+            alt=""
+            width={56}
+            height={56}
+            priority
+            className="relative object-contain"
+          />
+        </span>
+      )}
+
+      <div className="min-w-0">
+        <p className="text-2xs font-semibold uppercase tracking-wider text-accent-strong">
+          Etapa {numero} de {ETAPAS.length}
+        </p>
+        <h1 className="mt-1 font-display text-2xl font-bold tracking-tight text-primary sm:text-3xl">
+          {titulo}
+        </h1>
+        <p className="mt-1.5 text-sm text-muted-foreground">{resumo}</p>
+      </div>
     </header>
   );
 }

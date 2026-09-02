@@ -3,13 +3,13 @@
 import Link from "next/link";
 import { ArrowRight, Target, TrendingUp } from "lucide-react";
 import { usePlanejamento } from "./usePlanejamento";
+import { BoasVindas } from "./BoasVindas";
 import { NOTA_RISCO } from "@/lib/planejamento/diagnostico";
 import {
   Barra,
   BotaoPrincipal,
   Carregando,
   Indicador,
-  PrecisaPreencher,
   SemFicha,
   brl,
   brlCurto,
@@ -26,14 +26,9 @@ export default function PainelPage() {
 
   const { plano, saude, reserva, diagnostico, entrada, vazio } = r.dados;
 
-  if (vazio) {
-    return (
-      <PrecisaPreencher
-        titulo="Bem-vindo ao seu planejamento"
-        texto="São blocos curtos. Ao final, seu diagnóstico e seu plano ficam prontos na hora — sem esperar ninguém."
-      />
-    );
-  }
+  // Ficha ainda em branco: em vez do aviso seco de "preencha seus dados",
+  // a trilha inteira ilustrada — ver BoasVindas.
+  if (vazio) return <BoasVindas />;
 
   const nota = NOTA_RISCO[diagnostico.risco];
   const anosAteApos = entrada.idadeAposentadoria - entrada.idadeAtual;

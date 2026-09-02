@@ -6,6 +6,7 @@ import { LogOut } from "lucide-react";
 import { getPerfil } from "@/lib/perfil";
 import { NavEtapas } from "./NavEtapas";
 import { FaixaTeste } from "./FaixaTeste";
+import { RodapeEtapas } from "./RodapeEtapas";
 import { sair } from "./actions";
 
 export const metadata: Metadata = {
@@ -82,6 +83,10 @@ export default async function LayoutPlanejamento({
             pessoa já usou o produto, então a conversa é sobre continuar. */}
         <FaixaTeste />
         {children}
+
+        {/* Vive no layout, e não em cada página, para nenhuma tela nova
+            esquecer de oferecer o passo seguinte. */}
+        <RodapeEtapas />
       </main>
     </div>
   );
