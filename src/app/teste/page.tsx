@@ -8,45 +8,52 @@ import { createClient } from "@/lib/supabase/client";
 /**
  * Entrada rápida de teste: digita só uma senha e cai no app.
  *
- * ⚠️ ATALHO TEMPORÁRIO, a pedido do dono, para testar em campo sem digitar
- * e-mail e senha. Loga sempre na conta abaixo.
+ * ⚠️ ATALHO TEMPORÁRIO, a pedido do dono, para os consultores testarem em
+ * campo sem digitar e-mail e senha. Loga sempre na conta de teste definida
+ * nas variáveis de ambiente.
  *
- * ⚠️⚠️ RISCO CONHECIDO E ACEITO PELO DONO: esta conta é ADMIN, e admin vê os
- * dados de TODOS os clientes (o Supabase é compartilhado com o novareapp).
- * A senha "adm123" é trivial e as credenciais ficam no bundle público. Ou
- * seja: quem descobrir a URL /teste entra como admin. É aceitável só
- * enquanto isto é teste fechado. ANTES DE DIVULGAR PARA QUALQUER PÚBLICO,
- * apague a pasta src/app/teste inteira.
+ * SEM SEGREDO NO CÓDIGO: e-mail, senha e a "porta" vêm de env vars, não estão
+ * escritos aqui — assim nada disso vai para o repositório público. A conta
+ * apontada é um CLIENTE comum de teste (7 dias grátis, sem dados de
+ * terceiros, sem admin), então mesmo o que a env `NEXT_PUBLIC_*` expõe no
+ * navegador é descartável.
+ *
+ * Se as variáveis não estiverem configuradas, a página avisa em vez de tentar
+ * um login vazio.
+ *
+ * REMOVER ANTES DE ABRIR AO PÚBLICO: apague a pasta src/app/teste.
  */
 
-const CONTA = {
-  email: "novareadmapp@gmail.com",
-  password: "novareadm",
-};
-
-/** A palavra que abre a porta. */
-const PORTA = "adm123";
+const PORTA = process.env.NEXT_PUBLIC_TESTE_PORTA ?? "";
+const EMAIL = process.env.NEXT_PUBLIC_TESTE_EMAIL ?? "";
+const SENHA = process.env.NEXT_PUBLIC_TESTE_SENHA ?? "";
 
 export default function EntrarTeste() {
   const [valor, setValor] = useState("");
-  const [erro, setErro] = useState(false);
+  const [erro, setErro] = useState<string | null>(null);
   const [entrando, setEntrando] = useState(false);
   const router = useRouter();
 
+  const configurado = PORTA && EMAIL && SENHA;
+
   async function entrar(e: React.FormEvent) {
     e.preventDefault();
+    if (!configurado) return;
     if (valor.trim() !== PORTA) {
-      setErro(true);
+      setErro("Senha incorreta.");
       return;
     }
     setEntrando(true);
-    setErro(false);
+    setErro(null);
 
     const supabase = createClient();
-    const { error } = await supabase.auth.signInWithPassword(CONTA);
+    const { error } = await supabase.auth.signInWithPassword({
+      email: EMAIL,
+      password: SENHA,
+    });
     if (error) {
       setEntrando(false);
-      setErro(true);
+      setErro("Não consegui entrar. A conta de teste pode ter mudado.");
       return;
     }
     router.push("/planejamento/app");
@@ -69,33 +76,40 @@ export default function EntrarTeste() {
           Digite a senha para entrar.
         </p>
 
-        <input
-          type="password"
-          value={valor}
-          onChange={(e) => {
-            setValor(e.target.value);
-            setErro(false);
-          }}
-          autoFocus
-          placeholder="senha"
-          className={`mt-5 h-11 w-full rounded-xl border bg-white px-4 text-center text-sm outline-none transition-colors ${
-            erro ? "border-destructive" : "border-border focus:border-primary/40"
-          }`}
-        />
-
-        {erro && (
-          <p className="mt-2 text-center text-xs text-destructive">
-            Senha incorreta.
+        {!configurado ? (
+          <p className="mt-5 rounded-xl bg-warning/10 px-4 py-3 text-center text-xs text-slate-700">
+            A entrada de teste ainda não foi configurada. Faltam as variáveis
+            NEXT_PUBLIC_TESTE_PORTA, _EMAIL e _SENHA.
           </p>
-        )}
+        ) : (
+          <>
+            <input
+              type="password"
+              value={valor}
+              onChange={(e) => {
+                setValor(e.target.value);
+                setErro(null);
+              }}
+              autoFocus
+              placeholder="senha"
+              className={`mt-5 h-11 w-full rounded-xl border bg-white px-4 text-center text-sm outline-none transition-colors ${
+                erro ? "border-destructive" : "border-border focus:border-primary/40"
+              }`}
+            />
 
-        <button
-          type="submit"
-          disabled={entrando}
-          className="mt-4 h-11 w-full rounded-xl bg-primary text-sm font-semibold text-white transition-colors hover:bg-primary-soft disabled:opacity-60"
-        >
-          {entrando ? "Entrando..." : "Entrar"}
-        </button>
+            {erro && (
+              <p className="mt-2 text-center text-xs text-destructive">{erro}</p>
+            )}
+
+            <button
+              type="submit"
+              disabled={entrando}
+              className="mt-4 h-11 w-full rounded-xl bg-primary text-sm font-semibold text-white transition-colors hover:bg-primary-soft disabled:opacity-60"
+            >
+              {entrando ? "Entrando..." : "Entrar"}
+            </button>
+          </>
+        )}
       </form>
     </div>
   );
