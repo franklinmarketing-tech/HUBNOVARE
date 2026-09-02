@@ -4,6 +4,7 @@ import { CapturaLead } from "@/components/CapturaLead";
 import { RodapeNovare } from "@/components/RodapeNovare";
 import { VoltarAoWorkspace } from "@/components/VoltarAoWorkspace";
 import { appsParaBusca } from "@/lib/navegacao";
+import { getPerfil } from "@/lib/perfil";
 
 export const metadata: Metadata = {
   title: { default: "Ferramentas", template: "%s · Novare Workspace" },
@@ -19,12 +20,13 @@ export const metadata: Metadata = {
  * assim ferramenta nova já nasce com o convite da consultoria e com a
  * saída para a home — sem ninguém lembrar de colar.
  */
-export default function LayoutFerramentas({
+export default async function LayoutFerramentas({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const apps = appsParaBusca("cliente", "free");
+  const perfil = await getPerfil();
+  const apps = appsParaBusca(perfil?.role ?? "cliente", perfil?.plano ?? "free", !!perfil);
 
   return (
     <>

@@ -7,10 +7,18 @@ import { PLANO_PRECO_ROTULO, PLANO_TRIAL_DIAS } from "@/lib/planejamento/oferta"
  * palco + rodapé dos cards de área — mas no laranja da marca, porque é o
  * único produto que se compra. O rodapé troca "Acessar" pela oferta.
  */
-export function CardPlanejamentoHome() {
+export function CardPlanejamentoHome({
+  /** `/planejamento/app` para quem já tem conta (mesmo em teste — o app se
+   *  protege por dentro); `/planejamento` (a venda) para quem não tem. Sem
+   *  esta prop o card sempre mandava para a venda, até para quem já podia
+   *  simplesmente entrar. */
+  href = "/planejamento",
+}: {
+  href?: string;
+}) {
   return (
     <Link
-      href="/planejamento"
+      href={href}
       className="group flex h-full flex-col overflow-hidden rounded-2xl bg-white shadow-card ring-1 ring-primary/5 transition-all hover:-translate-y-0.5 hover:shadow-card-hover"
     >
       <span

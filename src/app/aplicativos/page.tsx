@@ -18,7 +18,7 @@ export const metadata: Metadata = {
 export default async function AplicativosPage() {
   const perfil = await getPerfil();
   const notificacoes = await getNotificacoes();
-  const apps = appsParaBusca("cliente", "free");
+  const apps = appsParaBusca(perfil?.role ?? "cliente", perfil?.plano ?? "free", !!perfil);
   const filtros = filtrosDoTopo("cliente");
   const assinante =
     perfil?.plano === "pro" || (!!perfil && perfil.role !== "cliente");

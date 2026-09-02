@@ -146,10 +146,10 @@ export default async function IrisPage({
       <Cabecalho
         direita={
           <Link
-            href={perfil ? "/hub" : "/login"}
+            href={perfil ? "/" : "/login"}
             className="text-xs font-medium text-muted-foreground transition-colors hover:text-primary"
           >
-            {perfil ? "Voltar ao Hub" : "Entrar"}
+            {perfil ? "Voltar ao Workspace" : "Entrar"}
           </Link>
         }
       />

@@ -45,6 +45,14 @@ export type NovareApp = {
   descricao?: string;
   /** Até 4 pontos fortes, para o popup de "o que é" no card do catálogo. */
   pontosFortes?: string[];
+  /**
+   * O app tem o próprio teste grátis e o próprio bloqueio de ações pagas por
+   * dentro (FaixaTeste + AcaoAssinante — hoje só o Planejamento). Para estes,
+   * `podeAbrir` libera qualquer pessoa LOGADA: duplicar a régua "só quem é
+   * pro" aqui empurrava todo mundo em teste para a página de venda em vez do
+   * produto que ela já tem direito de usar.
+   */
+  temTeste?: boolean;
 };
 
 const NOVAREAPP = "https://novareapp.com.br";
@@ -95,6 +103,7 @@ export const APPS: NovareApp[] = [
     status: "ativo",
     familia: "ia",
     referencia: "Monarch Money",
+    temTeste: true,
   },
   {
     slug: "iris",
@@ -376,10 +385,17 @@ export function podeAbrir(
   app: NovareApp,
   role: Role,
   plano: PlanoCliente,
+  /** A pessoa tem sessão? Sem isso, um visitante anônimo e um cliente em
+   *  teste eram indistinguíveis aqui — os dois chegavam como "cliente/free". */
+  logado = false,
 ): boolean {
   if (app.status === "em-breve") return false;
   if (role === "admin" || role === "equipe") return true;
-  return app.plano !== "pago" || plano === "pro";
+  if (app.plano !== "pago") return true;
+  if (plano === "pro") return true;
+  // Apps com teste próprio já se protegem por dentro (o gate real é a
+  // FaixaTeste + AcaoAssinante, não esta lista de navegação).
+  return !!app.temTeste && logado;
 }
 
 export const APPS_PAGOS = APPS.filter((a) => a.plano === "pago" && !a.familia);

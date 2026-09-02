@@ -53,7 +53,8 @@ export async function atualizarSessao(request: NextRequest) {
 
   if (user && pathname === "/login") {
     const url = request.nextUrl.clone();
-    url.pathname = "/hub";
+    // "/" é o Workspace redesenhado; ver a mesma decisão em login/page.tsx.
+    url.pathname = "/";
     url.search = "";
     return NextResponse.redirect(url);
   }

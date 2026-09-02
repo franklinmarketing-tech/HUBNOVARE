@@ -38,7 +38,7 @@ export default async function MeuDiaPage() {
   if (!perfil) redirect("/login?proximo=%2Fmeu-dia");
 
   const notificacoes = await getNotificacoes();
-  const apps = appsParaBusca("cliente", "free");
+  const apps = appsParaBusca(perfil.role, perfil.plano, true);
   const areas = portais("cliente");
   const assinante = perfil.plano === "pro" || perfil.role !== "cliente";
 

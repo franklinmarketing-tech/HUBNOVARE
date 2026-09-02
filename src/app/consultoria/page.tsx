@@ -61,10 +61,10 @@ export default async function ConsultoriaPage() {
       <Cabecalho
         direita={
           <Link
-            href={perfil ? "/hub" : "/login"}
+            href={perfil ? "/" : "/login"}
             className="text-xs font-medium text-muted-foreground hover:text-primary transition-colors"
           >
-            {perfil ? "Voltar ao Hub" : "Entrar"}
+            {perfil ? "Voltar ao Workspace" : "Entrar"}
           </Link>
         }
       />
@@ -292,10 +292,10 @@ export default async function ConsultoriaPage() {
             </p>
           </div>
           <Link
-            href="/hub"
+            href="/"
             className="mt-4 inline-flex shrink-0 items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-800 shadow-sm hover:bg-slate-100 transition-colors sm:mt-0"
           >
-            Voltar ao Hub
+            Voltar ao Workspace
             <ArrowRight className="h-3.5 w-3.5" />
           </Link>
         </section>

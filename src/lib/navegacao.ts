@@ -61,16 +61,23 @@ function destinoBloqueado(app: NovareApp): string {
   return temVitrinePropria ? app.href : `/assinar?app=${app.slug}`;
 }
 
-export function appsParaBusca(role: Role, plano: PlanoCliente): AppLeve[] {
+export function appsParaBusca(
+  role: Role,
+  plano: PlanoCliente,
+  /** Sem sessão, `role`/`plano` chegam como "cliente"/"free" por convenção —
+   *  o mesmo formato de quem está em teste. Este parâmetro é o que separa
+   *  os dois casos (ver `podeAbrir`). */
+  logado = false,
+): AppLeve[] {
   return APPS.filter((a) => a.roles.includes(role)).map((a) => ({
     slug: a.slug,
     nome: a.nome,
     chamada: a.chamada,
-    href: podeAbrir(a, role, plano) ? a.href : destinoBloqueado(a),
-    externo: !!a.externo && podeAbrir(a, role, plano),
+    href: podeAbrir(a, role, plano, logado) ? a.href : destinoBloqueado(a),
+    externo: !!a.externo && podeAbrir(a, role, plano, logado),
     referencia: a.referencia,
     grupo: rotuloDe(a),
-    aberto: podeAbrir(a, role, plano),
+    aberto: podeAbrir(a, role, plano, logado),
     filtro: filtroDe(a),
     emBreve: a.status === "em-breve",
     descricao: a.descricao,

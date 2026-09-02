@@ -27,11 +27,11 @@ export default function PrivacidadePage() {
       <Cabecalho
         direita={
           <Link
-            href="/hub"
+            href="/"
             className="inline-flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-primary transition-colors"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
-            Voltar ao Hub
+            Voltar ao Workspace
           </Link>
         }
       />

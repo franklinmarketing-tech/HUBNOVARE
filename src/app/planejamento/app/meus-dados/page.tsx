@@ -776,7 +776,7 @@ function SemFicha() {
         cliente, use uma conta comum.
       </p>
       <Link
-        href="/hub"
+        href="/"
         className="mt-5 inline-block rounded-xl bg-accent-btn px-5 py-2.5 text-sm font-bold text-white"
       >
         Voltar ao Workspace

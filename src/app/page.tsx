@@ -28,7 +28,10 @@ import { getNotificacoes } from "@/lib/notificacoes";
 export default async function Home() {
   const perfil = await getPerfil();
   const notificacoes = await getNotificacoes();
-  const apps = appsParaBusca("cliente", "free");
+  // "cliente"/"free" continua o padrão para visitante anônimo; logado=!!perfil
+  // é o que diferencia um cliente em teste de um visitante sem conta — sem
+  // isso o Planejamento aparecia bloqueado até para quem já tinha acesso.
+  const apps = appsParaBusca(perfil?.role ?? "cliente", perfil?.plano ?? "free", !!perfil);
   const areas = portais("cliente");
   const assinante =
     perfil?.plano === "pro" || (!!perfil && perfil.role !== "cliente");
@@ -111,7 +114,9 @@ export default async function Home() {
               {/* O card PRO é o único com borda girando: ele é a oferta da
                   casa, e o efeito perde a graça se estiver em tudo. */}
               <div className="inclina borda-girando rounded-2xl">
-                <CardPlanejamentoHome />
+                <CardPlanejamentoHome
+                  href={perfil ? "/planejamento/app" : "/planejamento"}
+                />
               </div>
             </div>
             {areas

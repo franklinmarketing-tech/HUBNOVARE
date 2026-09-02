@@ -65,8 +65,8 @@ export default async function AdminLeadsPage() {
     <div className="min-h-dvh bg-gradient-to-b from-slate-50 to-white">
       <Cabecalho
         direita={
-          <Link href="/hub" className="text-xs font-medium text-muted-foreground hover:text-primary">
-            Voltar ao Hub
+          <Link href="/" className="text-xs font-medium text-muted-foreground hover:text-primary">
+            Voltar ao Workspace
           </Link>
         }
       />

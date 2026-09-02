@@ -11,7 +11,9 @@ type Modo = "entrar" | "criar" | "recuperar";
 function FormularioLogin() {
   const router = useRouter();
   const params = useSearchParams();
-  const proximo = params.get("proximo") || "/hub";
+  // "/" é o Workspace redesenhado; "/hub" era a versão antiga da home
+  // logada e hoje só redireciona para cá (ver src/app/hub/page.tsx).
+  const proximo = params.get("proximo") || "/";
 
   /**
    * `?modo=criar` abre direto no cadastro.

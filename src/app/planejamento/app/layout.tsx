@@ -56,7 +56,7 @@ export default async function LayoutPlanejamento({
               {perfil.nome.split(" ")[0]}
             </p>
             <Link
-              href="/hub"
+              href="/"
               className="text-[10px] text-muted-foreground underline-offset-2 hover:underline"
             >
               Voltar ao Workspace
