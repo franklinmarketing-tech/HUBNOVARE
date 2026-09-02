@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, Crown, ShieldCheck } from "lucide-react";
+import { ArrowRight, ChevronDown, Crown, ShieldCheck } from "lucide-react";
 import { BuscaDestaque } from "@/components/BuscaDestaque";
 import { BarraLateral } from "@/components/BarraLateral";
 import { TopoApp } from "@/components/TopoApp";
@@ -8,8 +8,12 @@ import { BarraMercado } from "@/components/BarraMercado";
 import { CardPortal } from "@/components/CardPortal";
 import { CardPlanejamentoHome } from "@/components/CardPlanejamentoHome";
 import { BannerEbooks } from "@/components/BannerEbooks";
+import { FerramentasHome } from "@/components/FerramentasHome";
 import { BannerIris } from "@/components/BannerIris";
+import { PerguntarIris } from "@/components/PerguntarIris";
+import { PainelMeuDia } from "@/components/PainelMeuDia";
 import { Rodape } from "@/components/Rodape";
+import { RevelarAoRolar } from "@/components/RevelarAoRolar";
 import { portais } from "@/lib/categorias";
 import { appsParaBusca } from "@/lib/navegacao";
 import { getPerfil } from "@/lib/perfil";
@@ -50,6 +54,7 @@ export default async function Home() {
 
   return (
     <div className="aurora-clara flex min-h-dvh flex-col bg-gradient-to-b from-creme via-creme to-white">
+      <RevelarAoRolar />
       <PaletaComandos apps={apps} />
       <BarraLateral />
 
@@ -67,11 +72,16 @@ export default async function Home() {
           notificacoes={notificacoes}
         />
 
-        <main className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-3 px-5 pb-4 pt-2 [@media(max-height:900px)]:gap-2.5">
-          {/* Fita de indicadores do mercado ao vivo (SELIC, CDI, IPCA...) */}
-          <BarraMercado />
+        <main className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-2.5 px-5 pb-3 pt-2 [@media(max-height:820px)]:gap-2 [@media(max-height:800px)]:pb-1.5 [@media(max-height:800px)]:pt-1">
+          {/* Fita de indicadores do mercado ao vivo (SELIC, CDI, IPCA...).
+              Some abaixo de 740px de altura: em 720p ela era justamente os
+              pixels que faziam a home rolar, e é o bloco menos essencial da
+              tela — os índices continuam em /aplicativos e no Novare News. */}
+          <div className="[@media(max-height:740px)]:hidden">
+            <BarraMercado />
+          </div>
 
-          <section className="surgir flex flex-wrap items-end justify-between gap-4">
+          <section className="cine flex flex-wrap items-end justify-between gap-4">
             <div>
               <h1 className="titulo-secao text-xl sm:text-2xl">
                 {perfil
@@ -89,35 +99,72 @@ export default async function Home() {
             <BuscaDestaque />
           </section>
 
+          {/* A pergunta à Íris vem antes das vitrines: é a ação mais barata
+              da página e a que mostra o diferencial da casa em um gesto. */}
+          <PerguntarIris className="cine" delay={60} />
+
           {/* As quatro vitrines: o PRO laranja abre, três áreas navy seguem. */}
           <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            <div className="surgir">
-              <CardPlanejamentoHome />
+            {/* O card PRO é o único com borda girando: ele é a oferta da
+                casa, e o efeito perde a graça se estiver em tudo. */}
+            <div className="cine" style={{ transitionDelay: "120ms" }}>
+              {/* O card PRO é o único com borda girando: ele é a oferta da
+                  casa, e o efeito perde a graça se estiver em tudo. */}
+              <div className="inclina borda-girando rounded-2xl">
+                <CardPlanejamentoHome />
+              </div>
             </div>
             {areas
               .filter((area) => area.chave !== "trabalho")
               .map((area, i) => (
                 <div
                   key={area.chave}
-                  className="surgir"
-                  style={{ animationDelay: `${(i + 1) * 70}ms` }}
+                  className="cine"
+                  style={{ transitionDelay: `${170 + i * 70}ms` }}
                 >
-                  <CardPortal portal={area} />
+                  <div className="inclina h-full">
+                    <CardPortal portal={area} />
+                  </div>
                 </div>
               ))}
           </section>
 
-          <FerramentasDestaque />
+          <FerramentasHome />
 
           {/* Duas faixas finas: a Íris (o diferencial da casa) e a estante. */}
-          <section className="grid gap-3 lg:grid-cols-5">
+          <section className="cine grid gap-3 lg:grid-cols-5" style={{ transitionDelay: "500ms" }}>
             <BannerIris className="lg:col-span-3" />
 
             <BannerEbooks className="lg:col-span-2" />
           </section>
 
           <ConviteWorkspace assinante={assinante} />
+
+          {/* A seta que avisa que a página continua. Sem ela, quem chega numa
+              tela cheia e sem barra de rolagem visível acredita que acabou —
+              e o painel inteiro deixa de existir para essa pessoa. */}
+          {perfil && (
+            <a
+              href="#meu-painel"
+              className="mx-auto -mb-1 mt-1 flex w-fit items-center gap-1.5 rounded-full px-3 py-1 text-2xs font-bold text-muted-foreground transition-colors hover:text-primary"
+            >
+              Seu painel logo abaixo
+              <ChevronDown className="h-3.5 w-3.5 motion-safe:animate-bounce" />
+            </a>
+          )}
         </main>
+
+        {/* ================================= A SEGUNDA PARTE: O SEU PAINEL
+
+            A primeira tela é a vitrine e cabe inteira na dobra. Daqui para
+            baixo é a vida financeira de quem está logado — é o que faz a
+            home deixar de ser um cartaz e virar o lugar da pessoa.
+
+            Só para quem tem sessão: visitante deslogado não tem painel
+            nenhum, e mostrar a casca vazia seria pior do que não mostrar. */}
+        {perfil && (
+          <SegundaParte assinante={assinante} primeiroNome={primeiroNome} />
+        )}
 
         <Rodape />
       </div>
@@ -125,75 +172,73 @@ export default async function Home() {
   );
 }
 
-/* ============================================================ FERRAMENTAS */
+/* ========================================================= SEGUNDA PARTE */
 
 /**
- * As seis calculadoras mais buscadas do Brasil, direto na capa.
+ * A parte de baixo da home: o painel de quem está logado.
  *
- * A seleção segue o ranking real de procura (o que Mobills, iDinheiro e o
- * Google Trends mostram): juros compostos é a campeã nacional, seguida de
- * salário líquido, rescisão, financiamento, CDI e 13º.
+ * Vive FORA do `<main>` da vitrine de propósito — aquele bloco é medido
+ * para caber numa tela, e enfiar o painel dentro dele estouraria a conta de
+ * altura que mantém a primeira dobra inteira.
+ *
+ * Quem assina vê os próprios números; quem está no plano free vê o convite,
+ * porque para ele não existe painel nenhum ainda.
  */
-const FERRAMENTAS_CAPA: {
-  href: string;
-  nome: string;
-  chamada: string;
-  emoji: string;
-  externo?: boolean;
-}[] = [
-  { href: "/ferramentas/juros-compostos", nome: "Juros Compostos", chamada: "Veja seu dinheiro crescer", emoji: "📈" },
-  { href: "/ferramentas/salario-liquido", nome: "Salário Líquido", chamada: "Quanto cai na conta", emoji: "💰" },
-  { href: "/ferramentas/rescisao", nome: "Rescisão", chamada: "Confira antes de assinar", emoji: "🧾" },
-  { href: "/ferramentas/financiamento", nome: "Financiamento", chamada: "Casa e carro na conta certa", emoji: "🏠" },
-  { href: "https://novareapp.com.br/ferramentas/simulador-de-renda-fixa", nome: "Simulador CDI", chamada: "CDB e renda fixa no líquido", emoji: "📊", externo: true },
-  { href: "/ferramentas/decimo-terceiro", nome: "13º Salário", chamada: "As duas parcelas", emoji: "🎁" },
-];
-
-function FerramentasDestaque() {
+function SegundaParte({
+  assinante,
+  primeiroNome,
+}: {
+  assinante: boolean;
+  primeiroNome?: string;
+}) {
   return (
-    <section className="surgir">
-      <div className="flex items-baseline justify-between gap-3">
-        <h2 className="font-display text-base font-extrabold tracking-tight text-primary">
-          Ferramentas gratuitas
-        </h2>
-        <Link
-          href="/aplicativos"
-          className="inline-flex items-center gap-1 text-xs font-bold text-accent-strong underline-offset-2 hover:underline"
-        >
-          Ver todas
-          <ArrowRight className="h-3.5 w-3.5" />
-        </Link>
-      </div>
+    <section id="meu-painel" className="scroll-mt-4 border-t border-primary/8 bg-white/40">
+      <div className="mx-auto w-full max-w-7xl px-5 pb-10 pt-8 md:px-5">
+        <header className="cine">
+          <p className="text-2xs font-bold uppercase tracking-[0.16em] text-ciano-forte">
+            Seu Workspace
+          </p>
+          <h2 className="titulo-secao mt-1 text-xl sm:text-2xl">
+            {primeiroNome ? `A vida financeira de ${primeiroNome}` : "Sua vida financeira"}
+          </h2>
+        </header>
 
-      <ul className="mt-1.5 grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-6">
-        {FERRAMENTAS_CAPA.map(({ href, nome, chamada, emoji, externo }, i) => (
-          <li key={href} className="surgir" style={{ animationDelay: `${i * 50}ms` }}>
-            <Link
-              href={href}
-              target={externo ? "_blank" : undefined}
-              rel={externo ? "noopener noreferrer" : undefined}
-              className="group flex h-full items-center gap-2 rounded-2xl bg-white p-2.5 shadow-card ring-1 ring-primary/5 transition-all hover:-translate-y-0.5 hover:shadow-card-hover hover:ring-accent/25"
-            >
-              {/* Emoji vivo, sem chip: leveza é a modernidade aqui. */}
-              <span
-                className="emoji-vivo text-lg transition-transform duration-200 group-hover:scale-110"
-                style={{ animationDelay: `${i * 0.4}s` }}
-              >
-                {emoji}
-              </span>
-              <span className="min-w-0 flex-1">
-                <span className="block truncate font-display text-xs font-bold leading-tight text-primary">
-                  {nome}
-                </span>
-                <span className="block truncate text-2xs leading-tight text-muted-foreground [@media(max-height:820px)]:hidden">
-                  {chamada}
-                </span>
-              </span>
-            </Link>
-          </li>
-        ))}
-      </ul>
+        {assinante ? (
+          <PainelMeuDia />
+        ) : (
+          <ConvitePainelHome />
+        )}
+      </div>
     </section>
+  );
+}
+
+/** Free logado: o painel existe, mas ainda não é dele. */
+function ConvitePainelHome() {
+  return (
+    <div
+      className="cine palco-cta mt-5 overflow-hidden rounded-3xl p-7 text-white sm:p-9"
+      style={{
+        background:
+          "linear-gradient(140deg, hsl(216 54% 16%) 0%, hsl(219 58% 11%) 100%)",
+      }}
+    >
+      <Crown className="h-6 w-6 text-warning-claro" strokeWidth={1.75} />
+      <h3 className="mt-4 font-display text-2xl font-bold leading-tight">
+        Aqui entra o seu painel
+      </h3>
+      <p className="mt-3 max-w-lg text-sm leading-relaxed text-white/70">
+        Nota de saúde financeira, patrimônio, dívidas, objetivos e projeção —
+        calculados a partir dos seus números, atualizados a cada mês.
+      </p>
+      <Link
+        href="/assinar"
+        className="group mt-6 inline-flex items-center gap-2 rounded-xl bg-warning-claro px-5 py-3 text-sm font-bold text-primary transition-colors hover:bg-warning"
+      >
+        Liberar meu painel
+        <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+      </Link>
+    </div>
   );
 }
 
@@ -207,7 +252,7 @@ function FerramentasDestaque() {
 function ConviteWorkspace({ assinante }: { assinante: boolean }) {
   if (assinante) {
     return (
-      <section className="surgir flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-success/10 px-5 py-3 ring-1 ring-success/20">
+      <section className="cine flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-success/10 px-5 py-3 ring-1 ring-success/20 [@media(max-height:800px)]:py-2">
         <div className="flex items-center gap-3">
           <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-success/15 text-success-strong">
             <ShieldCheck className="h-4.5 w-4.5" strokeWidth={1.75} />
@@ -234,7 +279,7 @@ function ConviteWorkspace({ assinante }: { assinante: boolean }) {
 
   return (
     <section
-      className="surgir flex flex-wrap items-center justify-between gap-3 rounded-xl px-4 py-3"
+      className="cine flex flex-wrap items-center justify-between gap-3 rounded-xl px-4 py-3 [@media(max-height:800px)]:py-2"
       style={{
         background:
           "linear-gradient(120deg, hsl(216 46% 22%) 0%, hsl(219 54% 13%) 100%)",

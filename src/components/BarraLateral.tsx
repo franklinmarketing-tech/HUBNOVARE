@@ -3,7 +3,16 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { Home, LayoutGrid, Lock, Newspaper, Search, Sparkles, User } from "lucide-react";
+import {
+  Home,
+  LayoutDashboard,
+  LayoutGrid,
+  Lock,
+  Newspaper,
+  Search,
+  Sparkles,
+  User,
+} from "lucide-react";
 
 /**
  * Trilho lateral de aplicativo: estreito, fixo, só ícones.
@@ -11,6 +20,7 @@ import { Home, LayoutGrid, Lock, Newspaper, Search, Sparkles, User } from "lucid
  */
 const ITENS = [
   { href: "/", rotulo: "Início", icone: Home },
+  { href: "/meu-dia", rotulo: "Meu dia", icone: LayoutDashboard },
   { href: "/aplicativos", rotulo: "Aplicativos", icone: LayoutGrid },
   { href: "/novare-news", rotulo: "Novare News", icone: Newspaper },
   { href: "/assinar", rotulo: "Workspace", icone: Sparkles },
@@ -51,12 +61,21 @@ export function BarraLateral() {
               title={item.rotulo}
               aria-label={item.rotulo}
               aria-current={ativo ? "page" : undefined}
-              className={`flex h-11 w-11 items-center justify-center rounded-xl transition-colors ${
+              className={`relative flex h-11 w-11 items-center justify-center rounded-xl transition-all ${
                 ativo
-                  ? "bg-primary text-white"
+                  ? "bg-primary text-white shadow-[0_8px_20px_-8px_hsl(215_50%_23%_/_0.7)]"
                   : "text-slate-500 hover:bg-slate-100 hover:text-primary"
               }`}
             >
+              {/* O traço ciano à esquerda: num trilho só de ícones, a cor de
+                  fundo sozinha não diz "você está aqui" com força suficiente
+                  quando dois itens têm ícones parecidos. */}
+              {ativo && (
+                <span
+                  aria-hidden
+                  className="absolute -left-2 h-5 w-1 rounded-full bg-ciano"
+                />
+              )}
               <item.icone className="h-5 w-5" strokeWidth={1.75} />
             </Link>
           );

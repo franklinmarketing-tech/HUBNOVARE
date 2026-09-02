@@ -22,9 +22,11 @@ import { Play } from "lucide-react";
  * enquanto o clique só esconde a capa. Sem isso, quem pediu menos movimento
  * ficava preso num laço infinito sem botão de pausa (WCAG 2.2.2).
  *
- * DOIS FORMATOS: o WebM é menor, mas iPhones em iOS 15/16 (parque relevante
- * no Brasil) não o leem e mostrariam um retângulo preto na dobra da prova. O
- * MP4 em H.264 é o fallback que salva essa gente.
+ * DOIS FORMATOS: iPhones em iOS 15/16 (parque relevante no Brasil) não leem
+ * WebM e mostrariam um retângulo preto na dobra da prova, então o MP4 em
+ * H.264 existe para essa gente. Depois do recorte o MP4 ficou MENOR que o
+ * WebM (484 KB contra 541 KB), então ele vai primeiro: o navegador baixa a
+ * primeira source que entende, e aqui a primeira também é a mais leve.
  */
 export function BannerDemo({
   webm = "/demo/app-em-uso.webm",
@@ -81,7 +83,7 @@ export function BannerDemo({
 
   return (
     <figure ref={caixaRef} className="overflow-hidden rounded-3xl border border-border bg-primary shadow-elevated">
-      <div className="relative aspect-video">
+      <div className="relative aspect-[960/424]">
         <video
           ref={videoRef}
           poster={poster}
@@ -94,8 +96,8 @@ export function BannerDemo({
           aria-label="Gravação do App Novare Planejamento Financeiro em uso"
           className="h-full w-full object-cover"
         >
-          {carregar && <source src={webm} type="video/webm" />}
           {carregar && <source src={mp4} type="video/mp4" />}
+          {carregar && <source src={webm} type="video/webm" />}
         </video>
 
         {capa && (

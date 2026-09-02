@@ -11,7 +11,7 @@ const ANO = new Date().getFullYear();
  */
 export function Rodape() {
   return (
-    <footer className="mt-auto border-t border-slate-200/80 px-5 py-3">
+    <footer className="mt-auto border-t border-slate-200/80 px-5 py-3 [@media(max-height:800px)]:py-2">
       <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-x-6 gap-y-2">
         <div className="flex min-w-0 items-center gap-3">
           {/* A marca assina o rodapé — antes só havia o nome em texto. */}

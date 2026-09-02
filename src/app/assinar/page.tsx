@@ -15,6 +15,7 @@ import {
   Sparkles,
   Target,
   TrendingUp,
+  MessageCircle,
   Wallet,
   X,
 } from "lucide-react";
@@ -25,6 +26,10 @@ import { BotaoAssinarPlano } from "@/components/BotaoAssinarPlano";
 import { BarraAssinarFixa } from "@/components/BarraAssinarFixa";
 import { TituloCine } from "@/components/TituloCine";
 import { CenaParallax } from "@/components/CenaParallax";
+import { BannerDemo } from "@/components/BannerDemo";
+import { CenaFoto } from "@/components/CenaFoto";
+import { Icone3D } from "@/components/Icone3D";
+import { EcossistemaConectado } from "@/components/EcossistemaConectado";
 import { RevelarAoRolar } from "@/components/RevelarAoRolar";
 import { Etapa, Pilar, tomPor } from "@/components/SecoesVenda";
 import {
@@ -37,11 +42,11 @@ import { ROTULO_DESCONTO } from "@/lib/consultoria";
 import { falarNoWhatsApp } from "@/lib/contato";
 
 export const metadata: Metadata = {
-  title: `${ASSINATURA_NOME} — sua vida financeira inteira, num lugar só`,
+  title: `${ASSINATURA_NOME}: sua vida financeira inteira, num lugar só`,
   description: `O 1º hub financeiro do Brasil: plano financeiro, IA que lê seu extrato, calculadoras e consultores CFP® por ${ASSINATURA_PRECO_ROTULO}/mês. ${ASSINATURA_TRIAL_DIAS} dias grátis, sem cartão.`,
   alternates: { canonical: "/assinar" },
   openGraph: {
-    title: `${ASSINATURA_NOME} — sua vida financeira inteira, num lugar só`,
+    title: `${ASSINATURA_NOME}: sua vida financeira inteira, num lugar só`,
     description: `Tudo o que a Novare construiu, por ${ASSINATURA_PRECO_ROTULO}/mês. Comece com ${ASSINATURA_TRIAL_DIAS} dias grátis.`,
     url: "/assinar",
     type: "website",
@@ -137,28 +142,30 @@ const PASSOS = [
   },
 ];
 
-/** O pacote, item a item — o formato "o que você recebe". */
+/** O pacote, item a item. Os emblemas 3D vinham do app e estavam parados em
+    /public/icones-3d: arte já produzida, com acabamento que ícone de traço
+    não dá. `wrench-3d` e `users-3d` nunca tinham sido usados. */
 const PACOTE = [
   {
-    icone: Target,
+    emblema: "/icones-3d/icon-vault-3d.png",
     nome: "Planejamento Financeiro completo",
     texto:
       "Diagnóstico, nota de saúde financeira, plano de ação com valor e prazo, e relatório em PDF que é seu.",
   },
   {
-    icone: Bot,
+    emblema: "/icones-3d/icon-perfil.png",
     nome: "Íris, a IA que lê seu extrato",
     texto:
       "Cole o extrato do banco e ela acha assinatura esquecida, tarifa repetida e juro escondido.",
   },
   {
-    icone: ClipboardList,
+    emblema: "/icones-3d/wrench-3d.png",
     nome: "Todas as ferramentas liberadas",
     texto:
       "As 22 calculadoras e simuladores da casa, das trabalhistas às de investimento.",
   },
   {
-    icone: BadgePercent,
+    emblema: "/icones-3d/users-3d.png",
     nome: `${ROTULO_DESCONTO} na consultoria particular`,
     texto:
       "Consultores certificados CFP®, sem comissão de banco. Válido enquanto a assinatura estiver ativa.",
@@ -183,7 +190,7 @@ const CONFIANCA = [
     destaque: "0%",
     titulo: "Nenhuma comissão",
     texto:
-      "A Novare não recebe de banco, corretora ou seguradora. É você quem paga — é para você que a gente trabalha.",
+      "A Novare não recebe de banco, corretora ou seguradora. É você quem paga, então é para você que a gente trabalha.",
   },
   {
     destaque: "LGPD",
@@ -191,6 +198,14 @@ const CONFIANCA = [
     texto:
       "Nada aqui se conecta à sua conta. Você cola o extrato e a leitura acontece no seu dispositivo.",
   },
+];
+
+/** Os números que a casa pode provar. Nada aqui é estimativa de marketing. */
+const NUMEROS = [
+  { valor: "22", rotulo: "ferramentas e calculadoras" },
+  { valor: `${ASSINATURA_TRIAL_DIAS} dias`, rotulo: "grátis, sem pedir cartão" },
+  { valor: ROTULO_DESCONTO, rotulo: "na consultoria com CFP®" },
+  { valor: "0%", rotulo: "de comissão de banco" },
 ];
 
 const SELOS = [
@@ -250,15 +265,15 @@ export default function AssinarPage() {
                 decide em três segundos se continua lendo. Entra palavra por
                 palavra — ver TituloCine. */}
             <TituloCine
-              texto="Descubra para onde vai seu dinheiro"
-              destaque="em 10 minutos"
-              className="mx-auto mt-6 max-w-4xl font-display text-[2.6rem] font-bold leading-[1.03] tracking-tight sm:text-6xl lg:text-[4.2rem]"
+              texto="Seu plano. Sua IA. Seu consultor."
+              destaque="Num Workspace só."
+              className="mx-auto mt-6 max-w-4xl font-display text-4xl font-bold leading-[1.06] tracking-tight sm:text-5xl"
             />
 
             <p className="cine mx-auto mt-7 max-w-2xl text-lg leading-relaxed text-white/80 sm:text-xl">
-              Seu plano financeiro completo, a IA que lê seu extrato e todas as
-              calculadoras por {ASSINATURA_PRECO_ROTULO} por mês. Comece hoje
-              sem pagar nada.
+              Planejamento completo, a Íris lendo seu extrato, 22 calculadoras
+              e consultoria CFP® com {ROTULO_DESCONTO}. Por{" "}
+              {ASSINATURA_PRECO_ROTULO} por mês.
             </p>
 
             <div className="cine mt-9 flex flex-col items-center gap-4">
@@ -308,7 +323,29 @@ export default function AssinarPage() {
             </CenaParallax>
           </div>
 
-          {/* Faixa de credibilidade fechando a dobra. */}
+          {/* Os números da casa, grandes, fechando a dobra. Ficam FORA do
+              herói de propósito: faixa de prova dentro do herói disputa
+              atenção com a promessa e o botão. */}
+          <div className="relative border-t border-white/10 bg-black/20">
+            <ul className="mx-auto grid max-w-5xl grid-cols-2 gap-px overflow-hidden px-5 py-8 sm:grid-cols-4">
+              {NUMEROS.map(({ valor, rotulo }, i) => (
+                <li
+                  key={rotulo}
+                  className="cine px-3 text-center"
+                  style={{ transitionDelay: `${i * 70}ms` }}
+                >
+                  <p className="font-display text-3xl font-black leading-none tracking-tight text-accent-claro sm:text-4xl">
+                    {valor}
+                  </p>
+                  <p className="mt-2 text-2xs leading-snug text-white/55">
+                    {rotulo}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Selos e a parceria, numa linha fina abaixo dos números. */}
           <div className="relative border-t border-white/10 bg-black/15">
             <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-center gap-x-8 gap-y-3 px-5 py-4">
               <span className="flex items-center gap-2 text-2xs font-semibold uppercase tracking-wider text-white/45">
@@ -345,8 +382,11 @@ export default function AssinarPage() {
               <span className="text-accent-strong">É não enxergar.</span>
             </h2>
             <p className="cine mx-auto mt-4 max-w-xl text-base leading-relaxed text-muted-foreground">
-              Ninguém organiza o que não consegue ver. É por isso que a planilha
-              morre no segundo mês — ela cobra trabalho e não devolve resposta.
+              <span className="font-semibold text-foreground">
+                Ninguém organiza o que não consegue ver.
+              </span>{" "}
+              É por isso que a planilha morre no segundo mês: ela cobra trabalho
+              e não devolve resposta.
             </p>
 
             <ul className="revelar-escada mt-10 grid gap-3 text-left sm:grid-cols-2">
@@ -362,6 +402,16 @@ export default function AssinarPage() {
                 </li>
               ))}
             </ul>
+
+            {/* Fecha o último vão acima de duas telas. Quem se reconheceu na
+                lista acima é exatamente quem quer sair dela. */}
+            <div className="cine mt-9 flex justify-center">
+              <BotaoAssinarPlano
+                contexto="workspace"
+                direto
+                rotulo={`Começar meus ${ASSINATURA_TRIAL_DIAS} dias grátis`}
+              />
+            </div>
           </div>
         </section>
 
@@ -369,10 +419,7 @@ export default function AssinarPage() {
         <section className="relative overflow-hidden text-white" style={NAVY}>
           <div className="mx-auto max-w-4xl px-5 py-16 sm:py-20">
             <div className="cine text-center">
-              <p className="text-2xs font-bold uppercase tracking-[0.18em] text-accent-claro">
-                O que muda
-              </p>
-              <h2 className="mt-3 font-display text-3xl font-bold leading-[1.1] tracking-tight sm:text-[2.6rem]">
+              <h2 className="font-display text-3xl font-bold leading-[1.1] tracking-tight sm:text-[2.6rem]">
                 De onde você está para onde dá para chegar
               </h2>
             </div>
@@ -404,7 +451,7 @@ export default function AssinarPage() {
                 contexto="workspace"
                 variante="clara"
                 direto
-                rotulo="Quero virar esse jogo"
+                rotulo={`Começar meus ${ASSINATURA_TRIAL_DIAS} dias grátis`}
               />
             </div>
           </div>
@@ -441,35 +488,95 @@ export default function AssinarPage() {
           </div>
         </section>
 
+        {/* ======================================== 4B. O ECOSSISTEMA, DESENHADO
+
+            A página afirmava "hub" o tempo todo sem nunca mostrar o que isso
+            quer dizer. Layout dividido: o argumento à esquerda, o desenho à
+            direita, como o diagrama de produto que serviu de referência. */}
+        <section className="relative overflow-hidden text-white" style={NAVY}>
+          <div className="mx-auto grid max-w-5xl items-center gap-10 px-5 py-16 sm:py-20 lg:grid-cols-2">
+            <div className="cine">
+              <h2 className="font-display text-3xl font-bold leading-[1.1] tracking-tight sm:text-[2.6rem]">
+                Uma só superfície para
+                <br />
+                <span className="text-accent-claro">a sua vida financeira.</span>
+              </h2>
+              <p className="mt-5 max-w-md text-base leading-relaxed text-white/70">
+                Plano, IA, calculadoras, consultoria e conteúdo deixam de ser
+                cinco lugares diferentes.{" "}
+                <span className="font-semibold text-white">
+                  Tudo lê os mesmos números
+                </span>
+                , então o que você responde uma vez vale em todos.
+              </p>
+
+              {/* Lista numerada com o trilho ligando os itens. */}
+              <ol className="mt-8 space-y-4">
+                {[
+                  "Você preenche uma vez",
+                  "Todo o Workspace entende",
+                  "As decisões saem prontas",
+                ].map((item, i) => (
+                  <li key={item} className="relative flex items-center gap-4 pl-1">
+                    <span className="font-display text-xl font-black tabular-nums text-ciano-claro">
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
+                    <span className="relative flex h-2 w-2 shrink-0">
+                      <span className="h-2 w-2 rounded-full bg-ciano" />
+                      {i < 2 && (
+                        <span
+                          aria-hidden
+                          className="absolute left-1/2 top-2 h-8 w-px -translate-x-1/2 bg-ciano/25"
+                        />
+                      )}
+                    </span>
+                    <span className="text-sm font-medium text-white/85">{item}</span>
+                  </li>
+                ))}
+              </ol>
+
+              <div className="cine mt-9">
+                <BotaoAssinarPlano
+                  contexto="workspace"
+                  variante="clara"
+                  direto
+                  rotulo={`Começar meus ${ASSINATURA_TRIAL_DIAS} dias grátis`}
+                />
+              </div>
+            </div>
+
+            <div className="cine" style={{ transitionDelay: "140ms" }}>
+              <EcossistemaConectado />
+            </div>
+          </div>
+        </section>
+
         {/* ============================================ 5. O QUE VOCÊ RECEBE */}
         <section className="bg-background">
           <div className="mx-auto max-w-4xl px-5 py-16 sm:py-20">
             <div className="cine text-center">
-              <p className="text-2xs font-bold uppercase tracking-[0.18em] text-accent-strong">
-                Tudo numa assinatura só
-              </p>
-              <h2 className="mt-3 font-display text-3xl font-bold leading-[1.1] tracking-tight text-primary sm:text-[2.6rem]">
+              <h2 className="font-display text-3xl font-bold leading-[1.1] tracking-tight text-primary sm:text-[2.6rem]">
                 O que você recebe hoje
               </h2>
+              <p className="mx-auto mt-4 max-w-xl text-base text-muted-foreground">
+                Tudo numa assinatura só. Nenhum recurso fica de fora, nada é
+                vendido à parte.
+              </p>
             </div>
 
             <ul className="revelar-escada mt-10 space-y-3">
-              {PACOTE.map(({ icone: Icone, nome, texto }, i) => {
+              {PACOTE.map(({ emblema, nome, texto }, i) => {
                 const ciano = tomPor(i) === "ciano";
                 return (
                   <li
                     key={nome}
-                    className="flex items-start gap-4 rounded-2xl border border-border bg-card p-5 shadow-subtle transition-all hover:-translate-y-0.5 hover:shadow-card"
+                    className="glass-card flex items-start gap-4 rounded-2xl border border-border bg-card p-5 shadow-subtle transition-all hover:-translate-y-0.5 hover:shadow-card"
                   >
-                    <span
-                      className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl ${
-                        ciano
-                          ? "bg-ciano-tint text-ciano-forte"
-                          : "bg-accent-tint text-accent-strong"
-                      }`}
-                    >
-                      <Icone className="h-5 w-5" strokeWidth={1.75} />
-                    </span>
+                    <Icone3D
+                      src={emblema}
+                      tamanho={64}
+                      tom={ciano ? "ciano" : "accent"}
+                    />
                     <div className="min-w-0">
                       <h3 className="font-display text-lg font-bold leading-snug text-primary">
                         {nome}
@@ -484,21 +591,38 @@ export default function AssinarPage() {
               })}
             </ul>
 
-            {/* O vídeo da demo (BannerDemo) saiu daqui de propósito: a
-                gravação atual começa na TELA DE LOGIN, e um formulário de
-                login logo abaixo da lista do que a pessoa recebe derruba a
-                dobra. A prova visual continua sendo o print do app no herói.
-                Assim que `scripts/gravar-demo.mjs` for rodado de novo já
-                logado, vale trazer o vídeo de volta para cá. */}
-            <p className="revelar mt-10 text-center text-2xs text-muted-foreground">
-              As telas são do app de verdade, sem retoque. Os números do
-              exemplo são fictícios — os seus entram quando você criar sua
-              conta.
-            </p>
+            {/* O app rodando, em vídeo. O arquivo foi recortado: os 2,2s de
+                tela de login que abriam a gravação saíram, e a faixa do
+                aviso de cookies foi cortada do quadro. */}
+            <div className="cortina mt-10 overflow-hidden rounded-3xl">
+              <BannerDemo legenda="O app de verdade, sem retoque. Os números do exemplo são fictícios; os seus entram quando você criar sua conta." />
+            </div>
           </div>
         </section>
 
-        {/* ================================================ 6. A AUTORIDADE */}
+        {/* Faixa de CTA no meio do maior vão da página. Medido: eram 2853px
+          (3,2 telas) entre um botão e o próximo, e quem se convence aqui não
+          deveria ter de rolar duas telas para achar onde clicar. */}
+      <section className="bg-background">
+        <div className="mx-auto flex max-w-4xl flex-wrap items-center justify-center gap-x-6 gap-y-4 px-5 pb-4">
+          <p className="cine text-sm text-muted-foreground">
+            Tudo isso por{" "}
+            <span className="font-bold text-primary">
+              {ASSINATURA_PRECO_ROTULO}/mês
+            </span>
+            , começando sem pagar nada.
+          </p>
+          <div className="cine">
+            <BotaoAssinarPlano
+              contexto="workspace"
+              direto
+              rotulo={`Começar meus ${ASSINATURA_TRIAL_DIAS} dias grátis`}
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* ================================================ 6. A AUTORIDADE */}
         <section className="bg-gelo">
           <div className="mx-auto max-w-5xl px-5 py-16 sm:py-20">
             <div className="cine text-center">
@@ -509,7 +633,7 @@ export default function AssinarPage() {
                 Com quem você está falando
               </h2>
               <p className="mx-auto mt-4 max-w-xl text-base text-muted-foreground">
-                A Novare é consultoria de investimentos — o Workspace é a
+                A Novare é consultoria de investimentos. O Workspace é a
                 ferramenta que ela abriu para todo mundo.
               </p>
             </div>
@@ -524,6 +648,23 @@ export default function AssinarPage() {
                   tom={tomPor(i)}
                 />
               ))}
+            </div>
+
+            {/* Aqui entraria a foto dos sócios, mas o único arquivo que existe
+                (marca/novare-site/socios-novare.jpg) tem 236x235 px: é a
+                miniatura de um vídeo, não uma fotografia. Ampliada para a
+                largura desta seção ficaria borrada, e foto borrada numa
+                página de venda tira credibilidade em vez de dar. Assim que
+                houver uma foto em resolução decente, ela entra aqui. */}
+            <div className="cine mt-10 text-center">
+              <h3 className="font-display text-xl font-bold leading-snug text-primary sm:text-2xl">
+                Tem gente de verdade atrás disso.
+              </h3>
+              <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground">
+                A Novare não é um app que apareceu do nada. É uma consultoria
+                de investimentos que resolveu abrir as próprias ferramentas
+                para quem não tem patrimônio para contratar uma.
+              </p>
             </div>
 
             {/* O modelo de negócio como argumento: é o que separa a Novare
@@ -620,7 +761,7 @@ export default function AssinarPage() {
                 <p className="mt-1.5 text-sm leading-relaxed text-white/70">
                   Nenhum cartão é pedido para começar. Nos{" "}
                   {ASSINATURA_TRIAL_DIAS} dias de teste não existe cobrança
-                  nenhuma — se você não voltar, a conta simplesmente não vira
+                  nenhuma. Se você não voltar, a conta simplesmente não vira
                   assinatura. Se ficar e depois cancelar, a cobrança para na
                   hora, sem multa.
                 </p>
@@ -629,15 +770,20 @@ export default function AssinarPage() {
           </div>
         </section>
 
-        {/* ========================================================= 9. FAQ */}
+        {/* ========================================================= 9. FAQ
+
+            Layout dividido: as perguntas de um lado, a saída para quem ainda
+            tem dúvida do outro. Quem chegou até aqui e não clicou geralmente
+            não quer ler mais uma resposta, quer falar com alguém. */}
         <section className="bg-background">
-          <div className="mx-auto max-w-3xl px-5 py-16 sm:py-20">
+          <div className="mx-auto grid max-w-6xl items-start gap-10 px-5 py-16 sm:py-20 lg:grid-cols-[1.25fr_0.75fr]">
+            <div className="min-w-0">
             <OQueSignifica
               titulo="O que você deve estar se perguntando"
               itens={[
                 {
                   pergunta: "É grátis mesmo? Qual a pegadinha?",
-                  resposta: `Não tem. Você cria a conta com e-mail e senha — nenhum cartão é pedido — e usa tudo por ${ASSINATURA_TRIAL_DIAS} dias. A cobrança de ${ASSINATURA_PRECO_ROTULO} só existe se você continuar depois disso.`,
+                  resposta: `Não tem. Você cria a conta com e-mail e senha, sem pedir cartão, e usa tudo por ${ASSINATURA_TRIAL_DIAS} dias. A cobrança de ${ASSINATURA_PRECO_ROTULO} só existe se você continuar depois disso.`,
                 },
                 {
                   pergunta: "A Íris vê a senha do meu banco?",
@@ -652,25 +798,69 @@ export default function AssinarPage() {
                 {
                   pergunta: "Vocês vão tentar me vender produto de banco?",
                   resposta:
-                    "Nunca. A Novare não recebe comissão de banco, corretora ou seguradora — é você quem paga, então é para você que a gente trabalha. É o que nos permite dizer “não compre” quando é o caso.",
+                    "Nunca. A Novare não recebe comissão de banco, corretora ou seguradora. É você quem paga, então é para você que a gente trabalha. É o que nos permite dizer “não compre” quando é o caso.",
                 },
                 {
                   pergunta: "E se eu cancelar? Perco tudo?",
                   resposta:
-                    "A cobrança para na hora, sem multa. As calculadoras continuam abertas para você, e os dados do seu planejamento ficam guardados na sua conta — se voltar, está tudo lá.",
+                    "A cobrança para na hora, sem multa. As calculadoras continuam abertas para você, e os dados do seu planejamento ficam guardados na sua conta. Se voltar, está tudo lá.",
                 },
               ]}
             />
+            </div>
+
+            {/* A coluna da dúvida. O "FAQ" gigante atrás é marca d'água:
+                aria-hidden porque a seção já se nomeia no título ao lado. */}
+            <aside className="cine relative lg:sticky lg:top-8">
+              <span
+                aria-hidden
+                className="pointer-events-none absolute -top-8 left-0 select-none font-display text-[7rem] font-black leading-none tracking-tighter text-primary/[0.06] lg:text-[9rem]"
+              >
+                FAQ
+              </span>
+
+              <div className="relative pt-10">
+                <h2 className="font-display text-2xl font-bold leading-tight tracking-tight text-primary sm:text-3xl">
+                  Ainda ficou com
+                  <br />
+                  alguma dúvida?
+                </h2>
+                <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+                  Chame no WhatsApp. Do outro lado tem gente da Novare, não
+                  robô de atendimento.
+                </p>
+
+                <a
+                  href={falarNoWhatsApp(
+                    `Olá! Tenho dúvidas sobre o ${ASSINATURA_NOME} antes de assinar.`,
+                  )}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group mt-6 inline-flex items-center gap-2 rounded-xl bg-success-strong px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-success"
+                >
+                  <MessageCircle className="h-4 w-4" />
+                  Chamar no WhatsApp
+                </a>
+              </div>
+            </aside>
           </div>
         </section>
 
-        {/* =================================================== 10. O FECHO */}
-        <section className="border-t border-border bg-gelo">
-          <div className="mx-auto max-w-2xl px-5 py-16 text-center sm:py-20">
-            <h2 className="cine font-display text-3xl font-bold leading-[1.1] tracking-tight text-primary sm:text-[2.6rem]">
+        {/* =================================================== 10. O FECHO
+
+            Fecho em cena: a arte do "caminho até o pôr do sol" entra como
+            fundo em parallax, com vinheta e camada escura fixa por cima. O
+            texto não depende da foto para ter contraste. */}
+        <CenaFoto
+          src="/cards/card-projeto-vida.webp"
+          intensidade={70}
+          className="border-t border-primary/20"
+        >
+          <div className="mx-auto max-w-2xl px-5 py-20 text-center sm:py-28">
+            <h2 className="cine font-display text-3xl font-bold leading-[1.1] tracking-tight text-white sm:text-[2.6rem]">
               Seu dinheiro já está indo embora.
               <br />
-              <span className="text-accent-strong">
+              <span className="text-accent-claro">
                 Descobrir para onde é grátis.
               </span>
             </h2>
@@ -683,7 +873,7 @@ export default function AssinarPage() {
                 direto
                 rotulo={`Começar meus ${ASSINATURA_TRIAL_DIAS} dias grátis`}
               />
-              <p className="text-2xs text-muted-foreground">
+              <p className="text-2xs text-white/60">
                 {ASSINATURA_TRIAL_DIAS} dias grátis · sem cartão · cancele
                 quando quiser
               </p>
@@ -693,14 +883,14 @@ export default function AssinarPage() {
                 )}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+                className="inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-white/70 underline-offset-4 hover:text-white hover:underline"
               >
                 Prefiro tirar uma dúvida no WhatsApp
                 <ArrowRight className="h-3.5 w-3.5" />
               </a>
             </div>
           </div>
-        </section>
+        </CenaFoto>
       </main>
 
       {/* Espaço para a barra fixa não tapar o rodapé no celular. */}

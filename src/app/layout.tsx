@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Inter, Sora } from "next/font/google";
 import { LuzDoCursor } from "@/components/LuzDoCursor";
+import { InclinaAoCursor } from "@/components/InclinaAoCursor";
+import { FitaProgresso } from "@/components/FitaProgresso";
 import { BannerConsentimento } from "@/components/BannerConsentimento";
 import { ConviteDeSaida } from "@/components/ConviteDeSaida";
 import "./globals.css";
@@ -73,6 +75,8 @@ export default function RootLayout({
       <body>
         {children}
         <LuzDoCursor />
+        <InclinaAoCursor />
+        <FitaProgresso />
         <BannerConsentimento />
         <ConviteDeSaida />
       </body>

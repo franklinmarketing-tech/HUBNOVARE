@@ -36,7 +36,25 @@ export function RevelarAoRolar() {
     raiz.classList.remove("revelar-congelado");
 
     const alvos = document.querySelectorAll<HTMLElement>(
-      ".revelar, .revelar-escada, .cine",
+      ".revelar, .revelar-escada, .cine, .cortina",
+    );
+
+    // A `.cortina` precisa de um observer PRÓPRIO, com threshold 0.
+    //
+    // Ela se esconde com `clip-path: inset(100% 0 0 0)`, e isso zera a área
+    // renderizada do elemento: o `intersectionRatio` fica em 0 para sempre e
+    // um threshold de 0.12 nunca é alcançado. Resultado: a foto e o vídeo
+    // ficavam invisíveis na página inteira. Com threshold 0 basta o elemento
+    // tocar a viewport.
+    const observadorCortina = new IntersectionObserver(
+      (entradas) => {
+        for (const entrada of entradas) {
+          if (!entrada.isIntersecting) continue;
+          entrada.target.classList.add("visivel");
+          observadorCortina.unobserve(entrada.target);
+        }
+      },
+      { rootMargin: "0px 0px -8% 0px", threshold: 0 },
     );
 
     const observador = new IntersectionObserver(
@@ -76,11 +94,13 @@ export function RevelarAoRolar() {
         }
         continue;
       }
-      observador.observe(alvo);
+      if (alvo.classList.contains("cortina")) observadorCortina.observe(alvo);
+      else observador.observe(alvo);
     }
 
     return () => {
       observador.disconnect();
+      observadorCortina.disconnect();
       delete raiz.dataset.revelar;
     };
   }, []);

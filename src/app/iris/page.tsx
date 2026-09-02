@@ -129,7 +129,16 @@ const ENTENDA = [
   },
 ];
 
-export default async function IrisPage() {
+export default async function IrisPage({
+  searchParams,
+}: {
+  /** `?p=` é a pergunta digitada na barra da home. */
+  searchParams: Promise<{ p?: string }>;
+}) {
+  const { p } = await searchParams;
+  // Teto de 300 caracteres: o campo da home já limita, mas a URL é digitável
+  // por qualquer um e não é aqui que se confia no que vem de fora.
+  const perguntaInicial = p?.slice(0, 300);
   const perfil = await getPerfil();
 
   return (
@@ -197,7 +206,7 @@ export default async function IrisPage() {
       <main className="mx-auto max-w-3xl px-4 pb-16 pt-10 sm:px-6">
         {/* A CONVERSA — o que a pessoa espera de uma IA, logo de cara. */}
         <section className="revelar">
-          <ConversaIris />
+          <ConversaIris perguntaInicial={perguntaInicial} />
         </section>
 
         {/* A leitura de extrato: o superpoder que nenhum chat genérico tem. */}

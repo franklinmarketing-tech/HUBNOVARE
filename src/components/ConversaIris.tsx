@@ -37,7 +37,16 @@ const ABERTURA: Mensagem = {
     "Oi. Sou a Íris, a assistente da Novare. Pode perguntar sobre a sua vida financeira — de conceito solto a conta na ponta do lápis. Não indico produto nem corretora: isso é trabalho de consultor, com o seu caso na mesa.",
 };
 
-export function ConversaIris() {
+export function ConversaIris({
+  /** Pergunta trazida de fora (a barra da home manda pela URL).
+   *
+   *  Ela NÃO é enviada na hora: espera a checagem de disponibilidade
+   *  terminar, senão a mensagem entra numa conversa que ainda não sabe se
+   *  pode responder — e a pessoa vê a própria pergunta cair no vazio. */
+  perguntaInicial,
+}: {
+  perguntaInicial?: string;
+} = {}) {
   const [mensagens, setMensagens] = useState<Mensagem[]>([ABERTURA]);
   const [rascunho, setRascunho] = useState("");
   const [pensando, setPensando] = useState(false);
@@ -59,6 +68,21 @@ export function ConversaIris() {
       })
       .catch(() => setEstado("off"));
   }, []);
+
+  // A pergunta que veio da home entra sozinha, uma vez só, quando a Íris
+  // fica pronta. O ref é o que garante o "uma vez": sem ele, qualquer
+  // re-render que passasse por "pronta" reenviaria a mesma pergunta.
+  const jaMandou = useRef(false);
+  useEffect(() => {
+    if (estado !== "pronta" || jaMandou.current) return;
+    const texto = perguntaInicial?.trim();
+    if (!texto) return;
+    jaMandou.current = true;
+    enviar(texto);
+    // `enviar` é recriada a cada render e não pode entrar nas dependências:
+    // ela dispararia o efeito de novo a cada mensagem que chega.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [estado, perguntaInicial]);
 
   // Rola para a última mensagem, mas só dentro da caixa — rolar a página
   // inteira arrancaria o leitor de onde ele estava.
@@ -220,17 +244,36 @@ export function ConversaIris() {
              parecer quebrada — e engana quem já começou a digitar. */
           <div className="h-11 animate-pulse rounded-xl bg-muted" aria-hidden />
         ) : estado === "login" ? (
-          <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-accent-tint px-4 py-3">
-            <p className="flex min-w-0 items-center gap-2 text-xs text-slate-600">
-              <Lock className="h-3.5 w-3.5 shrink-0 text-accent-strong" />
-              Crie sua conta grátis para conversar com a Íris.
-            </p>
-            <Link
-              href="/login?modo=criar&proximo=%2Firis"
-              className="shrink-0 rounded-lg bg-accent-btn px-4 py-2 text-2xs font-bold text-white transition-colors hover:bg-accent-strong"
-            >
-              Criar conta grátis
-            </Link>
+          <div className="rounded-xl bg-accent-tint px-4 py-3">
+            {/* Quem chegou pela barra da home tem de VER a própria pergunta
+                aqui. Sem isto ela some no caminho, e a pessoa é recebida por
+                um pedido de cadastro sem entender o que houve com o que
+                acabou de escrever. O `proximo` leva a pergunta junto: depois
+                de criar a conta, a Íris responde sozinha. */}
+            {perguntaInicial?.trim() && (
+              <p className="mb-3 border-b border-accent-soft/50 pb-3 text-xs text-slate-600">
+                Sua pergunta está guardada:{" "}
+                <span className="font-semibold text-primary">
+                  “{perguntaInicial.trim()}”
+                </span>
+              </p>
+            )}
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <p className="flex min-w-0 items-center gap-2 text-xs text-slate-600">
+                <Lock className="h-3.5 w-3.5 shrink-0 text-accent-strong" />
+                Crie sua conta grátis para a Íris responder.
+              </p>
+              <Link
+                href={`/login?modo=criar&proximo=${encodeURIComponent(
+                  perguntaInicial?.trim()
+                    ? `/iris?p=${encodeURIComponent(perguntaInicial.trim())}`
+                    : "/iris",
+                )}`}
+                className="shrink-0 rounded-lg bg-accent-btn px-4 py-2 text-2xs font-bold text-white transition-colors hover:bg-accent-strong"
+              >
+                Criar conta grátis
+              </Link>
+            </div>
           </div>
         ) : estado === "off" ? (
           <p className="text-center text-xs text-muted-foreground">

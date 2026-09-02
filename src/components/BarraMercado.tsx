@@ -47,7 +47,7 @@ export async function BarraMercado() {
       {/* A pista rolante fica contida: `min-w-0` é o que a impede de
           empurrar o selo para fora da faixa. */}
       <div className="relative min-w-0 flex-1 overflow-hidden">
-        <div className="flex w-max animate-[correr-fita_44s_linear_infinite] items-center gap-8 py-3 pl-5 motion-reduce:animate-none">
+        <div className="flex w-max animate-[correr-fita_44s_linear_infinite] items-center gap-8 py-3 pl-5 motion-reduce:animate-none [@media(max-height:800px)]:py-2">
         {fita.map((c, i) => (
           <span
             key={`${c.chave}-${i}`}
