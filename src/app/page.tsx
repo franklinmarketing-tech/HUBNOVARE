@@ -164,11 +164,15 @@ export default async function Home() {
               reescrita e voltou — sem ela o canal só existia para quem já
               conhecia o trilho lateral. */}
           <section className="cine grid gap-3 lg:grid-cols-6" style={{ transitionDelay: "500ms" }}>
-            <BannerIris className="lg:col-span-3" />
+            {/* Três faixas de mesma largura. A primeira divisão que tentei
+                dava uma coluna de seis para os eBooks, e o leque de capas
+                não cabia: a estante aparecia cortada. Em partes iguais cada
+                faixa recebe o que precisa. */}
+            <BannerIris className="lg:col-span-6 xl:col-span-2" />
 
             <BannerNews className="lg:col-span-3 xl:col-span-2" />
 
-            <BannerEbooks className="lg:col-span-3 xl:col-span-1" />
+            <BannerEbooks className="lg:col-span-3 xl:col-span-2" />
           </section>
 
           <ConviteWorkspace assinante={assinante} />

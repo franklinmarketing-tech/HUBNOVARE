@@ -41,14 +41,24 @@ export function Recentes({ apps }: { apps: AppLeve[] }) {
           Continue de onde parou
         </h2>
       </div>
-      <div className="flex flex-wrap gap-2">
+      {/* UMA linha, sempre.
+      
+          Com `flex-wrap` seis atalhos viravam duas fileiras assim que os
+          nomes eram longos ("Raio-X da Previdência"), e a segunda fileira
+          empurrava a home inteira para baixo — numa tela que é medida para
+          caber na dobra. Aqui a lista rola de lado em vez de quebrar, do
+          mesmo jeito que a trilha de etapas do Planejamento faz.
+      
+          A barra de rolagem fica escondida: o corte suave do último item já
+          diz que há mais coisa, e barra horizontal no meio da home suja. */}
+      <div className="flex gap-2 overflow-x-auto pb-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {recentes.map((app) => {
           const Icone = iconeDe(app.slug);
           return (
             <Link
               key={app.slug}
               href={app.href}
-              className="group flex items-center gap-2 rounded-xl border border-border bg-card py-1.5 pl-1.5 pr-3 transition-all hover:border-primary/30"
+              className="group flex shrink-0 items-center gap-2 rounded-xl border border-border bg-card py-1.5 pl-1.5 pr-3 transition-all hover:border-primary/30"
             >
               <span
                 className={`flex h-7 w-7 items-center justify-center ${raioDe(app.slug)}`}
@@ -56,7 +66,7 @@ export function Recentes({ apps }: { apps: AppLeve[] }) {
               >
                 <Icone className="h-3.5 w-3.5 text-white" strokeWidth={1.5} />
               </span>
-              <span className="text-[13px] font-medium text-foreground">
+              <span className="whitespace-nowrap text-[13px] font-medium text-foreground">
                 {app.nome}
               </span>
               <ArrowUpRight className="h-3.5 w-3.5 text-muted-foreground/40 transition-colors group-hover:text-primary" />
