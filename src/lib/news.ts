@@ -21,6 +21,14 @@ export type Artigo = {
   categoria: Familia;
   data: string; // ISO
   tempoLeituraMin: number;
+  /**
+   * A capa do artigo, em /public/news, uma por slug.
+   *
+   * Antes eram as MESMAS imagens dos cards de aplicativo: 24 matérias
+   * dividindo 13 artes, algumas repetidas três vezes — e a mesma foto
+   * aparecendo ora como capa de reportagem, ora como card de ferramenta.
+   * Publicação que reusa a arte do produto não parece publicação.
+   */
   capa: string;
   destaque?: boolean;
   /** Parágrafos do corpo. Cada string vira um <p>. */
@@ -38,7 +46,7 @@ export const ARTIGOS: Artigo[] = [
     categoria: "investimentos",
     data: "2026-08-22",
     tempoLeituraMin: 4,
-    capa: "/cards/card-novare.webp",
+    capa: "/news/parceria-novare-nord-research-que-nao-vende-produto.webp",
     corpo: [
       "Existe uma diferença que quase ninguém explica ao investidor comum: quem vende produto financeiro e quem analisa produto financeiro deveriam ser pessoas diferentes. Quando são a mesma, a 'recomendação' que chega até você já nasceu contaminada pela comissão que ela paga.",
       "A Novare é consultoria independente e não recebe comissão de corretora, banco ou seguradora. Isso resolve metade do problema — o lado do conflito de interesse. A outra metade é ter research de qualidade para embasar o que se recomenda, e é aí que entra a parceria oficial com a Nord Investimentos.",
@@ -60,7 +68,7 @@ export const ARTIGOS: Artigo[] = [
     categoria: "organizacao",
     data: "2026-08-21",
     tempoLeituraMin: 5,
-    capa: "/cards/card-score.webp",
+    capa: "/news/ganhar-bem-nao-e-o-mesmo-que-estar-seguro.webp",
     corpo: [
       "Há uma armadilha silenciosa em carreiras de renda alta: cada aumento vem acompanhado de um upgrade no padrão de vida. Carro melhor, escola melhor, viagem melhor. A renda sobe, a despesa sobe junto, e a sobra no fim do mês continua igual — às vezes menor.",
       "É por isso que médico, advogado e engenheiro sênior aparecem com frequência entre quem ganha muito e tem pouco patrimônio líquido. Não é falta de disciplina; é que ninguém nunca mediu a única coisa que importa nessa conta.",
@@ -82,7 +90,7 @@ export const ARTIGOS: Artigo[] = [
     categoria: "investimentos",
     data: "2026-08-20",
     tempoLeituraMin: 5,
-    capa: "/cards/card-calculadora.webp",
+    capa: "/news/o-calote-silencioso-inflacao-e-imposto.webp",
     corpo: [
       "Todo investidor aprende a olhar a taxa anunciada: 'CDI + 1%', '110% do CDI', 'IPCA + 6%'. O que quase ninguém calcula é quanto disso realmente chega no bolso — porque entre o anúncio e o bolso existem dois pedágios.",
       "O primeiro é o imposto, e esse pelo menos aparece. A tributação regressiva de renda fixa vai de 22,5% sobre o rendimento (até 180 dias) a 15% (acima de 720 dias). Um detalhe que engana muita gente: o imposto incide sobre o ganho NOMINAL, não sobre o ganho real — ou seja, você paga imposto também sobre a parte que só repôs a inflação.",
@@ -104,7 +112,7 @@ export const ARTIGOS: Artigo[] = [
     categoria: "organizacao",
     data: "2026-08-19",
     tempoLeituraMin: 4,
-    capa: "/cards/card-objetivos.webp",
+    capa: "/news/reserva-de-emergencia-os-tres-criterios.webp",
     corpo: [
       "A pergunta que todo mundo faz sobre reserva de emergência é 'onde eu deixo?'. É a pergunta errada, e ela leva a escolhas ruins — porque quem procura o melhor rendimento para a reserva acaba colocando o dinheiro em lugar de onde não consegue tirar na hora que precisa.",
       "A reserva tem três exigências, nessa ordem. Primeira: liquidez imediata. Se o dinheiro demora três dias para cair na conta, ele não serve para o pneu que estourou hoje. Segunda: previsibilidade — o valor não pode oscilar. Uma reserva que caiu 8% justo no mês em que você foi demitido deixou de ser reserva.",
@@ -126,7 +134,7 @@ export const ARTIGOS: Artigo[] = [
     categoria: "trabalho",
     data: "2026-07-14",
     tempoLeituraMin: 5,
-    capa: "/cards/card-novare.webp",
+    capa: "/news/isencao-do-ir-2026-quem-ficou-de-fora.webp",
     destaque: true,
     corpo: [
       "Desde 2026, quem recebe até R$ 5.000 de salário bruto por mês não paga imposto de renda na fonte. É a mudança mais sentida da tabela em anos — e também a mais mal entendida.",
@@ -149,7 +157,7 @@ export const ARTIGOS: Artigo[] = [
     categoria: "trabalho",
     data: "2026-06-22",
     tempoLeituraMin: 6,
-    capa: "/cards/card-dividas.webp",
+    capa: "/news/rescisao-o-que-a-empresa-e-obrigada-a-pagar.webp",
     corpo: [
       "Demissão sem justa causa vem com uma lista de verbas — e cada uma segue uma regra diferente. Confundir uma com a outra é o motivo mais comum de assinar um termo de rescisão faltando dinheiro.",
       "O saldo de salário paga só os dias trabalhados no mês da saída. O aviso prévio, quando indenizado (a empresa dispensa o cumprimento), soma 30 dias mais 3 por ano de casa — até o teto de 90 dias. O 13º e as férias entram proporcionais ao tempo trabalhado no ano corrente, sempre com o terço constitucional por cima.",
@@ -171,7 +179,7 @@ export const ARTIGOS: Artigo[] = [
     categoria: "trabalho",
     data: "2026-05-30",
     tempoLeituraMin: 4,
-    capa: "/cards/card-objetivos.webp",
+    capa: "/news/vender-dias-de-ferias-vale-a-pena.webp",
     corpo: [
       "A lei permite vender até um terço das férias — dez dos trinta dias — em troca de dinheiro extra em vez de descanso. É o chamado abono pecuniário, e ele tem uma vantagem que passa despercebida: é isento de INSS e de imposto de renda.",
       "Isso significa que o mesmo valor bruto rende mais líquido quando vendido do que quando gozado, porque a parte tributada da conta encolhe. A diferença cresce junto com o salário — quanto maior a faixa de imposto, maior o ganho de vender em vez de tirar.",
@@ -191,7 +199,7 @@ export const ARTIGOS: Artigo[] = [
     categoria: "trabalho",
     data: "2026-05-12",
     tempoLeituraMin: 4,
-    capa: "/cards/card-perfil.webp",
+    capa: "/news/13o-salario-por-que-a-segunda-parcela-vem-menor.webp",
     corpo: [
       "O 13º salário é pago em duas parcelas, e as duas metades não são iguais na prática — mesmo sendo o mesmo valor bruto dividido ao meio.",
       "A primeira, paga até 30 de novembro, é um adiantamento limpo: sem desconto de INSS, sem imposto de renda. A segunda, paga até 20 de dezembro, carrega o desconto do 13º INTEIRO — calculado sobre o valor cheio, e separado do salário do mês.",
@@ -212,7 +220,7 @@ export const ARTIGOS: Artigo[] = [
     categoria: "investimentos",
     data: "2026-04-18",
     tempoLeituraMin: 5,
-    capa: "/cards/card-simulador.webp",
+    capa: "/news/juro-real-o-numero-que-decide-se-voce-fica-mais-rico.webp",
     destaque: true,
     corpo: [
       "Um investimento que rende 12% ao ano parece ótimo até você lembrar que a inflação também corrói o poder de compra do dinheiro no mesmo período. O que sobra depois desse desconto é o juro real — e é ele, não o nominal, que diz se o patrimônio está de fato crescendo.",
@@ -234,7 +242,7 @@ export const ARTIGOS: Artigo[] = [
     categoria: "organizacao",
     data: "2026-03-25",
     tempoLeituraMin: 5,
-    capa: "/cards/card-dividas.webp",
+    capa: "/news/financiar-carro-e-diferente-de-financiar-casa.webp",
     corpo: [
       "Financiamento de veículo e financiamento imobiliário parecem a mesma conta — parcela, juros, prazo — mas o bem por trás de cada um se comporta de um jeito completamente diferente, e isso deveria mudar a decisão.",
       "Um carro perde valor todo mês, quase sempre mais rápido do que a dívida diminui nos primeiros anos. Esticar o prazo para caber no orçamento é a forma mais comum de terminar 'devendo mais do que o carro vale' — o chamado saldo devedor negativo.",
@@ -255,7 +263,7 @@ export const ARTIGOS: Artigo[] = [
     categoria: "investimentos",
     data: "2026-02-27",
     tempoLeituraMin: 5,
-    capa: "/cards/card-leads-simulador.webp",
+    capa: "/news/selic-caindo-o-que-muda-na-renda-fixa.webp",
     corpo: [
       "Ciclo de queda de juros mexe com a renda fixa de formas opostas, dependendo do tipo de papel — e confundir os efeitos leva gente a vender na hora errada.",
       "Papel pós-fixado (CDB e Tesouro Selic, por exemplo) rende acompanhando a taxa do dia. Quando a Selic cai, o rendimento futuro cai junto — mas o que já foi pago não muda, e não há por que se desfazer do papel antes do combinado.",
@@ -277,7 +285,7 @@ export const ARTIGOS: Artigo[] = [
     categoria: "organizacao",
     data: "2026-01-30",
     tempoLeituraMin: 4,
-    capa: "/cards/card-score.webp",
+    capa: "/news/reserva-de-emergencia-quanto-e-o-suficiente.webp",
     corpo: [
       "'Seis meses de despesas' é a regra que todo mundo já ouviu sobre reserva de emergência — mas ela é um ponto de partida, não uma resposta única para todo mundo.",
       "Quem é CLT, com renda mais previsível e direito a seguro-desemprego, pode se sentir seguro com uma reserva menor. Quem é autônomo, ou vive de comissão, ou é o único a pagar as contas da casa, geralmente precisa de mais — às vezes o dobro.",
@@ -298,7 +306,7 @@ export const ARTIGOS: Artigo[] = [
     categoria: "organizacao",
     data: "2026-01-08",
     tempoLeituraMin: 4,
-    capa: "/cards/card-leads-objetivos.webp",
+    capa: "/news/orcamento-que-sobrevive-ao-mes.webp",
     corpo: [
       "Orçamento com vinte categorias — 'streaming', 'padaria', 'uber', 'farmácia' — costuma durar duas semanas antes de a pessoa desistir de lançar cada gasto. O problema não é falta de disciplina: é o método pedindo esforço demais desde o primeiro dia.",
       "Um jeito que funciona melhor: começar com poucas categorias grandes (moradia, alimentação, transporte, o resto) e só quebrar em mais detalhe DEPOIS de ver, por um mês ou dois, onde o dinheiro realmente concentra.",
@@ -319,7 +327,7 @@ export const ARTIGOS: Artigo[] = [
     categoria: "ia",
     data: "2026-08-25",
     tempoLeituraMin: 6,
-    capa: "/cards/card-planejamento.webp",
+    capa: "/news/planejamento-financeiro-o-app-que-monta-seu-plano-sozinho.webp",
     destaque: true,
     corpo: [
       "Planejamento financeiro sempre teve um gargalo: alguém precisava sentar com você, ouvir sua vida, montar a planilha e devolver o plano. Isso funciona, mas custa caro e depende da agenda de outra pessoa — por isso a maioria nunca chega a ter um plano de verdade.",
@@ -344,7 +352,7 @@ export const ARTIGOS: Artigo[] = [
     categoria: "ia",
     data: "2026-08-24",
     tempoLeituraMin: 4,
-    capa: "/cards/card-novare.webp",
+    capa: "/news/workspace-novare-uma-assinatura-tudo-liberado.webp",
     corpo: [
       "Quase todo serviço financeiro on-line usa o mesmo truque: três planos lado a lado, o do meio destacado, e o recurso de que você precisa sempre no mais caro. O Workspace Novare não tem degrau nenhum. É uma assinatura só, e ela libera tudo.",
       "O que entra: o Planejamento Financeiro completo, com retrato, diagnóstico, plano de ação, acompanhamento mensal e relatório em PDF. A Íris, a IA que lê seu extrato e acha assinatura esquecida, tarifa e juro escondido. E todas as calculadoras e simuladores da casa.",
@@ -366,7 +374,7 @@ export const ARTIGOS: Artigo[] = [
     categoria: "ia",
     data: "2026-08-23",
     tempoLeituraMin: 3,
-    capa: "/cards/card-openfinance.webp",
+    capa: "/news/conversar-com-a-iris-a-ia-que-nao-ganha-comissao.webp",
     corpo: [
       "A Íris já lia extrato: você colava os lançamentos e ela devolvia para onde o dinheiro estava indo, com assinatura esquecida e tarifa separadas do resto. Agora ela também conversa.",
       "Dá para perguntar o que quiser sobre a sua vida financeira: o que é CDI e por que ele aparece em tudo, quanto de reserva de emergência faz sentido no seu caso, se vale mais quitar dívida ou investir, por onde começar quando parece que não sobra nada.",
@@ -388,7 +396,7 @@ export const ARTIGOS: Artigo[] = [
     categoria: "ia",
     data: "2026-07-28",
     tempoLeituraMin: 3,
-    capa: "/cards/card-openfinance.webp",
+    capa: "/news/iris-a-ia-que-le-seu-extrato.webp",
     corpo: [
       "Quase todo mundo tem uma assinatura esquecida, uma tarifa que ninguém explicou direito, ou um juro rodando baixinho no extrato sem chamar atenção. A Íris existe para caçar exatamente isso.",
       "Funciona sem Open Finance: você arrasta ou cola o extrato do seu banco (CSV ou OFX, os formatos que todo banco exporta), e ela lê tudo no seu próprio navegador — o texto com agência e conta nunca sobe para lugar nenhum. Só os totais já calculados vão para a análise.",
@@ -408,7 +416,7 @@ export const ARTIGOS: Artigo[] = [
     categoria: "organizacao",
     data: "2026-07-05",
     tempoLeituraMin: 5,
-    capa: "/cards/card-comparador.webp",
+    capa: "/news/reajuste-de-aluguel-igpm-ou-ipca.webp",
     corpo: [
       "O reajuste do aluguel não é uma escolha do proprietário na hora que ele quiser: a Lei do Inquilinato permite corrigir no máximo uma vez por ano, e sempre pelo índice que está escrito no contrato. Se o contrato diz IGP-M, é IGP-M; se diz IPCA, é IPCA — nenhuma das partes troca sozinha no meio do caminho.",
       "A conta usa o acumulado dos 12 meses ANTERIORES ao aniversário do contrato, não o índice do mês do reajuste. É um detalhe que muda o valor: quem olha só o número mais recente do índice quase sempre calcula errado, para mais ou para menos.",
@@ -430,7 +438,7 @@ export const ARTIGOS: Artigo[] = [
     categoria: "organizacao",
     data: "2026-06-10",
     tempoLeituraMin: 4,
-    capa: "/cards/card-calculadora.webp",
+    capa: "/news/somar-inflacao-esta-errado.webp",
     corpo: [
       "Para saber quanto um valor antigo vale hoje, o instinto de quase todo mundo é somar a inflação de cada período e aplicar o total. A conta é intuitiva — e está errada. Índices de inflação acumulam por MULTIPLICAÇÃO dos fatores (um mais a taxa de cada período), nunca por soma.",
       "O motivo é que a inflação de cada mês incide sobre um preço que já subiu nos meses anteriores — é juro sobre juro, só que dos preços. Somar as taxas ignora esse efeito em cascata, e por isso a soma sempre subestima o acumulado verdadeiro.",
@@ -451,7 +459,7 @@ export const ARTIGOS: Artigo[] = [
     categoria: "investimentos",
     data: "2026-04-02",
     tempoLeituraMin: 5,
-    capa: "/cards/card-aposentadoria.webp",
+    capa: "/news/tabela-regressiva-ir-renda-fixa.webp",
     corpo: [
       "Boa parte da renda fixa — CDB, Tesouro Direto — paga imposto de renda por uma tabela que recompensa a paciência: quanto mais tempo o dinheiro fica aplicado, menor a alíquota. É a chamada tabela regressiva, e ela muda o resultado líquido sem que o investimento em si mude nada.",
       "As faixas são quatro: 22,5% para resgates em até 180 dias, 20% de 181 a 360 dias, 17,5% de 361 a 720 dias e 15% acima de 720 dias. Ou seja: o mesmo papel, com o mesmo rendimento bruto, entrega mais no bolso se o resgate esperar cruzar a fronteira dos 2 anos.",
@@ -473,7 +481,7 @@ export const ARTIGOS: Artigo[] = [
     categoria: "ia",
     data: "2026-03-12",
     tempoLeituraMin: 4,
-    capa: "/cards/card-score.webp",
+    capa: "/news/quando-procurar-um-consultor-financeiro.webp",
     corpo: [
       "Nem toda dúvida financeira precisa de um consultor — e admitir isso é o teste mais honesto de quem vende consultoria. Quanto rende tal aplicação, qual o reajuste do aluguel, quanto falta para a reserva: isso é conta padronizada, e ferramenta resolve sozinha, na hora, de graça.",
       "O consultor entra quando a pergunta deixa de ser uma conta e vira uma decisão com contexto de vida. Uma herança recebida, a venda de uma empresa, um plano de sucessão, uma carteira que cresceu além do que dá para administrar sozinho, uma decisão grande com prazo para acontecer — nesses casos, o número certo depende de variáveis que nenhum formulário captura.",
@@ -494,7 +502,7 @@ export const ARTIGOS: Artigo[] = [
     categoria: "organizacao",
     data: "2026-06-05",
     tempoLeituraMin: 4,
-    capa: "/cards/card-simulador.webp",
+    capa: "/news/juros-compostos-o-aporte-pequeno-que-vence.webp",
     corpo: [
       "Juro composto tem uma regra simples que muda tudo: o rendimento de cada período passa a render também. O dinheiro que o dinheiro gerou entra na conta seguinte — e é essa bola de neve, não o valor do aporte, que faz o patrimônio decolar.",
       "A consequência menos intuitiva: o efeito cresce mais com o TEMPO do que com o valor. Quem começa cedo com pouco costuma terminar na frente de quem começa tarde com muito, porque os primeiros anos de aporte são justamente os que mais compõem lá no fim. Cada ano de atraso corta o pedaço da curva que mais engorda.",
@@ -516,7 +524,7 @@ export const ARTIGOS: Artigo[] = [
     categoria: "organizacao",
     data: "2026-05-20",
     tempoLeituraMin: 5,
-    capa: "/cards/card-dividas.webp",
+    capa: "/news/sac-ou-price-qual-tabela-escolher.webp",
     corpo: [
       "Na hora de financiar a casa, o banco costuma oferecer duas tabelas — SAC e Price — e a explicação raramente vai além de 'uma parcela cai, a outra é fixa'. Só que a diferença entre elas mora no total de juros do contrato, e é aí que a escolha pesa de verdade.",
       "Na SAC, a amortização é constante: todo mês o mesmo pedaço da dívida é abatido. Por isso a parcela COMEÇA MAIOR e vai caindo mês a mês, conforme o saldo devedor encolhe — e, no fim do contrato, o total pago em juros é menor.",
@@ -538,7 +546,7 @@ export const ARTIGOS: Artigo[] = [
     categoria: "organizacao",
     data: "2026-04-28",
     tempoLeituraMin: 4,
-    capa: "/cards/card-calculadora.webp",
+    capa: "/news/amortizar-prazo-ou-parcela.webp",
     corpo: [
       "Chegou um dinheiro extra — bônus, restituição, o próprio FGTS, que pode ser usado para amortizar financiamento imobiliário — e o banco pergunta: quer reduzir o prazo ou o valor da parcela? A pergunta parece de detalhe, mas as duas respostas levam a contas completamente diferentes.",
       "Reduzir o PRAZO quase sempre economiza muito mais juros. O motivo: juros são cobrados sobre saldo e sobre tempo — cortar meses do fim do contrato apaga justamente as parcelas mais carregadas de juros que ainda viriam. É o mesmo dinheiro abatendo a mesma dívida, mas matando a parte mais cara dela.",

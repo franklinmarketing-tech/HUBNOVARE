@@ -9,6 +9,7 @@ import { BarraMercado } from "@/components/BarraMercado";
 import { CardPortal } from "@/components/CardPortal";
 import { CardPlanejamentoHome } from "@/components/CardPlanejamentoHome";
 import { BannerEbooks } from "@/components/BannerEbooks";
+import { BannerNews } from "@/components/BannerNews";
 import { FerramentasHome } from "@/components/FerramentasHome";
 import { Recentes } from "@/components/Recentes";
 import { BannerIris } from "@/components/BannerIris";
@@ -28,10 +29,17 @@ import { getNotificacoes } from "@/lib/notificacoes";
  * O catálogo completo vive em /aplicativos; os eBooks, em /ebooks.
  */
 export default async function Home() {
-  const perfil = await getPerfil();
-  const notificacoes = await getNotificacoes();
-  // Quem já respondeu a trilha inteira não pode ser tratado como quem nunca
-  // abriu o app — ver o convite do painel, no fim do arquivo.
+  // As duas primeiras não dependem uma da outra: em série eram dois
+  // round-trips ao Supabase antes de a home começar a pintar, e a tela ficava
+  // no "Carregando…" por mais tempo do que precisava.
+  const [perfil, notificacoes] = await Promise.all([
+    getPerfil(),
+    getNotificacoes(),
+  ]);
+
+  // Esta depende do id, então fica de fora do paralelo. Quem já respondeu a
+  // trilha inteira não pode ser tratado como quem nunca abriu o app — ver o
+  // convite do painel, no fim do arquivo.
   const temFicha = perfil ? await temFichaPreenchida(perfil.id) : false;
   // "cliente"/"free" continua o padrão para visitante anônimo; logado=!!perfil
   // é o que diferencia um cliente em teste de um visitante sem conta — sem
@@ -151,11 +159,16 @@ export default async function Home() {
 
           <FerramentasHome />
 
-          {/* Duas faixas finas: a Íris (o diferencial da casa) e a estante. */}
-          <section className="cine grid gap-3 lg:grid-cols-5" style={{ transitionDelay: "500ms" }}>
+          {/* Três faixas finas: a Íris (o diferencial da casa), a estante e
+              o canal de conteúdo. O News tinha porta na home, perdeu numa
+              reescrita e voltou — sem ela o canal só existia para quem já
+              conhecia o trilho lateral. */}
+          <section className="cine grid gap-3 lg:grid-cols-6" style={{ transitionDelay: "500ms" }}>
             <BannerIris className="lg:col-span-3" />
 
-            <BannerEbooks className="lg:col-span-2" />
+            <BannerNews className="lg:col-span-3 xl:col-span-2" />
+
+            <BannerEbooks className="lg:col-span-3 xl:col-span-1" />
           </section>
 
           <ConviteWorkspace assinante={assinante} />

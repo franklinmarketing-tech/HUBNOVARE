@@ -504,7 +504,7 @@ export const GUIAS = [
           {
             tipo: "aviso",
             texto:
-              "A Novare não vende previdência e não recebe comissão de nenhuma seguradora — é por isso que este guia pode fazer a conta das taxas. Ele é educativo e não recomenda produto, plano ou instituição; para uma análise do seu caso, existe o Raio-X de Previdência e a conversa com um consultor CFP®.",
+              "A Novare não vende previdência e não recebe comissão de nenhuma seguradora — é por isso que este guia pode fazer a conta das taxas. Ele é educativo e não recomenda produto, plano ou instituição; para uma análise do seu caso, existe o Raio-X de Previdência e a conversa com um consultor da Novare.",
           },
         ],
       },

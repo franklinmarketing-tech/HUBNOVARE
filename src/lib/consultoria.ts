@@ -161,7 +161,7 @@ export const CONSULTORIAS: Consultoria[] = [
       "Marco Horizonte e metas de vida calculadas",
       "Projeção ano a ano de patrimônio e renda passiva",
       "Plano de aportes estruturado",
-      "Acompanhamento humano por consultor CFP®",
+      "Acompanhamento humano por consultor da Novare",
     ],
     precoCheio: 0,
     icone: "Sunrise",

@@ -163,7 +163,7 @@ const SO_NO_PRO = [
 const SELOS: { icone: LucideIcon; texto: string }[] = [
   { icone: ShieldCheck, texto: "Consultoria independente" },
   { icone: BadgeCheck, texto: "Sem comissão de corretora" },
-  { icone: Sparkles, texto: "Consultor CFP® dedicado" },
+  { icone: Sparkles, texto: "Consultor dedicado" },
   { icone: Handshake, texto: "Parceira da Nord Investimentos" },
 ];
 
@@ -556,10 +556,10 @@ export default function VidaPlanPage() {
                 </h3>
                 <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
                   A Novare não vende produto de banco e não recebe comissão por
-                  onde o seu dinheiro é alocado. O plano é feito por consultor
-                  CFP® — a certificação de planejamento financeiro — e o único
-                  pagamento que existe na relação é o seu, transparente, na
-                  assinatura.
+                  onde o seu dinheiro é alocado. O plano é feito por gente que
+                  estuda o seu caso, com research independente da Nord por
+                  trás, e o único pagamento que existe na relação é o seu,
+                  transparente, na assinatura.
                 </p>
 
                 <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-3">

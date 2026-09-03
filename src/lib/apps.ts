@@ -155,7 +155,7 @@ export const APPS: NovareApp[] = [
       "3 encontros dedicados + plano escrito",
       "Marco Horizonte calculado com você",
       "Projeção ano a ano até a independência",
-      "Consultor CFP® dedicado",
+      "Consultor dedicado",
     ],
   }),
   app("ia", "consultoria-financeira", "Consultoria Financeira", "Organize suas contas e zere dívidas", "/consultoria/consultoria-financeira", "Novare Direct", {

@@ -81,7 +81,7 @@ const COMO_ACONTECE = [
     icone: SearchCheck,
     titulo: "Análise técnica",
     texto:
-      "Um consultor CFP® estuda o material com research independente da Nord por trás. Sem comissão de corretora no meio: nenhuma conclusão paga nada a ninguém.",
+      "Um consultor da Novare estuda o material com research independente da Nord por trás. Sem comissão de corretora no meio: nenhuma conclusão paga nada a ninguém.",
   },
   {
     icone: FileCheck,

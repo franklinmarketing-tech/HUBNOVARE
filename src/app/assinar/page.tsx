@@ -44,7 +44,7 @@ import { falarNoWhatsApp } from "@/lib/contato";
 
 export const metadata: Metadata = {
   title: `${ASSINATURA_NOME}: sua vida financeira inteira, num lugar só`,
-  description: `O 1º hub financeiro do Brasil: plano financeiro, IA que lê seu extrato, calculadoras e consultores CFP® por ${ASSINATURA_PRECO_ROTULO}/mês. ${ASSINATURA_TRIAL_DIAS} dias grátis, sem cartão.`,
+  description: `O 1º hub financeiro do Brasil: plano financeiro, IA que lê seu extrato, calculadoras e consultoria independente por ${ASSINATURA_PRECO_ROTULO}/mês. ${ASSINATURA_TRIAL_DIAS} dias grátis, sem cartão.`,
   alternates: { canonical: "/assinar" },
   openGraph: {
     title: `${ASSINATURA_NOME}: sua vida financeira inteira, num lugar só`,
@@ -115,7 +115,7 @@ const VIRADA = [
   },
   {
     antes: "Quem te orienta ganha comissão do que te vende.",
-    depois: `Consultor CFP® com ${ROTULO_DESCONTO} e comissão zero.`,
+    depois: `Consultoria com ${ROTULO_DESCONTO} e comissão zero.`,
   },
 ];
 
@@ -169,7 +169,7 @@ const PACOTE = [
     emblema: "/icones-3d/users-3d.png",
     nome: `${ROTULO_DESCONTO} na consultoria particular`,
     texto:
-      "Consultores certificados CFP®, sem comissão de banco. Válido enquanto a assinatura estiver ativa.",
+      "Consultor de verdade do outro lado, sem comissão de banco. Válido enquanto a assinatura estiver ativa.",
   },
 ];
 
@@ -182,10 +182,14 @@ const CONFIANCA = [
       "A consultoria de investimentos une o método da Novare à análise independente da Nord.",
   },
   {
-    destaque: "CFP®",
-    titulo: "Consultores certificados",
+    // Aqui havia "CFP®, consultores certificados" — e a casa ainda não tem a
+    // certificação. Num bloco cujo próprio título é "só o que a casa
+    // comprova", alegar credencial que não se tem é o tipo de detalhe que
+    // derruba a confiança inteira quando alguém confere.
+    destaque: "Humano",
+    titulo: "Gente estuda o seu caso",
     texto:
-      "O padrão internacional de planejamento financeiro pessoal, do outro lado da mesa.",
+      "Do outro lado da mesa tem uma pessoa lendo os seus números, não um robô devolvendo média de mercado.",
   },
   {
     destaque: "0%",
@@ -205,14 +209,14 @@ const CONFIANCA = [
 const NUMEROS = [
   { valor: "22", rotulo: "ferramentas e calculadoras" },
   { valor: `${ASSINATURA_TRIAL_DIAS} dias`, rotulo: "grátis, sem pedir cartão" },
-  { valor: ROTULO_DESCONTO, rotulo: "na consultoria com CFP®" },
+  { valor: ROTULO_DESCONTO, rotulo: "na consultoria particular" },
   { valor: "0%", rotulo: "de comissão de banco" },
 ];
 
 const SELOS = [
   { icone: CreditCard, texto: "Sem cartão para testar" },
   { icone: Lock, texto: "Cancele quando quiser" },
-  { icone: ShieldCheck, texto: "Consultoria CFP®" },
+  { icone: ShieldCheck, texto: "Consultoria independente" },
   { icone: Wallet, texto: "Sem comissão de corretora" },
 ];
 
@@ -283,7 +287,7 @@ export default function AssinarPage() {
 
             <p className="cine mx-auto mt-7 max-w-2xl text-lg leading-relaxed text-white/80 sm:text-xl">
               Planejamento completo, a Íris lendo seu extrato, 22 calculadoras
-              e consultoria CFP® com {ROTULO_DESCONTO}. Por{" "}
+              e consultoria com {ROTULO_DESCONTO}. Por{" "}
               {ASSINATURA_PRECO_ROTULO} por mês.
             </p>
 
