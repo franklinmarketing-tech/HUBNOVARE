@@ -66,11 +66,19 @@ export function RevelarAoRolar() {
         }
       },
       {
-        // Dispara um pouco antes de encostar na borda: o elemento termina de
-        // aparecer quando já está confortavelmente na tela, e não no exato
-        // instante em que cruza o limite.
-        rootMargin: "0px 0px -12% 0px",
-        threshold: 0.12,
+        // Dispara ANTES de o bloco chegar na tela, não depois.
+        //
+        // A margem era negativa (-12%), o que ENCOLHE a área de detecção: o
+        // bloco só revelava depois de já ter entrado um pedaço na viewport.
+        // Somado ao threshold de 12%, o efeito era o oposto do pretendido —
+        // quem parava logo abaixo da dobra encarava um retângulo em branco e
+        // só via o conteúdo depois de rolar mais um tanto.
+        //
+        // Positiva, a margem ESTICA a detecção para além da borda de baixo:
+        // a animação começa com o bloco ainda fora da tela e termina quando
+        // ele entra. A pessoa nunca vê o vazio — vê o conteúdo já formado.
+        rootMargin: "0px 0px 35% 0px",
+        threshold: 0,
       },
     );
 
