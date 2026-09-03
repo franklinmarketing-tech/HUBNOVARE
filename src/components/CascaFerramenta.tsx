@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import type { ReactNode } from "react";
 import { useId } from "react";
+import { InstagramLogo, LinkedinLogo, YoutubeLogo } from "@/components/LogosSociais";
 import { formatarMoedaInput, digitosParaReais } from "@/lib/moeda";
 
 /**
@@ -54,6 +55,36 @@ export function CascaFerramenta({
               <span className="hidden sm:inline">Voltar ao Workspace</span>
               <span className="sm:hidden">Início</span>
             </Link>
+            {/* Redes sociais ao lado do logo — padrão aplicado em toda ferramenta. */}
+            <div className="hidden shrink-0 items-center gap-2 border-l border-slate-200 pl-3 sm:flex">
+              <a
+                href="https://www.instagram.com/novare.invest"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Novare no Instagram"
+                className="-m-1 p-1 opacity-80 transition-opacity hover:opacity-100"
+              >
+                <InstagramLogo className="h-4 w-4" />
+              </a>
+              <a
+                href="https://www.youtube.com/channel/UCtfpNaHW_Jx7T7U91lXpJhQ"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Novare no YouTube"
+                className="-m-1 p-1 opacity-80 transition-opacity hover:opacity-100"
+              >
+                <YoutubeLogo className="h-4 w-4" />
+              </a>
+              <a
+                href="https://www.linkedin.com/in/novare-consultoria-de-investimentos-ab0808386/"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Novare no LinkedIn"
+                className="-m-1 p-1 opacity-80 transition-opacity hover:opacity-100"
+              >
+                <LinkedinLogo className="h-4 w-4" />
+              </a>
+            </div>
           </div>
           <span className="text-xs font-medium text-slate-500 hidden sm:block">
             {nome}

@@ -271,12 +271,15 @@ export default function AssinarPage() {
           />
 
           <div className="relative mx-auto max-w-5xl px-5 py-16 text-center sm:py-20 lg:py-24">
-            {/* Selo de autoridade — é a primeira frase que qualquer pessoa
-                lê na página, e precisa pesar tanto quanto a headline. Maior,
-                borda em degradê e brilho por trás em vez do texto perdido
-                dentro de um pill quase invisível de antes. */}
-            <span className="cine relative inline-flex items-center gap-2 rounded-full border border-accent-claro/40 bg-white/[0.10] px-5 py-2.5 text-sm font-bold uppercase tracking-wider text-white shadow-[0_0_40px_-8px_rgba(255,180,120,0.55)] backdrop-blur-sm sm:text-base">
-              <Sparkles className="h-[18px] w-[18px] text-accent-claro sm:h-5 sm:w-5" />
+            {/* Selo de autoridade — é a primeira frase que qualquer pessoa lê
+                na página, e precisa pesar tanto quanto a headline. Duas
+                rodadas de ajuste até chegar aqui: primeiro só a borda ganhou
+                destaque (ainda sumia no fundo escuro), agora o preenchimento
+                é sólido em degradê — a mesma cor do botão principal — com o
+                anel pulsando por fora (`.selo-pulsa`, já usado no selo de
+                oferta) para puxar o olho sem piscar nem mudar de cor. */}
+            <span className="selo-pulsa cine relative inline-flex items-center gap-2.5 rounded-full bg-gradient-to-r from-accent-btn via-accent to-accent-claro px-6 py-3.5 text-base font-black uppercase tracking-wider text-white shadow-[0_10px_50px_-6px_rgba(255,140,80,0.75)] sm:px-8 sm:py-4 sm:text-lg">
+              <Sparkles className="h-5 w-5 shrink-0 text-white drop-shadow sm:h-6 sm:w-6" />
               O 1º hub financeiro do Brasil
             </span>
 
