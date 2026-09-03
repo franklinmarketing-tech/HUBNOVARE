@@ -60,7 +60,11 @@ const CONFIG: Record<
   trabalho: {
     curto: "Trabalho",
     descricao: "Receba o que é seu",
-    capa: "/cards/card-planejamento.webp",
+    // A capa do envelope de pagamento — é a arte do 13º, e a área é
+    // Trabalho e Salário. Antes daqui apontava para a capa do produto
+    // Planejamento, por uma troca minha na rodada das capas: o campo não
+    // era usado por ninguém, então o erro passou despercebido.
+    capa: "/cards/card-decimo-terceiro.webp",
     h: 40,
     s: 65,
   },

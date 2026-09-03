@@ -219,20 +219,6 @@
   /* Emojis vivos da home: flutuam devagar, cada um no seu tempo (o delay
      vem inline). Some para quem pediu menos movimento no sistema. */
   @media (prefers-reduced-motion: no-preference) {
-    @keyframes flutuar {
-      0%,
-      100% {
-        transform: translateY(0);
-      }
-      50% {
-        transform: translateY(-3px);
-      }
-    }
-
-    .emoji-vivo {
-      display: inline-block;
-      animation: flutuar 3.2s ease-in-out infinite;
-    }
   }
 
   .titulo-secao {
