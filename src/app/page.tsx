@@ -11,7 +11,6 @@ import { CardPlanejamentoHome } from "@/components/CardPlanejamentoHome";
 import { BannerEbooks } from "@/components/BannerEbooks";
 import { BannerNews } from "@/components/BannerNews";
 import { FerramentasHome } from "@/components/FerramentasHome";
-import { Recentes } from "@/components/Recentes";
 import { BannerIris } from "@/components/BannerIris";
 import { PerguntarIris } from "@/components/PerguntarIris";
 import { PainelMeuDia } from "@/components/PainelMeuDia";
@@ -148,14 +147,11 @@ export default async function Home() {
               ))}
           </section>
 
-          {/* "Continue de onde parou".
-          
-              O histórico já era gravado a cada visita a uma ferramenta (ver
-              AssistenteFerramentas) e este componente já sabia exibi-lo — só
-              nunca tinham sido ligados um no outro. Some sozinho para quem
-              ainda não usou nada, então não custa altura na primeira visita,
-              que é justamente quando a home precisa caber na dobra. */}
-          <Recentes apps={apps} />
+          {/* O "Continue de onde parou" (components/Recentes) já morou aqui e
+              saiu a pedido: mais uma fileira de pílulas entre as vitrines e as
+              ferramentas deixava a dobra carregada demais. O componente
+              continua pronto e o histórico continua sendo gravado a cada
+              visita — religar é uma linha, se um dia a home tiver folga. */}
 
           <FerramentasHome />
 

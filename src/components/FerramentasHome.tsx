@@ -1,9 +1,9 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Star } from "lucide-react";
 import { useFavoritos, MAX_ATALHOS } from "@/lib/favoritos";
+import { iconeDe } from "@/lib/icones";
 
 /**
  * A fileira de ferramentas da home, agora fixável.
@@ -28,16 +28,16 @@ export const FERRAMENTAS_CAPA: {
   href: string;
   nome: string;
   chamada: string;
-  /** Emblema 3D em /public/icones-3d — a mesma arte que o catálogo usa. */
-  emblema: string;
+  /** Slug no mapa de `icones.ts` — de lá sai o ícone de traço. */
+  slug: string;
   externo?: boolean;
 }[] = [
-  { href: "/ferramentas/juros-compostos", nome: "Juros Compostos", chamada: "Veja seu dinheiro crescer", emblema: "/icones-3d/market-3d.png" },
-  { href: "/ferramentas/salario-liquido", nome: "Salário Líquido", chamada: "Quanto cai na conta", emblema: "/icones-3d/snapshot-3d.png" },
-  { href: "/ferramentas/rescisao", nome: "Rescisão", chamada: "Confira antes de assinar", emblema: "/icones-3d/parecer-3d.png" },
-  { href: "/ferramentas/financiamento", nome: "Financiamento", chamada: "Casa e carro na conta certa", emblema: "/icones-3d/goal-imovel.png" },
-  { href: "https://novareapp.com.br/ferramentas/simulador-de-renda-fixa", nome: "Simulador CDI", chamada: "CDB e renda fixa no líquido", emblema: "/icones-3d/cdi-3d.png", externo: true },
-  { href: "/ferramentas/decimo-terceiro", nome: "13º Salário", chamada: "As duas parcelas", emblema: "/icones-3d/goal-check-done.png" },
+  { href: "/ferramentas/juros-compostos", nome: "Juros Compostos", chamada: "Veja seu dinheiro crescer", slug: "juros-compostos" },
+  { href: "/ferramentas/salario-liquido", nome: "Salário Líquido", chamada: "Quanto cai na conta", slug: "salario-liquido" },
+  { href: "/ferramentas/rescisao", nome: "Rescisão", chamada: "Confira antes de assinar", slug: "rescisao" },
+  { href: "/ferramentas/financiamento", nome: "Financiamento", chamada: "Casa e carro na conta certa", slug: "simulador-financiamento" },
+  { href: "https://novareapp.com.br/ferramentas/simulador-de-renda-fixa", nome: "Simulador CDI", chamada: "CDB e renda fixa no líquido", slug: "simulador-cdi", externo: true },
+  { href: "/ferramentas/decimo-terceiro", nome: "13º Salário", chamada: "As duas parcelas", slug: "decimo-terceiro" },
 ];
 
 export function FerramentasHome() {
@@ -72,7 +72,8 @@ export function FerramentasHome() {
       </div>
 
       <ul className="mt-1.5 grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-6">
-        {ordenadas.map(({ href, nome, chamada, emblema, externo }) => {
+        {ordenadas.map(({ href, nome, chamada, slug, externo }) => {
+          const Icone = iconeDe(slug);
           const fixada = eFavorito(href);
           return (
             <li key={href} className="group/i relative">
@@ -82,20 +83,21 @@ export function FerramentasHome() {
                 rel={externo ? "noopener noreferrer" : undefined}
                 className="glass-card group flex h-full items-center gap-2 rounded-2xl bg-white p-2.5 pr-7 shadow-card ring-1 ring-primary/5 transition-all hover:-translate-y-0.5 hover:shadow-card-hover hover:ring-accent/25"
               >
-                {/* Emblema 3D, não emoji.
+                {/* Ícone de TRAÇO, não emoji nem emblema colorido.
                 
-                    O emoji era leve, mas é desenhado pelo SISTEMA: o mesmo
-                    card aparecia com uma arte no iPhone, outra no Windows e
-                    outra no Android — e nenhuma delas é da marca. O emblema é
-                    a mesma linguagem do catálogo e das etapas do
-                    Planejamento, e some a diferença entre aparelhos. */}
-                <Image
-                  src={emblema}
-                  alt=""
-                  width={28}
-                  height={28}
-                  className="h-7 w-7 shrink-0 object-contain drop-shadow-[0_4px_8px_hsl(215_50%_23%_/_0.25)] transition-transform duration-200 group-hover:scale-110"
-                />
+                    Passamos por três versões aqui. O emoji saiu porque é
+                    desenhado pelo sistema: o mesmo card mudava de arte entre
+                    iPhone, Windows e Android. O emblema 3D que entrou no
+                    lugar resolveu isso, mas seis emblemas coloridos em fila
+                    numa faixa estreita viram poluição — cada um puxando o
+                    olho para si, e nenhum deixando ler a fileira.
+                
+                    O traço monocromático é o que o próprio README pede
+                    ("ícones exclusivamente lucide-react") e some quando não é
+                    preciso: aqui quem tem de ser lido é o nome. */}
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-primary/[0.06] text-primary transition-colors group-hover:bg-accent/10 group-hover:text-accent-strong">
+                  <Icone className="h-4 w-4" strokeWidth={1.75} />
+                </span>
                 <span className="min-w-0 flex-1">
                   <span className="block truncate font-display text-xs font-bold leading-tight text-primary">
                     {nome}
