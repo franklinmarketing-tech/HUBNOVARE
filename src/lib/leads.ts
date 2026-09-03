@@ -7,7 +7,10 @@ export type LeadTipo =
   | "vida-plan"
   | "saude-financeira"
   | "cupom"
-  | "produto";
+  | "produto"
+  // Guia prático baixado na estante. O `payload.guia` diz QUAL — e é isso que
+  // torna o lead útil: o assunto revela a intenção de quem baixou.
+  | "guia";
 
 /**
  * Grava um lead captado numa isca (calculadora ou landing page) na tabela

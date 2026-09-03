@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
-import { EBOOKS } from "@/lib/ebooks";
+import { EBOOKS, GUIAS } from "@/lib/ebooks";
 
 /**
  * A faixa da estante na home, gêmea da faixa da Íris.
@@ -13,7 +13,9 @@ import { EBOOKS } from "@/lib/ebooks";
  * verdade.
  */
 export function BannerEbooks({ className = "" }: { className?: string }) {
-  const vitrine = EBOOKS.slice(0, 3);
+  // Os guias práticos, não o material da casa: a faixa da home é isca de
+  // conteúdo, e folheto institucional não puxa ninguém.
+  const vitrine = GUIAS.slice(0, 3);
 
   return (
     <Link
@@ -25,7 +27,7 @@ export function BannerEbooks({ className = "" }: { className?: string }) {
           eBooks Novare
         </span>
         <span className="mt-0.5 block truncate text-xs text-muted-foreground">
-          {EBOOKS.length} guias em PDF · download livre
+          {EBOOKS.length} guias em PDF · com as contas feitas
         </span>
       </span>
 
