@@ -12,7 +12,6 @@ import { BannerEbooks } from "@/components/BannerEbooks";
 import { BannerNews } from "@/components/BannerNews";
 import { FerramentasHome } from "@/components/FerramentasHome";
 import { BannerIris } from "@/components/BannerIris";
-import { PerguntarIris } from "@/components/PerguntarIris";
 import { PainelMeuDia } from "@/components/PainelMeuDia";
 import { Rodape } from "@/components/Rodape";
 import { RevelarAoRolar } from "@/components/RevelarAoRolar";
@@ -115,9 +114,17 @@ export default async function Home() {
             <BuscaDestaque />
           </section>
 
-          {/* A pergunta à Íris vem antes das vitrines: é a ação mais barata
-              da página e a que mostra o diferencial da casa em um gesto. */}
-          <PerguntarIris className="cine" delay={60} />
+          {/* A barra "Pergunte à Íris" morava aqui e saiu.
+          
+              Além do peso — era o terceiro bloco antes de a pessoa ver um
+              aplicativo sequer —, ela ficava a poucos pixels da busca, e os
+              dois PARECIAM o mesmo campo fazendo coisas diferentes: um acha
+              aplicativo pelo nome, o outro responde pergunta. O próprio
+              PerguntarIris tinha um comentário explicando essa diferença, que
+              é o sinal clássico de que a tela não estava explicando sozinha.
+          
+              A Íris continua com porta na home, na faixa logo abaixo das
+              ferramentas, e no trilho lateral. */}
 
           {/* As quatro vitrines: o PRO laranja abre, três áreas navy seguem. */}
           <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">

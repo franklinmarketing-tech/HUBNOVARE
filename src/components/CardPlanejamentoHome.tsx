@@ -23,7 +23,10 @@ export function CardPlanejamentoHome({
       className="group flex h-full flex-col overflow-hidden rounded-2xl bg-white shadow-card ring-1 ring-primary/5 transition-all hover:-translate-y-0.5 hover:shadow-card-hover"
     >
       <span
-        className="relative flex min-h-[10.5rem] flex-1 flex-col items-center justify-center gap-2 px-4 text-center text-white transition-[filter] duration-300 group-hover:brightness-[1.12]"
+        // A MESMA altura do CardPortal, incluindo o degrau em tela alta: este
+        // card fica lado a lado com os outros três e é um componente separado
+        // — mexer só lá deixou o PRO mais baixo que os vizinhos.
+        className="relative flex min-h-[10.5rem] flex-1 flex-col items-center justify-center gap-2 px-4 text-center text-white transition-[filter] duration-300 group-hover:brightness-[1.12] [@media(min-height:860px)]:min-h-[13rem]"
         style={{
           background:
             "linear-gradient(160deg, hsl(18 76% 44%) 0%, hsl(15 74% 32%) 60%, hsl(13 70% 24%) 100%)",

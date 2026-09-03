@@ -33,7 +33,10 @@ export function CardPortal({ portal }: { portal: Portal }) {
     >
       {/* O palco: a foto da área sob o véu da cor dela. */}
       <span
-        className="relative flex min-h-[10.5rem] flex-1 flex-col items-center justify-center gap-2 px-4 text-center text-white transition-[filter] duration-300 group-hover:brightness-[1.12]"
+        // Mais alto desde que a barra da Íris saiu da home: sobrava vazio antes do
+        // rodapé, e é a foto da área que ganha com o espaço. Encolhe em tela
+        // baixa, onde a régua é caber na dobra, não impressionar.
+        className="relative flex min-h-[10.5rem] flex-1 flex-col items-center justify-center gap-2 px-4 text-center text-white transition-[filter] duration-300 group-hover:brightness-[1.12] [@media(min-height:860px)]:min-h-[13rem]"
         style={{
           background:
             "linear-gradient(160deg, hsl(216 44% 27%) 0%, hsl(218 50% 16%) 60%, hsl(220 55% 12%) 100%)",
