@@ -1,10 +1,15 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ArrowRight, Loader2, RefreshCw, Sparkles } from "lucide-react";
+import { ArrowRight, Check, Loader2, RefreshCw, Sparkles } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { AcaoAssinante } from "@/components/AcaoAssinante";
 import { BarrasPatrimonio } from "@/components/BarrasPatrimonio";
+import { FatiasInsight } from "@/components/FatiasInsight";
+import {
+  composicaoPatrimonio,
+  destinoDaRenda,
+} from "@/lib/planejamento/insights";
 import { OQueSignifica } from "@/components/OQueSignifica";
 import { usePlanejamento } from "../usePlanejamento";
 import { gerarMetas, paraTabelaMetas, type Meta } from "@/lib/planejamento/metas";
@@ -143,6 +148,25 @@ export default function PlanoPage() {
   const { acoes, plano, reserva, entrada, vazio, perfil: perfilSalvo } = r.dados;
   if (vazio) return <PrecisaPreencher />;
 
+  /**
+   * Meta cumprida, pela MESMA regra do `planCompletion`.
+   *
+   * A direção importa: "chegar a R$ 30.000 de reserva" se cumpre subindo,
+   * "zerar R$ 12.000 de cartão" se cumpre descendo. Tratar as duas como a
+   * mesma conta faria dívida crescente aparecer como conquista.
+   *
+   * Meta sem alvo numérico nunca conta como cumprida — é a mesma regra do
+   * percentual, e é o que impede a tela de contradizer o número que ela
+   * mesma mostra.
+   */
+  const metaCumprida = (m: Meta) => {
+    if (m.metaValor == null) return false;
+    const partida = m.valorAtual ?? 0;
+    return m.metaValor < partida
+      ? partida <= m.metaValor
+      : partida >= m.metaValor;
+  };
+
   const porArea = new Map<string, Meta[]>();
   for (const m of metas ?? []) {
     porArea.set(m.area, [...(porArea.get(m.area) ?? []), m]);
@@ -222,6 +246,26 @@ export default function PlanoPage() {
         <div className="mt-4">
           <BarrasPatrimonio serie={plano.serie} />
         </div>
+      </section>
+
+      {/* As duas leituras do plano que o motor já calculava e ninguém via.
+      
+          `insights.ts` existe desde o começo, com as fatias e as cores
+          definidas, e não era importado por tela nenhuma. São as duas
+          perguntas que a projeção sozinha não responde: para onde vai o
+          dinheiro que entra, e quanto do patrimônio final é aporte seu contra
+          quanto o tempo fez sozinho. */}
+      <section className="mb-5 grid gap-3 lg:grid-cols-2">
+        <FatiasInsight
+          titulo="Para onde vai a sua renda"
+          explicacao="Somando todos os anos até a aposentadoria, em valores de hoje."
+          {...destinoDaRenda(entrada, plano)}
+        />
+        <FatiasInsight
+          titulo="De onde vem o seu patrimônio"
+          explicacao="Quanto você aporta e quanto o tempo rende por você, até a aposentadoria."
+          {...composicaoPatrimonio(entrada, plano)}
+        />
       </section>
 
       {/* Previdência e sucessão: os números sempre saíram do motor
@@ -317,23 +361,50 @@ export default function PlanoPage() {
                     {rotulo.titulo}
                   </h3>
                   <ol className="mt-3 space-y-3">
-                    {lista.map((m) => (
+                    {lista.map((m) => {
+                      const feita = metaCumprida(m);
+                      return (
                       <li
                         key={`${m.sourceTable}-${m.sourceId}`}
-                        className="border-l-2 border-accent/40 pl-3.5"
+                        className={`border-l-2 pl-3.5 ${
+                          feita ? "border-success/50" : "border-accent/40"
+                        }`}
                       >
-                        <p className="text-sm leading-relaxed text-slate-700">{m.texto}</p>
-                        {m.prazo && (
-                          <p className="mt-1 text-[11px] font-semibold text-muted-foreground">
-                            Até{" "}
-                            {new Date(m.prazo).toLocaleDateString("pt-BR", {
-                              month: "long",
-                              year: "numeric",
-                            })}
+                        <p
+                          className={`text-sm leading-relaxed ${
+                            feita
+                              ? "text-slate-400 line-through decoration-success/40"
+                              : "text-slate-700"
+                          }`}
+                        >
+                          {m.texto}
+                        </p>
+
+                        {feita ? (
+                          /* Riscar o item é o que faltava para o plano dar
+                             sensação de avanço: a lista era sempre a mesma,
+                             sem nada indicando o que já tinha sido vencido.
+                             A conta é a MESMA do planCompletion — se ela
+                             dissesse uma coisa aqui e outra no percentual, o
+                             cliente encontraria a contradição. */
+                          <p className="mt-1 inline-flex items-center gap-1 text-[11px] font-bold text-success-strong">
+                            <Check className="h-3 w-3" strokeWidth={3} />
+                            Já cumprida
                           </p>
+                        ) : (
+                          m.prazo && (
+                            <p className="mt-1 text-[11px] font-semibold text-muted-foreground">
+                              Até{" "}
+                              {new Date(m.prazo).toLocaleDateString("pt-BR", {
+                                month: "long",
+                                year: "numeric",
+                              })}
+                            </p>
+                          )
                         )}
                       </li>
-                    ))}
+                      );
+                    })}
                   </ol>
                 </div>
               );

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { MudouNoMes, type Comparavel } from "@/components/MudouNoMes";
 import Link from "next/link";
 import {
   Area,
@@ -121,6 +122,8 @@ export default function EvolucaoPage() {
 
   const primeiro = fechamentos[0];
   const ultimo = fechamentos[fechamentos.length - 1];
+  // `undefined` no primeiro fechamento — é o que esconde a comparação.
+  const penultimo = fechamentos[fechamentos.length - 2];
   const variacao = (ultimo.net_worth ?? 0) - (primeiro.net_worth ?? 0);
   const meses = fechamentos.length;
 
@@ -139,12 +142,26 @@ export default function EvolucaoPage() {
           valor={brlCurto(ultimo.net_worth)}
           detalhe="Líquido, já descontadas as dívidas"
         />
-        <Indicador
-          rotulo={variacao >= 0 ? "Você cresceu" : "Você recuou"}
-          valor={`${variacao >= 0 ? "+" : ""}${brlCurto(variacao)}`}
-          detalhe={meses > 1 ? `Em ${meses - 1} mês(es) de acompanhamento` : "Primeiro mês"}
-          tom={variacao >= 0 ? "bom" : "ruim"}
-        />
+        {/* No PRIMEIRO fechamento não existe variação: o mês é comparado com
+            ele mesmo e o cartão dizia "Você cresceu +R$ 0", que soa a fracasso
+            justamente quando a pessoa acabou de fazer a coisa certa. Ali o
+            número honesto é a taxa de poupança do mês — que já foi conquistada
+            e não depende de haver um mês anterior. */}
+        {meses > 1 ? (
+          <Indicador
+            rotulo={variacao >= 0 ? "Você cresceu" : "Você recuou"}
+            valor={`${variacao >= 0 ? "+" : ""}${brlCurto(variacao)}`}
+            detalhe={`Em ${meses - 1} mês(es) de acompanhamento`}
+            tom={variacao >= 0 ? "bom" : "ruim"}
+          />
+        ) : (
+          <Indicador
+            rotulo="Guardado neste mês"
+            valor={pct(ultimo.savings_rate ?? 0)}
+            detalhe="Da sua renda. O próximo fechamento já compara."
+            tom={(ultimo.savings_rate ?? 0) >= 10 ? "bom" : "atencao"}
+          />
+        )}
         <Indicador
           rotulo="Plano cumprido"
           valor={pct(ultimo.plan_completion_pct ?? 0)}
@@ -152,6 +169,65 @@ export default function EvolucaoPage() {
           tom={(ultimo.plan_completion_pct ?? 0) >= 50 ? "bom" : "atencao"}
         />
       </section>
+
+      {/* A comparação com o mês anterior vem ANTES do gráfico.
+      
+          É para cá que a pessoa é mandada assim que fecha o mês, e até agora a
+          primeira coisa que ela via era uma curva — que no começo tem dois
+          pontos e não conta história nenhuma. O que responde "valeu a pena ter
+          preenchido?" é esta lista, e por isso ela vem primeiro.
+      
+          Só aparece do segundo fechamento em diante: com um mês só não existe
+          "mudou". */}
+      {penultimo && (
+        <div className="mb-5">
+          <MudouNoMes
+            mesAnterior={mesCurto(penultimo.month_ref)}
+            itens={([
+              {
+                rotulo: "Patrimônio líquido",
+                antes: penultimo.net_worth ?? 0,
+                agora: ultimo.net_worth ?? 0,
+                formato: (v) => brlCurto(v),
+                bomQuando: "sobe",
+                limiar: 100,
+              },
+              {
+                rotulo: "Dívidas",
+                antes: penultimo.total_debts ?? 0,
+                agora: ultimo.total_debts ?? 0,
+                formato: (v) => brlCurto(v),
+                bomQuando: "cai",
+                limiar: 100,
+              },
+              {
+                rotulo: "Reserva de emergência",
+                antes: penultimo.emergency_reserve_months ?? 0,
+                agora: ultimo.emergency_reserve_months ?? 0,
+                formato: (v) => `${v.toFixed(1).replace(".", ",")} meses`,
+                bomQuando: "sobe",
+                limiar: 0.1,
+              },
+              {
+                rotulo: "Quanto sobra por mês",
+                antes: (penultimo.total_income ?? 0) - (penultimo.total_expenses ?? 0),
+                agora: (ultimo.total_income ?? 0) - (ultimo.total_expenses ?? 0),
+                formato: (v) => brlCurto(v),
+                bomQuando: "sobe",
+                limiar: 50,
+              },
+              {
+                rotulo: "Plano cumprido",
+                antes: penultimo.plan_completion_pct ?? 0,
+                agora: ultimo.plan_completion_pct ?? 0,
+                formato: (v) => `${Math.round(v)}%`,
+                bomQuando: "sobe",
+                limiar: 1,
+              },
+            ] satisfies Comparavel[])}
+          />
+        </div>
+      )}
 
       <section className="rounded-2xl border border-border bg-white p-5">
         <h2 className="font-display text-base font-bold text-primary">

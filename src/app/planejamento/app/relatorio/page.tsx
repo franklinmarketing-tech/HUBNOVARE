@@ -5,6 +5,7 @@ import Image from "next/image";
 import { Printer } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { AcaoAssinante } from "@/components/AcaoAssinante";
+import { MudouNoMes, type Comparavel } from "@/components/MudouNoMes";
 import { usePlanejamento } from "../usePlanejamento";
 import { NOTA_RISCO } from "@/lib/planejamento/diagnostico";
 import { PERFIS } from "@/lib/planejamento/perfil";
@@ -21,6 +22,23 @@ import {
   FalhouAoCarregar,
   SessaoExpirada,
 } from "../pecas";
+
+/** "2026-08-01" → "agosto de 2026". */
+const mesPorExtenso = (ref: string) =>
+  new Date(`${ref}T12:00:00`).toLocaleDateString("pt-BR", {
+    month: "long",
+    year: "numeric",
+  });
+
+type Fechamento = {
+  month_ref: string;
+  net_worth: number;
+  total_debts: number;
+  total_income: number;
+  total_expenses: number;
+  emergency_reserve_months: number;
+  plan_completion_pct: number;
+};
 
 type MetaSalva = { source_label: string; meta_text: string | null; prazo: string | null };
 
@@ -41,6 +59,7 @@ export default function RelatorioPage() {
   const etapa = etapaPorSlug("relatorio")!;
   const [metas, setMetas] = useState<MetaSalva[]>([]);
   const [nome, setNome] = useState("");
+  const [fechamentos, setFechamentos] = useState<Fechamento[]>([]);
 
   const clientId = r.fase === "pronto" ? r.dados.clientId : null;
 
@@ -52,7 +71,7 @@ export default function RelatorioPage() {
         data: { user },
       } = await supabase.auth.getUser();
 
-      const [metasRes, perfilRes] = await Promise.all([
+      const [metasRes, perfilRes, fechRes] = await Promise.all([
         supabase
           .from("parecer_metas")
           .select("source_label, meta_text, prazo")
@@ -60,10 +79,21 @@ export default function RelatorioPage() {
         user
           ? supabase.from("profiles").select("full_name").eq("user_id", user.id).maybeSingle()
           : Promise.resolve({ data: null }),
+        // Os dois últimos fechamentos: é o que transforma o relatório de um
+        // retrato de hoje numa ENTREGA DO MÊS. Sem isso, dois relatórios
+        // emitidos em meses diferentes eram documentos idênticos, mudando
+        // apenas a data de emissão.
+        supabase
+          .from("monthly_closings")
+          .select("month_ref, net_worth, total_debts, total_income, total_expenses, emergency_reserve_months, plan_completion_pct")
+          .eq("client_id", clientId)
+          .order("month_ref", { ascending: false })
+          .limit(2),
       ]);
 
       setMetas(metasRes.data ?? []);
       setNome(perfilRes.data?.full_name ?? "");
+      setFechamentos(fechRes.data ?? []);
     })();
   }, [clientId]);
 
@@ -75,6 +105,10 @@ export default function RelatorioPage() {
 
   const { diagnostico: d, plano, saude, reserva, acoes, entrada, perfil } = r.dados;
   const nota = NOTA_RISCO[d.risco];
+  // O fechamento mais recente é o mês que este relatório documenta; o
+  // anterior serve para dizer o que mudou.
+  const [atual, anterior] = fechamentos;
+
   const hoje = new Date().toLocaleDateString("pt-BR", {
     day: "2-digit",
     month: "long",
@@ -132,11 +166,69 @@ export default function RelatorioPage() {
             {nome && <p className="mt-0.5 text-sm text-slate-600">{nome}</p>}
           </div>
           <p className="text-right text-2xs text-muted-foreground">
+            {/* O MÊS DE REFERÊNCIA é o que faz disto um documento mensal.
+                Antes havia só a data de emissão, então dois relatórios de
+                meses diferentes eram indistinguíveis pelo conteúdo. */}
+            {atual && (
+              <>
+                <span className="font-bold uppercase tracking-wide text-primary">
+                  {mesPorExtenso(atual.month_ref)}
+                </span>
+                <br />
+              </>
+            )}
             Emitido em
             <br />
             {hoje}
           </p>
         </header>
+
+        {/* O QUE MUDOU abre o relatório quando há dois fechamentos.
+        
+            Quem recebe um documento mensal quer saber primeiro o que andou
+            desde o último — o retrato completo vem depois. Some no primeiro
+            mês, quando ainda não existe "mudou". */}
+        {atual && anterior && (
+          <section className="folha mb-5">
+            <MudouNoMes
+              mesAnterior={mesPorExtenso(anterior.month_ref)}
+              itens={([
+                {
+                  rotulo: "Patrimônio líquido",
+                  antes: anterior.net_worth ?? 0,
+                  agora: atual.net_worth ?? 0,
+                  formato: (v: number) => brlCurto(v),
+                  bomQuando: "sobe",
+                  limiar: 100,
+                },
+                {
+                  rotulo: "Dívidas",
+                  antes: anterior.total_debts ?? 0,
+                  agora: atual.total_debts ?? 0,
+                  formato: (v: number) => brlCurto(v),
+                  bomQuando: "cai",
+                  limiar: 100,
+                },
+                {
+                  rotulo: "Reserva de emergência",
+                  antes: anterior.emergency_reserve_months ?? 0,
+                  agora: atual.emergency_reserve_months ?? 0,
+                  formato: (v: number) => `${v.toFixed(1).replace(".", ",")} meses`,
+                  bomQuando: "sobe",
+                  limiar: 0.1,
+                },
+                {
+                  rotulo: "Plano cumprido",
+                  antes: anterior.plan_completion_pct ?? 0,
+                  agora: atual.plan_completion_pct ?? 0,
+                  formato: (v: number) => `${Math.round(v)}%`,
+                  bomQuando: "sobe",
+                  limiar: 1,
+                },
+              ] satisfies Comparavel[])}
+            />
+          </section>
+        )}
 
         <section className="folha">
           <h2 className="font-display text-base font-bold text-primary">
