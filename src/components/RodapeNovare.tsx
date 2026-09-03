@@ -239,27 +239,27 @@ export function RodapeNovare({
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Novare no Instagram"
-                className="flex h-9 w-9 items-center justify-center rounded-full bg-white/[0.08] text-white/60 transition-colors hover:bg-white/15 hover:text-white"
+                className="flex h-10 w-10 items-center justify-center rounded-full bg-white/[0.08] transition-all hover:scale-105 hover:bg-white/15"
               >
-                <InstagramLogo className="h-4 w-4" />
+                <InstagramLogo className="h-5 w-5" />
               </a>
               <a
                 href="https://www.youtube.com/channel/UCtfpNaHW_Jx7T7U91lXpJhQ"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Novare no YouTube"
-                className="flex h-9 w-9 items-center justify-center rounded-full bg-white/[0.08] text-white/60 transition-colors hover:bg-white/15 hover:text-white"
+                className="flex h-10 w-10 items-center justify-center rounded-full bg-white/[0.08] transition-all hover:scale-105 hover:bg-white/15"
               >
-                <YoutubeLogo className="h-4 w-4" />
+                <YoutubeLogo className="h-5 w-5" />
               </a>
               <a
                 href="https://www.linkedin.com/in/novare-consultoria-de-investimentos-ab0808386/"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Novare no LinkedIn"
-                className="flex h-9 w-9 items-center justify-center rounded-full bg-white/[0.08] text-white/60 transition-colors hover:bg-white/15 hover:text-white"
+                className="flex h-10 w-10 items-center justify-center rounded-full bg-white/[0.08] transition-all hover:scale-105 hover:bg-white/15"
               >
-                <LinkedinLogo className="h-4 w-4" />
+                <LinkedinLogo className="h-5 w-5" />
               </a>
             </div>
           </div>

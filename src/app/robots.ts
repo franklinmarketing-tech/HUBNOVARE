@@ -10,7 +10,7 @@ export default function robots(): MetadataRoute.Robots {
       userAgent: "*",
       allow: "/",
       // Área logada, administração e dados de gente não entram em busca.
-      disallow: ["/hub", "/login", "/perfil", "/admin", "/acompanhamento"],
+      disallow: ["/hub", "/login", "/perfil", "/admin"],
     },
     sitemap: `${SITE}/sitemap.xml`,
   };

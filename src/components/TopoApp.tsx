@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Newspaper, Search } from "lucide-react";
+import { InstagramLogo, YoutubeLogo, LinkedinLogo } from "@/components/LogosSociais";
 import { MenuAreas } from "@/components/MenuAreas";
 import { MenuConta } from "@/components/MenuConta";
 import { SinoNotificacoes } from "@/components/SinoNotificacoes";
@@ -54,6 +55,40 @@ export function TopoApp({
             style={{ height: 24, width: "auto" }}
           />
         </Link>
+
+        {/* As redes, à direita do logo — só a partir de lg, onde já sobra
+            espaço antes do menu central. Ícone oficial colorido, não o
+            traço cinza fino de antes: em 18px precisa da forma reconhecível
+            da marca para não virar mancha. */}
+        <div className="hidden shrink-0 items-center gap-2.5 lg:flex">
+          <a
+            href="https://www.instagram.com/novare.invest"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Novare no Instagram"
+            className="-m-1.5 p-1.5 opacity-80 transition-opacity hover:opacity-100"
+          >
+            <InstagramLogo className="h-[18px] w-[18px]" />
+          </a>
+          <a
+            href="https://www.youtube.com/channel/UCtfpNaHW_Jx7T7U91lXpJhQ"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Novare no YouTube"
+            className="-m-1.5 p-1.5 opacity-80 transition-opacity hover:opacity-100"
+          >
+            <YoutubeLogo className="h-[18px] w-[18px]" />
+          </a>
+          <a
+            href="https://www.linkedin.com/in/novare-consultoria-de-investimentos-ab0808386/"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Novare no LinkedIn"
+            className="-m-1.5 p-1.5 opacity-80 transition-opacity hover:opacity-100"
+          >
+            <LinkedinLogo className="h-[18px] w-[18px]" />
+          </a>
+        </div>
 
         {/* Selo de parceria oficial com a Nord Investimentos.
             Só a partir de 2xl: entre 1280 e 1536 ele disputava espaço com o

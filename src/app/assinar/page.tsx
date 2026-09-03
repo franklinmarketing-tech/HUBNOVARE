@@ -271,8 +271,12 @@ export default function AssinarPage() {
           />
 
           <div className="relative mx-auto max-w-5xl px-5 py-16 text-center sm:py-20 lg:py-24">
-            <span className="cine inline-flex items-center gap-1.5 rounded-full bg-white/[0.12] px-3 py-1.5 text-2xs font-bold uppercase tracking-wider backdrop-blur-sm">
-              <Sparkles className="h-3.5 w-3.5 text-ciano-claro" />
+            {/* Selo de autoridade — é a primeira frase que qualquer pessoa
+                lê na página, e precisa pesar tanto quanto a headline. Maior,
+                borda em degradê e brilho por trás em vez do texto perdido
+                dentro de um pill quase invisível de antes. */}
+            <span className="cine relative inline-flex items-center gap-2 rounded-full border border-accent-claro/40 bg-white/[0.10] px-5 py-2.5 text-sm font-bold uppercase tracking-wider text-white shadow-[0_0_40px_-8px_rgba(255,180,120,0.55)] backdrop-blur-sm sm:text-base">
+              <Sparkles className="h-[18px] w-[18px] text-accent-claro sm:h-5 sm:w-5" />
               O 1º hub financeiro do Brasil
             </span>
 
@@ -317,11 +321,14 @@ export default function AssinarPage() {
                     direita. O fade transforma o corte seco em "continua além
                     da moldura", que é o que a janela já sugere. */}
                 <div className="relative">
+                  {/* A home oficial de verdade, não um mockup — captura real
+                      da tela em produção, tratada em upscale (Magnific) para
+                      ficar nítida na moldura grande. */}
                   <Image
-                    src="/demo/poster-app.jpg"
-                    alt="Tela de diagnóstico do Planejamento Financeiro da Novare"
-                    width={1140}
-                    height={642}
+                    src="/demo/poster-home-oficial.jpg"
+                    alt="A home do Novare Workspace, com o ecossistema de ferramentas, IA e consultoria"
+                    width={2280}
+                    height={1283}
                     priority
                     className="block w-full"
                   />

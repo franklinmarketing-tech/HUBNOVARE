@@ -9,7 +9,6 @@ import {
   arteDe,
   fotoDe,
 } from "@/lib/profissoes";
-import { ACOMPANHAMENTO } from "@/lib/acompanhamento";
 import { brl } from "@/lib/calculos";
 
 /**
@@ -231,7 +230,7 @@ export default async function PaginaProfissao({
         </div>
       </section>
 
-      {/* =================================================== acompanhamento */}
+      {/* =================================================== depois da análise */}
       <section className="mx-auto max-w-5xl px-5 pb-16 sm:pb-20">
         <div className="flex flex-wrap items-center justify-between gap-6 rounded-3xl border-2 border-accent-soft bg-accent-tint p-8 sm:p-10">
           <div className="max-w-xl">
@@ -239,25 +238,22 @@ export default async function PaginaProfissao({
               Depois da análise
             </p>
             <h2 className="mt-2 font-display text-2xl font-bold text-primary">
-              {ACOMPANHAMENTO.nome}
+              A Novare continua com você
             </h2>
             <p className="mt-2 text-[15px] leading-relaxed text-slate-600">
-              Taxa muda, regra muda, a sua vida muda. O acompanhamento existe
-              para o plano continuar de pé.
+              Taxa muda, regra muda, a sua vida muda. Conheça os formatos de
+              consultoria — do diagnóstico gratuito ao acompanhamento contínuo.
             </p>
           </div>
-          <div className="flex flex-wrap items-center gap-4">
-            <span className="rounded-full border border-accent-soft bg-white px-4 py-2 text-[11px] font-bold uppercase tracking-wider text-accent-strong">
-              Em desenho
-            </span>
-            <Link
-              href="/acompanhamento"
-              className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-3.5 text-sm font-bold text-white transition-opacity hover:opacity-90"
-            >
-              Ver a ideia
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-          </div>
+          {/* Leva direto para o catálogo real de consultoria, em vez de uma
+              página "em desenho" que só existia para apontar para cá. */}
+          <Link
+            href="/consultoria"
+            className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-primary px-5 py-3.5 text-sm font-bold text-white transition-opacity hover:opacity-90"
+          >
+            Conhecer a consultoria
+            <ArrowRight className="h-4 w-4" />
+          </Link>
         </div>
       </section>
 

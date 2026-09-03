@@ -15,7 +15,9 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { Cabecalho } from "@/components/Cabecalho";
+import { CapturaLead } from "@/components/CapturaLead";
 import { FormularioCupom } from "@/components/FormularioCupom";
+import { RodapeNovare } from "@/components/RodapeNovare";
 import {
   CONSULTORIAS,
   ROTULO_PRIMEIRA_ANALISE,
@@ -281,25 +283,24 @@ export default async function ConsultoriaPage() {
           </div>
         </section>
 
-        {/* BANNER INFORMATIVO LGPD & SUPORTE */}
-        <section className="mt-10 rounded-2xl border border-slate-200 bg-slate-50/80 p-6 text-center sm:text-left sm:flex sm:items-center sm:justify-between sm:gap-6">
-          <div className="space-y-1">
-            <h3 className="font-display text-base font-bold text-slate-900">
-              Segurança, Isenção e Conformidade LGPD
-            </h3>
-            <p className="text-xs text-muted-foreground">
-              Seus dados são tratados com sigilo profissional e independência comercial, conforme a LGPD — os detalhes estão na nossa Política de Privacidade.
-            </p>
-          </div>
-          <Link
-            href="/"
-            className="mt-4 inline-flex shrink-0 items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-800 shadow-sm hover:bg-slate-100 transition-colors sm:mt-0"
-          >
-            Voltar ao Workspace
-            <ArrowRight className="h-3.5 w-3.5" />
-          </Link>
+        {/* BANNER INFORMATIVO LGPD */}
+        <section className="mt-10 rounded-2xl border border-slate-200 bg-slate-50/80 p-6 text-center sm:text-left">
+          <h3 className="font-display text-base font-bold text-slate-900">
+            Segurança, Isenção e Conformidade LGPD
+          </h3>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Seus dados são tratados com sigilo profissional e independência comercial, conforme a LGPD — os detalhes estão na nossa Política de Privacidade.
+          </p>
         </section>
       </main>
+
+      <CapturaLead
+        titulo="Não sabe por qual produto começar?"
+        subtitulo="Deixe seu e-mail: um especialista da Novare olha o seu caso e indica o próximo passo — grátis, sem compromisso."
+        tipo="produto"
+      />
+
+      <RodapeNovare />
     </div>
   );
 }

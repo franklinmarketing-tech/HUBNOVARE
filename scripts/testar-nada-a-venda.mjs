@@ -19,7 +19,7 @@ const ROTAS = [
   "/", "/aplicativos", "/aplicativos?area=ia", "/profissionais",
   "/profissionais/medicos", "/profissionais/engenheiros-e-arquitetos",
   "/profissionais/advogados", "/profissionais/dentistas",
-  "/acompanhamento", "/consultoria", "/assinar", "/iris", "/novare-news",
+  "/consultoria", "/assinar", "/iris", "/novare-news",
   "/ferramentas/raio-x-previdencia", "/ferramentas/salario-liquido",
   "/planejamento", "/exame-saude-financeira",
 ];

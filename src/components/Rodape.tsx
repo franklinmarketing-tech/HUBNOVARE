@@ -56,35 +56,35 @@ export function Rodape() {
           >
             Privacidade & LGPD
           </Link>
-          {/* Marcas não têm ícone nesta versão do lucide, e desenhar SVG de
-              logo alheio é pedir para ficar errado: texto resolve. */}
+          {/* Traço oficial de cada marca, em cor — não currentColor: a 16px
+              anterior, um risco cinza fino virava mancha ilegível. */}
           <a
             href="https://www.instagram.com/novare.invest"
             target="_blank"
             rel="noopener noreferrer"
             aria-label="Novare no Instagram"
             // -m-2 p-2: o alvo de toque cresce sem empurrar o layout.
-            className="-m-2 p-2 text-slate-500 transition-colors hover:text-primary"
+            className="-m-2 p-2 opacity-80 transition-opacity hover:opacity-100"
           >
-            <InstagramLogo className="h-4 w-4" />
+            <InstagramLogo className="h-[22px] w-[22px]" />
           </a>
           <a
             href="https://www.youtube.com/channel/UCtfpNaHW_Jx7T7U91lXpJhQ"
             target="_blank"
             rel="noopener noreferrer"
             aria-label="Novare no YouTube"
-            className="-m-2 p-2 text-slate-500 transition-colors hover:text-primary"
+            className="-m-2 p-2 opacity-80 transition-opacity hover:opacity-100"
           >
-            <YoutubeLogo className="h-4 w-4" />
+            <YoutubeLogo className="h-[22px] w-[22px]" />
           </a>
           <a
             href="https://www.linkedin.com/in/novare-consultoria-de-investimentos-ab0808386/"
             target="_blank"
             rel="noopener noreferrer"
             aria-label="Novare no LinkedIn"
-            className="-m-2 p-2 text-slate-500 transition-colors hover:text-primary"
+            className="-m-2 p-2 opacity-80 transition-opacity hover:opacity-100"
           >
-            <LinkedinLogo className="h-4 w-4" />
+            <LinkedinLogo className="h-[22px] w-[22px]" />
           </a>
         </div>
       </div>

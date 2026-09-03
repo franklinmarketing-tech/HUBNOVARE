@@ -8,7 +8,6 @@ import {
   ClipboardCheck,
   Clock,
   Handshake,
-  Play,
   Scale,
   ShieldCheck,
   Sparkles,
@@ -282,8 +281,8 @@ export default async function ProdutoPage({
           </div>
         </section>
 
-        {/* ─── VÍDEO: só quando existe de verdade ─── */}
-        {video ? (
+        {/* ─── VÍDEO: só quando existe de verdade; sem placeholder quando não há ─── */}
+        {video && (
           <section className="mt-8 overflow-hidden rounded-3xl border border-slate-200 bg-black">
             <div className="relative aspect-video">
               <iframe
@@ -295,28 +294,6 @@ export default async function ProdutoPage({
                 className="absolute inset-0 h-full w-full"
               />
             </div>
-          </section>
-        ) : (
-          <section className="mt-8 flex flex-wrap items-center justify-between gap-4 rounded-3xl border border-dashed border-slate-300 bg-white p-5">
-            <div className="flex items-center gap-3">
-              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-400">
-                <Play className="h-5 w-5" />
-              </span>
-              <div>
-                <p className="text-sm font-bold text-slate-700">Vídeo em produção</p>
-                <p className="text-xs text-muted-foreground">
-                  Enquanto isso, um consultor explica tudo ao vivo, sem compromisso.
-                </p>
-              </div>
-            </div>
-            <a
-              href={falarNoWhatsApp(`Olá! Quero que me expliquem como funciona: ${c.nome}.`)}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-xs font-bold text-primary hover:text-accent-strong"
-            >
-              Quero que me expliquem →
-            </a>
           </section>
         )}
 

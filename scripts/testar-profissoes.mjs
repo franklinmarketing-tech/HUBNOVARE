@@ -61,7 +61,9 @@ for (const slug of SLUGS) {
     caminhoHeroi.slice(-60),
   );
   conferir(`${slug}: leva ao Raio-X`, (await p.locator('a[href="/ferramentas/raio-x-previdencia"]').count()) > 0);
-  conferir(`${slug}: leva ao Acompanhamento`, (await p.locator('a[href="/acompanhamento"]').count()) > 0);
+  // /acompanhamento foi cortada: era uma página "em desenho" cujo próprio
+  // botão mandava para /consultoria — agora o link vai direto para lá.
+  conferir(`${slug}: leva à Consultoria`, (await p.locator('a[href="/consultoria"]').count()) > 0);
   conferir(`${slug}: declara ausência de comissão`, /não ganha comissão/i.test(t));
   conferir(`${slug}: tem o aviso legal`, /não constitui recomendação/i.test(t));
 }
@@ -85,17 +87,21 @@ for (const [slug, marca] of Object.entries(marcas)) {
   );
 }
 
-/* ---------------------------------------------------- acompanhamento */
-await p.goto(`${BASE}/acompanhamento`, { waitUntil: "domcontentloaded" });
-await p.waitForTimeout(1400);
-const ta = await p.locator("body").innerText();
-conferir("acompanhamento: lista o que inclui", /Revisão a cada seis meses/i.test(ta));
-conferir("acompanhamento: diz que está em desenho", /em desenho/i.test(ta));
-conferir("acompanhamento: diz que nada está à venda", /não está à venda|não está a venda/i.test(ta));
-conferir("acompanhamento: não promete pagamento pelo site", /não há cobrança pelo site/i.test(ta));
+/* -------------------------------- /acompanhamento agora é redirect 308 */
+const redir = await fetch(`${BASE}/acompanhamento`, { redirect: "manual" });
+conferir(
+  "acompanhamento: redireciona (não é mais página própria)",
+  [301, 308].includes(redir.status),
+  String(redir.status),
+);
+conferir(
+  "acompanhamento: aponta para /consultoria",
+  (redir.headers.get("location") ?? "").includes("/consultoria"),
+  redir.headers.get("location") ?? "",
+);
 
 /* ---- NADA À VENDA: nenhuma tela pode mostrar preço ou pedir compra ---- */
-const rotasSemPreco = ["/acompanhamento", "/profissionais", ...SLUGS.map((s) => `/profissionais/${s}`)];
+const rotasSemPreco = ["/profissionais", ...SLUGS.map((s) => `/profissionais/${s}`)];
 for (const rota of rotasSemPreco) {
   await p.goto(BASE + rota, { waitUntil: "domcontentloaded" });
   await p.waitForTimeout(1200);

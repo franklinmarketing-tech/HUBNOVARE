@@ -336,7 +336,7 @@ ${PROFISSOES.map(folhaProfissao).join("")}
       <li><b>Todas as carreiras:</b> novare-workspace.vercel.app/profissionais</li>
       ${PROFISSOES.map((p) => `<li><b>${escapar(p.nome)}:</b> novare-workspace.vercel.app/profissionais/${p.slug}</li>`).join("")}
       <li><b>Raio-X da Previdência:</b> novare-workspace.vercel.app/ferramentas/raio-x-previdencia</li>
-      <li><b>Acompanhamento:</b> novare-workspace.vercel.app/acompanhamento</li>
+      <li><b>Consultoria:</b> novare-workspace.vercel.app/consultoria</li>
       <li><b>Workspace completo:</b> novare-workspace.vercel.app</li>
     </ul>
     <p class="aviso">Novare Consultoria de Investimentos — consultoria sem comissão. O conteúdo deste material é educativo e não constitui recomendação personalizada de investimento. Simulações são projeções, não promessa de rentabilidade. As telas foram capturadas do produto em funcionamento em ${hoje}. Fotografias sob Pexels License; as pessoas retratadas não têm relação com a Novare e não endossam seus serviços.</p>

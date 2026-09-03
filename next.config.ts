@@ -30,6 +30,10 @@ const nextConfig: NextConfig = {
       { source: "/vidaplan", destination: "/planejamento", permanent: true },
       { source: "/vidaplan/:caminho*", destination: "/planejamento", permanent: true },
       { source: "/vida-plan", destination: "/planejamento", permanent: true },
+      // A página existia só para descrever uma ideia sem preço e mandar a
+      // pessoa falar com a Novare — e o próprio botão dela já apontava
+      // para /consultoria. Cortamos o meio de campo.
+      { source: "/acompanhamento", destination: "/consultoria", permanent: true },
     ];
   },
 };
