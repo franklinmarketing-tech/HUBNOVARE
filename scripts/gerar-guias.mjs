@@ -27,6 +27,26 @@ const logo = readFileSync(
   new URL("../public/marca/logo-novare-branca.png", import.meta.url),
 ).toString("base64");
 
+/**
+ * A arte de cada capa, embutida como data URI.
+ *
+ * Mora em `scripts/artes/` e NÃO em `public/`: é insumo de geração, não
+ * arquivo que o site serve. Deixar em public custaria peso no deploy por uma
+ * imagem que ninguém pede — a capa que o site usa é o JPG já composto.
+ *
+ * Data URI porque o `setContent` do Playwright não resolve caminho relativo:
+ * a página nasce sem origem, e a imagem viria quebrada.
+ */
+const arte = (slug) => {
+  try {
+    const bytes = readFileSync(new URL(`artes/${slug}.jpg`, import.meta.url));
+    return `data:image/jpeg;base64,${bytes.toString("base64")}`;
+  } catch {
+    // Guia sem arte ainda: cai no navy chapado, que continua apresentável.
+    return null;
+  }
+};
+
 const brl = (v) =>
   v.toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 });
 
@@ -205,8 +225,11 @@ function paginaHtml(guia, pagina, n, total) {
 }
 
 function capaHtml(guia) {
-  return `<section class="folha capa">
-    <div class="luz"></div>
+  const fundo = arte(guia.slug);
+  return `<section class="folha capa${fundo ? " com-arte" : ""}"${
+    fundo ? ` style="background-image:url('${fundo}')"` : ""
+  }>
+    <div class="veu"></div>
     <div class="capa-topo">
       <img src="data:image/png;base64,${logo}" class="marca-capa" />
       <span class="chapeu">Guia prático</span>
@@ -281,15 +304,33 @@ strong { color:#16233a; font-weight:700; }
   font-size:10.5px; color:#9aa5b8; }
 /* ---- capa ---- */
 .capa { background:linear-gradient(160deg, #1d3a5f 0%, #0e1b2e 100%); color:#fff;
-  justify-content:space-between; overflow:hidden; }
-.luz { position:absolute; width:520px; height:520px; border-radius:50%; top:-190px; right:-150px;
-  background:radial-gradient(circle, rgba(232,112,58,.42), transparent 70%); }
-.capa-topo { position:relative; display:flex; align-items:center; gap:16px; }
+  justify-content:flex-start; overflow:hidden; }
+/* O título ANCORA no pé, não flutua no centro: assim a fotografia fica com
+   os dois terços de cima só para ela, que é o que faz a capa parecer capa
+   de livro em vez de slide com imagem atrás. */
+.capa-meio { margin-top:auto; }
+.capa-pe { margin-top:26px; }
+.capa.com-arte { background-size:cover; background-position:center; }
+/* O véu é VERTICAL e assimétrico: quase transparente em cima, onde a
+   fotografia precisa aparecer, e quase opaco embaixo, onde mora o título.
+   Um véu uniforme deixaria a arte lavada e o texto ainda assim sofrível. */
+.veu { position:absolute; inset:0; background:
+  linear-gradient(180deg,
+    rgba(14,27,46,.22) 0%,
+    rgba(14,27,46,.20) 40%,
+    rgba(14,27,46,.55) 58%,
+    rgba(14,27,46,.92) 76%,
+    rgba(14,27,46,.97) 100%); }
+.capa:not(.com-arte) .veu { background:
+  radial-gradient(circle at 82% 8%, rgba(232,112,58,.42), transparent 62%); }
+.capa-topo { position:relative; display:flex; align-items:center; gap:16px;
+  text-shadow:0 1px 12px rgba(0,0,0,.6); }
 .marca-capa { height:26px; }
 .chapeu { font-size:11px; font-weight:700; letter-spacing:.2em; text-transform:uppercase;
   color:rgba(255,255,255,.55); }
 .capa-meio { position:relative; }
-.capa h1 { font-size:62px; font-weight:800; line-height:1.02; letter-spacing:-.02em; }
+.capa h1 { font-size:62px; font-weight:800; line-height:1.02; letter-spacing:-.02em;
+  text-shadow:0 2px 24px rgba(0,0,0,.55); }
 .sub { font-size:20px; color:rgba(255,255,255,.72); margin-top:14px; line-height:1.35; }
 .traco { width:80px; height:5px; border-radius:99px; margin:30px 0 22px;
   background:linear-gradient(90deg,#38bdf8,#e8703a); }
