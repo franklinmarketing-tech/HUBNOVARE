@@ -34,7 +34,6 @@ import {
   PLANO_PRECO_ROTULO,
   PLANO_TRIAL_DIAS,
 } from "@/lib/planejamento/oferta";
-import { ASSINATURA_NOME } from "@/lib/assinatura";
 import { ROTULO_DESCONTO } from "@/lib/consultoria";
 import { falarNoWhatsApp } from "@/lib/contato";
 
@@ -617,7 +616,7 @@ export default function VidaPlanPage() {
                   </h2>
 
                   <p className="mt-3 max-w-lg text-sm leading-relaxed text-muted-foreground">
-                    É a assinatura do {ASSINATURA_NOME}: a mesma mensalidade
+                    É a assinatura da Novare: a mesma mensalidade
                     libera este app, a Íris, todas as ferramentas e{" "}
                     {ROTULO_DESCONTO} na consultoria particular. Sem taxa de
                     entrada, sem fidelidade e sem comissão embutida em produto
@@ -693,7 +692,7 @@ export default function VidaPlanPage() {
                 {
                   pergunta: `O que eu recebo pagando ${PLANO_PRECO_ROTULO} por mês?`,
                   resposta:
-                    `Tudo. Assinar este app é assinar o ${ASSINATURA_NOME}: você leva o planejamento completo (retrato, diagnóstico, plano de ação, acompanhamento mensal e relatório em PDF), a Íris sem custo adicional, todas as ferramentas da casa e ${ROTULO_DESCONTO} na consultoria particular. Não existe plano mais caro com mais coisas — é uma assinatura só.`,
+                    `Tudo. Uma assinatura só libera o pacote inteiro: o planejamento completo (retrato, diagnóstico, plano de ação, acompanhamento mensal e relatório em PDF), a Íris sem custo adicional, todas as ferramentas da casa e ${ROTULO_DESCONTO} na consultoria particular. Não existe plano mais caro com mais coisas.`,
                 },
                 {
                   pergunta: "Preciso já ter dinheiro investido para assinar?",

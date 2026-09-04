@@ -22,7 +22,8 @@
     "next": "^15.5.4",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
-    "recharts": "^3.10.1"
+    "recharts": "^3.10.1",
+    "resend": "^6.26.0"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.13",
@@ -31,6 +32,7 @@
     "@types/react-dom": "^19.1.9",
     "axe-core": "^4.13.0",
     "playwright": "^1.62.1",
+    "qrcode": "^1.5.4",
     "tailwindcss": "^4.1.13",
     "typescript": "^5.9.2"
   }

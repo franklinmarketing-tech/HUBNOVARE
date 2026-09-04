@@ -29,7 +29,7 @@ import { RodapeNovare } from "@/components/RodapeNovare";
 import { OQueSignifica } from "@/components/OQueSignifica";
 import { RevelarAoRolar } from "@/components/RevelarAoRolar";
 import { Etapa, Persona, TituloSecao } from "@/components/SecoesVenda";
-import { ASSINATURA_NOME, ASSINATURA_PRECO_ROTULO } from "@/lib/assinatura";
+import { ASSINATURA_PRECO_ROTULO } from "@/lib/assinatura";
 import { CapturaLead } from "@/components/CapturaLead";
 import {
   CAPA_PRODUTO,
@@ -135,7 +135,7 @@ const PERGUNTAS_CONSULTORIA = [
   },
   {
     pergunta: "E se eu já uso o app da Novare?",
-    resposta: `Melhor ainda: o consultor abre o seu planejamento já preenchido e a conversa começa do diagnóstico pronto, em vez do zero. Além disso, assinante do ${ASSINATURA_NOME} (${ASSINATURA_PRECO_ROTULO}/mês) tem desconto em qualquer formato de consultoria.`,
+    resposta: `Melhor ainda: o consultor abre o seu planejamento já preenchido e a conversa começa do diagnóstico pronto, em vez do zero. Além disso, quem assina o app da Novare (${ASSINATURA_PRECO_ROTULO}/mês) tem desconto em qualquer formato de consultoria.`,
   },
 ];
 

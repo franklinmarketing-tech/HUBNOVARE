@@ -18,7 +18,13 @@
 /** Liga a venda em todas as telas. */
 export const ASSINATURA_ATIVA = true;
 
-export const ASSINATURA_NOME = "Workspace Novare";
+/**
+ * O nome lidera pelo que a pessoa procura ("planejamento financeiro") e
+ * carrega o diferencial ("com IA"). "Workspace" descrevia a arquitetura do
+ * produto, não o que o cliente compra — quem busca solução para o próprio
+ * dinheiro não digita "workspace".
+ */
+export const ASSINATURA_NOME = "Planejamento Financeiro com IA";
 
 export const ASSINATURA_PRECO = 19.9;
 
@@ -98,11 +104,12 @@ export const ASSINATURA_PILARES = [
 
 /** O que entra, item a item — usado na lista de checagem da página. */
 export const ASSINATURA_INCLUI = [
-  `${ASSINATURA_TRIAL_DIAS} dias grátis para testar sem compromisso`,
-  "Planejamento Financeiro PRO, completo",
-  "Íris, sem custo adicional",
-  "Todas as ferramentas e calculadoras",
-  "Desconto na consultoria particular",
-  "Novare News e indicadores ao vivo",
-  "Cancele quando quiser, sem multa",
+  `${ASSINATURA_TRIAL_DIAS} dias grátis para testar, sem cadastrar cartão`,
+  "O app de planejamento completo: diagnóstico, plano de ação e relatório em PDF",
+  "Íris, a IA que lê seu extrato e mostra para onde o dinheiro foi",
+  "Acompanhamento mês a mês, com a sua evolução em números",
+  "Todas as calculadoras da casa, com as tabelas oficiais de 2026",
+  "Desconto na consultoria particular com consultor humano",
+  "Novare News e indicadores ao vivo (Selic, CDI, IPCA, dólar)",
+  "Cancele quando quiser, sem multa nem fidelidade",
 ];

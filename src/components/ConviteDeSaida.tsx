@@ -5,7 +5,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ArrowRight, Check, Sparkles, X } from "lucide-react";
 import {
-  ASSINATURA_NOME,
   ASSINATURA_PRECO_ROTULO,
   ASSINATURA_TRIAL_DIAS,
 } from "@/lib/assinatura";
@@ -184,8 +183,8 @@ export function ConviteDeSaida() {
           </h2>
 
           <p className="mt-3 text-sm leading-relaxed text-white/75">
-            Você preenche o retrato financeiro uma vez e o {ASSINATURA_NOME}{" "}
-            devolve diagnóstico, plano de ação e acompanhamento — sem esperar
+            Você preenche o retrato financeiro uma vez e o app devolve
+            diagnóstico, plano de ação e acompanhamento — sem esperar
             ninguém liberar nada.
           </p>
 
