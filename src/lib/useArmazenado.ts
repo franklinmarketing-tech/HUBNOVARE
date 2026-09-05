@@ -17,6 +17,21 @@ export function useArmazenado<T>(chave: string, inicial: T) {
   const [carregado, setCarregado] = useState(false);
   const [usuarioId, setUsuarioId] = useState<string | null>(null);
   const primeiraEscrita = useRef(true);
+  /** A pessoa já mexeu? Se sim, nada que chegue depois pode sobrescrever. */
+  const tocado = useRef(false);
+
+  /* `setValor` que marca a intenção do usuário.
+   *
+   * É devolvido no lugar do setter cru para que qualquer alteração feita
+   * durante a carga sobreviva a ela. */
+  const definir = useMemo(
+    () =>
+      ((atualizacao) => {
+        tocado.current = true;
+        setValor(atualizacao);
+      }) as typeof setValor,
+    [],
+  );
 
   useEffect(() => {
     let ativo = true;
@@ -30,7 +45,13 @@ export function useArmazenado<T>(chave: string, inicial: T) {
         // Storage indisponivel ou valor corrompido: usa o estado inicial.
       }
 
-      if (local !== null && ativo) setValor(local);
+      /* Só aplica o que veio do storage se a pessoa AINDA não digitou.
+       *
+       * Em conexão lenta, `getUser()` demora e a pessoa começa a preencher
+       * antes da carga terminar. O que ela digitava era descartado pelo
+       * guard de primeira escrita e, quando a carga chegava, este `setValor`
+       * sobrescrevia tudo — os primeiros lançamentos sumiam sem aviso. */
+      if (local !== null && ativo && !tocado.current) setValor(local);
 
       const {
         data: { user },
@@ -49,14 +70,17 @@ export function useArmazenado<T>(chave: string, inicial: T) {
         .maybeSingle<EstadoRemoto>();
 
       if (!ativo) return;
-      if (data?.dados !== undefined) {
+      // Mesmo motivo de cima: o que a pessoa digitou durante a carga vence
+      // o que veio do servidor. Perder o que foi digitado é pior do que
+      // adiar a sincronização para a próxima abertura.
+      if (data?.dados !== undefined && !tocado.current) {
         setValor(data.dados as T);
         try {
           window.localStorage.setItem(chaveLocal, JSON.stringify(data.dados));
         } catch {
           // A sincronizacao remota continua disponivel.
         }
-      } else if (local !== null) {
+      } else if (data?.dados === undefined && local !== null) {
         await supabase.from("tool_states").upsert(
           { user_id: user.id, chave, dados: local },
           { onConflict: "user_id,chave" },
@@ -74,10 +98,14 @@ export function useArmazenado<T>(chave: string, inicial: T) {
 
   useEffect(() => {
     if (!carregado) return;
-    if (primeiraEscrita.current) {
+    /* O guard de primeira escrita existe para não regravar o que acabou de
+       ser lido. Mas se a pessoa já mexeu, essa primeira escrita é dela — e
+       descartá-la era o que fazia os primeiros lançamentos sumirem. */
+    if (primeiraEscrita.current && !tocado.current) {
       primeiraEscrita.current = false;
       return;
     }
+    primeiraEscrita.current = false;
 
     try {
       window.localStorage.setItem(chaveLocal, JSON.stringify(valor));
@@ -96,7 +124,7 @@ export function useArmazenado<T>(chave: string, inicial: T) {
     }
   }, [carregado, chave, chaveLocal, supabase, usuarioId, valor]);
 
-  return [valor, setValor, carregado] as const;
+  return [valor, definir, carregado] as const;
 }
 
 /** Id unico para itens de lista, sem depender de biblioteca. */

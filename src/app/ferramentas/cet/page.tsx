@@ -20,16 +20,30 @@ export default function CetPage() {
   const [liberado, setLiberado] = useState("10000");
   const [parcela, setParcela] = useState("990");
   const [meses, setMeses] = useState("12");
+  /* O CET só é CET com as tarifas dentro.
+   *
+   * A tela pedia apenas liberado, parcela e prazo — e o texto dela mesma
+   * dizia que IOF, cadastro e seguro entram na conta. Sem campo para eles,
+   * a ferramenta que existe para expor custo escondido não conseguia
+   * enxergar custo escondido nenhum. */
+  const [iof, setIof] = useState("0");
+  const [tarifas, setTarifas] = useState("0");
 
-  const r = useMemo(
-    () =>
-      calcularCet({
-        valorLiberado: parseNumero(liberado),
-        parcela: parseNumero(parcela),
-        meses: parseNumero(meses),
-      }),
-    [liberado, parcela, meses]
-  );
+  const r = useMemo(() => {
+    const bruto = parseNumero(liberado);
+    const custos = parseNumero(iof) + parseNumero(tarifas);
+    // O que de fato caiu na conta: tarifas e IOF costumam ser descontados
+    // do crédito ou somados ao saldo — nos dois casos encarecem o dinheiro.
+    const liquido = Math.max(0, bruto - custos);
+    // `calcularCet` devolve null quando o fluxo não tem juro a descobrir —
+    // esse null tem significado na tela e precisa sobreviver ao acréscimo.
+    const base = calcularCet({
+      valorLiberado: liquido,
+      parcela: parseNumero(parcela),
+      meses: parseNumero(meses),
+    });
+    return base ? { ...base, custos, liquido } : null;
+  }, [liberado, parcela, meses, iof, tarifas]);
 
   return (
     <div className="min-h-dvh bg-gradient-to-b from-slate-50 to-white text-slate-900">
@@ -104,6 +118,20 @@ export default function CetPage() {
               sufixo="meses"
               value={meses}
               onChange={setMeses}
+            />
+            <Campo
+              label="IOF cobrado"
+              prefixo="R$"
+              value={iof}
+              onChange={setIof}
+              hint="Está no contrato. Em empréstimo pessoal costuma passar de 1% do valor."
+            />
+            <Campo
+              label="Tarifas e seguro"
+              prefixo="R$"
+              value={tarifas}
+              onChange={setTarifas}
+              hint="Cadastro, avaliação, seguro prestamista — tudo que o banco embutiu."
             />
           </div>
         </section>

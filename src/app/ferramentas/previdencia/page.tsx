@@ -15,6 +15,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { brl, brlCurto, jurosCompostos, parseNumero, pct } from "@/lib/calculos";
+import { REFERENCIA, rentabilidadeLiquida } from "@/lib/previdencia";
 import { novoId, useArmazenado } from "@/lib/useArmazenado";
 import { formatarMoedaInput, digitosParaReais } from "@/lib/moeda";
 
@@ -94,9 +95,15 @@ export default function PrevidenciaPage() {
       const admPct = Number(p.taxaAdmPct) || 0;
       const carregPct = Math.min(Math.max(Number(p.carregamentoPct) || 0, 0), 100);
 
-      // Cenário real: a administração desconta da rentabilidade todo ano e o
-      // carregamento tira um pedaço de cada aporte antes mesmo de investir.
-      const rendimentoLiquido = rendimento - admPct;
+      /* A taxa de administração DIVIDE, não subtrai.
+       *
+       * `rendimento - admPct` superestimava o patrimônio: com 8% bruto e
+       * 2,3% de taxa, dava 5,70% quando o correto é 5,5718% — R$ 17,8 mil
+       * a mais em 25 anos. A conta certa já existia em lib/previdencia.ts,
+       * com um comentário explicando justamente por que subtrair é errado;
+       * a outra tela da casa (raio-x-previdencia) já a usava, então as duas
+       * davam respostas diferentes para o mesmo plano. */
+      const rendimentoLiquido = rentabilidadeLiquida(rendimento, admPct);
       const aporteLiquido = (Number(p.aporteMensal) || 0) * (1 - carregPct / 100);
 
       const comTaxas = jurosCompostos({
@@ -105,11 +112,17 @@ export default function PrevidenciaPage() {
         taxaAnualPct: rendimentoLiquido,
         anos: anosAte,
       });
-      // Cenário-fantasia sem nenhuma taxa: serve só para medir o custo.
+      /* A régua de comparação é um plano BOM, não um plano impossível.
+       *
+       * Comparar com taxa zero inflava o "custo das taxas" em R$ 71 mil —
+       * e esse número exagerado é o que sustenta o convite à consultoria
+       * na tela. Numa casa que se vende como independente, argumentar com
+       * número inflado custa mais caro do que rende. REFERENCIA é 0,4% a.a.,
+       * o que um plano competitivo cobra de verdade. */
       const semTaxas = jurosCompostos({
         inicial: Number(p.saldo) || 0,
         aporteMensal: Number(p.aporteMensal) || 0,
-        taxaAnualPct: rendimento,
+        taxaAnualPct: rentabilidadeLiquida(rendimento, REFERENCIA.taxaAdmPct),
         anos: anosAte,
       });
 
@@ -454,7 +467,15 @@ export default function PrevidenciaPage() {
                       </p>
                     </div>
                   </div>
-                  {rendimentoLiquido <= 0 ? (
+                  {/* Com rendimento líquido NEGATIVO o saldo encolhe — dizer
+                      que "só cresce pelos aportes" era falso e tranquilizava
+                      quem devia estar preocupado. */}
+                  {rendimentoLiquido < 0 ? (
+                    <p className="mt-3 text-[11px] text-destructive">
+                      A taxa de administração é maior que o rendimento esperado:
+                      neste cenário o saldo encolhe, mesmo com você aportando.
+                    </p>
+                  ) : rendimentoLiquido === 0 ? (
                     <p className="mt-3 text-[11px] text-slate-500">
                       A taxa de administração come todo o rendimento esperado.
                       Nesse cenário o dinheiro só cresce pelos aportes.
