@@ -180,6 +180,46 @@ export const TIPOS_SEGURO = [
   "Invalidez",
   "Viagem",
   "Empresarial",
+  "Celular / portáteis",
+  "Odontológico",
+  "Prestamista",
+  "Acidentes pessoais",
+  "Funeral",
+];
+
+/**
+ * `insurances.provider` — as seguradoras que mais aparecem no Brasil.
+ *
+ * É sugestão, não lista fechada: o campo continua aceitando qualquer texto,
+ * porque seguradora regional e corretora de nicho existem aos montes e uma
+ * lista que não deixa escrever o nome certo faz a pessoa desistir do campo.
+ */
+export const SEGURADORAS = [
+  "Porto Seguro",
+  "Bradesco Seguros",
+  "SulAmérica",
+  "Itaú Seguros",
+  "Caixa Seguradora",
+  "Banco do Brasil Seguros (Brasilseg)",
+  "Allianz",
+  "Tokio Marine",
+  "Mapfre",
+  "Zurich",
+  "HDI Seguros",
+  "Liberty Seguros",
+  "Azul Seguros",
+  "Youse",
+  "Sompo Seguros",
+  "Prudential",
+  "MetLife",
+  "Icatu Seguros",
+  "Omint",
+  "Amil",
+  "Unimed",
+  "NotreDame Intermédica",
+  "Assurant",
+  "Chubb",
+  "Suhai Seguradora",
 ];
 
 /** `goals.description` — sugestões. */

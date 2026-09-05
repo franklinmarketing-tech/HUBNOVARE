@@ -21,6 +21,7 @@ import {
   REGIMES_BENS,
   RENDAS_EXTRAS,
   RENDAS_PRINCIPAIS,
+  SEGURADORAS,
   TIPOS_DIVIDA,
   TIPOS_PATRIMONIO,
   TIPOS_SEGURO,
@@ -664,7 +665,7 @@ export default function MeusDadosPage() {
             render={(s, mudar) => (
               <div className="grid gap-3 sm:grid-cols-2">
                 <Texto label="Tipo de seguro" valor={s.tipo} aoMudar={(v) => mudar({ tipo: v })} sugestoes={TIPOS_SEGURO} />
-                <Texto label="Seguradora" valor={s.seguradora} aoMudar={(v) => mudar({ seguradora: v })} />
+                <Texto label="Seguradora" valor={s.seguradora} aoMudar={(v) => mudar({ seguradora: v })} sugestoes={SEGURADORAS} />
                 <Texto label="Quanto paga por mês" prefixo="R$" valor={s.premio} aoMudar={(v) => mudar({ premio: v })} />
                 <Texto label="Quanto ele cobre" prefixo="R$" valor={s.cobertura} aoMudar={(v) => mudar({ cobertura: v })} />
               </div>

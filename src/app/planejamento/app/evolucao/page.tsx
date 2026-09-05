@@ -14,6 +14,7 @@ import {
   Legend,
 } from "recharts";
 import { createClient } from "@/lib/supabase/client";
+import { JornadaFinanceira } from "@/components/JornadaFinanceira";
 import { usePlanejamento } from "../usePlanejamento";
 import { etapaPorSlug } from "../etapas";
 import {
@@ -130,6 +131,25 @@ export default function EvolucaoPage() {
   return (
     <div className="surgir">
       <TituloTela numero={etapa.numero} titulo={etapa.titulo} resumo={etapa.resumo} />
+
+      {/* A jornada vem primeiro: responde "estou indo bem?" de relance, sem
+          a pessoa precisar interpretar uma curva. Os indicadores e o gráfico
+          continuam abaixo, para quem quer o detalhe. */}
+      <div className="mb-5">
+        <JornadaFinanceira
+          dados={{
+            patrimonioHoje: ultimo.net_worth ?? 0,
+            marcoHorizonte: r.dados.plano.capitalDeVida,
+            mesesFechados: meses,
+            mesesReserva: ultimo.emergency_reserve_months ?? 0,
+            dividaHoje: ultimo.total_debts ?? 0,
+            dividaInicial: primeiro.total_debts ?? 0,
+            patrimonioInicial: primeiro.net_worth ?? 0,
+            planoCumpridoPct: ultimo.plan_completion_pct ?? 0,
+            sobraUltimoMes: (ultimo.total_income ?? 0) - (ultimo.total_expenses ?? 0),
+          }}
+        />
+      </div>
 
       <section className="mb-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <Indicador
