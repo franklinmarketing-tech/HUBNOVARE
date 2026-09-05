@@ -587,7 +587,11 @@ export default function MesPage() {
                                   : "text-accent-strong"
                           }`}
                         >
-                          {respondida ? `${Math.round(pct)}%` : "—"}
+                          {/* Passar do alvo não vira "167%": em corte de
+                              gasto isso acontece sempre que a pessoa gasta
+                              bem menos que o teto, e o número exagerado
+                              distrai do que importa — a meta bateu. */}
+                          {respondida ? `${Math.min(100, Math.round(pct))}%` : "—"}
                         </span>
                       </div>
                       {/* Barra cheia em vermelho quando piora: antes o valor
