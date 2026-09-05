@@ -38,7 +38,9 @@
 export const CAPAS: Record<string, string> = {
   // IA e Consultoria — slugs alinhados com apps.ts (5 produtos oficiais)
   "planejamento": "/cards/card-planejamento.webp",
-  iris: "/cards/card-openfinance.webp",
+  // Capa própria: antes a Íris usava emprestada a arte do Open Finance
+  // (casinhas conectadas), que não fala de IA nem de extrato.
+  iris: "/cards/card-iris.webp",
   "consultoria-diagnostico": "/cards/card-score.webp",
   "consultoria-investimentos": "/cards/card-comparador.webp",
   "consultoria-plano-vida": "/cards/card-objetivos.webp",

@@ -108,7 +108,7 @@ const PARA_QUEM = [
     icone: Clock3,
     titulo: "Você tem o número, falta a decisão",
     texto:
-      "O app te deu o diagnóstico e o plano. Agora é uma escolha grande, e você quer um humano do lado antes de puxar o gatilho.",
+      "O app te deu o diagnóstico e o plano. Agora é uma escolha grande, e você quer um consultor do lado antes de puxar o gatilho.",
   },
 ];
 

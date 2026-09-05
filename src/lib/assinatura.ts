@@ -95,7 +95,7 @@ export const ASSINATURA_PILARES = [
   {
     chave: "consultoria",
     nome: "Desconto na consultoria particular",
-    resumo: "Quando você quiser um humano do lado.",
+    resumo: "Quando você quiser um consultor do lado.",
     detalhe:
       "A consultoria da Novare é analisada caso a caso e cobrada à parte — mas assinante entra com desconto em qualquer formato. Um único atendimento costuma pagar a assinatura do ano.",
     href: "/consultoria",
@@ -109,7 +109,7 @@ export const ASSINATURA_INCLUI = [
   "Íris, a IA que lê seu extrato e mostra para onde o dinheiro foi",
   "Acompanhamento mês a mês, com a sua evolução em números",
   "Todas as calculadoras da casa, com as tabelas oficiais de 2026",
-  "Desconto na consultoria particular com consultor humano",
+  "Desconto na consultoria particular com um consultor",
   "Novare News e indicadores ao vivo (Selic, CDI, IPCA, dólar)",
   "Cancele quando quiser, sem multa nem fidelidade",
 ];

@@ -424,7 +424,7 @@ const html = `<!doctype html>
   <div class="beneficios">
     <div class="beneficio"><span class="num">01</span><h4>Do sonho ao número</h4><p>Casa, filho, viagem, aposentadoria — tudo somado num alvo só, com data.</p></div>
     <div class="beneficio"><span class="num">02</span><h4>Projeção ano a ano</h4><p>Quanto guardar por mês, com qual rentabilidade, até quando. Com imposto na conta.</p></div>
-    <div class="beneficio"><span class="num">03</span><h4>Plano de ação</h4><p>Aportes, prazos e carteira sugerida. E um consultor humano quando a pessoa quiser.</p></div>
+    <div class="beneficio"><span class="num">03</span><h4>Plano de ação</h4><p>Aportes, prazos e carteira sugerida. E um consultor quando a pessoa quiser.</p></div>
   </div>
   <div class="faixa">
     <b>Para quem é</b>
@@ -496,7 +496,7 @@ const html = `<!doctype html>
   <span class="etiqueta-produto">Gente de verdade</span>
   <h2 class="destaque">Quando a ferramenta não basta</h2>
   <div class="intro">
-    <p>Quatro serviços com consultor humano, para quem quer alguém olhando junto. <strong>Todos começam com uma análise gratuita</strong> — você conhece o trabalho antes de contratar. Quem assinar o Workspace tem desconto nos quatro.</p>
+    <p>Quatro serviços com um consultor, para quem quer alguém olhando junto. <strong>Todos começam com uma análise gratuita</strong> — você conhece o trabalho antes de contratar. Quem assinar o Workspace tem desconto nos quatro.</p>
   </div>
   ${janela(telas.consultoria, "novare-workspace.vercel.app/consultoria")}
   <div class="beneficios" style="grid-template-columns:1fr 1fr">
