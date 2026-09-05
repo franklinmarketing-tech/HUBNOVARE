@@ -2,9 +2,10 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { CalendarCheck, Check, Loader2, TriangleAlert } from "lucide-react";
+import { ArrowDown, ArrowUp, CalendarCheck, Check, Loader2, TriangleAlert } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { AcaoAssinante } from "@/components/AcaoAssinante";
+import { NumeroQueSobe } from "@/components/NumeroQueSobe";
 import { usePlanejamento } from "../usePlanejamento";
 import { traduzirErro } from "@/lib/planejamento/erros";
 import { liberarLancamento } from "@/lib/planejamento/cliente";
@@ -36,6 +37,105 @@ type MetaSalva = {
   prazo: string | null;
 };
 
+/**
+ * Que tipo de meta é esta.
+ *
+ * `gerarMetas` sabe disso quando monta cada uma, mas joga a informação
+ * fora — só `area` sobrevive, e `area` junta reserva e aporte no mesmo
+ * balaio. Sem o tipo, a tela era obrigada a fazer a MESMA pergunta para
+ * dívida, reserva, corte de gasto e seguro, e a resposta certa é
+ * diferente em cada um. Daí a confusão de "Onde está hoje".
+ */
+type TipoMeta = "quitar" | "acumular" | "cortar" | "contratar";
+
+function tipoDaMeta(m: MetaSalva): TipoMeta {
+  const alvo = m.meta_valor;
+  const partida = m.current_value ?? 0;
+  if (m.source_table === "debts") return "quitar";
+  if (m.source_table === "insurances" || (partida === 0 && (alvo ?? 0) > 0 && m.source_table === "income"))
+    return "contratar";
+  if (m.source_table === "expenses" && alvo != null && alvo < partida) return "cortar";
+  return "acumular";
+}
+
+/**
+ * O que mudou desde o último mês fechado.
+ *
+ * É a única parte desta tela que devolve algo em troca do preenchimento —
+ * o resto pede. Fica no topo, em navy, porque é a resposta para "valeu a
+ * pena ter lançado?".
+ */
+function MudouDesde({
+  itens,
+}: {
+  itens: { rotulo: string; antes: number; agora: number; melhorQuandoCai: boolean }[];
+}) {
+  return (
+    <section className="mb-5 overflow-hidden rounded-2xl bg-gradient-to-br from-primary to-[hsl(216_58%_13%)] p-6 text-white">
+      <p className="text-2xs font-bold uppercase tracking-wider text-white/60">
+        Desde o mês passado
+      </p>
+
+      <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {itens.map((i) => {
+          const delta = i.agora - i.antes;
+          const bom = i.melhorQuandoCai ? delta < 0 : delta > 0;
+          const parado = delta === 0;
+          const Seta = delta < 0 ? ArrowDown : ArrowUp;
+
+          return (
+            <div key={i.rotulo}>
+              <p className="truncate text-xs text-white/60">{i.rotulo}</p>
+              <p
+                className={`mt-0.5 flex items-center gap-1 font-display text-xl font-black tabular-nums ${
+                  parado ? "text-white/70" : bom ? "text-success" : "text-amber-300"
+                }`}
+              >
+                {!parado && <Seta className="h-4 w-4" />}
+                <NumeroQueSobe
+                  valor={Math.abs(delta)}
+                  formatar={(v) => brl(Math.round(v))}
+                />
+              </p>
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+/** A pergunta, a ajuda e o exemplo de nota de cada tipo. */
+const PERGUNTA: Record<
+  TipoMeta,
+  { pergunta: string; ajuda: string; rotuloAlvo: string; exemploNota: string }
+> = {
+  quitar: {
+    pergunta: "Quanto você ainda deve hoje?",
+    ajuda: "O saldo que falta pagar. Se já quitou, digite 0.",
+    rotuloAlvo: "Objetivo:",
+    exemploNota: "Paguei uma parcela extra com o 13º",
+  },
+  acumular: {
+    pergunta: "Quanto você já tem guardado?",
+    ajuda: "O total acumulado até hoje — não o quanto guardou neste mês.",
+    rotuloAlvo: "Objetivo:",
+    exemploNota: "Consegui guardar, mas veio o IPVA",
+  },
+  cortar: {
+    pergunta: "Quanto você gastou neste mês?",
+    ajuda: "O total do mês nesta categoria.",
+    rotuloAlvo: "Objetivo: até",
+    exemploNota: "Cortei o delivery, mas teve conserto do carro",
+  },
+  contratar: {
+    pergunta: "Já contratou? Qual o valor?",
+    ajuda: "O capital contratado. Se ainda não tem, deixe em branco.",
+    rotuloAlvo: "Objetivo:",
+    exemploNota: "Cotei em três seguradoras",
+  },
+};
+
 const nomeDoMes = (ref: string) =>
   new Date(ref).toLocaleDateString("pt-BR", { month: "long", year: "numeric" });
 
@@ -48,6 +148,8 @@ export default function MesPage() {
   const [metas, setMetas] = useState<MetaSalva[] | null>(null);
   const [valores, setValores] = useState<Record<string, string>>({});
   const [notas, setNotas] = useState<Record<string, string>>({});
+  /** O último valor lançado de cada meta em meses já fechados. */
+  const [mesAnterior, setMesAnterior] = useState<Record<string, number>>({});
   const [salvando, setSalvando] = useState(false);
   const [salvo, setSalvo] = useState(false);
   const [fechando, setFechando] = useState(false);
@@ -73,7 +175,7 @@ export default function MesPage() {
        */
       await liberarLancamento(clientId);
 
-      const [metasRes, entradasRes, fechamentoRes] = await Promise.all([
+      const [metasRes, entradasRes, fechamentoRes, anteriorRes] = await Promise.all([
         supabase
           .from("parecer_metas")
           .select("id, source_table, source_id, source_label, meta_text, meta_valor, current_value, prazo")
@@ -89,6 +191,19 @@ export default function MesPage() {
           .eq("client_id", clientId)
           .eq("month_ref", mes)
           .maybeSingle(),
+        /* O que foi lançado nos meses já fechados.
+         *
+         * A tela prometia "o que mudou desde o último" e nunca cumpria:
+         * lia só `is_closing_snapshot = false` e jogava fora o histórico
+         * que já estava no banco. Sem isto não há como dizer "a dívida
+         * caiu R$ 150" — que é a única frase desta tela capaz de fazer a
+         * pessoa sentir que preencher valeu a pena. */
+        supabase
+          .from("acompanhamento_entradas")
+          .select("source_id, valor_atual, snapshotted_at")
+          .eq("client_id", clientId)
+          .eq("is_closing_snapshot", true)
+          .order("snapshotted_at", { ascending: false }),
       ]);
 
       setMetas(metasRes.data ?? []);
@@ -102,6 +217,15 @@ export default function MesPage() {
       }
       setValores(v);
       setNotas(n);
+
+      // Só o lançamento mais recente de cada meta: a consulta vem ordenada
+      // do mais novo para o mais antigo, então o primeiro que aparece vence.
+      const ultimo: Record<string, number> = {};
+      for (const e of anteriorRes.data ?? []) {
+        if (e.valor_atual == null) continue;
+        if (!(e.source_id in ultimo)) ultimo[e.source_id] = Number(e.valor_atual);
+      }
+      setMesAnterior(ultimo);
     })();
   }, [clientId, mes]);
 
@@ -183,6 +307,14 @@ export default function MesPage() {
       return;
     }
 
+    /* Grava o que está na tela ANTES de fechar.
+     *
+     * `plan_completion_pct` era calculado a partir do estado da tela, mas
+     * o fechamento não persistia esse estado: quem editasse e clicasse
+     * direto em "Fechar o mês" via o percentual certo no fechamento e
+     * perdia os lançamentos, que nunca chegaram ao banco. */
+    await salvarLancamento();
+
     const { retrato } = r.dados;
     const totais = computeMonthlyTotals(mes, {
       income: retrato.rendas,
@@ -256,6 +388,29 @@ export default function MesPage() {
   if (r.fase === "erro") return <FalhouAoCarregar />;
   if (r.dados.vazio) return <PrecisaPreencher />;
 
+  /**
+   * Quantas metas já foram respondidas e o que dá para comparar com o mês
+   * passado. Só entra na comparação quem tem valor lançado agora E um
+   * fechamento anterior — o resto não tem "antes".
+   */
+  const respondidas = {
+    total: (metas ?? []).filter((m) => (valores[m.source_id] ?? "").trim() !== "").length,
+    comparaveis: (metas ?? [])
+      .filter((m) => {
+        const agora = valores[m.source_id];
+        return (
+          agora != null && agora.trim() !== "" && mesAnterior[m.source_id] != null
+        );
+      })
+      .slice(0, 6)
+      .map((m) => ({
+        rotulo: m.source_label,
+        antes: mesAnterior[m.source_id],
+        agora: Number(valores[m.source_id]),
+        melhorQuandoCai: tipoDaMeta(m) === "quitar" || tipoDaMeta(m) === "cortar",
+      })),
+  };
+
   return (
     <div className="surgir">
       <TituloTela
@@ -280,24 +435,65 @@ export default function MesPage() {
         />
       ) : (
         <>
-          <p className="mb-4 text-sm text-muted-foreground">
-            Onde cada meta está hoje. Não precisa ser exato — o que importa é a
-            direção.
-          </p>
+          {/* O que mudou desde o último mês.
+              A tela prometia isso no resumo da etapa e nunca entregava. */}
+          {respondidas.comparaveis.length > 0 && <MudouDesde itens={respondidas.comparaveis} />}
+
+          <div className="mb-4 flex flex-wrap items-baseline justify-between gap-2">
+            <p className="text-sm text-muted-foreground">
+              {nomeDoMes(mes)} em {metas.length}{" "}
+              {metas.length === 1 ? "pergunta" : "perguntas"}. Não precisa ser
+              exato — o que importa é a direção.
+            </p>
+            <p className="text-2xs font-semibold text-muted-foreground">
+              {respondidas.total} de {metas.length} respondidas
+            </p>
+          </div>
 
           <div className="space-y-3">
             {metas.map((m) => {
-              const atual = valores[m.source_id] ?? String(m.current_value ?? "");
+              const bruto = valores[m.source_id] ?? "";
+              const respondida = bruto.trim() !== "";
+              const atual = Number(bruto || 0);
               const alvo = m.meta_valor;
               const partida = m.current_value ?? 0;
+              const anterior = mesAnterior[m.source_id];
+              const tipo = tipoDaMeta(m);
+              const texto = PERGUNTA[tipo];
+
               const reduzindo = alvo != null && alvo < partida;
               const caminho = alvo != null ? Math.abs(partida - alvo) : 0;
-              const andado = reduzindo ? partida - Number(atual || 0) : Number(atual || 0) - partida;
+              const andado = reduzindo ? partida - atual : atual - partida;
               const pct = caminho !== 0 ? (andado / caminho) * 100 : 0;
+              const cumprida = respondida && caminho > 0 && pct >= 100;
+              const piorou = respondida && pct < 0;
 
               return (
-                <div key={m.id} className="rounded-2xl border border-border bg-white p-4">
-                  <p className="text-sm font-semibold text-foreground">{m.source_label}</p>
+                <div
+                  key={m.id}
+                  className={`rounded-2xl border bg-white p-4 transition-colors ${
+                    cumprida
+                      ? "border-success/40 bg-success/[0.04]"
+                      : respondida
+                        ? "border-accent/30"
+                        : "border-border"
+                  }`}
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <p className="text-sm font-semibold text-foreground">{m.source_label}</p>
+                    {cumprida ? (
+                      <span className="flex shrink-0 items-center gap-1 rounded-full bg-success/12 px-2.5 py-1 text-2xs font-bold text-success-strong">
+                        <Check className="h-3 w-3" />
+                        Cumprida
+                      </span>
+                    ) : (
+                      !respondida && (
+                        <span className="shrink-0 rounded-full bg-slate-100 px-2.5 py-1 text-2xs font-semibold text-slate-500">
+                          A responder
+                        </span>
+                      )
+                    )}
+                  </div>
                   {m.meta_text && (
                     <p className="mt-0.5 text-xs leading-relaxed text-slate-500">
                       {m.meta_text}
@@ -306,11 +502,15 @@ export default function MesPage() {
 
                   <div className="mt-3 grid gap-3 sm:grid-cols-2">
                     <div>
+                      {/* A pergunta muda conforme o tipo de meta: "onde está
+                          hoje" servia para dívida, reserva, corte de gasto e
+                          seguro ao mesmo tempo — e a resposta certa é
+                          diferente em cada um. */}
                       <label
                         htmlFor={`v-${m.id}`}
                         className="mb-1.5 block text-xs font-semibold text-slate-600"
                       >
-                        Onde está hoje
+                        {texto.pergunta}
                       </label>
                       <div className="relative">
                         <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-500">
@@ -319,7 +519,8 @@ export default function MesPage() {
                         <input
                           id={`v-${m.id}`}
                           inputMode="numeric"
-                          value={formatarMoedaInput(atual)}
+                          value={formatarMoedaInput(bruto)}
+                          placeholder="0,00"
                           onChange={(e) =>
                             setValores({
                               ...valores,
@@ -329,53 +530,92 @@ export default function MesPage() {
                           className="h-11 w-full rounded-xl border border-slate-200 bg-white pl-9 pr-3 text-[0.9375rem] tabular-nums outline-none focus:border-accent focus:ring-4 focus:ring-accent/12"
                         />
                       </div>
-                      {alvo != null && (
-                        <p className="mt-1 text-[11px] text-slate-500">
-                          Meta: {brl(alvo)}
-                        </p>
-                      )}
+                      <p className="mt-1 text-[11px] leading-relaxed text-slate-500">
+                        {texto.ajuda}
+                      </p>
                     </div>
 
-                    <div>
-                      <label
-                        htmlFor={`n-${m.id}`}
-                        className="mb-1.5 block text-xs font-semibold text-slate-600"
-                      >
-                        Como foi o mês (opcional)
-                      </label>
-                      <input
-                        id={`n-${m.id}`}
-                        value={notas[m.source_id] ?? ""}
-                        onChange={(e) => setNotas({ ...notas, [m.source_id]: e.target.value })}
-                        placeholder="Consegui guardar, mas veio o IPVA"
-                        className="h-11 w-full rounded-xl border border-slate-200 bg-white px-3.5 text-[0.9375rem] outline-none focus:border-accent focus:ring-4 focus:ring-accent/12"
-                      />
+                    {/* As referências ficam ao lado do campo, não dentro dele:
+                        o valor de partida preenchido automaticamente fazia
+                        "não mexi" e "lancei o mesmo valor" virarem a mesma
+                        coisa — e o app dava 0% para quem acabou de chegar. */}
+                    <div className="space-y-1.5 text-[11px] text-slate-500 sm:pt-6">
+                      <p>
+                        {alvo != null && (
+                          <>
+                            <span className="font-semibold text-slate-600">
+                              {alvo === 0 ? "Objetivo: zerar" : `${texto.rotuloAlvo} ${brl(alvo)}`}
+                            </span>
+                            <br />
+                          </>
+                        )}
+                        {anterior != null && (
+                          <>
+                            Mês passado: {brl(anterior)}
+                            <br />
+                          </>
+                        )}
+                        Início do plano: {brl(partida)}
+                      </p>
                     </div>
                   </div>
 
                   {caminho > 0 && (
                     <div className="mt-3">
                       <div className="mb-1 flex items-baseline justify-between text-2xs font-semibold text-muted-foreground">
-                        <span>{reduzindo ? "Já reduziu" : "Já acumulou"}</span>
+                        <span>
+                          {piorou
+                            ? reduzindo
+                              ? "Subiu em vez de cair"
+                              : "Recuou"
+                            : reduzindo
+                              ? "Já reduziu"
+                              : "Já acumulou"}
+                        </span>
+                        {/* 0% só é pintado de alerta depois que a pessoa
+                            respondeu: antes disso é ausência de dado, não
+                            fracasso — e a tela punia quem tinha acabado de
+                            chegar. */}
                         <span
                           className={`tabular-nums ${
-                            pct < 0
-                              ? "text-destructive"
-                              : pct >= 100
-                                ? "text-success-strong"
-                                : "text-warning"
+                            !respondida
+                              ? "text-slate-400"
+                              : piorou
+                                ? "text-destructive"
+                                : pct >= 100
+                                  ? "text-success-strong"
+                                  : "text-accent-strong"
                           }`}
                         >
-                          {Math.round(pct)}%
+                          {respondida ? `${Math.round(pct)}%` : "—"}
                         </span>
                       </div>
+                      {/* Barra cheia em vermelho quando piora: antes o valor
+                          negativo era clampado em zero e a dívida CRESCENDO
+                          ficava visualmente igual a "ainda não comecei". */}
                       <Barra
-                        valor={pct}
-                        tom={pct >= 100 ? "success" : pct < 0 ? "warning" : "accent"}
+                        valor={piorou ? 100 : respondida ? pct : 0}
+                        tom={piorou ? "warning" : pct >= 100 ? "success" : "accent"}
                         rotulo={`Progresso: ${m.source_label}`}
                       />
                     </div>
                   )}
+
+                  {/* A nota deixou de disputar espaço com o valor: era um
+                      campo do mesmo tamanho, lado a lado, para algo opcional. */}
+                  <details className="mt-3 group">
+                    <summary className="cursor-pointer list-none text-2xs font-semibold text-slate-500 transition-colors hover:text-accent-strong">
+                      + anotar o que aconteceu
+                    </summary>
+                    <input
+                      id={`n-${m.id}`}
+                      value={notas[m.source_id] ?? ""}
+                      onChange={(e) => setNotas({ ...notas, [m.source_id]: e.target.value })}
+                      placeholder={texto.exemploNota}
+                      aria-label="Como foi o mês"
+                      className="mt-2 h-11 w-full rounded-xl border border-slate-200 bg-white px-3.5 text-[0.9375rem] outline-none focus:border-accent focus:ring-4 focus:ring-accent/12"
+                    />
+                  </details>
                 </div>
               );
             })}
