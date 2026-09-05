@@ -41,15 +41,26 @@ export default function PotencialCompraPage() {
       meses: parseNumero(meses),
     });
 
+    /* Banco nenhum financia o imóvel inteiro.
+     *
+     * Sem o teto de LTV, entrada zero devolvia financiamento de 103% do
+     * imóvel — a pessoa saía procurando imóvel numa faixa que o banco
+     * recusa na primeira conversa. O limite usual do SFH é 80% do valor,
+     * então a entrada precisa cobrir pelo menos os 20% restantes. */
+    const LTV_MAXIMO = 0.8;
+    const creditoPorEntrada =
+      entrada$ > 0 ? (entrada$ / (1 - LTV_MAXIMO)) * LTV_MAXIMO : Infinity;
+    const creditoViavel = Math.min(capacidade.creditoMaximo, creditoPorEntrada);
+
     // Crédito + entrada é o teto bruto. Mas a escritura sai do mesmo bolso da
     // entrada, então o imóvel que cabe de verdade é menor: valor + custos = teto.
-    const tetoBruto = capacidade.creditoMaximo + entrada$;
+    const tetoBruto = creditoViavel + entrada$;
     const referencia = custosCompraImovel({ valor: tetoBruto || 1 });
     const fator = 1 + referencia.pctSobreValor / 100;
     const valorImovel = fator > 0 ? tetoBruto / fator : 0;
     const custos = custosCompraImovel({ valor: valorImovel });
 
-    return { capacidade, valorImovel, custos, tetoBruto };
+    return { capacidade, valorImovel, custos, tetoBruto, creditoViavel };
   }, [renda, parcelas, entrada$, taxa, meses]);
 
   const entradaPct =
@@ -155,7 +166,7 @@ export default function PotencialCompraPage() {
             {brlCurto(dados.valorImovel)}
           </p>
           <p className="text-sm text-white/70 mt-3">
-            {brlCurto(dados.capacidade.creditoMaximo)} de financiamento mais{" "}
+            {brlCurto(dados.creditoViavel)} de financiamento mais{" "}
             {brlCurto(entrada$)} de entrada, já reservando{" "}
             {brlCurto(dados.custos.total)} para a escritura.
           </p>
@@ -164,7 +175,7 @@ export default function PotencialCompraPage() {
         <section className="mt-6 grid sm:grid-cols-3 gap-4">
           <Kpi
             icone={<Landmark className="h-5 w-5 mx-auto text-primary" />}
-            valor={brlCurto(dados.capacidade.creditoMaximo)}
+            valor={brlCurto(dados.creditoViavel)}
             legenda="Crédito aprovável no banco"
           />
           <Kpi

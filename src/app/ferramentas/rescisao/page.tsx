@@ -43,6 +43,10 @@ export default function RescisaoPage() {
   const [saldoFgts, setSaldoFgts] = useState("5760");
   const [motivo, setMotivo] = useState<MotivoRescisao>("sem-justa-causa");
   const [vencidas, setVencidas] = useState(false);
+  /* Os avos de 13º e de férias contam os meses do ANO, não os de casa.
+     Sem este campo, quem tinha 12, 24 ou 36 meses de empresa recebia zero
+     das duas verbas — e a tela nem mostrava a linha. */
+  const [mesesNoAno, setMesesNoAno] = useState("8");
 
   const r = rescisao(
     Math.max(0, parseNumero(salario)),
@@ -51,6 +55,8 @@ export default function RescisaoPage() {
     motivo,
     vencidas,
     Math.max(0, parseNumero(saldoFgts)),
+    0,
+    Math.max(0, Math.min(12, Math.round(parseNumero(mesesNoAno)) || 0)),
   );
 
   const escolhido = MOTIVOS.find((m) => m.chave === motivo)!;
@@ -119,6 +125,13 @@ export default function RescisaoPage() {
             value={dias}
             onChange={setDias}
             hint="Vira o saldo de salário."
+          />
+          <Campo
+            label="Meses trabalhados neste ano"
+            sufixo="meses"
+            value={mesesNoAno}
+            onChange={setMesesNoAno}
+            hint="De janeiro até a saída. É o que define o 13º e as férias proporcionais."
           />
           <Campo
             label="Saldo do FGTS"

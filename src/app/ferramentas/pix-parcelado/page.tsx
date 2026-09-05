@@ -3,13 +3,27 @@
 import Link from "next/link";
 import { useState } from "react";
 import { Zap } from "lucide-react";
-import { brl, parseNumero, pct, resolverTaxaMensal } from "@/lib/calculos";
+import {
+  brl,
+  parseNumero,
+  pct,
+  resolverTaxaMensal,
+  taxaAnualParaMensal,
+} from "@/lib/calculos";
 import {
   Campo,
   CascaFerramenta,
   Linha,
   Resultado,
 } from "@/components/CascaFerramenta";
+
+/**
+ * A régua de comparação: quanto renderia guardar as parcelas.
+ *
+ * Está aqui, nomeada, em vez de um `0.0105` solto no meio da conta — que
+ * era uma taxa mensal chumbada, sem rótulo e sem relação com o CDI real.
+ */
+const CDI_ANUAL_PCT = 14.15;
 
 export default function PixParceladoPage() {
   const [valor, setValor] = useState("1000");
@@ -37,8 +51,18 @@ export default function PixParceladoPage() {
   const acrescimoPct = compra > 0 ? (jurosReais / compra) * 100 : 0;
   const caro = taxaMesPct > 3;
 
-  // O mesmo dinheiro guardado enquanto se junta para pagar à vista.
-  const rendendo = compra * Math.pow(1 + 0.0105, n) - compra;
+  /* Quanto renderia guardar as PARCELAS para pagar à vista depois.
+   *
+   * Antes o código fazia `compra * (1 + 0,0105)^n`: uma taxa de 1,05% ao
+   * mês chumbada no código, sem campo nem rótulo, aplicada sobre o valor
+   * cheio da compra — como se a pessoa já tivesse o dinheiro todo no mês 1.
+   * Quem espera para comprar à vista guarda parcela a parcela, e é isso
+   * que rende. */
+  const rendendoTaxa = taxaAnualParaMensal(CDI_ANUAL_PCT);
+  const rendendo =
+    rendendoTaxa > 0
+      ? parcela * ((Math.pow(1 + rendendoTaxa, n) - 1) / rendendoTaxa) - parcela * n
+      : 0;
 
   return (
     <CascaFerramenta
@@ -132,8 +156,8 @@ export default function PixParceladoPage() {
             consignado costuma ficar perto de 1,8% ao mês e um empréstimo
             pessoal entre 3% e 8%. Se a compra puder esperar, guardar as
             parcelas por {n} {n === 1 ? "mês" : "meses"} renderia cerca de{" "}
-            {brl(rendendo)} em vez de custar {brl(jurosReais)} — uma diferença
-            de {brl(rendendo + jurosReais)} no seu bolso.
+            {brl(rendendo)} — enquanto parcelar custa {brl(jurosReais)} de
+            juros.
           </p>
         </section>
       )}

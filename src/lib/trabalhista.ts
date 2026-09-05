@@ -325,10 +325,31 @@ export function rescisao(
   feriasVencidasPendentes = false,
   saldoFgts = 0,
   dependentes = 0,
+  /** Meses trabalhados no ano corrente — os avos de 13º e de férias. */
+  mesesAvos?: number,
 ): Rescisao {
   const diaria = salario / 30;
   const anosCompletos = Math.floor(mesesNaEmpresa / 12);
-  const mesesNoAnoCorrente = mesesNaEmpresa % 12;
+
+  /**
+   * Quantos avos de 13º e de férias proporcionais.
+   *
+   * Era `mesesNaEmpresa % 12`, e o resto zera em todo ano fechado: com 12,
+   * 24 ou 36 meses de casa o app devolvia R$ 0 de 13º e R$ 0 de férias
+   * proporcionais — e como a tela só mostra linha com valor acima de zero,
+   * as verbas SUMIAM em vez de aparecer zeradas. O padrão da própria tela
+   * (24 meses) caía exatamente nesse buraco.
+   *
+   * Mês de empresa não é mês de período aquisitivo: o 13º conta os meses
+   * do ano-calendário corrente e as férias contam desde o último período
+   * completo. Sem a data de admissão não dá para saber isso — então, na
+   * falta dela, o mais próximo do correto é usar os meses do ano corrente
+   * informados por quem preenche.
+   */
+  const mesesNoAnoCorrente = Math.max(
+    0,
+    Math.min(12, mesesAvos ?? mesesNaEmpresa % 12),
+  );
 
   const saldoSalario = arredondar(diaria * Math.max(0, Math.min(30, diasTrabalhadosNoMes)));
 

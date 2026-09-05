@@ -40,8 +40,22 @@ const CATEGORIAS = [
   "Outros",
 ] as const;
 
-const hojeIso = () => new Date().toISOString().slice(0, 10);
-const mesAtualIso = () => new Date().toISOString().slice(0, 7);
+/**
+ * Data LOCAL, não UTC.
+ *
+ * `toISOString()` devolve UTC: no Brasil (UTC-3), das 21h em diante o
+ * lançamento nascia com a data de amanhã — e no dia 30 ou 31 à noite ia
+ * parar no mês seguinte, sumindo da lista do mês corrente.
+ */
+const doisDigitos = (n: number) => String(n).padStart(2, "0");
+const hojeIso = () => {
+  const d = new Date();
+  return `${d.getFullYear()}-${doisDigitos(d.getMonth() + 1)}-${doisDigitos(d.getDate())}`;
+};
+const mesAtualIso = () => {
+  const d = new Date();
+  return `${d.getFullYear()}-${doisDigitos(d.getMonth() + 1)}`;
+};
 
 function diasNoMes(mes: string): number {
   const [ano, m] = mes.split("-").map(Number);

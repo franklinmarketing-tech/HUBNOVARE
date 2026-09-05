@@ -578,11 +578,20 @@ export function simularFire({
    7. Tesouro Direto / renda fixa com IR regressivo
    -------------------------------------------------------------------------- */
 
-/** Alíquota de IR sobre o RENDIMENTO, pela tabela regressiva. */
+/**
+ * Alíquota de IR sobre o RENDIMENTO, pela tabela regressiva.
+ *
+ * A lei (11.033/2004) conta DIAS CORRIDOS — 180, 360 e 720 —, não meses.
+ * A diferença não é acadêmica: o mês tem ~30,4 dias, então 24 meses são
+ * 730 dias e já caem na menor alíquota. Contando por mês, quem aplicava
+ * por 2 anos pagava 17,5% em vez de 15% — e a própria tela do Tesouro
+ * dizia "acima de 2 anos o IR cai para 15%", contradizendo o cálculo.
+ */
 export function irRegressivo(meses: number): number {
-  if (meses <= 6) return 22.5;
-  if (meses <= 12) return 20;
-  if (meses <= 24) return 17.5;
+  const dias = meses * (365 / 12);
+  if (dias <= 180) return 22.5;
+  if (dias <= 360) return 20;
+  if (dias <= 720) return 17.5;
   return 15;
 }
 
@@ -1113,6 +1122,18 @@ export function rendaDividendos({
   crescimentoDividendoPct?: number;
 }) {
   const dy = positivo(dividendYieldPct) / 100;
+
+  /* O crescimento do dividendo entra UMA vez, não duas.
+   *
+   * Antes ele era somado à taxa de evolução da carteira E multiplicado
+   * de novo no yield futuro. Com os valores padrão da tela isso gerava
+   * um yield on cost de 67% e uma renda mensal 23× a de hoje — número
+   * que não existe no mercado e que prometia ao cliente uma renda irreal.
+   *
+   * Quando o dividendo cresce, quem sobe é o yield SOBRE O CUSTO: o preço
+   * da cota acompanha o dividendo, então o yield de mercado fica estável.
+   * Por isso a carteira cresce com o crescimento embutido e a renda futura
+   * usa o yield de mercado, não o inflado. */
   const evolucao = jurosCompostos({
     inicial: valorInvestido,
     aporteMensal,
@@ -1120,16 +1141,18 @@ export function rendaDividendos({
     anos,
   });
   const fim = evolucao[evolucao.length - 1];
-  const dyFuturo =
-    dy * Math.pow(1 + positivo(crescimentoDividendoPct) / 100, anos);
+
+  const rendaFutura = (fim.total * dy) / 12;
 
   return {
     carteiraFinal: fim.total,
     investido: fim.investido,
     rendaMensalHoje: (positivo(valorInvestido) * dy) / 12,
-    rendaMensalFutura: (fim.total * dyFuturo) / 12,
+    rendaMensalFutura: rendaFutura,
+    /* Yield on cost: a renda anual medida contra o que SAIU DO BOLSO.
+       É por isso que ele passa do yield de mercado com o tempo. */
     yieldOnCostPct:
-      fim.investido > 0 ? ((fim.total * dyFuturo) / fim.investido) * 100 : 0,
+      fim.investido > 0 ? ((rendaFutura * 12) / fim.investido) * 100 : 0,
     evolucao,
   };
 }
