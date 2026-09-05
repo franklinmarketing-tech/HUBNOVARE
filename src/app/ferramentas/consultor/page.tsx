@@ -19,10 +19,13 @@ import { useArmazenado } from "@/lib/useArmazenado";
 /**
  * Consultor Financeiro IA.
  *
- * Chat REAL: chama a edge function `vidaplan-assist` do Supabase da Novare
- * (a mesma que atende o Planejamento Financeiro em produção, com a chave de IA no
- * servidor). Exige login porque a função valida o token do usuário — e é
+ * Chat REAL: fala com a Íris pela rota `/api/iris-chat`, a mesma que
+ * atende a tela da Íris. Exige login porque a rota valida a sessão — e é
  * isso que protege o custo de IA de uso anônimo.
+ *
+ * Chamava `vidaplan-assist` (edge function do Supabase) até 2026-09, mas
+ * essa função não existe neste projeto: o chat estava quebrado em
+ * produção e o erro era engolido sem log.
  */
 
 interface Mensagem {
@@ -68,34 +71,40 @@ export default function ConsultorPage() {
     setMensagens(historicoAtual.slice(-40));
 
     try {
-      const { data, error } = await supabase.functions.invoke(
-        "vidaplan-assist",
-        {
-          body: {
-            pergunta: limpa,
-            resumo:
-              "Cliente conversando pelo Novare Workspace (hub de ferramentas). Sem dados bancários conectados nesta tela.",
-            historico: historicoAtual.slice(-8).map((m) => ({
-              role: m.papel === "usuario" ? "user" : "assistant",
-              content: m.texto,
-            })),
-          },
-        },
-      );
+      /* Fala com a Íris pela rota da casa (/api/iris-chat).
+       *
+       * Antes chamava a edge function `vidaplan-assist`, que NÃO existe
+       * neste projeto — não há pasta supabase/functions aqui. O chat
+       * estava quebrado em produção e o erro era engolido por um catch
+       * sem log, então ninguém descobria: o cliente via só "confira sua
+       * conexão" e culpava a própria internet.
+       *
+       * A rota certa já existe, tem limite de uso e o guarda-corpo de
+       * conformidade da CVM no prompt. */
+      const res = await fetch("/api/iris-chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          mensagem: limpa,
+          historico: historicoAtual.slice(-8).map((m) => ({
+            papel: m.papel === "usuario" ? "voce" : "iris",
+            texto: m.texto,
+          })),
+        }),
+      });
 
-      if (error) throw error;
-
-      // A função pode responder em campos diferentes conforme a versão.
-      const resposta =
-        (data?.resposta ?? data?.answer ?? data?.text ?? data?.message) ||
-        (typeof data === "string" ? data : null);
-
-      if (!resposta) throw new Error("resposta vazia");
+      const data = await res.json().catch(() => null);
+      if (!res.ok || !data?.resposta) {
+        throw new Error(data?.erro ?? `falha ${res.status}`);
+      }
 
       setMensagens((atual) =>
-        [...atual, { papel: "iris" as const, texto: String(resposta) }].slice(-40),
+        [...atual, { papel: "iris" as const, texto: String(data.resposta) }].slice(-40),
       );
-    } catch {
+    } catch (e) {
+      // Sem log, qualquer falha virava a mesma mensagem genérica e o
+      // problema de servidor ficava invisível para quem mantém o app.
+      console.error("[consultor] falha ao falar com a Íris", e);
       setErro(
         "Não consegui falar com a Íris agora. Confira sua conexão e tente de novo em instantes.",
       );
@@ -283,7 +292,7 @@ export default function ConsultorPage() {
 
         <p className="mt-6 text-[11px] leading-relaxed text-slate-500">
           Orientação educativa, não é recomendação personalizada de
-          investimento. A conversa fica somente no seu navegador.
+          investimento. A conversa fica no seu navegador e não é usada para treinar nada.
         </p>
 
         <section className="mt-8 rounded-2xl bg-primary p-6 text-white">

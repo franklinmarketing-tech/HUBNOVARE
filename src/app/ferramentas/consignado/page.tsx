@@ -33,13 +33,37 @@ import { formatarMoedaInput, digitosParaReais } from "@/lib/moeda";
 
 type TipoId = "inss" | "servidor" | "clt";
 
+/**
+ * A margem é DE EMPRÉSTIMO, não a margem total.
+ *
+ * Os 45% do INSS não são todos para empréstimo: são 35% para consignado
+ * + 5% para cartão de crédito consignado + 5% para cartão de benefício.
+ * Usar os 45% inteiros inflava o crédito em ~29% — a pessoa chegava ao
+ * banco esperando R$ 81 mil e conseguia R$ 63 mil. Mesma lógica no CLT:
+ * a margem total é 35%, dos quais 5% são reservados para cartão.
+ */
 const TIPOS: Record<
   TipoId,
-  { nome: string; margemPct: number; taxaPadrao: string }
+  { nome: string; margemPct: number; margemTotalPct: number; taxaPadrao: string }
 > = {
-  inss: { nome: "INSS (aposentado ou pensionista)", margemPct: 45, taxaPadrao: "21,6" },
-  servidor: { nome: "Servidor público", margemPct: 35, taxaPadrao: "24" },
-  clt: { nome: "CLT (carteira assinada)", margemPct: 35, taxaPadrao: "30" },
+  inss: {
+    nome: "INSS (aposentado ou pensionista)",
+    margemPct: 35,
+    margemTotalPct: 45,
+    taxaPadrao: "21,6",
+  },
+  servidor: {
+    nome: "Servidor público",
+    margemPct: 30,
+    margemTotalPct: 35,
+    taxaPadrao: "24",
+  },
+  clt: {
+    nome: "CLT (carteira assinada)",
+    margemPct: 30,
+    margemTotalPct: 35,
+    taxaPadrao: "30",
+  },
 };
 
 const PRAZOS = [24, 36, 48, 60, 72, 84, 96];
@@ -67,9 +91,18 @@ export default function ConsignadoPage() {
     });
 
     const rendaNum = Math.max(0, parseNumero(renda));
+    /* Quanto o crédito custa de verdade.
+     *
+     * A tela inteira girava em torno de "quanto consigo pegar" e nunca
+     * mostrava o total pago nem os juros — que é o número que prova a
+     * frase do rodapé ("barato no juro, caro no tempo"). */
+    const n = Math.max(1, Math.round(parseNumero(meses)));
+    const totalPago = base.parcelaDisponivel * n;
     return {
       ...base,
       margemPct,
+      totalPago,
+      jurosTotais: Math.max(0, totalPago - base.creditoMaximo),
       sobraDepois: Math.max(0, rendaNum - parseNumero(parcelasAtuais) - base.parcelaDisponivel),
       estourou: parseNumero(parcelasAtuais) > base.tetoParcela,
     };
@@ -231,10 +264,14 @@ export default function ConsignadoPage() {
             valor={brlCurto(c.parcelaDisponivel)}
             legenda="Margem livre hoje"
           />
+          {/* Era o MESMO `parcelaDisponivel` do card ao lado, só que em
+              formato completo: dois KPIs vizinhos mostrando o mesmo número
+              com nomes diferentes. No lugar entra o custo do crédito, que
+              não aparecia em lugar nenhum da tela. */}
           <Kpi
             icone={<BadgePercent className="h-5 w-5 mx-auto text-primary" />}
-            valor={brl(c.parcelaDisponivel)}
-            legenda="Parcela máxima possível"
+            valor={brlCurto(c.jurosTotais)}
+            legenda="Só de juros, no total"
           />
         </section>
 

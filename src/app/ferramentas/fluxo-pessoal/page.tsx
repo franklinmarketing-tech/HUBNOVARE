@@ -420,7 +420,7 @@ export default function FluxoPessoalPage() {
 
 
         <p className="mt-6 text-[11px] text-slate-500">
-          Seus dados ficam somente no seu navegador.
+          Seus dados ficam no seu navegador e, se você estiver logado, na sua conta Novare.
         </p>
       </main>
     </div>

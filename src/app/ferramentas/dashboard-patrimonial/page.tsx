@@ -57,13 +57,22 @@ interface Seguro {
   vencimento: string;
 }
 
+/**
+ * Os nomes vêm da ferramenta que grava (`patrimonio-imobiliario`).
+ *
+ * Este arquivo lia `valorMercado`/`saldoDevedor`/`aluguelMensal`, campos
+ * que não existem: a origem grava `valor`/`divida`/`aluguel`. O resultado
+ * era `Number(undefined)` → NaN → filtrado para zero, então a carteira
+ * imobiliária inteira aparecia como R$ 0 mesmo com imóveis cadastrados,
+ * e o patrimônio líquido do topo ignorava todos eles.
+ */
 interface Imovel {
   id: string;
   nome: string;
   tipo: string;
-  valorMercado: number;
-  saldoDevedor: number;
-  aluguelMensal: number;
+  valor: number;
+  divida: number;
+  aluguel: number;
 }
 
 interface ContaInventario {
@@ -141,10 +150,23 @@ export default function DashboardPatrimonialPage() {
   const imoveis = Array.isArray(imoveisBruto) ? imoveisBruto : [];
   const inventario = Array.isArray(inventarioBruto) ? inventarioBruto : [];
 
-  const totalAtivos = somar<Ativo>(ativos, (a) => a.valor);
+  /* Imóvel cadastrado nas DUAS ferramentas conta uma vez só.
+   *
+   * A ferramenta `patrimonio` tem a classe "Imóveis" (e ela é o padrão do
+   * seletor), e a `patrimonio-imobiliario` é toda sobre imóveis. Quem
+   * cadastrava a casa nas duas — o fluxo que o próprio dashboard sugere —
+   * via o imóvel somado duas vezes no patrimônio líquido e na pizza.
+   *
+   * Quando há imóvel na ferramenta dedicada, ela é a fonte: a classe
+   * "imoveis" do cadastro genérico sai da soma. */
+  const temImobiliaria = imoveis.length > 0;
+  const totalAtivos = somar<Ativo>(
+    ativos.filter((a) => !(temImobiliaria && a?.classe === "imoveis")),
+    (a) => a.valor,
+  );
   const totalDividas = somar<Divida>(dividas, (d) => d.valor);
-  const totalImoveis = somar<Imovel>(imoveis, (i) => i.valorMercado);
-  const totalSaldoImoveis = somar<Imovel>(imoveis, (i) => i.saldoDevedor);
+  const totalImoveis = somar<Imovel>(imoveis, (i) => i.valor);
+  const totalSaldoImoveis = somar<Imovel>(imoveis, (i) => i.divida);
   const coberturaTotal = somar<Seguro>(seguros, (s) => s.cobertura);
 
   const brutoTotal = totalAtivos + totalImoveis;
@@ -157,6 +179,9 @@ export default function DashboardPatrimonialPage() {
   const composicao = useMemo(() => {
     const mapa = new Map<string, number>();
     for (const a of ativos) {
+      // Mesmo motivo da soma acima: com a ferramenta imobiliária em uso,
+      // a classe "imoveis" do cadastro genérico duplicaria a fatia.
+      if (temImobiliaria && a?.classe === "imoveis") continue;
       const valor = Number(a?.valor);
       if (!Number.isFinite(valor) || valor <= 0) continue;
       const chave = ROTULO_CLASSE[a?.classe] ?? "Outros";
@@ -164,7 +189,7 @@ export default function DashboardPatrimonialPage() {
     }
     // Imóveis cadastrados na ferramenta imobiliária entram na mesma fatia.
     const imoveisValor = imoveis.reduce((acc, i) => {
-      const v = Number(i?.valorMercado);
+      const v = Number(i?.valor);
       return acc + (Number.isFinite(v) && v > 0 ? v : 0);
     }, 0);
     if (imoveisValor > 0) {
@@ -173,7 +198,7 @@ export default function DashboardPatrimonialPage() {
     return [...mapa.entries()]
       .map(([nome, valor]) => ({ nome, valor }))
       .sort((a, b) => b.valor - a.valor);
-  }, [ativos, imoveis]);
+  }, [ativos, imoveis, temImobiliaria]);
 
   const semNada =
     carregado &&
@@ -493,7 +518,7 @@ export default function DashboardPatrimonialPage() {
 
 
         <p className="mt-6 text-[11px] text-slate-500">
-          Seus dados ficam somente no seu navegador.
+          Seus dados ficam no seu navegador e, se você estiver logado, na sua conta Novare.
         </p>
       </main>
     </div>

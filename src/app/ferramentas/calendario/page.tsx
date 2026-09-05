@@ -536,7 +536,7 @@ export default function CalendarioPage() {
           )}
 
         <p className="text-[11px] text-slate-500 mt-6 text-center">
-          Seus dados ficam somente no seu navegador.
+          Seus dados ficam no seu navegador e, se você estiver logado, na sua conta Novare.
         </p>
         </section>
       </main>

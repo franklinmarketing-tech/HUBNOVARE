@@ -14,6 +14,7 @@ import {
   Square,
 } from "lucide-react";
 import { brl, parseNumero, pct } from "@/lib/calculos";
+import { FAIXAS_IRPF_ANUAL, impostoAnualIrpf } from "@/lib/trabalhista";
 import { formatarMoedaInput, digitosParaReais } from "@/lib/moeda";
 
 /* --------------------------------------------------------------------------
@@ -21,22 +22,19 @@ import { formatarMoedaInput, digitosParaReais } from "@/lib/moeda";
    Imposto = base x alíquota - parcela a deduzir.
    -------------------------------------------------------------------------- */
 
-function impostoAnual(base: number): number {
-  const b = Math.max(0, base);
-  if (b <= 27110.4) return 0;
-  if (b <= 33919.8) return b * 0.075 - 2033.28;
-  if (b <= 45012.6) return b * 0.15 - 4577.28;
-  if (b <= 55976.16) return b * 0.225 - 7953.24;
-  return b * 0.275 - 10752.0;
-}
+/* A tabela vem de `lib/trabalhista.ts`. Estava escrita à mão aqui, com as
+   faixas de 2023/2024 — a tela dizia "ano-base 2025" e mostrava números de
+   três anos antes, divergindo da tabela que o resto do app usava. */
+const impostoAnual = impostoAnualIrpf;
 
-const FAIXAS = [
-  { faixa: "até R$ 27.110,40", aliquota: "isento", deduzir: "0" },
-  { faixa: "até R$ 33.919,80", aliquota: "7,5%", deduzir: "R$ 2.033,28" },
-  { faixa: "até R$ 45.012,60", aliquota: "15%", deduzir: "R$ 4.577,28" },
-  { faixa: "até R$ 55.976,16", aliquota: "22,5%", deduzir: "R$ 7.953,24" },
-  { faixa: "acima disso", aliquota: "27,5%", deduzir: "R$ 10.752,00" },
-];
+const emReais = (v: number) =>
+  v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+
+const FAIXAS = FAIXAS_IRPF_ANUAL.map((f, i) => ({
+  faixa: f.ate === Infinity ? "acima disso" : `até ${emReais(f.ate)}`,
+  aliquota: i === 0 ? "isento" : `${(f.aliquota * 100).toLocaleString("pt-BR")}%`,
+  deduzir: f.deduzir === 0 ? "0" : emReais(f.deduzir),
+}));
 
 /* --------------------------------------------------------------------------
    Checklist de documentos (fica só em memória, sem storage: análise pontual).

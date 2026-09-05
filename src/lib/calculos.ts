@@ -949,9 +949,23 @@ export function compararCompraAluguel({
   for (let mes = 1; mes <= totalMeses; mes++) {
     imovel *= 1 + iVal;
     const parcela = mes <= fin.tabela.length ? fin.tabela[mes - 1].parcela : 0;
+
+    /* O aluguel é debitado SEMPRE, inclusive quando custa mais que a
+     * parcela e inclusive depois que o financiamento acaba.
+     *
+     * Antes a carteira só recebia `sobra > 0`: quem alugava por mais do
+     * que a parcela morava de graça na diferença, e quando o prazo do
+     * financiamento terminava (parcela = 0) o locatário continuava
+     * pagando aluguel que nunca era descontado. Num horizonte de 30 anos
+     * com prazo de 10, sumia mais de R$ 1 milhão de aluguel da conta — e
+     * a ferramenta passava a dizer "alugar vence" quando alugar perdia.
+     *
+     * O déficit consome a carteira, mas ela não fica negativa: na vida
+     * real, esgotada a reserva, a pessoa passa a cobrir a diferença com o
+     * salário — não fica devendo ao próprio investimento. */
     const sobra = parcela - aluguel;
 
-    carteira = carteira * (1 + iRend) + (sobra > 0 ? sobra : 0);
+    carteira = Math.max(0, carteira * (1 + iRend) + sobra);
     totalAluguelPago += aluguel;
     aluguel *= 1 + iInf;
 

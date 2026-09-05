@@ -13,26 +13,16 @@ import {
   PiggyBank,
 } from "lucide-react";
 import { brl, parseNumero, pct } from "@/lib/calculos";
+import { FAIXAS_IRPF_ANUAL, impostoAnualIrpf } from "@/lib/trabalhista";
 
 /* -------------------------------------------------------------------------- */
 
-/**
- * Tabela progressiva ANUAL do IRPF (ano-base 2025).
- * imposto = base x alíquota - parcela a deduzir, nunca negativo.
- */
-const FAIXAS = [
-  { ate: 27110.4, aliquota: 0, deducao: 0 },
-  { ate: 33919.8, aliquota: 0.075, deducao: 2033.28 },
-  { ate: 45012.6, aliquota: 0.15, deducao: 4577.28 },
-  { ate: 55976.16, aliquota: 0.225, deducao: 7953.24 },
-  { ate: Number.POSITIVE_INFINITY, aliquota: 0.275, deducao: 10752.0 },
-] as const;
-
-function impostoAnual(base: number): number {
-  const b = Math.max(0, base);
-  const faixa = FAIXAS.find((f) => b <= f.ate) ?? FAIXAS[FAIXAS.length - 1];
-  return Math.max(0, b * faixa.aliquota - faixa.deducao);
-}
+/* A tabela vem de `lib/trabalhista.ts`, derivada da mensal vigente.
+   Estava escrita à mão aqui, com as faixas de 2023/2024 (isento até
+   R$ 27.110,40) — três anos atrasada e divergente da que o resto do app
+   usava. */
+const impostoAnual = impostoAnualIrpf;
+const FAIXAS = FAIXAS_IRPF_ANUAL;
 
 function aliquotaMarginal(base: number): number {
   const b = Math.max(0, base);

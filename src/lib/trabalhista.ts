@@ -52,6 +52,35 @@ const FAIXAS_IRRF = [
 export const DEDUCAO_DEPENDENTE = 189.59;
 export const DESCONTO_SIMPLIFICADO = 607.2;
 
+/**
+ * A tabela ANUAL, derivada da mensal — fonte única.
+ *
+ * As telas de IR e de planejamento tributário traziam a tabela de
+ * 2023/2024 escrita à mão (isento até R$ 27.110,40), enquanto esta
+ * biblioteca já usava a faixa correta. Duas tabelas de imposto no mesmo
+ * produto davam respostas diferentes para a mesma renda.
+ */
+export const FAIXAS_IRPF_ANUAL = FAIXAS_IRRF.map((f) => ({
+  ate: f.ate === Infinity ? Infinity : f.ate * 12,
+  aliquota: f.aliquota,
+  deduzir: f.deduzir * 12,
+}));
+
+/** Dedução por dependente no ajuste anual. */
+export const DEDUCAO_DEPENDENTE_ANUAL = DEDUCAO_DEPENDENTE * 12;
+
+/** Teto do desconto simplificado no ajuste anual (20% dos rendimentos). */
+export const DESCONTO_SIMPLIFICADO_ANUAL_TETO = 16754.34;
+
+/** Imposto anual devido pela tabela progressiva, sem deduções. */
+export function impostoAnualIrpf(base: number): number {
+  const b = Math.max(0, base);
+  const faixa =
+    FAIXAS_IRPF_ANUAL.find((f) => b <= f.ate) ??
+    FAIXAS_IRPF_ANUAL[FAIXAS_IRPF_ANUAL.length - 1];
+  return Math.max(0, b * faixa.aliquota - faixa.deduzir);
+}
+
 /** Isenção total até este rendimento; acima dele o redutor vai encolhendo. */
 export const TETO_ISENCAO = 5000.0;
 /** Onde o redutor chega a zero e a tabela volta a valer cheia. */
