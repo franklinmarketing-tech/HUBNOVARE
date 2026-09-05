@@ -114,10 +114,29 @@ export const CATEGORIAS_DESPESA = [
   { valor: "cursos", rotulo: "Cursos extras", emoji: "📚", ajuda: "" },
   { valor: "pensao", rotulo: "Pensão alimentícia", emoji: "⚖️", ajuda: "" },
   { valor: "doacoes", rotulo: "Doações / dízimo", emoji: "🤝", ajuda: "" },
+  /* Gastos que apareciam empurrados para "Outros" — e some quem gasta com
+     eles some do gráfico de para-onde-vai-o-dinheiro, que é justamente
+     onde mora a economia possível. */
+  { valor: "seguros", rotulo: "Seguros", emoji: "🛡️", ajuda: "Vida, residencial, celular" },
+  { valor: "impostos", rotulo: "Impostos e taxas", emoji: "🧾", ajuda: "IR, taxas de banco, anuidades" },
+  { valor: "filhos", rotulo: "Filhos", emoji: "🧒", ajuda: "Material, uniforme, mesada, atividades" },
+  { valor: "beleza", rotulo: "Beleza e cuidados", emoji: "💇", ajuda: "Salão, barbearia, cosméticos" },
+  { valor: "casa", rotulo: "Casa e manutenção", emoji: "🔧", ajuda: "Reformas, móveis, consertos" },
+  { valor: "presentes", rotulo: "Presentes e festas", emoji: "🎁", ajuda: "Aniversários, datas comemorativas" },
+  { valor: "viagens", rotulo: "Viagens", emoji: "✈️", ajuda: "Passagens, hospedagem, passeios" },
+  { valor: "tecnologia", rotulo: "Tecnologia", emoji: "💻", ajuda: "Celular, computador, internet" },
+  { valor: "trabalho", rotulo: "Trabalho", emoji: "💼", ajuda: "Material, deslocamento, contador" },
   { valor: "outros", rotulo: "Outros", emoji: "✨", ajuda: "" },
 ];
 
-/** `debts.type` — rótulo cheio, com acento. */
+/**
+ * `debts.type` — rótulo cheio, com acento.
+ *
+ * A lista terminava em "Parcelamento" e não tinha saída para quem devia
+ * algo fora dela: sem uma opção final, a pessoa ou inventava um tipo
+ * errado ou deixava a dívida de fora — e uma dívida omitida estraga o
+ * diagnóstico inteiro, que é onde o plano começa.
+ */
 export const TIPOS_DIVIDA = [
   "Financiamento imobiliário",
   "Financiamento de veículo",
@@ -127,6 +146,13 @@ export const TIPOS_DIVIDA = [
   "Cheque especial",
   "Crédito estudantil",
   "Parcelamento",
+  "Crediário / carnê",
+  "Empréstimo com familiar ou amigo",
+  "Dívida com o banco (negociada)",
+  "Imposto ou multa parcelada",
+  "Consórcio",
+  "Financiamento estudantil (FIES)",
+  "Outra dívida",
 ];
 
 /**
