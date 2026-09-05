@@ -172,6 +172,19 @@ export const TIPOS_PATRIMONIO = [
 ];
 
 /** `insurance.type` — rótulo cheio. */
+/**
+ * As 27 UFs.
+ *
+ * O campo era texto livre com placeholder "SP" e gravava o que viesse —
+ * "são paulo", "sp ", "SP." — o que impede qualquer leitura por estado
+ * depois.
+ */
+export const UFS = [
+  "AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA", "MT", "MS",
+  "MG", "PA", "PB", "PR", "PE", "PI", "RJ", "RN", "RS", "RO", "RR", "SC",
+  "SP", "SE", "TO",
+];
+
 export const TIPOS_SEGURO = [
   "Vida",
   "Auto",

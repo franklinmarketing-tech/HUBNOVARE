@@ -6,6 +6,13 @@ import { Printer } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { AcaoAssinante } from "@/components/AcaoAssinante";
 import { MudouNoMes, type Comparavel } from "@/components/MudouNoMes";
+import {
+  BarraMarco,
+  BarrasCategorias,
+  BarrasPilares,
+  FluxoDoMes,
+  MedidorSaude,
+} from "@/components/VisuaisRelatorio";
 import { usePlanejamento } from "../usePlanejamento";
 import { NOTA_RISCO } from "@/lib/planejamento/diagnostico";
 import { PERFIS } from "@/lib/planejamento/perfil";
@@ -238,10 +245,17 @@ export default function RelatorioPage() {
             Sua situação é <strong>{nota.rotulo.toLowerCase()}</strong> (nota {d.risco}).{" "}
             {nota.recado}
           </p>
-          <dl className="mt-3 grid grid-cols-2 gap-x-6 gap-y-2 text-sm sm:grid-cols-4">
-            <Dado rotulo="Entra por mês" valor={brl(d.rendaMensal)} />
-            <Dado rotulo="Sai por mês" valor={brl(d.despesaMensal)} />
-            <Dado rotulo="Sobra" valor={brl(d.sobraMensal)} />
+          {/* O fluxo em barras proporcionais responde "sobra ou aperta?" de
+              relance — quatro números lado a lado exigiam fazer a conta. */}
+          <div className="mt-3">
+            <FluxoDoMes
+              renda={d.rendaMensal}
+              despesa={d.despesaMensal}
+              parcelas={d.parcelasMensais}
+              sobra={d.sobraMensal}
+            />
+          </div>
+          <dl className="mt-3 grid grid-cols-2 gap-x-6 gap-y-2 border-t border-border/60 pt-3 text-sm sm:grid-cols-4">
             <Dado rotulo="Patrimônio líquido" valor={brl(d.patrimonioLiquido)} />
           </dl>
         </section>
@@ -257,6 +271,13 @@ export default function RelatorioPage() {
             <strong>{pct(plano.pctAtingido)}</strong> até os{" "}
             {entrada.idadeAposentadoria} anos.
           </p>
+          <div className="mt-3">
+            <BarraMarco
+              hoje={d.patrimonioLiquido}
+              alvo={plano.capitalDeVida}
+              pctAposentadoria={plano.pctAtingido}
+            />
+          </div>
           {!plano.viavel && (
             <ul className="mt-3 space-y-1.5 text-sm text-slate-600">
               {plano.pouparMaisMes != null && (
@@ -283,12 +304,23 @@ export default function RelatorioPage() {
 
         <section className="folha">
           <h2 className="font-display text-base font-bold text-primary">
-            3 · Sua saúde financeira: {saude.total}/100 ({saude.nota})
+            3 · Sua saúde financeira
           </h2>
-          <ul className="mt-2 space-y-1.5 text-sm text-slate-600">
+
+          <div className="mt-3">
+            <MedidorSaude score={saude.total} nota={saude.nota} />
+          </div>
+
+          <div className="mt-4">
+            <BarrasPilares pilares={saude.pilares} />
+          </div>
+
+          {/* As dicas continuam em texto: é o que diz o que FAZER, e barra
+              nenhuma substitui isso. */}
+          <ul className="mt-4 space-y-1.5 border-t border-border/60 pt-3 text-sm text-slate-600">
             {saude.pilares.map((p) => (
               <li key={p.key}>
-                • <strong>{p.nome}</strong> — {p.score}/100. {p.dica}
+                • <strong>{p.nome}</strong> — {p.dica}
               </li>
             ))}
           </ul>
@@ -298,28 +330,22 @@ export default function RelatorioPage() {
           <h2 className="font-display text-base font-bold text-primary">
             4 · Para onde vai o seu dinheiro
           </h2>
-          {/* As duas tabelas desta página eram as únicas do projeto sem
-              contentor de rolagem: em três colunas elas apertavam no celular.
-              O `min-w` mantém as colunas legíveis e o contentor rola. */}
-          <div className="mt-2 overflow-x-auto">
-            <table className="w-full min-w-[22rem] text-sm">
-            <tbody>
-              {d.despesasPorCategoria.slice(0, 10).map((c) => (
-                <tr key={c.categoria} className="border-b border-border/60 last:border-0">
-                  <td className="py-1.5 text-slate-600">
-                    {CATEGORIAS_DESPESA.find((x) => x.valor === c.categoria)?.rotulo ??
-                      c.categoria}
-                  </td>
-                  <td className="py-1.5 text-right tabular-nums text-slate-600">
-                    {brl(c.valor)}
-                  </td>
-                  <td className="w-12 py-1.5 text-right tabular-nums font-semibold text-primary">
-                    {c.fatia}%
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          {/* Barras no lugar da tabela: a pergunta aqui é "qual é a maior?",
+              e o olho compara comprimento melhor do que lê uma coluna de
+              números. A maior fatia sai em laranja — é onde mora a economia
+              possível. */}
+          <div className="mt-3 overflow-x-auto">
+            <div className="min-w-[22rem]">
+              <BarrasCategorias
+                itens={d.despesasPorCategoria.slice(0, 10).map((c) => ({
+                  rotulo:
+                    CATEGORIAS_DESPESA.find((x) => x.valor === c.categoria)?.rotulo ??
+                    c.categoria,
+                  valor: c.valor,
+                  fatia: c.fatia,
+                }))}
+              />
+            </div>
           </div>
         </section>
 

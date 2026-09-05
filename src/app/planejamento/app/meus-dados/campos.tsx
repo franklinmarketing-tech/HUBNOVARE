@@ -255,6 +255,7 @@ export function Lista<T>({
   render,
   rotuloNovo,
   vazio,
+  resumo,
 }: {
   itens: T[];
   aoMudar: (itens: T[]) => void;
@@ -262,6 +263,16 @@ export function Lista<T>({
   render: (item: T, mudar: (patch: Partial<T>) => void) => React.ReactNode;
   rotuloNovo: string;
   vazio?: string;
+  /**
+   * O total do que já foi lançado, calculado pelo bloco que usa a lista.
+   *
+   * Existe porque o formulário não devolvia NADA até a última tela: a
+   * pessoa lançava nove despesas sem nunca ver a soma, e o número que
+   * mais importa — quanto sobra no mês — só aparecia depois de tudo
+   * salvo. Ver o total crescendo enquanto digita é o que transforma
+   * preenchimento em progresso.
+   */
+  resumo?: React.ReactNode;
 }) {
   const lista = itens.length ? itens : [novo()];
 
@@ -287,28 +298,36 @@ export function Lista<T>({
           key={indice}
           className="relative rounded-xl border border-slate-200 bg-white/70 p-4"
         >
+          {/* O X de 14px no canto era alvo de toque pequeno demais no
+              celular e apagava um lançamento inteiro sem aviso. Texto com
+              área clicável de verdade erra menos. */}
           {lista.length > 1 && (
             <button
               type="button"
               onClick={() => remover(indice)}
               aria-label={`Remover item ${indice + 1}`}
-              className="absolute right-2 top-2 rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700"
+              className="absolute right-1.5 top-1.5 flex items-center gap-1 rounded-lg px-2.5 py-2 text-2xs font-semibold text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700"
             >
               <X className="h-3.5 w-3.5" />
+              Remover
             </button>
           )}
           {render(item, (patch) => mudarItem(indice, patch))}
         </div>
       ))}
 
-      <button
-        type="button"
-        onClick={() => aoMudar([...lista, novo()])}
-        className="flex items-center gap-1.5 rounded-lg border border-dashed border-slate-300 px-3 py-2 text-2xs font-semibold text-slate-600 transition-colors hover:border-accent hover:text-accent-strong"
-      >
-        <Plus className="h-3.5 w-3.5" />
-        {rotuloNovo}
-      </button>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <button
+          type="button"
+          onClick={() => aoMudar([...lista, novo()])}
+          className="flex items-center gap-1.5 rounded-lg border border-dashed border-slate-300 px-3 py-2 text-2xs font-semibold text-slate-600 transition-colors hover:border-accent hover:text-accent-strong"
+        >
+          <Plus className="h-3.5 w-3.5" />
+          {rotuloNovo}
+        </button>
+
+        {resumo}
+      </div>
     </div>
   );
 }

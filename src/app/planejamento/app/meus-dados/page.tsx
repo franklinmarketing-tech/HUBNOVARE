@@ -23,6 +23,7 @@ import {
   RENDAS_PRINCIPAIS,
   SEGURADORAS,
   TIPOS_DIVIDA,
+  UFS,
   TIPOS_PATRIMONIO,
   TIPOS_SEGURO,
   mesAtual,
@@ -99,18 +100,62 @@ const inteiroOuNulo = (s: string) => {
 };
 const textoOuNulo = (s: string) => (s.trim() === "" ? null : s.trim());
 
+const emReais = (v: number) =>
+  v.toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+    maximumFractionDigits: 0,
+  });
+
+/**
+ * O total do que já foi lançado, no rodapé de cada lista.
+ *
+ * Sem isto o formulário só devolvia algo na última tela: a pessoa lançava
+ * despesa após despesa sem ver a soma, e o número que ela veio buscar —
+ * quanto sobra por mês — ficava escondido até o fim.
+ */
+function Total({
+  rotulo,
+  valor,
+  tom = "neutro",
+}: {
+  rotulo: string;
+  valor: number;
+  tom?: "neutro" | "bom" | "ruim";
+}) {
+  if (!valor) return null;
+  const cor =
+    tom === "bom"
+      ? "text-success-strong"
+      : tom === "ruim"
+        ? "text-destructive"
+        : "text-primary";
+  return (
+    <p className="text-xs text-slate-500">
+      {rotulo}{" "}
+      <strong className={`tabular-nums ${cor}`}>{emReais(valor)}</strong>
+    </p>
+  );
+}
+
 /* -------------------------------------------------------------------------- */
 /* Os blocos                                                                  */
 /* -------------------------------------------------------------------------- */
 
+/**
+ * O subtítulo diz POR QUE o bloco existe; o texto de lista vazia dá o
+ * exemplo concreto. Antes os dois faziam a mesma função e apareciam a
+ * 60px de distância — em Objetivos era literalmente a mesma frase duas
+ * vezes, e era isso que dava a sensação de "muito texto".
+ */
 const BLOCOS = [
-  { chave: "abertura", titulo: "Vamos montar o seu plano", subtitulo: "São blocos curtos. Dá para parar no meio e voltar depois — o que você preencher fica salvo." },
+  { chave: "abertura", titulo: "Vamos montar o seu plano", subtitulo: "No fim você vê quanto sobra, quanto falta e o que fazer primeiro." },
   { chave: "identificacao", titulo: "Quem é você", subtitulo: "O básico para o plano falar da sua vida, não de uma média." },
-  { chave: "renda", titulo: "Sua renda", subtitulo: "Tudo que entra. Valor líquido, o que cai na conta." },
-  { chave: "despesas", titulo: "Suas despesas", subtitulo: "Para onde vai. Estimativa já ajuda — não precisa ser exato." },
-  { chave: "dividas", titulo: "Suas dívidas", subtitulo: "Nem todo mundo tem. Se não tiver, é só avançar." },
-  { chave: "patrimonio", titulo: "Seu patrimônio", subtitulo: "O que você já tem, líquido ou não." },
-  { chave: "seguros", titulo: "Sua proteção", subtitulo: "Seguro é o que impede um imprevisto de derrubar o plano." },
+  { chave: "renda", titulo: "Sua renda", subtitulo: "Tudo que entra na sua conta, por mês." },
+  { chave: "despesas", titulo: "Suas despesas", subtitulo: "É aqui que mora quase toda economia possível." },
+  { chave: "dividas", titulo: "Suas dívidas", subtitulo: "Dívida cara é o primeiro alvo do plano." },
+  { chave: "patrimonio", titulo: "Seu patrimônio", subtitulo: "Tudo que já é seu conta — inclusive o que ainda está financiado." },
+  { chave: "seguros", titulo: "Sua proteção", subtitulo: "Um imprevisto não pode derrubar o plano." },
   { chave: "objetivos", titulo: "Seus objetivos", subtitulo: "Sonho com número e prazo vira meta." },
   { chave: "aposentadoria", titulo: "Sua aposentadoria", subtitulo: "As duas respostas que valem mais no plano inteiro: quando parar e com quanto viver." },
   { chave: "comportamento", titulo: "Seu jeito com dinheiro", subtitulo: "Seis escalas, sem resposta certa. É sobre você, não sobre acerto." },
@@ -533,15 +578,34 @@ export default function MeusDadosPage() {
   }
 
   const atual = BLOCOS[bloco];
-  const progresso = Math.round((bloco / (BLOCOS.length - 1)) * 100);
   const ultimo = bloco === BLOCOS.length - 1;
+
+  /**
+   * O passo é contado só entre os blocos que têm campo.
+   *
+   * A abertura e a revisão não pedem nada, mas entravam na conta: a
+   * primeira tela dizia "Bloco 1 de 11 · 0%" — onze é um número grande e
+   * zero por cento desanima antes da primeira letra. Agora a abertura fica
+   * fora da numeração e o preenchimento nunca começa em zero.
+   */
+  const PASSOS = BLOCOS.length - 2; // sem abertura e sem revisão
+  const passoAtual = Math.min(Math.max(bloco, 1), PASSOS);
+  const progresso = ultimo
+    ? 100
+    : Math.max(8, Math.round((bloco / (PASSOS + 1)) * 100));
 
   return (
     <div className="surgir">
       <div className="mb-6">
         <div className="mb-2 flex items-center justify-between text-2xs font-semibold text-muted-foreground">
+          {/* O nome do bloco diz mais que o número dele: "Sua renda · 2 de 9"
+              situa, "Bloco 3 de 11" só informa que ainda falta muito. */}
           <span>
-            Bloco {Math.min(bloco + 1, BLOCOS.length)} de {BLOCOS.length}
+            {bloco === 0
+              ? "Antes de começar"
+              : ultimo
+                ? "Última etapa"
+                : `${atual.titulo} · ${passoAtual} de ${PASSOS}`}
           </span>
           <span className="tabular-nums">{progresso}%</span>
         </div>
@@ -585,13 +649,23 @@ export default function MeusDadosPage() {
               <Texto label="Idades dos dependentes" valor={ident.idadesDependentes} aoMudar={(v) => setIdent({ ...ident, idadesDependentes: v })} placeholder="8, 12" />
             )}
             <Texto label="Cidade" valor={ident.cidade} aoMudar={(v) => setIdent({ ...ident, cidade: v })} />
-            <Texto label="Estado" valor={ident.uf} aoMudar={(v) => setIdent({ ...ident, uf: v })} placeholder="SP" />
+            <Escolha label="Estado" valor={ident.uf} aoMudar={(v) => setIdent({ ...ident, uf: v })} opcoes={UFS.map((u) => ({ valor: u, rotulo: u }))} />
           </div>
         )}
 
         {atual.chave === "renda" && (
           <Lista
             itens={rendas} aoMudar={setRendas} novo={novaRenda} rotuloNovo="Adicionar outra renda"
+            resumo={
+              <Total
+                rotulo="Entram por mês:"
+                valor={rendas.reduce(
+                  (s, r) => s + (r.frequencia === "anual" ? num(r.valor) / 12 : num(r.valor)),
+                  0,
+                )}
+                tom="bom"
+              />
+            }
             vazio="Comece pela principal — o salário ou o pró-labore."
             render={(r, mudar) => (
               <div className="grid gap-3 sm:grid-cols-2">
@@ -610,13 +684,37 @@ export default function MeusDadosPage() {
         {atual.chave === "despesas" && (
           <Lista
             itens={despesas} aoMudar={setDespesas} novo={novaDespesa} rotuloNovo="Adicionar outra despesa"
+            /* O momento de maior valor do formulário inteiro: assim que há
+               renda e despesa lançadas, a sobra do mês aparece aqui — em
+               vez de esperar a última tela. */
+            resumo={(() => {
+              const saem = despesas.reduce((s, d) => s + num(d.valor), 0);
+              const entram = rendas.reduce(
+                (s, r) => s + (r.frequencia === "anual" ? num(r.valor) / 12 : num(r.valor)),
+                0,
+              );
+              if (!saem) return null;
+              const sobra = entram - saem;
+              return (
+                <div className="text-right">
+                  <Total rotulo="Saem por mês:" valor={saem} />
+                  {entram > 0 && (
+                    <Total
+                      rotulo={sobra >= 0 ? "Sobram:" : "Faltam:"}
+                      valor={Math.abs(sobra)}
+                      tom={sobra >= 0 ? "bom" : "ruim"}
+                    />
+                  )}
+                </div>
+              );
+            })()}
             vazio="Moradia e alimentação costumam ser as duas maiores."
             render={(d, mudar) => (
               <div className="space-y-3">
                 <Chips label="Categoria" valor={d.categoria} aoMudar={(v) => mudar({ categoria: v })} opcoes={CATEGORIAS_DESPESA} />
                 <div className="grid gap-3 sm:grid-cols-3">
                   <Texto label="Quanto por mês" prefixo="R$" valor={d.valor} aoMudar={(v) => mudar({ valor: v })} />
-                  <Texto label="Detalhe (opcional)" valor={d.descricao} aoMudar={(v) => mudar({ descricao: v })} placeholder="Aluguel do apartamento" />
+                  <Texto label="Do que se trata" valor={d.descricao} aoMudar={(v) => mudar({ descricao: v })} placeholder="Aluguel do apartamento" dica="Opcional. Aparece no seu relatório para você reconhecer o gasto." />
                   <Texto label="Dia do vencimento" tipo="number" valor={d.diaVencimento} aoMudar={(v) => mudar({ diaVencimento: v })} placeholder="10" />
                 </div>
                 <Marcar label="É um valor fixo todo mês" valor={d.fixa} aoMudar={(v) => mudar({ fixa: v })} />
@@ -628,15 +726,26 @@ export default function MeusDadosPage() {
         {atual.chave === "dividas" && (
           <Lista
             itens={dividas} aoMudar={setDividas} novo={novaDivida} rotuloNovo="Adicionar outra dívida"
-            vazio="Sem dívida nenhuma? Ótimo — é só avançar."
+            resumo={
+              <Total
+                rotulo="Em parcelas por mês:"
+                valor={dividas.reduce((s, d) => s + num(d.parcela), 0)}
+                tom="ruim"
+              />
+            }
+            vazio="Financiamento, cartão parcelado, empréstimo. Sem nenhuma? É só avançar."
             render={(d, mudar) => (
               <div className="grid gap-3 sm:grid-cols-2">
                 <Texto label="Que tipo de dívida" valor={d.tipo} aoMudar={(v) => mudar({ tipo: v })} sugestoes={TIPOS_DIVIDA} />
                 <Texto label="Com quem" valor={d.credor} aoMudar={(v) => mudar({ credor: v })} placeholder="Banco, loja, financeira" />
-                <Texto label="Quanto falta pagar no total" prefixo="R$" valor={d.total} aoMudar={(v) => mudar({ total: v })} />
+                {/* "Quanto falta pagar no total" tinha duas leituras — o
+                    valor original do contrato ou o saldo de hoje. Num
+                    financiamento pela metade, a diferença entre as duas
+                    distorce o diagnóstico inteiro. */}
+                <Texto label="Saldo devedor hoje" prefixo="R$" valor={d.total} aoMudar={(v) => mudar({ total: v })} dica="Quanto você ainda deve, não o valor original do contrato." />
                 <Texto label="Parcela por mês" prefixo="R$" valor={d.parcela} aoMudar={(v) => mudar({ parcela: v })} />
                 <Texto label="Juros ao mês" sufixo="%" tipo="number" valor={d.juros} aoMudar={(v) => mudar({ juros: v })} dica="Se não souber, deixe em branco." />
-                <Texto label="Parcelas restantes" tipo="number" valor={d.mesesRestantes} aoMudar={(v) => mudar({ mesesRestantes: v })} />
+                <Texto label="Faltam quantos meses" tipo="number" sufixo="meses" valor={d.mesesRestantes} aoMudar={(v) => mudar({ mesesRestantes: v })} />
               </div>
             )}
           />
@@ -645,13 +754,20 @@ export default function MeusDadosPage() {
         {atual.chave === "patrimonio" && (
           <Lista
             itens={bens} aoMudar={setBens} novo={novoBem} rotuloNovo="Adicionar outro bem"
+            resumo={
+              <Total
+                rotulo="Você tem:"
+                valor={bens.reduce((s, b) => s + num(b.valor), 0)}
+                tom="bom"
+              />
+            }
             vazio="Conta corrente, investimento, imóvel, carro — tudo entra."
             render={(b, mudar) => (
               <div className="space-y-3">
                 <Chips label="O que é" valor={b.tipo} aoMudar={(v) => mudar({ tipo: v })} opcoes={TIPOS_PATRIMONIO} />
                 <div className="grid gap-3 sm:grid-cols-2">
                   <Texto label="Quanto vale hoje" prefixo="R$" valor={b.valor} aoMudar={(v) => mudar({ valor: v })} />
-                  <Texto label="Detalhe (opcional)" valor={b.descricao} aoMudar={(v) => mudar({ descricao: v })} placeholder="Apartamento, CDB do banco…" />
+                  <Texto label="Onde está" valor={b.descricao} aoMudar={(v) => mudar({ descricao: v })} placeholder="CDB do Itaú, apartamento em Santos…" dica="Opcional." />
                 </div>
               </div>
             )}
@@ -676,7 +792,7 @@ export default function MeusDadosPage() {
         {atual.chave === "objetivos" && (
           <Lista
             itens={objetivos} aoMudar={setObjetivos} novo={novoObjetivo} rotuloNovo="Adicionar outro objetivo"
-            vazio="Sonho com número e prazo vira meta. Sem isso, fica desejo."
+            vazio="Ex.: reserva de emergência, entrada do apartamento, faculdade dos filhos."
             render={(o, mudar) => (
               <div className="grid gap-3 sm:grid-cols-2">
                 <Texto label="O que você quer" valor={o.descricao} aoMudar={(v) => mudar({ descricao: v })} sugestoes={OBJETIVOS_SUGERIDOS} />
