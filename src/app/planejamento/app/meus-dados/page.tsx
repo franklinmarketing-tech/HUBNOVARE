@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, ArrowRight, Check, Loader2, TriangleAlert } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
@@ -624,10 +625,25 @@ export default function MeusDadosPage() {
         </div>
       </div>
 
-      <h1 className="font-display text-2xl font-bold tracking-tight text-primary sm:text-3xl">
-        {atual.titulo}
-      </h1>
-      <p className="mt-1.5 text-sm text-muted-foreground">{atual.subtitulo}</p>
+      {/* O ícone dá identidade a cada bloco: onze telas seguidas de texto
+          puro fazem o preenchimento parecer mais longo do que é, e a
+          pessoa perde a noção de onde está. */}
+      <div className="flex items-start gap-4">
+        <Image
+          src={`/icones-3d/bloco-${atual.chave}.png`}
+          alt=""
+          width={56}
+          height={56}
+          className="mt-0.5 hidden h-14 w-14 shrink-0 sm:block"
+          priority
+        />
+        <div>
+          <h1 className="font-display text-2xl font-bold tracking-tight text-primary sm:text-3xl">
+            {atual.titulo}
+          </h1>
+          <p className="mt-1.5 text-sm text-muted-foreground">{atual.subtitulo}</p>
+        </div>
+      </div>
 
       <div className="mt-6 space-y-4">
         {atual.chave === "abertura" && <Abertura />}
