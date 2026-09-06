@@ -98,6 +98,20 @@ export type Consultoria = {
     suportaSplit: boolean;
     gatewaySugerido: "asaas_split" | "stripe_connect" | "kiwify_coproducao" | "hotmart" | "pendente";
   };
+  /**
+   * As objeções que travam a contratação, respondidas.
+   *
+   * A página tinha hero, entrega, para-quem e o rito do atendimento — tudo
+   * o que a casa QUER dizer. Faltava o que a pessoa quer perguntar antes de
+   * marcar uma conversa, e num serviço sem preço público ("Sob consulta")
+   * essa dúvida é a maior barreira que existe. Quem não tem a resposta na
+   * página fecha a aba em vez de perguntar.
+   *
+   * Regra: só objeção real, com resposta honesta. Pergunta plantada para
+   * elogiar o produto ("Por que a Novare é a melhor?") é pior do que não
+   * ter FAQ — a pessoa reconhece o truque e desconfia do resto.
+   */
+  faq?: { pergunta: string; resposta: string }[];
 };
 
 export const CONSULTORIAS: Consultoria[] = [
@@ -119,6 +133,28 @@ export const CONSULTORIAS: Consultoria[] = [
     ],
     precoCheio: 0,
     icone: "ClipboardCheck",
+    faq: [
+      {
+        pergunta: "É gratuito mesmo? Onde está a pegadinha?",
+        resposta:
+          "Não há. A sessão é gratuita porque é assim que a Novare mostra como trabalha — e porque metade das pessoas sai de lá sem precisar contratar nada, só com a lista de prioridades. Quem precisar de acompanhamento vai saber, e aí conversamos.",
+      },
+      {
+        pergunta: "Vou sair de lá tendo que comprar alguma coisa?",
+        resposta:
+          "Não. A Novare não recebe comissão de banco, corretora ou seguradora, então não existe produto para empurrar. Se o próximo passo for algo que a gente faz, dizemos o preço; se for algo que você resolve sozinho, dizemos isso também.",
+      },
+      {
+        pergunta: "O que preciso ter em mãos?",
+        resposta:
+          "Uma ideia de quanto entra e quanto sai por mês, e o saldo das dívidas se houver. Não precisa de extrato nem de planilha pronta — a conversa organiza isso. Se quiser adiantar, o Exame de Saúde Financeira do site leva 1 minuto.",
+      },
+      {
+        pergunta: "Quanto tempo leva para conseguir um horário?",
+        resposta:
+          "Depende da agenda da semana. Você manda mensagem, a gente responde com os horários livres e você escolhe.",
+      },
+    ],
     destaque: true,
     isIsca: true,
   },
@@ -140,6 +176,18 @@ export const CONSULTORIAS: Consultoria[] = [
     ],
     precoCheio: 0,
     icone: "Handshake",
+    faq: [
+      {
+        pergunta: "O que a Nord entra fazendo?",
+        resposta:
+          "A análise independente de ativos. A Novare monta a estratégia a partir do seu caso — objetivos, prazo, tolerância a risco — e usa a pesquisa da Nord como uma das fontes. As duas casas cobram do cliente, nenhuma do emissor.",
+      },
+      {
+        pergunta: "Existe patrimônio mínimo?",
+        resposta:
+          "Não há corte fixo. O que existe é uma conversa honesta: abaixo de um certo valor, o custo da consultoria pesa mais do que o ganho de alocação, e a gente diz isso em vez de contratar.",
+      },
+    ],
     destaque: true,
     coBranding: {
       parceiro: "Nord Research",
@@ -165,6 +213,28 @@ export const CONSULTORIAS: Consultoria[] = [
     ],
     precoCheio: 0,
     icone: "Sunrise",
+    faq: [
+      {
+        pergunta: "Isso é diferente do app de planejamento?",
+        resposta:
+          "Sim. O app calcula o seu Marco Horizonte a partir do que você preenche, e faz isso bem. Aqui um consultor senta com você para questionar as premissas: se a renda desejada faz sentido, se o prazo é realista, o que acontece se o cenário virar.",
+      },
+      {
+        pergunta: "E se meus planos mudarem no meio do caminho?",
+        resposta:
+          "Mudam mesmo — filho, mudança de carreira, separação, herança. O plano escrito não é uma camisa de força: é o ponto de partida a que você volta quando algo muda, para recalcular em vez de recomeçar.",
+      },
+      {
+        pergunta: "Preciso ter patrimônio para fazer o Plano Vida?",
+        resposta:
+          "Não. Quem tem pouco acumulado é justamente quem mais ganha em acertar o rumo cedo — o custo de errar dez anos de aporte é maior do que qualquer honorário.",
+      },
+      {
+        pergunta: "Quanto tempo até eu ter o plano na mão?",
+        resposta:
+          "São três encontros. O plano escrito chega depois do último, e nele estão o número, o prazo e o aporte mensal para chegar lá.",
+      },
+    ],
   },
   {
     slug: "consultoria-financeira",
@@ -184,6 +254,28 @@ export const CONSULTORIAS: Consultoria[] = [
     ],
     precoCheio: 0,
     icone: "Wallet",
+    faq: [
+      {
+        pergunta: "Vocês vão mandar eu cortar tudo o que eu gosto?",
+        resposta:
+          "Não. Corte generalizado não se sustenta por dois meses — a pessoa desiste e volta a gastar. O trabalho é achar o que sai da sua conta sem você perceber, e isso quase sempre é mais do que qualquer corte de lazer.",
+      },
+      {
+        pergunta: "Estou endividado. Vocês atendem quem está no vermelho?",
+        resposta:
+          "Sim, e é um dos casos em que a consultoria mais rende: ordenar as dívidas por custo real e renegociar na ordem certa costuma economizar mais do que o honorário.",
+      },
+      {
+        pergunta: "Vocês negociam com o banco por mim?",
+        resposta:
+          "Não. A gente monta a estratégia — qual dívida atacar primeiro, qual proposta aceitar, qual recusar e por quê — e você negocia. Quem assina o contrato precisa ser você.",
+      },
+      {
+        pergunta: "Quanto tempo até eu ver resultado?",
+        resposta:
+          "O plano sai no primeiro mês. O resultado no bolso depende de quanto sobra para redirecionar — em geral o primeiro efeito aparece já no segundo mês, quando o dinheiro que vazava passa a ter destino.",
+      },
+    ],
     checkoutConfig: {
       suportaSplit: true,
       gatewaySugerido: "pendente",
@@ -207,6 +299,28 @@ export const CONSULTORIAS: Consultoria[] = [
     ],
     precoCheio: 0,
     icone: "Scale",
+    faq: [
+      {
+        pergunta: "Vou descobrir que fiz besteira?",
+        resposta:
+          "Talvez, e é melhor descobrir agora. A maioria das carteiras que chegam aqui não tem erro grosseiro: tem taxa alta demais, concentração que ninguém escolheu e produto que já não faz sentido para o objetivo atual.",
+      },
+      {
+        pergunta: "Vocês vão me mandar vender tudo?",
+        resposta:
+          "Não. Vender por vender costuma custar imposto e taxa sem melhorar nada. O relatório separa o que vale manter, o que vale ajustar e o que vale sair — com a conta de cada decisão.",
+      },
+      {
+        pergunta: "Serve para quem tem previdência privada?",
+        resposta:
+          "Serve, e é onde mais aparece diferença. Taxa de carregamento e de administração de um PGBL corroem um patrimônio inteiro em silêncio — o Raio-X da Previdência do site dá uma prévia dessa conta de graça.",
+      },
+      {
+        pergunta: "O que eu preciso enviar?",
+        resposta:
+          "O extrato ou a posição consolidada da corretora, e a apólice se houver previdência. Nada de senha: você envia o relatório, não o acesso.",
+      },
+    ],
   },
 ];
 

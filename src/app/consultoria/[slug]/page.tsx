@@ -460,6 +460,58 @@ export default async function ProdutoPage({
           </ol>
         </section>
 
+        {/* ─── QUEM ATENDE ───
+
+            A foto dos sócios existia em /public e não aparecia em nenhuma
+            página de consultoria. Num serviço prestado por gente — sem preço
+            público, contratado por conversa — o rosto de quem atende é a
+            prova mais forte que existe, e é exatamente o que um aplicativo
+            concorrente não tem para mostrar.
+
+            Fica depois de "Como acontece": a pessoa já entendeu o que vai
+            receber e o rito; a pergunta que sobra é "quem vai fazer isso
+            comigo?". */}
+        <section className="revelar mt-16 overflow-hidden rounded-3xl bg-primary text-white sm:flex sm:items-stretch">
+          <div className="p-7 sm:flex-1 sm:p-9">
+            <p className="text-2xs font-bold uppercase tracking-[0.14em] text-[hsl(205_95%_75%)]">
+              Quem atende
+            </p>
+            <h2 className="mt-3 max-w-md font-display text-2xl font-bold leading-tight sm:text-[1.75rem]">
+              Gente que estuda o seu caso, não um robô devolvendo média de
+              mercado
+            </h2>
+            <p className="mt-3 max-w-md text-sm leading-relaxed text-white/75">
+              A Novare é uma consultoria de investimentos com sócios, endereço
+              e responsabilidade — que resolveu colocar o próprio método num
+              software. Do outro lado da mesa tem uma pessoa lendo os seus
+              números.
+            </p>
+            <p className="mt-4 flex items-start gap-2 text-sm leading-relaxed text-white/75">
+              <ShieldCheck
+                className="mt-0.5 h-4 w-4 shrink-0 text-[hsl(205_95%_75%)]"
+                strokeWidth={2}
+              />
+              <span>
+                <strong className="text-white">Nenhuma comissão.</strong> A
+                casa não recebe de banco, corretora ou seguradora. É você quem
+                paga, então é para você que a gente trabalha.
+              </span>
+            </p>
+          </div>
+
+          <div className="relative hidden w-2/5 shrink-0 sm:block">
+            <Image
+              src="/marca/novare-site/socios-novare-alta.jpg"
+              alt="Sócios e consultores da Novare"
+              fill
+              sizes="340px"
+              className="object-cover"
+            />
+            {/* O degradê costura a foto no navy — sem ele a emenda fica dura. */}
+            <div className="absolute inset-0 bg-gradient-to-r from-primary via-primary/40 to-transparent" />
+          </div>
+        </section>
+
         {/* ─── DESCONTO DO ASSINANTE ─── */}
         {!c.isIsca && (
           <section className="revelar mt-16 overflow-hidden rounded-3xl border border-accent-soft bg-accent-tint p-6 sm:p-8">
@@ -489,11 +541,16 @@ export default async function ProdutoPage({
           </section>
         )}
 
-        {/* ─── PERGUNTAS ─── */}
+        {/* ─── PERGUNTAS ───
+            As do PRODUTO primeiro, as gerais depois. Quem chegou nesta
+            página já escolheu o formato: a dúvida dele é "isso serve para o
+            meu caso?", não "como a Novare trabalha". As gerais (preço,
+            rito, comissão) continuam logo abaixo, para quem chegou direto
+            aqui sem passar pela vitrine. */}
         <section className="revelar mt-16">
           <OQueSignifica
             titulo="Perguntas frequentes"
-            itens={PERGUNTAS_CONSULTORIA}
+            itens={[...(c.faq ?? []), ...PERGUNTAS_CONSULTORIA]}
           />
         </section>
 
