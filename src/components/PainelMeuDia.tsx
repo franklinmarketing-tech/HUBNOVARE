@@ -150,6 +150,14 @@ export function PainelMeuDia({
             </p>
             <Barra pct={pctReserva} tom={reserva.completa ? "bg-success" : "bg-ciano"} />
           </Bloco>
+
+          {/* Só no resumo da home: o card da saúde ocupa duas linhas
+              (`lg:row-span-2`) e ao lado dele só havia dois blocos curtos —
+              a segunda linha da direita ficava vazia, um retângulo em branco
+              do tamanho de meia tela. No painel completo isso não aparecia
+              porque a seção seguinte vinha logo abaixo e fechava o buraco.
+              Os objetivos ocupam duas colunas — a medida exata do vazio. */}
+          {resumo && <MeusObjetivos dados={r.dados} />}
         </div>
       </Secao>
 
