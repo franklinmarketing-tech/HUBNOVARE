@@ -4,7 +4,7 @@ import { InstagramLogo, LinkedinLogo, YoutubeLogo } from "@/components/LogosSoci
 import Image from "next/image";
 import Link from "next/link";
 import { BotaoHome } from "@/components/BotaoHome";
-import { type FormEvent, type ReactNode, useMemo, useState } from "react";
+import { type FormEvent, type ReactNode, useEffect, useMemo, useState } from "react";
 import {
   ArrowRight,
   CalendarDays,
@@ -80,12 +80,24 @@ function rotuloMes(mes: string): string {
 
 export default function GastosPage() {
   const [gastos, setGastos, carregado] = useArmazenado<Gasto[]>("gastos", []);
-  const [mes, setMes] = useState(mesAtualIso);
+  /* A data vem só do navegador, depois da montagem.
+   *
+   * O servidor renderiza em UTC e o navegador em horário local: à noite os
+   * dois chegam a datas diferentes e o React acusa erro de hidratação.
+   * Começar vazio e preencher no efeito mantém os dois lados iguais no
+   * primeiro render. */
+  const [mes, setMes] = useState("");
 
   const [descricao, setDescricao] = useState("");
   const [valor, setValor] = useState("");
   const [categoria, setCategoria] = useState<string>(CATEGORIAS[0]);
-  const [data, setData] = useState(hojeIso);
+  const [data, setData] = useState("");
+
+  // Mesma razão do `mes`: data local só existe depois de montar no cliente.
+  useEffect(() => {
+    setMes((m) => m || mesAtualIso());
+    setData((d) => d || hojeIso());
+  }, []);
 
   const valorNumero = parseNumero(valor);
   const formValido = descricao.trim().length > 0 && valorNumero > 0 && !!data;
