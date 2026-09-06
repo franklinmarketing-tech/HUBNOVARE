@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, Crown } from "lucide-react";
+import { ArrowRight, ChevronDown, Crown } from "lucide-react";
 import { BuscaDestaque } from "@/components/BuscaDestaque";
 import { BarraLateral } from "@/components/BarraLateral";
 import { BarraInferior } from "@/components/BarraInferior";
@@ -131,27 +131,14 @@ export default async function Home() {
             <BuscaDestaque />
           </section>
 
-          {/* ===================================== O PAINEL DE QUEM ASSINA
+          {/* O painel de quem assina NÃO fica aqui.
 
-              Vinha DEPOIS de tudo: quatro cards grandes, a fileira de
-              ferramentas, três banners e o convite de assinatura. Quem já
-              pagava tinha de rolar a home inteira — passando por uma vitrine
-              montada para vender o que já comprou — antes de ver o próprio
-              número. A home logada era uma landing page.
-
-              Agora é a primeira coisa depois da saudação. A vitrine continua
-              logo abaixo, para quem quiser explorar; o que mudou é a ordem
-              de quem fala primeiro: os dados da pessoa, não a oferta.
-
-              `resumo`: só a primeira seção. O painel inteiro são seis, e
-              colar as seis aqui empurrava a vitrine para fora da tela — a
-              home virava uma segunda cópia de /meu-dia. O resumo dá a nota,
-              o Marco Horizonte e a reserva, com link para o resto. */}
-          {perfil && assinante && (
-            <section id="meu-painel" className="scroll-mt-4">
-              <PainelMeuDia resumo />
-            </section>
-          )}
+              Ele já morou neste ponto, logo abaixo da saudação — era a
+              inversão de hierarquia do briefing. Na prática a vitrine saía
+              da primeira tela e a home virava uma segunda cópia de
+              /meu-dia. A decisão foi voltar atrás: a home abre com a
+              vitrine, e os números da pessoa ficam na segunda tela do
+              scroll (ver `SegundaParte`, no fim do arquivo). */}
 
           {/* A barra "Pergunte à Íris" morava aqui e saiu.
           
@@ -220,22 +207,38 @@ export default async function Home() {
 
           <ConviteWorkspace assinante={assinante} />
 
-          {/* A seta "Seu painel logo abaixo" morava aqui e saiu junto com o
-              motivo dela existir: ela avisava que o painel estava lá no fim
-              da página. Agora o painel abre a home de quem assina, e não há
-              mais nada embaixo que precise de placa indicando o caminho. */}
+          {/* A seta que avisa que a página continua. Sem ela, quem chega numa
+              tela cheia e sem barra de rolagem visível acredita que acabou —
+              e o painel inteiro deixa de existir para essa pessoa. */}
+          {perfil && (
+            <a
+              href="#meu-painel"
+              className="mx-auto -mb-1 mt-1 flex w-fit items-center gap-1.5 rounded-full px-3 py-1 text-2xs font-bold text-muted-foreground transition-colors hover:text-primary"
+            >
+              {/* Quem não assina encontra lá embaixo um convite de
+                  assinatura, não um painel: prometer o que a rolagem não
+                  entrega gasta a confiança de quem clica. */}
+              {assinante ? "Seu painel logo abaixo" : "Veja o que tem mais abaixo"}
+              <ChevronDown className="h-3.5 w-3.5 motion-safe:animate-bounce" />
+            </a>
+          )}
         </main>
 
-        {/* ==================================== O CONVITE DE QUEM NÃO TEM
+        {/* ================================= A SEGUNDA PARTE: O SEU PAINEL
 
-            Sobrou só para o logado SEM assinatura: para ele não existe
-            painel, existe o convite para destravá-lo. Quem assina vê os
-            próprios números lá em cima, na abertura da página.
+            A primeira tela é a vitrine e cabe inteira na dobra. Daqui para
+            baixo é a vida financeira de quem está logado.
 
-            Visitante deslogado não entra aqui: não tem painel nem conta,
-            e a casca vazia seria pior do que não mostrar nada. */}
-        {perfil && !assinante && (
-          <SegundaParte primeiroNome={primeiroNome} temFicha={temFicha} />
+            Quem assina vê os próprios números; quem está no free vê o
+            convite, porque para ele ainda não existe painel. Visitante
+            deslogado não entra aqui: a casca vazia seria pior do que não
+            mostrar nada. */}
+        {perfil && (
+          <SegundaParte
+            assinante={assinante}
+            primeiroNome={primeiroNome}
+            temFicha={temFicha}
+          />
         )}
 
         <Rodape />
@@ -257,15 +260,20 @@ export default async function Home() {
  * porque para ele não existe painel nenhum ainda.
  */
 function SegundaParte({
+  assinante,
   primeiroNome,
   temFicha,
 }: {
+  assinante: boolean;
   primeiroNome?: string;
   /** Já respondeu a trilha do Planejamento — muda o convite, não o acesso. */
   temFicha: boolean;
 }) {
   return (
-    <section className="border-t border-primary/8 bg-white/40">
+    <section
+      id="meu-painel"
+      className="scroll-mt-4 border-t border-primary/8 bg-white/40"
+    >
       <div className="mx-auto w-full max-w-7xl px-5 pb-10 pt-8 md:px-5">
         <header className="cine">
           <p className="text-2xs font-bold uppercase tracking-[0.16em] text-ciano-forte">
@@ -276,7 +284,14 @@ function SegundaParte({
           </h2>
         </header>
 
-        <ConvitePainelHome temFicha={temFicha} />
+        {/* `resumo`: só a primeira seção do painel. O painel inteiro são
+            seis, e as seis aqui fariam da home uma cópia de /meu-dia — que
+            é a página que existe justamente para isso. */}
+        {assinante ? (
+          <PainelMeuDia resumo />
+        ) : (
+          <ConvitePainelHome temFicha={temFicha} />
+        )}
       </div>
     </section>
   );
