@@ -11,6 +11,7 @@ import { emergencyReserveBase } from "./finance";
 import type { Debt, Goal, LifePlanInput, Seguro } from "./lifeplan";
 import { annuityPV, rentRealLiquida } from "./lifeplan";
 import type { Retrato } from "./cliente";
+import { jurosMensalPctParaAnualPct } from "./dividaProjecao";
 
 /**
  * Rentabilidade real esperada, já descontada a inflação.
@@ -67,8 +68,10 @@ function objetivoParaGoal(
  * as duas, em 2% ao mês, é de 24% para 27% ao ano.
  */
 function dividaParaDebt(d: Retrato["dividas"][number], indice: number): Debt {
-  const jurosMes = (d.interest_rate ?? 0) / 100;
-  const jurosAa = jurosMes > 0 ? (Math.pow(1 + jurosMes, 12) - 1) * 100 : 0;
+  // A fórmula morava aqui escrita à mão. Agora vem de `dividaProjecao`, que
+  // é quem projeta o saldo esperado no fechamento — as duas contas partem
+  // do mesmo lugar e não têm como divergir.
+  const jurosAa = jurosMensalPctParaAnualPct(d.interest_rate ?? 0);
   return {
     id: indice + 1,
     nome: d.type,
