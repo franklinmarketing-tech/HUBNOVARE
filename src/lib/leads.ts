@@ -1,4 +1,3 @@
-import { createClient } from "@/lib/supabase/client";
 
 export type LeadTipo =
   | "ferramenta"
@@ -29,18 +28,28 @@ export async function salvarLead(input: {
   payload?: Record<string, unknown>;
 }): Promise<void> {
   try {
-    const supabase = createClient();
-    const { error } = await supabase.from("hub_leads").insert({
-      email: input.email,
-      nome: input.nome ?? null,
-      telefone: input.telefone ?? null,
-      origem: input.origem ?? null,
-      tipo: input.tipo ?? null,
-      payload: input.payload ?? null,
+    /* Passa por /api/lead em vez de falar direto com o Supabase.
+     *
+     * O INSERT anônimo continua permitido no banco (o formulário não
+     * exige login), mas o caminho do navegador direto ao banco não tinha
+     * como ser limitado: nenhuma requisição passava por código nosso.
+     * Com a rota no meio, existe teto por IP e a lista comercial deixa de
+     * ficar aberta a inundação por script. */
+    const r = await fetch("/api/lead", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email: input.email,
+        nome: input.nome ?? null,
+        telefone: input.telefone ?? null,
+        origem: input.origem ?? null,
+        tipo: input.tipo ?? null,
+        payload: input.payload ?? null,
+      }),
     });
     // Não trava a tela, mas deixa rastro no console — senão um funil furado
-    // (ex.: hub_leads.sql não rodado, RLS/anon-key errada) passa despercebido.
-    if (error) console.warn("[leads] não gravou o lead:", error.message);
+    // passa despercebido.
+    if (!r.ok) console.warn("[leads] não gravou o lead: HTTP", r.status);
   } catch (e) {
     console.warn("[leads] erro inesperado ao gravar lead:", e);
   }

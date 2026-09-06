@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { excedeuLimitePorIp, respostaLimite } from "@/lib/api-security";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { enviarBoasVindas } from "@/lib/email";
@@ -18,6 +19,11 @@ import { enviarBoasVindas } from "@/lib/email";
  *     -d '{"email":"cliente@exemplo.com","nome":"Maria"}'
  */
 export async function POST(req: Request) {
+  /* Teto mesmo com chave: envia e-mail em nome da casa, e um laço
+     acidental no terminal queimaria a cota do Resend e a reputação do
+     domínio de envio. */
+  if (excedeuLimitePorIp(req, "enviar-boas-vindas", 20)) return respostaLimite();
+
   const chaveEsperada = process.env.ADMIN_API_KEY;
   if (!chaveEsperada) {
     return NextResponse.json(

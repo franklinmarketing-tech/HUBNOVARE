@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { excedeuLimitePorIp, respostaLimite } from "@/lib/api-security";
 
 /**
  * Reescreve as metas do plano na voz de um planejador.
@@ -40,6 +41,10 @@ COMO ESCREVER:
 Responda APENAS com JSON no formato {"metas":[{"id":"...","texto":"..."}]}, na mesma ordem recebida.`;
 
 export async function POST(req: Request) {
+  // Rota aberta que gasta inferência: sem teto, um script simples queima
+  // a cota da OpenAI da casa em minutos.
+  if (excedeuLimitePorIp(req, "plano", 5)) return respostaLimite();
+
   let corpo: Entrada;
   try {
     corpo = await req.json();

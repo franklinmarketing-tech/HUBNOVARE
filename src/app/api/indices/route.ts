@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { excedeuLimitePorIp, respostaLimite } from "@/lib/api-security";
 import { INDICES, acumularIndice, type ChaveIndice } from "@/lib/indices";
 
 /**
@@ -11,6 +12,10 @@ import { INDICES, acumularIndice, type ChaveIndice } from "@/lib/indices";
  * GET /api/indices?indice=ipca&de=2010-01&ate=2026-07
  */
 export async function GET(req: Request) {
+  // Consulta o Banco Central a cada chamada: sem teto, vira um proxy
+  // aberto que gasta a cota da API pública em nome do nosso servidor.
+  if (excedeuLimitePorIp(req, "indices", 30)) return respostaLimite();
+
   const { searchParams } = new URL(req.url);
   const indice = searchParams.get("indice") ?? "";
   const de = searchParams.get("de") ?? "";

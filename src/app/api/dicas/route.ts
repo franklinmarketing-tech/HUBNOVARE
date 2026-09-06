@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { excedeuLimitePorIp, respostaLimite } from "@/lib/api-security";
 import { APPS } from "@/lib/apps";
 import { formatarIndicador, getIndicadores, juroReal } from "@/lib/mercado";
 
@@ -52,7 +53,10 @@ let cache: { em: number; dicas: Dica[] } | null = null;
 
 /* --------------------------------------------------------------- rota */
 
-export async function GET() {
+export async function GET(req: Request) {
+  // Também gasta inferência sem exigir login.
+  if (excedeuLimitePorIp(req, "dicas", 10)) return respostaLimite();
+
   if (cache && Date.now() - cache.em < VALIDADE_MS) {
     return NextResponse.json({ dicas: cache.dicas });
   }
