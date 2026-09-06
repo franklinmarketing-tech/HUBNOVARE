@@ -66,24 +66,28 @@ const brl = (v: number) =>
 const COMO_ACONTECE = [
   {
     icone: MessageSquare,
+    emblema: "/icones-3d/users-3d.png",
     titulo: "Conversa inicial",
     texto:
       "Você conta o seu caso e a gente diz, com franqueza, se este formato é o certo para você — ou se outro resolve melhor e mais barato.",
   },
   {
     icone: FolderOpen,
+    emblema: "/icones-3d/clipboard-3d.png",
     titulo: "Você envia o material",
     texto:
       "Extratos, informe de rendimentos, apólices, contratos: o que existir. Nada é obrigatório, e o que faltar a gente levanta junto na conversa.",
   },
   {
     icone: SearchCheck,
+    emblema: "/icones-3d/etapa-diagnostico.png",
     titulo: "Análise técnica",
     texto:
       "Um consultor da Novare estuda o material com research independente da Nord por trás. Sem comissão de corretora no meio: nenhuma conclusão paga nada a ninguém.",
   },
   {
     icone: FileCheck,
+    emblema: "/icones-3d/etapa-relatorio.png",
     titulo: "Entrega e devolutiva",
     texto:
       "Você recebe o material escrito e a gente lê junto, numa reunião. Sai com as decisões claras e os próximos passos por escrito.",
@@ -94,18 +98,21 @@ const COMO_ACONTECE = [
 const PARA_QUEM = [
   {
     icone: Compass,
+    emblema: "/icones-3d/icon-behavioral.png",
     titulo: "Você quer uma segunda opinião isenta",
     texto:
       "Alguém já te recomendou alguma coisa e você quer ouvir quem não ganha nada com a sua decisão.",
   },
   {
     icone: Layers,
+    emblema: "/icones-3d/dashboard-3d.png",
     titulo: "Seu caso ficou complexo demais",
     texto:
       "Mais de uma fonte de renda, PJ, imóvel, sucessão, sócio. A partir de certo ponto, planilha não resolve.",
   },
   {
     icone: Clock3,
+    emblema: "/icones-3d/target-3d.png",
     titulo: "Você tem o número, falta a decisão",
     texto:
       "O app te deu o diagnóstico e o plano. Agora é uma escolha grande, e você quer um consultor do lado antes de puxar o gatilho.",
@@ -319,14 +326,36 @@ export default async function ProdutoPage({
 
         {/* ─── ENTREGA + FICHA ─── */}
         <section className="mt-8 grid gap-5 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
-          <div className="rounded-3xl border border-slate-200 bg-white p-6">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-accent-strong">
-              O que está incluso
-            </h3>
-            <ul className="mt-4 space-y-3">
+          {/* A lista mais importante da página ganhou o emblema do produto e
+              uma fita laranja: era um retângulo branco com quatro linhas de
+              texto, do mesmo peso do resto. É aqui que a pessoa decide se o
+              que ela recebe vale a conversa. */}
+          <div className="relative overflow-hidden rounded-3xl border border-slate-200 bg-white p-6 shadow-[0_1px_2px_hsl(215_40%_20%_/_0.04),0_12px_32px_-20px_hsl(215_40%_20%_/_0.25)]">
+            <span aria-hidden className="absolute inset-x-0 top-0 h-1 bg-accent" />
+            <div className="flex items-center gap-3">
+              <span className="relative flex h-12 w-12 shrink-0 items-center justify-center">
+                <span
+                  aria-hidden
+                  className="absolute inset-0 rounded-full bg-accent-tint opacity-70 blur-lg"
+                />
+                <Image
+                  src="/icones-3d/wrench-3d.png"
+                  alt=""
+                  width={48}
+                  height={48}
+                  className="relative h-12 w-12 object-contain"
+                />
+              </span>
+              <h3 className="font-display text-lg font-bold text-primary">
+                O que está incluso
+              </h3>
+            </div>
+            <ul className="mt-5 space-y-3">
               {c.entrega.map((linha) => (
                 <li key={linha} className="flex items-start gap-2.5 text-sm text-slate-700">
-                  <Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
+                  <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-success/12">
+                    <Check className="h-3 w-3 text-success-strong" strokeWidth={3} />
+                  </span>
                   <span>{linha}</span>
                 </li>
               ))}

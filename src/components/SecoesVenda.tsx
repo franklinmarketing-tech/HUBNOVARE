@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Check, Minus } from "lucide-react";
 
@@ -92,6 +93,7 @@ export function Etapa({
   titulo,
   texto,
   icone: Icone,
+  emblema,
   tom,
 }: {
   numero: number;
@@ -99,20 +101,50 @@ export function Etapa({
   titulo: string;
   texto: string;
   icone: React.ComponentType<{ className?: string; strokeWidth?: number }>;
+  /**
+   * Emblema 3D no lugar do ícone de traço.
+   *
+   * A casa tem 47 emblemas renderizados em `/public/icones-3d` e as páginas
+   * de venda de serviço não usavam nenhum — quatro pastilhas pastel com
+   * traço fino não dizem "consultoria", dizem "formulário". Onde há arte
+   * pronta com acabamento, o traço fino é o desperdício.
+   *
+   * O `icone` continua obrigatório e vira o fallback: quem já usa esta peça
+   * (a landing /assinar, a /planejamento) não muda em nada.
+   */
+  emblema?: string;
   tom?: Tom;
 }) {
   const pad = (n: number) => String(n).padStart(2, "0");
   const t = TONS[tom ?? tomPor(numero - 1)];
 
   return (
-    <li className="relative flex h-full flex-col overflow-hidden rounded-3xl border border-border bg-card p-6 shadow-subtle transition-all hover:-translate-y-0.5 hover:shadow-card">
+    <li className="group relative flex h-full flex-col overflow-hidden rounded-3xl border border-border bg-card p-6 shadow-subtle transition-all hover:-translate-y-1 hover:shadow-card">
       <span aria-hidden className={`absolute inset-x-0 top-0 h-1 ${t.fita}`} />
 
-      <span
-        className={`flex h-12 w-12 items-center justify-center rounded-2xl ${t.pastilha} ${t.icone}`}
-      >
-        <Icone className="h-5 w-5" strokeWidth={1.75} />
-      </span>
+      {emblema ? (
+        <span className="relative flex h-14 w-14 items-center justify-center">
+          {/* O halo assenta o PNG recortado no card — sem ele o emblema
+              parece colado por cima. */}
+          <span
+            aria-hidden
+            className={`absolute inset-0 rounded-full opacity-70 blur-lg ${t.pastilha}`}
+          />
+          <Image
+            src={emblema}
+            alt=""
+            width={56}
+            height={56}
+            className="relative h-14 w-14 object-contain transition-transform duration-300 group-hover:scale-110"
+          />
+        </span>
+      ) : (
+        <span
+          className={`flex h-12 w-12 items-center justify-center rounded-2xl ${t.pastilha} ${t.icone}`}
+        >
+          <Icone className="h-5 w-5" strokeWidth={1.75} />
+        </span>
+      )}
 
       <p
         className={`mt-5 text-2xs font-bold uppercase tracking-[0.14em] tabular-nums ${t.rotulo}`}
@@ -200,12 +232,15 @@ export function Comparativo({
 /** Card de persona: para quem a assinatura foi feita. */
 export function Persona({
   icone: Icone,
+  emblema,
   titulo,
   texto,
   rotulo,
   tom = "ciano",
 }: {
   icone: React.ComponentType<{ className?: string; strokeWidth?: number }>;
+  /** Emblema 3D no lugar do ícone. Mesma regra da `Etapa`. */
+  emblema?: string;
   titulo: string;
   texto: string;
   /** Caixa alta acima do título, na cor da fita. */
@@ -215,14 +250,30 @@ export function Persona({
   const t = TONS[tom];
 
   return (
-    <article className="relative flex h-full flex-col overflow-hidden rounded-3xl border border-border bg-card p-6 shadow-subtle transition-all hover:-translate-y-0.5 hover:shadow-card">
+    <article className="group relative flex h-full flex-col overflow-hidden rounded-3xl border border-border bg-card p-6 shadow-subtle transition-all hover:-translate-y-1 hover:shadow-card">
       <span aria-hidden className={`absolute inset-x-0 top-0 h-1 ${t.fita}`} />
 
-      <span
-        className={`flex h-12 w-12 items-center justify-center rounded-2xl ${t.pastilha} ${t.icone}`}
-      >
-        <Icone className="h-5 w-5" strokeWidth={1.75} />
-      </span>
+      {emblema ? (
+        <span className="relative flex h-14 w-14 items-center justify-center">
+          <span
+            aria-hidden
+            className={`absolute inset-0 rounded-full opacity-70 blur-lg ${t.pastilha}`}
+          />
+          <Image
+            src={emblema}
+            alt=""
+            width={56}
+            height={56}
+            className="relative h-14 w-14 object-contain transition-transform duration-300 group-hover:scale-110"
+          />
+        </span>
+      ) : (
+        <span
+          className={`flex h-12 w-12 items-center justify-center rounded-2xl ${t.pastilha} ${t.icone}`}
+        >
+          <Icone className="h-5 w-5" strokeWidth={1.75} />
+        </span>
+      )}
 
       {rotulo && (
         <p className={`mt-5 text-2xs font-bold uppercase tracking-[0.14em] ${t.rotulo}`}>

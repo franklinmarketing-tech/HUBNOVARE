@@ -133,6 +133,63 @@ export default async function ConsultoriaPage() {
         </div>
 
         {/* ----------------------------- quem cuida — foto real dos sócios */}
+        {/* ─── COMO A CASA TRABALHA ───
+            Três emblemas 3D com o que separa a Novare de um app: gente do
+            outro lado, nenhuma comissão e o método por escrito. A vitrine
+            tinha cinco cards e ia direto ao rodapé — faltava o argumento
+            que faz alguém escolher consultoria em vez de software. */}
+        <section className="mt-10 grid gap-4 sm:grid-cols-3">
+          {[
+            {
+              emblema: "/icones-3d/users-3d.png",
+              titulo: "Gente, não robô",
+              texto:
+                "Um consultor da casa estuda o seu caso e conduz cada encontro pessoalmente.",
+            },
+            {
+              emblema: "/icones-3d/goal-protecao.png",
+              titulo: "Zero comissão",
+              texto:
+                "A Novare não recebe de banco, corretora ou seguradora. Quem paga é você.",
+            },
+            {
+              emblema: "/icones-3d/etapa-relatorio.png",
+              titulo: "Tudo por escrito",
+              texto:
+                "Você sai com o material na mão e os próximos passos definidos, não com uma conversa solta.",
+            },
+          ].map((p, i) => (
+            <div
+              key={p.titulo}
+              className="group relative overflow-hidden rounded-3xl border border-slate-200 bg-white p-6 shadow-[0_1px_2px_hsl(215_40%_20%_/_0.04),0_12px_32px_-20px_hsl(215_40%_20%_/_0.25)] transition-all hover:-translate-y-1"
+            >
+              <span
+                aria-hidden
+                className={`absolute inset-x-0 top-0 h-1 ${i === 1 ? "bg-accent" : "bg-ciano"}`}
+              />
+              <span className="relative flex h-14 w-14 items-center justify-center">
+                <span
+                  aria-hidden
+                  className={`absolute inset-0 rounded-full opacity-70 blur-lg ${i === 1 ? "bg-accent-tint" : "bg-ciano-tint"}`}
+                />
+                <Image
+                  src={p.emblema}
+                  alt=""
+                  width={56}
+                  height={56}
+                  className="relative h-14 w-14 object-contain transition-transform duration-300 group-hover:scale-110"
+                />
+              </span>
+              <h3 className="mt-4 font-display text-lg font-bold text-primary">
+                {p.titulo}
+              </h3>
+              <p className="mt-1.5 text-sm leading-relaxed text-slate-600">
+                {p.texto}
+              </p>
+            </div>
+          ))}
+        </section>
+
         <section className="mt-10 rounded-3xl border border-slate-200 bg-white p-6 sm:flex sm:items-center sm:gap-7 sm:p-8">
           <div className="relative aspect-[5/4] w-full overflow-hidden rounded-2xl sm:w-64 sm:shrink-0">
             <Image
