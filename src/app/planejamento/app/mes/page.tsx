@@ -855,18 +855,43 @@ export default function MesPage() {
               const piorou = respondida && pct < 0;
 
               return (
+                /* Profundidade por CAMADA, não por borda mais grossa: o card
+                   sobe sobre o fundo com uma sombra tingida de navy (nunca
+                   preta) e uma linha de luz no topo. A faixa colorida à
+                   esquerda diz o estado antes de qualquer texto ser lido. */
                 <div
                   key={m.id}
-                  className={`rounded-2xl border bg-white p-4 transition-colors ${
+                  className={`relative overflow-hidden rounded-2xl border bg-white pl-5 pr-4 py-4 shadow-[0_1px_2px_hsl(215_40%_20%_/_0.04),0_8px_24px_-12px_hsl(215_40%_20%_/_0.16)] transition-all duration-200 hover:shadow-[0_1px_2px_hsl(215_40%_20%_/_0.05),0_12px_32px_-14px_hsl(215_40%_20%_/_0.22)] ${
                     cumprida
-                      ? "border-success/40 bg-success/[0.04]"
-                      : respondida
-                        ? "border-accent/30"
-                        : "border-border"
+                      ? "border-success/30"
+                      : sugerido
+                        ? "border-accent/40"
+                        : respondida
+                          ? "border-accent/25"
+                          : "border-slate-200"
                   }`}
                 >
+                  <span
+                    aria-hidden
+                    className={`absolute inset-y-0 left-0 w-1 ${
+                      cumprida
+                        ? "bg-success"
+                        : sugerido
+                          ? "bg-accent"
+                          : respondida
+                            ? "bg-accent/45"
+                            : "bg-slate-200"
+                    }`}
+                  />
+
                   <div className="flex items-start justify-between gap-3">
-                    <p className="text-sm font-semibold text-foreground">{m.source_label}</p>
+                    {/* O nome da meta é o topo da hierarquia: display, navy,
+                        um degrau acima de tudo o mais no card. Antes era
+                        `text-sm` cinza, do mesmo tamanho da pergunta e da
+                        ajuda — cinco textos disputando o mesmo peso. */}
+                    <p className="font-display text-[15px] font-bold leading-snug text-primary">
+                      {m.source_label}
+                    </p>
                     {cumprida ? (
                       <span className="flex shrink-0 items-center gap-1 rounded-full bg-success/12 px-2.5 py-1 text-2xs font-bold text-success-strong">
                         <Check className="h-3 w-3" />
@@ -888,20 +913,24 @@ export default function MesPage() {
                     )}
                   </div>
                   {m.meta_text && (
-                    <p className="mt-0.5 text-xs leading-relaxed text-slate-500">
+                    <p className="mt-1 max-w-[62ch] text-xs leading-relaxed text-slate-500">
                       {m.meta_text}
                     </p>
                   )}
 
-                  <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                  <div className="mt-4 grid gap-4 sm:grid-cols-[minmax(0,1fr)_auto]">
                     <div>
                       {/* A pergunta muda conforme o tipo de meta: "onde está
                           hoje" servia para dívida, reserva, corte de gasto e
                           seguro ao mesmo tempo — e a resposta certa é
-                          diferente em cada um. */}
+                          diferente em cada um.
+
+                          Em caixa-alta miúda: é rótulo de campo, e rebaixá-lo
+                          de "texto" para "etiqueta" abre espaço para o VALOR
+                          ser o herói do card. Antes competia com o título. */}
                       <label
                         htmlFor={`v-${m.id}`}
-                        className="mb-1.5 block text-xs font-semibold text-slate-600"
+                        className="mb-2 block text-[10px] font-bold uppercase tracking-[0.09em] text-slate-500"
                       >
                         {/* Com o valor já calculado, a pergunta deixa de ser
                             "quanto é?" e passa a ser "confere?" — que é o
@@ -909,7 +938,7 @@ export default function MesPage() {
                         {sugerido ? "Ainda deve isso?" : texto.pergunta}
                       </label>
                       <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-500">
+                        <span className="absolute left-4 top-1/2 -translate-y-1/2 font-display text-base font-bold text-slate-400">
                           R$
                         </span>
                         <input
@@ -928,7 +957,14 @@ export default function MesPage() {
                             // não mais uma sugestão a conferir.
                             confirmarSugestao(m.source_id);
                           }}
-                          className="h-11 w-full rounded-xl border border-slate-200 bg-white pl-9 pr-3 text-[0.9375rem] tabular-nums outline-none focus:border-accent focus:ring-4 focus:ring-accent/12"
+                          /* O HERÓI do card: o valor é o dado que a pessoa
+                             veio dar, e estava num campo de 15px igual a
+                             qualquer outro. Agora é display, 24px, navy —
+                             lê-se o número antes de ler o rótulo. O fundo
+                             levemente afundado (gelo + sombra interna) faz
+                             o campo parecer escavado no card em vez de
+                             desenhado por cima dele. */
+                          className="h-[3.25rem] w-full rounded-xl border border-slate-200 bg-slate-50/60 pl-12 pr-4 font-display text-2xl font-bold tabular-nums text-primary shadow-[inset_0_1px_2px_hsl(215_30%_20%_/_0.05)] outline-none transition-colors placeholder:font-normal placeholder:text-slate-300 focus:border-accent focus:bg-white focus:ring-4 focus:ring-accent/12"
                         />
                       </div>
                       <p className="mt-1 text-[11px] leading-relaxed text-slate-500">
@@ -970,40 +1006,58 @@ export default function MesPage() {
                         o valor de partida preenchido automaticamente fazia
                         "não mexi" e "lancei o mesmo valor" virarem a mesma
                         coisa — e o app dava 0% para quem acabou de chegar. */}
-                    <div className="space-y-1.5 text-[11px] text-slate-500 sm:pt-6">
-                      <p>
-                        {alvo != null && (
-                          <>
-                            <span className="font-semibold text-slate-600">
-                              {alvo === 0 ? "Objetivo: zerar" : `${texto.rotuloAlvo} ${brl(alvo)}`}
-                            </span>
-                            <br />
-                          </>
-                        )}
+                    {/* Painel de referência, não texto solto.
+                        Eram quatro linhas de "rótulo: valor" corridas, em
+                        11px cinza, empilhadas com <br> — nenhuma alinhava
+                        com a outra e o objetivo (o número que importa) se
+                        perdia no meio. Agora é uma pequena tabela sobre
+                        fundo gelo, com o objetivo em destaque no topo. */}
+                    <dl className="min-w-[9.5rem] rounded-xl bg-slate-50 px-3.5 py-3 text-[11px] sm:mt-[1.4rem]">
+                      {alvo != null && (
+                        <div className="flex items-baseline justify-between gap-3 pb-2">
+                          <dt className="text-slate-500">
+                            {alvo === 0 ? "Objetivo" : texto.rotuloAlvo.replace(":", "")}
+                          </dt>
+                          <dd className="font-display text-sm font-bold tabular-nums text-primary">
+                            {alvo === 0 ? "zerar" : brl(alvo)}
+                          </dd>
+                        </div>
+                      )}
+
+                      <div className="space-y-1 border-t border-slate-200/80 pt-2 text-slate-500">
                         {anterior != null && (
-                          <>
-                            Mês passado: {brl(anterior)}
-                            <br />
-                          </>
+                          <div className="flex items-baseline justify-between gap-3">
+                            <dt>Mês passado</dt>
+                            <dd className="tabular-nums">{brl(anterior)}</dd>
+                          </div>
                         )}
-                        Início do plano: {brl(partida)}
+                        <div className="flex items-baseline justify-between gap-3">
+                          <dt>Início</dt>
+                          <dd className="tabular-nums">{brl(partida)}</dd>
+                        </div>
                         {/* Fica visível MESMO depois de a pessoa corrigir o
                             número: assim ela continua vendo do que discordou,
                             e a diferença entre o esperado e o real é a
                             informação mais útil da tela. */}
                         {proj && proj.projecao.qualidade !== "impossivel" && (
-                          <>
-                            <br />
-                            Esperado: {brl(proj.projecao.saldo)}
-                          </>
+                          <div className="flex items-baseline justify-between gap-3 text-accent-strong">
+                            <dt className="font-semibold">Esperado</dt>
+                            <dd className="font-semibold tabular-nums">
+                              {brl(proj.projecao.saldo)}
+                            </dd>
+                          </div>
                         )}
-                      </p>
-                    </div>
+                      </div>
+                    </dl>
                   </div>
 
+                  {/* Separada por uma linha, não só por margem: o progresso
+                      é a conclusão do card, não mais um campo. Sem o corte,
+                      a barra ficava colada no formulário e lida como parte
+                      dele. */}
                   {caminho > 0 && (
-                    <div className="mt-3">
-                      <div className="mb-1 flex items-baseline justify-between text-2xs font-semibold text-muted-foreground">
+                    <div className="mt-4 border-t border-slate-100 pt-3">
+                      <div className="mb-1.5 flex items-baseline justify-between text-2xs font-semibold text-muted-foreground">
                         <span>
                           {piorou
                             ? reduzindo
