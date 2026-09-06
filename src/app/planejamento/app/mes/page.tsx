@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowDown, ArrowUp, CalendarCheck, Check, Loader2, TriangleAlert } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
@@ -13,9 +14,13 @@ import { mesAtual } from "@/lib/planejamento/catalogos";
 import { computeMonthlyTotals } from "@/lib/planejamento/finance";
 import { cloneToNextMonth } from "@/lib/planejamento/mesSeguinte";
 import {
+  escreverEstado,
+  lerEstado,
   projecaoConfiavelPara,
   saldoEsperado,
+  saldoSemPagar,
   type ProjecaoDivida,
+  type TipoEvento,
 } from "@/lib/planejamento/dividaProjecao";
 import { planCompletion } from "@/lib/planejamento/actionPlanProgresso";
 import { etapaPorSlug } from "../etapas";
@@ -174,6 +179,146 @@ function explicarProjecao(
   )} por mês. Com os juros, sobram ${brl(p.saldo)}. Se pagou em dia, é só confirmar.`;
 }
 
+/**
+ * O que aconteceu com a dívida neste mês, em um clique.
+ *
+ * A tela só tinha um campo de valor e uma nota de texto livre que nenhum
+ * cálculo lia. Para saber "paguei em dia" era preciso a pessoa fazer a conta
+ * de cabeça e digitar o resultado; "adiantei R$ 300" exigia a mesma conta
+ * com um passo a mais. Aqui cada caminho já sabe o número que produz.
+ *
+ * "Mudou o valor" NÃO some com o campo: ele volta a ser o que sempre foi,
+ * livre. É a saída para renegociação, erro no cadastro e todo caso que os
+ * outros três não previram — sem isso, o atalho viraria uma gaiola.
+ */
+function EscolhaEvento({
+  idMeta,
+  projecao,
+  tipo,
+  aoEscolher,
+}: {
+  /** Torna o id do campo único: há um EscolhaEvento por dívida na tela. */
+  idMeta: string;
+  projecao: {
+    projecao: ProjecaoDivida;
+    parcela: number;
+    saldoBase: number;
+    semPagar: number;
+  };
+  tipo: TipoEvento;
+  /** `valor` nulo = não mexe no campo, só marca o tipo. */
+  aoEscolher: (tipo: TipoEvento, valor: number | null) => void;
+}) {
+  const [extra, setExtra] = useState("");
+  const [pedindoExtra, setPedindoExtra] = useState(false);
+  const campoExtra = `extra-${idMeta}`;
+
+  /** Aplica o adiantamento e limpa o campo, para a próxima abertura vir
+      vazia em vez de mostrar o valor do adiantamento anterior. */
+  function aplicar() {
+    const n = Number(extra) || 0;
+    setPedindoExtra(false);
+    setExtra("");
+    // Nunca abaixo de zero: quem adianta mais do que deve, quita.
+    aoEscolher("adiantei", Math.max(0, projecao.projecao.saldo - n));
+  }
+
+  const esperado = projecao.projecao.saldo;
+  const base =
+    "rounded-lg px-2.5 py-1.5 text-2xs font-bold transition-colors";
+  const inativo = "bg-slate-100 text-slate-600 hover:bg-slate-200";
+  const ativo = "bg-primary text-white";
+
+  return (
+    <div className="mt-2.5">
+      <div className="flex flex-wrap gap-1.5">
+        <button
+          type="button"
+          onClick={() => {
+            setPedindoExtra(false);
+            aoEscolher("pago_em_dia", esperado);
+          }}
+          className={`${base} ${tipo === "pago_em_dia" ? ativo : inativo}`}
+        >
+          Paguei em dia
+        </button>
+        <button
+          type="button"
+          onClick={() => setPedindoExtra(true)}
+          /* Acende já na abertura do campo, não só depois do "Aplicar":
+             entre um clique e outro o botão parecia não ter respondido. */
+          className={`${base} ${tipo === "adiantei" || pedindoExtra ? ativo : inativo}`}
+        >
+          Paguei mais
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            setPedindoExtra(false);
+            aoEscolher("nao_paguei", projecao.semPagar);
+          }}
+          className={`${base} ${tipo === "nao_paguei" ? ativo : inativo}`}
+        >
+          Não paguei
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            setPedindoExtra(false);
+            // Não mexe no valor: a pessoa digita o que quiser no campo.
+            aoEscolher("ajuste_manual", null);
+          }}
+          className={`${base} ${tipo === "ajuste_manual" ? ativo : inativo}`}
+        >
+          Mudou o valor
+        </button>
+      </div>
+
+      {pedindoExtra && (
+        <div className="mt-2 flex flex-wrap items-end gap-2">
+          <div>
+            <label
+              htmlFor={campoExtra}
+              className="mb-1 block text-2xs font-semibold text-slate-600"
+            >
+              Quanto a mais?
+            </label>
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-slate-500">
+                R$
+              </span>
+              {/* Sem `autoFocus`: com duas dívidas na tela, abrir o campo de
+                  uma roubava o foco de quem estava digitando na outra e
+                  rolava a página junto. */}
+              <input
+                id={campoExtra}
+                inputMode="numeric"
+                value={formatarMoedaInput(extra)}
+                placeholder="0,00"
+                onChange={(e) => setExtra(digitosParaReais(e.target.value))}
+                onKeyDown={(e) => {
+                  // Enter aplica: sem isto o único caminho era o botão, e
+                  // quem digita valor espera confirmar com Enter.
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    aplicar();
+                  }
+                }}
+                className="h-9 w-36 rounded-lg border border-slate-200 bg-white pl-8 pr-2 text-sm tabular-nums outline-none focus:border-accent"
+              />
+            </div>
+          </div>
+          <button type="button" onClick={aplicar}
+            className="h-9 rounded-lg bg-primary px-3 text-2xs font-bold text-white transition-colors hover:bg-primary-soft"
+          >
+            Aplicar
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 const nomeDoMes = (ref: string) =>
   new Date(ref).toLocaleDateString("pt-BR", { month: "long", year: "numeric" });
 
@@ -266,6 +411,8 @@ export default function MesPage() {
          * sobram 10.928" — com o erro crescendo todo mês.
          */
         saldoBase: number;
+        /** O saldo se a pessoa não pagar nada — alimenta "Não paguei". */
+        semPagar: number;
         confiavel: boolean;
       }
     > = {};
@@ -281,6 +428,7 @@ export default function MesPage() {
         }),
         parcela,
         saldoBase,
+        semPagar: saldoSemPagar(saldoBase, d.interest_rate),
         confiavel: projecaoConfiavelPara(d.type),
       };
     }
@@ -452,7 +600,25 @@ export default function MesPage() {
       .eq("is_closing_snapshot", false);
 
     const linhas = metas
-      .filter((m) => valores[m.source_id] != null || notas[m.source_id])
+      /**
+       * Só grava meta que a pessoa realmente respondeu.
+       *
+       * Era `valores[...] != null || notas[...]`, e o segundo termo virou
+       * armadilha quando `notas` passou a guardar o TIPO do evento junto
+       * com o texto: clicar num botão e não digitar valor deixava
+       * `notas[id] = "ajuste_manual"` — string truthy — e a linha era
+       * gravada com o `current_value` congelado do início do plano. Pior:
+       * `cloneToNextMonth` lê essa linha e sobrescreve o `total_amount` do
+       * mês seguinte com ela, revertendo o saldo da dívida.
+       *
+       * Agora o que conta é conteúdo: um valor digitado, ou uma nota de
+       * verdade. O tipo sozinho não é resposta.
+       */
+      .filter((m) => {
+        const valor = valores[m.source_id];
+        if (valor != null && valor.trim() !== "") return true;
+        return lerEstado(notas[m.source_id]).nota.trim() !== "";
+      })
       .map((m) => {
         const atual = Number(valores[m.source_id] ?? m.current_value ?? 0);
         const alvo = m.meta_valor;
@@ -678,6 +844,8 @@ export default function MesPage() {
                 proj && sugerido
                   ? explicarProjecao(proj.saldoBase, proj.parcela, proj.projecao)
                   : null;
+              /* O tipo já escolhido, lido do que está gravado na nota. */
+              const tipoEvento = lerEstado(notas[m.source_id]).tipo;
 
               const reduzindo = alvo != null && alvo < partida;
               const caminho = alvo != null ? Math.abs(partida - alvo) : 0;
@@ -750,10 +918,12 @@ export default function MesPage() {
                           value={formatarMoedaInput(bruto)}
                           placeholder="0,00"
                           onChange={(e) => {
-                            setValores({
-                              ...valores,
+                            // Funcional pelo mesmo motivo da nota: os botões
+                            // de tipo também escrevem em `valores`.
+                            setValores((v) => ({
+                              ...v,
                               [m.source_id]: digitosParaReais(e.target.value),
-                            });
+                            }));
                             // Digitou por cima: o número passa a ser dela,
                             // não mais uma sugestão a conferir.
                             confirmarSugestao(m.source_id);
@@ -765,18 +935,34 @@ export default function MesPage() {
                         {explicacao ?? texto.ajuda}
                       </p>
 
-                      {/* Um clique é o caminho de quem pagou em dia — que é
-                          a maioria dos meses. Quem pagou diferente digita
-                          por cima, e o campo aceita como sempre aceitou. */}
-                      {sugerido && (
-                        <button
-                          type="button"
-                          onClick={() => confirmarSugestao(m.source_id)}
-                          className="mt-2 inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-2xs font-bold text-white transition-colors hover:bg-primary-soft"
-                        >
-                          <Check className="h-3 w-3" />
-                          Confirmar
-                        </button>
+                      {/* O que aconteceu no mês, em um clique.
+                          Três dos quatro caminhos não pedem digitação
+                          nenhuma; o quarto é o campo livre de sempre, que
+                          cobre renegociação e o que mais aparecer. */}
+                      {proj && proj.confiavel && !jaFechado && (
+                        <EscolhaEvento
+                          idMeta={m.id}
+                          projecao={proj}
+                          tipo={tipoEvento}
+                          aoEscolher={(t, valor) => {
+                            if (valor != null) {
+                              setValores((v) => ({
+                                ...v,
+                                [m.source_id]: String(
+                                  Math.round(valor * 100) / 100,
+                                ),
+                              }));
+                            }
+                            setNotas((n) => ({
+                              ...n,
+                              [m.source_id]: escreverEstado(
+                                t,
+                                lerEstado(n[m.source_id]).nota,
+                              ),
+                            }));
+                            confirmarSugestao(m.source_id);
+                          }}
+                        />
                       )}
                     </div>
 
@@ -868,8 +1054,25 @@ export default function MesPage() {
                     </summary>
                     <input
                       id={`n-${m.id}`}
-                      value={notas[m.source_id] ?? ""}
-                      onChange={(e) => setNotas({ ...notas, [m.source_id]: e.target.value })}
+                      /* Só a NOTA aparece no campo, nunca o prefixo do tipo:
+                         `estado_atual` guarda os dois juntos ("adiantei|Usei
+                         o 13º") para não precisar de coluna nova, e sem este
+                         par ler/escrever a pessoa veria "adiantei|" no campo
+                         e apagaria o tipo ao digitar. */
+                      value={lerEstado(notas[m.source_id]).nota}
+                      /* Forma funcional: os botões de tipo escrevem no mesmo
+                         `notas`, e com o objeto capturado do render um
+                         clique e uma digitação no mesmo tick descartavam
+                         um dos dois. */
+                      onChange={(e) =>
+                        setNotas((n) => ({
+                          ...n,
+                          [m.source_id]: escreverEstado(
+                            lerEstado(n[m.source_id]).tipo,
+                            e.target.value,
+                          ),
+                        }))
+                      }
                       placeholder={texto.exemploNota}
                       aria-label="Como foi o mês"
                       className="mt-2 h-11 w-full rounded-xl border border-slate-200 bg-white px-3.5 text-[0.9375rem] outline-none focus:border-accent focus:ring-4 focus:ring-accent/12"
@@ -879,6 +1082,21 @@ export default function MesPage() {
               );
             })}
           </div>
+
+          {/* Dívida nova não cabe nesta tela: aqui se lança o ESTADO de metas
+              que já existem, e uma dívida nova é linha nova no cadastro.
+              Forçá-la aqui quebraria o modelo (todo lançamento é por meta).
+              O link resolve sem inventar estrutura. */}
+          <p className="mt-3 text-2xs text-slate-500">
+            Contraiu uma dívida nova?{" "}
+            <Link
+              href="/planejamento/app/meus-dados"
+              className="font-semibold text-accent-strong underline-offset-2 hover:underline"
+            >
+              Cadastre em Meus dados
+            </Link>
+            .
+          </p>
 
           {erro && (
             <p

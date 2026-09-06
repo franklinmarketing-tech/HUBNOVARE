@@ -16,6 +16,7 @@ import type { ActionPlan } from "./actionplan";
 import type { LifePlan, LifePlanInput } from "./lifeplan";
 import type { Retrato } from "./cliente";
 import { CATEGORIAS_DESPESA, type AreaAcao } from "./catalogos";
+import { saldoEsperado } from "./dividaProjecao";
 
 export type Meta = {
   /** A linha do retrato que originou a meta. */
@@ -123,7 +124,36 @@ export function gerarMetas(
       valorAtual: d.total_amount ?? 0,
       metaValor: 0,
       texto: `Quitar ${d.type}${d.creditor ? ` (${d.creditor})` : ""}: ${brl(d.total_amount ?? 0)}.${porQue}`,
-      prazo: d.remaining_months ? emMeses(d.remaining_months, hoje) : emMeses(24, hoje),
+      /**
+       * O prazo, na ordem do que é mais confiável.
+       *
+       * 1. `remaining_months`, quando a pessoa informou;
+       * 2. senão, o prazo que a PARCELA produz — o app tem o saldo, a
+       *    parcela e os juros, e sabe em quantos meses aquilo zera;
+       * 3. só então os 24 meses de chute.
+       *
+       * O passo 2 é novo. Antes uma dívida sem `remaining_months` ganhava
+       * dois anos de prazo mesmo faltando três parcelas — e agora que o
+       * campo é decrementado a cada mês fechado, chegar a zero cairia
+       * direto no chute, esticando o prazo da dívida bem no fim dela.
+       */
+      prazo: emMeses(
+        Math.min(
+          d.remaining_months ||
+            saldoEsperado({
+              saldoAtual: d.total_amount ?? 0,
+              parcela: d.monthly_payment ?? 0,
+              jurosMensalPct: d.interest_rate,
+            }).prazoEstimado ||
+            24,
+          // Teto de 5 anos. O prazo derivado da parcela pode chegar a 1199
+          // meses quando ela mal cobre o juro — e uma meta com vencimento
+          // em 2055 não é meta, é desistência com data. Nesses casos o que
+          // resolve é renegociar, não esperar.
+          60,
+        ),
+        hoje,
+      ),
       peso: 90 - indice * 5,
     });
   });

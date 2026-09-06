@@ -216,7 +216,50 @@ const PREFIXOS: TipoEvento[] = [
  */
 export function escreverEstado(tipo: TipoEvento, nota?: string): string {
   const limpa = (nota ?? "").trim();
-  return limpa ? `${tipo}|${limpa}` : tipo;
+  // Sempre com a barra, mesmo sem nota: é ela que marca "isto é um tipo".
+  // Sem a barra, uma nota antiga escrita exatamente como "adiantei" seria
+  // lida como o TIPO adiantei e o texto da pessoa sumiria.
+  return `${tipo}|${limpa}`;
+}
+
+/**
+ * Quantos meses faltam para a dívida depois de fechar este mês.
+ *
+ * `remaining_months` nunca era decrementado: o clone do mês seguinte
+ * copiava o campo inalterado, e uma dívida ficava "faltam 4 meses" para
+ * sempre. O plano de ação usa esse número como prazo da meta e o motor do
+ * plano de vida projeta a saída de caixa por ele — parado, os dois mentem
+ * na mesma direção, dizendo que a dívida dura mais do que dura.
+ *
+ * Só desconta de quem pagou. Quem não pagou não andou no contrato, e tirar
+ * um mês do prazo dela seria registrar um progresso que não houve.
+ * `ajuste_manual` também não desconta: quem digitou o valor à mão pode ter
+ * renegociado, e aí o prazo do cadastro já não vale — mexer nele às cegas
+ * é pior do que deixar quieto.
+ */
+export function proximoPrazo(
+  prazoAtual: number,
+  evento: TipoEvento | undefined,
+  /**
+   * Houve lançamento para esta dívida no mês?
+   *
+   * É o que separa os dois casos que `evento === undefined` confundia:
+   * quem lançou sem clicar em botão nenhum (a maioria — o valor já vem
+   * sugerido, ela confere e fecha) PAGOU; quem não lançou nada não deu
+   * notícia, e descontar um mês do prazo dela seria inventar pagamento.
+   */
+  houveLancamento = false,
+): number {
+  const atual = Math.max(0, Math.round(Number(prazoAtual) || 0));
+  if (atual === 0) return 0;
+
+  // Só "não paguei" é declaração explícita de que o mês não andou.
+  if (evento === "nao_paguei") return atual;
+  // Lançou e disse que pagou (ou nem disse, mas lançou): o mês andou.
+  if (evento === "pago_em_dia" || evento === "adiantei") return atual - 1;
+  // `ajuste_manual` inclui quem só conferiu o valor sugerido e fechou —
+  // por isso o que decide aqui é ter havido lançamento, não o rótulo.
+  return houveLancamento ? atual - 1 : atual;
 }
 
 export function lerEstado(bruto?: string | null): {
@@ -227,13 +270,14 @@ export function lerEstado(bruto?: string | null): {
   if (!texto) return { tipo: "ajuste_manual", nota: "" };
 
   const corte = texto.indexOf("|");
-  const cabeca = corte >= 0 ? texto.slice(0, corte) : texto;
+  // SÓ com a barra é tipo. Sem ela, é nota livre — inclusive uma nota que
+  // por acaso seja a palavra "adiantei", que sem esta regra seria engolida
+  // como rótulo e desapareceria da tela.
+  if (corte < 0) return { tipo: "ajuste_manual", nota: texto };
 
+  const cabeca = texto.slice(0, corte);
   if ((PREFIXOS as string[]).includes(cabeca)) {
-    return {
-      tipo: cabeca as TipoEvento,
-      nota: corte >= 0 ? texto.slice(corte + 1) : "",
-    };
+    return { tipo: cabeca as TipoEvento, nota: texto.slice(corte + 1) };
   }
 
   // Texto sem prefixo: é nota escrita antes desta versão.

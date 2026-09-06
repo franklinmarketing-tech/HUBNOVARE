@@ -8,6 +8,11 @@
 // consultor a chamava. Agora quem chama é o próprio dono do plano.
 
 import { createClient } from "@/lib/supabase/client";
+import {
+  lerEstado,
+  proximoPrazo,
+  type TipoEvento,
+} from "@/lib/planejamento/dividaProjecao";
 
 /**
  * Avança um YYYY-MM-01 para o mês seguinte (primeiro dia).
@@ -75,15 +80,20 @@ export async function cloneToNextMonth(
   // ordem foi corrigida junto com esta semântica.
   const { data: lancamentos } = await supabase
     .from("acompanhamento_entradas")
-    .select("source_table, source_id, valor_atual, snapshotted_at")
+    .select("source_table, source_id, valor_atual, estado_atual, snapshotted_at")
     .eq("client_id", clientId)
     .eq("is_closing_snapshot", false)
     .order("snapshotted_at", { ascending: false });
   const deltaMap = new Map<string, number>();
+  /** O que aconteceu com cada dívida no mês — decide o prazo restante. */
+  const eventoMap = new Map<string, TipoEvento>();
   (lancamentos || []).forEach((l: any) => {
-    if (l.valor_atual == null) return;
     const key = `${l.source_table}:${l.source_id}`;
     // Como ordenamos DESC, o primeiro que aparece é o mais recente
+    if (!eventoMap.has(key)) {
+      eventoMap.set(key, lerEstado(l.estado_atual).tipo);
+    }
+    if (l.valor_atual == null) return;
     if (!deltaMap.has(key)) {
       deltaMap.set(key, Number(l.valor_atual));
     }
@@ -166,6 +176,24 @@ export async function cloneToNextMonth(
         client_id: clientId,
         month_ref: nextRef,
         total_amount: applyDelta("debts", id as string, Number(r.total_amount) || 0),
+        /**
+         * O prazo restante andava? Não: o spread copiava `remaining_months`
+         * inalterado, e a dívida ficava "faltam 4 meses" para sempre, mês
+         * após mês. O plano de ação lia esse número como prazo da meta, e o
+         * motor do plano de vida projetava a saída de caixa por ele.
+         *
+         * Só decrementa quem PAGOU. Quem não pagou não avançou no
+         * contrato, e tirar um mês do prazo dela seria registrar um
+         * progresso que não houve.
+         */
+        remaining_months: proximoPrazo(
+          Number(r.remaining_months) || 0,
+          eventoMap.get(`debts:${id}`),
+          // Houve lançamento? `deltaMap` só tem chave para meta lançada com
+          // valor — é o que distingue "conferiu e fechou" (paga, o prazo
+          // anda) de "não respondeu esta dívida" (o prazo fica onde está).
+          deltaMap.has(`debts:${id}`),
+        ),
       }));
       const { data: inserted, error } = await supabase.from("debts").insert(rows).select("id");
       if (!error && inserted) {
