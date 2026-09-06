@@ -1,5 +1,6 @@
 "use client";
 import { InstagramLogo, LinkedinLogo, YoutubeLogo } from "@/components/LogosSociais";
+import { PonteResultado } from "@/components/PonteResultado";
 
 import Image from "next/image";
 import Link from "next/link";
@@ -248,6 +249,12 @@ export default function EmprestimosPage() {
             </div>
           </div>
         </section>
+      
+      <PonteResultado
+        valor={brl(r.parcela)}
+        rotulo="de parcela"
+        pergunta="Existe crédito mais barato para o seu caso? Descubra."
+      />
       </main>
     </div>
   );

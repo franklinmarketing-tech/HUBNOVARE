@@ -5,7 +5,13 @@ import { ArrowRight, HeartPulse, Lock, PiggyBank, Shield, TrendingUp, Wallet } f
 import { formatarMoedaInput, digitosParaReais } from "@/lib/moeda";
 import { falarNoWhatsApp } from "@/lib/contato";
 import { salvarLead } from "@/lib/leads";
-import { CamposLead, leadCompleto, type DadosLead } from "@/components/CamposLead";
+import {
+  CamposLead,
+  leadCompleto,
+  primeiroNomeLead,
+  saudacaoLead,
+  type DadosLead,
+} from "@/components/CamposLead";
 
 const brl = (v: number) =>
   v.toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 });
@@ -81,10 +87,10 @@ export function CalculadoraSaudeFinanceira() {
       );
     } catch {}
     const msg =
-      `Olá! Aqui é ${dados.nome.trim()}. Fiz o Exame de Saúde Financeira no site da Novare.\n` +
+      `${saudacaoLead(dados.nome)} Fiz o Exame de Saúde Financeira no site da Novare.\n` +
       `• Nota: ${r.score}/100 (${r.f.rotulo})\n` +
       `• WhatsApp: ${dados.telefone}\n` +
-      `• E-mail: ${dados.email}\n` +
+      (dados.email.trim() ? `• E-mail: ${dados.email}\n` : "") +
       `Quero receber o diagnóstico detalhado.`;
     window.open(falarNoWhatsApp(msg), "_blank", "noopener,noreferrer");
   };
@@ -148,7 +154,8 @@ export function CalculadoraSaudeFinanceira() {
           <div className="rounded-3xl border border-emerald-300/50 bg-emerald-50 p-5 text-center">
             <HeartPulse className="mx-auto h-6 w-6 text-emerald-600" />
             <p className="mt-2 font-display text-sm font-bold text-emerald-800">
-              Diagnóstico a caminho, {dados.nome.trim().split(" ")[0]}!
+              Diagnóstico a caminho
+              {primeiroNomeLead(dados.nome) ? `, ${primeiroNomeLead(dados.nome)}` : ""}!
             </p>
             <p className="mt-1 text-xs text-emerald-700/80">Abrimos o WhatsApp com sua nota — é só enviar pra falar com um especialista.</p>
           </div>

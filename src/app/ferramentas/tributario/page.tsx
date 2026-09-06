@@ -4,6 +4,7 @@ import { InstagramLogo, LinkedinLogo, YoutubeLogo } from "@/components/LogosSoci
 import Image from "next/image";
 import Link from "next/link";
 import { BotaoHome } from "@/components/BotaoHome";
+import { PonteResultado } from "@/components/PonteResultado";
 import { useState } from "react";
 import {
   AlertCircle,
@@ -246,6 +247,12 @@ export default function TributarioPage() {
           Simulação educativa pela tabela anual, ano-base 2025. Não substitui a
           apuração oficial da sua declaração.
         </p>
+      
+      <PonteResultado
+        valor={brl(economia)}
+        rotulo="de economia no ano"
+        pergunta="Onde mais dá para pagar menos imposto? Veja o conjunto."
+      />
       </main>
     </div>
   );

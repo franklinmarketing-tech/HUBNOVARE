@@ -5,6 +5,7 @@ import { useState } from "react";
 import { PiggyBank } from "lucide-react";
 import { brl, parseNumero } from "@/lib/calculos";
 import { ALIQUOTA_FGTS, fgts } from "@/lib/trabalhista";
+import { PonteResultado } from "@/components/PonteResultado";
 import {
   Campo,
   CascaFerramenta,
@@ -149,6 +150,13 @@ export default function FgtsPage() {
           — é por isso que ele não serve como reserva de longo prazo.
         </p>
       </section>
+
+      <PonteResultado
+        valor={brl(r.totalComMulta)}
+        rotulo="a sacar"
+        pergunta="Sacar ou deixar rendendo? Depende do resto da sua conta."
+      />
+
     </CascaFerramenta>
   );
 }

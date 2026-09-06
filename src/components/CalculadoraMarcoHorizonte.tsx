@@ -6,7 +6,13 @@ import { formatarMoedaInput, digitosParaReais } from "@/lib/moeda";
 import { falarNoWhatsApp } from "@/lib/contato";
 import { salvarLead } from "@/lib/leads";
 import { marcoRapido } from "@/lib/planejamento/montarPlano";
-import { CamposLead, leadCompleto, type DadosLead } from "@/components/CamposLead";
+import {
+  CamposLead,
+  leadCompleto,
+  primeiroNomeLead,
+  saudacaoLead,
+  type DadosLead,
+} from "@/components/CamposLead";
 
 const brl = (v: number) =>
   v.toLocaleString("pt-BR", {
@@ -85,13 +91,13 @@ export function CalculadoraMarcoHorizonte() {
       /* ambiente sem storage — segue mesmo assim */
     }
     const msg =
-      `Olá! Aqui é ${dados.nome.trim()}. Calculei meu Marco Horizonte no site e quero receber meu plano detalhado.\n` +
+      `${saudacaoLead(dados.nome)} Calculei meu Marco Horizonte no site e quero receber meu plano detalhado.\n` +
       `• Tenho ${idade} anos e quero parar de depender do salário aos ${idadeLivre}\n` +
       `• Renda desejada: ${brl(r.rendaN)}/mês\n` +
       `• Meu Marco Horizonte: ${brl(r.alvo)}\n` +
       `• No ritmo atual chego a ${brl(r.fv)} (${r.pct}%)\n` +
-      `• WhatsApp: ${dados.telefone}\n` +
-      `• E-mail: ${dados.email}`;
+      `• WhatsApp: ${dados.telefone}` +
+      (dados.email.trim() ? `\n• E-mail: ${dados.email}` : "");
     window.open(falarNoWhatsApp(msg), "_blank", "noopener,noreferrer");
   };
 
@@ -151,8 +157,10 @@ export function CalculadoraMarcoHorizonte() {
           <div className="rounded-3xl border border-emerald-300/50 bg-emerald-50 p-5 text-center">
             <Sparkles className="mx-auto h-6 w-6 text-emerald-600" />
             <p className="mt-2 font-display text-sm font-bold text-emerald-800">
-              Pronto, {dados.nome.trim().split(" ")[0]}! Um consultor da Novare vai te enviar o
-              plano detalhado.
+              {primeiroNomeLead(dados.nome)
+                ? `Pronto, ${primeiroNomeLead(dados.nome)}!`
+                : "Pronto!"}{" "}
+              Um consultor da Novare vai te enviar o plano detalhado.
             </p>
             <p className="mt-1 text-xs text-emerald-700/80">
               Abrimos o WhatsApp com o seu resumo — é só enviar.

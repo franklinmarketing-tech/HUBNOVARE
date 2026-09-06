@@ -23,6 +23,7 @@ import {
   pct,
 } from "@/lib/calculos";
 import { formatarMoedaInput, digitosParaReais } from "@/lib/moeda";
+import { PonteResultado } from "@/components/PonteResultado";
 
 export default function PotencialCompraPage() {
   const [renda, setRenda] = useState("12000");
@@ -261,6 +262,12 @@ export default function PotencialCompraPage() {
             e nenhum deles entra nessa régua.
           </p>
         </section>
+      
+      <PonteResultado
+        valor={brlCurto(dados.valorImovel)}
+        rotulo="de imóvel"
+        pergunta="Falta quanto para a entrada? Descubra em 2 minutos."
+      />
       </main>
     </div>
   );

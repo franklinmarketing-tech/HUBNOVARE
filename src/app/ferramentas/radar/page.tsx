@@ -1,5 +1,6 @@
 "use client";
 import { InstagramLogo, LinkedinLogo, YoutubeLogo } from "@/components/LogosSociais";
+import { PonteResultado } from "@/components/PonteResultado";
 
 import Image from "next/image";
 import Link from "next/link";
@@ -282,6 +283,12 @@ export default function RadarPage() {
         <p className="mt-6 text-[11px] text-slate-500">
           Seus dados ficam no seu navegador e, se você estiver logado, na sua conta Novare.
         </p>
+      
+      <PonteResultado
+        valor={brl(perdaAnual)}
+        rotulo="perdidos por ano"
+        pergunta="Onde mais o seu dinheiro está parado? Veja o retrato completo."
+      />
       </main>
     </div>
   );

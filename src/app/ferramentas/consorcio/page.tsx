@@ -1,5 +1,6 @@
 "use client";
 import { InstagramLogo, LinkedinLogo, YoutubeLogo } from "@/components/LogosSociais";
+import { PonteResultado } from "@/components/PonteResultado";
 
 import Image from "next/image";
 import Link from "next/link";
@@ -424,6 +425,12 @@ export default function ConsorcioPage() {
             </div>
           </div>
         </section>
+      
+      <PonteResultado
+        valor={brlCurto(c.economia)}
+        rotulo="de diferença"
+        pergunta="Qual dos dois cabe melhor no seu plano? Vamos olhar."
+      />
       </main>
     </div>
   );

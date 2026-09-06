@@ -1,5 +1,6 @@
 "use client";
 import { InstagramLogo, LinkedinLogo, YoutubeLogo } from "@/components/LogosSociais";
+import { PonteResultado } from "@/components/PonteResultado";
 
 import Image from "next/image";
 import Link from "next/link";
@@ -328,6 +329,12 @@ export default function AmortizacaoPage() {
             economia futura.
           </p>
         </section>
+      
+      <PonteResultado
+        valor={brlCurto(validos ? melhorEconomia : 0)}
+        rotulo="de juros economizados"
+        pergunta="Esse dinheiro extra rende mais aqui ou investido? Confira."
+      />
       </main>
     </div>
   );

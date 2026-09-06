@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Palmtree } from "lucide-react";
 import { brl, parseNumero } from "@/lib/calculos";
 import { ferias } from "@/lib/trabalhista";
+import { PonteResultado } from "@/components/PonteResultado";
 import {
   Campo,
   CascaFerramenta,
@@ -191,6 +192,13 @@ export default function FeriasPage() {
           </p>
         </div>
       </section>
+
+      <PonteResultado
+        valor={brl(r.liquido)}
+        rotulo="de férias"
+        pergunta="E depois das férias, o mês fecha? Descubra em 2 minutos."
+      />
+
     </CascaFerramenta>
   );
 }

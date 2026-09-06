@@ -1,5 +1,6 @@
 "use client";
 import { InstagramLogo, LinkedinLogo, YoutubeLogo } from "@/components/LogosSociais";
+import { PonteResultado } from "@/components/PonteResultado";
 
 import Image from "next/image";
 import Link from "next/link";
@@ -319,6 +320,12 @@ export default function AportesPage() {
             </div>
           </div>
         </section>
+      
+      <PonteResultado
+        valor={brl(resultado.aporte)}
+        rotulo="por mês"
+        pergunta="Esse valor cabe no seu orçamento? Vamos olhar juntos."
+      />
       </main>
     </div>
   );

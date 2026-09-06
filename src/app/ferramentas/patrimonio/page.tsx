@@ -4,6 +4,7 @@ import { InstagramLogo, LinkedinLogo, YoutubeLogo } from "@/components/LogosSoci
 import Image from "next/image";
 import Link from "next/link";
 import { BotaoHome } from "@/components/BotaoHome";
+import { PonteResultado } from "@/components/PonteResultado";
 import { type FormEvent, type ReactNode, useMemo, useState } from "react";
 import {
   ArrowRight,
@@ -443,6 +444,12 @@ export default function PatrimonioPage() {
         <p className="mt-6 text-[11px] text-slate-500">
           Seus dados ficam no seu navegador e, se você estiver logado, na sua conta Novare.
         </p>
+      
+      <PonteResultado
+        valor={brl(liquido)}
+        rotulo="de patrimônio líquido"
+        pergunta="Para onde esse patrimônio está indo? Veja o plano completo."
+      />
       </main>
     </div>
   );

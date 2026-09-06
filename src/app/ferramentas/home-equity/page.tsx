@@ -1,5 +1,6 @@
 "use client";
 import { InstagramLogo, LinkedinLogo, YoutubeLogo } from "@/components/LogosSociais";
+import { PonteResultado } from "@/components/PonteResultado";
 
 import Image from "next/image";
 import Link from "next/link";
@@ -309,6 +310,12 @@ export default function HomeEquityPage() {
             </div>
           </div>
         </section>
+      
+      <PonteResultado
+        valor={brl(c.equity.parcela)}
+        rotulo="de parcela"
+        pergunta="Colocar o imóvel em garantia é o melhor caminho? Confira antes."
+      />
       </main>
     </div>
   );

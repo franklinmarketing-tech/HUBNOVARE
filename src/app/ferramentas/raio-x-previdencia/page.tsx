@@ -11,6 +11,7 @@ import {
   Resultado,
 } from "@/components/CascaFerramenta";
 import { IrisAjuda } from "@/components/IrisAjuda";
+import { PonteResultado } from "@/components/PonteResultado";
 import {
   auditarPrevidencia,
   classificarTaxa,
@@ -218,27 +219,15 @@ export default function RaioXPrevidencia() {
         </div>
       </section>
 
-      {/* O convite. Não indicamos produto — abrimos conversa. */}
-      <section className="mt-6 rounded-3xl bg-gradient-to-br from-primary to-[hsl(215_55%_16%)] p-7 text-white">
-        <h2 className="font-display text-xl font-bold">
-          Achou um número que te incomodou?
-        </h2>
-        <p className="mt-2.5 text-sm leading-relaxed text-white/75">
-          Esta conta olha uma peça só. Numa análise completa a gente vê o
-          conjunto — previdência, consórcio, consignado, seguros — e mostra
-          quanto você paga de taxa por ano, somando tudo.{" "}
-          <strong className="text-white">A primeira análise é gratuita</strong>{" "}
-          e a Novare não ganha comissão de produto nenhum, então não temos o
-          que te vender no lugar.
-        </p>
-        <Link
-          href="/consultoria"
-          className="mt-5 inline-flex items-center gap-2 rounded-xl bg-accent-btn px-5 py-3 text-sm font-bold text-accent-foreground transition-opacity hover:opacity-90"
-        >
-          Quero a análise gratuita
-          <ArrowRight className="h-4 w-4" />
-        </Link>
-      </section>
+      {/* A ponte substituiu um convite próprio que dizia a mesma coisa sem
+          mostrar o número. Com o valor na frente, a pergunta deixa de ser
+          abstrata: "R$ 17.825 em taxas" cobra uma resposta. */}
+      <PonteResultado
+        valor={brl(Math.abs(saida.custoTotal))}
+        rotulo="em taxas até o resgate"
+        pergunta="Onde mais o seu dinheiro está vazando? Veja o conjunto."
+        acao="Quero a análise gratuita"
+      />
     </CascaFerramenta>
   );
 }

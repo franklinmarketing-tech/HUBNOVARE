@@ -1,5 +1,6 @@
 "use client";
 import { InstagramLogo, LinkedinLogo, YoutubeLogo } from "@/components/LogosSociais";
+import { PonteResultado } from "@/components/PonteResultado";
 
 import Image from "next/image";
 import Link from "next/link";
@@ -422,6 +423,12 @@ function SimuladorTipo({ tipo }: { tipo: Tipo }) {
             </p>
           )}
         </section>
+
+        <PonteResultado
+          valor={brl(price.parcela)}
+          rotulo="de parcela"
+          pergunta="Essa parcela cabe no seu mês, com o resto das contas? Confira."
+        />
       </main>
     </div>
   );

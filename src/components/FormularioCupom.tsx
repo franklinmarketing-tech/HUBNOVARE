@@ -5,7 +5,13 @@ import { AlertCircle, ArrowRight, CheckCircle2, Lock, Tag } from "lucide-react";
 import { validarCupom } from "@/lib/cupons";
 import { salvarLead } from "@/lib/leads";
 import { falarNoWhatsApp } from "@/lib/contato";
-import { CamposLead, leadCompleto, type DadosLead } from "@/components/CamposLead";
+import {
+  CamposLead,
+  leadCompleto,
+  linhaEmailLead,
+  saudacaoLead,
+  type DadosLead,
+} from "@/components/CamposLead";
 
 /**
  * Cupom como ISCA de captação (Briefing slide 13). Enquanto o checkout não
@@ -48,9 +54,9 @@ export function FormularioCupom() {
     });
     window.open(
       falarNoWhatsApp(
-        `Olá! Aqui é ${dados.nome.trim()}.\n` +
+        `${saudacaoLead(dados.nome)}\n` +
           `Quero garantir o cupom ${cupom.codigo} (${cupom.desconto}% OFF) no Workspace Novare.\n` +
-          `WhatsApp: ${dados.telefone}\nE-mail: ${dados.email}`,
+          `WhatsApp: ${dados.telefone}${linhaEmailLead(dados.email)}`,
       ),
       "_blank",
       "noopener,noreferrer",

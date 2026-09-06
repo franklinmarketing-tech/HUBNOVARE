@@ -4,6 +4,7 @@ import { InstagramLogo, LinkedinLogo, YoutubeLogo } from "@/components/LogosSoci
 import Image from "next/image";
 import Link from "next/link";
 import { BotaoHome } from "@/components/BotaoHome";
+import { PonteResultado } from "@/components/PonteResultado";
 import { type ReactNode, useMemo, useState } from "react";
 import {
   Bar,
@@ -363,6 +364,12 @@ export default function ConsignadoPage() {
             </div>
           </div>
         </section>
+      
+      <PonteResultado
+        valor={brlCurto(c.creditoMaximo)}
+        rotulo="de crédito"
+        pergunta="Vale a pena usar essa margem agora? Vamos olhar a sua conta."
+      />
       </main>
     </div>
   );

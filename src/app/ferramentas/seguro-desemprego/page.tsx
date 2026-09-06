@@ -4,6 +4,7 @@ import { useState } from "react";
 import { LifeBuoy } from "lucide-react";
 import { brl, parseNumero } from "@/lib/calculos";
 import { SALARIO_MINIMO, TETO_SEGURO, seguroDesemprego } from "@/lib/trabalhista";
+import { PonteResultado } from "@/components/PonteResultado";
 import {
   Campo,
   CascaFerramenta,
@@ -181,6 +182,13 @@ export default function SeguroDesempregoPage() {
           </p>
         </div>
       </section>
+
+      <PonteResultado
+        valor={brl(r.total)}
+        rotulo="de benefício"
+        pergunta="Isso cobre quantos meses de contas? Descubra em 2 minutos."
+      />
+
     </CascaFerramenta>
   );
 }

@@ -5,7 +5,14 @@ import { usePathname } from "next/navigation";
 import { ArrowRight, Check, FileText, Lock } from "lucide-react";
 import { falarNoWhatsApp } from "@/lib/contato";
 import { salvarLead, type LeadTipo } from "@/lib/leads";
-import { CamposLead, leadCompleto, type DadosLead } from "@/components/CamposLead";
+import {
+  CamposLead,
+  leadCompleto,
+  linhaEmailLead,
+  primeiroNomeLead,
+  saudacaoLead,
+  type DadosLead,
+} from "@/components/CamposLead";
 
 /**
  * Lead-magnet padrão das ferramentas, no espírito do Nord Liberta: quem
@@ -49,11 +56,11 @@ export function CapturaLead({
     } catch {}
     window.open(
       falarNoWhatsApp(
-        `Olá! Aqui é ${dados.nome.trim()}.\n` +
+        `${saudacaoLead(dados.nome)}\n` +
           (produto
             ? `Quero saber mais sobre o serviço da Novare (${produto}).`
             : "Usei as ferramentas da Novare e quero receber o relatório completo com um especialista.") +
-          `\nWhatsApp: ${dados.telefone}\nE-mail: ${dados.email}`,
+          `\nWhatsApp: ${dados.telefone}${linhaEmailLead(dados.email)}`,
       ),
       "_blank",
       "noopener,noreferrer",
@@ -76,7 +83,10 @@ export function CapturaLead({
         {enviado ? (
           <p className="mt-5 flex items-center gap-2 rounded-xl bg-success/10 px-4 py-3 text-sm font-bold text-success-strong">
             <Check className="h-4 w-4 shrink-0" />
-            Recebemos, {dados.nome.trim().split(" ")[0]}! Abrimos o WhatsApp — é só enviar.
+            {primeiroNomeLead(dados.nome)
+              ? `Recebemos, ${primeiroNomeLead(dados.nome)}!`
+              : "Recebemos!"}{" "}
+            Abrimos o WhatsApp — é só enviar.
           </p>
         ) : (
           <>

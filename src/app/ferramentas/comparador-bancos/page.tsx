@@ -1,5 +1,6 @@
 "use client";
 import { InstagramLogo, LinkedinLogo, YoutubeLogo } from "@/components/LogosSociais";
+import { PonteResultado } from "@/components/PonteResultado";
 
 import Image from "next/image";
 import Link from "next/link";
@@ -330,6 +331,12 @@ export default function ComparadorBancosPage() {
               : "peça sempre o CET e a planilha completa antes de assinar."}
           </p>
         </section>
+      
+      <PonteResultado
+        valor={brlCurto(economia)}
+        rotulo="de diferença"
+        pergunta="Dá para melhorar essa proposta? Vamos revisar com você."
+      />
       </main>
     </div>
   );

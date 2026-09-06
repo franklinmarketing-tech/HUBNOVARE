@@ -1,5 +1,6 @@
 "use client";
 import { InstagramLogo, LinkedinLogo, YoutubeLogo } from "@/components/LogosSociais";
+import { PonteResultado } from "@/components/PonteResultado";
 
 import Image from "next/image";
 import Link from "next/link";
@@ -277,6 +278,12 @@ export default function JurosCompostosPage() {
             </table>
           </div>
         </section>
+      
+      <PonteResultado
+        valor={brlCurto(fim.total)}
+        rotulo="no fim do prazo"
+        pergunta="Esse é o plano certo para os seus objetivos? Confira."
+      />
       </main>
     </div>
   );

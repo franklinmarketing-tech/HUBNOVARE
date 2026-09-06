@@ -12,6 +12,7 @@ import {
   Resultado,
 } from "@/components/CascaFerramenta";
 import { PreenchimentoIA } from "@/components/PreenchimentoIA";
+import { PonteResultado } from "@/components/PonteResultado";
 
 const MOTIVOS: Array<{ chave: MotivoRescisao; nome: string; nota: string }> = [
   {
@@ -287,6 +288,15 @@ export default function RescisaoPage() {
           </p>
         </section>
       )}
+
+      {/* A pergunta que o número abre. Para quem acabou de calcular a
+          rescisão, a dúvida seguinte não é onde investir — é por quanto
+          tempo esse dinheiro segura as contas. */}
+      <PonteResultado
+        valor={brl(r.totalLiquido + r.saqueFgts)}
+        rotulo="a receber"
+        pergunta="Quanto tempo isso dura? Descubra em 2 minutos."
+      />
     </CascaFerramenta>
   );
 }

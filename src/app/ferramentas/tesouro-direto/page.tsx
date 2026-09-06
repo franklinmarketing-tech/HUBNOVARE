@@ -1,5 +1,6 @@
 "use client";
 import { InstagramLogo, LinkedinLogo, YoutubeLogo } from "@/components/LogosSociais";
+import { PonteResultado } from "@/components/PonteResultado";
 
 import Image from "next/image";
 import Link from "next/link";
@@ -350,6 +351,12 @@ export default function TesouroDiretoPage() {
             ))}
           </div>
         </section>
+      
+      <PonteResultado
+        valor={brlCurto(resultado.liquido)}
+        rotulo="no resgate"
+        pergunta="Esse título é o certo para o seu objetivo? Vamos ver."
+      />
       </main>
     </div>
   );

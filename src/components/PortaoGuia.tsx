@@ -3,7 +3,11 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { ArrowDownToLine, Check, Lock } from "lucide-react";
-import { CamposLead, leadCompleto, type DadosLead } from "@/components/CamposLead";
+import {
+  CamposLead,
+  leadCompleto,
+  type DadosLead,
+} from "@/components/CamposLead";
 import { salvarLead } from "@/lib/leads";
 import type { Ebook } from "@/lib/ebooks";
 

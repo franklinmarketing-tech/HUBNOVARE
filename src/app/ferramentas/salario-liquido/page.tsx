@@ -17,6 +17,7 @@ import {
   Resultado,
 } from "@/components/CascaFerramenta";
 import { PreenchimentoIA } from "@/components/PreenchimentoIA";
+import { PonteResultado } from "@/components/PonteResultado";
 
 export default function SalarioLiquidoPage() {
   const [bruto, setBruto] = useState("5000");
@@ -234,6 +235,14 @@ export default function SalarioLiquidoPage() {
           .
         </p>
       </section>
+
+      {/* Quem calcula o líquido quer saber quanto entra. A pergunta que vem
+          logo depois é quanto disso ainda está lá no fim do mês. */}
+      <PonteResultado
+        valor={brl(r.liquido)}
+        rotulo="por mês"
+        pergunta="Quanto disso sobra de verdade? Veja em 2 minutos."
+      />
     </CascaFerramenta>
   );
 }

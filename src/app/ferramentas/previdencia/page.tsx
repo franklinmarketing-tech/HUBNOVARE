@@ -18,6 +18,7 @@ import { brl, brlCurto, jurosCompostos, parseNumero, pct } from "@/lib/calculos"
 import { REFERENCIA, rentabilidadeLiquida } from "@/lib/previdencia";
 import { novoId, useArmazenado } from "@/lib/useArmazenado";
 import { formatarMoedaInput, digitosParaReais } from "@/lib/moeda";
+import { PonteResultado } from "@/components/PonteResultado";
 
 /* -------------------------------------------------------------------------- */
 
@@ -618,6 +619,12 @@ export default function PrevidenciaPage() {
         <p className="mt-6 text-[11px] text-slate-500">
           Seus dados ficam no seu navegador e, se você estiver logado, na sua conta Novare.
         </p>
+      
+      <PonteResultado
+        valor={brl(rendaTotal)}
+        rotulo="por mês"
+        pergunta="Isso sustenta a vida que você quer? Vamos fazer a conta."
+      />
       </main>
     </div>
   );

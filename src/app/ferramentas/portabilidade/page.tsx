@@ -1,5 +1,6 @@
 "use client";
 import { InstagramLogo, LinkedinLogo, YoutubeLogo } from "@/components/LogosSociais";
+import { PonteResultado } from "@/components/PonteResultado";
 
 import Image from "next/image";
 import Link from "next/link";
@@ -214,6 +215,12 @@ export default function PortabilidadePage() {
             </p>
           </div>
         </section>
+      
+      <PonteResultado
+        valor={brlCurto(Math.abs(r.economiaTotal))}
+        rotulo="de diferença"
+        pergunta="Onde mais o seu dinheiro está vazando? Veja o conjunto."
+      />
       </main>
     </div>
   );

@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { brl, parseNumero, pct, reservaEmergencia } from "@/lib/calculos";
 import { formatarMoedaInput, digitosParaReais } from "@/lib/moeda";
+import { PonteResultado } from "@/components/PonteResultado";
 
 /* -------------------------------------------------------------------------- */
 
@@ -304,6 +305,12 @@ export default function ReservaPage() {
         <p className="mt-6 text-[11px] text-slate-500">
           Seus dados ficam no seu navegador e, se você estiver logado, na sua conta Novare.
         </p>
+      
+      <PonteResultado
+        valor={brl(r.alvo)}
+        rotulo="de reserva"
+        pergunta="Como chegar lá sem apertar o mês? Veja o caminho."
+      />
       </main>
     </div>
   );

@@ -1,5 +1,6 @@
 "use client";
 import { InstagramLogo, LinkedinLogo, YoutubeLogo } from "@/components/LogosSociais";
+import { PonteResultado } from "@/components/PonteResultado";
 
 import Image from "next/image";
 import Link from "next/link";
@@ -265,6 +266,12 @@ export default function DividendosPage() {
             acima do yield que aparece na tela de cotação.
           </p>
         </section>
+      
+      <PonteResultado
+        valor={brl(resultado.rendaMensalFutura)}
+        rotulo="por mês"
+        pergunta="Falta quanto para viver dessa renda? Descubra em 2 minutos."
+      />
       </main>
     </div>
   );

@@ -1,5 +1,6 @@
 "use client";
 import { InstagramLogo, LinkedinLogo, YoutubeLogo } from "@/components/LogosSociais";
+import { PonteResultado } from "@/components/PonteResultado";
 
 import Image from "next/image";
 import Link from "next/link";
@@ -251,6 +252,12 @@ export default function RentabilidadeAluguelPage() {
             que dá {brlCurto(r.despesasAnuais)} saindo do seu bolso.
           </p>
         </section>
+      
+      <PonteResultado
+        valor={pct(r.yieldLiquidoPct, 2)}
+        rotulo="ao ano, líquido"
+        pergunta="Esse imóvel rende mais que a alternativa? Confira."
+      />
       </main>
     </div>
   );

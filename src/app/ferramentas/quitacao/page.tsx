@@ -1,5 +1,6 @@
 "use client";
 import { InstagramLogo, LinkedinLogo, YoutubeLogo } from "@/components/LogosSociais";
+import { PonteResultado } from "@/components/PonteResultado";
 
 import Image from "next/image";
 import Link from "next/link";
@@ -371,6 +372,12 @@ export default function QuitacaoPage() {
             </p>
           </div>
         </section>
+      
+      <PonteResultado
+        valor={brlCurto(r.jurosEconomizados)}
+        rotulo="de juros economizados"
+        pergunta="Quitar ou investir a diferença? Depende dos seus números."
+      />
       </main>
     </div>
   );

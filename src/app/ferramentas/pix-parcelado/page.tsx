@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { Zap } from "lucide-react";
+import { PonteResultado } from "@/components/PonteResultado";
 import {
   brl,
   parseNumero,
@@ -192,6 +193,13 @@ export default function PixParceladoPage() {
           </p>
         </div>
       </section>
+
+      <PonteResultado
+        valor={brl(total)}
+        rotulo="no total"
+        pergunta="Existe forma mais barata de pagar isso? Descubra."
+      />
+
     </CascaFerramenta>
   );
 }

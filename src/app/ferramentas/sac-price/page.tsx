@@ -1,5 +1,6 @@
 "use client";
 import { InstagramLogo, LinkedinLogo, YoutubeLogo } from "@/components/LogosSociais";
+import { PonteResultado } from "@/components/PonteResultado";
 
 import Image from "next/image";
 import Link from "next/link";
@@ -324,6 +325,12 @@ export default function SacPricePage() {
             </p>
           </div>
         </section>
+      
+      <PonteResultado
+        valor={brlCurto(Math.max(0, economia))}
+        rotulo="de economia"
+        pergunta="Dá para economizar mais mudando outra coisa? Veja o conjunto."
+      />
       </main>
     </div>
   );

@@ -1,5 +1,6 @@
 "use client";
 import { InstagramLogo, LinkedinLogo, YoutubeLogo } from "@/components/LogosSociais";
+import { PonteResultado } from "@/components/PonteResultado";
 
 import Image from "next/image";
 import Link from "next/link";
@@ -255,6 +256,12 @@ export default function CustosCompraPage() {
             ainda não é seu, e a compra trava no cartório.
           </p>
         </section>
+      
+      <PonteResultado
+        valor={brlCurto(totalReservar)}
+        rotulo="além do preço"
+        pergunta="Você tem esse dinheiro reservado? Vamos montar o plano."
+      />
       </main>
     </div>
   );

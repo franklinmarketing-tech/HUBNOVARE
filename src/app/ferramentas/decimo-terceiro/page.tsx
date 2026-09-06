@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Gift } from "lucide-react";
 import { brl, parseNumero } from "@/lib/calculos";
 import { decimoTerceiro } from "@/lib/trabalhista";
+import { PonteResultado } from "@/components/PonteResultado";
 import {
   Campo,
   CascaFerramenta,
@@ -143,6 +144,13 @@ export default function DecimoTerceiroPage() {
           exata em dezembro é o erro clássico de orçamento de fim de ano.
         </p>
       </section>
+
+      <PonteResultado
+        valor={brl(r.liquido)}
+        rotulo="de 13º"
+        pergunta="O 13º vai pagar dívida ou virar reserva? Veja o que rende mais."
+      />
+
     </CascaFerramenta>
   );
 }
