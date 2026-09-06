@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
-import { Lock, Mail, Phone, Users } from "lucide-react";
+import { notFound, redirect } from "next/navigation";
+import { Mail, Phone, Users } from "lucide-react";
 import { Cabecalho } from "@/components/Cabecalho";
 import { createClient } from "@/lib/supabase/server";
 import { getPerfil } from "@/lib/perfil";
@@ -46,18 +46,23 @@ export default async function AdminLeadsPage() {
   const perfil = await getPerfil();
   if (!perfil) redirect("/login?proximo=/admin/leads");
 
-  const autorizado = perfil.role === "admin" || perfil.role === "equipe";
+  /* Quem não é da equipe recebe 404, não "acesso restrito".
+   *
+   * A tela antes respondia 200 com um cartão de aviso: os dados ficavam
+   * protegidos, mas a resposta confirmava que a rota existe e que há uma
+   * área de administração ali. Um 404 não conta nada a quem está sondando.
+   *
+   * A verificação continua no servidor e o papel continua vindo do banco
+   * (`hub_profiles`, via getPerfil) — nunca de estado do cliente. */
+  if (perfil.role !== "admin" && perfil.role !== "equipe") notFound();
 
-  let leads: Lead[] = [];
-  if (autorizado) {
-    const supabase = await createClient();
-    const { data } = await supabase
-      .from("hub_leads")
-      .select("id, email, nome, telefone, origem, tipo, payload, criado_em")
-      .order("criado_em", { ascending: false })
-      .limit(500);
-    leads = (data as Lead[]) ?? [];
-  }
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("hub_leads")
+    .select("id, email, nome, telefone, origem, tipo, payload, criado_em")
+    .order("criado_em", { ascending: false })
+    .limit(500);
+  const leads = (data as Lead[]) ?? [];
 
   const porTipo = (t: string) => leads.filter((l) => l.tipo === t).length;
 
@@ -72,16 +77,6 @@ export default async function AdminLeadsPage() {
       />
 
       <main className="mx-auto max-w-5xl px-4 pb-16 pt-10 sm:px-6">
-        {!autorizado ? (
-          <div className="mx-auto max-w-md rounded-3xl border border-slate-200 bg-white p-8 text-center shadow-sm">
-            <Lock className="mx-auto h-8 w-8 text-slate-400" />
-            <h1 className="mt-3 font-display text-lg font-bold text-primary">Acesso restrito</h1>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Esta área é da equipe Novare. Fale com um administrador para liberar seu acesso.
-            </p>
-          </div>
-        ) : (
-          <>
             <div className="flex flex-wrap items-end justify-between gap-4">
               <div>
                 <h1 className="font-display text-2xl font-bold text-primary">Leads captados</h1>
@@ -170,8 +165,6 @@ export default async function AdminLeadsPage() {
                 </table>
               </div>
             )}
-          </>
-        )}
       </main>
     </div>
   );
