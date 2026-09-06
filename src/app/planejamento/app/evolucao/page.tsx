@@ -15,6 +15,7 @@ import {
 } from "recharts";
 import { createClient } from "@/lib/supabase/client";
 import { JornadaFinanceira } from "@/components/JornadaFinanceira";
+import { GraficosEvolucao } from "@/components/GraficosEvolucao";
 import { usePlanejamento } from "../usePlanejamento";
 import { etapaPorSlug } from "../etapas";
 import {
@@ -254,7 +255,23 @@ export default function EvolucaoPage() {
         </div>
       )}
 
-      <section className="rounded-2xl border border-border bg-white p-5">
+      {/* As roscas do último fechamento.
+          Vêm ANTES da linha do tempo porque a composição de um mês conta
+          uma história completa desde o primeiro fechamento — a série
+          temporal só começa a dizer algo no segundo. */}
+      <GraficosEvolucao
+        renda={ultimo.total_income ?? 0}
+        despesas={ultimo.total_expenses ?? 0}
+        ativos={ultimo.total_assets ?? 0}
+        dividas={ultimo.total_debts ?? 0}
+      />
+
+      {/* A linha do tempo só faz sentido com dois pontos ou mais.
+          Com um fechamento só ela mostrava dois pontinhos soltos num
+          retângulo vazio, que é a pior versão possível de um gráfico de
+          série temporal. */}
+      {meses > 1 && (
+      <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_1px_2px_hsl(215_40%_20%_/_0.04),0_8px_20px_-14px_hsl(215_40%_20%_/_0.2)]">
         <h2 className="font-display text-base font-bold text-primary">
           Seu patrimônio, mês a mês
         </h2>
@@ -278,7 +295,15 @@ export default function EvolucaoPage() {
                 axisLine={false}
               />
               <YAxis
-                tickFormatter={(v: number) => brlCurto(v)}
+                /* `brlCurto` arredondava para o milhar mais próximo, e o eixo
+                   saía com "R$ 2 mil" DUAS vezes (1.500 e 2.400 viravam o
+                   mesmo rótulo) e "R$ 800" fora da escala. Aqui o milhar só
+                   entra a partir de mil, com uma casa decimal. */
+                tickFormatter={(v: number) =>
+                  Math.abs(v) >= 1000
+                    ? `R$ ${(v / 1000).toFixed(1).replace(".", ",")} mil`
+                    : `R$ ${Math.round(v)}`
+                }
                 tick={{ fontSize: 11, fill: "var(--color-muted-foreground)" }}
                 tickLine={false}
                 axisLine={false}
@@ -317,6 +342,7 @@ export default function EvolucaoPage() {
           </ResponsiveContainer>
         </div>
       </section>
+      )}
 
       <section className="mt-4 overflow-hidden rounded-2xl border border-border bg-white">
         <div className="overflow-x-auto">
