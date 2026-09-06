@@ -202,11 +202,26 @@ export function MinhasDividas({ dados }: { dados: DadosPlanejamento }) {
 
 /* ------------------------------------------------------ os objetivos */
 
-export function MeusObjetivos({ dados }: { dados: DadosPlanejamento }) {
+export function MeusObjetivos({
+  dados,
+  /**
+   * Ocupa duas colunas do grid (o padrão) ou uma só.
+   *
+   * Duas colunas é o certo na seção "Compromissos e metas", onde a lista
+   * costuma ter vários objetivos. No resumo da home, com um objetivo só, a
+   * largura dupla deixava metade do card vazia — daí a opção de estreitar.
+   */
+  largo = true,
+}: {
+  dados: DadosPlanejamento;
+  largo?: boolean;
+}) {
   const objetivos = dados.retrato.objetivos.filter((o) => !o.completed_at);
 
   return (
-    <section className="glass-card cine rounded-3xl bg-white p-5 shadow-card ring-1 ring-primary/10 lg:col-span-2">
+    <section
+      className={`glass-card cine rounded-3xl bg-white p-5 shadow-card ring-1 ring-primary/10 ${largo ? "lg:col-span-2" : ""}`}
+    >
       <div className="flex items-center justify-between gap-3">
         <Rotulo icone={Flag} texto="Meus objetivos" />
         <Link

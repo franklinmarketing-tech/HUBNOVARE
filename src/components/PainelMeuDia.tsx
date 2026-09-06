@@ -156,8 +156,15 @@ export function PainelMeuDia({
               a segunda linha da direita ficava vazia, um retângulo em branco
               do tamanho de meia tela. No painel completo isso não aparecia
               porque a seção seguinte vinha logo abaixo e fechava o buraco.
-              Os objetivos ocupam duas colunas — a medida exata do vazio. */}
-          {resumo && <MeusObjetivos dados={r.dados} />}
+              Objetivos e dívidas entram estreitos (uma coluna cada) para
+              fechar as duas células que sobravam. Largos, com um objetivo
+              só cadastrado, deixavam metade do card vazia. */}
+          {resumo && (
+            <>
+              <MeusObjetivos dados={r.dados} largo={false} />
+              <MinhasDividas dados={r.dados} />
+            </>
+          )}
         </div>
       </Secao>
 
