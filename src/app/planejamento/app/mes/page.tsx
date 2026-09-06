@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowDown, ArrowUp, CalendarCheck, Check, Loader2, TriangleAlert } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
@@ -12,6 +12,11 @@ import { liberarLancamento } from "@/lib/planejamento/cliente";
 import { mesAtual } from "@/lib/planejamento/catalogos";
 import { computeMonthlyTotals } from "@/lib/planejamento/finance";
 import { cloneToNextMonth } from "@/lib/planejamento/mesSeguinte";
+import {
+  projecaoConfiavelPara,
+  saldoEsperado,
+  type ProjecaoDivida,
+} from "@/lib/planejamento/dividaProjecao";
 import { planCompletion } from "@/lib/planejamento/actionPlanProgresso";
 import { etapaPorSlug } from "../etapas";
 import {
@@ -136,6 +141,39 @@ const PERGUNTA: Record<
   },
 };
 
+/**
+ * A frase que explica de onde saiu o número sugerido.
+ *
+ * Existe para a pessoa poder DISCORDAR com base. Um campo pré-preenchido
+ * sem explicação é o app mandando confiar nele; com a conta à vista, quem
+ * pagou diferente sabe exatamente o que corrigir.
+ */
+function explicarProjecao(
+  saldoAnterior: number,
+  parcela: number,
+  p: ProjecaoDivida,
+): string {
+  // "Zerou" vem ANTES de "parcela insuficiente": a flag de insuficiente é
+  // pegajosa numa projeção de vários meses, e sem esta ordem uma dívida que
+  // termina quitada ganharia a frase "a dívida sobe para R$ 0,00".
+  if (p.saldo <= 0) {
+    return "Esta era a última parcela. Se pagou, a dívida está zerada.";
+  }
+  if (p.qualidade === "parcela-insuficiente") {
+    return `A parcela de ${brl(parcela)} não cobre nem os juros do mês (${brl(
+      p.juros,
+    )}). Mesmo pagando em dia, a dívida sobe para ${brl(p.saldo)}.`;
+  }
+  if (p.qualidade === "sem-juros") {
+    return `Você devia ${brl(saldoAnterior)} e paga ${brl(
+      parcela,
+    )} por mês. Sobram ${brl(p.saldo)} — sem contar juros, que você não informou.`;
+  }
+  return `Você devia ${brl(saldoAnterior)} e paga ${brl(
+    parcela,
+  )} por mês. Com os juros, sobram ${brl(p.saldo)}. Se pagou em dia, é só confirmar.`;
+}
+
 const nomeDoMes = (ref: string) =>
   new Date(ref).toLocaleDateString("pt-BR", { month: "long", year: "numeric" });
 
@@ -157,8 +195,97 @@ export default function MesPage() {
   const [erro, setErro] = useState<string | null>(null);
   /** Passo de confirmação do fechamento — ver o bloco no fim do arquivo. */
   const [confirmando, setConfirmando] = useState(false);
+  /**
+   * Metas que a pessoa já tinha respondido quando a tela abriu.
+   *
+   * Serve para o pré-preenchimento nunca passar por cima de resposta dela:
+   * o valor sugerido só entra onde o campo estava vazio.
+   */
+  const [jaRespondido, setJaRespondido] = useState<Set<string>>(new Set());
+  /**
+   * Dívidas cujo campo está com o número que o APP calculou, e que a pessoa
+   * ainda não olhou.
+   *
+   * É o que separa "confirmei o valor" de "não mexi". Sem isso, quem clica
+   * direto em Fechar o mês grava um número que nunca leu — e num app de
+   * dinheiro isso é pior do que campo em branco.
+   */
+  const [sugeridos, setSugeridos] = useState<Set<string>>(new Set());
+  /**
+   * A leitura do que já foi lançado deu certo?
+   *
+   * Só sugerimos valor quando sabemos o que já existe. Se a consulta
+   * falhar, o app não tem como distinguir "não respondeu" de "respondeu e
+   * não conseguimos ler" — e escrever por cima aí apagaria a resposta dela
+   * no próximo salvamento.
+   */
+  const [leituraOk, setLeituraOk] = useState(false);
+  /**
+   * Dívidas para as quais a sugestão já foi oferecida uma vez.
+   *
+   * `ref` e não `state`: serve para o efeito de pré-preenchimento ser
+   * idempotente sem virar dependência dele mesmo. Sem isto, um render com
+   * `metas` de identidade nova repunha o número por cima do campo que a
+   * pessoa tinha acabado de limpar.
+   */
+  const jaSugerido = useRef<Set<string>>(new Set());
 
   const clientId = r.fase === "pronto" ? r.dados.clientId : null;
+
+  /**
+   * O saldo que cada dívida DEVERIA ter no fim do mês, por `source_id`.
+   *
+   * A tela perguntava do zero "Quanto você ainda deve hoje?" para uma
+   * dívida cuja parcela já está cadastrada — o app tinha a resposta e
+   * pedia a conta de cabeça. As dívidas já vêm no retrato que esta tela
+   * carrega, e `parecer_metas.source_id` aponta para o `id` da dívida do
+   * mês corrente (`mesSeguinte.ts` reaponta a meta no clone), então é só
+   * cruzar: nenhuma consulta nova.
+   *
+   * Cartão de crédito e cheque especial ficam de fora (`projecaoConfiavel`):
+   * são rotativos, o saldo anda conforme o uso, e projetar como parcela
+   * fixa daria um número com cara de certo que a pessoa confirmaria sem
+   * pensar.
+   */
+  const projecoes = useMemo(() => {
+    if (r.fase !== "pronto") return {};
+    const mapa: Record<
+      string,
+      {
+        projecao: ProjecaoDivida;
+        /** A parcela cadastrada, para a frase que explica a conta. */
+        parcela: number;
+        /**
+         * O saldo de ONDE a projeção partiu.
+         *
+         * Tem de ser este, e não o `current_value` da meta: `total_amount`
+         * anda a cada mês fechado, enquanto `current_value` fica congelado
+         * no início do plano (`mesSeguinte.ts` só reaponta o `source_id` da
+         * meta, nunca atualiza o valor). Usar o da meta faria a frase
+         * mostrar uma conta que não fecha — "você devia 12.000 e paga 500,
+         * sobram 10.928" — com o erro crescendo todo mês.
+         */
+        saldoBase: number;
+        confiavel: boolean;
+      }
+    > = {};
+    for (const d of r.dados.retrato.dividas) {
+      if (!d.id) continue;
+      const parcela = d.monthly_payment ?? 0;
+      const saldoBase = d.total_amount ?? 0;
+      mapa[String(d.id)] = {
+        projecao: saldoEsperado({
+          saldoAtual: saldoBase,
+          parcela,
+          jurosMensalPct: d.interest_rate,
+        }),
+        parcela,
+        saldoBase,
+        confiavel: projecaoConfiavelPara(d.type),
+      };
+    }
+    return mapa;
+  }, [r]);
 
   useEffect(() => {
     if (!clientId) return;
@@ -218,6 +345,17 @@ export default function MesPage() {
       setValores(v);
       setNotas(n);
 
+      /* Registra o que a pessoa JÁ respondeu, para o pré-preenchimento (no
+         efeito seguinte) nunca passar por cima dela.
+
+         `entradasRes.error` LIBERA o pré-preenchimento? Não: se a leitura
+         falhou, `v` vem vazio e não temos como saber o que já existe no
+         banco — preencher aí escreveria por cima de respostas reais, e
+         `salvarLancamento` apaga as linhas antigas antes de inserir. Perda
+         de dado silenciosa. Sem a leitura, ninguém sugere nada. */
+      setLeituraOk(!entradasRes.error);
+      setJaRespondido(new Set(Object.keys(v)));
+
       // Só o lançamento mais recente de cada meta: a consulta vem ordenada
       // do mais novo para o mais antigo, então o primeiro que aparece vence.
       const ultimo: Record<string, number> = {};
@@ -228,6 +366,76 @@ export default function MesPage() {
       setMesAnterior(ultimo);
     })();
   }, [clientId, mes]);
+
+  /**
+   * Preenche o campo das dívidas com o saldo esperado.
+   *
+   * Roda depois do efeito de cima porque depende das metas E das projeções.
+   * Três regras, todas para não atropelar a pessoa:
+   *
+   *  1. só onde ela ainda não respondeu (`jaRespondido`);
+   *  2. só onde a projeção é possível E o tipo de dívida comporta parcela
+   *     fixa — cartão e cheque especial ficam de fora;
+   *  3. o que entra fica marcado em `sugeridos`, para a tela pedir
+   *     conferência e o fechamento avisar o que não foi conferido.
+   */
+  useEffect(() => {
+    if (!metas || !leituraOk) return;
+    const novos: Record<string, string> = {};
+    const marcados: string[] = [];
+
+    for (const m of metas) {
+      if (m.source_table !== "debts") continue;
+      if (jaRespondido.has(m.source_id)) continue;
+      // Já sugerimos para esta dívida uma vez. Sem isto, um novo render
+      // com `metas` de identidade nova (StrictMode em dev, refetch) repõe
+      // a sugestão por cima de um campo que a pessoa acabou de limpar.
+      if (jaSugerido.current.has(m.source_id)) continue;
+      const p = projecoes[m.source_id];
+      if (!p || !p.confiavel) continue;
+      if (p.projecao.qualidade === "impossivel") continue;
+
+      novos[m.source_id] = String(Math.round(p.projecao.saldo * 100) / 100);
+      marcados.push(m.source_id);
+    }
+
+    if (marcados.length === 0) return;
+    for (const id of marcados) jaSugerido.current.add(id);
+
+    setValores((v) => {
+      const saida = { ...v };
+      for (const [k, valor] of Object.entries(novos)) {
+        // `!saida[k]` trataria "0" como vazio — e "0" é uma resposta
+        // legítima: é o que a pessoa lança quando quitou a dívida.
+        if (saida[k] == null || saida[k] === "") saida[k] = valor;
+      }
+      return saida;
+    });
+    setSugeridos((s) => new Set([...s, ...marcados]));
+  }, [metas, projecoes, jaRespondido, leituraOk]);
+
+  /**
+   * Quantas dívidas seguem com o número que o app calculou, não conferido.
+   *
+   * MESMO predicado que o card usa para mostrar o selo "Confira". Contar
+   * `sugeridos.size` cru divergia da tela: um id podia estar no conjunto
+   * com o campo vazio, e o aviso cobrava conferência de algo que não tinha
+   * valor nenhum.
+   */
+  const naoConferidas = (metas ?? []).filter(
+    (m) =>
+      sugeridos.has(m.source_id) && (valores[m.source_id] ?? "").trim() !== "",
+  ).length;
+
+  /** Tira a meta da lista de "sugerido, confira" — por clique ou digitação. */
+  const confirmarSugestao = useCallback((sourceId: string) => {
+    setSugeridos((s) => {
+      if (!s.has(sourceId)) return s;
+      const novo = new Set(s);
+      novo.delete(sourceId);
+      return novo;
+    });
+  }, []);
 
   async function salvarLancamento() {
     if (!clientId || !metas) return;
@@ -461,6 +669,16 @@ export default function MesPage() {
               const tipo = tipoDaMeta(m);
               const texto = PERGUNTA[tipo];
 
+              /* A dívida cadastrada por trás desta meta, quando existe.
+                 `sugerido` é true enquanto o campo estiver com o número que
+                 o app calculou e a pessoa não o tiver confirmado. */
+              const proj = projecoes[m.source_id];
+              const sugerido = sugeridos.has(m.source_id) && respondida;
+              const explicacao =
+                proj && sugerido
+                  ? explicarProjecao(proj.saldoBase, proj.parcela, proj.projecao)
+                  : null;
+
               const reduzindo = alvo != null && alvo < partida;
               const caminho = alvo != null ? Math.abs(partida - alvo) : 0;
               const andado = reduzindo ? partida - atual : atual - partida;
@@ -486,6 +704,13 @@ export default function MesPage() {
                         <Check className="h-3 w-3" />
                         Cumprida
                       </span>
+                    ) : sugerido ? (
+                      /* O valor está no campo, mas foi o app que calculou.
+                         Sem este selo, quem clica direto em Fechar o mês
+                         grava um número que nunca leu. */
+                      <span className="shrink-0 rounded-full bg-accent/12 px-2.5 py-1 text-2xs font-bold text-accent-strong">
+                        Confira
+                      </span>
                     ) : (
                       !respondida && (
                         <span className="shrink-0 rounded-full bg-slate-100 px-2.5 py-1 text-2xs font-semibold text-slate-500">
@@ -510,7 +735,10 @@ export default function MesPage() {
                         htmlFor={`v-${m.id}`}
                         className="mb-1.5 block text-xs font-semibold text-slate-600"
                       >
-                        {texto.pergunta}
+                        {/* Com o valor já calculado, a pergunta deixa de ser
+                            "quanto é?" e passa a ser "confere?" — que é o
+                            trabalho que sobrou para a pessoa. */}
+                        {sugerido ? "Ainda deve isso?" : texto.pergunta}
                       </label>
                       <div className="relative">
                         <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-500">
@@ -521,18 +749,35 @@ export default function MesPage() {
                           inputMode="numeric"
                           value={formatarMoedaInput(bruto)}
                           placeholder="0,00"
-                          onChange={(e) =>
+                          onChange={(e) => {
                             setValores({
                               ...valores,
                               [m.source_id]: digitosParaReais(e.target.value),
-                            })
-                          }
+                            });
+                            // Digitou por cima: o número passa a ser dela,
+                            // não mais uma sugestão a conferir.
+                            confirmarSugestao(m.source_id);
+                          }}
                           className="h-11 w-full rounded-xl border border-slate-200 bg-white pl-9 pr-3 text-[0.9375rem] tabular-nums outline-none focus:border-accent focus:ring-4 focus:ring-accent/12"
                         />
                       </div>
                       <p className="mt-1 text-[11px] leading-relaxed text-slate-500">
-                        {texto.ajuda}
+                        {explicacao ?? texto.ajuda}
                       </p>
+
+                      {/* Um clique é o caminho de quem pagou em dia — que é
+                          a maioria dos meses. Quem pagou diferente digita
+                          por cima, e o campo aceita como sempre aceitou. */}
+                      {sugerido && (
+                        <button
+                          type="button"
+                          onClick={() => confirmarSugestao(m.source_id)}
+                          className="mt-2 inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-2xs font-bold text-white transition-colors hover:bg-primary-soft"
+                        >
+                          <Check className="h-3 w-3" />
+                          Confirmar
+                        </button>
+                      )}
                     </div>
 
                     {/* As referências ficam ao lado do campo, não dentro dele:
@@ -556,6 +801,16 @@ export default function MesPage() {
                           </>
                         )}
                         Início do plano: {brl(partida)}
+                        {/* Fica visível MESMO depois de a pessoa corrigir o
+                            número: assim ela continua vendo do que discordou,
+                            e a diferença entre o esperado e o real é a
+                            informação mais útil da tela. */}
+                        {proj && proj.projecao.qualidade !== "impossivel" && (
+                          <>
+                            <br />
+                            Esperado: {brl(proj.projecao.saldo)}
+                          </>
+                        )}
                       </p>
                     </div>
                   </div>
@@ -685,6 +940,16 @@ export default function MesPage() {
                 os mesmos números. <strong>Não dá para desfazer</strong> — se
                 ainda falta lançar alguma coisa, é melhor lançar antes.
               </p>
+              {/* O aviso que faltava: o app pré-preenche o saldo das dívidas,
+                  e sem esta linha alguém fecharia o mês gravando números que
+                  nunca leu. Não bloqueia — só diz. */}
+              {naoConferidas > 0 && (
+                <p className="mt-2 text-xs leading-relaxed text-accent-strong">
+                  {naoConferidas === 1
+                    ? "1 dívida está com o valor que calculamos e você ainda não conferiu."
+                    : `${naoConferidas} dívidas estão com o valor que calculamos e você ainda não conferiu.`}
+                </p>
+              )}
               <div className="mt-4 flex flex-wrap items-center gap-3">
                 <button
                   type="button"

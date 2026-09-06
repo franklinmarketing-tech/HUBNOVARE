@@ -130,9 +130,13 @@ export function saldoEsperado({
 
   for (let mes = 1; mes <= n; mes++) {
     const j = corrente * i;
-    // O caso que mais importa avisar: a parcela não cobre nem o juro, e a
+    // O caso que mais importa avisar: a parcela não cobre o juro, e a
     // dívida sobe mesmo com a pessoa pagando em dia.
-    if (i > 0 && pmt <= j) insuficiente = true;
+    //
+    // `<` e não `<=`: com a parcela EXATAMENTE igual ao juro o saldo fica
+    // parado, não sobe — e é um caso real (parcela mínima de cartão sai
+    // calibrada assim). Dizer "sobe para R$ X" ali seria mentira.
+    if (i > 0 && pmt < j) insuficiente = true;
     jurosAcumulado += j;
     corrente = Math.max(0, corrente + j - pmt);
     if (corrente <= 0) break;
