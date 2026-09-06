@@ -29,6 +29,11 @@ import { RodapeNovare } from "@/components/RodapeNovare";
 import { OQueSignifica } from "@/components/OQueSignifica";
 import { RevelarAoRolar } from "@/components/RevelarAoRolar";
 import { Etapa, Persona, TituloSecao } from "@/components/SecoesVenda";
+import {
+  CarteiraAntesDepois,
+  CustoDaTaxa,
+  EscopoDaAnalise,
+} from "@/components/VisuaisConsultoria";
 import { ASSINATURA_PRECO_ROTULO } from "@/lib/assinatura";
 import { CapturaLead } from "@/components/CapturaLead";
 import {
@@ -455,6 +460,42 @@ export default async function ProdutoPage({
             </a>
           </p>
         )}
+
+        {/* ─── O MÉTODO, DESENHADO ───
+
+            Gráficos que mostram a MECÂNICA do trabalho, nunca resultado de
+            cliente: como uma taxa corrói patrimônio no tempo, como uma
+            carteira concentrada se parece, o que entra numa análise. São
+            verdadeiros por construção — e cada um leva o selo "exemplo
+            ilustrativo" na própria tela.
+
+            A escolha por produto não é decorativa: quem está lendo sobre
+            revisão de carteira quer ver concentração; quem lê sobre
+            investimentos quer ver o custo da taxa. Mostrar os três em toda
+            página seria encher, não explicar. */}
+        <section className="revelar mt-16">
+          <TituloSecao
+            sobre="O método"
+            titulo="O que a gente olha, desenhado"
+            apoio="Nenhum número aqui é resultado de cliente ou promessa de rentabilidade — são exemplos que mostram a conta que a consultoria faz."
+          />
+          <div className="mt-10 grid gap-5 lg:grid-cols-2">
+            {(c.slug === "investimentos" || c.slug === "plano-vida") && (
+              <div className="lg:col-span-2">
+                <CustoDaTaxa />
+              </div>
+            )}
+            {(c.slug === "revisao-carteira" || c.slug === "investimentos") && (
+              <CarteiraAntesDepois />
+            )}
+            {(c.slug === "revisao-carteira" ||
+              c.slug === "diagnostico" ||
+              c.slug === "consultoria-financeira") && <EscopoDaAnalise />}
+            {c.slug === "consultoria-financeira" && <CarteiraAntesDepois />}
+            {c.slug === "diagnostico" && <CustoDaTaxa />}
+            {c.slug === "plano-vida" && <EscopoDaAnalise />}
+          </div>
+        </section>
 
         {/* ─── PARA QUEM É ─── */}
         <section className="revelar mt-16">
