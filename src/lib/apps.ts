@@ -1,7 +1,7 @@
 /**
  * Catálogo do Novare Workspace: 18 ferramentas em 5 áreas.
  *
- * Cada uma nasce de um benchmark mundial (o `referencia`), para o time ter
+ * Cada uma nasce de um benchmark mundial (o `_benchmarkInterno`), para o time ter
  * claro qual padrão precisa ser batido. Fonte única do que aparece no Hub:
  * publicar uma solução nova é adicionar uma entrada aqui e o ícone em
  * `icones.ts` — nenhuma tela precisa mudar.
@@ -37,8 +37,29 @@ export type NovareApp = {
   plano: Plano;
   status: AppStatus;
   familia?: Familia;
-  /** Benchmark mundial que a ferramenta persegue. */
-  referencia?: string;
+  /**
+   * Calculadora ou serviço com gente atendendo?
+   *
+   * Existe porque os contadores do site divergiam: a home somava 7+8+5, a
+   * /aplicativos dizia 24 e a /assinar dizia 22 — e o número de venda
+   * incluía os cinco produtos de consultoria, que são atendimento humano,
+   * não ferramenta. Texto de venda conta só `calculadora`.
+   *
+   * Sem valor definido vale `calculadora`: é o caso da maioria e evita
+   * ter de anotar linha por linha.
+   */
+  tipo?: "calculadora" | "servico";
+
+  /**
+   * Benchmark mundial que a ferramenta persegue — USO INTERNO.
+   *
+   * NUNCA renderizar. Chamava-se `referencia` e era exibido nos cards e
+   * no modal ("padrão Monarch Money", "Construído para bater o padrão
+   * Cleo AI"): anotação de produto que vazou para produção e citava
+   * concorrente pelo nome dentro do nosso catálogo. O underscore no nome
+   * existe para que qualquer uso em JSX chame atenção na revisão.
+   */
+  _benchmarkInterno?: string;
   /** true quando o link sai do Hub para outro domínio. */
   externo?: boolean;
   /** Texto longo, usado nas telas de venda. */
@@ -66,7 +87,7 @@ function app(
   nome: string,
   chamada: string,
   href: string,
-  referencia: string,
+  _benchmarkInterno: string,
   extra: Partial<NovareApp> = {},
 ): NovareApp {
   return {
@@ -74,7 +95,7 @@ function app(
     nome,
     chamada,
     href,
-    referencia,
+    _benchmarkInterno,
     roles: TODOS,
     plano: "gratis",
     status: "ativo",
@@ -102,7 +123,7 @@ export const APPS: NovareApp[] = [
     plano: "pago",
     status: "ativo",
     familia: "ia",
-    referencia: "Monarch Money",
+    _benchmarkInterno: "Monarch Money",
     temTeste: true,
   },
   {
@@ -123,12 +144,13 @@ export const APPS: NovareApp[] = [
     plano: "gratis",
     status: "beta",
     familia: "ia",
-    referencia: "Cleo AI",
+    _benchmarkInterno: "Cleo AI",
   },
 
   // ============================== IA E CONSULTORIA (5 PRODUTOS OFICIAIS)
   // Os cinco produtos e formatos de consultoria da Novare (Briefing 2026).
   app("ia", "consultoria-diagnostico", "Diagnóstico Gratuito", "Entenda onde você está de verdade", "/consultoria/diagnostico", "Novare Direct", {
+    tipo: "servico",
     descricao:
       "Uma sessão personalizada para abrir os números: renda, gastos, dívidas, reserva e investimentos. Você sai sabendo exatamente seu ponto de partida.",
     pontosFortes: [
@@ -139,6 +161,7 @@ export const APPS: NovareApp[] = [
     ],
   }),
   app("ia", "consultoria-investimentos", "Consultoria de Investimentos", "Em parceria com a Nord Research", "/consultoria/investimentos", "Novare + Nord", {
+    tipo: "servico",
     descricao:
       "Acompanhamento e alocação contínua de carteira unindo a inteligência da Novare com a análise independente da Nord Research.",
     pontosFortes: [
@@ -148,7 +171,8 @@ export const APPS: NovareApp[] = [
       "Sem comissões ocultas de corretoras",
     ],
   }),
-  app("ia", "consultoria-plano-vida", "Plano Vida (Humano)", "Do sonho ao número, com método", "/consultoria/plano-vida", "Nord Liberta", {
+  app("ia", "consultoria-plano-vida", "Plano Vida (Consultor)", "Do sonho ao número, com método", "/consultoria/plano-vida", "Nord Liberta", {
+    tipo: "servico",
     descricao:
       "Construímos juntos o seu Marco Horizonte: quanto você precisa acumular, em quanto tempo e com qual aporte para viver com tranquilidade.",
     pontosFortes: [
@@ -159,6 +183,7 @@ export const APPS: NovareApp[] = [
     ],
   }),
   app("ia", "consultoria-financeira", "Consultoria Financeira", "Organize suas contas e zere dívidas", "/consultoria/consultoria-financeira", "Novare Direct", {
+    tipo: "servico",
     descricao:
       "Planejamento financeiro completo para quem precisa organizar fluxo de caixa, renegociar passivos e voltar a poupar mensalmente.",
     pontosFortes: [
@@ -169,6 +194,7 @@ export const APPS: NovareApp[] = [
     ],
   }),
   app("ia", "consultoria-revisao-carteira", "Revisão e Montagem de Carteira", "Seu dinheiro está no lugar certo?", "/consultoria/revisao-carteira", "Novare Direct", {
+    tipo: "servico",
     descricao:
       "Analisamos produto por produto da sua carteira e mostramos o custo real e o que rende menos do que deveria.",
     pontosFortes: [
@@ -196,6 +222,10 @@ export const APPS: NovareApp[] = [
   app("trabalho", "rescisao", "Cálculo de Rescisão", "Confira antes de assinar", "/ferramentas/rescisao", "iDinheiro"),
   app("trabalho", "ferias", "Férias", "Com o terço e a venda de dias", "/ferramentas/ferias", "Mobills"),
   app("trabalho", "decimo-terceiro", "13º Salário", "As duas parcelas, sem surpresa", "/ferramentas/decimo-terceiro", "iDinheiro"),
+  // Estava fora do catálogo mas viva: a página de Rescisão linka para ela
+  // ("Você tem direito ao seguro-desemprego"). Quem chegava por ali usava uma
+  // ferramenta que a busca do Hub jurava não existir.
+  app("trabalho", "seguro-desemprego", "Seguro-Desemprego", "Valor e quantas parcelas", "/ferramentas/seguro-desemprego", "Gov.br"),
 
   // ========================================= INVESTIMENTOS
   app("investimentos", "simulador-aposentadoria", "Simulador de Aposentadoria", "Quando viver de renda", `${NOVAREAPP}/ferramentas/calculadora-de-aposentadoria`, "Empower", { externo: true }),
@@ -297,8 +327,6 @@ export const APPS: NovareApp[] = [
  *   motivo: obriga cadastrar cada cartão antes de mostrar qualquer número
  * app("trabalho", "fgts", "FGTS", "Saldo, multa e saque", "/ferramentas/fgts", "Caixa"),
  *   motivo: estima sem a correção TR+3%; o app da Caixa dá o número certo
- * app("trabalho", "seguro-desemprego", "Seguro-Desemprego", "Valor e quantas parcelas", "/ferramentas/seguro-desemprego", "Gov.br"),
- *   motivo: pede os três últimos salários e só serve no mês da demissão
  * app("trabalho", "imposto-de-renda", "Imposto de Renda", "Quanto você paga no ano", "/ferramentas/ir", "Receita Federal"),
  *   motivo: pede total de deduções do ano, dado que ninguém tem de cabeça
  * app("organizacao", "calculadora-cet", "Calculadora CET", "O custo efetivo total, sem letra miúda", "/ferramentas/cet", "NerdWallet"),
@@ -429,9 +457,21 @@ export const CONTAGEM = {
         !a.href.startsWith("/consultoria"),
     ).length;
   },
+  /**
+   * O número que texto de VENDA pode usar.
+   *
+   * Só `tipo !== "servico"`: consultoria é atendimento humano e contá-la
+   * como ferramenta inflava a promessa. É este contador que as telas de
+   * venda devem chamar, nunca um número escrito à mão.
+   */
+  get calculadoras() {
+    return APPS.filter(
+      (a) => a.familia && a.status !== "em-breve" && a.tipo !== "servico",
+    ).length;
+  },
   /** Serviço com gente: as consultorias. */
   get consultorias() {
-    return APPS.filter((a) => a.href.startsWith("/consultoria")).length;
+    return APPS.filter((a) => a.tipo === "servico").length;
   },
   /** Tudo o que aparece na prateleira, ferramentas + consultorias. */
   get total() {

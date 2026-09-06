@@ -1,9 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
 import { CONTATO } from "@/lib/contato";
-import { Globe, Mail, MessageCircle, Phone, ShieldCheck } from "lucide-react";
+import { Globe, Mail, MessageCircle, Phone } from "lucide-react";
 import { InstagramLogo, YoutubeLogo, LinkedinLogo } from "@/components/LogosSociais";
 import { APPS } from "@/lib/apps";
+import { DisclaimerFerramenta, DisclaimerServico } from "@/components/Disclaimers";
 
 const ANO = new Date().getFullYear();
 
@@ -20,7 +21,15 @@ export function RodapeNovare({
   /** Desligue em páginas cuja conversão é OUTRA (a landing /assinar): ali o
       convite navy compete com a assinatura e vira um terceiro CTA. */
   convite = true,
-}: { convite?: boolean } = {}) {
+  /**
+   * Qual aviso legal fecha a página.
+   *
+   * O padrão é "ferramenta" porque é o caso da maioria das telas que montam
+   * este rodapé (todo /ferramentas/*). Quem vende serviço — /consultoria,
+   * /planejamento, /assinar — passa "servico".
+   */
+  aviso = "ferramenta",
+}: { convite?: boolean; aviso?: "ferramenta" | "servico" } = {}) {
   // As quatro primeiras do catálogo vivo: nunca aponta para rota podada.
   const ferramentas = APPS.filter(
     (a) => a.familia && a.plano === "gratis" && a.status !== "em-breve",
@@ -272,15 +281,11 @@ export function RodapeNovare({
               © {ANO} Novare Consultoria de Investimentos. Todos os direitos
               reservados.
             </p>
-            <p className="flex items-start gap-2 text-[11px] leading-relaxed text-white/60">
-              <ShieldCheck className="mt-px h-3.5 w-3.5 shrink-0" />
-              <span>
-                Conteúdo educacional. Não constitui recomendação nem oferta de
-                investimento.
-                <br className="hidden sm:block" /> Rentabilidade passada não
-                garante resultados futuros.
-              </span>
-            </p>
+            {aviso === "servico" ? (
+              <DisclaimerServico tom="escuro" />
+            ) : (
+              <DisclaimerFerramenta tom="escuro" />
+            )}
           </div>
         </div>
       </footer>

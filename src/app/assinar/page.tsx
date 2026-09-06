@@ -39,12 +39,15 @@ import {
   ASSINATURA_PRECO_ROTULO,
   ASSINATURA_TRIAL_DIAS,
 } from "@/lib/assinatura";
+import { CONTAGEM } from "@/lib/apps";
 import { ROTULO_DESCONTO } from "@/lib/consultoria";
 import { falarNoWhatsApp } from "@/lib/contato";
 
 export const metadata: Metadata = {
   title: `${ASSINATURA_NOME}: sua vida financeira inteira, num lugar só`,
-  description: `O 1º hub financeiro do Brasil: plano financeiro, IA que lê seu extrato, calculadoras e consultoria independente por ${ASSINATURA_PRECO_ROTULO}/mês. ${ASSINATURA_TRIAL_DIAS} dias grátis, sem cartão.`,
+  /* Sem "1º hub financeiro do Brasil": é superlativo que não temos como
+     comprovar, e claim de pioneirismo sem prova é passivo — não vantagem. */
+  description: `Planejamento financeiro, IA que lê seu extrato e todas as ferramentas da casa. ${ASSINATURA_TRIAL_DIAS} dias grátis, sem cartão.`,
   alternates: { canonical: "/assinar" },
   openGraph: {
     title: `${ASSINATURA_NOME}: sua vida financeira inteira, num lugar só`,
@@ -163,7 +166,7 @@ const PACOTE = [
     emblema: "/icones-3d/wrench-3d.png",
     nome: "Todas as ferramentas liberadas",
     texto:
-      "As 22 calculadoras e simuladores da casa, das trabalhistas às de investimento.",
+      `As ${CONTAGEM.calculadoras} calculadoras e simuladores da casa, das trabalhistas às de investimento.`,
   },
   {
     emblema: "/icones-3d/users-3d.png",
@@ -186,7 +189,7 @@ const CONFIANCA = [
     // certificação. Num bloco cujo próprio título é "só o que a casa
     // comprova", alegar credencial que não se tem é o tipo de detalhe que
     // derruba a confiança inteira quando alguém confere.
-    destaque: "Humano",
+    destaque: "Consultor",
     titulo: "Gente estuda o seu caso",
     texto:
       "Do outro lado da mesa tem uma pessoa lendo os seus números, não um robô devolvendo média de mercado.",
@@ -207,7 +210,7 @@ const CONFIANCA = [
 
 /** Os números que a casa pode provar. Nada aqui é estimativa de marketing. */
 const NUMEROS = [
-  { valor: "22", rotulo: "ferramentas e calculadoras" },
+  { valor: String(CONTAGEM.calculadoras), rotulo: "ferramentas e calculadoras" },
   { valor: `${ASSINATURA_TRIAL_DIAS} dias`, rotulo: "grátis, sem pedir cartão" },
   { valor: ROTULO_DESCONTO, rotulo: "na consultoria particular" },
   { valor: "0%", rotulo: "de comissão de banco" },
@@ -280,7 +283,10 @@ export default function AssinarPage() {
                 oferta) para puxar o olho sem piscar nem mudar de cor. */}
             <span className="selo-pulsa cine relative inline-flex items-center gap-2.5 rounded-full bg-gradient-to-r from-accent-btn via-accent to-accent-claro px-6 py-3.5 text-base font-black uppercase tracking-wider text-white shadow-[0_10px_50px_-6px_rgba(255,140,80,0.75)] sm:px-8 sm:py-4 sm:text-lg">
               <Sparkles className="h-5 w-5 shrink-0 text-white drop-shadow sm:h-6 sm:w-6" />
-              O 1º hub financeiro do Brasil
+              {/* Dizia "O 1º hub financeiro do Brasil": pioneirismo que não
+                  temos como provar, e claim sem prova é passivo. O que
+                  está abaixo é verificável — e é o que a pessoa compra. */}
+              Planejamento, IA e ferramentas num lugar só
             </span>
 
             {/* A headline ocupa a dobra inteira: em tráfego pago, quem chega
@@ -293,7 +299,7 @@ export default function AssinarPage() {
             />
 
             <p className="cine mx-auto mt-7 max-w-2xl text-lg leading-relaxed text-white/80 sm:text-xl">
-              Planejamento completo, a Íris lendo seu extrato, 22 calculadoras
+              Planejamento completo, a Íris lendo seu extrato, {CONTAGEM.calculadoras} calculadoras
               e consultoria com {ROTULO_DESCONTO}. Por{" "}
               {ASSINATURA_PRECO_ROTULO} por mês.
             </p>
@@ -957,7 +963,7 @@ export default function AssinarPage() {
       {/* Espaço para a barra fixa não tapar o rodapé no celular. */}
       <div aria-hidden className="h-20 lg:hidden" />
 
-      <RodapeNovare convite={false} />
+      <RodapeNovare convite={false} aviso="servico" />
     </div>
   );
 }

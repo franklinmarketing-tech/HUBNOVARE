@@ -75,7 +75,9 @@ export function appsParaBusca(
     chamada: a.chamada,
     href: podeAbrir(a, role, plano, logado) ? a.href : destinoBloqueado(a),
     externo: !!a.externo && podeAbrir(a, role, plano, logado),
-    referencia: a.referencia,
+    // O benchmark interno NÃO entra aqui: este objeto vai para o cliente,
+    // e mandá-lo colocaria "Monarch Money" no JSON da página mesmo sem
+    // nenhuma tela renderizando o campo.
     grupo: rotuloDe(a),
     aberto: podeAbrir(a, role, plano, logado),
     filtro: filtroDe(a),

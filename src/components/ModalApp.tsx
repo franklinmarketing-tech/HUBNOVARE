@@ -197,15 +197,10 @@ export function ModalApp({
               </>
             )}
 
-            {app.referencia && (
-              <p className="mt-5 rounded-xl bg-slate-50 px-4 py-3 text-xs text-slate-500">
-                Construído para bater o padrão{" "}
-                <span className="font-semibold text-slate-700">
-                  {app.referencia}
-                </span>{" "}
-                — a referência mundial nessa categoria.
-              </p>
-            )}
+            {/* Mesmo motivo do catálogo: o benchmark é interno e não vai
+                para a tela. Dizia "Construído para bater o padrão Monarch
+                Money — a referência mundial nessa categoria", citando o
+                concorrente pelo nome dentro do nosso produto. */}
           </div>
 
           <div className="flex shrink-0 items-center gap-2 border-t border-slate-100 px-6 py-4 sm:px-7">

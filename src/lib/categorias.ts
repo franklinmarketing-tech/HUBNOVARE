@@ -20,6 +20,8 @@ export type Portal = {
   h: number;
   s: number;
   total: number;
+  /** "ferramentas" ou "itens", conforme a área tenha ou não serviço. */
+  rotuloTotal: string;
   /** Slugs dos três apps que aparecem como ícones flutuantes. */
   destaques: string[];
   /** Lista completa, revelada no painel que abre ao passar o mouse. */
@@ -81,6 +83,17 @@ export function portais(role: Role): Portal[] {
       titulo: FAMILIAS[familia],
       ...CONFIG[familia],
       total: daArea.length,
+      /**
+       * Como chamar o que está dentro desta área.
+       *
+       * "IA e Consultoria" tem cinco produtos de consultoria — gente
+       * atendendo — e o card dizia "7 ferramentas". Onde há serviço na
+       * conta, o rótulo passa a ser "itens": é honesto sem precisar de dois
+       * números num card que só tem espaço para um.
+       */
+      rotuloTotal: daArea.some((a) => a.tipo === "servico")
+        ? "itens"
+        : "ferramentas",
       // Dois, não três: o terceiro ícone só poluía a capa do card.
       destaques: daArea.slice(0, 2).map((a) => a.slug),
       itens: daArea.map((a) => ({

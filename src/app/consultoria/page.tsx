@@ -174,7 +174,7 @@ export default async function ConsultoriaPage() {
         tipo="produto"
       />
 
-      <RodapeNovare />
+      <RodapeNovare aviso="servico" />
     </div>
   );
 }

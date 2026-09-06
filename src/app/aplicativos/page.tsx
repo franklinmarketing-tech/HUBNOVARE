@@ -6,6 +6,7 @@ import { TopoApp } from "@/components/TopoApp";
 import { PaletaComandos } from "@/components/PaletaComandos";
 import { CatalogoFiltrado } from "@/components/CatalogoFiltrado";
 import { appsParaBusca, filtrosDoTopo } from "@/lib/navegacao";
+import { CONTAGEM } from "@/lib/apps";
 import { getPerfil } from "@/lib/perfil";
 import { getNotificacoes } from "@/lib/notificacoes";
 
@@ -44,9 +45,16 @@ export default async function AplicativosPage() {
           <h1 className="titulo-secao text-2xl sm:text-[2rem]">
             Todos os aplicativos
           </h1>
+          {/* Dois números, não um. Antes esta linha somava tudo e chamava o
+              conjunto de "ferramentas" — mas as consultorias entravam na
+              conta, e consultoria é gente atendendo, não calculadora. Dizia
+              25 enquanto a home somava 20 e a /assinar anunciava outro
+              número ainda. Os dois vêm de CONTAGEM, a mesma fonte que as
+              outras telas usam. */}
           <p className="mt-2.5 max-w-xl text-muted-foreground">
-            {apps.filter((a) => !a.emBreve).length} ferramentas prontas para
-            usar. Filtre por área ou busque com ⌘K.
+            {CONTAGEM.calculadoras} ferramentas prontas para usar e{" "}
+            {CONTAGEM.consultorias} formatos de consultoria. Filtre por área ou
+            busque com ⌘K.
           </p>
 
           <div className="mt-7">

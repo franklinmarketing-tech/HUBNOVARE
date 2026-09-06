@@ -135,14 +135,11 @@ function CardApp({ app }: { app: AppLeve }) {
                 : "Incluso no Workspace"}
           </p>
 
-          {/* O padrão que a ferramenta persegue: prova de que o nível foi
-              escolhido, não improvisado. */}
-          {app.referencia && (
-            <p className="mt-auto border-t border-slate-100 pt-2 text-[10px] text-slate-500">
-              padrão{" "}
-              <span className="font-medium text-slate-500">{app.referencia}</span>
-            </p>
-          )}
+          {/* O benchmark NÃO é renderizado: era anotação interna de
+              produto ("padrão Monarch Money", "padrão Cleo AI") que vazou
+              para produção. Citar concorrente no próprio catálogo entrega
+              a régua e não ajuda quem está escolhendo. O campo continua no
+              modelo, marcado como interno. */}
         </div>
 
         {/* A foto: real, sem véu apagando ela — só o degradê mínimo na

@@ -753,7 +753,7 @@ export default function VidaPlanPage() {
         </div>
       </main>
 
-      <RodapeNovare />
+      <RodapeNovare aviso="servico" />
     </div>
   );
 }

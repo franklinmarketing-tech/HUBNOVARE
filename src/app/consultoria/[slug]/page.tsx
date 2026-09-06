@@ -532,7 +532,7 @@ export default async function ProdutoPage({
         </section>
       </main>
 
-      <RodapeNovare />
+      <RodapeNovare aviso="servico" />
     </div>
   );
 }

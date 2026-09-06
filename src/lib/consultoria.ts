@@ -4,7 +4,7 @@
  * Estruturado para atuar como funil de vendas e qualificação de leads:
  * 1. Diagnóstico Gratuito (Porta de entrada principal)
  * 2. Consultoria de Investimentos (Parceria Novare & Nord)
- * 3. Plano Vida (Humano) (Inspiração Nord Liberta)
+ * 3. Plano Vida (Consultor) (Inspiração Nord Liberta)
  * 4. Consultoria Financeira (Contratação direta / Preparado para checkout autônomo)
  * 5. Revisão e Montagem de Carteira Pontual (LP de conversão)
  */
@@ -150,7 +150,7 @@ export const CONSULTORIAS: Consultoria[] = [
   {
     slug: "plano-vida",
     numero: 2,
-    nome: "Plano Vida (Humano)",
+    nome: "Plano Vida (Consultor)",
     subtitulo: "Inspiração e método Nord Liberta",
     chamada: "Do sonho ao número, com método e data",
     descricao:
