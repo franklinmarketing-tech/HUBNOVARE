@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { Code2 } from "lucide-react";
 import { InstagramLogo, YoutubeLogo, LinkedinLogo } from "@/components/LogosSociais";
 
 const ANO = new Date().getFullYear();
@@ -25,19 +26,27 @@ export function Rodape() {
           <p className="text-[11px] text-muted-foreground">
             © {ANO} <span className="font-semibold">Novare Consultoria</span> ·
             Consultoria sem comissão. Conteúdo educativo, não é recomendação
-            personalizada de investimento.{" "}
-            {/* A assinatura de quem construiu. `rel="noopener"` porque abre em
-                outra aba; sem `nofollow`, que aqui o link é legítimo. */}
-            <a
-              href="https://castriani-digital.vercel.app"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="whitespace-nowrap underline-offset-2 transition-colors hover:text-primary hover:underline"
-            >
-              Desenvolvido por Castriani Digital
-            </a>
+            personalizada de investimento.
           </p>
         </div>
+
+        {/* Mesma pílula do rodapé institucional, na versão clara.
+            Irmã do bloco da marca, não filha: dentro dele ela era espremida
+            pelo texto longo do aviso legal. Em 11px cinza a assinatura sumia;
+            aqui tem borda, ícone e o nome em degradê laranja-ciano — as duas
+            cores da casa. */}
+        <a
+          href="https://castriani-digital.vercel.app"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-slate-300 hover:shadow"
+        >
+          <Code2 className="h-3 w-3 text-ciano-forte" strokeWidth={2.5} />
+          <span className="text-[10px] text-slate-500">Desenvolvido por</span>
+          <span className="bg-gradient-to-r from-accent-strong to-ciano-forte bg-clip-text font-display text-xs font-black tracking-tight text-transparent">
+            Castriani Digital
+          </span>
+        </a>
 
         {/* flex-wrap + gap-y: com três redes sociais a linha não cabe em 390px
             e empurrava a página inteira para o lado. */}

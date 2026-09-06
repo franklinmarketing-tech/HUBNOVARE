@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { CONTATO } from "@/lib/contato";
-import { Globe, Mail, MessageCircle, Phone } from "lucide-react";
+import { Code2, Globe, Mail, MessageCircle, Phone } from "lucide-react";
 import { InstagramLogo, YoutubeLogo, LinkedinLogo } from "@/components/LogosSociais";
 import { APPS } from "@/lib/apps";
 import { DisclaimerFerramenta, DisclaimerServico } from "@/components/Disclaimers";
@@ -280,19 +280,26 @@ export function RodapeNovare({
             <p className="text-[11px] text-white/60">
               © {ANO} Novare Consultoria de Investimentos. Todos os direitos
               reservados.
-              <br />
-              {/* Numa linha só abaixo do copyright: a assinatura de quem
-                  construiu não disputa espaço com o aviso legal, que é o que
-                  a consultoria é obrigada a exibir. */}
-              <a
-                href="https://castriani-digital.vercel.app"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="underline-offset-2 transition-colors hover:text-white hover:underline"
-              >
-                Desenvolvido por Castriani Digital
-              </a>
             </p>
+
+            {/* A assinatura de quem construiu, com peso próprio.
+                Estava em 11px cinza, do mesmo tamanho do aviso legal — some
+                num rodapé escuro. Aqui vira uma pílula com borda e o nome em
+                degradê laranja-ciano (as duas cores da casa), que acende no
+                hover. Linha própria para não disputar espaço com o aviso
+                legal, que a consultoria é obrigada a exibir. */}
+            <a
+              href="https://castriani-digital.vercel.app"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.06] px-4 py-2 transition-all duration-200 hover:-translate-y-0.5 hover:border-white/30 hover:bg-white/10"
+            >
+              <Code2 className="h-3.5 w-3.5 text-[hsl(197_80%_65%)]" strokeWidth={2.5} />
+              <span className="text-xs text-white/55">Desenvolvido por</span>
+              <span className="bg-gradient-to-r from-[hsl(16_90%_62%)] to-[hsl(197_85%_62%)] bg-clip-text font-display text-sm font-black tracking-tight text-transparent">
+                Castriani Digital
+              </span>
+            </a>
             {aviso === "servico" ? (
               <DisclaimerServico tom="escuro" />
             ) : (
