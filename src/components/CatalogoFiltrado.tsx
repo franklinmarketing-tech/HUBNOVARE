@@ -140,6 +140,17 @@ function CardApp({ app }: { app: AppLeve }) {
               para produção. Citar concorrente no próprio catálogo entrega
               a régua e não ajuda quem está escolhendo. O campo continua no
               modelo, marcado como interno. */}
+
+          {/* Duas ferramentas do catálogo moram no site institucional e
+              abrem em outra aba. Nada no card dizia isso: a pessoa clicava
+              esperando ficar no Hub e caía noutro site, sem a barra lateral
+              nem a busca. A seta diagonal do canto está em TODOS os cards,
+              então não serve de aviso — este rótulo serve. */}
+          {app.externo && !app.emBreve && (
+            <p className="mt-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+              Abre em novareapp.com.br
+            </p>
+          )}
         </div>
 
         {/* A foto: real, sem véu apagando ela — só o degradê mínimo na

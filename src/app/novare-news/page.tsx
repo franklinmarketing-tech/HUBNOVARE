@@ -14,6 +14,7 @@ export const metadata: Metadata = {
   title: "Novare News",
   description:
     "Conteúdo educativo da Novare sobre salário, rescisão, investimentos e o dia a dia do dinheiro — sempre ligado à ferramenta que resolve o que acabou de ser explicado.",
+  alternates: { canonical: "/novare-news" },
 };
 
 

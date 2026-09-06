@@ -3,19 +3,25 @@ import type { Metadata } from "next";
 /**
  * Metadata desta ferramenta. Vive num layout porque a página é client
  * component e o Next não aceita `metadata` nesses arquivos.
+ *
+ * A description descreve ESTA ferramenta e mais nenhuma: é o texto que o
+ * Google mostra no resultado e o WhatsApp no preview do link. Antes todas
+ * terminavam com o benchmark interno da casa ("Padrão Mobills.") e com a
+ * mesma frase de enchimento, o que citava concorrente no nosso próprio
+ * resultado de busca e deixava as 57 descrições quase iguais entre si.
  */
 export const metadata: Metadata = {
   title: "Reajuste de Aluguel",
   description:
-    "IGP-M ou IPCA, sem erro no contrato. Reajuste de Aluguel da Novare: gratuito, sem cadastro e com a conta feita do jeito certo. Padrão Calculadora do Cidadão (BC).",
+    "Todo ano o contrato faz aniversário e vem o reajuste. Veja o valor certo, calculado com o índice oficial acumulado dos doze meses anteriores.",
   alternates: { canonical: "/ferramentas/reajuste-aluguel" },
   openGraph: {
     title: "Reajuste de Aluguel · Novare",
-    description: "IGP-M ou IPCA, sem erro no contrato. Gratuito e sem cadastro.",
+    description: "Todo ano o contrato faz aniversário e vem o reajuste.",
     url: "/ferramentas/reajuste-aluguel",
     type: "website",
     locale: "pt_BR",
-    images: ["/api/og?t=Reajuste%20de%20Aluguel&s=IGP-M%20ou%20IPCA%2C%20sem%20erro%20no%20contrato"],
+    images: ["/api/og?t=Reajuste%20de%20Aluguel&s=Todo%20ano%20o%20contrato%20faz%20anivers%C3%A1rio%20e%20vem%20o%20reajuste"],
   },
 };
 

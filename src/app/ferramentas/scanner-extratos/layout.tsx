@@ -11,17 +11,17 @@ import type { Metadata } from "next";
  * resultado de busca e deixava as 57 descrições quase iguais entre si.
  */
 export const metadata: Metadata = {
-  title: "Calculadora de CET",
+  title: "Scanner de Extratos",
   description:
-    "Três números do contrato bastam: o que caiu na conta, a parcela e quantas são. Descubra o juro escondido e o custo efetivo total que ninguém mostra.",
-  alternates: { canonical: "/ferramentas/cet" },
+    "Cole o extrato do banco e o scanner separa data, descrição e valor, categoriza cada gasto e leva tudo para o seu controle. Nada sai do navegador.",
+  alternates: { canonical: "/ferramentas/scanner-extratos" },
   openGraph: {
-    title: "Calculadora de CET · Novare",
-    description: "Três números do contrato bastam: o que caiu na conta, a parcela e quantas são.",
-    url: "/ferramentas/cet",
+    title: "Scanner de Extratos · Novare",
+    description: "Cole o extrato do banco e o scanner separa data, descrição e valor, categoriza cada gasto e leva tudo para…",
+    url: "/ferramentas/scanner-extratos",
     type: "website",
     locale: "pt_BR",
-    images: ["/api/og?t=Calculadora%20de%20CET&s=Tr%C3%AAs%20n%C3%BAmeros%20do%20contrato%20bastam%3A%20o%20que%20caiu%20na%20conta%2C%20a%20parcela%20e%20quantas%20s%C3%A3o"],
+    images: ["/api/og?t=Scanner%20de%20Extratos&s=Cole%20o%20extrato%20do%20banco%20e%20o%20scanner%20separa%20data%2C%20descri%C3%A7%C3%A3o%20e%20valor%2C%20categoriza%20cada%20gasto%20e%20leva%20tudo%20para%E2%80%A6"],
   },
 };
 

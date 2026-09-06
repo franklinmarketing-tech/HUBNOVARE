@@ -3,19 +3,25 @@ import type { Metadata } from "next";
 /**
  * Metadata desta ferramenta. Vive num layout porque a página é client
  * component e o Next não aceita `metadata` nesses arquivos.
+ *
+ * A description descreve ESTA ferramenta e mais nenhuma: é o texto que o
+ * Google mostra no resultado e o WhatsApp no preview do link. Antes todas
+ * terminavam com o benchmark interno da casa ("Padrão Mobills.") e com a
+ * mesma frase de enchimento, o que citava concorrente no nosso próprio
+ * resultado de busca e deixava as 57 descrições quase iguais entre si.
  */
 export const metadata: Metadata = {
-  title: "Radar Financeiro",
+  title: "Radar de Rendimento",
   description:
-    "O dinheiro parado que rende pouco. Radar Financeiro da Novare: gratuito, sem cadastro e com a conta feita do jeito certo. Padrão Copilot Money.",
+    "Diga quanto você tem guardado e onde ele está. O radar compara com o CDI e mostra, em reais, quanto o dinheiro parado deixa de render por ano.",
   alternates: { canonical: "/ferramentas/radar" },
   openGraph: {
-    title: "Radar Financeiro · Novare",
-    description: "O dinheiro parado que rende pouco. Gratuito e sem cadastro.",
+    title: "Radar de Rendimento · Novare",
+    description: "Diga quanto você tem guardado e onde ele está.",
     url: "/ferramentas/radar",
     type: "website",
     locale: "pt_BR",
-    images: ["/api/og?t=Radar%20Financeiro&s=O%20dinheiro%20parado%20que%20rende%20pouco"],
+    images: ["/api/og?t=Radar%20de%20Rendimento&s=Diga%20quanto%20voc%C3%AA%20tem%20guardado%20e%20onde%20ele%20est%C3%A1"],
   },
 };
 

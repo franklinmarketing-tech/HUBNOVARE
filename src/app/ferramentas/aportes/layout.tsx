@@ -3,19 +3,25 @@ import type { Metadata } from "next";
 /**
  * Metadata desta ferramenta. Vive num layout porque a página é client
  * component e o Next não aceita `metadata` nesses arquivos.
+ *
+ * A description descreve ESTA ferramenta e mais nenhuma: é o texto que o
+ * Google mostra no resultado e o WhatsApp no preview do link. Antes todas
+ * terminavam com o benchmark interno da casa ("Padrão Mobills.") e com a
+ * mesma frase de enchimento, o que citava concorrente no nosso próprio
+ * resultado de busca e deixava as 57 descrições quase iguais entre si.
  */
 export const metadata: Metadata = {
-  title: "Simulador de Aportes",
+  title: "Calculadora de Aportes",
   description:
-    "Quanto aportar para chegar lá. Simulador de Aportes da Novare: gratuito, sem cadastro e com a conta feita do jeito certo. Padrão Portfolio Visualizer.",
+    "Diga onde quer chegar e em quanto tempo. A calculadora devolve o aporte mensal exato para a meta caber no prazo, com o rendimento que você espera.",
   alternates: { canonical: "/ferramentas/aportes" },
   openGraph: {
-    title: "Simulador de Aportes · Novare",
-    description: "Quanto aportar para chegar lá. Gratuito e sem cadastro.",
+    title: "Calculadora de Aportes · Novare",
+    description: "Diga onde quer chegar e em quanto tempo.",
     url: "/ferramentas/aportes",
     type: "website",
     locale: "pt_BR",
-    images: ["/api/og?t=Simulador%20de%20Aportes&s=Quanto%20aportar%20para%20chegar%20l%C3%A1"],
+    images: ["/api/og?t=Calculadora%20de%20Aportes&s=Diga%20onde%20quer%20chegar%20e%20em%20quanto%20tempo"],
   },
 };
 

@@ -15,10 +15,14 @@ import {
   type Artigo,
 } from "@/lib/news";
 import { FAMILIAS } from "@/lib/apps";
+import { urlAbsoluta } from "@/lib/site";
 
 export function generateStaticParams() {
   return ARTIGOS.map((a) => ({ slug: a.slug }));
 }
+
+/** Só os artigos publicados existem — ver a nota em `/consultoria/[slug]`. */
+export const dynamicParams = false;
 
 export async function generateMetadata({
   params,
@@ -87,8 +91,10 @@ export default async function ArtigoPage({
   const maisAntigo = posicao >= 0 ? ordenados[posicao + 1] : undefined;
 
   // Sem destinatário DE PROPÓSITO: quem compartilha escolhe para quem mandar.
+  // O endereço vinha escrito à mão como novare-workspace.vercel.app: cada
+  // pessoa que compartilhava um artigo espalhava o domínio de deploy.
   const linkCompartilhar = compartilharNoWhatsApp(
-    `${artigo.titulo} · Novare News — https://novare-workspace.vercel.app/novare-news/${artigo.slug}`,
+    `${artigo.titulo} · Novare News — ${urlAbsoluta(`/novare-news/${artigo.slug}`)}`,
   );
 
   return (

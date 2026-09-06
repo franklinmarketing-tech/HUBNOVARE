@@ -63,7 +63,7 @@ export function PainelExemplo() {
           <span className="h-2.5 w-2.5 rounded-full bg-slate-300" />
         </span>
         <span className="ml-2 truncate rounded-md bg-card px-2.5 py-1 text-[10px] text-muted-foreground">
-          novare-workspace.vercel.app/planejamento/app
+          hub.novareapp.com.br/planejamento/app
         </span>
       </div>
 

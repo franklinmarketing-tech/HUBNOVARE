@@ -41,6 +41,7 @@ export const metadata: Metadata = {
   title: "Planejamento Financeiro — seus objetivos viram um número só",
   description:
     `O Marco Horizonte é o patrimônio que sustenta a renda que você quer até os 90 anos. Calcule o seu de graça e teste por ${PLANO_TRIAL_DIAS} dias sem pagar nada — depois ${PLANO_PRECO_ROTULO} ao mês, com a Íris e o desconto na consultoria inclusos.`,
+  alternates: { canonical: "/planejamento" },
 };
 
 /**

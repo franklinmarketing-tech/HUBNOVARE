@@ -11,6 +11,7 @@ export const metadata: Metadata = {
   title: "Exame de Saúde Financeira — nota de 0 a 100",
   description:
     "Descubra em 1 minuto a nota da sua saúde financeira, de 0 a 100. Avaliamos sobra mensal, reserva, dívidas e investimentos — e você recebe o diagnóstico da Novare.",
+  alternates: { canonical: "/exame-saude-financeira" },
 };
 
 export default function ExameSaudePage() {

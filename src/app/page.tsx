@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, ChevronDown, Crown, ShieldCheck } from "lucide-react";
 import { BuscaDestaque } from "@/components/BuscaDestaque";
@@ -19,6 +20,18 @@ import { portais } from "@/lib/categorias";
 import { appsParaBusca } from "@/lib/navegacao";
 import { getPerfil, temFichaPreenchida } from "@/lib/perfil";
 import { getNotificacoes } from "@/lib/notificacoes";
+
+/**
+ * Só o canonical: title, description e Open Graph da home são os do layout
+ * raiz, e é o certo — o padrão do site É o texto da home.
+ *
+ * O canonical, porém, tem de ficar AQUI e não no layout: declarado lá em
+ * cima, toda rota que não define o seu herdaria "/" e diria ao Google que
+ * é uma cópia da home.
+ */
+export const metadata: Metadata = {
+  alternates: { canonical: "/" },
+};
 
 /**
  * A home no formato "hub limpo": quatro vitrines grandes com a ação num

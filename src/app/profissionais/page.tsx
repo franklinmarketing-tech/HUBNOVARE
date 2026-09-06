@@ -4,10 +4,26 @@ import Link from "next/link";
 import { ArrowRight, ShieldAlert } from "lucide-react";
 import { PROFISSOES, fotoDe } from "@/lib/profissoes";
 
+/**
+ * Tinha `title` e `description`, mas nenhum `openGraph` — e sem bloco
+ * próprio o Next cai no do layout raiz. Quem compartilhava esta página via
+ * WhatsApp ou LinkedIn via o card da HOME: título, texto e imagem de outra
+ * página, sem nenhuma menção às profissões.
+ */
 export const metadata: Metadata = {
   title: "Planejamento financeiro por profissão",
   description:
     "Médicos, engenheiros, advogados e dentistas: cada carreira tem uma forma própria de ganhar e de perder dinheiro. A Novare atende cada uma delas, sem comissão de produto.",
+  alternates: { canonical: "/profissionais" },
+  openGraph: {
+    title: "Planejamento financeiro por profissão · Novare",
+    description:
+      "Cada carreira tem uma forma própria de ganhar e de perder dinheiro. Veja o atendimento da Novare para a sua.",
+    url: "/profissionais",
+    type: "website",
+    locale: "pt_BR",
+    images: ["/og.png"],
+  },
 };
 
 /**

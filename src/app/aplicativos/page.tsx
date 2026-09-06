@@ -14,6 +14,7 @@ export const metadata: Metadata = {
   title: "Aplicativos",
   description:
     "Todos os aplicativos financeiros da Novare: organização, investimentos, crédito, patrimônio e ferramentas inteligentes.",
+  alternates: { canonical: "/aplicativos" },
 };
 
 /** O catálogo completo. Os portais da home entram aqui já filtrados. */

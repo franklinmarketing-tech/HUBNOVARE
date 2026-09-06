@@ -23,6 +23,7 @@ export const metadata: Metadata = {
   title: "Íris, sua IA financeira",
   description:
     "Converse com a IA financeira da Novare e cole o extrato do seu banco: a Íris mostra para onde vai o seu dinheiro — assinatura esquecida, tarifa e juro escondido. Sem comissão, sem conectar conta.",
+  alternates: { canonical: "/iris" },
 };
 
 const O_QUE_FAZ = [

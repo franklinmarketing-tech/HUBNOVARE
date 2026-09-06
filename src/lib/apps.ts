@@ -228,6 +228,18 @@ export const APPS: NovareApp[] = [
   app("trabalho", "seguro-desemprego", "Seguro-Desemprego", "Valor e quantas parcelas", "/ferramentas/seguro-desemprego", "Gov.br"),
 
   // ========================================= INVESTIMENTOS
+  /**
+   * As duas únicas ferramentas do catálogo que moram FORA do Hub.
+   *
+   * Continuam no site institucional (novareapp.com.br) porque são iscas de
+   * captação já publicadas lá, com tráfego e formulário de lead próprios —
+   * refazê-las aqui dividiria o mesmo público em dois endereços. O card
+   * avisa que abre noutro site (ver `CatalogoFiltrado`).
+   *
+   * Para trazer qualquer uma para dentro basta apontar o `href` para a rota
+   * local e tirar `externo` — mas isso é decisão de produto (o que fazer com
+   * a página antiga e com os leads que ela ainda capta), não de código.
+   */
   app("investimentos", "simulador-aposentadoria", "Simulador de Aposentadoria", "Quando viver de renda", `${NOVAREAPP}/ferramentas/calculadora-de-aposentadoria`, "Empower", { externo: true }),
   app("investimentos", "simulador-cdi", "Simulador CDI", "CDB e renda fixa no líquido", `${NOVAREAPP}/ferramentas/simulador-de-renda-fixa`, "TradingView", { externo: true }),
   app("investimentos", "tesouro-direto", "Simulador Tesouro Direto", "Selic, prefixado e IPCA+", "/ferramentas/tesouro-direto", "Morningstar"),

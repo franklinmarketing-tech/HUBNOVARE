@@ -143,6 +143,18 @@ export function generateStaticParams() {
   return CONSULTORIAS.map((c) => ({ slug: c.slug }));
 }
 
+/**
+ * Só os cinco slugs acima existem. Qualquer outro é 404 de verdade.
+ *
+ * Sem esta linha o Next assume `dynamicParams: true` e tenta renderizar
+ * slug desconhecido sob demanda — e nesse caminho o `notFound()` lá embaixo
+ * devolvia o CORPO da página de erro com status HTTP 200. Um rastreador lê
+ * "200 OK" e indexa: `/consultoria/diagnostico-gratuito` (endereço antigo
+ * que não existe mais) e até `/consultoria/xyz123` respondiam como página
+ * válida. É o chamado soft 404, e some declarando que a lista é fechada.
+ */
+export const dynamicParams = false;
+
 export async function generateMetadata({
   params,
 }: {

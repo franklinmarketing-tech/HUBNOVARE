@@ -3,19 +3,25 @@ import type { Metadata } from "next";
 /**
  * Metadata desta ferramenta. Vive num layout porque a página é client
  * component e o Next não aceita `metadata` nesses arquivos.
+ *
+ * A description descreve ESTA ferramenta e mais nenhuma: é o texto que o
+ * Google mostra no resultado e o WhatsApp no preview do link. Antes todas
+ * terminavam com o benchmark interno da casa ("Padrão Mobills.") e com a
+ * mesma frase de enchimento, o que citava concorrente no nosso próprio
+ * resultado de busca e deixava as 57 descrições quase iguais entre si.
  */
 export const metadata: Metadata = {
   title: "Organizador de Assinaturas",
   description:
-    "Cace as cobranças esquecidas. Organizador de Assinaturas da Novare: gratuito, sem cadastro e com a conta feita do jeito certo. Padrão Rocket Money.",
+    "R$ 30 por mês parece pouco. Some todas as suas assinaturas e veja quanto elas custam por ano, de verdade. Descubra as cobranças que você esqueceu que existiam.",
   alternates: { canonical: "/ferramentas/assinaturas" },
   openGraph: {
     title: "Organizador de Assinaturas · Novare",
-    description: "Cace as cobranças esquecidas. Gratuito e sem cadastro.",
+    description: "R$ 30 por mês parece pouco.",
     url: "/ferramentas/assinaturas",
     type: "website",
     locale: "pt_BR",
-    images: ["/api/og?t=Organizador%20de%20Assinaturas&s=Cace%20as%20cobran%C3%A7as%20esquecidas"],
+    images: ["/api/og?t=Organizador%20de%20Assinaturas&s=R%24%2030%20por%20m%C3%AAs%20parece%20pouco"],
   },
 };
 

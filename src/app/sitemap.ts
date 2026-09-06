@@ -2,9 +2,7 @@ import type { MetadataRoute } from "next";
 import { APPS } from "@/lib/apps";
 import { ARTIGOS } from "@/lib/news";
 import { CONSULTORIAS } from "@/lib/consultoria";
-
-const SITE =
-  process.env.NEXT_PUBLIC_SITE_URL ?? "https://novare-workspace.vercel.app";
+import { SITE_URL as SITE } from "@/lib/site";
 
 /**
  * Sitemap gerado do próprio catálogo: ferramenta nova entra sozinha.

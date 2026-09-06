@@ -3,19 +3,25 @@ import type { Metadata } from "next";
 /**
  * Metadata desta ferramenta. Vive num layout porque a página é client
  * component e o Next não aceita `metadata` nesses arquivos.
+ *
+ * A description descreve ESTA ferramenta e mais nenhuma: é o texto que o
+ * Google mostra no resultado e o WhatsApp no preview do link. Antes todas
+ * terminavam com o benchmark interno da casa ("Padrão Mobills.") e com a
+ * mesma frase de enchimento, o que citava concorrente no nosso próprio
+ * resultado de busca e deixava as 57 descrições quase iguais entre si.
  */
 export const metadata: Metadata = {
-  title: "Organizador Previdenciário",
+  title: "Simulador de Previdência",
   description:
-    "INSS e privada no mesmo lugar. Organizador Previdenciário da Novare: gratuito, sem cadastro e com a conta feita do jeito certo. Padrão Empower.",
+    "Junte seus planos privados e a estimativa do INSS numa conta só e veja quanto você vai receber quando parar de trabalhar, já com as taxas.",
   alternates: { canonical: "/ferramentas/previdencia" },
   openGraph: {
-    title: "Organizador Previdenciário · Novare",
-    description: "INSS e privada no mesmo lugar. Gratuito e sem cadastro.",
+    title: "Simulador de Previdência · Novare",
+    description: "Junte seus planos privados e a estimativa do INSS numa conta só e veja quanto você vai receber quando parar…",
     url: "/ferramentas/previdencia",
     type: "website",
     locale: "pt_BR",
-    images: ["/api/og?t=Organizador%20Previdenci%C3%A1rio&s=INSS%20e%20privada%20no%20mesmo%20lugar"],
+    images: ["/api/og?t=Simulador%20de%20Previd%C3%AAncia&s=Junte%20seus%20planos%20privados%20e%20a%20estimativa%20do%20INSS%20numa%20conta%20s%C3%B3%20e%20veja%20quanto%20voc%C3%AA%20vai%20receber%20quando%20parar%E2%80%A6"],
   },
 };
 

@@ -5,6 +5,7 @@ import { InclinaAoCursor } from "@/components/InclinaAoCursor";
 import { FitaProgresso } from "@/components/FitaProgresso";
 import { BannerConsentimento } from "@/components/BannerConsentimento";
 import { ConviteDeSaida } from "@/components/ConviteDeSaida";
+import { SITE_URL } from "@/lib/site";
 import "./globals.css";
 
 const inter = Inter({
@@ -25,7 +26,9 @@ const sora = Sora({
   display: "swap",
 });
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+/* Vem de `lib/site`: era aqui que o fallback caía em localhost enquanto
+   robots e sitemap caíam no domínio da Vercel. Um lugar só agora. */
+const siteUrl = SITE_URL;
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),

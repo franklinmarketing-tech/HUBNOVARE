@@ -11,17 +11,17 @@ import type { Metadata } from "next";
  * resultado de busca e deixava as 57 descrições quase iguais entre si.
  */
 export const metadata: Metadata = {
-  title: "Calculadora de CET",
+  title: "Leitor de Contratos",
   description:
-    "Três números do contrato bastam: o que caiu na conta, a parcela e quantas são. Descubra o juro escondido e o custo efetivo total que ninguém mostra.",
-  alternates: { canonical: "/ferramentas/cet" },
+    "Cole o texto de um contrato de financiamento, consórcio ou serviço e a ferramenta destaca as cláusulas que costumam pegar as pessoas de surpresa.",
+  alternates: { canonical: "/ferramentas/leitor-contratos" },
   openGraph: {
-    title: "Calculadora de CET · Novare",
-    description: "Três números do contrato bastam: o que caiu na conta, a parcela e quantas são.",
-    url: "/ferramentas/cet",
+    title: "Leitor de Contratos · Novare",
+    description: "Cole o texto de um contrato de financiamento, consórcio ou serviço e a ferramenta destaca as cláusulas que…",
+    url: "/ferramentas/leitor-contratos",
     type: "website",
     locale: "pt_BR",
-    images: ["/api/og?t=Calculadora%20de%20CET&s=Tr%C3%AAs%20n%C3%BAmeros%20do%20contrato%20bastam%3A%20o%20que%20caiu%20na%20conta%2C%20a%20parcela%20e%20quantas%20s%C3%A3o"],
+    images: ["/api/og?t=Leitor%20de%20Contratos&s=Cole%20o%20texto%20de%20um%20contrato%20de%20financiamento%2C%20cons%C3%B3rcio%20ou%20servi%C3%A7o%20e%20a%20ferramenta%20destaca%20as%20cl%C3%A1usulas%20que%E2%80%A6"],
   },
 };
 

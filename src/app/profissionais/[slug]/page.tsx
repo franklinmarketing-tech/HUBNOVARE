@@ -28,6 +28,9 @@ export function generateStaticParams() {
   return PROFISSOES.map((p) => ({ slug: p.slug }));
 }
 
+/** Só as profissões listadas existem — ver a nota em `/consultoria/[slug]`. */
+export const dynamicParams = false;
+
 export async function generateMetadata({
   params,
 }: {

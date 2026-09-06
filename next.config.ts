@@ -34,6 +34,40 @@ const nextConfig: NextConfig = {
       // pessoa falar com a Novare — e o próprio botão dela já apontava
       // para /consultoria. Cortamos o meio de campo.
       { source: "/acompanhamento", destination: "/consultoria", permanent: true },
+      /* O endereço antigo do Diagnóstico. Enquanto `/consultoria/[slug]`
+         aceitava qualquer slug, ele respondia 200 servindo a página de
+         erro — então pode haver link e resultado de busca apontando para
+         cá. Agora vai para a página certa em vez de virar 404. */
+      {
+        source: "/consultoria/diagnostico-gratuito",
+        destination: "/consultoria/diagnostico",
+        permanent: true,
+      },
+    ];
+  },
+
+  /**
+   * Fora de produção, o site inteiro sai do índice.
+   *
+   * Toda branch e todo deploy da Vercel ganha uma URL própria e pública
+   * (`novare-workspace-git-*.vercel.app`). Sem este cabeçalho, o Google
+   * indexa esses endereços como se fossem o site: aparecem cópias do Hub
+   * em domínios de rascunho, competindo com o domínio real pela mesma
+   * página.
+   *
+   * `VERCEL_ENV` vale "production" só no deploy de produção — preview e
+   * development caem no noindex. Localhost não é alcançável por robô, mas
+   * o cabeçalho não atrapalha nada ali.
+   */
+  async headers() {
+    if (process.env.VERCEL_ENV === "production") return [];
+    return [
+      {
+        source: "/:caminho*",
+        headers: [
+          { key: "X-Robots-Tag", value: "noindex, nofollow" },
+        ],
+      },
     ];
   },
 };

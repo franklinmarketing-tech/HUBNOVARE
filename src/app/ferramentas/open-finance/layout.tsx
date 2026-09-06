@@ -11,17 +11,17 @@ import type { Metadata } from "next";
  * resultado de busca e deixava as 57 descrições quase iguais entre si.
  */
 export const metadata: Metadata = {
-  title: "Calculadora de CET",
+  title: "Open Finance",
   description:
-    "Três números do contrato bastam: o que caiu na conta, a parcela e quantas são. Descubra o juro escondido e o custo efetivo total que ninguém mostra.",
-  alternates: { canonical: "/ferramentas/cet" },
+    "Conecte seus bancos pelo Open Finance do Banco Central ou importe o extrato à mão. Sem senha de banco e sem compartilhar nenhuma credencial.",
+  alternates: { canonical: "/ferramentas/open-finance" },
   openGraph: {
-    title: "Calculadora de CET · Novare",
-    description: "Três números do contrato bastam: o que caiu na conta, a parcela e quantas são.",
-    url: "/ferramentas/cet",
+    title: "Open Finance · Novare",
+    description: "Conecte seus bancos pelo Open Finance do Banco Central ou importe o extrato à mão.",
+    url: "/ferramentas/open-finance",
     type: "website",
     locale: "pt_BR",
-    images: ["/api/og?t=Calculadora%20de%20CET&s=Tr%C3%AAs%20n%C3%BAmeros%20do%20contrato%20bastam%3A%20o%20que%20caiu%20na%20conta%2C%20a%20parcela%20e%20quantas%20s%C3%A3o"],
+    images: ["/api/og?t=Open%20Finance&s=Conecte%20seus%20bancos%20pelo%20Open%20Finance%20do%20Banco%20Central%20ou%20importe%20o%20extrato%20%C3%A0%20m%C3%A3o"],
   },
 };
 

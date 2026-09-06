@@ -1,4 +1,5 @@
 import { Resend } from "resend";
+import { SITE_URL } from "@/lib/site";
 
 /**
  * E-mail de boas-vindas — disparado depois que o pagamento do Workspace é
@@ -7,7 +8,7 @@ import { Resend } from "resend";
  * `/api/enviar-boas-vindas`, chamada à mão logo após liberar o plano.
  */
 
-const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://hub.novareapp.com.br";
+const SITE = SITE_URL;
 const REMETENTE = "Novare <suporte@novareapp.com.br>";
 
 function resend() {

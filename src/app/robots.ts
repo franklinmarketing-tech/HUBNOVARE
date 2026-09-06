@@ -1,7 +1,5 @@
 import type { MetadataRoute } from "next";
-
-const SITE =
-  process.env.NEXT_PUBLIC_SITE_URL ?? "https://novare-workspace.vercel.app";
+import { SITE_URL } from "@/lib/site";
 
 /** As ferramentas são públicas; área logada e login ficam fora do índice. */
 export default function robots(): MetadataRoute.Robots {
@@ -13,8 +11,18 @@ export default function robots(): MetadataRoute.Robots {
       // /planejamento/testar cria conta e entra sozinho, sem passar pela
       // assinatura — é só para teste interno, não pode ser indexado nem
       // achado por quem não tem o endereço de cor.
-      disallow: ["/hub", "/login", "/perfil", "/admin", "/planejamento/testar"],
+      //
+      // /api entrou junto: são rotas que respondem JSON, não páginas. Não
+      // rendem resultado de busca e só gastam orçamento de rastreio.
+      disallow: [
+        "/hub",
+        "/login",
+        "/perfil",
+        "/admin",
+        "/api",
+        "/planejamento/testar",
+      ],
     },
-    sitemap: `${SITE}/sitemap.xml`,
+    sitemap: `${SITE_URL}/sitemap.xml`,
   };
 }

@@ -11,17 +11,17 @@ import type { Metadata } from "next";
  * resultado de busca e deixava as 57 descrições quase iguais entre si.
  */
 export const metadata: Metadata = {
-  title: "Calculadora de CET",
+  title: "Alertas de Vencimento",
   description:
-    "Três números do contrato bastam: o que caiu na conta, a parcela e quantas são. Descubra o juro escondido e o custo efetivo total que ninguém mostra.",
-  alternates: { canonical: "/ferramentas/cet" },
+    "Tudo o que vence nos próximos 30 dias, lido do seu calendário de contas e das suas assinaturas, numa tela só. Sem cadastro e sem conectar conta nenhuma.",
+  alternates: { canonical: "/ferramentas/alertas" },
   openGraph: {
-    title: "Calculadora de CET · Novare",
-    description: "Três números do contrato bastam: o que caiu na conta, a parcela e quantas são.",
-    url: "/ferramentas/cet",
+    title: "Alertas de Vencimento · Novare",
+    description: "Tudo o que vence nos próximos 30 dias, lido do seu calendário de contas e das suas assinaturas, numa tela só.",
+    url: "/ferramentas/alertas",
     type: "website",
     locale: "pt_BR",
-    images: ["/api/og?t=Calculadora%20de%20CET&s=Tr%C3%AAs%20n%C3%BAmeros%20do%20contrato%20bastam%3A%20o%20que%20caiu%20na%20conta%2C%20a%20parcela%20e%20quantas%20s%C3%A3o"],
+    images: ["/api/og?t=Alertas%20de%20Vencimento&s=Tudo%20o%20que%20vence%20nos%20pr%C3%B3ximos%2030%20dias%2C%20lido%20do%20seu%20calend%C3%A1rio%20de%20contas%20e%20das%20suas%20assinaturas%2C%20numa%20tela%20s%C3%B3"],
   },
 };
 
