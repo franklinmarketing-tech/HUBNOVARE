@@ -1179,7 +1179,7 @@ export default function MesPage() {
                   type="button"
                   onClick={() => setConfirmando(true)}
                   disabled={fechando}
-                  className="flex items-center gap-2 rounded-xl bg-accent-btn px-5 py-2.5 text-sm font-bold text-white shadow-sm transition-opacity hover:opacity-95 disabled:opacity-60"
+                  className="flex items-center gap-2 rounded-xl bg-accent-btn px-5 py-2.5 text-sm font-bold text-white shadow-[0_4px_14px_-6px_hsl(16_80%_45%_/_0.6)] transition-all duration-150 hover:-translate-y-0.5 hover:shadow-[0_8px_20px_-6px_hsl(16_80%_45%_/_0.7)] active:translate-y-0 active:scale-[0.98] disabled:translate-y-0 disabled:opacity-60 disabled:shadow-none"
                 >
                   <CalendarCheck className="h-4 w-4" />
                   Fechar {nomeDoMes(mes)}
@@ -1227,7 +1227,7 @@ export default function MesPage() {
                   type="button"
                   onClick={() => void fecharMes()}
                   disabled={fechando}
-                  className="flex items-center gap-2 rounded-xl bg-accent-btn px-5 py-2.5 text-sm font-bold text-white shadow-sm transition-opacity hover:opacity-95 disabled:opacity-60"
+                  className="flex items-center gap-2 rounded-xl bg-accent-btn px-5 py-2.5 text-sm font-bold text-white shadow-[0_4px_14px_-6px_hsl(16_80%_45%_/_0.6)] transition-all duration-150 hover:-translate-y-0.5 hover:shadow-[0_8px_20px_-6px_hsl(16_80%_45%_/_0.7)] active:translate-y-0 active:scale-[0.98] disabled:translate-y-0 disabled:opacity-60 disabled:shadow-none"
                 >
                   {fechando ? (
                     <Loader2 className="h-4 w-4 animate-spin" />

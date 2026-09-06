@@ -106,7 +106,9 @@ export default function EvolucaoPage() {
           </p>
           <Link
             href="/planejamento/app/mes"
-            className="mt-5 inline-block rounded-xl bg-accent-btn px-5 py-2.5 text-sm font-bold text-white"
+            /* O botão responde ao toque: sobe no hover, afunda no clique.
+               Sem isso ele parece uma etiqueta colada, não algo clicável. */
+            className="mt-5 inline-block rounded-xl bg-accent-btn px-5 py-2.5 text-sm font-bold text-white shadow-[0_4px_14px_-6px_hsl(16_80%_45%_/_0.6)] transition-all duration-150 hover:-translate-y-0.5 hover:shadow-[0_8px_20px_-6px_hsl(16_80%_45%_/_0.7)] active:translate-y-0 active:scale-[0.98]"
           >
             Ir para o meu mês
           </Link>
@@ -152,15 +154,18 @@ export default function EvolucaoPage() {
       </div>
 
       <section className="mb-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        {/* Rótulos em português de gente. "Meses acompanhados" e "Patrimônio
+            líquido" são como o consultor fala; "Você já fechou" e "O que é
+            seu hoje" são como a pessoa pensa. O número é o mesmo. */}
         <Indicador
-          rotulo="Meses acompanhados"
-          valor={String(meses)}
+          rotulo="Você já fechou"
+          valor={`${meses} ${meses === 1 ? "mês" : "meses"}`}
           detalhe={`Desde ${mesCurto(primeiro.month_ref)}`}
         />
         <Indicador
-          rotulo="Patrimônio hoje"
+          rotulo="O que é seu hoje"
           valor={brlCurto(ultimo.net_worth)}
-          detalhe="Líquido, já descontadas as dívidas"
+          detalhe="Tudo o que você tem, menos o que deve"
         />
         {/* No PRIMEIRO fechamento não existe variação: o mês é comparado com
             ele mesmo e o cartão dizia "Você cresceu +R$ 0", que soa a fracasso
@@ -176,16 +181,16 @@ export default function EvolucaoPage() {
           />
         ) : (
           <Indicador
-            rotulo="Guardado neste mês"
+            rotulo="Guardou neste mês"
             valor={pct(ultimo.savings_rate ?? 0)}
             detalhe="Da sua renda. O próximo fechamento já compara."
             tom={(ultimo.savings_rate ?? 0) >= 10 ? "bom" : "atencao"}
           />
         )}
         <Indicador
-          rotulo="Plano cumprido"
+          rotulo="Metas que você bateu"
           valor={pct(ultimo.plan_completion_pct ?? 0)}
-          detalhe="Metas que já bateram o alvo"
+          detalhe="Do seu plano de ação"
           tom={(ultimo.plan_completion_pct ?? 0) >= 50 ? "bom" : "atencao"}
         />
       </section>

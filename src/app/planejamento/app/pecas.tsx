@@ -103,7 +103,7 @@ export function PrecisaPreencher({
       <p className="mt-2 text-sm text-muted-foreground">{texto}</p>
       <Link
         href="/planejamento/app/meus-dados"
-        className="mt-5 inline-block rounded-xl bg-accent-btn px-5 py-2.5 text-sm font-bold text-white transition-opacity hover:opacity-95"
+        className="mt-5 inline-block rounded-xl bg-accent-btn px-5 py-2.5 text-sm font-bold text-white shadow-[0_4px_14px_-6px_hsl(16_80%_45%_/_0.6)] transition-all duration-150 hover:-translate-y-0.5 hover:shadow-[0_8px_20px_-6px_hsl(16_80%_45%_/_0.7)] active:translate-y-0 active:scale-[0.98]"
       >
         Preencher meus dados
       </Link>
@@ -123,7 +123,7 @@ export function SemFicha() {
       </p>
       <Link
         href="/"
-        className="mt-5 inline-block rounded-xl bg-accent-btn px-5 py-2.5 text-sm font-bold text-white"
+        className="mt-5 inline-block rounded-xl bg-accent-btn px-5 py-2.5 text-sm font-bold text-white shadow-[0_4px_14px_-6px_hsl(16_80%_45%_/_0.6)] transition-all duration-150 hover:-translate-y-0.5 hover:shadow-[0_8px_20px_-6px_hsl(16_80%_45%_/_0.7)] active:translate-y-0 active:scale-[0.98]"
       >
         Voltar ao Workspace
       </Link>
@@ -146,12 +146,23 @@ export function Indicador({
   const cor = {
     neutro: "text-primary",
     bom: "text-success-strong",
-    atencao: "text-warning",
+    atencao: "text-accent-strong",
     ruim: "text-destructive",
   }[tom];
 
+  /* Um filete de cor no topo do card. Uma fileira de indicadores brancos
+     idênticos não diz qual está bem e qual pede atenção sem que a pessoa
+     leia todos os números — a cor faz essa leitura de relance. */
+  const filete = {
+    neutro: "bg-primary/25",
+    bom: "bg-success",
+    atencao: "bg-accent",
+    ruim: "bg-destructive",
+  }[tom];
+
   return (
-    <div className="rounded-2xl border border-border bg-white p-4">
+    <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-4 shadow-[0_1px_2px_hsl(215_40%_20%_/_0.04),0_8px_20px_-14px_hsl(215_40%_20%_/_0.2)] transition-transform duration-200 hover:-translate-y-0.5">
+      <span aria-hidden className={`absolute inset-x-0 top-0 h-0.5 ${filete}`} />
       <p className="text-2xs font-semibold uppercase tracking-wider text-muted-foreground">
         {rotulo}
       </p>
@@ -215,7 +226,7 @@ export function BotaoPrincipal({
   return (
     <Link
       href={href}
-      className="inline-flex items-center gap-2 rounded-xl bg-accent-btn px-5 py-2.5 text-sm font-bold text-white shadow-sm transition-opacity hover:opacity-95"
+      className="inline-flex items-center gap-2 rounded-xl bg-accent-btn px-5 py-2.5 text-sm font-bold text-white shadow-[0_4px_14px_-6px_hsl(16_80%_45%_/_0.6)] transition-all duration-150 hover:-translate-y-0.5 hover:shadow-[0_8px_20px_-6px_hsl(16_80%_45%_/_0.7)] active:translate-y-0 active:scale-[0.98]"
     >
       {children}
     </Link>
