@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { FerramentaAssinante } from "@/components/FerramentaAssinante";
 
 /**
  * Metadata desta ferramenta. Vive num layout porque a página é client
@@ -26,5 +27,17 @@ export const metadata: Metadata = {
 };
 
 export default function Layout({ children }: { children: React.ReactNode }) {
-  return children;
+  return (
+    <FerramentaAssinante
+      nome="Organizador de Assinaturas"
+      resumo="R$ 30 por mês parece pouco. Somadas, viram uma parcela de carro."
+      entrega={[
+        "Todas as suas assinaturas somadas, por mês e por ano",
+        "Recebe direto o que a Íris achar no seu extrato",
+        "Mostra o que você esqueceu que estava pagando",
+      ]}
+    >
+      {children}
+    </FerramentaAssinante>
+  );
 }

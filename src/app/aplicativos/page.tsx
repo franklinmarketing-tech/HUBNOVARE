@@ -52,8 +52,13 @@ export default async function AplicativosPage() {
               25 enquanto a home somava 20 e a /assinar anunciava outro
               número ainda. Os dois vêm de CONTAGEM, a mesma fonte que as
               outras telas usam. */}
+          {/* Três números, não dois. Assim que as ferramentas de assinante
+              entraram no catálogo, dizer "28 ferramentas prontas para usar"
+              passou a incluir 8 que só abrem pagando — e "pronta para usar"
+              é exatamente o que elas NÃO estão para quem chega de busca. */}
           <p className="mt-2.5 max-w-xl text-muted-foreground">
-            {CONTAGEM.calculadoras} ferramentas prontas para usar e{" "}
+            {CONTAGEM.ferramentas} ferramentas prontas para usar,{" "}
+            {CONTAGEM.exclusivasAssinante} exclusivas de assinante e{" "}
             {CONTAGEM.consultorias} formatos de consultoria. Filtre por área ou
             busque com ⌘K.
           </p>

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { FerramentaAssinante } from "@/components/FerramentaAssinante";
 
 /**
  * Metadata desta ferramenta. Vive num layout porque a página é client
@@ -26,5 +27,17 @@ export const metadata: Metadata = {
 };
 
 export default function Layout({ children }: { children: React.ReactNode }) {
-  return children;
+  return (
+    <FerramentaAssinante
+      nome="Alertas de Vencimento"
+      resumo="Nenhuma conta pega você de surpresa."
+      entrega={[
+        "Tudo o que vence nos próximos 30 dias, numa tela só",
+        "Lê o seu Calendário de Contas e as suas Assinaturas",
+        "Mostra o total a pagar antes de o mês virar",
+      ]}
+    >
+      {children}
+    </FerramentaAssinante>
+  );
 }

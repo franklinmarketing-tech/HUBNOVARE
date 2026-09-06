@@ -1,8 +1,9 @@
 /**
  * O App Novare Planejamento Financeiro, como produto.
  *
- * ⚠️ O preço NÃO mora aqui. Existe **uma assinatura só** na casa — o Workspace
- * Novare, a R$ 19,90/mês — e assinar o Planejamento é assinar o Workspace: a
+ * ⚠️ O preço NÃO mora aqui, nem neste comentário: escrever o número aqui já
+ * criou uma verdade velha uma vez. Existe **uma assinatura só** na casa — o
+ * Workspace Novare — e assinar o Planejamento é assinar o Workspace: a
  * pessoa leva o plano, a Íris, as ferramentas e o desconto na consultoria pelo
  * mesmo valor. São duas portas para a mesma porteira.
  *

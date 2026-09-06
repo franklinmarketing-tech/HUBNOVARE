@@ -26,7 +26,32 @@ export const ASSINATURA_ATIVA = true;
  */
 export const ASSINATURA_NOME = "Planejamento Financeiro com IA";
 
-export const ASSINATURA_PRECO = 19.9;
+/**
+ * R$ 49, e não os R$ 19,90 de antes.
+ *
+ * R$ 19,90 é quase exatamente a mediana de preço de app de assinatura na
+ * América Latina (US$ 3,75 ≈ R$ 19,20, RevenueCat sobre 115 mil apps) — ou
+ * seja, o produto estava precificado como app genérico de celular. Pior: é o
+ * mesmo preço do concorrente mais direto (Meu Planner Essencial), que tem
+ * canal melhor e nenhuma versão grátis para se canibalizar.
+ *
+ * Dois motivos para subir, os dois contraintuitivos:
+ *
+ * 1. Ticket maior tem churn MENOR. Recurly, sobre ~2.200 merchants: a faixa
+ *    de US$ 10-25/mês perde 4,29% ao mês; a de US$ 25-50, 3,84%. Preço mais
+ *    alto não espanta cliente, filtra quem nunca ia ficar — e o churn
+ *    involuntário (cartão recusado) também cai.
+ *
+ * 2. Preço baixo demais MATA promessa alta. A oferta diz que a Íris já achou
+ *    mais de R$ 400/mês vazando na conta de gente real. Cobrar R$ 19,90 para
+ *    entregar R$ 400 faz a pessoa desconfiar do R$ 400, não achar barato.
+ *
+ * R$ 49 fica acima do Meu Planner Premium (R$ 34,90), dentro da faixa do
+ * Organizze (R$ 35-69) e abaixo da barreira psicológica dos R$ 50. Sai da
+ * zona de retenção estruturalmente ruim (ARPA < US$ 25) sem exigir a
+ * reconstrução de posicionamento que R$ 79+ exigiria.
+ */
+export const ASSINATURA_PRECO = 49;
 
 export const ASSINATURA_PRECO_ROTULO = ASSINATURA_PRECO.toLocaleString("pt-BR", {
   style: "currency",
@@ -70,46 +95,76 @@ export const ASSINATURA_CHECKOUT_URL = "";
 export const ROTULO_PRO = "PRO";
 
 /**
- * Os três pilares da assinatura, na ordem em que convencem.
+ * Os três pilares da assinatura, escritos por RESULTADO.
  *
- * Primeiro o que a pessoa veio buscar (o plano), depois o que ela não sabia
- * que queria (a Íris), por último o que paga a assinatura inteira (o desconto).
+ * Antes eram: "Planejamento Financeiro PRO", "Íris, a IA que lê seu extrato",
+ * "Desconto na consultoria". Três nomes de funcionalidade — o que o produto
+ * TEM. Ninguém acorda querendo comprar um relatório em PDF; a pessoa quer
+ * saber para onde o dinheiro dela foi.
+ *
+ * A ordem também mudou. A Íris era o terceiro pilar e é o único que devolve
+ * dinheiro no primeiro uso: virou o primeiro. O plano, que exige preencher
+ * uma trilha antes de entregar algo, virou o segundo — o valor tem de vir
+ * antes do esforço, não depois.
+ *
+ * Para quem estes textos falam: quem ganha bem e não vê o dinheiro. É onde
+ * os dois diferenciais da casa batem juntos — a Íris acha o vazamento, e o
+ * Marco Horizonte mostra o que aquele vazamento já teria virado.
  */
 export const ASSINATURA_PILARES = [
   {
-    chave: "planejamento",
-    nome: "Planejamento Financeiro PRO",
-    resumo: "Seu plano completo, do retrato ao acompanhamento mensal.",
-    detalhe:
-      "Você preenche seus dados uma vez e o app entrega diagnóstico, Marco Horizonte, plano de ação com valor e prazo, e um relatório em PDF que é seu. Sem esperar ninguém liberar nada.",
-    href: "/planejamento",
-  },
-  {
     chave: "iris",
-    nome: "Íris, a IA que lê seu extrato",
-    resumo: "Acha o dinheiro que some antes de você sentir falta.",
+    nome: "Descubra para onde seu dinheiro foi",
+    resumo: "A Íris lê seu extrato e acha o que some sem você perceber.",
     detalhe:
-      "Cole o extrato do banco e ela encontra assinatura esquecida, tarifa repetida e juro escondido. Fala a verdade porque não ganha comissão de ninguém.",
+      "Cole o extrato do banco. Em segundos ela mostra a assinatura que você esqueceu, a tarifa que ninguém explica e o juro escondido na parcela. Já achou mais de R$ 400 por mês vazando na conta de gente que jurava não ter o que cortar.",
     href: "/iris",
   },
   {
-    chave: "consultoria",
-    nome: "Desconto na consultoria particular",
-    resumo: "Quando você quiser um consultor do lado.",
+    chave: "planejamento",
+    nome: "Saiba quanto você já poderia ter",
+    resumo: "Seu Marco Horizonte: o número e o caminho até ele.",
     detalhe:
-      "A consultoria da Novare é analisada caso a caso e cobrada à parte — mas assinante entra com desconto em qualquer formato. Um único atendimento costuma pagar a assinatura do ano.",
-    href: "/consultoria",
+      "É o patrimônio que sustenta a renda que você quer, até os 90 anos. Não é a regra dos 4% americana — é a conta certa, com juro brasileiro e prazo definido. Você descobre o número, o prazo e quanto precisa guardar por mês.",
+    href: "/planejamento",
+  },
+  {
+    chave: "acompanhamento",
+    nome: "Não perca de vista de novo",
+    resumo: "Fecha o mês em 2 minutos e vê se avançou ou recuou.",
+    detalhe:
+      "É a diferença entre a planilha que você abandona em fevereiro e um plano que ainda está de pé em dezembro. Todo mês o app mostra a sua evolução em números, e o relatório em PDF é seu — leve para onde quiser, inclusive para outro consultor.",
+    href: "/planejamento",
   },
 ] as const;
 
-/** O que entra, item a item — usado na lista de checagem da página. */
+/**
+ * O que entra, item a item.
+ *
+ * Ordenado por FORÇA, não pela ordem em que foi construído. A Íris estava em
+ * terceiro e é o item que devolve dinheiro no primeiro uso — subiu para o
+ * topo. O relatório em PDF estava em segundo e é o que menos convence
+ * sozinho: desceu, e ganhou o motivo pelo qual ele importa ("inclusive para
+ * outro consultor" prova que a casa não prende cliente).
+ *
+ * Saiu da lista: "Novare News e indicadores ao vivo". Selic e IPCA ao vivo
+ * existem em qualquer app de banco — ocupava uma linha sem convencer ninguém
+ * e diluía os itens fortes. O conteúdo continua no ar, só não é argumento de
+ * venda.
+ */
 export const ASSINATURA_INCLUI = [
-  `${ASSINATURA_TRIAL_DIAS} dias grátis para testar, sem cadastrar cartão`,
-  "O app de planejamento completo: diagnóstico, plano de ação e relatório em PDF",
-  "Íris, a IA que lê seu extrato e mostra para onde o dinheiro foi",
-  "Acompanhamento mês a mês, com a sua evolução em números",
+  "Íris ilimitada: leia quantos extratos quiser, todo mês",
+  "Seu Marco Horizonte calculado — o número que você precisa atingir, com prazo",
+  "Plano de ação com valor e prazo: o que fazer primeiro, segundo, terceiro",
+  "Fechamento mensal em 2 minutos, com a sua evolução em números",
+  "Relatório em PDF que é seu — leve para onde quiser, inclusive para outro consultor",
+  /* O número sai de `CONTAGEM.exclusivasAssinante` na página, não daqui:
+     este arquivo é fonte pura e importar o catálogo criaria acoplamento —
+     mas cravar "8" à mão é o erro que a auditoria dos contadores já pegou
+     uma vez. O marcador é substituído em `/assinar`. */
+  "{EXCLUSIVAS} ferramentas exclusivas de assinante: seus gastos, contas e assinaturas conversando entre si",
   "Todas as calculadoras da casa, com as tabelas oficiais de 2026",
-  "Desconto na consultoria particular com um consultor",
-  "Novare News e indicadores ao vivo (Selic, CDI, IPCA, dólar)",
+  "Desconto na consultoria particular da Novare",
+  `${ASSINATURA_TRIAL_DIAS} dias grátis para testar, sem cadastrar cartão`,
   "Cancele quando quiser, sem multa nem fidelidade",
 ];

@@ -231,6 +231,37 @@ export const APPS: NovareApp[] = [
   // ferramenta que a busca do Hub jurava não existir.
   app("trabalho", "seguro-desemprego", "Seguro-Desemprego", "Valor e quantas parcelas", "/ferramentas/seguro-desemprego", "Gov.br"),
 
+  // ======================================== EXCLUSIVAS DE QUEM ASSINA
+  /**
+   * Oito ferramentas que já existiam no disco e voltaram como benefício da
+   * assinatura — não como calculadora avulsa.
+   *
+   * Elas foram podadas do catálogo grátis em 08/2026 com motivo documentado
+   * no bloco de arquivadas mais abaixo, e a maioria por uma razão só:
+   * "exige lançar cada gasto para sempre", "obriga cadastrar cada cartão
+   * antes de mostrar qualquer número". Isso é veneno para um visitante que
+   * chegou de busca e quer uma resposta em trinta segundos — e é exatamente
+   * o comportamento de quem assina, que volta todo mês de qualquer jeito.
+   *
+   * As cinco primeiras SE ALIMENTAM: Gastos, Assinaturas e Calendário
+   * gravam; Alertas lê os dois últimos; a Central junta os quatro num painel
+   * (ver `useArmazenado` em central/page.tsx). Hoje a Central existe sem
+   * alimentadores e os alimentadores sem destino — religar uma sem as outras
+   * não entrega valor nenhum. Por isso vão juntas ou não vão.
+   *
+   * Não voltou o que foi cortado por motivo que CONTINUA valendo: crédito
+   * caro (fora do foco de construir patrimônio), FGTS (o app da Caixa dá o
+   * número certo), Assistente Financeiro (canibaliza a Íris).
+   */
+  app("organizacao", "controle-gastos", "Controle de Gastos", "Para onde vai o seu dinheiro", "/ferramentas/gastos", "Copilot Money", { plano: "pago" }),
+  app("organizacao", "organizador-assinaturas", "Organizador de Assinaturas", "Cace as cobranças esquecidas", "/ferramentas/assinaturas", "Rocket Money", { plano: "pago" }),
+  app("organizacao", "calendario-financeiro", "Calendário de Contas", "Nenhum vencimento esquecido", "/ferramentas/calendario", "Rocket Money", { plano: "pago" }),
+  app("organizacao", "alertas-vencimento", "Alertas de Vencimento", "O que vence nos próximos 30 dias", "/ferramentas/alertas", "Rocket Money", { plano: "pago" }),
+  app("organizacao", "central-financeira", "Central Financeira", "Sua vida financeira num painel só", "/ferramentas/central", "Monarch Money", { plano: "pago" }),
+  app("ia", "scanner-extratos", "Scanner de Extratos", "Cole o extrato e ele categoriza tudo", "/ferramentas/scanner-extratos", "Copilot Money", { plano: "pago" }),
+  app("investimentos", "dashboard-patrimonial", "Dashboard Patrimonial", "Tudo o que você tem, num painel", "/ferramentas/dashboard-patrimonial", "Monarch Money", { plano: "pago" }),
+  app("investimentos", "raio-x-carteira", "Raio-X da Carteira", "Concentração e risco expostos", "/ferramentas/raio-x", "Morningstar X-Ray", { plano: "pago" }),
+
   // ========================================= INVESTIMENTOS
   /**
    * As duas únicas ferramentas do catálogo que moram FORA do Hub.
@@ -457,10 +488,31 @@ export const FERRAMENTAS_GRATUITAS = APPS.filter((a) => a.plano === "gratis");
  * o que é o quê.
  */
 export const CONTAGEM = {
-  /** Calculadoras e simuladores: o que se usa sozinho, de graça. */
+  /**
+   * Calculadoras e simuladores abertos: o que se usa sozinho, de graça.
+   *
+   * O filtro por `plano` não é detalhe. Este getter contava por `href`, e no
+   * dia em que as oito ferramentas de assinante entraram no catálogo ele
+   * passaria a somá-las — o texto "N ferramentas gratuitas" viraria mentira
+   * silenciosa, contando o que está atrás do paywall.
+   */
   get ferramentas() {
     return APPS.filter(
-      (a) => a.familia && a.status !== "em-breve" && a.href.includes("/ferramentas/"),
+      (a) =>
+        a.familia &&
+        a.status !== "em-breve" &&
+        a.plano === "gratis" &&
+        a.href.includes("/ferramentas/"),
+    ).length;
+  },
+  /** As que só quem assina abre — o argumento novo da oferta. */
+  get exclusivasAssinante() {
+    return APPS.filter(
+      (a) =>
+        a.familia &&
+        a.status !== "em-breve" &&
+        a.plano === "pago" &&
+        a.href.includes("/ferramentas/"),
     ).length;
   },
   /** Aplicativos com login e estado próprio: Planejamento e Íris. */
@@ -474,7 +526,12 @@ export const CONTAGEM = {
     ).length;
   },
   /**
-   * O número que texto de VENDA pode usar.
+   * O número que texto de VENDA pode usar: tudo o que o assinante abre.
+   *
+   * Soma as abertas e as exclusivas de assinante, porque a assinatura dá
+   * acesso às duas — este é o total honesto para quem está comprando. Para
+   * dizer quantas são GRATUITAS (na home, no rodapé, no blog), use
+   * `ferramentas`, que exclui as pagas.
    *
    * Só `tipo !== "servico"`: consultoria é atendimento humano e contá-la
    * como ferramenta inflava a promessa. É este contador que as telas de

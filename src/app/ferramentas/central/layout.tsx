@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { FerramentaAssinante } from "@/components/FerramentaAssinante";
 
 /**
  * Metadata desta ferramenta. Vive num layout porque a página é client
@@ -26,5 +27,17 @@ export const metadata: Metadata = {
 };
 
 export default function Layout({ children }: { children: React.ReactNode }) {
-  return children;
+  return (
+    <FerramentaAssinante
+      nome="Central Financeira"
+      resumo="Sua vida financeira num painel só."
+      entrega={[
+        "Junta o que você já registrou: gastos, contas, assinaturas e orçamento",
+        "O retrato do mês sem preencher nada de novo",
+        "É a tela para abrir toda semana, não só no fechamento",
+      ]}
+    >
+      {children}
+    </FerramentaAssinante>
+  );
 }

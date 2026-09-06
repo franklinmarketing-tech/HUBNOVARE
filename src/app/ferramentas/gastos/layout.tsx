@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { FerramentaAssinante } from "@/components/FerramentaAssinante";
 
 /**
  * Metadata desta ferramenta. Vive num layout porque a página é client
@@ -26,5 +27,17 @@ export const metadata: Metadata = {
 };
 
 export default function Layout({ children }: { children: React.ReactNode }) {
-  return children;
+  return (
+    <FerramentaAssinante
+      nome="Controle de Gastos"
+      resumo="Anote cada gasto em segundos e veja o mês tomar forma."
+      entrega={[
+        "O total do mês, as categorias que mais pesam e o seu ritmo por dia",
+        "O Scanner de Extratos importa por você: não precisa digitar tudo",
+        "Alimenta a Central Financeira e o seu fechamento mensal",
+      ]}
+    >
+      {children}
+    </FerramentaAssinante>
+  );
 }

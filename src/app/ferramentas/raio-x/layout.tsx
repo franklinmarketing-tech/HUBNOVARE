@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { FerramentaAssinante } from "@/components/FerramentaAssinante";
 
 /**
  * Metadata desta ferramenta. Vive num layout porque a página é client
@@ -26,5 +27,17 @@ export const metadata: Metadata = {
 };
 
 export default function Layout({ children }: { children: React.ReactNode }) {
-  return children;
+  return (
+    <FerramentaAssinante
+      nome="Raio-X da Carteira"
+      resumo="A maioria das carteiras não quebra por rentabilidade, e sim por concentração."
+      entrega={[
+        "Concentração, liquidez e risco, ativo por ativo",
+        "Mostra o risco que a rentabilidade esconde",
+        "É a análise que um consultor faria na sua carteira",
+      ]}
+    >
+      {children}
+    </FerramentaAssinante>
+  );
 }

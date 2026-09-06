@@ -9,6 +9,7 @@ import {
   PLANO_TRIAL_DIAS,
 } from "@/lib/planejamento/oferta";
 import { ASSINATURA_INCLUI, ASSINATURA_NOME } from "@/lib/assinatura";
+import { CONTAGEM } from "@/lib/apps";
 import { falarNoWhatsApp } from "@/lib/contato";
 
 /**
@@ -53,7 +54,12 @@ const CONTEXTOS = {
   },
   workspace: {
     sobretitulo: ASSINATURA_NOME,
-    itens: ASSINATURA_INCLUI,
+    /* `{EXCLUSIVAS}` vem de `assinatura.ts`, que é fonte pura e não importa
+       o catálogo. O número real sai daqui, do mesmo getter que as outras
+       telas usam — nunca escrito à mão. */
+    itens: ASSINATURA_INCLUI.map((i) =>
+      i.replace("{EXCLUSIVAS}", String(CONTAGEM.exclusivasAssinante)),
+    ),
     brinde: "Uma assinatura, tudo liberado",
     mensagem: `Olá! Quero começar o teste grátis de ${PLANO_TRIAL_DIAS} dias do ${ASSINATURA_NOME} (depois ${PLANO_PRECO_ROTULO}/mês, com tudo liberado).`,
   },

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { FerramentaAssinante } from "@/components/FerramentaAssinante";
 
 /**
  * Metadata desta ferramenta. Vive num layout porque a página é client
@@ -26,5 +27,17 @@ export const metadata: Metadata = {
 };
 
 export default function Layout({ children }: { children: React.ReactNode }) {
-  return children;
+  return (
+    <FerramentaAssinante
+      nome="Dashboard Patrimonial"
+      resumo="O retrato completo do seu patrimônio."
+      entrega={[
+        "Ativos, dívidas e proteção somados num painel",
+        "Não pede nada de novo: junta o que você já registrou",
+        "Mostra quanto do seu patrimônio já é seu de verdade",
+      ]}
+    >
+      {children}
+    </FerramentaAssinante>
+  );
 }
