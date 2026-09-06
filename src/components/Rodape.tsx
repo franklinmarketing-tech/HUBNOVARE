@@ -25,7 +25,17 @@ export function Rodape() {
           <p className="text-[11px] text-muted-foreground">
             © {ANO} <span className="font-semibold">Novare Consultoria</span> ·
             Consultoria sem comissão. Conteúdo educativo, não é recomendação
-            personalizada de investimento.
+            personalizada de investimento.{" "}
+            {/* A assinatura de quem construiu. `rel="noopener"` porque abre em
+                outra aba; sem `nofollow`, que aqui o link é legítimo. */}
+            <a
+              href="https://castriani-digital.vercel.app"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="whitespace-nowrap underline-offset-2 transition-colors hover:text-primary hover:underline"
+            >
+              Desenvolvido por Castriani Digital
+            </a>
           </p>
         </div>
 

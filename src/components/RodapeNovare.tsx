@@ -280,6 +280,18 @@ export function RodapeNovare({
             <p className="text-[11px] text-white/60">
               © {ANO} Novare Consultoria de Investimentos. Todos os direitos
               reservados.
+              <br />
+              {/* Numa linha só abaixo do copyright: a assinatura de quem
+                  construiu não disputa espaço com o aviso legal, que é o que
+                  a consultoria é obrigada a exibir. */}
+              <a
+                href="https://castriani-digital.vercel.app"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline-offset-2 transition-colors hover:text-white hover:underline"
+              >
+                Desenvolvido por Castriani Digital
+              </a>
             </p>
             {aviso === "servico" ? (
               <DisclaimerServico tom="escuro" />
