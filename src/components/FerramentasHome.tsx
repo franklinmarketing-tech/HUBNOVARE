@@ -71,7 +71,13 @@ export function FerramentasHome() {
         </Link>
       </div>
 
-      <ul className="mt-1.5 grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-6">
+      {/* Uma coluna abaixo de 420px, quatro no lugar de seis no xl.
+          Com duas colunas no celular sobravam 97px de texto por pílula, e
+          com seis em 1280px sobravam 114px — nas duas medidas nomes como
+          "Juros Compostos" (120px) e chamadas como "CDB e renda fixa no
+          líquido" (157px) chegavam cortados. Menos pílulas por linha, cada
+          uma legível. */}
+      <ul className="mt-1.5 grid grid-cols-1 gap-2 min-[420px]:grid-cols-2 sm:grid-cols-3 xl:grid-cols-4">
         {ordenadas.map(({ href, nome, chamada, slug, externo }) => {
           const Icone = iconeDe(slug);
           const fixada = eFavorito(href);
@@ -102,7 +108,13 @@ export function FerramentasHome() {
                   <span className="block truncate font-display text-xs font-bold leading-tight text-primary">
                     {nome}
                   </span>
-                  <span className="block truncate text-2xs leading-tight text-muted-foreground [@media(max-height:820px)]:hidden">
+                  {/* Duas linhas para a chamada.
+                      A pílula dá 97px de texto no celular e 114px em
+                      1280px, e "CDB e renda fixa no líquido" precisa de
+                      157px — chegava cortada nas duas larguras. O nome
+                      cabe numa linha e continua com `truncate`; quem
+                      precisava de espaço era a frase de baixo. */}
+                  <span className="line-clamp-2 block text-2xs leading-tight text-muted-foreground [@media(max-height:820px)]:hidden">
                     {chamada}
                   </span>
                 </span>

@@ -46,8 +46,13 @@ export function BannerNews({ className = "" }: { className?: string }) {
           </span>
         </span>
         {/* A manchete, não uma descrição do canal: é o que dá motivo para
-            clicar hoje, e muda sozinha a cada publicação. */}
-        <span className="mt-0.5 block truncate text-xs text-muted-foreground">
+            clicar hoje, e muda sozinha a cada publicação.
+
+            Duas linhas, não `truncate`. O texto aqui é editorial e varia a
+            cada publicação — a manchete de hoje tem 59 caracteres e chegava
+            cortada em "…sem consultor no m…". Encurtar o título do artigo
+            para caber numa faixa seria deixar o layout mandar na redação. */}
+        <span className="mt-0.5 line-clamp-2 block text-xs leading-snug text-muted-foreground">
           {recente.titulo}
         </span>
       </span>

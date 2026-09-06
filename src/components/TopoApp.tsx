@@ -59,7 +59,13 @@ export function TopoApp({
         {/* As redes, à direita do logo — só a partir de lg, onde já sobra
             espaço antes do menu central. Ícone oficial colorido, não o
             traço cinza fino de antes: em 18px precisa da forma reconhecível
-            da marca para não virar mancha. */}
+            da marca para não virar mancha.
+
+            SÓ PARA VISITANTE. No app logado elas apontavam para fora numa
+            barra cuja função é navegar por dentro: quem entrou para ver o
+            próprio plano não está ali para abrir o Instagram. O lugar delas
+            é o rodapé do site público, onde continuam. */}
+        {!logado && (
         <div className="hidden shrink-0 items-center gap-2.5 lg:flex">
           <a
             href="https://www.instagram.com/novare.invest"
@@ -89,6 +95,7 @@ export function TopoApp({
             <LinkedinLogo className="h-[18px] w-[18px]" />
           </a>
         </div>
+        )}
 
         {/* Selo de parceria oficial com a Nord Investimentos.
             Só a partir de 2xl: entre 1280 e 1536 ele disputava espaço com o

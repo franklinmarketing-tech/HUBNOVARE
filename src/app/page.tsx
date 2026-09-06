@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, ChevronDown, Crown, ShieldCheck } from "lucide-react";
+import { ArrowRight, Crown } from "lucide-react";
 import { BuscaDestaque } from "@/components/BuscaDestaque";
 import { BarraLateral } from "@/components/BarraLateral";
 import { BarraInferior } from "@/components/BarraInferior";
@@ -20,6 +20,7 @@ import { portais } from "@/lib/categorias";
 import { appsParaBusca } from "@/lib/navegacao";
 import { getPerfil, temFichaPreenchida } from "@/lib/perfil";
 import { getNotificacoes } from "@/lib/notificacoes";
+import { estadoDaAssinatura } from "@/lib/assinatura-servidor";
 
 /**
  * Só o canonical: title, description e Open Graph da home são os do layout
@@ -52,6 +53,9 @@ export default async function Home() {
   // trilha inteira não pode ser tratado como quem nunca abriu o app — ver o
   // convite do painel, no fim do arquivo.
   const temFicha = perfil ? await temFichaPreenchida(perfil.id) : false;
+  // Sem/teste/ativa: é o que decide se o card do Planejamento pode falar em
+  // preço. Ver `assinatura-servidor.ts`.
+  const assinatura = await estadoDaAssinatura();
   // "cliente"/"free" continua o padrão para visitante anônimo; logado=!!perfil
   // é o que diferencia um cliente em teste de um visitante sem conta — sem
   // isso o Planejamento aparecia bloqueado até para quem já tinha acesso.
@@ -127,6 +131,23 @@ export default async function Home() {
             <BuscaDestaque />
           </section>
 
+          {/* ===================================== O PAINEL DE QUEM ASSINA
+
+              Vinha DEPOIS de tudo: quatro cards grandes, a fileira de
+              ferramentas, três banners e o convite de assinatura. Quem já
+              pagava tinha de rolar a home inteira — passando por uma vitrine
+              montada para vender o que já comprou — antes de ver o próprio
+              número. A home logada era uma landing page.
+
+              Agora é a primeira coisa depois da saudação. A vitrine continua
+              logo abaixo, para quem quiser explorar; o que mudou é a ordem
+              de quem fala primeiro: os dados da pessoa, não a oferta. */}
+          {perfil && assinante && (
+            <section id="meu-painel" className="scroll-mt-4">
+              <PainelMeuDia />
+            </section>
+          )}
+
           {/* A barra "Pergunte à Íris" morava aqui e saiu.
           
               Além do peso — era o terceiro bloco antes de a pessoa ver um
@@ -149,6 +170,7 @@ export default async function Home() {
               <div className="inclina borda-girando rounded-2xl">
                 <CardPlanejamentoHome
                   href={perfil ? "/planejamento/app" : "/planejamento"}
+                  assinatura={assinatura}
                 />
               </div>
             </div>
@@ -193,38 +215,22 @@ export default async function Home() {
 
           <ConviteWorkspace assinante={assinante} />
 
-          {/* A seta que avisa que a página continua. Sem ela, quem chega numa
-              tela cheia e sem barra de rolagem visível acredita que acabou —
-              e o painel inteiro deixa de existir para essa pessoa. */}
-          {perfil && (
-            <a
-              href="#meu-painel"
-              className="mx-auto -mb-1 mt-1 flex w-fit items-center gap-1.5 rounded-full px-3 py-1 text-2xs font-bold text-muted-foreground transition-colors hover:text-primary"
-            >
-              {/* A seta dizia "Seu painel logo abaixo" para TODO logado — mas
-                  quem não assina encontra lá embaixo um convite de assinatura,
-                  não um painel. Prometer o que a rolagem não entrega gasta a
-                  confiança de quem clica. */}
-              {assinante ? "Seu painel logo abaixo" : "Veja o que tem mais abaixo"}
-              <ChevronDown className="h-3.5 w-3.5 motion-safe:animate-bounce" />
-            </a>
-          )}
+          {/* A seta "Seu painel logo abaixo" morava aqui e saiu junto com o
+              motivo dela existir: ela avisava que o painel estava lá no fim
+              da página. Agora o painel abre a home de quem assina, e não há
+              mais nada embaixo que precise de placa indicando o caminho. */}
         </main>
 
-        {/* ================================= A SEGUNDA PARTE: O SEU PAINEL
+        {/* ==================================== O CONVITE DE QUEM NÃO TEM
 
-            A primeira tela é a vitrine e cabe inteira na dobra. Daqui para
-            baixo é a vida financeira de quem está logado — é o que faz a
-            home deixar de ser um cartaz e virar o lugar da pessoa.
+            Sobrou só para o logado SEM assinatura: para ele não existe
+            painel, existe o convite para destravá-lo. Quem assina vê os
+            próprios números lá em cima, na abertura da página.
 
-            Só para quem tem sessão: visitante deslogado não tem painel
-            nenhum, e mostrar a casca vazia seria pior do que não mostrar. */}
-        {perfil && (
-          <SegundaParte
-            assinante={assinante}
-            primeiroNome={primeiroNome}
-            temFicha={temFicha}
-          />
+            Visitante deslogado não entra aqui: não tem painel nem conta,
+            e a casca vazia seria pior do que não mostrar nada. */}
+        {perfil && !assinante && (
+          <SegundaParte primeiroNome={primeiroNome} temFicha={temFicha} />
         )}
 
         <Rodape />
@@ -246,17 +252,15 @@ export default async function Home() {
  * porque para ele não existe painel nenhum ainda.
  */
 function SegundaParte({
-  assinante,
   primeiroNome,
   temFicha,
 }: {
-  assinante: boolean;
   primeiroNome?: string;
   /** Já respondeu a trilha do Planejamento — muda o convite, não o acesso. */
   temFicha: boolean;
 }) {
   return (
-    <section id="meu-painel" className="scroll-mt-4 border-t border-primary/8 bg-white/40">
+    <section className="border-t border-primary/8 bg-white/40">
       <div className="mx-auto w-full max-w-7xl px-5 pb-10 pt-8 md:px-5">
         <header className="cine">
           <p className="text-2xs font-bold uppercase tracking-[0.16em] text-ciano-forte">
@@ -267,11 +271,7 @@ function SegundaParte({
           </h2>
         </header>
 
-        {assinante ? (
-          <PainelMeuDia />
-        ) : (
-          <ConvitePainelHome temFicha={temFicha} />
-        )}
+        <ConvitePainelHome temFicha={temFicha} />
       </div>
     </section>
   );
@@ -341,36 +341,16 @@ function ConvitePainelHome({ temFicha }: { temFicha: boolean }) {
  * confirmação de que está tudo liberado.
  */
 function ConviteWorkspace({ assinante }: { assinante: boolean }) {
-  if (assinante) {
-    return (
-      <section className="cine flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-success/10 px-5 py-3 ring-1 ring-success/20 [@media(max-height:800px)]:py-2">
-        <div className="flex items-center gap-3">
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-success/15 text-success-strong">
-            <ShieldCheck className="h-4.5 w-4.5" strokeWidth={1.75} />
-          </span>
-          <div>
-            <h2 className="font-display text-sm font-bold text-primary">
-              Seu Workspace está ativo
-            </h2>
-            <p className="text-xs text-muted-foreground">
-              Planejamento, Íris e todas as ferramentas liberadas na sua conta.
-            </p>
-          </div>
-        </div>
-        {/* `/planejamento/app`, e não `/planejamento`: quem já assina não pode
-            ser mandado para a página que vende o que ele acabou de comprar —
-            era para lá que este botão ia, enquanto o card do topo já levava
-            direto ao app. */}
-        <Link
-          href="/planejamento/app"
-          className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-xs font-bold text-white transition-colors hover:bg-primary-soft"
-        >
-          Abrir meu plano
-          <ArrowRight className="h-3.5 w-3.5" />
-        </Link>
-      </section>
-    );
-  }
+  /**
+   * Quem assina não vê nada aqui.
+   *
+   * Havia um banner verde "Seu Workspace está ativo · Planejamento, Íris e
+   * todas as ferramentas liberadas", com botão para abrir o plano. Era a
+   * mesma informação que o card do Planejamento, na mesma tela, já dá — e
+   * ocupava a largura inteira para repeti-la. Quem já pagou não precisa de
+   * um aviso de que pagou; precisa do produto, que está logo acima.
+   */
+  if (assinante) return null;
 
   return (
     <section
@@ -393,7 +373,9 @@ function ConviteWorkspace({ assinante }: { assinante: boolean }) {
             Novare Workspace completo
           </p>
           <p className="truncate text-xs text-white/70">
-            Planejamento, Íris e todos os recursos liberados por 7 dias.
+            {/* Era "Planejamento, Íris e todos os recursos liberados por 7
+                dias." e chegava cortado no celular. */}
+            Planejamento, Íris e tudo mais por 7 dias.
           </p>
         </div>
       </div>

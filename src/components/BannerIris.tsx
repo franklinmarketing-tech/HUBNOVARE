@@ -38,19 +38,22 @@ export function BannerIris({ className = "" }: { className?: string }) {
       </span>
 
       <span className="relative min-w-0 flex-1">
-        {/* flex-wrap + min-w-0: sem os dois, o título e o selo "beta" se
-            recusam a quebrar e empurram a faixa para fora da tela no
-            celular — foi assim que a home passou a rolar de lado. */}
+        {/* O selo "beta" saiu daqui.
+            A Íris é o diferencial da casa — é ela que justifica a assinatura
+            e é dela que a página de venda fala primeiro. Carimbar "beta" no
+            argumento principal avisa ao visitante que o produto ainda não é
+            confiável, e ele acredita. */}
         <span className="flex min-w-0 flex-wrap items-center gap-x-2">
           <span className="font-display text-sm font-bold text-primary">
             Íris, a IA financeira
           </span>
-          <span className="rounded-md bg-ciano-tint px-1.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-ciano-forte">
-            beta
-          </span>
         </span>
-        <span className="mt-0.5 block truncate text-xs text-muted-foreground">
-          Cole seu extrato e veja onde seu dinheiro está sumindo.
+        {/* Era "Cole seu extrato e veja onde seu dinheiro está sumindo." e
+            chegava cortada em "…dinheiro está su…" já a 1280px. O texto foi
+            encurtado em vez de o container crescer: a faixa divide a linha
+            com outras duas e alargar uma estreita as vizinhas. */}
+        <span className="mt-0.5 line-clamp-2 block text-xs leading-snug text-muted-foreground">
+          Cole o extrato e veja o dinheiro que some.
         </span>
       </span>
 

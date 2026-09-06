@@ -2,11 +2,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Target } from "lucide-react";
 import { PLANO_PRECO_ROTULO, PLANO_TRIAL_DIAS } from "@/lib/planejamento/oferta";
+import type { EstadoAssinatura } from "@/lib/assinatura-servidor";
 
 /**
  * O Planejamento Financeiro como PRIMEIRO card da home, na mesma forma
  * palco + rodapé dos cards de área — mas no laranja da marca, porque é o
- * único produto que se compra. O rodapé troca "Acessar" pela oferta.
+ * único produto que se compra. O rodapé muda conforme a assinatura.
  */
 export function CardPlanejamentoHome({
   /** `/planejamento/app` para quem já tem conta (mesmo em teste — o app se
@@ -14,8 +15,22 @@ export function CardPlanejamentoHome({
    *  esta prop o card sempre mandava para a venda, até para quem já podia
    *  simplesmente entrar. */
   href = "/planejamento",
+  /**
+   * Em que ponto da assinatura a pessoa está.
+   *
+   * O rodapé anunciava "7 dias grátis · depois R$ 19,90/mês" para TODO
+   * mundo — inclusive para assinante ativo, na mesma tela onde outro bloco
+   * dizia que a assinatura estava em dia. Quem já pagou não pode ver preço:
+   * ler a oferta do que se acabou de comprar faz duvidar se a compra
+   * entrou.
+   *
+   * O padrão é "sem" porque é o caso do visitante deslogado, que é quem vê
+   * esta home sem nenhum dado de conta.
+   */
+  assinatura = { fase: "sem" },
 }: {
   href?: string;
+  assinatura?: EstadoAssinatura;
 }) {
   return (
     <Link
@@ -68,13 +83,37 @@ export function CardPlanejamentoHome({
       </span>
 
       <span className="flex items-center justify-between border-t border-primary/5 px-4 py-3">
-        <span className="text-sm font-bold text-accent-strong">
-          {PLANO_TRIAL_DIAS} dias grátis
-        </span>
-        <span className="flex items-center gap-1.5 text-2xs font-semibold text-muted-foreground">
-          depois {PLANO_PRECO_ROTULO}/mês
-          <ArrowRight className="h-3.5 w-3.5 text-accent-strong transition-transform group-hover:translate-x-0.5" />
-        </span>
+        {assinatura.fase === "ativa" ? (
+          /* Nenhum preço, nenhuma oferta: só a porta de entrada. */
+          <>
+            <span className="text-sm font-bold text-accent-strong">
+              Abrir meu Planejamento
+            </span>
+            <ArrowRight className="h-3.5 w-3.5 shrink-0 text-accent-strong transition-transform group-hover:translate-x-0.5" />
+          </>
+        ) : assinatura.fase === "teste" ? (
+          <>
+            <span className="text-sm font-bold text-accent-strong">
+              Abrir meu Planejamento
+            </span>
+            <span className="flex items-center gap-1.5 text-2xs font-semibold text-muted-foreground">
+              {assinatura.dias === 1
+                ? "último dia de teste"
+                : `faltam ${assinatura.dias} dias`}
+              <ArrowRight className="h-3.5 w-3.5 text-accent-strong transition-transform group-hover:translate-x-0.5" />
+            </span>
+          </>
+        ) : (
+          <>
+            <span className="text-sm font-bold text-accent-strong">
+              {PLANO_TRIAL_DIAS} dias grátis
+            </span>
+            <span className="flex items-center gap-1.5 text-2xs font-semibold text-muted-foreground">
+              depois {PLANO_PRECO_ROTULO}/mês
+              <ArrowRight className="h-3.5 w-3.5 text-accent-strong transition-transform group-hover:translate-x-0.5" />
+            </span>
+          </>
+        )}
       </span>
     </Link>
   );

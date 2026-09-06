@@ -142,7 +142,11 @@ export const APPS: NovareApp[] = [
     roles: TODOS,
     // Liberada junto com o Planejamento Financeiro enquanto é construída.
     plano: "gratis",
-    status: "beta",
+    // Era `beta`. O selo aparecia no card e no banner da home, em cima do
+    // produto que a casa vende como diferencial — e rótulo de beta sobre o
+    // diferencial diz "ainda não confie nisto". Continua sendo construída;
+    // o que saiu foi o carimbo, não a honestidade sobre o estágio.
+    status: "ativo",
     familia: "ia",
     _benchmarkInterno: "Cleo AI",
   },

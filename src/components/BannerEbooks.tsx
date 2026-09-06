@@ -26,8 +26,10 @@ export function BannerEbooks({ className = "" }: { className?: string }) {
         <span className="block font-display text-sm font-bold text-primary">
           eBooks Novare
         </span>
-        <span className="mt-0.5 block truncate text-xs text-muted-foreground">
-          {EBOOKS.length} guias em PDF · com as contas feitas
+        {/* "com as contas feitas" chegava cortado em "com as contas f…".
+            Menos palavra, mesma informação. */}
+        <span className="mt-0.5 line-clamp-2 block text-xs leading-snug text-muted-foreground">
+          {EBOOKS.length} guias em PDF, grátis
         </span>
       </span>
 

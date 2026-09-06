@@ -285,7 +285,14 @@ export function CatalogoFiltrado({
         )}
         {comuns.length > 0 && (
           <div
-            className={`grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 ${
+            /* Uma coluna no celular, não duas.
+               Em 390px, dois cards lado a lado davam 88px de largura útil
+               para o texto — a foto come 38-42% de cada card. Nessa
+               medida, "IA financeira sem comissão" precisa de três linhas
+               e o `line-clamp-2` cortava a terceira: 34 chamadas do
+               catálogo chegavam truncadas no telefone. Numa coluna o card
+               fica mais largo que alto e o texto cabe inteiro. */
+            className={`grid grid-cols-1 gap-3 min-[420px]:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 ${
               workspace.length > 0 ? "mt-3" : ""
             }`}
           >
