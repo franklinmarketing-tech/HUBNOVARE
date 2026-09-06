@@ -141,10 +141,15 @@ export default async function Home() {
 
               Agora é a primeira coisa depois da saudação. A vitrine continua
               logo abaixo, para quem quiser explorar; o que mudou é a ordem
-              de quem fala primeiro: os dados da pessoa, não a oferta. */}
+              de quem fala primeiro: os dados da pessoa, não a oferta.
+
+              `resumo`: só a primeira seção. O painel inteiro são seis, e
+              colar as seis aqui empurrava a vitrine para fora da tela — a
+              home virava uma segunda cópia de /meu-dia. O resumo dá a nota,
+              o Marco Horizonte e a reserva, com link para o resto. */}
           {perfil && assinante && (
             <section id="meu-painel" className="scroll-mt-4">
-              <PainelMeuDia />
+              <PainelMeuDia resumo />
             </section>
           )}
 

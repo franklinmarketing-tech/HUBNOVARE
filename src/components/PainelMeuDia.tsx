@@ -50,7 +50,22 @@ function faixa(score: number) {
   return { rotulo: "Travado", classe: "bg-destructive/10 text-destructive" };
 }
 
-export function PainelMeuDia() {
+export function PainelMeuDia({
+  /**
+   * `resumo` mostra só a primeira seção ("Como eu estou") e um link para o
+   * painel completo.
+   *
+   * Existe porque a home passou a abrir com o painel (a inversão pedida no
+   * briefing) e o painel inteiro são SEIS seções — a página /meu-dia
+   * completa, colada antes da vitrine. Em vez de resolver a hierarquia,
+   * isso só trocou o problema de lugar: a vitrine sumia lá para baixo e a
+   * home virava uma segunda cópia do painel.
+   *
+   * O briefing pedia "Marco Horizonte, progresso, quanto vazou, próxima
+   * ação" — um resumo, que é exatamente o que a primeira seção dá.
+   */
+  resumo = false,
+}: { resumo?: boolean } = {}) {
   const r = usePlanejamento();
 
   if (r.fase === "carregando") return <Esqueleto />;
@@ -138,6 +153,19 @@ export function PainelMeuDia() {
         </div>
       </Secao>
 
+      {/* No resumo a home para aqui: o resto do painel vive em /meu-dia. */}
+      {resumo && (
+        <Link
+          href="/meu-dia"
+          className="inline-flex items-center gap-1.5 text-sm font-bold text-accent-strong transition-colors hover:text-primary"
+        >
+          Ver meu painel completo
+          <ArrowRight className="h-4 w-4" />
+        </Link>
+      )}
+
+      {!resumo && (
+        <>
       {/* ===================================================== O MEU MÊS */}
       <Secao titulo="Meu mês">
         <MeuMes dados={r.dados} />
@@ -263,6 +291,8 @@ export function PainelMeuDia() {
           </Link>
         </div>
       </Secao>
+        </>
+      )}
     </div>
   );
 }
