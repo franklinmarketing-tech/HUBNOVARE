@@ -51,7 +51,9 @@ const CATEGORIAS = [
 /* ----------------------------- Categorização ------------------------------ */
 
 const REGRAS: Array<{ categoria: string; palavras: string[] }> = [
-  { categoria: "Transporte", palavras: ["uber", "99", "posto"] },
+  /* "99" sozinho casava por substring: "Compra 1099 loja", "Consulta 199"
+     e "Escola 1990" viravam Transporte. Agora só o nome do app. */
+  { categoria: "Transporte", palavras: ["uber", "99app", "99 pop", "99pop", "posto"] },
   { categoria: "Mercado", palavras: ["mercado", "super", "padaria"] },
   { categoria: "Saúde", palavras: ["farmacia", "drogaria"] },
   { categoria: "Lazer", palavras: ["ifood", "restaurante", "lanche"] },

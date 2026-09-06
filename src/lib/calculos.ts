@@ -1090,12 +1090,17 @@ export function reservaEmergencia({
   taxaAnualPct,
 }: {
   custoMensal: number;
-  perfil: "clt" | "autonomo" | "empresario";
+  perfil: "clt" | "servidor" | "autonomo" | "empresario";
   jaGuardado: number;
   aporteMensal: number;
   taxaAnualPct: number;
 }) {
-  const MESES = { clt: 6, autonomo: 12, empresario: 12 } as const;
+  /* Servidor estável não precisa da mesma reserva de um CLT.
+   *
+   * Antes só existiam três perfis, e quem tem estabilidade era obrigado a
+   * escolher "CLT" — superdimensionando a reserva em meses inteiros de
+   * custo de vida, dinheiro que ficaria parado sem necessidade. */
+  const MESES = { clt: 6, servidor: 4, autonomo: 12, empresario: 12 } as const;
   const meses = MESES[perfil] ?? 6;
   const alvo = positivo(custoMensal) * meses;
   const falta = Math.max(0, alvo - positivo(jaGuardado));

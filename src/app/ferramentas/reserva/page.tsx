@@ -18,10 +18,13 @@ import { formatarMoedaInput, digitosParaReais } from "@/lib/moeda";
 
 /* -------------------------------------------------------------------------- */
 
-type Perfil = "clt" | "autonomo" | "empresario";
+type Perfil = "clt" | "servidor" | "autonomo" | "empresario";
 
 const PERFIS: Array<{ valor: Perfil; rotulo: string }> = [
   { valor: "clt", rotulo: "CLT (6 meses de reserva)" },
+  // Estabilidade muda a conta: quem não pode ser demitido de um dia para o
+  // outro não precisa carregar seis meses parados.
+  { valor: "servidor", rotulo: "Servidor público (4 meses de reserva)" },
   { valor: "autonomo", rotulo: "Autônomo (12 meses de reserva)" },
   { valor: "empresario", rotulo: "Empresário (12 meses de reserva)" },
 ];

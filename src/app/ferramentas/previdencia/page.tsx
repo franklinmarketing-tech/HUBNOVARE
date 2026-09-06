@@ -599,13 +599,16 @@ export default function PrevidenciaPage() {
 
         {/* Próximo passo */}
         <section className="mt-6 rounded-xl bg-slate-50 p-3">
+          {/* Apontava para /ferramentas/dashboard-patrimonial, fora do
+              catálogo desde 08/2026. O Raio-X da Previdência está ativo e
+              é o passo natural depois de mapear os planos. */}
           <p className="text-xs text-slate-500">
-            Veja essa renda futura ao lado de tudo o que você já tem no{" "}
+            Quer saber quanto a taxa do seu plano custa no fim? Veja o{" "}
             <Link
-              href="/ferramentas/dashboard-patrimonial"
+              href="/ferramentas/raio-x-previdencia"
               className="font-semibold text-primary underline underline-offset-2"
             >
-              Dashboard Patrimonial
+              Raio-X da Previdência
             </Link>
             .
           </p>

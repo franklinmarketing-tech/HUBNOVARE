@@ -423,13 +423,17 @@ export default function PatrimonioPage() {
 
         {/* Próximo passo */}
         <section className="mt-6 rounded-xl bg-slate-50 p-3">
+          {/* Apontava para /ferramentas/central, que saiu do catálogo em
+              08/2026: o convite levava a uma tela que a busca e o menu já
+              não mostram. O catálogo continua sendo o destino certo. */}
           <p className="text-xs text-slate-500">
-            Com o patrimônio preenchido, veja a distribuição por classe no{" "}
+            Com o patrimônio preenchido, veja o que mais dá para fazer com
+            ele em{" "}
             <Link
-              href="/ferramentas/central"
+              href="/aplicativos"
               className="font-semibold text-primary underline underline-offset-2"
             >
-              Mapa do Patrimônio
+              todos os aplicativos
             </Link>
             .
           </p>

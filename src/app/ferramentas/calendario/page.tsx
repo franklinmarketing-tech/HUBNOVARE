@@ -114,8 +114,19 @@ export default function CalendarioPage() {
       const chaveMes = `${data.getFullYear()}-${String(
         data.getMonth() + 1
       ).padStart(2, "0")}`;
+      const ultimoDoMes = new Date(
+        data.getFullYear(),
+        data.getMonth() + 1,
+        0,
+      ).getDate();
       for (const c of compromissos) {
-        if (c.dia === data.getDate()) {
+        /* Vencimento no dia 31 cai no último dia dos meses curtos.
+         *
+         * Antes a comparação era só `c.dia === data.getDate()`: quem tinha
+         * conta no dia 31 nunca via o lembrete em abril, junho, setembro e
+         * novembro — nem em fevereiro. A tela de alertas já tratava isso. */
+        const diaEfetivo = Math.min(c.dia, ultimoDoMes);
+        if (diaEfetivo === data.getDate()) {
           itens.push({ c, data, chavePago: `${c.id}:${chaveMes}` });
         }
       }

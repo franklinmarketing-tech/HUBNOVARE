@@ -112,21 +112,36 @@ function analisarContrato(texto: string): Acerto[] {
   const acertos: Acerto[] = [];
 
   for (const clausula of CLAUSULAS) {
-    const m = plano.match(clausula.regex);
-    if (!m || m.index === undefined) continue;
+    /* TODAS as ocorrências, não só a primeira.
+     *
+     * `match` sem a flag `g` para no primeiro acerto: um contrato com
+     * cinco cláusulas de multa mostrava uma, e o contador do topo dizia
+     * "10 pontos de atenção" quando eram 10 TIPOS — a pessoa concluía que
+     * tinha visto tudo. Pior: um "acesso exclusivo" no preâmbulo escondia
+     * a cláusula de exclusividade de verdade lá no fim. */
+    const busca = new RegExp(clausula.regex.source, `${clausula.regex.flags.replace("g", "")}g`);
+    let m: RegExpExecArray | null;
+    let achadosDaClausula = 0;
 
-    const inicio = m.index;
-    const fim = inicio + m[0].length;
-    // Até 200 caracteres de contexto ao redor do termo achado.
-    const de = Math.max(0, inicio - 100);
-    const ate = Math.min(plano.length, fim + 100);
+    while ((m = busca.exec(plano)) !== null && achadosDaClausula < 5) {
+      if (m[0].length === 0) {
+        busca.lastIndex++;
+        continue;
+      }
+      const inicio = m.index;
+      const fim = inicio + m[0].length;
+      // Até 200 caracteres de contexto ao redor do termo achado.
+      const de = Math.max(0, inicio - 100);
+      const ate = Math.min(plano.length, fim + 100);
 
-    acertos.push({
-      clausula,
-      antes: (de > 0 ? "..." : "") + plano.slice(de, inicio),
-      termo: m[0],
-      depois: plano.slice(fim, ate) + (ate < plano.length ? "..." : ""),
-    });
+      acertos.push({
+        clausula,
+        antes: (de > 0 ? "..." : "") + plano.slice(de, inicio),
+        termo: m[0],
+        depois: plano.slice(fim, ate) + (ate < plano.length ? "..." : ""),
+      });
+      achadosDaClausula++;
+    }
   }
 
   return acertos;

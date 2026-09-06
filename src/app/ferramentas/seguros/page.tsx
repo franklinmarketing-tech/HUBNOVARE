@@ -15,6 +15,7 @@ import {
   Wallet,
 } from "lucide-react";
 import { brl, brlCurto, parseNumero } from "@/lib/calculos";
+import { formatarMoedaInput, digitosParaReais } from "@/lib/moeda";
 import { novoId, useArmazenado } from "@/lib/useArmazenado";
 
 /* -------------------------------------------------------------------------- */
@@ -194,11 +195,14 @@ export default function SegurosPage() {
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm">
                   R$
                 </span>
+                {/* Máscara de moeda, como no resto do app: sem ela o campo
+                    aceitava "10,5,5" e virava zero silenciosamente, e o
+                    placeholder com pontuação convidava a digitar à mão. */}
                 <input id="cobertura"
-                  inputMode="decimal"
-                  value={cobertura}
-                  onChange={(e) => setCobertura(e.target.value)}
-                  placeholder="500.000,00"
+                  inputMode="numeric"
+                  value={formatarMoedaInput(cobertura)}
+                  onChange={(e) => setCobertura(digitosParaReais(e.target.value))}
+                  placeholder="0,00"
                   className="h-11 w-full rounded-xl border border-slate-200 bg-white px-3.5 pl-9 text-[0.9375rem] tabular-nums outline-none focus:border-accent focus:ring-4 focus:ring-accent/12"
                 />
               </div>
@@ -212,10 +216,10 @@ export default function SegurosPage() {
                   R$
                 </span>
                 <input id="premio-mensal"
-                  inputMode="decimal"
-                  value={premio}
-                  onChange={(e) => setPremio(e.target.value)}
-                  placeholder="180,00"
+                  inputMode="numeric"
+                  value={formatarMoedaInput(premio)}
+                  onChange={(e) => setPremio(digitosParaReais(e.target.value))}
+                  placeholder="0,00"
                   className="h-11 w-full rounded-xl border border-slate-200 bg-white px-3.5 pl-9 text-[0.9375rem] tabular-nums outline-none focus:border-accent focus:ring-4 focus:ring-accent/12"
                 />
               </div>
