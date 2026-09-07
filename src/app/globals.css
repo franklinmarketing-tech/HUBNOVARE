@@ -78,28 +78,34 @@
   --font-sans: var(--font-inter), system-ui, -apple-system, sans-serif;
   --font-display: var(--font-sora), system-ui, sans-serif;
 
-  /* Escala de fonte ENCOLHIDA — base 15px, não 16px.
-     É o que faz a interface parecer densa e cara em vez de inflada. */
+  /* Escala de fonte — base 16px, com entrelinha folgada.
+     Era 15px de propósito, e o comentário aqui dizia que isso fazia a
+     interface "parecer densa e cara em vez de inflada". Mas densidade é
+     justamente o que pesa: texto miúdo e colado é o que dava a sensação de
+     aperto que a comparação com um app leve escancarou.
+     O ar vem menos do tamanho e mais da ENTRELINHA — por isso os corpos de
+     texto ganharam 2px de line-height, e os títulos quase não mudaram: em
+     display, tamanho maior é grito, não leveza. */
   --text-2xs: 0.75rem;
-  --text-2xs--line-height: 1.125rem;
+  --text-2xs--line-height: 1.25rem;
   --text-xs: 0.8125rem;
-  --text-xs--line-height: 1.25rem;
-  --text-sm: 0.875rem;
-  --text-sm--line-height: 1.375rem;
-  --text-base: 0.9375rem;
-  --text-base--line-height: 1.5625rem;
-  --text-lg: 1.0625rem;
-  --text-lg--line-height: 1.625rem;
-  --text-xl: 1.1875rem;
-  --text-xl--line-height: 1.75rem;
-  --text-2xl: 1.375rem;
-  --text-2xl--line-height: 1.875rem;
-  --text-3xl: 1.625rem;
-  --text-3xl--line-height: 2.125rem;
-  --text-4xl: 2.125rem;
-  --text-4xl--line-height: 2.625rem;
-  --text-5xl: 2.75rem;
-  --text-5xl--line-height: 3.25rem;
+  --text-xs--line-height: 1.375rem;
+  --text-sm: 0.9375rem;
+  --text-sm--line-height: 1.5rem;
+  --text-base: 1rem;
+  --text-base--line-height: 1.6875rem;
+  --text-lg: 1.125rem;
+  --text-lg--line-height: 1.8125rem;
+  --text-xl: 1.25rem;
+  --text-xl--line-height: 1.875rem;
+  --text-2xl: 1.4375rem;
+  --text-2xl--line-height: 1.9375rem;
+  --text-3xl: 1.6875rem;
+  --text-3xl--line-height: 2.1875rem;
+  --text-4xl: 2.1875rem;
+  --text-4xl--line-height: 2.6875rem;
+  --text-5xl: 2.8125rem;
+  --text-5xl--line-height: 3.3125rem;
 
   --radius: 0.75rem;
 
