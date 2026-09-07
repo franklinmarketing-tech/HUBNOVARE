@@ -104,7 +104,15 @@ export default async function Home() {
           notificacoes={notificacoes}
         />
 
-        <main className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-2.5 px-5 pb-3 pt-2 [@media(max-height:820px)]:gap-2 [@media(max-height:800px)]:pb-1.5 [@media(max-height:800px)]:pt-1">
+        {/* O ritmo vertical da home.
+            Era `gap-2.5` (10px) com `pt-2`, e media queries que encolhiam
+            isso para 8px em telas baixas — tudo a serviço de uma regra não
+            escrita: a home NÃO PODE ROLAR. O custo dessa regra era o aperto:
+            seis blocos empilhados com 10px de folga não respiram, e é daí
+            que vinha a sensação de peso, mais do que das cores.
+            Rolar não é defeito — é como todo mundo lê uma página. O ar entre
+            as seções vale mais do que a promessa de caber numa tela. */}
+        <main className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-8 px-5 pb-10 pt-6">
           {/* Fita de indicadores do mercado ao vivo (SELIC, CDI, IPCA...).
               Some abaixo de 740px de altura: em 720p ela era justamente os
               pixels que faziam a home rolar, e é o bloco menos essencial da
@@ -122,7 +130,10 @@ export default async function Home() {
                     : `${saudacao}!`
                   : "Ecossistema Novare"}
               </h1>
-              <p className="mt-1 text-sm text-muted-foreground [@media(max-height:900px)]:hidden">
+              {/* Não some mais em tela baixa: escondê-lo era parte da mesma
+                  corrida por caber numa tela, e a página perdia a única
+                  linha que diz o que a Novare faz. */}
+              <p className="mt-1.5 text-sm text-muted-foreground">
                 {perfil
                   ? "Seu ecossistema, pronto para hoje."
                   : "Organizar, investir e decidir com clareza. Sem comissão."}
