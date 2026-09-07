@@ -86,3 +86,67 @@ export async function enviarBoasVindas(params: {
   if (error) throw new Error(error.message);
   return data;
 }
+
+/**
+ * Aviso de que a revisão trimestral do consultor chegou.
+ *
+ * O e-mail NÃO carrega o parecer. Ele avisa e leva ao app, por dois motivos:
+ * o parecer fala do dinheiro da pessoa e caixa de e-mail é o lugar menos
+ * protegido onde isso poderia estar; e é dentro do app que ele faz sentido,
+ * ao lado dos números que ele comenta.
+ */
+export async function enviarAvisoDeRevisao(params: {
+  email: string;
+  nome: string;
+  periodo: string;
+}) {
+  const { email, nome, periodo } = params;
+  const primeiroNome = nome.trim().split(" ")[0] || "Olá";
+
+  const html = `
+<div style="background:#f4f6f8;padding:32px 16px;font-family:Arial,Helvetica,sans-serif;color:#1a2433;">
+  <div style="max-width:520px;margin:0 auto;background:#ffffff;border-radius:16px;overflow:hidden;border:1px solid #e6e9ee;">
+    <div style="background:#16314f;padding:28px 32px;">
+      <span style="color:#ffffff;font-size:20px;font-weight:700;letter-spacing:.2px;">Novare</span>
+    </div>
+    <div style="padding:32px;">
+      <p style="font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:#e8703a;font-weight:700;margin:0 0 8px;">
+        Revisão do consultor · ${periodo}
+      </p>
+      <h1 style="font-size:24px;line-height:1.3;margin:0 0 16px;color:#16314f;">
+        ${primeiroNome}, um consultor leu o seu plano.
+      </h1>
+      <p style="font-size:15px;line-height:1.6;color:#3c4a5c;margin:0 0 24px;">
+        A revisão deste trimestre está no seu Workspace: o que mudou, o que
+        está travando e qual é o próximo movimento.
+      </p>
+      <div style="text-align:center;margin:0 0 28px;">
+        <a href="${SITE}/planejamento/app"
+           style="display:inline-block;background:#e8703a;color:#ffffff;text-decoration:none;
+                  font-weight:700;font-size:15px;padding:14px 28px;border-radius:10px;">
+          Ler a minha revisão
+        </a>
+      </div>
+      <p style="font-size:13px;line-height:1.6;color:#6b7684;margin:0;">
+        Consultoria financeira da Novare — organizar, projetar e priorizar.
+        Não é indicação de ativo, produto, fundo ou corretora.
+      </p>
+    </div>
+    <div style="padding:20px 32px;border-top:1px solid #eef1f4;">
+      <p style="font-size:11px;color:#9aa4b2;margin:0;">
+        Novare Consultoria de Investimentos · ${SITE.replace("https://", "")}
+      </p>
+    </div>
+  </div>
+</div>`.trim();
+
+  const { data, error } = await resend().emails.send({
+    from: REMETENTE,
+    to: email,
+    subject: `Sua revisão de ${periodo} está pronta`,
+    html,
+  });
+
+  if (error) throw new Error(error.message);
+  return data;
+}

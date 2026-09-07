@@ -149,7 +149,46 @@ end $$;
 
 
 -- ----------------------------------------------------------------------------
--- 4. Conferência — rode depois e leia o resultado
+-- 4. Avisar o cliente: sino e e-mail
+-- ----------------------------------------------------------------------------
+-- 4a. O sino. A policy de `hub_notificacoes` só deixava 'admin' escrever, e
+-- quem envia a revisão é o consultor ('equipe'). Sem isto o parecer é salvo
+-- mas o cliente não fica sabendo — só descobriria abrindo o app por acaso.
+drop policy if exists "hub_notificacoes: admin escreve" on public.hub_notificacoes;
+drop policy if exists "hub_notificacoes: equipe escreve" on public.hub_notificacoes;
+create policy "hub_notificacoes: equipe escreve"
+  on public.hub_notificacoes for all
+  using (public.hub_papel() in ('admin', 'equipe'))
+  with check (public.hub_papel() in ('admin', 'equipe'));
+
+-- 4b. O e-mail do cliente, para o aviso.
+--
+-- O e-mail vive em `auth.users`, que o app não lê com a chave anônima. Sem
+-- `service_role` no ambiente (e não há), a saída é esta função `security
+-- definer` — mesma técnica do `hub_papel()`: roda com o dono do banco, mas
+-- CONFERE O PAPEL DE QUEM CHAMOU antes de devolver qualquer coisa. Para quem
+-- não é da equipe devolve nulo, não erro: não confirma nem nega que o cliente
+-- existe.
+create or replace function public.email_do_cliente(p_client_id uuid)
+returns text
+language sql
+security definer
+stable
+set search_path = public
+as $$
+  select u.email
+    from public.clients c
+    join auth.users u on u.id = c.user_id
+   where c.id = p_client_id
+     and public.hub_papel() in ('admin', 'equipe');
+$$;
+
+revoke all on function public.email_do_cliente(uuid) from public;
+grant execute on function public.email_do_cliente(uuid) to authenticated;
+
+
+-- ----------------------------------------------------------------------------
+-- 5. Conferência — rode depois e leia o resultado
 -- ----------------------------------------------------------------------------
 -- Deve listar 4 policies em `revisoes`:
 select policyname, cmd

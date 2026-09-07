@@ -50,9 +50,11 @@ export function EditorRevisao({
   const [statusRevisao, setStatusRevisao] = useState<"rascunho" | "enviada">(
     "rascunho",
   );
-  const [salvando, setSalvando] = useState<"nao" | "salvando" | "ok" | "erro">(
-    "nao",
-  );
+  const [salvando, setSalvando] = useState<
+    "nao" | "salvando" | "ok" | "erro" | "curto"
+  >("nao");
+  /** Preenchido quando o parecer foi salvo mas o aviso ao cliente falhou. */
+  const [aviso, setAviso] = useState<string | null>(null);
 
   useEffect(() => {
     let ativo = true;
@@ -134,38 +136,46 @@ export function EditorRevisao({
     };
   }, [clientId, trimestre]);
 
+  /**
+   * Grava pelo servidor, não direto no banco.
+   *
+   * O rascunho até poderia ir direto, mas o envio não: precisa da chave do
+   * Resend e do e-mail do cliente, que só o servidor alcança. Passar os dois
+   * pelo mesmo caminho deixa o papel conferido no servidor nos dois casos.
+   */
   async function gravar(novoStatus: "rascunho" | "enviada") {
     if (novoStatus === "enviada" && texto.trim().length < 40) {
-      setSalvando("erro");
+      setSalvando("curto");
       return;
     }
     setSalvando("salvando");
 
-    const supabase = createClient();
-    const { data: sessao } = await supabase.auth.getUser();
-    if (!sessao.user) return setSalvando("erro");
+    try {
+      const r = await fetch("/api/revisao", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          clientId,
+          trimestre,
+          texto,
+          enviar: novoStatus === "enviada",
+        }),
+      });
+      const dados = await r.json();
+      if (!r.ok) return setSalvando("erro");
 
-    /* `upsert` pela chave (client_id, periodo_ref): é a mesma restrição que a
-       tabela declara, então dois consultores abrindo o mesmo caso não criam
-       dois pareceres. */
-    const { error } = await supabase.from("revisoes").upsert(
-      {
-        client_id: clientId,
-        autor_id: sessao.user.id,
-        periodo_ref: trimestre,
-        texto: texto.trim(),
-        status: novoStatus,
-        atualizada_em: new Date().toISOString(),
-        ...(novoStatus === "enviada"
-          ? { enviada_em: new Date().toISOString() }
-          : {}),
-      },
-      { onConflict: "client_id,periodo_ref" },
-    );
-
-    if (error) return setSalvando("erro");
-    setStatusRevisao(novoStatus);
-    setSalvando("ok");
+      setStatusRevisao(novoStatus);
+      /* O parecer está salvo mesmo quando o aviso falha — e a tela diz isso
+         em vez de fingir que deu tudo certo. */
+      setAviso(
+        novoStatus === "enviada" && !dados.avisado
+          ? (dados.porQueNao as string) || "o aviso não saiu"
+          : null,
+      );
+      setSalvando("ok");
+    } catch {
+      setSalvando("erro");
+    }
   }
 
   if (estado.fase === "carregando") {
@@ -246,6 +256,7 @@ export function EditorRevisao({
           onChange={(e) => {
             setTexto(e.target.value);
             setSalvando("nao");
+            setAviso(null);
           }}
           rows={12}
           className="mt-4 w-full rounded-2xl border border-slate-200 bg-white p-4 text-sm leading-relaxed outline-none transition-colors focus:border-accent focus:ring-4 focus:ring-accent/12"
@@ -279,13 +290,13 @@ export function EditorRevisao({
           >
             {salvando === "salvando" && "Salvando…"}
             {salvando === "ok" &&
-              (statusRevisao === "enviada"
-                ? "Enviado. O cliente já vê no app dele."
-                : "Rascunho salvo.")}
-            {salvando === "erro" &&
-              (texto.trim().length < 40
-                ? "Escreva um parecer antes de enviar."
-                : "Não consegui salvar. Tente de novo.")}
+              (statusRevisao !== "enviada"
+                ? "Rascunho salvo."
+                : aviso
+                  ? `Enviado e visível no app do cliente — mas o aviso não saiu (${aviso}).`
+                  : "Enviado. O cliente foi avisado no sino e por e-mail.")}
+            {salvando === "curto" && "Escreva o parecer antes de enviar."}
+            {salvando === "erro" && "Não consegui salvar. Tente de novo."}
           </span>
         </div>
       </section>
