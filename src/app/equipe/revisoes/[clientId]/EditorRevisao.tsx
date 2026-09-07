@@ -134,7 +134,17 @@ export function EditorRevisao({
           { rotulo: "Sobra por mês", valor: brl(diag.sobraMensal), nota: `${pct(diag.taxaPoupanca)} da renda` },
           { rotulo: "Marco Horizonte", valor: brl(plano.alvoAposentadoria), nota: `${pct(plano.pctAtingido)} atingido no ritmo atual` },
           { rotulo: "Dívidas", valor: pct(diag.comprometimentoDividas), nota: "da renda comprometida" },
-          { rotulo: "Reserva", valor: `${reserva.meses.toFixed(1)} meses`, nota: reserva.completa ? "completa" : `faltam ${brl(reserva.faltam)}` },
+          /* `reserva.meses` é a META (6), não o que a pessoa tem — mostrar
+             aquilo dizia "6,0 meses" ao lado de "faltam R$ 43.700", que se
+             contradizem. Os meses acumulados são `atual / custo`, a mesma
+             conta que a tela do cliente faz. */
+          {
+            rotulo: "Reserva",
+            valor: `${(reserva.atual / Math.max(1, reserva.custo)).toFixed(1).replace(".", ",")} meses`,
+            nota: reserva.completa
+              ? `completa (meta: ${reserva.meses} meses)`
+              : `faltam ${brl(reserva.faltam)} para ${reserva.meses} meses`,
+          },
           { rotulo: "Aporte que fecha a conta", valor: plano.pouparMaisMes ? brl(plano.pouparMaisMes) : "no ritmo", nota: plano.viavel ? "plano viável" : "acima do que sobra hoje" },
         ],
       });
