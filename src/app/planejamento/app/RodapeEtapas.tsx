@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { ETAPAS, etapaAnterior, proximaEtapa } from "./etapas";
+import { BotaoVerGuia } from "@/components/GuiaDaTrilha";
 
 /**
  * O próximo passo, no fim de cada tela.
@@ -17,8 +18,12 @@ import { ETAPAS, etapaAnterior, proximaEtapa } from "./etapas";
  * menu.
  *
  * Aparece sozinho em todas as telas da trilha, porque vive no layout: nenhuma
- * página precisa lembrar de chamá-lo. Some fora da trilha e na última etapa,
- * onde não há próximo passo para oferecer.
+ * página precisa lembrar de chamá-lo. Some fora da trilha.
+ *
+ * Na última etapa não há próximo passo para oferecer, mas o rodapé continua —
+ * é ele que carrega o "Como funciona", a única porta de volta para o guia
+ * depois que a pessoa o fechou. Sumir inteiro ali fechava essa porta
+ * justamente na tela onde se termina a trilha.
  */
 export function RodapeEtapas() {
   const caminho = usePathname();
@@ -30,27 +35,27 @@ export function RodapeEtapas() {
 
   const anterior = etapaAnterior(atual.slug);
   const proxima = proximaEtapa(atual.slug);
-  if (!anterior && !proxima) return null;
 
   return (
     <nav
       aria-label="Navegar entre as etapas"
       className="nao-imprimir mt-10 flex flex-wrap items-center justify-between gap-3 border-t border-border/70 pt-6"
     >
-      {anterior ? (
-        <Link
-          href={anterior.href}
-          className="group inline-flex items-center gap-2 rounded-xl px-3 py-2 text-xs font-semibold text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-        >
-          <ArrowLeft className="h-3.5 w-3.5 transition-transform group-hover:-translate-x-0.5" />
-          {anterior.titulo}
-        </Link>
-      ) : (
-        // O espaço vazio segura o botão da direita no canto: sem ele, a
-        // primeira etapa jogava o "próximo" para a esquerda e o rodapé
-        // parecia outro componente.
-        <span />
-      )}
+      {/* O grupo da esquerda nunca fica vazio: mesmo na primeira etapa, sem
+          "anterior", o "Como funciona" segura o canto — e o botão da direita
+          continua no lugar dele. */}
+      <div className="flex flex-wrap items-center gap-1">
+        {anterior && (
+          <Link
+            href={anterior.href}
+            className="group inline-flex items-center gap-2 rounded-xl px-3 py-2 text-xs font-semibold text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+          >
+            <ArrowLeft className="h-3.5 w-3.5 transition-transform group-hover:-translate-x-0.5" />
+            {anterior.titulo}
+          </Link>
+        )}
+        <BotaoVerGuia />
+      </div>
 
       {proxima && (
         <Link
