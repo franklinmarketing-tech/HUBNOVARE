@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ArrowRight, Target, TrendingUp } from "lucide-react";
 import { usePlanejamento } from "./usePlanejamento";
 import { BoasVindas } from "./BoasVindas";
+import { RevisaoDoConsultor } from "@/components/RevisaoDoConsultor";
 import { NOTA_RISCO } from "@/lib/planejamento/diagnostico";
 import {
   Barra,
@@ -26,7 +27,7 @@ export default function PainelPage() {
   if (r.fase === "sem-sessao") return <SessaoExpirada />;
   if (r.fase === "erro") return <FalhouAoCarregar />;
 
-  const { plano, saude, reserva, diagnostico, entrada, vazio } = r.dados;
+  const { plano, saude, reserva, diagnostico, entrada, vazio, clientId } = r.dados;
 
   // Ficha ainda em branco: em vez do aviso seco de "preencha seus dados",
   // a trilha inteira ilustrada — ver BoasVindas.
@@ -37,6 +38,12 @@ export default function PainelPage() {
 
   return (
     <div className="surgir space-y-6">
+      {/* O parecer do consultor abre a tela, antes dos números: e a entrega do
+          unico item da assinatura que nao e software, e quem pagou por "um
+          consultor olha o seu plano" precisa ver que alguem olhou. Some
+          sozinho enquanto nao houver parecer enviado. */}
+      <RevisaoDoConsultor clientId={clientId} />
+
       {/* O Marco Horizonte é a tese do produto: tudo que a pessoa quer da vida,
           somado num número só. Por isso abre a tela, sozinho, em destaque. */}
       <section
