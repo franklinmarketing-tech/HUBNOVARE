@@ -295,12 +295,15 @@ export function Indicador({
   }[tom];
 
   return (
-    <div className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-[0_1px_2px_hsl(215_40%_20%_/_0.03),0_8px_24px_-16px_hsl(215_40%_20%_/_0.18)] transition-transform duration-200 hover:-translate-y-0.5">
+    <div className="glass-card rounded-2xl border border-slate-200/80 bg-white p-5 shadow-[0_1px_2px_hsl(215_40%_20%_/_0.03),0_8px_24px_-16px_hsl(215_40%_20%_/_0.18)]">
       <div className="flex items-start gap-3">
+        {/* O disco cresce junto com o card no hover: o `tile-cine` já existia
+            no globals.css e só era usado na landing. Dá o toque de que o card
+            é um objeto, não uma caixa impressa. */}
         {emoji && (
           <span
             aria-hidden
-            className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-lg ${disco}`}
+            className={`tile-cine flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-lg ${disco}`}
           >
             {emoji}
           </span>

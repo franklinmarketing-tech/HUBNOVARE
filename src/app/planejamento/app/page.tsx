@@ -6,6 +6,8 @@ import { usePlanejamento } from "./usePlanejamento";
 import { BoasVindas } from "./BoasVindas";
 import { RevisaoDoConsultor } from "@/components/RevisaoDoConsultor";
 import { PedirAnalise } from "@/components/PedirAnalise";
+import { NumeroContado } from "@/components/NumeroContado";
+import { BarraQueEnche } from "@/components/BarraQueEnche";
 import { NOTA_RISCO } from "@/lib/planejamento/diagnostico";
 import {
   Barra,
@@ -77,9 +79,17 @@ export default function PainelPage() {
             <Target className="h-3.5 w-3.5" />
             Seu Marco Horizonte
           </p>
-          <p className="mt-2 font-display text-4xl font-extrabold tabular-nums sm:text-5xl">
-            {brlCurto(plano.capitalDeVida)}
-          </p>
+          {/* O numero conta ate o valor quando entra na tela. Nao e enfeite:
+              e o numero que a pessoa veio ver, e o movimento e o que faz ela
+              OLHAR para ele em vez de rolar por cima. Respeita
+              prefers-reduced-motion e entrega o valor pronto ao leitor de
+              tela — quem usa leitor ouve o numero, nao a contagem. */}
+          <NumeroContado
+            valor={plano.capitalDeVida}
+            formatar={brlCurto}
+            duracao={1100}
+            className="mt-2 block font-display text-4xl font-extrabold tabular-nums sm:text-5xl"
+          />
           <p className="mt-2 max-w-lg text-sm leading-relaxed text-white/80">
             É quanto você precisa ter acumulado para sustentar a vida que
             descreveu — seus objetivos somados à sua aposentadoria, em valores de
@@ -89,14 +99,16 @@ export default function PainelPage() {
           <div className="mt-5 max-w-md">
             <div className="mb-1.5 flex items-baseline justify-between text-2xs font-semibold">
               <span className="text-white/70">Da aposentadoria, o ritmo de hoje cobre</span>
-              <span className="tabular-nums">{pct(plano.pctAtingido)}</span>
+              <NumeroContado
+                valor={plano.pctAtingido}
+                formatar={(v) => pct(v)}
+                className="tabular-nums"
+              />
             </div>
             <div className="h-2 overflow-hidden rounded-full bg-white/20">
-              <div
-                className={`h-full rounded-full transition-[width] duration-700 ${
-                  plano.viavel ? "bg-success" : "bg-accent-claro"
-                }`}
-                style={{ width: `${Math.min(100, Math.max(0, plano.pctAtingido))}%` }}
+              <BarraQueEnche
+                pct={plano.pctAtingido}
+                className={plano.viavel ? "bg-success" : "bg-accent-claro"}
               />
             </div>
             <p className="mt-2 text-xs text-white/75">
@@ -108,7 +120,9 @@ export default function PainelPage() {
         </div>
       </section>
 
-      <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      {/* Entrada em escada: os quatro chegam um a um, o que conduz o olho pela
+          fileira em vez de despejar tudo no mesmo quadro. */}
+      <section className="revelar-escada grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <Indicador
           emoji="🌱"
           rotulo="Sobra por mês"
