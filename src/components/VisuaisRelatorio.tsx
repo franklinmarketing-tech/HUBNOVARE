@@ -77,7 +77,7 @@ export function MedidorSaude({ score, nota }: { score: number; nota: string }) {
       </svg>
 
       <div>
-        <p className="font-display text-2xl font-black" style={{ color: cor }}>
+        <p className="font-display text-2xl font-extrabold" style={{ color: cor }}>
           {nota}
         </p>
         <p className="text-xs text-slate-500">

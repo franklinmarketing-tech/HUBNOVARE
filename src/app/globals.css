@@ -223,8 +223,13 @@
     .aurora-clara::before { animation: none; }
   }
 
-  /* Título de seção com profundidade: sombra em duas camadas (uma seca,
-     uma difusa na cor da marca) e o risco laranja que assina a Novare. */
+  /* Título de seção: uma sombra difusa na cor da marca e o risco laranja
+     que assina a Novare.
+     Eram duas camadas. A primeira (`0 1px 0` branco) era um relevo
+     calibrado para fundo BRANCO PURO — sobre o fundo azulado de hoje ela
+     não some, vira um halo claro em volta da letra. Saiu; a difusa ficou,
+     mais fraca, porque sobre fundo mais escuro ela lê mais forte do que
+     lia sobre branco. */
   /* Emojis vivos da home: flutuam devagar, cada um no seu tempo (o delay
      vem inline). Some para quem pediu menos movimento no sistema. */
   @media (prefers-reduced-motion: no-preference) {
@@ -235,9 +240,7 @@
     font-weight: 800;
     letter-spacing: -0.02em;
     color: var(--color-primary);
-    text-shadow:
-      0 1px 0 hsl(0 0% 100% / 0.8),
-      0 6px 20px hsl(215 50% 23% / 0.25);
+    text-shadow: 0 4px 14px hsl(215 50% 23% / 0.18);
   }
 
   .titulo-secao::after {

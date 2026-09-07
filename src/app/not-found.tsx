@@ -24,7 +24,7 @@ export default function NaoEncontrada() {
         className="h-8 w-auto"
       />
 
-      <p className="mt-10 font-display text-6xl font-black text-primary/15">
+      <p className="mt-10 font-display text-6xl font-bold text-primary/15">
         404
       </p>
       <h1 className="mt-2 font-display text-2xl font-bold text-primary sm:text-3xl">

@@ -44,7 +44,7 @@ export function PonteResultado({
             dá peso à pergunta logo abaixo. Sem valor (ferramenta que não
             devolve um número único), a pergunta assume o lugar. */}
         {valor && (
-          <p className="font-display text-3xl font-black tabular-nums sm:text-4xl">
+          <p className="font-display text-3xl font-extrabold tabular-nums sm:text-4xl">
             {valor}
             {rotulo && (
               <span className="ml-2 align-middle text-sm font-semibold text-white/70">

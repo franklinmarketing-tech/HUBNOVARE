@@ -129,7 +129,7 @@ export default async function PaginaProfissao({
           {prof.dores.map((d, i) => (
             <article key={d.titulo} className="flex gap-4">
               <span
-                className="font-display text-2xl font-black leading-none"
+                className="font-display text-2xl font-extrabold leading-none"
                 style={{ color: `hsl(${h} 45% 45%)` }}
               >
                 {String(i + 1).padStart(2, "0")}
@@ -180,7 +180,7 @@ export default async function PaginaProfissao({
             <p className="text-[10px] font-bold uppercase tracking-widest text-white/50">
               Caso comum
             </p>
-            <p className="mt-3 font-display text-4xl font-black tabular-nums text-accent sm:text-5xl">
+            <p className="mt-3 font-display text-4xl font-extrabold tabular-nums text-accent sm:text-5xl">
               {brl(425302.49, 0)}
             </p>
             <p className="mx-auto mt-3 max-w-[16rem] text-xs leading-relaxed text-white/60">

@@ -365,7 +365,7 @@ export default function AssinarPage() {
                   className="cine px-3 text-center"
                   style={{ transitionDelay: `${i * 70}ms` }}
                 >
-                  <p className="font-display text-3xl font-black leading-none tracking-tight text-accent-claro sm:text-4xl">
+                  <p className="font-display text-3xl font-extrabold leading-none tracking-tight text-accent-claro sm:text-4xl">
                     {valor}
                   </p>
                   <p className="mt-2 text-2xs leading-snug text-white/55">
@@ -553,7 +553,7 @@ export default function AssinarPage() {
                   "As decisões saem prontas",
                 ].map((item, i) => (
                   <li key={item} className="relative flex items-center gap-4 pl-1">
-                    <span className="font-display text-xl font-black tabular-nums text-ciano-claro">
+                    <span className="font-display text-xl font-extrabold tabular-nums text-ciano-claro">
                       {String(i + 1).padStart(2, "0")}
                     </span>
                     <span className="relative flex h-2 w-2 shrink-0">
@@ -773,7 +773,7 @@ export default function AssinarPage() {
               </p>
 
               <div className="mt-5 flex items-end justify-center gap-2">
-                <span className="preco-lustro font-display text-[3.5rem] font-black leading-none tabular-nums sm:text-7xl">
+                <span className="preco-lustro font-display text-[3.5rem] font-extrabold leading-none tabular-nums sm:text-7xl">
                   {ASSINATURA_PRECO_ROTULO}
                 </span>
                 <span className="pb-3 text-lg font-semibold text-white/60">
@@ -876,7 +876,7 @@ export default function AssinarPage() {
             <aside className="cine relative lg:sticky lg:top-8">
               <span
                 aria-hidden
-                className="pointer-events-none absolute -top-8 left-0 select-none font-display text-[7rem] font-black leading-none tracking-tighter text-primary/[0.06] lg:text-[9rem]"
+                className="pointer-events-none absolute -top-8 left-0 select-none font-display text-[7rem] font-extrabold leading-none tracking-tighter text-primary/[0.06] lg:text-[9rem]"
               >
                 FAQ
               </span>

@@ -128,7 +128,7 @@ export function CalculadoraSaudeFinanceira() {
               <HeartPulse className="h-3.5 w-3.5" /> Sua nota de saúde financeira
             </p>
             <div className="mt-1 flex items-end gap-2">
-              <span className="font-display text-6xl font-black tabular-nums leading-none">{r.score}</span>
+              <span className="font-display text-6xl font-extrabold tabular-nums leading-none">{r.score}</span>
               <span className="pb-1 text-lg font-bold text-white/50">/100</span>
             </div>
             <p className={`mt-1 text-sm font-bold ${r.f.cor}`}>{r.f.rotulo}</p>

@@ -125,7 +125,7 @@ function Rosca({
           <p className="text-2xs font-semibold uppercase tracking-wider text-muted-foreground">
             {rotuloTotal}
           </p>
-          <p className="font-display text-xl font-black tabular-nums text-primary">
+          <p className="font-display text-xl font-extrabold tabular-nums text-primary">
             {brl(total)}
           </p>
         </div>

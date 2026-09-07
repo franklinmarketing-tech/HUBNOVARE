@@ -279,7 +279,7 @@ export function JornadaFinanceira({ dados }: { dados: DadosJornada }) {
             <p className="text-2xs font-bold uppercase tracking-[0.14em] text-white/60">
               Como você está
             </p>
-            <h2 className="mt-1 font-display text-2xl font-black leading-tight sm:text-[1.75rem]">
+            <h2 className="mt-1 font-display text-2xl font-extrabold leading-tight sm:text-[1.75rem]">
               {estado.titulo}
             </h2>
             <p className="mt-1.5 max-w-lg text-sm leading-relaxed text-white/80">
@@ -313,7 +313,7 @@ export function JornadaFinanceira({ dados }: { dados: DadosJornada }) {
             </p>
             <h2 className="mt-1 font-display text-xl font-bold">{fase.nome}</h2>
           </div>
-          <p className="font-display text-3xl font-black tabular-nums">
+          <p className="font-display text-3xl font-extrabold tabular-nums">
             {pct.toLocaleString("pt-BR", { maximumFractionDigits: 1 })}%
           </p>
         </div>
@@ -345,7 +345,7 @@ export function JornadaFinanceira({ dados }: { dados: DadosJornada }) {
             🔥
           </span>
           <div>
-            <p className="font-display text-2xl font-black tabular-nums text-primary">
+            <p className="font-display text-2xl font-bold tabular-nums text-primary">
               {dados.mesesFechados}
             </p>
             <p className="text-xs text-muted-foreground">
@@ -359,7 +359,7 @@ export function JornadaFinanceira({ dados }: { dados: DadosJornada }) {
             🏆
           </span>
           <div>
-            <p className="font-display text-2xl font-black tabular-nums text-primary">
+            <p className="font-display text-2xl font-bold tabular-nums text-primary">
               {ganhas.length}
               <span className="text-base font-bold text-muted-foreground">
                 /{conquistas.length}

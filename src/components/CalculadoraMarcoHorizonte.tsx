@@ -158,7 +158,7 @@ export function CalculadoraMarcoHorizonte() {
             <p className="text-2xs font-black uppercase tracking-[0.14em] text-accent-strong">
               Para fechar a conta no mesmo prazo
             </p>
-            <p className="mt-2 font-display text-2xl font-black tabular-nums text-primary">
+            <p className="mt-2 font-display text-2xl font-extrabold tabular-nums text-primary">
               {brl(r.aporteIdeal)}
               <span className="ml-1 font-sans text-sm font-semibold text-muted-foreground">
                 por mês
@@ -188,7 +188,7 @@ export function CalculadoraMarcoHorizonte() {
           <p className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-white/60">
             <Target className="h-3.5 w-3.5" /> Seu Marco Horizonte
           </p>
-          <p className="mt-1 font-display text-4xl font-black tabular-nums">{brl(r.alvo)}</p>
+          <p className="mt-1 font-display text-4xl font-extrabold tabular-nums">{brl(r.alvo)}</p>
           <p className="mt-1 text-xs text-white/70">
             é o patrimônio que te dá {brl(r.rendaN)} por mês até os 90 anos.
           </p>
@@ -231,7 +231,7 @@ export function CalculadoraMarcoHorizonte() {
                   <span className="text-xs font-semibold text-primary">
                     Seu Marco Horizonte
                   </span>
-                  <span className="font-display text-sm font-black tabular-nums text-primary">
+                  <span className="font-display text-sm font-extrabold tabular-nums text-primary">
                     {brl(r.alvo)}
                   </span>
                 </div>
@@ -248,7 +248,7 @@ export function CalculadoraMarcoHorizonte() {
                   <span className="text-xs font-semibold text-muted-foreground">
                     Pela regra dos 4% (americana)
                   </span>
-                  <span className="font-display text-sm font-black tabular-nums text-muted-foreground">
+                  <span className="font-display text-sm font-extrabold tabular-nums text-muted-foreground">
                     {brl(r.alvo4pct)}
                   </span>
                 </div>

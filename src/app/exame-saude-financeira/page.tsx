@@ -60,7 +60,7 @@ export default function ExameSaudePage() {
               { faixa: "81–100", nome: "Excelente", cor: "border-emerald-300 bg-emerald-50 text-emerald-700", txt: "Sólida. Hora de blindar e acelerar o patrimônio." },
             ].map((f) => (
               <div key={f.nome} className={`rounded-2xl border p-4 ${f.cor}`}>
-                <p className="font-display text-lg font-black tabular-nums">{f.faixa}</p>
+                <p className="font-display text-lg font-extrabold tabular-nums">{f.faixa}</p>
                 <p className="text-sm font-bold">{f.nome}</p>
                 <p className="mt-1 text-xs opacity-80">{f.txt}</p>
               </div>

@@ -59,7 +59,7 @@ export default function PainelPage() {
             <Target className="h-3.5 w-3.5" />
             Seu Marco Horizonte
           </p>
-          <p className="mt-2 font-display text-4xl font-black tabular-nums sm:text-5xl">
+          <p className="mt-2 font-display text-4xl font-extrabold tabular-nums sm:text-5xl">
             {brlCurto(plano.capitalDeVida)}
           </p>
           <p className="mt-2 max-w-lg text-sm leading-relaxed text-white/80">

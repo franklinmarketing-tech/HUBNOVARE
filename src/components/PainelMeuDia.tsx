@@ -357,7 +357,7 @@ function Anel({ valor, rotulo }: { valor: number; rotulo: string }) {
       <div className="absolute inset-0 flex flex-col items-center justify-center">
         <NumeroContado
           valor={valor}
-          className="font-display text-4xl font-black leading-none tabular-nums text-primary"
+          className="font-display text-4xl font-bold leading-none tabular-nums text-primary"
         />
         <span className="mt-1 text-[11px] font-bold uppercase tracking-wide text-muted-foreground">
           {rotulo}

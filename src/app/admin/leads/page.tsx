@@ -91,7 +91,7 @@ export default async function AdminLeadsPage() {
                   { n: porTipo("vida-plan"), r: "Planejamento" },
                 ].map((c) => (
                   <div key={c.r} className="rounded-2xl border border-slate-200 bg-white px-4 py-2 shadow-sm">
-                    <p className="font-display text-xl font-black tabular-nums text-primary">{c.n}</p>
+                    <p className="font-display text-xl font-extrabold tabular-nums text-primary">{c.n}</p>
                     <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{c.r}</p>
                   </div>
                 ))}

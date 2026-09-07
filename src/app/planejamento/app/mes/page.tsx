@@ -97,7 +97,7 @@ function MudouDesde({
             <div key={i.rotulo}>
               <p className="truncate text-xs text-white/60">{i.rotulo}</p>
               <p
-                className={`mt-0.5 flex items-center gap-1 font-display text-xl font-black tabular-nums ${
+                className={`mt-0.5 flex items-center gap-1 font-display text-xl font-extrabold tabular-nums ${
                   parado ? "text-white/70" : bom ? "text-success" : "text-amber-300"
                 }`}
               >

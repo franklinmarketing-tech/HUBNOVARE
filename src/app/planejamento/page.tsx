@@ -217,7 +217,7 @@ export default function VidaPlanPage() {
                 {/* A oferta lidera pelo teste: o preço vem depois, como
                     consequência, não como barreira de entrada. */}
                 <div className="mt-7 flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
-                  <span className="font-display text-3xl font-black leading-none tabular-nums sm:text-4xl">
+                  <span className="font-display text-3xl font-extrabold leading-none tabular-nums sm:text-4xl">
                     {PLANO_TRIAL_DIAS} dias grátis
                   </span>
                   <span className="text-sm text-white/70">

@@ -62,7 +62,7 @@ export function FerramentaAssinante({
             <Lock className="h-3 w-3" />
             Exclusiva de assinante
           </span>
-          <h1 className="mt-4 font-display text-2xl font-black leading-tight sm:text-3xl">
+          <h1 className="mt-4 font-display text-2xl font-extrabold leading-tight sm:text-3xl">
             {nome}
           </h1>
           <p className="mt-2 max-w-md text-sm leading-relaxed text-white/80">

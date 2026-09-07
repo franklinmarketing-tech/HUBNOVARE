@@ -64,7 +64,7 @@ export function MeuPatrimonio({ dados }: { dados: DadosPlanejamento }) {
           <NumeroContado
             valor={liquido}
             formatar={brl}
-            className="mt-3 block font-display text-4xl font-black leading-none tabular-nums text-primary"
+            className="mt-3 block font-display text-4xl font-extrabold leading-none tabular-nums text-primary"
           />
           <p className="mt-1.5 text-xs text-muted-foreground">
             O que você tem, menos o que deve

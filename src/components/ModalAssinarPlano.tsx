@@ -177,7 +177,7 @@ export function ModalAssinarPlano({
             <div className="mt-3 flex items-end gap-2 sm:mt-4">
               <span
                 id="titulo-assinar"
-                className="font-display text-[2.75rem] font-black leading-none tabular-nums sm:text-5xl"
+                className="font-display text-[2.75rem] font-extrabold leading-none tabular-nums sm:text-5xl"
               >
                 R$ 0
               </span>

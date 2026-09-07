@@ -186,7 +186,7 @@ export default async function IrisPage({
             Íris · a IA financeira da Novare
           </span>
 
-          <h1 className="mt-5 max-w-2xl font-display text-4xl font-black leading-[1.05] tracking-tight sm:text-5xl">
+          <h1 className="mt-5 max-w-2xl font-display text-4xl font-extrabold leading-[1.05] tracking-tight sm:text-5xl">
             Ela enxerga o dinheiro
             <br />
             <span className="text-accent-claro">que some.</span>

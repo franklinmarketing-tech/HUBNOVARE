@@ -175,7 +175,7 @@ export function ConviteDeSaida() {
 
           <h2
             id="titulo-convite-saida"
-            className="mt-4 font-display text-2xl font-black leading-tight tracking-tight sm:text-[1.75rem]"
+            className="mt-4 font-display text-2xl font-extrabold leading-tight tracking-tight sm:text-[1.75rem]"
           >
             Antes de ir: seu plano
             <br />
