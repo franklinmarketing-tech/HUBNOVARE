@@ -1,15 +1,27 @@
 /**
  * O Workspace Novare — a única assinatura da casa.
  *
- * A regra do negócio, em uma frase: **R$ 19,90 por mês libera tudo**. Não há
- * plano básico, plano avançado, nem produto vendido à parte. Quem assina leva
- * o Planejamento Financeiro PRO, a Íris e as ferramentas — e ainda passa a
- * comprar consultoria particular com desconto.
+ * A regra do negócio, em uma frase: **uma mensalidade libera tudo** (o valor
+ * mora em `ASSINATURA_PRECO`, logo abaixo — não repetido aqui, senão este
+ * comentário envelhece calado, como já envelheceu uma vez dizendo R$ 19,90).
+ * Não há plano básico nem avançado. Quem assina leva o Planejamento
+ * Financeiro PRO, a Íris e as ferramentas.
  *
- * A consultoria em si NÃO está aqui dentro: ela é analisada caso a caso e
- * cobrada à parte. O que a assinatura dá é o desconto.
+ * O QUE MUDOU, e é a decisão mais importante deste arquivo: a assinatura
+ * passou a incluir uma **revisão trimestral escrita por um consultor**. Antes
+ * era só software mais desconto na consultoria — e software com IA deixou de
+ * ser diferencial no dia em que qualquer chatbot passou a montar um plano de
+ * graça. O que um chatbot não faz é assinar embaixo.
  *
- * Este arquivo é a fonte única do preço. Nenhuma tela escreve "R$ 19,90" à
+ * O ESCOPO é estreito de propósito: consultoria FINANCEIRA — organizar,
+ * projetar, priorizar. A revisão comenta o plano da pessoa; NÃO indica ativo,
+ * produto, fundo nem corretora. O app segue a mesma regra, trabalhando por
+ * classe de ativo (ver o comentário em `planejamento/app/plano/page.tsx:292`).
+ *
+ * A consultoria particular completa continua fora e cobrada à parte, com
+ * desconto para quem assina. O que entrou aqui é a revisão, não ela.
+ *
+ * Este arquivo é a fonte única do preço. Nenhuma tela escreve o valor à
  * mão — `testar-nada-a-venda.mjs` é o guarda-costas dessa regra, e existe
  * porque uma oferta divergente entre duas páginas destrói a confiança de quem
  * está com o cartão na mão.
@@ -113,6 +125,26 @@ export const ROTULO_PRO = "PRO";
  */
 export const ASSINATURA_PILARES = [
   {
+    /**
+     * O pilar HUMANO, e por isso o primeiro.
+     *
+     * Os outros três são software, e software com IA deixou de ser
+     * diferencial: quem quer só um plano gerado consegue um de graça, em
+     * qualquer chatbot. O que um chatbot não faz é assinar embaixo.
+     *
+     * ESCOPO, e ele é estreito de propósito: consultoria FINANCEIRA —
+     * organizar, projetar, priorizar. A revisão comenta o SEU plano; não
+     * indica ativo, produto, fundo nem corretora. O app já trabalha por
+     * classe de ativo pelo mesmo motivo (ver `plano/page.tsx:292`).
+     */
+    chave: "revisao",
+    nome: "Um consultor olha o seu plano",
+    resumo: "Revisão a cada trimestre, escrita por gente, com o seu nome.",
+    detalhe:
+      "A cada três meses um consultor da Novare abre o seu plano e escreve o que mudou, o que está travando e qual é o próximo movimento. A primeira revisão vem já no primeiro mês. É consultoria financeira — organizar, projetar e priorizar —, não indicação de onde investir.",
+    href: "/consultoria",
+  },
+  {
     chave: "iris",
     nome: "Descubra para onde seu dinheiro foi",
     resumo: "A Íris lê seu extrato e acha o que some sem você perceber.",
@@ -153,6 +185,9 @@ export const ASSINATURA_PILARES = [
  * venda.
  */
 export const ASSINATURA_INCLUI = [
+  /* Primeiro da lista porque é o único item que não é software — e é o que
+     responde "por que não uso um chatbot de graça". */
+  "Revisão trimestral do seu plano, escrita por um consultor da Novare",
   "Íris ilimitada: leia quantos extratos quiser, todo mês",
   "Seu Marco Horizonte calculado — o número que você precisa atingir, com prazo",
   "Plano de ação com valor e prazo: o que fazer primeiro, segundo, terceiro",

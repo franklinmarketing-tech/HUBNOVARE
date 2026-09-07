@@ -152,6 +152,15 @@ const PASSOS = [
     não dá. `wrench-3d` e `users-3d` nunca tinham sido usados. */
 const PACOTE = [
   {
+    /* Primeiro do pacote porque é o único item que não é software. Os três
+       de baixo um chatbot imita; este exige uma consultoria registrada do
+       outro lado. */
+    emblema: "/icones-3d/parecer-3d.png",
+    nome: "Revisão trimestral com um consultor",
+    texto:
+      "A cada três meses alguém da Novare lê o seu plano e escreve o que mudou, o que está travando e o próximo passo. A primeira vem no primeiro mês.",
+  },
+  {
     emblema: "/icones-3d/icon-vault-3d.png",
     nome: "Planejamento Financeiro completo",
     texto:
@@ -242,6 +251,7 @@ const brl = (v: number) =>
  * empurrar o botão para fora da dobra. Fica para quando der para medir.
  */
 const INCLUI = [
+  "Revisão trimestral com um consultor da Novare",
   `${ASSINATURA_TRIAL_DIAS} dias grátis, sem cartão`,
   "Planejamento Financeiro completo",
   "Íris, a IA que lê seu extrato",

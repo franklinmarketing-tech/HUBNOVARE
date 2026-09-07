@@ -750,8 +750,14 @@ export default function VidaPlanPage() {
                 },
                 {
                   pergunta: "A Novare vende produto de banco ou de corretora?",
+                  /* "A recomendação é feita…" saiu: soava a recomendação de
+                     ativo, que não é o que este produto faz. O app trabalha
+                     com CLASSE de ativo e diz isso na tela ("não é indicação
+                     de produto, corretora ou fundo"). O que se presta aqui é
+                     consultoria financeira — organizar, projetar e priorizar
+                     —, não indicar onde comprar. */
                   resposta:
-                    "Não. A Novare é uma consultoria independente e não recebe comissão pela alocação do seu dinheiro. A recomendação é feita pelo que serve ao seu plano, e a única receita nessa relação é a sua assinatura.",
+                    "Não. A Novare é uma consultoria independente e não recebe comissão de banco, corretora ou seguradora — a única receita nessa relação é a sua assinatura. E o plano trabalha com classe de ativo (renda fixa, inflação, ações), nunca com indicação de produto, fundo ou corretora.",
                 },
                 {
                   pergunta: "Como faço para cancelar?",
