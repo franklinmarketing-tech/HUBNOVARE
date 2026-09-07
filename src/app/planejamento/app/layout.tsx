@@ -5,6 +5,7 @@ import type { Metadata } from "next";
 import { LogOut } from "lucide-react";
 import { getPerfil } from "@/lib/perfil";
 import { NavEtapas } from "./NavEtapas";
+import { GuiaDaTrilha } from "@/components/GuiaDaTrilha";
 import { FaixaTeste } from "./FaixaTeste";
 import { RodapeEtapas } from "./RodapeEtapas";
 import { sair } from "./actions";
@@ -76,6 +77,9 @@ export default async function LayoutPlanejamento({
         </div>
 
         <NavEtapas />
+        {/* O mapa da casa, uma vez so: as seis telas dizem O QUE sao e nao
+            QUANDO usar, que e a duvida de quem chega. */}
+        <GuiaDaTrilha />
       </header>
 
       <main className="mx-auto max-w-5xl px-5 pb-20 pt-6">

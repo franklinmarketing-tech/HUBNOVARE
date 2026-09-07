@@ -50,6 +50,15 @@ export function NavEtapas() {
       aria-label="Etapas do seu planejamento"
       className="relative border-b border-border/70 bg-white/70 backdrop-blur-md"
     >
+      {/* A sombra da direita: no celular cabem duas etapas das seis, e a barra
+          rola de lado — mas sem nenhum sinal disso a pessoa ve "Meus dados,
+          Diagnostico" e conclui que o app tem duas telas. O degrade cortado na
+          borda e a convencao que diz "tem mais aqui" sem ocupar espaco.
+          Some em telas onde tudo cabe. */}
+      <span
+        aria-hidden
+        className="pointer-events-none absolute inset-y-0 right-0 z-10 w-12 bg-gradient-to-l from-white to-transparent lg:hidden"
+      />
       <ol className="mx-auto flex max-w-5xl gap-1 overflow-x-auto px-5 py-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {ETAPAS.map((etapa, i) => {
           const atual = i === indiceAtual;

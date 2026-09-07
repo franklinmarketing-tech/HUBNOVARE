@@ -5,6 +5,7 @@ import { ArrowRight, Target, TrendingUp } from "lucide-react";
 import { usePlanejamento } from "./usePlanejamento";
 import { BoasVindas } from "./BoasVindas";
 import { RevisaoDoConsultor } from "@/components/RevisaoDoConsultor";
+import { PedirAnalise } from "@/components/PedirAnalise";
 import { NOTA_RISCO } from "@/lib/planejamento/diagnostico";
 import {
   Barra,
@@ -43,6 +44,16 @@ export default function PainelPage() {
           consultor olha o seu plano" precisa ver que alguem olhou. Some
           sozinho enquanto nao houver parecer enviado. */}
       <RevisaoDoConsultor clientId={clientId} />
+
+      {/* O caminho inverso da revisao: quem estourou o orcamento em marco nao
+          pode esperar junho para alguem olhar. Acende sozinho quando o plano
+          mostra um limite fora. */}
+      <PedirAnalise
+        clientId={clientId}
+        sobraMensal={diagnostico.sobraMensal}
+        comprometimentoDividas={diagnostico.comprometimentoDividas}
+        reserva={{ completa: reserva.completa, faltam: reserva.faltam }}
+      />
 
       {/* O Marco Horizonte é a tese do produto: tudo que a pessoa quer da vida,
           somado num número só. Por isso abre a tela, sozinho, em destaque. */}
