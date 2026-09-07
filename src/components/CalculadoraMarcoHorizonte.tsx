@@ -5,7 +5,7 @@ import { ArrowRight, Sparkles, Target, TrendingUp, Lock } from "lucide-react";
 import { formatarMoedaInput, digitosParaReais } from "@/lib/moeda";
 import { falarNoWhatsApp } from "@/lib/contato";
 import { salvarLead } from "@/lib/leads";
-import { marcoRapido } from "@/lib/planejamento/montarPlano";
+import { marcoRapido, IDADE_FIM } from "@/lib/planejamento/montarPlano";
 import {
   CamposLead,
   leadCompleto,
@@ -56,7 +56,30 @@ export function CalculadoraMarcoHorizonte() {
     const gap = Math.max(0, alvo - fv);
     const pct = alvo > 0 ? Math.min(100, Math.max(0, Math.round((fv / alvo) * 100))) : 0;
     const alcancou = fv >= alvo;
-    return { rendaN, anos, alvo, fv, gap, pct, alcancou };
+
+    /* A conta americana, para comparar: 25× a renda anual (renda ÷ 4%).
+       Ela assume perpetuidade — capital que nunca acaba, para herdeiros que
+       o cliente não perguntou se quer ter. O Marco Horizonte assume prazo:
+       a renda dura até os 90 e o capital termina em zero.
+       Não é a nossa conta; é a régua contra a qual a nossa se explica. */
+    const alvo4pct = (rendaN * 12) / 0.04;
+    const excesso = Math.max(0, alvo4pct - alvo);
+
+    /* O aporte que fecharia a conta no mesmo prazo. Invertendo a FV de série
+       uniforme: pmt = (alvo − jaTem·(1+i)^n) · i / ((1+i)^n − 1).
+       É o número que transforma "faltam R$ 579 mil" — assustador e inerte —
+       em uma decisão do tamanho de um mês. */
+    const fator = Math.pow(1 + i, n);
+    const aporteIdeal =
+      n > 0 && !alcancou
+        ? Math.max(0, ((alvo - jaTemN * fator) * i) / (fator - 1))
+        : 0;
+    const aporteExtra = Math.max(0, aporteIdeal - aporteN);
+
+    return {
+      rendaN, anos, alvo, fv, gap, pct, alcancou,
+      alvo4pct, excesso, aporteIdeal, aporteExtra,
+    };
   }, [idade, idadeLivre, renda, jaTem, aporte]);
 
   const leadOk = leadCompleto(dados);
@@ -102,7 +125,10 @@ export function CalculadoraMarcoHorizonte() {
   };
 
   return (
-    <div className="grid gap-5 lg:grid-cols-[1fr_minmax(0,20rem)]">
+    // items-start: sem isso o card de entradas estica até a altura da coluna
+    // direita, que ficou mais alta com o comparativo, e sobra um vazio
+    // grande embaixo dos campos.
+    <div className="grid items-start gap-5 lg:grid-cols-[1fr_minmax(0,20rem)]">
       {/* ENTRADAS */}
       <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
         <div className="grid gap-4 sm:grid-cols-2">
@@ -112,12 +138,48 @@ export function CalculadoraMarcoHorizonte() {
           <CampoNum label="Quanto já tenho investido" value={jaTem} onChange={setJaTem} moeda />
           <CampoNum label="Quanto consigo guardar por mês" value={aporte} onChange={setAporte} moeda />
           <div className="flex items-end">
+            {/* Esta nota dizia "regra dos 4%" — e a conta acima justamente
+                não é essa (ver o comentário de `marcoRapido`). Além de
+                descrever errado o cálculo, entregava de graça o argumento
+                que separa este produto dos concorrentes. */}
             <p className="text-[11px] leading-snug text-muted-foreground">
-              Considera 5% a.a. de retorno real (acima da inflação) e a regra dos 4% para
-              uma renda que dura a vida toda.
+              Considera 5% a.a. de retorno real (acima da inflação) e renda
+              até os {IDADE_FIM} anos — não a regra dos 4%.
             </p>
           </div>
         </div>
+
+        {/* O gap sozinho ("faltam R$ 579 mil") paralisa: é um número grande
+            demais para caber numa decisão. Traduzido em aporte mensal, vira
+            uma escolha do tamanho de um mês — e é exatamente o cálculo que o
+            app faz todo mês depois da assinatura. */}
+        {r.aporteIdeal > 0 && (
+          <div className="mt-5 rounded-2xl border border-accent/25 bg-accent/[0.06] p-4">
+            <p className="text-2xs font-black uppercase tracking-[0.14em] text-accent-strong">
+              Para fechar a conta no mesmo prazo
+            </p>
+            <p className="mt-2 font-display text-2xl font-black tabular-nums text-primary">
+              {brl(r.aporteIdeal)}
+              <span className="ml-1 font-sans text-sm font-semibold text-muted-foreground">
+                por mês
+              </span>
+            </p>
+            <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">
+              {r.aporteExtra > 0 ? (
+                <>
+                  São{" "}
+                  <b className="font-semibold text-accent-strong">
+                    {brl(r.aporteExtra)} a mais
+                  </b>{" "}
+                  do que você guarda hoje — durante os {r.anos} anos que
+                  faltam.
+                </>
+              ) : (
+                <>O seu aporte de hoje já dá conta desse prazo.</>
+              )}
+            </p>
+          </div>
+        )}
       </div>
 
       {/* RESULTADO */}
@@ -151,6 +213,60 @@ export function CalculadoraMarcoHorizonte() {
             </p>
           </div>
         </div>
+
+        {/* O DUELO: a nossa conta contra a régua americana.
+            A página inteira afirma "não é a regra dos 4%" — aqui isso deixa
+            de ser afirmação e vira demonstração, com o número da própria
+            pessoa. As duas barras dividem a MESMA escala (o maior dos dois
+            alvos), senão a comparação mente no desenho. */}
+        {r.excesso > 0 && (
+          <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+            <p className="text-2xs font-black uppercase tracking-[0.14em] text-accent-strong">
+              Por que não usamos a regra dos 4%
+            </p>
+
+            <div className="mt-3.5 space-y-3">
+              <div>
+                <div className="flex items-baseline justify-between gap-2">
+                  <span className="text-xs font-semibold text-primary">
+                    Seu Marco Horizonte
+                  </span>
+                  <span className="font-display text-sm font-black tabular-nums text-primary">
+                    {brl(r.alvo)}
+                  </span>
+                </div>
+                <div className="mt-1 h-2.5 overflow-hidden rounded-full bg-slate-100">
+                  <div
+                    className="h-full rounded-full bg-primary transition-all duration-500"
+                    style={{ width: `${(r.alvo / r.alvo4pct) * 100}%` }}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <div className="flex items-baseline justify-between gap-2">
+                  <span className="text-xs font-semibold text-muted-foreground">
+                    Pela regra dos 4% (americana)
+                  </span>
+                  <span className="font-display text-sm font-black tabular-nums text-muted-foreground">
+                    {brl(r.alvo4pct)}
+                  </span>
+                </div>
+                <div className="mt-1 h-2.5 overflow-hidden rounded-full bg-slate-100">
+                  <div className="h-full w-full rounded-full bg-slate-300" />
+                </div>
+              </div>
+            </div>
+
+            <p className="mt-4 border-t border-slate-100 pt-3 text-xs leading-relaxed text-muted-foreground">
+              A conta americana pediria{" "}
+              <b className="text-accent-strong">{brl(r.excesso)} a mais</b> —
+              ela supõe um capital que nunca acaba. O seu plano tem prazo: a
+              renda dura até os {IDADE_FIM} anos, e não sobra patrimônio
+              parado que você trabalhou anos para juntar.
+            </p>
+          </div>
+        )}
 
         {/* CAPTURA DE LEAD */}
         {enviado ? (

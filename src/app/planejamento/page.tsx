@@ -26,6 +26,7 @@ import {
 import { Cabecalho } from "@/components/Cabecalho";
 import { RodapeNovare } from "@/components/RodapeNovare";
 import { CalculadoraMarcoHorizonte } from "@/components/CalculadoraMarcoHorizonte";
+import { PainelExemplo } from "@/components/PainelExemplo";
 import { OQueSignifica } from "@/components/OQueSignifica";
 import { BotaoAssinarPlano } from "@/components/BotaoAssinarPlano";
 import {
@@ -68,8 +69,9 @@ const CONTA = [
     detalhe: "É o que o patrimônio precisa pagar todo ano.",
   },
   {
-    rotulo: "÷ 4% vira o seu Marco Horizonte",
-    detalhe: "A taxa de retirada que faz a renda durar a vida toda.",
+    rotulo: "Trazida a valor de hoje, vira o Marco Horizonte",
+    detalhe:
+      "O patrimônio que paga essa renda todo ano até os 90, rendendo 5% acima da inflação. Não é a regra dos 4%.",
   },
 ];
 
@@ -138,7 +140,7 @@ const ICONES_INCLUI: LucideIcon[] = [
 const GRATIS = [
   "Seu Marco Horizonte estimado na hora",
   "Quanto do alvo você alcança no ritmo atual",
-  "A conta explicada: regra dos 4% e retorno real",
+  "A conta aberta: prazo até os 90 anos e retorno real",
   "Resumo do seu caso pelo WhatsApp",
 ];
 
@@ -367,6 +369,23 @@ export default function VidaPlanPage() {
             <div className="mt-6">
               <CalculadoraMarcoHorizonte />
             </div>
+
+            {/* O pico de intenção é aqui — logo depois de a pessoa ver
+                "faltam R$ X". O botão seguinte só aparecia ~700px abaixo,
+                depois de duas seções inteiras, e a intenção decai enquanto
+                se rola. */}
+            <div className="mt-6 flex flex-col items-center gap-3 rounded-2xl border border-border bg-card p-5 text-center shadow-subtle sm:flex-row sm:justify-between sm:text-left">
+              <p className="text-sm leading-relaxed text-muted-foreground">
+                <b className="font-semibold text-primary">
+                  Esse número é a fotografia.
+                </b>{" "}
+                O plano que fecha essa diferença — aporte, prazo e revisão mês
+                a mês — está dentro do app.
+              </p>
+              <div className="shrink-0">
+                <BotaoAssinarPlano />
+              </div>
+            </div>
           </section>
 
           {/* ====================================== 5. COMO FUNCIONA ==== */}
@@ -402,6 +421,35 @@ export default function VidaPlanPage() {
                 </li>
               ))}
             </ol>
+          </section>
+
+          {/* ================================= 5B. O APP, POR DENTRO ==== */}
+          {/* A página pedia R$ 49/mês por "acompanhamento" e "projeção" sem
+              mostrar um pixel do produto — a objeção "isso é só mais uma
+              planilha bonita?" é visual e não se responde com parágrafo.
+              O `PainelExemplo` já existia pronto no repo, com os números
+              que o motor devolve para a conta de demonstração, e nunca
+              tinha sido montado em lugar nenhum. */}
+          <section className="pt-14 sm:pt-20">
+            <div className="flex flex-wrap items-end justify-between gap-3">
+              <div>
+                <h2 className="titulo-secao text-xl sm:text-2xl">
+                  É isto que você vê depois de entrar
+                </h2>
+                <p className="mt-4 max-w-2xl text-base text-muted-foreground">
+                  O painel do app, com um caso real de quem está no meio do
+                  caminho — sobra apertada, reserva incompleta, saúde em
+                  atenção. É o retrato que a maioria encontra no primeiro dia.
+                </p>
+              </div>
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-muted/50 px-3 py-1 text-2xs font-bold uppercase tracking-wider text-muted-foreground">
+                Exemplo ilustrativo
+              </span>
+            </div>
+
+            <div className="mt-6">
+              <PainelExemplo />
+            </div>
           </section>
 
           {/* =============================== 6. O QUE VEM NA ASSINATURA = */}
