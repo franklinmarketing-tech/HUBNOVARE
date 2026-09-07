@@ -526,7 +526,7 @@ function SemFicha() {
             className="cine rounded-3xl border border-dashed border-primary/15 bg-white/50 p-5"
             style={{ transitionDelay: `${i * 60}ms` }}
           >
-            <h4 className="font-display text-sm font-extrabold text-primary/70">
+            <h4 className="font-display text-sm font-bold text-primary/70">
               {secao.titulo}
             </h4>
             <ul className="mt-4 space-y-3">

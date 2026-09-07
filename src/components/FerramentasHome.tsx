@@ -59,7 +59,7 @@ export function FerramentasHome() {
   return (
     <section className="cine" style={{ transitionDelay: "420ms" }}>
       <div className="flex items-baseline justify-between gap-3">
-        <h2 className="font-display text-base font-extrabold tracking-tight text-primary">
+        <h2 className="font-display text-base font-bold tracking-tight text-primary">
           {temAtalho ? "Seus atalhos" : "Ferramentas gratuitas"}
         </h2>
         <Link

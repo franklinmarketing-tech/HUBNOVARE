@@ -107,15 +107,26 @@ export function TelaVazia({
   texto,
   figura = "/icones-3d/goal-default.png",
   acao,
+  previa,
 }: {
   titulo: string;
   texto: string;
   /** PNG de /public/icones-3d. */
   figura?: string;
   acao?: { href: string; rotulo: string };
+  /**
+   * O que vai aparecer nesta tela depois de preenchida.
+   *
+   * Uma tela vazia que só diz "faltam seus dados" transfere todo o custo
+   * para a pessoa: ela precisa acreditar que vale a pena preencher sem ver
+   * o que ganha. Mostrar a FORMA do resultado — o nome de cada bloco e o
+   * que ele responde — é o que faz alguém topar gastar dez minutos.
+   */
+  previa?: { titulo: string; texto: string; emoji: string }[];
 }) {
   return (
-    <div className="mx-auto max-w-md px-4 py-10 text-center">
+    <div className="px-4 py-10">
+      <div className="mx-auto max-w-md text-center">
       <span className="relative mx-auto mb-6 flex h-28 w-28 items-center justify-center">
         <span
           aria-hidden
@@ -147,16 +158,82 @@ export function TelaVazia({
           {acao.rotulo}
         </Link>
       )}
+      </div>
+
+      {/* A forma do que vem. Borda tracejada porque é promessa, não dado —
+          o mesmo recurso que o painel do Workspace já usava para não
+          inventar número nenhum enquanto a ficha está vazia. */}
+      {previa && previa.length > 0 && (
+        <>
+          <p className="mx-auto mt-12 max-w-md text-center text-xs text-muted-foreground">
+            É isto que aparece aqui depois:
+          </p>
+          <ul className="mx-auto mt-4 grid max-w-3xl gap-3 sm:grid-cols-2">
+            {previa.map((b) => (
+              <li
+                key={b.titulo}
+                className="rounded-2xl border border-dashed border-primary/20 bg-white/60 p-5"
+              >
+                <span
+                  aria-hidden
+                  className="flex h-11 w-11 items-center justify-center rounded-full bg-primary/[0.07] text-lg"
+                >
+                  {b.emoji}
+                </span>
+                <p className="mt-3 font-display text-sm font-semibold text-primary">
+                  {b.titulo}
+                </p>
+                <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                  {b.texto}
+                </p>
+                {/* Barra no lugar do número: mostra que ali mora um valor,
+                    sem fingir que já existe um. */}
+                <span
+                  aria-hidden
+                  className="mt-3 block h-2 rounded-full bg-primary/[0.07]"
+                  style={{ width: `${45 + ((b.titulo.length * 7) % 45)}%` }}
+                />
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
     </div>
   );
 }
 
+/** O que a trilha entrega - a promessa que a tela vazia mostra em forma. */
+const O_QUE_VEM = [
+  {
+    emoji: "\u{1F4B0}",
+    titulo: "Quanto entra e quanto sai",
+    texto: "Renda, custo fixo e parcelas de dívida, somados uma vez só.",
+  },
+  {
+    emoji: "\u{1F331}",
+    titulo: "A sua sobra do mês",
+    texto: "Quanto realmente resta, e que fatia da renda isso representa.",
+  },
+  {
+    emoji: "\u{1F3AF}",
+    titulo: "O seu Marco Horizonte",
+    texto: "O patrimônio que sustenta a renda que você quer até os 90 anos.",
+  },
+  {
+    emoji: "\u2764\uFE0F",
+    titulo: "Sua nota de saúde financeira",
+    texto: "Reserva, dívida, poupança e proteção, numa nota de 0 a 100.",
+  },
+];
+
 export function PrecisaPreencher({
   titulo = "Falta o seu retrato financeiro",
-  texto = "Assim que você preencher seus dados, esta tela se monta sozinha.",
+  texto = "São oito perguntas em português simples. A partir delas, esta tela se monta sozinha — com os seus números, não com exemplos.",
+  previa = O_QUE_VEM,
 }: {
   titulo?: string;
   texto?: string;
+  previa?: { titulo: string; texto: string; emoji: string }[];
 }) {
   return (
     <TelaVazia
@@ -167,6 +244,7 @@ export function PrecisaPreencher({
         href: "/planejamento/app/meus-dados",
         rotulo: "Preencher meus dados",
       }}
+      previa={previa}
     />
   );
 }

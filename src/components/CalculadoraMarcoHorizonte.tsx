@@ -155,7 +155,7 @@ export function CalculadoraMarcoHorizonte() {
             app faz todo mês depois da assinatura. */}
         {r.aporteIdeal > 0 && (
           <div className="mt-5 rounded-2xl border border-accent/25 bg-accent/[0.06] p-4">
-            <p className="text-2xs font-black uppercase tracking-[0.14em] text-accent-strong">
+            <p className="text-2xs font-semibold uppercase tracking-[0.14em] text-accent-strong">
               Para fechar a conta no mesmo prazo
             </p>
             <p className="mt-2 font-display text-2xl font-extrabold tabular-nums text-primary">
@@ -221,7 +221,7 @@ export function CalculadoraMarcoHorizonte() {
             alvos), senão a comparação mente no desenho. */}
         {r.excesso > 0 && (
           <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
-            <p className="text-2xs font-black uppercase tracking-[0.14em] text-accent-strong">
+            <p className="text-2xs font-semibold uppercase tracking-[0.14em] text-accent-strong">
               Por que não usamos a regra dos 4%
             </p>
 
@@ -231,7 +231,7 @@ export function CalculadoraMarcoHorizonte() {
                   <span className="text-xs font-semibold text-primary">
                     Seu Marco Horizonte
                   </span>
-                  <span className="font-display text-sm font-extrabold tabular-nums text-primary">
+                  <span className="font-display text-sm font-bold tabular-nums text-primary">
                     {brl(r.alvo)}
                   </span>
                 </div>
@@ -248,7 +248,7 @@ export function CalculadoraMarcoHorizonte() {
                   <span className="text-xs font-semibold text-muted-foreground">
                     Pela regra dos 4% (americana)
                   </span>
-                  <span className="font-display text-sm font-extrabold tabular-nums text-muted-foreground">
+                  <span className="font-display text-sm font-bold tabular-nums text-muted-foreground">
                     {brl(r.alvo4pct)}
                   </span>
                 </div>

@@ -92,7 +92,7 @@ export function CardConsultoria({
       </div>
 
       <div className="mt-auto flex items-center justify-between pt-4 border-t border-slate-100/80">
-        <span className="font-display text-sm font-extrabold text-primary">
+        <span className="font-display text-sm font-bold text-primary">
           {item.isIsca
             ? "Análise Gratuita"
             : PRECOS_DEFINIDOS

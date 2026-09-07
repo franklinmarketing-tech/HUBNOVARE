@@ -296,7 +296,7 @@ export function RodapeNovare({
             >
               <Code2 className="h-3.5 w-3.5 text-[hsl(197_80%_65%)]" strokeWidth={2.5} />
               <span className="text-xs text-white/55">Desenvolvido por</span>
-              <span className="bg-gradient-to-r from-[hsl(16_90%_62%)] to-[hsl(197_85%_62%)] bg-clip-text font-display text-sm font-extrabold tracking-tight text-transparent">
+              <span className="bg-gradient-to-r from-[hsl(16_90%_62%)] to-[hsl(197_85%_62%)] bg-clip-text font-display text-sm font-bold tracking-tight text-transparent">
                 Castriani Digital
               </span>
             </a>

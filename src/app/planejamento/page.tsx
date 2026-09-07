@@ -266,7 +266,7 @@ export default function VidaPlanPage() {
                 <ol className="mt-4 space-y-4">
                   {CONTA.map((etapa, i) => (
                     <li key={etapa.rotulo} className="flex gap-3">
-                      <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-white/15 text-2xs font-black tabular-nums">
+                      <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-white/15 text-2xs font-semibold tabular-nums">
                         {i + 1}
                       </span>
                       <div className="min-w-0">
@@ -408,7 +408,7 @@ export default function VidaPlanPage() {
                     <span className="tile-cine flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-white">
                       <passo.icone className="h-5 w-5" strokeWidth={1.75} />
                     </span>
-                    <span className="text-2xs font-black uppercase tracking-[0.14em] text-accent-strong">
+                    <span className="text-2xs font-semibold uppercase tracking-[0.14em] text-accent-strong">
                       Passo {i + 1}
                     </span>
                   </div>
@@ -500,7 +500,7 @@ export default function VidaPlanPage() {
                   <h3 className="font-display text-lg font-bold text-primary">
                     Calculadora
                   </h3>
-                  <span className="rounded-md bg-muted px-2 py-0.5 text-2xs font-black uppercase tracking-wider text-muted-foreground">
+                  <span className="rounded-md bg-muted px-2 py-0.5 text-2xs font-semibold uppercase tracking-wider text-muted-foreground">
                     Grátis
                   </span>
                 </div>
@@ -547,7 +547,7 @@ export default function VidaPlanPage() {
                   <h3 className="font-display text-lg font-bold text-primary">
                     Planejamento Financeiro
                   </h3>
-                  <span className="rounded-md bg-accent-btn px-2 py-0.5 text-2xs font-black uppercase tracking-wider text-white">
+                  <span className="rounded-md bg-accent-btn px-2 py-0.5 text-2xs font-semibold uppercase tracking-wider text-white">
                     PRO
                   </span>
                   <span className="text-sm font-bold text-accent-strong">
@@ -648,7 +648,7 @@ export default function VidaPlanPage() {
 
               <div className="relative grid gap-7 md:grid-cols-[1fr_minmax(0,16rem)] md:items-center">
                 <div>
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-accent-btn px-2.5 py-1 text-2xs font-black uppercase tracking-wider text-white">
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-accent-btn px-2.5 py-1 text-2xs font-semibold uppercase tracking-wider text-white">
                     <Sparkles className="h-3.5 w-3.5" />
                     Único produto pago do Workspace
                   </span>

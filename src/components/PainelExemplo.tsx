@@ -127,7 +127,7 @@ export function PainelExemplo() {
                 {i.rotulo}
               </p>
               <p
-                className={`mt-1 font-display text-base font-extrabold tabular-nums ${COR[i.tom as keyof typeof COR]}`}
+                className={`mt-1 font-display text-base font-bold tabular-nums ${COR[i.tom as keyof typeof COR]}`}
               >
                 {i.valor}
               </p>
