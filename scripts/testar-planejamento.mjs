@@ -16,9 +16,24 @@
  *
  * Roda com: BASE=http://localhost:3100 node scripts/testar-planejamento.mjs
  */
+import { readFileSync } from "node:fs";
 import { chromium } from "playwright";
 
 const BASE = process.env.BASE ?? "http://localhost:3000";
+
+/* Lido de `src/lib/assinatura.ts`, a fonte unica do preco. */
+const PRECO_ESPERADO = (() => {
+  const fonte = readFileSync(
+    new URL("../src/lib/assinatura.ts", import.meta.url),
+    "utf8",
+  );
+  const m = fonte.match(/ASSINATURA_PRECO\s*=\s*(\d+)/);
+  if (!m) throw new Error("nao achei ASSINATURA_PRECO em assinatura.ts");
+  return Number(m[1]).toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  });
+})();
 
 const falhas = [];
 let oks = 0;
@@ -96,7 +111,14 @@ const lp = await abrir("/planejamento");
 
 conferir("a LP não chama mais o produto de Vida Plan", !/vida plan/i.test(lp));
 conferir("a LP anuncia o teste grátis", /7 dias grátis/i.test(lp));
-conferir("a LP mostra o preço aprovado", /R\$\s?19,90/.test(lp));
+/* O preço vem do codigo, nao repetido aqui: quando ele mudou de 19,90 para
+   49, esta linha continuou exigindo o valor antigo e a conferencia passou a
+   reprovar uma pagina correta. Guardiao que precisa ser atualizado a mao
+   junto com o que ele guarda nao guarda nada. */
+conferir(
+  `a LP mostra o preço aprovado (${PRECO_ESPERADO})`,
+  lp.includes(PRECO_ESPERADO),
+);
 conferir("a LP explica o Marco Horizonte", /marco horizonte/i.test(lp));
 conferir(
   "a LP mantém a premissa de 5% real",

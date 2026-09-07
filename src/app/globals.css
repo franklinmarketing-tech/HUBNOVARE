@@ -237,21 +237,27 @@
 
   .titulo-secao {
     font-family: var(--font-display);
-    font-weight: 800;
+    /* 600, não 800, e sem sombra nenhuma.
+       O título era peso 800 com sombra difusa e um risco de 4px com brilho
+       próprio: três ornamentos empilhados na mesma palavra. Isso é o que
+       deixava a interface "pesada" ao lado de um app leve, onde o título
+       de tela é grande e de peso médio, e quem organiza a página é o
+       ESPAÇO, não a tinta. */
+    font-weight: 600;
     letter-spacing: -0.02em;
     color: var(--color-primary);
-    text-shadow: 0 4px 14px hsl(215 50% 23% / 0.18);
   }
 
+  /* O risco fica — é a assinatura laranja da Novare —, mas fino e sem
+     brilho: acento, não sublinhado de marca-texto. */
   .titulo-secao::after {
     content: "";
     display: block;
-    margin-top: 7px;
-    height: 4px;
-    width: 46px;
+    margin-top: 9px;
+    height: 3px;
+    width: 34px;
     border-radius: 9999px;
     background: linear-gradient(90deg, hsl(16 80% 55%), hsl(16 80% 55% / 0));
-    box-shadow: 0 3px 10px -2px hsl(16 80% 45% / 0.5);
   }
 
   /* ------------------------------------------------------------------

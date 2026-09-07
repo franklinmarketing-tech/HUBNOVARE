@@ -112,19 +112,22 @@ export default function DiagnosticoPage() {
       </section>
 
       <section className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <Indicador rotulo="Entra por mês" valor={brl(d.rendaMensal)} tom="bom" />
+        <Indicador emoji="💰" rotulo="Entra por mês" valor={brl(d.rendaMensal)} tom="bom" />
         <Indicador
+          emoji="🧾"
           rotulo="Sai por mês"
           valor={brl(d.despesaMensal)}
           detalhe={`${pct(d.comprometimentoDespesas)} da renda`}
         />
         <Indicador
+          emoji="⛓️"
           rotulo="Parcelas de dívida"
           valor={brl(d.parcelasMensais)}
           detalhe={`${pct(d.comprometimentoDividas)} da renda`}
           tom={d.comprometimentoDividas > 30 ? "ruim" : "neutro"}
         />
         <Indicador
+          emoji="🌱"
           rotulo="Sobra"
           valor={brl(d.sobraMensal)}
           detalhe={`${pct(d.taxaPoupanca)} do que você ganha`}

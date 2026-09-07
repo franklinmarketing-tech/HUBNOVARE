@@ -26,57 +26,70 @@ export function BoasVindas({ nome }: { nome?: string }) {
 
   return (
     <div className="surgir">
-      <section
-        className="relative overflow-hidden rounded-3xl p-7 text-white sm:p-9"
-        style={{
-          background:
-            "linear-gradient(155deg, hsl(215 50% 23%) 0%, hsl(215 55% 15%) 100%)",
-        }}
-      >
-        <span
-          aria-hidden
-          className="pointer-events-none absolute inset-0"
-          style={{
-            background:
-              "radial-gradient(22rem 14rem at 88% -12%, hsl(16 88% 60% / 0.35), transparent 65%)",
-          }}
-        />
+      {/* Card claro, não bloco navy.
+          Este era um retângulo escuro de 320px ocupando a primeira dobra da
+          tela — o único elemento pesado de uma área que, em qualquer app de
+          finanças bem resolvido, é toda clara. O navy continua na marca (no
+          texto, no rodapé, na landing); aqui ele dava peso sem dar
+          informação. A figura 3D entra no lugar do brilho laranja. */}
+      <section className="relative overflow-hidden rounded-3xl border border-slate-200/80 bg-white p-7 shadow-[0_1px_2px_hsl(215_40%_20%_/_0.03),0_10px_30px_-18px_hsl(215_40%_20%_/_0.22)] sm:p-9">
+        <div className="sm:flex sm:items-center sm:gap-8">
+          <div className="max-w-2xl">
+            <p className="text-xs text-muted-foreground">
+              Seu planejamento financeiro
+            </p>
+            <h1 className="mt-1.5 font-display text-3xl font-semibold leading-tight text-primary sm:text-4xl">
+              {nome ? `Vamos começar, ${nome}?` : "Vamos começar?"}
+            </h1>
+            <p className="mt-3 text-sm leading-relaxed text-muted-foreground sm:text-base">
+              São oito perguntas em português simples sobre quanto entra e
+              quanto sai. A partir delas, as cinco telas seguintes se montam
+              sozinhas — com os seus números, não com exemplos.
+            </p>
 
-        <div className="relative max-w-2xl">
-          <p className="text-2xs font-semibold uppercase tracking-wider text-white/60">
-            Seu planejamento financeiro
-          </p>
-          <h1 className="mt-2 font-display text-3xl font-bold leading-tight sm:text-4xl">
-            {nome ? `Vamos começar, ${nome}?` : "Vamos começar?"}
-          </h1>
-          <p className="mt-3 text-sm leading-relaxed text-white/80 sm:text-base">
-            São oito perguntas em português simples sobre quanto entra e quanto
-            sai. A partir delas, as cinco telas seguintes se montam sozinhas —
-            com os seus números, não com exemplos.
-          </p>
+            <Link
+              href={primeira.href}
+              className="group mt-7 inline-flex items-center gap-2 rounded-xl bg-accent-btn px-6 py-3.5 text-sm font-bold text-white shadow-[0_4px_14px_-6px_hsl(16_80%_45%_/_0.6)] transition-all hover:-translate-y-0.5 hover:shadow-[0_8px_20px_-6px_hsl(16_80%_45%_/_0.7)]"
+            >
+              {primeira.acao}
+              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+            </Link>
 
-          <Link
-            href={primeira.href}
-            className="group mt-7 inline-flex items-center gap-2 rounded-xl bg-accent-btn px-6 py-3.5 text-sm font-bold text-white shadow-card transition-all hover:-translate-y-0.5 hover:shadow-card-hover"
-          >
-            {primeira.acao}
-            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-          </Link>
+            <ul className="mt-6 flex flex-wrap gap-x-6 gap-y-2 text-2xs text-muted-foreground">
+              <li className="flex items-center gap-1.5">
+                <Clock className="h-3.5 w-3.5 text-ciano-forte" strokeWidth={2} />
+                Leva 10 minutos
+              </li>
+              <li className="flex items-center gap-1.5">
+                <Lock className="h-3.5 w-3.5 text-ciano-forte" strokeWidth={2} />
+                Sem conectar seu banco
+              </li>
+              <li className="flex items-center gap-1.5">
+                <ShieldCheck className="h-3.5 w-3.5 text-ciano-forte" strokeWidth={2} />
+                Nada é vendido aqui
+              </li>
+            </ul>
+          </div>
 
-          <ul className="mt-6 flex flex-wrap gap-x-6 gap-y-2 text-2xs text-white/65">
-            <li className="flex items-center gap-1.5">
-              <Clock className="h-3.5 w-3.5 text-ciano-claro" strokeWidth={2} />
-              Leva 10 minutos
-            </li>
-            <li className="flex items-center gap-1.5">
-              <Lock className="h-3.5 w-3.5 text-ciano-claro" strokeWidth={2} />
-              Sem conectar seu banco
-            </li>
-            <li className="flex items-center gap-1.5">
-              <ShieldCheck className="h-3.5 w-3.5 text-ciano-claro" strokeWidth={2} />
-              Nada é vendido aqui
-            </li>
-          </ul>
+          {/* A figura que o bloco escuro não tinha. */}
+          <span className="relative mt-8 hidden h-40 w-40 shrink-0 items-center justify-center sm:mt-0 sm:flex">
+            <span
+              aria-hidden
+              className="absolute inset-0 rounded-full blur-2xl"
+              style={{
+                background:
+                  "radial-gradient(circle, hsl(197 80% 55% / 0.3), transparent 70%)",
+              }}
+            />
+            <Image
+              src={primeira.icone}
+              alt=""
+              width={160}
+              height={160}
+              priority
+              className="relative object-contain"
+            />
+          </span>
         </div>
       </section>
 

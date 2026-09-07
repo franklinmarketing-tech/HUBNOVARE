@@ -92,12 +92,14 @@ export default function PainelPage() {
 
       <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <Indicador
+          emoji="🌱"
           rotulo="Sobra por mês"
           valor={brl(diagnostico.sobraMensal)}
           detalhe={`${pct(diagnostico.taxaPoupanca)} do que você ganha`}
           tom={diagnostico.sobraMensal > 0 ? "bom" : "ruim"}
         />
         <Indicador
+          emoji="🛟"
           rotulo="Reserva de emergência"
           valor={`${reserva.meses > 0 ? (reserva.atual / Math.max(1, reserva.custo)).toFixed(1).replace(".", ",") : "0"} meses`}
           detalhe={
@@ -108,11 +110,13 @@ export default function PainelPage() {
           tom={reserva.completa ? "bom" : "atencao"}
         />
         <Indicador
+          emoji="🏦"
           rotulo="Patrimônio líquido"
           valor={brlCurto(diagnostico.patrimonioLiquido)}
           detalhe="O que você tem, menos o que deve"
         />
         <Indicador
+          emoji="❤️"
           rotulo="Saúde financeira"
           valor={`${saude.total}/100`}
           detalhe={saude.nota}

@@ -161,11 +161,13 @@ export default function EvolucaoPage() {
             líquido" são como o consultor fala; "Você já fechou" e "O que é
             seu hoje" são como a pessoa pensa. O número é o mesmo. */}
         <Indicador
+          emoji="📅"
           rotulo="Você já fechou"
           valor={`${meses} ${meses === 1 ? "mês" : "meses"}`}
           detalhe={`Desde ${mesCurto(primeiro.month_ref)}`}
         />
         <Indicador
+          emoji="🏦"
           rotulo="O que é seu hoje"
           valor={brlCurto(ultimo.net_worth)}
           detalhe="Tudo o que você tem, menos o que deve"
@@ -177,6 +179,7 @@ export default function EvolucaoPage() {
             e não depende de haver um mês anterior. */}
         {meses > 1 ? (
           <Indicador
+            emoji={variacao >= 0 ? "📈" : "📉"}
             rotulo={variacao >= 0 ? "Você cresceu" : "Você recuou"}
             valor={`${variacao >= 0 ? "+" : ""}${brlCurto(variacao)}`}
             detalhe={`Em ${meses - 1} mês(es) de acompanhamento`}
@@ -184,6 +187,7 @@ export default function EvolucaoPage() {
           />
         ) : (
           <Indicador
+            emoji="🐷"
             rotulo="Guardou neste mês"
             valor={pct(ultimo.savings_rate ?? 0)}
             detalhe="Da sua renda. O próximo fechamento já compara."
@@ -191,6 +195,7 @@ export default function EvolucaoPage() {
           />
         )}
         <Indicador
+          emoji="🏆"
           rotulo="Metas que você bateu"
           valor={pct(ultimo.plan_completion_pct ?? 0)}
           detalhe="Do seu plano de ação"
