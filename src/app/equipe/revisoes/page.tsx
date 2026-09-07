@@ -55,6 +55,18 @@ export default async function AcompanhamentoPage() {
     (perfis ?? []).map((p) => [p.id as string, (p.nome as string) || ""]),
   );
 
+  /* QUEM TEM RETRATO. O comentario acima prometia este filtro e o codigo nao
+     fazia: a fila listava os 45 clientes do banco, e 10 em cada 12 eram
+     `visitante.teste.*` — contas descartaveis que a rota /planejamento/testar
+     cria a cada visita. O consultor abriria uma a uma para descobrir que
+     estao vazias.
+     `income` e o teste certo: e a primeira coisa que a trilha grava, e sem
+     renda nao ha plano nenhum para comentar. */
+  const { data: comRenda } = await supabase.from("income").select("client_id");
+  const temRetrato = new Set(
+    (comRenda ?? []).map((r) => r.client_id as string),
+  );
+
   const { data: revisoes } = await supabase
     .from("revisoes")
     .select("client_id, periodo_ref, status, enviada_em")
@@ -64,7 +76,9 @@ export default async function AcompanhamentoPage() {
     (revisoes ?? []).map((r) => [r.client_id as string, r]),
   );
 
-  const fila = (clientes ?? []).map((c) => {
+  const fila = (clientes ?? [])
+    .filter((c) => temRetrato.has(c.id as string))
+    .map((c) => {
     const r = porCliente.get(c.id as string);
     return {
       id: c.id as string,
