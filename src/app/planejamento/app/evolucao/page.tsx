@@ -14,6 +14,7 @@ import {
   Legend,
 } from "recharts";
 import { createClient } from "@/lib/supabase/client";
+import { rotuloMes } from "@/lib/planejamento/catalogos";
 import { JornadaFinanceira } from "@/components/JornadaFinanceira";
 import { GraficosEvolucao } from "@/components/GraficosEvolucao";
 import { usePlanejamento } from "../usePlanejamento";
@@ -43,8 +44,9 @@ type Fechamento = {
   plan_completion_pct: number;
 };
 
-const mesCurto = (ref: string) =>
-  new Date(ref).toLocaleDateString("pt-BR", { month: "short", year: "2-digit" });
+/* Delega para `rotuloMes`: `new Date("2026-09-01")` volta um dia em UTC-3, e
+   o eixo do gráfico rotulava cada ponto com o mês anterior ao real. */
+const mesCurto = (ref: string) => rotuloMes(ref, "curto");
 
 export default function EvolucaoPage() {
   const r = usePlanejamento();

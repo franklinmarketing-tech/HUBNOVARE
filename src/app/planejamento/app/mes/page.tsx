@@ -10,7 +10,7 @@ import { NumeroQueSobe } from "@/components/NumeroQueSobe";
 import { usePlanejamento } from "../usePlanejamento";
 import { traduzirErro } from "@/lib/planejamento/erros";
 import { liberarLancamento } from "@/lib/planejamento/cliente";
-import { mesAtual } from "@/lib/planejamento/catalogos";
+import { mesAtual, rotuloMes } from "@/lib/planejamento/catalogos";
 import { computeMonthlyTotals } from "@/lib/planejamento/finance";
 import { cloneToNextMonth } from "@/lib/planejamento/mesSeguinte";
 import {
@@ -319,8 +319,10 @@ function EscolhaEvento({
   );
 }
 
-const nomeDoMes = (ref: string) =>
-  new Date(ref).toLocaleDateString("pt-BR", { month: "long", year: "numeric" });
+/* Delega para `rotuloMes`: `new Date("2026-09-01")` é lido como UTC e, em
+   UTC-3, voltava um dia — a tela dizia "agosto" para o mês que o banco
+   gravou como setembro. */
+const nomeDoMes = (ref: string) => rotuloMes(ref);
 
 export default function MesPage() {
   const mes = mesAtual();

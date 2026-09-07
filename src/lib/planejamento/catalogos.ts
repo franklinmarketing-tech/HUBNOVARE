@@ -266,3 +266,39 @@ export function mesAtual(hoje = new Date()): string {
   const mes = String(hoje.getMonth() + 1).padStart(2, "0");
   return `${ano}-${mes}-01`;
 }
+
+/**
+ * Um `month_ref` em português, para a tela.
+ *
+ * POR QUE NÃO `new Date(ref)`: uma string "2026-09-01" é lida como UTC, e em
+ * UTC-3 isso vira 31/08 local — a tela escrevia "agosto de 2026" para o mês
+ * que o banco guardou como setembro. Aqui os componentes são separados à mão
+ * e entregues ao construtor local, como `nextMonthRef` já fazia.
+ */
+export function rotuloMes(
+  ref: string,
+  formato: "longo" | "curto" = "longo",
+): string {
+  const [ano, mes] = ref.split("-").map(Number);
+  if (!ano || !mes) return "";
+  return new Date(ano, mes - 1, 1).toLocaleDateString(
+    "pt-BR",
+    formato === "curto"
+      ? { month: "short", year: "2-digit" }
+      : { month: "long", year: "numeric" },
+  );
+}
+
+/** Recua um `YYYY-MM-01` para o mês anterior. Espelha `nextMonthRef`. */
+export function mesAnteriorRef(ref: string): string {
+  const [ano, mes] = ref.split("-").map(Number);
+  const d = new Date(ano, mes - 2, 1); // mes-1 seria o próprio mês
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-01`;
+}
+
+/** Um `month_ref` só é válido se for o primeiro dia de um mês real. */
+export function refDeMesValido(ref: string | null | undefined): boolean {
+  if (!ref || !/^\d{4}-\d{2}-01$/.test(ref)) return false;
+  const mes = Number(ref.slice(5, 7));
+  return mes >= 1 && mes <= 12;
+}
