@@ -102,7 +102,7 @@ export default function EntrarComoVisitante() {
   }, []);
 
   return (
-    <div className="flex min-h-dvh flex-col items-center justify-center gap-4 bg-gradient-to-b from-slate-50 to-white px-4 text-center">
+    <div className="flex min-h-dvh flex-col items-center justify-center gap-4 px-4 text-center">
       <Image
         src="/marca/logo-novare.png"
         alt="Novare"

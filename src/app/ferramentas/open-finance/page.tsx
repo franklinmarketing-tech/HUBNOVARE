@@ -53,7 +53,7 @@ const FUNCIONA_HOJE = [
 
 export default function OpenFinancePage() {
   return (
-    <div className="min-h-dvh bg-gradient-to-b from-slate-50 to-white text-slate-900">
+    <div className="min-h-dvh text-slate-900">
       <header className="sticky top-0 z-30 border-b border-slate-200/70 bg-white/80 backdrop-blur-md">
         <div className="mx-auto flex h-16 max-w-4xl items-center justify-between px-4">
           <Link href="/" aria-label="Novare, início">

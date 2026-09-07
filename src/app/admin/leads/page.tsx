@@ -67,7 +67,7 @@ export default async function AdminLeadsPage() {
   const porTipo = (t: string) => leads.filter((l) => l.tipo === t).length;
 
   return (
-    <div className="min-h-dvh bg-gradient-to-b from-slate-50 to-white">
+    <div className="min-h-dvh">
       <Cabecalho
         direita={
           <Link href="/" className="text-xs font-medium text-muted-foreground hover:text-primary">

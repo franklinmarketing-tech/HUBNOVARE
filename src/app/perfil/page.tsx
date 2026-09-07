@@ -46,7 +46,7 @@ export default async function PerfilPage() {
   const inicial = (perfil.nome?.trim()[0] ?? perfil.email[0] ?? "N").toUpperCase();
 
   return (
-    <div className="min-h-dvh bg-gradient-to-b from-slate-50 to-white">
+    <div className="min-h-dvh">
       <header className="sticky top-0 z-30 border-b border-slate-200/70 bg-white/85 backdrop-blur-md">
         <div className="mx-auto flex h-16 max-w-3xl items-center justify-between px-4">
           <Link href="/" className="flex items-center gap-3">

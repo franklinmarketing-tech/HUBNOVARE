@@ -50,7 +50,7 @@ export default function JurosCompostosPage() {
   const rendaMensal = (fim.total * 0.04) / 12;
 
   return (
-    <div className="min-h-dvh bg-gradient-to-b from-slate-50 to-white text-slate-900">
+    <div className="min-h-dvh text-slate-900">
       <header className="border-b border-slate-200/70 bg-white/80 backdrop-blur-md sticky top-0 z-30">
         <div className="max-w-4xl mx-auto px-4 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
@@ -95,7 +95,7 @@ export default function JurosCompostosPage() {
           <h1 className="text-3xl sm:text-[2.6rem] leading-tight font-display font-bold text-primary">
             Quanto o seu dinheiro vira com o tempo
           </h1>
-          <p className="text-slate-500 mt-3 max-w-xl">
+          <p className="text-slate-600 mt-3 max-w-xl">
             Juros compostos não fazem mágica, fazem tempo. Ajuste os números
             abaixo e veja quanto do seu patrimônio futuro vem do seu bolso e
             quanto vem do próprio dinheiro trabalhando.

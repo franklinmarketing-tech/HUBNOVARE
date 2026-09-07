@@ -8,7 +8,7 @@
  */
 export default function Carregando() {
   return (
-    <div className="flex min-h-dvh items-center justify-center bg-gradient-to-b from-slate-50 to-white">
+    <div className="flex min-h-dvh items-center justify-center">
       <div className="flex flex-col items-center gap-4" role="status" aria-live="polite">
         {/* Anel da marca girando: navy com o corte laranja. */}
         <span

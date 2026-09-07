@@ -66,7 +66,7 @@ export default async function MeuDiaPage() {
     : undefined;
 
   return (
-    <div className="aurora-clara flex min-h-dvh flex-col bg-gradient-to-b from-creme via-creme to-white pb-14 md:pb-0">
+    <div className="aurora-clara flex min-h-dvh flex-col bg-gradient-to-b from-creme via-creme to-creme-forte pb-14 md:pb-0">
       <RevelarAoRolar />
       <PaletaComandos apps={apps} />
       <BarraLateral />

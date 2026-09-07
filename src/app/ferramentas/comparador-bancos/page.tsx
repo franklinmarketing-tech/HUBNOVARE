@@ -107,7 +107,7 @@ export default function ComparadorBancosPage() {
     menorTaxa !== null && validas.length > 1 && menorTaxa.totalPago !== melhorTotal;
 
   return (
-    <div className="min-h-dvh bg-gradient-to-b from-slate-50 to-white text-slate-900">
+    <div className="min-h-dvh text-slate-900">
       <Cabecalho nome="Comparador de bancos" />
 
       <main className="max-w-3xl mx-auto px-4 pb-16">

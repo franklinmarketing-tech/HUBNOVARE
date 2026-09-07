@@ -26,7 +26,7 @@ function Secao({ titulo, children }: { titulo: string; children: React.ReactNode
 
 export default function TermosPage() {
   return (
-    <div className="min-h-dvh bg-gradient-to-b from-slate-50 to-white">
+    <div className="min-h-dvh">
       <Cabecalho
         direita={
           <Link

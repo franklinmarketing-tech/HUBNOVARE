@@ -120,7 +120,7 @@ export default function AmortizacaoPage() {
   const maior = Math.max(economiaPrazo, economiaParcela, 1);
 
   return (
-    <div className="min-h-dvh bg-gradient-to-b from-slate-50 to-white text-slate-900">
+    <div className="min-h-dvh text-slate-900">
       <Cabecalho nome="Simulador de amortização" />
 
       <main className="max-w-3xl mx-auto px-4 pb-16">

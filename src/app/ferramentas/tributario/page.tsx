@@ -53,7 +53,7 @@ export default function TributarioPage() {
   const efetivaDepois = rendaNumero > 0 ? (impostoCom / rendaNumero) * 100 : 0;
 
   return (
-    <div className="min-h-dvh bg-gradient-to-b from-slate-50 to-white text-slate-900">
+    <div className="min-h-dvh text-slate-900">
       <header className="border-b border-slate-200/70 bg-white/80 backdrop-blur-md sticky top-0 z-30">
         <div className="max-w-4xl mx-auto px-4 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center">

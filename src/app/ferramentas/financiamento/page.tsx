@@ -110,7 +110,7 @@ export default function FinanciamentoPage() {
 
 function Esqueleto() {
   return (
-    <div className="min-h-dvh bg-gradient-to-b from-slate-50 to-white text-slate-900">
+    <div className="min-h-dvh text-slate-900">
       <Cabecalho nome="Simulador de financiamento" />
       <main className="max-w-3xl mx-auto px-4 pb-16 pt-12">
         <div className="h-64 rounded-3xl border border-slate-200 bg-white shadow-sm" />
@@ -176,7 +176,7 @@ function SimuladorTipo({ tipo }: { tipo: Tipo }) {
   }, [price.tabela, sac.tabela]);
 
   return (
-    <div className="min-h-dvh bg-gradient-to-b from-slate-50 to-white text-slate-900">
+    <div className="min-h-dvh text-slate-900">
       <Cabecalho nome={preset.rotulo} />
 
       <main className="max-w-3xl mx-auto px-4 pb-16">

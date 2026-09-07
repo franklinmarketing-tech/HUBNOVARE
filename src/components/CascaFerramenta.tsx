@@ -30,7 +30,7 @@ export function CascaFerramenta({
   fonte?: ReactNode;
 }) {
   return (
-    <div className="min-h-dvh bg-gradient-to-b from-slate-50 to-white text-slate-900">
+    <div className="min-h-dvh text-slate-900">
       <header className="border-b border-slate-200/70 bg-white/80 backdrop-blur-md sticky top-0 z-30">
         <div className="max-w-4xl mx-auto px-4 h-16 flex items-center justify-between">
           {/* Duas saídas para a home: a marca (o hábito de todo site) e um
@@ -100,13 +100,15 @@ export function CascaFerramenta({
           <h1 className="text-3xl sm:text-[2.6rem] leading-tight font-display font-bold text-primary">
             {titulo}
           </h1>
-          <p className="text-slate-500 mt-3 max-w-xl">{abertura}</p>
+          {/* slate-600, não 500: sobre o fundo azulado o 500 cai para 4,42:1
+              e reprova no axe (o mínimo é 4,5). Aqui dá 7,03:1. */}
+          <p className="text-slate-600 mt-3 max-w-xl">{abertura}</p>
         </section>
 
         {children}
 
   
-        {fonte && <p className="mt-6 text-[11px] text-slate-500">{fonte}</p>}
+        {fonte && <p className="mt-6 text-[11px] text-slate-600">{fonte}</p>}
       </main>
     </div>
   );

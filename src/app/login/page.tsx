@@ -204,7 +204,7 @@ function FormularioLogin() {
 
 export default function LoginPage() {
   return (
-    <div className="flex min-h-dvh flex-col items-center justify-center bg-gradient-to-b from-slate-50 to-white px-4 py-12">
+    <div className="flex min-h-dvh flex-col items-center justify-center px-4 py-12">
       <div className="w-full max-w-sm">
         <div className="mb-7 text-center">
           <Link href="/" className="inline-block">

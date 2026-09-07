@@ -15,7 +15,7 @@ import { ArrowRight, Home, LayoutGrid, Newspaper } from "lucide-react";
  */
 export default function NaoEncontrada() {
   return (
-    <div className="flex min-h-dvh flex-col items-center justify-center bg-gradient-to-b from-slate-50 to-white px-5 py-16 text-center">
+    <div className="flex min-h-dvh flex-col items-center justify-center px-5 py-16 text-center">
       <Image
         src="/marca/logo-novare.png"
         alt="Novare"

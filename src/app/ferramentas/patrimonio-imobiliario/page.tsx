@@ -123,7 +123,7 @@ export default function PatrimonioImobiliarioPage() {
   const vazio = carregado && imoveis.length === 0;
 
   return (
-    <div className="min-h-dvh bg-gradient-to-b from-slate-50 to-white text-slate-900">
+    <div className="min-h-dvh text-slate-900">
       <Cabecalho nome="Patrimônio imobiliário" />
 
       <main className="max-w-3xl mx-auto px-4 pb-16">

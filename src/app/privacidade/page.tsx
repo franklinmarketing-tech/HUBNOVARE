@@ -24,7 +24,7 @@ export const metadata: Metadata = {
 
 export default function PrivacidadePage() {
   return (
-    <div className="min-h-dvh bg-gradient-to-b from-slate-50 via-white to-slate-50">
+    <div className="min-h-dvh">
       <Cabecalho
         direita={
           <Link

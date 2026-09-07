@@ -27,7 +27,7 @@ export default async function AplicativosPage() {
     perfil?.plano === "pro" || (!!perfil && perfil.role !== "cliente");
 
   return (
-    <div className="aurora-clara min-h-dvh bg-gradient-to-b from-slate-50 to-white pb-14 md:pb-0">
+    <div className="aurora-clara min-h-dvh pb-14 md:pb-0">
       <PaletaComandos apps={apps} />
       <BarraLateral />
       <BarraInferior />

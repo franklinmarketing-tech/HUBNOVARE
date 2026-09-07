@@ -5,7 +5,16 @@
    Extraídos do app em produção (novareapp) para o Hub ser a mesma marca.
    ========================================================================== */
 @theme {
-  --color-background: hsl(0 0% 99%);
+  /* Azulado, e não branco — de propósito.
+     Fundo 99% atrás de card 100% dá 1% de separação: na prática o card
+     sumia, e as páginas ainda cobriam este token com gradiente próprio
+     terminando em branco puro. Aqui há ~3,5% de diferença, que é o que faz
+     uma interface de cards parecer arrumada em vez de lavada.
+     Meio ponto mais escuro e menos saturado que `--color-gelo` (97%), que já
+     é a superfície afundada DENTRO do card: igualar os dois destruiria o
+     degrau página → card → bloco interno.
+     Contraste conferido: foreground ~15,9:1, muted-foreground ~6,6:1. */
+  --color-background: hsl(200 40% 96.5%);
   --color-foreground: hsl(220 20% 12%);
 
   --color-card: hsl(0 0% 100%);

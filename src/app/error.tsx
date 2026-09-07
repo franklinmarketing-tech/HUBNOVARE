@@ -29,7 +29,7 @@ export default function Erro({
   }, [error]);
 
   return (
-    <div className="flex min-h-dvh flex-col items-center justify-center bg-gradient-to-b from-slate-50 to-white px-5 py-16 text-center">
+    <div className="flex min-h-dvh flex-col items-center justify-center px-5 py-16 text-center">
       <h1 className="font-display text-2xl font-bold text-primary sm:text-3xl">
         Alguma coisa quebrou aqui
       </h1>
