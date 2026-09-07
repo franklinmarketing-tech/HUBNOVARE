@@ -47,6 +47,37 @@ const TONS: Record<Tom, { fita: string; pastilha: string; icone: string; rotulo:
 /** Alterna ciano e laranja pela posição, para nenhuma fileira ficar monocor. */
 export const tomPor = (i: number): Tom => (i % 2 === 0 ? "ciano" : "laranja");
 
+/**
+ * O chapéu de seção, em pílula.
+ *
+ * O rótulo em caixa alta estava escrito à mão em 87 lugares, com NOVE valores
+ * diferentes de tracking — cada página inventava o seu. Aqui ele vira peça, e
+ * a pílula é o que o separa do corpo do texto sem precisar de peso: fundo
+ * suave em vez de negrito, que é como um app leve resolve isso.
+ *
+ * `escuro` para as seções navy, onde as pastilhas tintadas não têm contraste.
+ */
+export function Chapeu({
+  children,
+  tom = "laranja",
+  escuro = false,
+}: {
+  children: React.ReactNode;
+  tom?: Tom;
+  escuro?: boolean;
+}) {
+  const t = TONS[tom];
+  return (
+    <span
+      className={`inline-flex items-center rounded-full px-3 py-1 text-2xs font-semibold uppercase tracking-[0.14em] ${
+        escuro ? "bg-white/10 text-white/80" : `${t.pastilha} ${t.rotulo}`
+      }`}
+    >
+      {children}
+    </span>
+  );
+}
+
 /** Cabeçalho de seção: sobretítulo curto, título grande, uma linha de apoio. */
 export function TituloSecao({
   sobre,

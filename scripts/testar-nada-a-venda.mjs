@@ -12,6 +12,7 @@
  * O que não pode é oferta indevida: "R$ 149/mês", "30% OFF", "assine agora"
  * fora das telas que vendem.
  */
+import { readFileSync } from "node:fs";
 import { chromium } from "playwright";
 
 const BASE = process.env.BASE ?? "http://localhost:3000";
@@ -31,8 +32,35 @@ const ROTAS = [
  */
 const ROTAS_COM_OFERTA = new Set(["/", "/planejamento", "/assinar"]);
 
-/** O preço aprovado. Qualquer outro valor mensal segue sendo erro. */
-const PRECO_APROVADO = /R\$\s?19,90/;
+/**
+ * O preço aprovado — LIDO de `src/lib/assinatura.ts`, não repetido aqui.
+ *
+ * Estava cravado como `R$ 19,90`. Quando o preço subiu para R$ 49 este
+ * guardião passou a reprovar a página CERTA: acusava "preço mensal" no
+ * R$ 49,00/mês legítimo e ainda dizia que /assinar "não mostra o preço".
+ * Guardião de preço que precisa ser atualizado à mão junto com o preço não
+ * guarda nada — só atrapalha. Mesmo truque que `varredura.mjs` usa com o
+ * catálogo.
+ */
+const PRECO_APROVADO = (() => {
+  const fonte = readFileSync(
+    new URL("../src/lib/assinatura.ts", import.meta.url),
+    "utf8",
+  );
+  const m = fonte.match(/ASSINATURA_PRECO\s*=\s*(\d+)/);
+  if (!m) throw new Error("não achei ASSINATURA_PRECO em assinatura.ts");
+  const rotulo = Number(m[1]).toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  });
+  // Escapa o rótulo para regex e tolera o espaço: o `toLocaleString` do
+  // pt-BR separa "R$" do número com espaço NÃO-QUEBRÁVEL (U+00A0), e a
+  // página pode renderizar um espaço comum.
+  const escapado = rotulo
+    .replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+    .replace(/\s/g, "\\s?");
+  return new RegExp(escapado);
+})();
 
 const PROIBIDOS = [
   // A BARRA é o que separa preço de valor simulado: "R$ 19,90/mês" é oferta,

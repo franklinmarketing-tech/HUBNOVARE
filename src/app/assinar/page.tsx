@@ -32,14 +32,15 @@ import { CenaFoto } from "@/components/CenaFoto";
 import { Icone3D } from "@/components/Icone3D";
 import { EcossistemaConectado } from "@/components/EcossistemaConectado";
 import { RevelarAoRolar } from "@/components/RevelarAoRolar";
-import { Etapa, Pilar, tomPor } from "@/components/SecoesVenda";
+import { Chapeu, Etapa, Pilar, tomPor } from "@/components/SecoesVenda";
 import {
   ASSINATURA_NOME,
   ASSINATURA_PRECO,
   ASSINATURA_PRECO_ROTULO,
   ASSINATURA_TRIAL_DIAS,
 } from "@/lib/assinatura";
-import { CONTAGEM } from "@/lib/apps";
+import { APPS, CONTAGEM } from "@/lib/apps";
+import { iconeDe } from "@/lib/icones";
 import { ROTULO_DESCONTO } from "@/lib/consultoria";
 import { falarNoWhatsApp } from "@/lib/contato";
 
@@ -226,20 +227,51 @@ const SELOS = [
 const brl = (v: number) =>
   v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
+/**
+ * ⚠️ Esta lista é local e diverge de `ASSINATURA_INCLUI` (`lib/assinatura.ts`),
+ * que é a fonte única da oferta. Enquanto as duas existirem, mexer numa e
+ * esquecer a outra é o defeito natural — foi o que aconteceu aqui.
+ *
+ * Saiu daqui "Novare News e indicadores ao vivo": `assinatura.ts:149-153`
+ * documenta a retirada desse item da venda, com o motivo ("Selic e IPCA ao
+ * vivo existem em qualquer app de banco — ocupava uma linha sem convencer
+ * ninguém e diluía os itens fortes"). A página seguia prometendo.
+ *
+ * Unificar com a fonte é o passo certo, mas não é troca de uma linha: são 10
+ * itens contra 7, e a caixa da oferta cresceria ~220px no celular, podendo
+ * empurrar o botão para fora da dobra. Fica para quando der para medir.
+ */
 const INCLUI = [
   `${ASSINATURA_TRIAL_DIAS} dias grátis, sem cartão`,
   "Planejamento Financeiro completo",
   "Íris, a IA que lê seu extrato",
-  "Todas as ferramentas e calculadoras",
+  `${CONTAGEM.exclusivasAssinante} ferramentas exclusivas de assinante`,
+  "Todas as calculadoras da casa",
   `${ROTULO_DESCONTO} na consultoria particular`,
-  "Novare News e indicadores ao vivo",
   "Cancele quando quiser, sem multa",
 ];
 
 /* -------------------------------------------------------------------------- */
 
 export default function AssinarPage() {
-  const porDia = brl(ASSINATURA_PRECO / 30);
+  /**
+ * As ferramentas que só existem para quem assina, lidas do catálogo.
+ *
+ * A página inteira falava delas por um número ("28 ferramentas") e não
+ * nomeava nenhuma — quem chega aqui não faz ideia do que está comprando.
+ * Cada uma já tem a chamada de uma linha escrita em `apps.ts`; a seção se
+ * monta sozinha e passa a crescer junto com o catálogo, em vez de virar mais
+ * uma lista à mão que diverge (foi o que aconteceu com a lista de inclusos).
+ */
+const EXCLUSIVAS = APPS.filter(
+  (a) =>
+    a.familia &&
+    a.status !== "em-breve" &&
+    a.plano === "pago" &&
+    a.href.includes("/ferramentas/"),
+);
+
+const porDia = brl(ASSINATURA_PRECO / 30);
 
   return (
     <div className="min-h-dvh bg-background">
@@ -408,7 +440,7 @@ export default function AssinarPage() {
             <p className="cine text-2xs font-semibold uppercase tracking-[0.18em] text-accent-strong">
               Se você se reconhecer aqui
             </p>
-            <h2 className="cine mx-auto mt-3 max-w-3xl font-display text-3xl font-bold leading-[1.1] tracking-tight text-primary sm:text-[2.8rem]">
+            <h2 className="cine mx-auto mt-3 max-w-3xl font-display text-3xl font-semibold leading-[1.1] tracking-tight text-primary sm:text-[2.8rem]">
               O problema quase nunca é o quanto você ganha.{" "}
               <span className="text-accent-strong">É não enxergar.</span>
             </h2>
@@ -452,7 +484,7 @@ export default function AssinarPage() {
 
           <div className="relative mx-auto max-w-4xl px-5 py-16 sm:py-20">
             <div className="cine text-center">
-              <h2 className="font-display text-3xl font-bold leading-[1.1] tracking-tight sm:text-[2.6rem]">
+              <h2 className="font-display text-3xl font-semibold leading-[1.1] tracking-tight sm:text-[2.6rem]">
                 De onde você está para onde dá para chegar
               </h2>
             </div>
@@ -497,7 +529,7 @@ export default function AssinarPage() {
               <p className="text-2xs font-semibold uppercase tracking-[0.18em] text-accent-strong">
                 Do zero ao plano
               </p>
-              <h2 className="mt-3 font-display text-3xl font-bold leading-[1.1] tracking-tight text-primary sm:text-[2.6rem]">
+              <h2 className="mt-3 font-display text-3xl font-semibold leading-[1.1] tracking-tight text-primary sm:text-[2.6rem]">
                 Quatro passos, menos de 15 minutos
               </h2>
               <p className="mx-auto mt-4 max-w-xl text-base text-muted-foreground">
@@ -531,7 +563,7 @@ export default function AssinarPage() {
 
           <div className="relative mx-auto grid max-w-5xl items-center gap-10 px-5 py-16 sm:py-20 lg:grid-cols-2">
             <div className="cine">
-              <h2 className="font-display text-3xl font-bold leading-[1.1] tracking-tight sm:text-[2.6rem]">
+              <h2 className="font-display text-3xl font-semibold leading-[1.1] tracking-tight sm:text-[2.6rem]">
                 Uma só superfície para
                 <br />
                 <span className="text-accent-claro">a sua vida financeira.</span>
@@ -590,7 +622,7 @@ export default function AssinarPage() {
         <section className="bg-background">
           <div className="mx-auto max-w-4xl px-5 py-16 sm:py-20">
             <div className="cine text-center">
-              <h2 className="font-display text-3xl font-bold leading-[1.1] tracking-tight text-primary sm:text-[2.6rem]">
+              <h2 className="font-display text-3xl font-semibold leading-[1.1] tracking-tight text-primary sm:text-[2.6rem]">
                 O que você recebe hoje
               </h2>
               <p className="mx-auto mt-4 max-w-xl text-base text-muted-foreground">
@@ -635,6 +667,56 @@ export default function AssinarPage() {
           </div>
         </section>
 
+        {/* ===================== 5C. AS EXCLUSIVAS DE QUEM ASSINA ==== */}
+        {/* Vinha logo depois do "o que você recebe", que fala do pacote em
+            quatro blocos grandes. Aqui é o detalhe: o que exatamente entra
+            junto, com nome. */}
+        <section className="bg-gelo">
+          <div className="mx-auto max-w-5xl px-5 py-16 sm:py-20">
+            <div className="mx-auto max-w-2xl text-center">
+              <Chapeu>Exclusivas de quem assina</Chapeu>
+              <h2 className="mt-3 font-display text-3xl font-semibold leading-[1.1] tracking-tight text-primary sm:text-[2.6rem]">
+                {EXCLUSIVAS.length} ferramentas que só abrem com a assinatura
+              </h2>
+              <p className="mt-4 text-base leading-relaxed text-muted-foreground">
+                As {CONTAGEM.ferramentas} calculadoras gratuitas resolvem uma
+                conta de cada vez. Estas guardam os seus dados e conversam
+                entre si: o que você lança numa aparece na outra.
+              </p>
+            </div>
+
+            <ul className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {EXCLUSIVAS.map((f, i) => {
+                const Icone = iconeDe(f.slug);
+                const t = tomPor(i);
+                return (
+                  <li
+                    key={f.slug}
+                    className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-[0_1px_2px_hsl(215_40%_20%_/_0.03),0_8px_24px_-16px_hsl(215_40%_20%_/_0.18)]"
+                  >
+                    <span
+                      aria-hidden
+                      className={`flex h-11 w-11 items-center justify-center rounded-2xl ${
+                        t === "ciano"
+                          ? "bg-ciano-tint text-ciano-forte"
+                          : "bg-accent-tint text-accent-strong"
+                      }`}
+                    >
+                      <Icone className="h-5 w-5" strokeWidth={1.75} />
+                    </span>
+                    <h3 className="mt-4 font-display text-base font-semibold text-primary">
+                      {f.nome}
+                    </h3>
+                    <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+                      {f.chamada}
+                    </p>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        </section>
+
         {/* Faixa de CTA no meio do maior vão da página. Medido: eram 2853px
           (3,2 telas) entre um botão e o próximo, e quem se convence aqui não
           deveria ter de rolar duas telas para achar onde clicar. */}
@@ -664,7 +746,7 @@ export default function AssinarPage() {
               <p className="text-2xs font-semibold uppercase tracking-[0.18em] text-accent-strong">
                 Por que confiar
               </p>
-              <h2 className="mt-3 font-display text-3xl font-bold leading-[1.1] tracking-tight text-primary sm:text-[2.6rem]">
+              <h2 className="mt-3 font-display text-3xl font-semibold leading-[1.1] tracking-tight text-primary sm:text-[2.6rem]">
                 Com quem você está falando
               </h2>
               <p className="mx-auto mt-4 max-w-xl text-base text-muted-foreground">
@@ -760,7 +842,7 @@ export default function AssinarPage() {
               <p className="text-2xs font-semibold uppercase tracking-[0.18em] text-accent-claro">
                 Um preço só, sem letra miúda
               </p>
-              <h2 className="mt-3 font-display text-3xl font-bold leading-[1.1] tracking-tight sm:text-[2.6rem]">
+              <h2 className="mt-3 font-display text-3xl font-semibold leading-[1.1] tracking-tight sm:text-[2.6rem]">
                 Comece hoje sem pagar nada
               </h2>
             </div>
@@ -924,7 +1006,7 @@ export default function AssinarPage() {
           className="border-t border-primary/20"
         >
           <div className="mx-auto max-w-2xl px-5 py-20 text-center sm:py-28">
-            <h2 className="cine font-display text-3xl font-bold leading-[1.1] tracking-tight text-white sm:text-[2.6rem]">
+            <h2 className="cine font-display text-3xl font-semibold leading-[1.1] tracking-tight text-white sm:text-[2.6rem]">
               Seu dinheiro já está indo embora.
               <br />
               <span className="text-accent-claro">
