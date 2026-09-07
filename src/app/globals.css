@@ -1053,3 +1053,36 @@
   }
   .fundo-lento { transform: scale(1.05); }
 }
+
+/* ==========================================================================
+   A trilha do topo — o menu das seis etapas.
+
+   O menu estava sem vida por um motivo concreto: seis pílulas de mesmo peso,
+   sem nada acontecendo. Aqui entram DUAS animações, e só duas, porque um menu
+   que se mexe inteiro deixa de ser mapa e vira distração.
+   ========================================================================== */
+
+/* 1. O emblema da etapa ATUAL flutua de leve. É o único item que se mexe
+      sozinho — a pessoa acha onde está sem procurar. */
+@keyframes etapa-flutua {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-2px); }
+}
+.etapa-atual-icone {
+  animation: etapa-flutua 3.2s ease-in-out infinite;
+}
+
+/* 2. O tique de "já passei por aqui" chega crescendo, em vez de já estar lá.
+      A etapa que a pessoa acabou de concluir é a que ganha o gesto. */
+@keyframes tique-entra {
+  from { transform: scale(0); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+.etapa-tique {
+  animation: tique-entra 0.36s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .etapa-atual-icone,
+  .etapa-tique { animation: none; }
+}

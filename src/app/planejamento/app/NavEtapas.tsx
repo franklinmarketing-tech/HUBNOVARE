@@ -28,6 +28,21 @@ import { ETAPAS } from "./etapas";
  * - **A etapa atual se centraliza sozinha no celular.** A barra rola de lado;
  *   sem isso, quem estava na etapa 5 abria a tela vendo a 1 e achava que tinha
  *   voltado ao começo.
+ *
+ * POR QUE ELE PARECIA SEM VIDA, e o que resolveu
+ *
+ * Seis pílulas do mesmo tamanho, do mesmo peso, uma do lado da outra, e nada
+ * acontecendo em nenhuma. O olho não tinha onde pousar. Três correções, todas
+ * de hierarquia — nenhuma de enfeite:
+ *
+ * - **O emblema da etapa atual é MAIOR e flutua.** É o único item da barra que
+ *   se mexe sozinho. Menu em que tudo se mexe não é menu, é distração; menu em
+ *   que uma coisa só se mexe é menu que responde "você está aqui".
+ * - **Três estados legíveis, e não dois.** Percorrida (tique verde, cor
+ *   cheia), atual (pílula navy, emblema grande) e a fazer (emblema apagado,
+ *   sem cor). Antes, "percorrida" e "a fazer" eram quase o mesmo cinza.
+ * - **O número da etapa aparece.** "3 de 6" embaixo do rótulo custa uma linha
+ *   de 10px e responde de graça a pergunta que a barra sozinha só aproxima.
  */
 export function NavEtapas() {
   const caminho = usePathname();
@@ -59,7 +74,7 @@ export function NavEtapas() {
         aria-hidden
         className="pointer-events-none absolute inset-y-0 right-0 z-10 w-12 bg-gradient-to-l from-white to-transparent lg:hidden"
       />
-      <ol className="mx-auto flex max-w-5xl gap-1 overflow-x-auto px-5 py-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <ol className="mx-auto flex max-w-5xl items-stretch gap-0.5 overflow-x-auto px-4 py-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {ETAPAS.map((etapa, i) => {
           const atual = i === indiceAtual;
           const percorrida = naTrilha && i < indiceAtual;
@@ -68,42 +83,84 @@ export function NavEtapas() {
             <li
               key={etapa.slug}
               ref={atual ? atualRef : undefined}
-              className="shrink-0 scroll-mx-5"
+              className="shrink-0 scroll-mx-4"
             >
               <Link
                 href={etapa.href}
                 aria-current={atual ? "step" : undefined}
                 title={etapa.resumo}
-                className={`group flex items-center gap-2 rounded-xl py-1.5 pl-1.5 pr-3 text-2xs font-semibold transition-all ${
+                className={`group flex h-full items-center gap-2.5 rounded-2xl py-2 pl-2 pr-3.5 transition-all duration-200 ${
                   atual
-                    ? "bg-primary text-white shadow-card"
-                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                    ? "bg-primary text-white shadow-[0_8px_20px_-10px_hsl(215_50%_23%_/_0.7)]"
+                    : "text-muted-foreground hover:bg-white hover:text-foreground hover:shadow-card"
                 }`}
               >
-                <span className="relative flex h-7 w-7 shrink-0 items-center justify-center">
+                <span
+                  className={`relative flex shrink-0 items-center justify-center transition-all duration-300 ${
+                    // A etapa atual traz o emblema maior. É o degrau de
+                    // hierarquia mais barato que existe: sem cor nova, sem
+                    // peso de fonte, sem espaço a mais na barra.
+                    //
+                    // E traz uma pastilha CLARA embaixo: os emblemas são
+                    // navy, a pílula da etapa atual também — sem a pastilha o
+                    // emblema da etapa em que a pessoa está é justamente o
+                    // único que some no fundo.
+                    atual ? "h-9 w-9 rounded-xl bg-white p-0.5 shadow-sm" : "h-7 w-7"
+                  }`}
+                >
                   <Image
                     src={etapa.icone}
                     alt=""
-                    width={28}
-                    height={28}
-                    className={`object-contain transition-transform duration-300 group-hover:scale-110 ${
-                      // Etapa que ainda não foi visitada entra dessaturada: a
-                      // cor cheia fica reservada para onde a pessoa está e
-                      // por onde já passou, senão os seis emblemas gritam
-                      // juntos e nenhum se destaca.
-                      atual || percorrida ? "" : "opacity-55 saturate-50"
+                    width={40}
+                    height={40}
+                    className={`h-full w-full object-contain transition-transform duration-300 group-hover:scale-110 ${
+                      atual ? "etapa-atual-icone" : ""
+                    } ${
+                      // Etapa que ainda não foi visitada entra apagada: a cor
+                      // cheia fica reservada para onde a pessoa está e por
+                      // onde já passou, senão os seis emblemas gritam juntos
+                      // e nenhum se destaca.
+                      // Só opacidade, sem `grayscale`: os emblemas já são
+                      // quase monocromáticos em navy, e dessaturá-los não os
+                      // apagava — deixava borrões cinzas com cara de imagem
+                      // quebrada.
+                      atual || percorrida ? "" : "opacity-45"
                     }`}
                   />
                   {percorrida && (
                     <span
                       aria-hidden
-                      className="absolute -bottom-0.5 -right-0.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-success text-white ring-2 ring-white"
+                      className="etapa-tique absolute -bottom-0.5 -right-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-success text-white ring-2 ring-white"
                     >
                       <Check className="h-2 w-2" strokeWidth={4} />
                     </span>
                   )}
                 </span>
-                {etapa.titulo}
+
+                <span className="min-w-0 text-left leading-tight">
+                  <span
+                    className={`block whitespace-nowrap text-xs ${
+                      atual ? "font-semibold" : "font-medium"
+                    }`}
+                  >
+                    {etapa.titulo}
+                  </span>
+                  {/* "3 de 6" custa uma linha de 10px e responde de graça o
+                      que a barra de progresso só aproxima.
+
+                      A cor NÃO leva opacidade extra fora da pílula: medido,
+                      `text-muted-foreground/70` sobre a barra dá 2,96:1 e
+                      reprova AA. A cor cheia dá 5,49:1, e o degrau para o
+                      rótulo já vem do tamanho e do peso. Dentro da pílula,
+                      `white/60` sobre o navy dá 5,48:1 e passa. */}
+                  <span
+                    className={`block text-[10px] tabular-nums ${
+                      atual ? "text-white/60" : "text-muted-foreground"
+                    }`}
+                  >
+                    {i + 1} de {ETAPAS.length}
+                  </span>
+                </span>
               </Link>
             </li>
           );

@@ -5,6 +5,7 @@ import { ArrowRight, Check, Loader2, RefreshCw, Sparkles } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { AcaoAssinante } from "@/components/AcaoAssinante";
 import { BarrasPatrimonio } from "@/components/BarrasPatrimonio";
+import { BarraQueEnche } from "@/components/BarraQueEnche";
 import { FatiasInsight } from "@/components/FatiasInsight";
 import {
   composicaoPatrimonio,
@@ -14,6 +15,11 @@ import { OQueSignifica } from "@/components/OQueSignifica";
 import { usePlanejamento } from "../usePlanejamento";
 import { gerarMetas, paraTabelaMetas, type Meta } from "@/lib/planejamento/metas";
 import { PERFIS } from "@/lib/planejamento/perfil";
+import {
+  rentRealLiquida,
+  type LifePlan,
+  type LifePlanInput,
+} from "@/lib/planejamento/lifeplan";
 import { etapaPorSlug } from "../etapas";
 import {
   Barra,
@@ -177,58 +183,38 @@ export default function PlanoPage() {
       <TituloTela numero={etapa.numero} titulo={etapa.titulo} resumo={etapa.resumo} />
 
       {/* As três alavancas: o que muda a conta quando ela não fecha. */}
-      {!plano.viavel && (
-        <section className="mb-5 rounded-2xl border border-accent/30 bg-accent-tint p-5">
-          <h2 className="font-display text-base font-bold text-primary">
-            Três caminhos para fechar a sua conta
-          </h2>
-          <p className="mt-0.5 text-xs text-muted-foreground">
-            No ritmo de hoje você chega a {Math.round(plano.pctAtingido)}% do seu
-            Marco Horizonte. Qualquer um destes três resolve — e dá para combinar.
-          </p>
-          <div className="mt-4 grid gap-3 sm:grid-cols-3">
-            <Alavanca
-              titulo="Guardar mais"
-              valor={plano.pouparMaisMes ? `${brl(plano.pouparMaisMes)}/mês` : "—"}
-              detalhe="a mais do que você guarda hoje"
-            />
-            <Alavanca
-              titulo="Esperar um pouco"
-              valor={plano.esperarAnos ? `+${plano.esperarAnos} ano${plano.esperarAnos > 1 ? "s" : ""}` : "—"}
-              detalhe={`parar aos ${entrada.idadeAposentadoria + (plano.esperarAnos ?? 0)} em vez de ${entrada.idadeAposentadoria}`}
-            />
-            <Alavanca
-              titulo="Render mais"
-              valor={
-                plano.rentNecessariaPct
-                  ? `${plano.rentNecessariaPct.toLocaleString("pt-BR", { maximumFractionDigits: 1 })}% a.a.`
-                  : "—"
-              }
-              detalhe="acima da inflação, contra os 5% do plano"
-            />
-          </div>
-        </section>
-      )}
+      {!plano.viavel && <TresCaminhos plano={plano} entrada={entrada} />}
 
       <section className="mb-5 grid gap-3 sm:grid-cols-3">
         <Cartao
-          rotulo="Aporte recomendado"
-          valor={`${brl(acoes.aporteRecomendadoMes)}/mês`}
-          detalhe={`Perfil ${acoes.horizonte.toLowerCase()} prazo · retorno real estimado de ${acoes.rentEsperadaPct.toLocaleString("pt-BR", { maximumFractionDigits: 1 })}% a.a.`}
+          rotulo="Quanto guardar por mês"
+          valor={brl(acoes.aporteRecomendadoMes)}
+          unidade="por mês"
+          detalhe={`Para um horizonte de ${acoes.horizonte.toLowerCase()} prazo, contando um rendimento de ${acoes.rentEsperadaPct.toLocaleString("pt-BR", { maximumFractionDigits: 1 })}% ao ano acima da inflação.`}
         />
+        {/* A reserva mostra o que VOCÊ TEM como número grande, e a meta como
+            destino. Antes o número grande era a meta — e meta em corpo 24
+            ao lado de "faltam R$ 43.700" se lê como conquista. */}
         <Cartao
-          rotulo="Reserva de emergência"
-          valor={brl(reserva.meta)}
+          rotulo="Sua reserva de emergência"
+          valor={brl(reserva.atual)}
+          unidade={`de ${brl(reserva.meta)}`}
+          progresso={reserva.meta > 0 ? (reserva.atual / reserva.meta) * 100 : 0}
           detalhe={
             reserva.completa
-              ? "Completa. Piso firme."
-              : `Você tem ${brl(reserva.atual)} — faltam ${brl(reserva.faltam)}`
+              ? "Completa. É o seu piso firme: dá para respirar diante de um imprevisto."
+              : `Faltam ${brl(reserva.faltam)} para cobrir seis meses de custo sem depender de ninguém.`
           }
         />
         <Cartao
-          rotulo="Proteção sugerida"
-          valor={acoes.protecaoFamilia > 0 ? brl(acoes.protecaoFamilia) : "—"}
-          detalhe={`Capital de seguro de vida · ${acoes.anosProtecaoFamilia} anos de custo`}
+          rotulo="Seguro de vida sugerido"
+          valor={acoes.protecaoFamilia > 0 ? brl(acoes.protecaoFamilia) : null}
+          unidade="de capital"
+          detalhe={
+            acoes.protecaoFamilia > 0
+              ? `O bastante para a sua família manter o padrão de vida por ${acoes.anosProtecaoFamilia} anos sem a sua renda.`
+              : "Sem dependentes registrados, não há renda de terceiros a proteger hoje."
+          }
         />
       </section>
 
@@ -478,46 +464,206 @@ export default function PlanoPage() {
   );
 }
 
+/**
+ * As três alavancas, quando a conta não fecha.
+ *
+ * O QUE ESTAVA ERRADO AQUI, e por que cada correção existe:
+ *
+ * 1. "você chega a -138% do seu Marco Horizonte". Percentual negativo não
+ *    quer dizer nada para quem lê. E o que ele esconde é grave: patrimônio
+ *    projetado NEGATIVO não é "faltou um pouco", é o dinheiro acabando antes
+ *    da aposentadoria. São duas conversas diferentes e agora são duas frases
+ *    diferentes.
+ *
+ * 2. "parar aos 65 em vez de 65". O valor caía para "—" quando adiar não
+ *    resolvia, mas a legenda embaixo seguia calculando `idade + 0` e imprimia
+ *    a mesma idade duas vezes. Legenda e valor têm de morrer juntos — quando
+ *    não há resposta, a legenda diz por quê.
+ *
+ * 3. "contra os 5% do plano". Era um 5 escrito à mão. O plano não rende 5%:
+ *    ele projeta com a taxa REAL LÍQUIDA de IR, e a taxa necessária ao lado
+ *    também é líquida. Comparar a necessária (líquida) com uma bruta escrita
+ *    à mão diminuía o tamanho do buraco — e mudava sozinha de sentido se o
+ *    cliente editasse a premissa. Agora as duas saem da mesma conta.
+ */
+function TresCaminhos({
+  plano,
+  entrada,
+}: {
+  plano: LifePlan;
+  entrada: LifePlanInput;
+}) {
+  const pct = Math.round(plano.pctAtingido);
+  // Patrimônio projetado negativo: o dinheiro acaba no meio do caminho.
+  const acaba = plano.pctAtingido < 0;
+
+  const idadeHoje = entrada.idadeAposentadoria;
+  const anos = plano.esperarAnos;
+
+  // A MESMA taxa com que o plano projeta — líquida de IR, como a necessária.
+  const rentDoPlano = rentRealLiquida(
+    entrada.rentRealPct,
+    entrada.inflacaoPct,
+    entrada.aliquotaIrPct,
+  );
+  const num = (v: number) =>
+    v.toLocaleString("pt-BR", { maximumFractionDigits: 1 });
+
+  return (
+    <section className="mb-5 overflow-hidden rounded-3xl border border-accent/25 bg-accent-tint">
+      <div className="px-5 pt-5 sm:px-6 sm:pt-6">
+        <h2 className="font-display text-lg font-semibold text-primary">
+          {acaba
+            ? "Do jeito de hoje, o dinheiro acaba antes"
+            : "Faltam três caminhos para a sua conta fechar"}
+        </h2>
+        <p className="mt-1.5 max-w-prose text-sm leading-relaxed text-muted-foreground">
+          {acaba ? (
+            <>
+              Seguindo o ritmo atual, o que entra não cobre o que sai e a
+              projeção termina no vermelho antes dos {idadeHoje} anos. Não é
+              questão de faltar um pouco — é preciso mudar uma destas três
+              coisas.
+            </>
+          ) : (
+            <>
+              No ritmo de hoje você chega a <b className="font-semibold text-primary">{pct}%</b>{" "}
+              do que vai precisar para se manter sem trabalhar. Qualquer um
+              destes três fecha a diferença — e dá para combinar os três em
+              doses menores.
+            </>
+          )}
+        </p>
+      </div>
+
+      <div className="mt-4 grid gap-px bg-accent/15 sm:grid-cols-3">
+        <Alavanca
+          titulo="Guardar mais"
+          valor={plano.pouparMaisMes ? `${brl(plano.pouparMaisMes)}` : null}
+          unidade="por mês"
+          detalhe="além do que você já guarda hoje"
+          semResposta="Só guardar mais não resolve dentro do limite da conta."
+        />
+        <Alavanca
+          titulo="Trabalhar mais tempo"
+          valor={anos ? `+${anos}` : null}
+          unidade={anos === 1 ? "ano" : "anos"}
+          detalhe={anos ? `Parar aos ${idadeHoje + anos} em vez de aos ${idadeHoje}.` : ""}
+          semResposta={`Adiar não resolve: mesmo trabalhando até bem depois dos ${idadeHoje}, a conta não fecha sozinha.`}
+        />
+        <Alavanca
+          titulo="Render mais"
+          valor={plano.rentNecessariaPct ? `${num(plano.rentNecessariaPct)}%` : null}
+          unidade="ao ano"
+          detalhe={`Acima da inflação e já sem o imposto — contra ${num(rentDoPlano)}% que o seu plano usa hoje.`}
+          semResposta="Não existe rendimento realista que feche essa conta sozinho."
+        />
+      </div>
+    </section>
+  );
+}
+
+/**
+ * Uma alavanca.
+ *
+ * Quando não há resposta, o cartão não mostra um travessão mudo: mostra a
+ * frase que explica POR QUE aquele caminho não serve neste caso. Travessão
+ * sozinho faz a pessoa achar que a tela quebrou.
+ */
 function Alavanca({
   titulo,
   valor,
+  unidade,
   detalhe,
+  semResposta,
 }: {
   titulo: string;
-  valor: string;
+  valor: string | null;
+  unidade: string;
   detalhe: string;
+  semResposta: string;
 }) {
   return (
-    <div className="rounded-xl bg-white p-4">
-      <p className="text-2xs font-semibold uppercase tracking-wider text-muted-foreground">
+    <div className="bg-white p-5">
+      <p className="text-2xs font-semibold uppercase tracking-[0.12em] text-accent-strong">
         {titulo}
       </p>
-      <p className="mt-1 font-display text-lg font-extrabold tabular-nums text-primary">
-        {valor}
-      </p>
-      <p className="mt-0.5 text-[11px] leading-snug text-slate-500">{detalhe}</p>
+      {valor ? (
+        <>
+          <p className="mt-2 font-display text-2xl font-semibold leading-none tracking-tight text-primary">
+            <span className="tabular-nums">{valor}</span>
+            <span className="ml-1.5 font-sans text-xs font-medium text-muted-foreground">
+              {unidade}
+            </span>
+          </p>
+          <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+            {detalhe}
+          </p>
+        </>
+      ) : (
+        <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+          {semResposta}
+        </p>
+      )}
     </div>
   );
 }
 
+/**
+ * Um número do plano, com a frase que o explica.
+ *
+ * Três decisões que valem o comentário:
+ *
+ * — **Rótulo em frase, não em CAIXA ALTA.** "PROTEÇÃO SUGERIDA" é etiqueta de
+ *   planilha; "Seguro de vida sugerido" é o que uma pessoa diria. Caixa alta
+ *   com tracking também é o que mais pesava a tela.
+ * — **A unidade sai do número.** "R$ 7.080/mês" em corpo 24 obriga o olho a
+ *   separar valor de unidade; com a unidade menor ao lado, o número fica
+ *   sozinho no tamanho grande e o cartão pesa menos.
+ * — **A barra enche na entrada.** Só onde há progresso de verdade a mostrar:
+ *   barra decorativa em cartão sem meta é ruído.
+ */
 function Cartao({
   rotulo,
   valor,
+  unidade,
   detalhe,
+  progresso,
 }: {
   rotulo: string;
-  valor: string;
+  valor: string | null;
+  unidade?: string;
   detalhe: string;
+  progresso?: number;
 }) {
   return (
-    <div className="rounded-2xl border border-border bg-white p-4">
-      <p className="text-2xs font-semibold uppercase tracking-wider text-muted-foreground">
-        {rotulo}
+    <div className="flex flex-col rounded-2xl border border-border/80 bg-white p-5 transition-shadow hover:shadow-card">
+      <p className="text-xs font-medium text-muted-foreground">{rotulo}</p>
+
+      {valor && (
+        <p className="mt-1.5 font-display text-2xl font-semibold leading-none tracking-tight text-primary">
+          <span className="tabular-nums">{valor}</span>
+          {unidade && (
+            <span className="ml-1.5 font-sans text-xs font-medium text-muted-foreground">
+              {unidade}
+            </span>
+          )}
+        </p>
+      )}
+
+      {progresso != null && (
+        <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-gelo">
+          <BarraQueEnche
+            pct={progresso}
+            rotulo={rotulo}
+            className={progresso >= 100 ? "bg-success" : "bg-accent"}
+          />
+        </div>
+      )}
+
+      <p className={`text-xs leading-relaxed text-muted-foreground ${valor ? "mt-3" : "mt-1.5"}`}>
+        {detalhe}
       </p>
-      <p className="mt-1 font-display text-xl font-extrabold tabular-nums text-primary">
-        {valor}
-      </p>
-      <p className="mt-1 text-[11px] leading-snug text-slate-500">{detalhe}</p>
     </div>
   );
 }
