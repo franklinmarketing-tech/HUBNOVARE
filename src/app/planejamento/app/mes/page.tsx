@@ -13,6 +13,7 @@ import { liberarLancamento } from "@/lib/planejamento/cliente";
 import { mesAtual, rotuloMes } from "@/lib/planejamento/catalogos";
 import { computeMonthlyTotals } from "@/lib/planejamento/finance";
 import { cloneToNextMonth } from "@/lib/planejamento/mesSeguinte";
+import { ProximoPasso } from "@/components/ProximoPasso";
 import {
   escreverEstado,
   lerEstado,
@@ -795,11 +796,21 @@ export default function MesPage() {
         resumo={etapa.resumo}
       />
 
+      {/* Fechou o mês e voltou: o painel diz o que fazer, não só que o mês
+          está fechado. A tarja de uma linha que morava aqui informava o
+          estado e deixava a pessoa sem próximo passo. */}
       {jaFechado && (
-        <div className="mb-5 flex items-start gap-2 rounded-2xl border border-success/30 bg-success/5 p-4 text-xs text-slate-600">
-          <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-success" />
-          Este mês já está fechado. Os números dele entraram na sua evolução.
-        </div>
+        <ProximoPasso
+          mes={mes}
+          reserva={{
+            completa: r.dados.reserva.completa,
+            faltam: r.dados.reserva.faltam,
+            meses: r.dados.reserva.meses,
+          }}
+          comprometimentoDividas={r.dados.diagnostico.comprometimentoDividas}
+          sobraMensal={r.dados.diagnostico.sobraMensal}
+          aporteRecomendado={r.dados.acoes.aporteRecomendadoMes}
+        />
       )}
 
       {metas === null ? (

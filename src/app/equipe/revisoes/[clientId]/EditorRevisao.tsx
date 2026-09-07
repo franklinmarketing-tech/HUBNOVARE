@@ -12,6 +12,8 @@ import {
   reservaEmergencia,
 } from "@/lib/planejamento/lifeplan";
 import { calcularDiagnostico } from "@/lib/planejamento/diagnostico";
+import { computeActionPlan } from "@/lib/planejamento/actionplan";
+import { rotuloMes } from "@/lib/planejamento/catalogos";
 import { brl, pct } from "@/app/planejamento/app/pecas";
 import { rotuloTrimestre } from "@/lib/planejamento/trimestre";
 
@@ -24,6 +26,14 @@ type Estado =
       nome: string;
       numeros: { rotulo: string; valor: string; nota?: string }[];
       pilarFraco: string;
+      /** O retrato por tras dos numeros — o que o consultor precisa para ter
+          opiniao, e nao so para repetir o indicador. */
+      perfil: string[];
+      categorias: { categoria: string; valor: number; fatia: number }[];
+      dividas: { o_que: string; saldo: number; parcela: number; juros: number | null }[];
+      objetivos: { o_que: string; alvo: number | null; prazo: string | null }[];
+      recomendado: { rotulo: string; valor: string }[];
+      historico: { mes: string; patrimonio: number }[];
     };
 
 /**
@@ -125,10 +135,63 @@ export function EditorRevisao({
          começa "o que está travando". */
       const fraco = [...saude.pilares].sort((a, b) => a.score - b.score)[0];
 
+      const acoes = computeActionPlan(entrada, plano);
+
+      /* Os ultimos fechamentos, para o consultor ver TRAJETORIA e nao so a
+         foto de hoje. "Melhorou ou piorou" e metade de qualquer parecer. */
+      const { data: fechamentos } = await supabase
+        .from("monthly_closings")
+        .select("month_ref, net_worth")
+        .eq("client_id", clientId)
+        .order("month_ref", { ascending: false })
+        .limit(6);
+
       setEstado({
         fase: "pronto",
         nome,
         pilarFraco: fraco ? `${fraco.nome} (${Math.round(fraco.score)}/100)` : "—",
+
+        perfil: [
+          `${entrada.idadeAtual} anos`,
+          `pretende parar aos ${entrada.idadeAposentadoria}`,
+          `${(cliente.data?.dependents_count as number) ?? 0} dependente(s)`,
+          `horizonte ${acoes.horizonte.toLowerCase()} (${acoes.anosAteIndependencia} anos)`,
+          `renda ${brl(diag.rendaMensal)}/mês`,
+        ],
+
+        categorias: diag.despesasPorCategoria.slice(0, 6),
+
+        dividas: retrato.dividas.map((d) => ({
+          o_que: d.creditor ? `${d.type} · ${d.creditor}` : d.type,
+          saldo: d.total_amount ?? 0,
+          parcela: d.monthly_payment ?? 0,
+          juros: d.interest_rate ?? null,
+        })),
+
+        objetivos: retrato.objetivos
+          .filter((o) => !o.completed_at)
+          .map((o) => ({
+            o_que: o.description,
+            alvo: o.target_amount,
+            prazo: o.deadline,
+          })),
+
+        /* O que o motor RECOMENDA, ao lado do que a pessoa faz. A diferenca
+           entre as duas colunas e, na pratica, a pauta do parecer. */
+        recomendado: [
+          { rotulo: "Aporte recomendado", valor: brl(acoes.aporteRecomendadoMes) },
+          { rotulo: "Reserva alvo", valor: brl(acoes.reservaEmergencia) },
+          { rotulo: "Seguro de vida sugerido", valor: brl(acoes.protecaoFamilia) },
+          { rotulo: "Retorno real esperado", valor: `${acoes.rentEsperadaPct.toFixed(1).replace(".", ",")}% a.a.` },
+        ],
+
+        historico: (fechamentos ?? [])
+          .slice()
+          .reverse()
+          .map((f) => ({
+            mes: rotuloMes(f.month_ref as string, "curto"),
+            patrimonio: (f.net_worth as number) ?? 0,
+          })),
         numeros: [
           { rotulo: "Nota de saúde", valor: `${Math.round(saude.total)}/100`, nota: saude.nota },
           { rotulo: "Sobra por mês", valor: brl(diag.sobraMensal), nota: `${pct(diag.taxaPoupanca)} da renda` },
@@ -255,6 +318,126 @@ export function EditorRevisao({
         <b className="font-semibold">Provável ponto de partida:</b>{" "}
         {estado.pilarFraco} é o pilar mais baixo da nota.
       </p>
+
+      {/* ================= O RETRATO POR TRAS DOS NUMEROS =================
+          Seis indicadores dizem COMO o cliente esta. Nao dizem POR QUE — e
+          sem o porque o parecer vira leitura de painel, que o proprio app ja
+          faz sozinho. O que segue e o material de julgamento: para onde vai o
+          dinheiro, o que ele deve, o que ele quer, e o que o motor
+          recomenda. */}
+
+      <div className="mt-6 flex flex-wrap gap-x-4 gap-y-1.5 text-xs text-muted-foreground">
+        {estado.perfil.map((p) => (
+          <span key={p}>{p}</span>
+        ))}
+      </div>
+
+      <div className="mt-8 grid gap-5 lg:grid-cols-2">
+        {/* Para onde vai o dinheiro */}
+        {estado.categorias.length > 0 && (
+          <section className="rounded-2xl border border-slate-200/80 bg-white p-5">
+            <h2 className="font-display text-sm font-semibold text-primary">
+              Para onde vai o dinheiro
+            </h2>
+            <ul className="mt-3 space-y-2.5">
+              {estado.categorias.map((c) => (
+                <li key={c.categoria}>
+                  <div className="flex items-baseline justify-between gap-3 text-xs">
+                    <span className="truncate text-foreground">{c.categoria}</span>
+                    <span className="shrink-0 tabular-nums text-muted-foreground">
+                      {brl(c.valor)} · {c.fatia}%
+                    </span>
+                  </div>
+                  <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-primary/[0.07]">
+                    <div
+                      className="h-full rounded-full bg-ciano"
+                      style={{ width: `${Math.min(100, c.fatia)}%` }}
+                    />
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+
+        {/* O que o motor recomenda — a pauta do parecer mora na diferenca
+            entre isto e o que a pessoa faz hoje. */}
+        <section className="rounded-2xl border border-slate-200/80 bg-white p-5">
+          <h2 className="font-display text-sm font-semibold text-primary">
+            O que o plano recomenda
+          </h2>
+          <dl className="mt-3 space-y-2.5">
+            {estado.recomendado.map((r) => (
+              <div key={r.rotulo} className="flex items-baseline justify-between gap-3">
+                <dt className="text-xs text-muted-foreground">{r.rotulo}</dt>
+                <dd className="shrink-0 font-display text-sm font-semibold tabular-nums text-primary">
+                  {r.valor}
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+
+        {/* Dividas: o juro e o que decide a ordem de ataque. */}
+        {estado.dividas.length > 0 && (
+          <section className="rounded-2xl border border-slate-200/80 bg-white p-5">
+            <h2 className="font-display text-sm font-semibold text-primary">
+              Dívidas ({estado.dividas.length})
+            </h2>
+            <ul className="mt-3 space-y-2.5">
+              {estado.dividas.map((d, i) => (
+                <li key={`${d.o_que}-${i}`} className="text-xs">
+                  <p className="truncate text-foreground">{d.o_que}</p>
+                  <p className="mt-0.5 tabular-nums text-muted-foreground">
+                    {brl(d.saldo)} · parcela {brl(d.parcela)}
+                    {d.juros != null && ` · ${d.juros}% a.a.`}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+
+        {/* Objetivos: e o que a pessoa QUER, e o parecer sem isso vira
+            aritmetica sem destino. */}
+        {estado.objetivos.length > 0 && (
+          <section className="rounded-2xl border border-slate-200/80 bg-white p-5">
+            <h2 className="font-display text-sm font-semibold text-primary">
+              Objetivos ({estado.objetivos.length})
+            </h2>
+            <ul className="mt-3 space-y-2.5">
+              {estado.objetivos.map((o, i) => (
+                <li key={`${o.o_que}-${i}`} className="text-xs">
+                  <p className="truncate text-foreground">{o.o_que}</p>
+                  <p className="mt-0.5 tabular-nums text-muted-foreground">
+                    {o.alvo ? brl(o.alvo) : "sem valor"}
+                    {o.prazo && ` · até ${o.prazo.slice(0, 7).split("-").reverse().join("/")}`}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+      </div>
+
+      {/* Trajetoria: "melhorou ou piorou" e metade de qualquer parecer. */}
+      {estado.historico.length > 1 && (
+        <section className="mt-5 rounded-2xl border border-slate-200/80 bg-white p-5">
+          <h2 className="font-display text-sm font-semibold text-primary">
+            Patrimônio nos últimos fechamentos
+          </h2>
+          <ul className="mt-3 flex flex-wrap gap-x-6 gap-y-2">
+            {estado.historico.map((h) => (
+              <li key={h.mes}>
+                <p className="text-[11px] text-muted-foreground">{h.mes}</p>
+                <p className="font-display text-sm font-semibold tabular-nums text-primary">
+                  {brl(h.patrimonio)}
+                </p>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       <section className="mt-10">
         <label
