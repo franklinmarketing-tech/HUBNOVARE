@@ -82,7 +82,7 @@ export default async function NovareNewsPage({
 
       <main className="mx-auto max-w-6xl px-4 pb-20 pt-10 sm:pt-14">
         <header className="max-w-2xl">
-          <p className="flex items-center gap-3 text-2xs font-bold uppercase tracking-[0.2em] text-accent-strong">
+          <p className="flex items-center gap-3 text-2xs font-semibold uppercase tracking-[0.2em] text-accent-strong">
             Novare News
             <span aria-hidden className="h-px w-10 bg-accent-soft" />
           </p>
@@ -233,7 +233,7 @@ function Manchete({ artigo }: { artigo: Artigo }) {
         </div>
 
         <div className="min-w-0">
-          <p className="flex items-center gap-2 text-2xs font-bold uppercase tracking-[0.16em] text-accent-strong">
+          <p className="flex items-center gap-2 text-2xs font-semibold uppercase tracking-[0.16em] text-accent-strong">
             <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-accent" />
             {FAMILIAS[artigo.categoria]}
           </p>
@@ -270,7 +270,7 @@ function ChamadaSecundaria({ artigo }: { artigo: Artigo }) {
         />
       </div>
       <div className="min-w-0">
-        <p className="text-2xs font-bold uppercase tracking-[0.14em] text-muted-foreground">
+        <p className="text-2xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
           {FAMILIAS[artigo.categoria]}
         </p>
         <h3 className="mt-1.5 font-display text-base font-bold leading-snug tracking-tight text-primary underline-offset-4 group-hover:underline">
@@ -301,7 +301,7 @@ function CardArtigo({ artigo }: { artigo: Artigo }) {
       </div>
 
       <div className="flex flex-1 flex-col p-5">
-        <p className="text-2xs font-bold uppercase tracking-[0.14em] text-muted-foreground">
+        <p className="text-2xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
           {FAMILIAS[artigo.categoria]}
         </p>
         <h3 className="mt-2 font-display text-base font-bold leading-snug tracking-tight text-primary underline-offset-4 group-hover:underline">
@@ -324,7 +324,7 @@ function SidebarNews() {
   return (
     <aside className="min-w-0 space-y-6">
       <div className="rounded-2xl border border-border bg-card p-5 shadow-subtle">
-        <h2 className="font-display text-2xs font-bold uppercase tracking-[0.16em] text-primary">
+        <h2 className="font-display text-2xs font-semibold uppercase tracking-[0.16em] text-primary">
           Últimas publicações
         </h2>
         <ol className="mt-4 space-y-4">
@@ -335,7 +335,7 @@ function SidebarNews() {
             >
               <span
                 aria-hidden
-                className="font-display text-xs font-bold tabular-nums text-muted-foreground"
+                className="font-display text-xs font-semibold tabular-nums text-muted-foreground"
               >
                 {String(i + 1).padStart(2, "0")}
               </span>
@@ -362,7 +362,7 @@ function SidebarNews() {
       <SigaInstagram />
 
       <div className="glass-card overflow-hidden rounded-2xl bg-primary p-5 text-white">
-        <p className="text-2xs font-bold uppercase tracking-[0.16em] text-accent-claro">
+        <p className="text-2xs font-semibold uppercase tracking-[0.16em] text-accent-claro">
           Sem cadastro
         </p>
         <h2 className="mt-1.5 font-display text-lg font-bold">
@@ -374,7 +374,7 @@ function SidebarNews() {
         </p>
         <a
           href="/planejamento"
-          className="mt-4 inline-flex items-center gap-1.5 rounded-xl bg-white px-4 py-2.5 text-xs font-bold text-primary transition-colors hover:bg-white/90"
+          className="mt-4 inline-flex items-center gap-1.5 rounded-xl bg-white px-4 py-2.5 text-xs font-semibold text-primary transition-colors hover:bg-white/90"
         >
           Ver por dentro
           <ArrowRight className="h-3.5 w-3.5" />
@@ -382,7 +382,7 @@ function SidebarNews() {
       </div>
 
       <div className="rounded-2xl border border-accent-soft bg-accent-tint p-5">
-        <h2 className="font-display text-2xs font-bold uppercase tracking-[0.16em] text-primary">
+        <h2 className="font-display text-2xs font-semibold uppercase tracking-[0.16em] text-primary">
           Ferramentas mais usadas
         </h2>
         <div className="mt-3.5 flex flex-wrap gap-1.5">
@@ -405,7 +405,7 @@ function SidebarNews() {
         </div>
         <Link
           href="/aplicativos"
-          className="mt-4 inline-flex items-center gap-1.5 text-xs font-bold text-accent-strong hover:underline"
+          className="mt-4 inline-flex items-center gap-1.5 text-xs font-semibold text-accent-strong hover:underline"
         >
           Ver as {CONTAGEM.ferramentas} ferramentas
           <ArrowRight className="h-3.5 w-3.5" />
@@ -423,7 +423,7 @@ function BannerWorkspace() {
   return (
     <div className="glass-card flex flex-wrap items-center justify-between gap-5 rounded-2xl bg-primary p-6 text-white sm:p-7">
       <div className="min-w-0">
-        <p className="text-2xs font-bold uppercase tracking-[0.16em] text-accent-claro">
+        <p className="text-2xs font-semibold uppercase tracking-[0.16em] text-accent-claro">
           Workspace Novare
         </p>
         <h3 className="mt-1.5 font-display text-lg font-bold leading-snug sm:text-xl">

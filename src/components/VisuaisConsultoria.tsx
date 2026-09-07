@@ -48,7 +48,7 @@ const brl0 = (v: number) =>
 /** O selo que impede qualquer um destes gráficos de ser lido como promessa. */
 function SeloExemplo({ texto = "Exemplo ilustrativo" }: { texto?: string }) {
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+    <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-slate-500">
       {texto}
     </span>
   );
@@ -211,7 +211,7 @@ export function CarteiraAntesDepois() {
 
   const Rosca = ({ dados, titulo }: { dados: typeof antes; titulo: string }) => (
     <div className="flex-1">
-      <p className="text-center text-xs font-bold uppercase tracking-wider text-slate-500">
+      <p className="text-center text-xs font-semibold uppercase tracking-wider text-slate-500">
         {titulo}
       </p>
       <div className="h-40">

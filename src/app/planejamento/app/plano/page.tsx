@@ -305,7 +305,7 @@ export default function PlanoPage() {
             <li key={fatia.classe}>
               <div className="mb-1 flex items-baseline justify-between gap-3">
                 <span className="text-xs font-semibold text-foreground">{fatia.classe}</span>
-                <span className="text-2xs font-bold tabular-nums text-muted-foreground">
+                <span className="text-2xs font-semibold tabular-nums text-muted-foreground">
                   {fatia.pct}%
                 </span>
               </div>
@@ -387,7 +387,7 @@ export default function PlanoPage() {
                              A conta é a MESMA do planCompletion — se ela
                              dissesse uma coisa aqui e outra no percentual, o
                              cliente encontraria a contradição. */
-                          <p className="mt-1 inline-flex items-center gap-1 text-[11px] font-bold text-success-strong">
+                          <p className="mt-1 inline-flex items-center gap-1 text-[11px] font-semibold text-success-strong">
                             <Check className="h-3 w-3" strokeWidth={3} />
                             Já cumprida
                           </p>

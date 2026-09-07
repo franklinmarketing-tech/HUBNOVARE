@@ -305,7 +305,7 @@ export default function ScorePage() {
           <div className="grid sm:grid-cols-2 gap-3">
             {r.dicas.map((dica) => (
               <div key={dica.titulo} className="rounded-xl bg-slate-50 p-3">
-                <p className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                <p className="text-xs font-semibold text-slate-700 flex items-center gap-1.5">
                   <dica.icone className="h-3.5 w-3.5 text-primary shrink-0" />
                   {dica.titulo}
                 </p>

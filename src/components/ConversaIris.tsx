@@ -269,7 +269,7 @@ export function ConversaIris({
                     ? `/iris?p=${encodeURIComponent(perguntaInicial.trim())}`
                     : "/iris",
                 )}`}
-                className="shrink-0 rounded-lg bg-accent-btn px-4 py-2 text-2xs font-bold text-white transition-colors hover:bg-accent-strong"
+                className="shrink-0 rounded-lg bg-accent-btn px-4 py-2 text-2xs font-semibold text-white transition-colors hover:bg-accent-strong"
               >
                 Criar conta grátis
               </Link>

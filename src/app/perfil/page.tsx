@@ -82,7 +82,7 @@ export default async function PerfilPage() {
             <p className="truncate text-sm text-white/60">{perfil.email}</p>
           </div>
           <span
-            className={`flex shrink-0 items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-bold ${
+            className={`flex shrink-0 items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-semibold ${
               assinante
                 ? "bg-accent/20 text-[hsl(16_90%_75%)]"
                 : "bg-white/10 text-white/70"

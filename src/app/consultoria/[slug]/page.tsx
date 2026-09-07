@@ -259,7 +259,7 @@ export default async function ProdutoPage({
                 </span>
               )}
               {c.isIsca && (
-                <span className="inline-flex items-center gap-1 rounded-full bg-emerald-400/20 px-2.5 py-1 text-xs font-bold text-emerald-200">
+                <span className="inline-flex items-center gap-1 rounded-full bg-emerald-400/20 px-2.5 py-1 text-xs font-semibold text-emerald-200">
                   <Sparkles className="h-3.5 w-3.5" />
                   {ROTULO_PRIMEIRA_ANALISE}
                 </span>
@@ -372,7 +372,7 @@ export default async function ProdutoPage({
               <div className="flex items-start gap-2.5">
                 <Users className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
                 <div>
-                  <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                     Para quem é
                   </p>
                   <p className="mt-1 text-slate-700">{c.paraQuem}</p>
@@ -381,14 +381,14 @@ export default async function ProdutoPage({
               <div className="mt-4 flex items-start gap-2.5 border-t border-slate-100 pt-4">
                 <Clock className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
                 <div>
-                  <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                     Formato
                   </p>
                   <p className="mt-1 text-slate-700">{c.duracao}</p>
                 </div>
               </div>
               <div className="mt-4 flex items-baseline justify-between border-t border-slate-100 pt-4">
-                <span className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                <span className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                   <Target className="h-3.5 w-3.5" /> Investimento
                 </span>
                 <span className="font-display text-lg font-bold tabular-nums text-primary">
@@ -543,7 +543,7 @@ export default async function ProdutoPage({
             comigo?". */}
         <section className="revelar mt-16 overflow-hidden rounded-3xl bg-primary text-white sm:flex sm:items-stretch">
           <div className="p-7 sm:flex-1 sm:p-9">
-            <p className="text-2xs font-bold uppercase tracking-[0.14em] text-[hsl(205_95%_75%)]">
+            <p className="text-2xs font-semibold uppercase tracking-[0.14em] text-[hsl(205_95%_75%)]">
               Quem atende
             </p>
             <h2 className="mt-3 max-w-md font-display text-2xl font-bold leading-tight sm:text-[1.75rem]">
@@ -587,7 +587,7 @@ export default async function ProdutoPage({
           <section className="revelar mt-16 overflow-hidden rounded-3xl border border-accent-soft bg-accent-tint p-6 sm:p-8">
             <div className="flex flex-wrap items-center justify-between gap-5">
               <div className="min-w-0 max-w-xl">
-                <p className="text-2xs font-bold uppercase tracking-[0.14em] text-accent-strong">
+                <p className="text-2xs font-semibold uppercase tracking-[0.14em] text-accent-strong">
                   {ROTULO_DESCONTO} para assinante
                 </p>
                 <h2 className="mt-2 font-display text-2xl font-bold tracking-tight text-primary">

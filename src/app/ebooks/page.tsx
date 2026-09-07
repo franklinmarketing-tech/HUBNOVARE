@@ -79,7 +79,7 @@ export default function EbooksPage() {
                     <span className="mt-1 block text-sm leading-relaxed text-muted-foreground">
                       {tema}
                     </span>
-                    <span className="mt-3 inline-flex items-center gap-1.5 text-xs font-bold text-accent-strong">
+                    <span className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-accent-strong">
                       <Download className="h-3.5 w-3.5" />
                       Baixar PDF
                     </span>

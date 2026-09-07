@@ -100,7 +100,7 @@ export function PainelExemplo() {
             }}
           />
           <div className="relative">
-            <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-white/55">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-white/55">
               Seu Marco Horizonte
             </p>
             <p className="mt-1.5 font-display text-3xl font-bold tabular-nums sm:text-4xl">
@@ -123,7 +123,7 @@ export function PainelExemplo() {
         <div className="grid grid-cols-2 gap-2.5 lg:grid-cols-4">
           {INDICADORES.map((i) => (
             <div key={i.rotulo} className="rounded-xl border border-border bg-card p-3">
-              <p className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground">
+              <p className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground">
                 {i.rotulo}
               </p>
               <p
@@ -138,7 +138,7 @@ export function PainelExemplo() {
 
         {/* Os cinco pilares, em barra */}
         <div className="rounded-xl border border-border bg-card p-4">
-          <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
             De onde vem a sua nota
           </p>
           <ul className="mt-3 space-y-2.5">
@@ -146,7 +146,7 @@ export function PainelExemplo() {
               <li key={p.nome}>
                 <div className="mb-1 flex items-baseline justify-between">
                   <span className="text-[11px] font-semibold text-foreground">{p.nome}</span>
-                  <span className="text-[10px] font-bold tabular-nums text-muted-foreground">
+                  <span className="text-[10px] font-semibold tabular-nums text-muted-foreground">
                     {p.pct}
                   </span>
                 </div>

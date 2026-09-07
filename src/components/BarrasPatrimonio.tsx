@@ -72,7 +72,7 @@ export function BarrasPatrimonio({ serie }: { serie: YearPoint[] }) {
             key={p.ano}
             className={`flex-1 text-center text-[11px] tabular-nums ${
               i === pontos.length - 1
-                ? "font-bold text-accent-strong"
+                ? "font-semibold text-accent-strong"
                 : "text-muted-foreground"
             }`}
           >

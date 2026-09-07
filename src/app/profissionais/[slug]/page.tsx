@@ -88,7 +88,7 @@ export default async function PaginaProfissao({
         <div className="relative mx-auto flex h-full max-w-5xl flex-col justify-end px-5 pb-14">
           <Link
             href="/profissionais"
-            className="mb-5 inline-flex w-fit items-center gap-2 rounded-full border border-white/25 bg-white/10 px-4 py-1.5 text-[11px] font-bold uppercase tracking-wider text-white/85 backdrop-blur-sm transition-colors hover:bg-white/20"
+            className="mb-5 inline-flex w-fit items-center gap-2 rounded-full border border-white/25 bg-white/10 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-white/85 backdrop-blur-sm transition-colors hover:bg-white/20"
           >
             Novare para {prof.nome.toLowerCase()}
           </Link>
@@ -157,7 +157,7 @@ export default async function PaginaProfissao({
         />
         <div className="relative mx-auto grid max-w-5xl items-center gap-10 px-5 py-16 sm:grid-cols-[1fr_auto] sm:py-20">
           <div>
-            <p className="text-[11px] font-bold uppercase tracking-wider text-accent-claro">
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-accent-claro">
               Comece por aqui · grátis, sem cadastro
             </p>
             <h2 className="mt-3 max-w-lg font-display text-2xl font-bold leading-tight sm:text-4xl">
@@ -177,7 +177,7 @@ export default async function PaginaProfissao({
           </div>
 
           <div className="rounded-3xl border border-white/15 bg-white/[0.07] p-8 text-center backdrop-blur-sm">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-white/50">
+            <p className="text-[10px] font-semibold uppercase tracking-widest text-white/50">
               Caso comum
             </p>
             <p className="mt-3 font-display text-4xl font-extrabold tabular-nums text-accent sm:text-5xl">
@@ -237,7 +237,7 @@ export default async function PaginaProfissao({
       <section className="mx-auto max-w-5xl px-5 pb-16 sm:pb-20">
         <div className="flex flex-wrap items-center justify-between gap-6 rounded-3xl border-2 border-accent-soft bg-accent-tint p-8 sm:p-10">
           <div className="max-w-xl">
-            <p className="text-[11px] font-bold uppercase tracking-wider text-accent-strong">
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-accent-strong">
               Depois da análise
             </p>
             <h2 className="mt-2 font-display text-2xl font-bold text-primary">
@@ -262,7 +262,7 @@ export default async function PaginaProfissao({
 
       {/* =================================================== outras carreiras */}
       <section className="mx-auto max-w-5xl px-5 pb-16">
-        <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+        <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">
           Outras carreiras
         </p>
         <div className="mt-5 grid gap-4 sm:grid-cols-3">

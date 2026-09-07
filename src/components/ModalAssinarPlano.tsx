@@ -167,7 +167,7 @@ export function ModalAssinarPlano({
           />
 
           <div className="relative">
-            <p className="text-2xs font-bold uppercase tracking-wider text-white/55">
+            <p className="text-2xs font-semibold uppercase tracking-wider text-white/55">
               {copia.sobretitulo}
             </p>
 
@@ -193,7 +193,7 @@ export function ModalAssinarPlano({
               não paga nada.
             </p>
 
-            <p className="mt-3.5 inline-flex items-center gap-1.5 rounded-lg bg-white/[0.14] px-2.5 py-1.5 text-2xs font-bold sm:mt-5">
+            <p className="mt-3.5 inline-flex items-center gap-1.5 rounded-lg bg-white/[0.14] px-2.5 py-1.5 text-2xs font-semibold sm:mt-5">
               {comecando ? (
                 <Gift className="h-3.5 w-3.5 text-accent-claro" />
               ) : (
@@ -212,7 +212,7 @@ export function ModalAssinarPlano({
         {/* ------------------------------------------ coluna do conteúdo */}
         <div className="flex min-h-0 flex-1 flex-col">
           <div className="min-h-0 flex-1 overflow-y-auto px-6 py-5 sm:px-7 sm:py-8">
-            <p className="mb-3 text-2xs font-bold uppercase tracking-wider text-muted-foreground">
+            <p className="mb-3 text-2xs font-semibold uppercase tracking-wider text-muted-foreground">
               O que entra
             </p>
             <ul className="space-y-2.5">

@@ -82,7 +82,7 @@ function MudouDesde({
 }) {
   return (
     <section className="mb-5 overflow-hidden rounded-2xl bg-gradient-to-br from-primary to-[hsl(216_58%_13%)] p-6 text-white">
-      <p className="text-2xs font-bold uppercase tracking-wider text-white/60">
+      <p className="text-2xs font-semibold uppercase tracking-wider text-white/60">
         Desde o mês passado
       </p>
 
@@ -309,7 +309,7 @@ function EscolhaEvento({
             </div>
           </div>
           <button type="button" onClick={aplicar}
-            className="h-9 rounded-lg bg-primary px-3 text-2xs font-bold text-white transition-colors hover:bg-primary-soft"
+            className="h-9 rounded-lg bg-primary px-3 text-2xs font-semibold text-white transition-colors hover:bg-primary-soft"
           >
             Aplicar
           </button>
@@ -895,7 +895,7 @@ export default function MesPage() {
                       {m.source_label}
                     </p>
                     {cumprida ? (
-                      <span className="flex shrink-0 items-center gap-1 rounded-full bg-success/12 px-2.5 py-1 text-2xs font-bold text-success-strong">
+                      <span className="flex shrink-0 items-center gap-1 rounded-full bg-success/12 px-2.5 py-1 text-2xs font-semibold text-success-strong">
                         <Check className="h-3 w-3" />
                         Cumprida
                       </span>
@@ -903,7 +903,7 @@ export default function MesPage() {
                       /* O valor está no campo, mas foi o app que calculou.
                          Sem este selo, quem clica direto em Fechar o mês
                          grava um número que nunca leu. */
-                      <span className="shrink-0 rounded-full bg-accent/12 px-2.5 py-1 text-2xs font-bold text-accent-strong">
+                      <span className="shrink-0 rounded-full bg-accent/12 px-2.5 py-1 text-2xs font-semibold text-accent-strong">
                         Confira
                       </span>
                     ) : (
@@ -932,7 +932,7 @@ export default function MesPage() {
                           ser o herói do card. Antes competia com o título. */}
                       <label
                         htmlFor={`v-${m.id}`}
-                        className="mb-2 block text-[10px] font-bold uppercase tracking-[0.09em] text-slate-500"
+                        className="mb-2 block text-[10px] font-semibold uppercase tracking-[0.09em] text-slate-500"
                       >
                         {/* Com o valor já calculado, a pergunta deixa de ser
                             "quanto é?" e passa a ser "confere?" — que é o

@@ -213,7 +213,7 @@ export default async function Home() {
           {perfil && (
             <a
               href="#meu-painel"
-              className="mx-auto -mb-1 mt-1 flex w-fit items-center gap-1.5 rounded-full px-3 py-1 text-2xs font-bold text-muted-foreground transition-colors hover:text-primary"
+              className="mx-auto -mb-1 mt-1 flex w-fit items-center gap-1.5 rounded-full px-3 py-1 text-2xs font-semibold text-muted-foreground transition-colors hover:text-primary"
             >
               {/* Quem não assina encontra lá embaixo um convite de
                   assinatura, não um painel: prometer o que a rolagem não
@@ -276,7 +276,7 @@ function SegundaParte({
     >
       <div className="mx-auto w-full max-w-7xl px-5 pb-10 pt-8 md:px-5">
         <header className="cine">
-          <p className="text-2xs font-bold uppercase tracking-[0.16em] text-ciano-forte">
+          <p className="text-2xs font-semibold uppercase tracking-[0.16em] text-ciano-forte">
             Seu Workspace
           </p>
           <h2 className="titulo-secao mt-1 text-xl sm:text-2xl">
@@ -401,7 +401,7 @@ function ConviteWorkspace({ assinante }: { assinante: boolean }) {
       </div>
       <Link
         href="/assinar"
-        className="group inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-warning-claro px-4 py-2 text-xs font-bold text-primary transition-colors hover:bg-warning"
+        className="group inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-warning-claro px-4 py-2 text-xs font-semibold text-primary transition-colors hover:bg-warning"
       >
         Experimentar gratuitamente
         <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />

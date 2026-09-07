@@ -72,7 +72,7 @@ export function CardPortal({ portal }: { portal: Portal }) {
               "radial-gradient(16rem 9rem at 50% -20%, hsl(208 75% 62% / 0.25), transparent 65%)",
           }}
         />
-        <span className="absolute right-3 top-3 text-2xs font-extrabold uppercase tracking-wider text-white/55">
+        <span className="absolute right-3 top-3 text-2xs font-semibold uppercase tracking-wider text-white/55">
           Grátis
         </span>
         <span className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-white/[0.10] ring-1 ring-white/[0.14]">

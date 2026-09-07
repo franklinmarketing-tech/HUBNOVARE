@@ -110,7 +110,7 @@ export function MeuMes({ dados }: { dados: DadosPlanejamento }) {
                     <span className="min-w-0 flex-1 truncate text-xs font-semibold text-foreground">
                       {info?.rotulo ?? c.categoria}
                     </span>
-                    <span className="shrink-0 text-xs font-bold tabular-nums text-primary">
+                    <span className="shrink-0 text-xs font-semibold tabular-nums text-primary">
                       {brl(c.valor)}
                     </span>
                   </div>
@@ -176,7 +176,7 @@ export function MinhasDividas({ dados }: { dados: DadosPlanejamento }) {
               )}
             </span>
             <span className="shrink-0 text-right">
-              <span className="block text-xs font-bold tabular-nums text-primary">
+              <span className="block text-xs font-semibold tabular-nums text-primary">
                 {brl(d.total_amount ?? 0)}
               </span>
               {(d.monthly_payment ?? 0) > 0 && (
@@ -226,7 +226,7 @@ export function MeusObjetivos({
         <Rotulo icone={Flag} texto="Meus objetivos" />
         <Link
           href="/planejamento/app/meus-dados"
-          className="inline-flex items-center gap-1 text-[11px] font-bold text-accent-strong hover:underline"
+          className="inline-flex items-center gap-1 text-[11px] font-semibold text-accent-strong hover:underline"
         >
           <Plus className="h-3 w-3" />
           Novo objetivo
@@ -254,10 +254,10 @@ export function MeusObjetivos({
             return (
               <li key={o.id} className="rounded-2xl bg-gelo p-3">
                 <div className="flex items-baseline justify-between gap-2">
-                  <span className="min-w-0 truncate text-xs font-bold text-foreground">
+                  <span className="min-w-0 truncate text-xs font-semibold text-foreground">
                     {o.description}
                   </span>
-                  <span className="shrink-0 text-xs font-bold tabular-nums text-primary">
+                  <span className="shrink-0 text-xs font-semibold tabular-nums text-primary">
                     {pct}%
                   </span>
                 </div>
@@ -331,7 +331,7 @@ export function MinhaProtecao({ dados }: { dados: DadosPlanejamento }) {
             {seguros.slice(0, 4).map((s) => (
               <li
                 key={s.id}
-                className="rounded-full bg-gelo px-2.5 py-1 text-[10px] font-bold text-primary"
+                className="rounded-full bg-gelo px-2.5 py-1 text-[10px] font-semibold text-primary"
               >
                 {s.type}
               </li>
@@ -361,7 +361,7 @@ function Rotulo({
   texto: string;
 }) {
   return (
-    <p className="flex items-center gap-2 text-2xs font-bold uppercase tracking-[0.14em] text-ciano-forte">
+    <p className="flex items-center gap-2 text-2xs font-semibold uppercase tracking-[0.14em] text-ciano-forte">
       <Icone className="h-3.5 w-3.5" strokeWidth={2} />
       {texto}
     </p>

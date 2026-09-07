@@ -149,7 +149,7 @@ export function IrisExtrato() {
       <RoboIris lancamentos={itens.length} analisando={estado === "lendo"} />
 
       <div className="mt-5 rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-8">
-        <p className="text-2xs font-bold uppercase tracking-[0.14em] text-accent-strong">
+        <p className="text-2xs font-semibold uppercase tracking-[0.14em] text-accent-strong">
           Passo 1
         </p>
         <h2 className="mt-1.5 font-display text-xl font-bold text-primary">
@@ -202,7 +202,7 @@ export function IrisExtrato() {
 
         <label
           htmlFor="iris-extrato-texto"
-          className="mt-6 block text-2xs font-bold uppercase tracking-[0.14em] text-muted-foreground"
+          className="mt-6 block text-2xs font-semibold uppercase tracking-[0.14em] text-muted-foreground"
         >
           Ou cole os lançamentos aqui
         </label>
@@ -337,12 +337,12 @@ export function IrisExtrato() {
       {/* O que a Íris entendeu */}
       {leitura && (
         <div className="mt-8 space-y-4">
-          <p className="text-2xs font-bold uppercase tracking-[0.14em] text-accent-strong">
+          <p className="text-2xs font-semibold uppercase tracking-[0.14em] text-accent-strong">
             Passo 2 · O resultado
           </p>
 
           <div className="palco-iris relative overflow-hidden rounded-3xl p-6 text-center sm:p-8">
-            <p className="relative text-2xs font-bold uppercase tracking-[0.2em] text-[hsl(205_95%_75%)]">
+            <p className="relative text-2xs font-semibold uppercase tracking-[0.2em] text-[hsl(205_95%_75%)]">
               A leitura da Íris
             </p>
             <p className="surgir relative mt-3 break-words font-display text-lg font-bold leading-snug text-white sm:text-2xl">
@@ -398,7 +398,7 @@ export function IrisExtrato() {
               <ol className="mt-4 space-y-3">
                 {leitura.acoes.map((acao, i) => (
                   <li key={i} className="flex gap-3">
-                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-accent/15 text-xs font-bold text-accent-strong">
+                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-accent/15 text-xs font-semibold text-accent-strong">
                       {i + 1}
                     </span>
                     <span className="text-sm leading-relaxed text-muted-foreground">

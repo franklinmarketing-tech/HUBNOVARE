@@ -276,7 +276,7 @@ export function JornadaFinanceira({ dados }: { dados: DadosJornada }) {
             {estado.selo}
           </span>
           <div className="min-w-0">
-            <p className="text-2xs font-bold uppercase tracking-[0.14em] text-white/60">
+            <p className="text-2xs font-semibold uppercase tracking-[0.14em] text-white/60">
               Como você está
             </p>
             <h2 className="mt-1 font-display text-2xl font-extrabold leading-tight sm:text-[1.75rem]">
@@ -308,7 +308,7 @@ export function JornadaFinanceira({ dados }: { dados: DadosJornada }) {
       <section className="overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-primary to-[hsl(216_58%_13%)] p-6 text-white">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
           <div>
-            <p className="text-2xs font-bold uppercase tracking-wider text-white/60">
+            <p className="text-2xs font-semibold uppercase tracking-wider text-white/60">
               Caminho até o Marco Horizonte
             </p>
             <h2 className="mt-1 font-display text-xl font-bold">{fase.nome}</h2>

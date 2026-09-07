@@ -83,7 +83,7 @@ export function PainelMeuDia({
         <div className="grid gap-3 lg:grid-cols-3">
           <section className="glass-card cine flex flex-col justify-between rounded-3xl bg-white p-6 shadow-card ring-1 ring-primary/10 lg:row-span-2">
             <div>
-              <p className="text-2xs font-bold uppercase tracking-[0.14em] text-ciano-forte">
+              <p className="text-2xs font-semibold uppercase tracking-[0.14em] text-ciano-forte">
                 Sua saúde financeira
               </p>
 
@@ -105,7 +105,7 @@ export function PainelMeuDia({
                         </p>
                       </div>
                       <span
-                        className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold ${f.classe}`}
+                        className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold ${f.classe}`}
                       >
                         {f.rotulo}
                       </span>
@@ -117,7 +117,7 @@ export function PainelMeuDia({
 
             <Link
               href="/planejamento/app/diagnostico"
-              className="group mt-6 inline-flex items-center gap-1.5 text-xs font-bold text-accent-strong"
+              className="group mt-6 inline-flex items-center gap-1.5 text-xs font-semibold text-accent-strong"
             >
               Ver o diagnóstico completo
               <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
@@ -206,7 +206,7 @@ export function PainelMeuDia({
       <Secao titulo="Meu futuro">
         <div className="grid gap-3 lg:grid-cols-3">
           <section className="glass-card cine rounded-3xl bg-white p-5 shadow-card ring-1 ring-primary/10 lg:col-span-2">
-            <p className="flex items-center gap-2 text-2xs font-bold uppercase tracking-[0.14em] text-ciano-forte">
+            <p className="flex items-center gap-2 text-2xs font-semibold uppercase tracking-[0.14em] text-ciano-forte">
               <TrendingUp className="h-3.5 w-3.5" strokeWidth={2} />
               Sua projeção de patrimônio
             </p>
@@ -233,13 +233,13 @@ export function PainelMeuDia({
             style={{ transitionDelay: "60ms" }}
           >
             <div className="flex items-center justify-between gap-3">
-              <p className="flex items-center gap-2 text-2xs font-bold uppercase tracking-[0.14em] text-ciano-forte">
+              <p className="flex items-center gap-2 text-2xs font-semibold uppercase tracking-[0.14em] text-ciano-forte">
                 <ClipboardList className="h-3.5 w-3.5" />
                 O que o plano recomenda
               </p>
               <Link
                 href="/planejamento/app/plano"
-                className="text-[11px] font-bold text-accent-strong hover:underline"
+                className="text-[11px] font-semibold text-accent-strong hover:underline"
               >
                 Abrir plano
               </Link>
@@ -288,7 +288,7 @@ export function PainelMeuDia({
                   "radial-gradient(circle, hsl(197 80% 55% / 0.5), transparent 70%)",
               }}
             />
-            <p className="relative flex items-center gap-2 text-2xs font-bold uppercase tracking-[0.14em] text-ciano-claro">
+            <p className="relative flex items-center gap-2 text-2xs font-semibold uppercase tracking-[0.14em] text-ciano-claro">
               <Sparkles className="h-3.5 w-3.5" />
               Íris
             </p>
@@ -299,7 +299,7 @@ export function PainelMeuDia({
               Ela acha as tarifas, juros e assinaturas que somem sem você
               perceber.
             </p>
-            <span className="relative mt-4 inline-flex items-center gap-1.5 text-xs font-bold text-ciano-claro">
+            <span className="relative mt-4 inline-flex items-center gap-1.5 text-xs font-semibold text-ciano-claro">
               Conversar agora
               <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
             </span>
@@ -359,7 +359,7 @@ function Anel({ valor, rotulo }: { valor: number; rotulo: string }) {
           valor={valor}
           className="font-display text-4xl font-bold leading-none tabular-nums text-primary"
         />
-        <span className="mt-1 text-[11px] font-bold uppercase tracking-wide text-muted-foreground">
+        <span className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
           {rotulo}
         </span>
       </div>
@@ -397,7 +397,7 @@ function Bloco({
       className="glass-card cine block rounded-3xl bg-white p-5 shadow-card ring-1 ring-primary/10 transition-all hover:-translate-y-0.5 hover:shadow-card-hover"
       style={{ transitionDelay: `${delay}ms` }}
     >
-      <p className="flex items-center gap-2 text-2xs font-bold uppercase tracking-[0.14em] text-ciano-forte">
+      <p className="flex items-center gap-2 text-2xs font-semibold uppercase tracking-[0.14em] text-ciano-forte">
         <Icone className="h-3.5 w-3.5" strokeWidth={2} />
         {titulo}
       </p>
@@ -512,7 +512,7 @@ function SemFicha() {
         </Link>
       </section>
 
-      <p className="cine mt-8 text-2xs font-bold uppercase tracking-[0.14em] text-ciano-forte">
+      <p className="cine mt-8 text-2xs font-semibold uppercase tracking-[0.14em] text-ciano-forte">
         O que vai aparecer aqui
       </p>
 

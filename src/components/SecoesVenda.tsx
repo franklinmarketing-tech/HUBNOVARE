@@ -62,7 +62,7 @@ export function TituloSecao({
   return (
     <div className={centro ? "mx-auto max-w-2xl text-center" : "max-w-2xl"}>
       {sobre && (
-        <p className="text-2xs font-bold uppercase tracking-[0.18em] text-accent-strong">
+        <p className="text-2xs font-semibold uppercase tracking-[0.18em] text-accent-strong">
           {sobre}
         </p>
       )}
@@ -147,7 +147,7 @@ export function Etapa({
       )}
 
       <p
-        className={`mt-5 text-2xs font-bold uppercase tracking-[0.14em] tabular-nums ${t.rotulo}`}
+        className={`mt-5 text-2xs font-semibold uppercase tracking-[0.14em] tabular-nums ${t.rotulo}`}
       >
         {pad(numero)} · de {pad(total)}
       </p>
@@ -190,13 +190,13 @@ export function Comparativo({
       <table className="w-full min-w-[34rem] border-collapse text-left">
         <thead>
           <tr className="border-b border-border">
-            <th className="px-5 py-4 text-2xs font-bold uppercase tracking-wider text-muted-foreground">
+            <th className="px-5 py-4 text-2xs font-semibold uppercase tracking-wider text-muted-foreground">
               O que você tem
             </th>
-            <th className="w-[22%] px-4 py-4 text-center text-2xs font-bold uppercase tracking-wider text-muted-foreground">
+            <th className="w-[22%] px-4 py-4 text-center text-2xs font-semibold uppercase tracking-wider text-muted-foreground">
               {rotuloSem}
             </th>
-            <th className="w-[26%] bg-primary/[0.04] px-4 py-4 text-center text-2xs font-extrabold uppercase tracking-wider text-accent-strong">
+            <th className="w-[26%] bg-primary/[0.04] px-4 py-4 text-center text-2xs font-semibold uppercase tracking-wider text-accent-strong">
               {rotuloCom}
             </th>
           </tr>
@@ -276,7 +276,7 @@ export function Persona({
       )}
 
       {rotulo && (
-        <p className={`mt-5 text-2xs font-bold uppercase tracking-[0.14em] ${t.rotulo}`}>
+        <p className={`mt-5 text-2xs font-semibold uppercase tracking-[0.14em] ${t.rotulo}`}>
           {rotulo}
         </p>
       )}

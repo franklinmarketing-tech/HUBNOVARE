@@ -105,7 +105,7 @@ export function RoboIris({
             <span className="font-display text-base font-bold text-primary">
               Íris
             </span>
-            <span className="rounded-full bg-primary/[0.06] px-2 py-0.5 text-2xs font-bold uppercase tracking-wider text-primary">
+            <span className="rounded-full bg-primary/[0.06] px-2 py-0.5 text-2xs font-semibold uppercase tracking-wider text-primary">
               IA da Novare
             </span>
             <span className="text-2xs text-muted-foreground">online agora</span>

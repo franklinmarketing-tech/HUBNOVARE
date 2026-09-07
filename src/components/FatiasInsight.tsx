@@ -73,7 +73,7 @@ export function FatiasInsight({
               <span className="shrink-0 text-xs tabular-nums text-muted-foreground">
                 {brl(f.valor)}
               </span>
-              <span className="w-9 shrink-0 text-right text-xs font-bold tabular-nums text-primary">
+              <span className="w-9 shrink-0 text-right text-xs font-semibold tabular-nums text-primary">
                 {pct}%
               </span>
             </li>

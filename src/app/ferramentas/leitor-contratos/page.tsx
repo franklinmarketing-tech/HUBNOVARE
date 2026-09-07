@@ -201,7 +201,7 @@ export default function LeitorContratosPage() {
             <h1 className="text-3xl sm:text-[2.6rem] leading-tight font-display font-bold text-primary">
               Leitor de Contratos
             </h1>
-            <span className="bg-warning/15 text-warning text-[10px] font-bold uppercase rounded px-1.5 py-0.5 mt-2.5">
+            <span className="bg-warning/15 text-warning text-[10px] font-semibold uppercase rounded px-1.5 py-0.5 mt-2.5">
               beta
             </span>
           </div>

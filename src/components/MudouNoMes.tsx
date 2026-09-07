@@ -102,7 +102,7 @@ export function MudouNoMes({
                 </span>
               </span>
 
-              <span className={`shrink-0 text-xs font-bold tabular-nums ${cor}`}>
+              <span className={`shrink-0 text-xs font-semibold tabular-nums ${cor}`}>
                 {!l.relevante
                   ? "estável"
                   : `${l.delta > 0 ? "+" : "−"}${l.formato(Math.abs(l.delta))}`}

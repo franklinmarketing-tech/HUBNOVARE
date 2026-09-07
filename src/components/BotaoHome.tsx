@@ -14,7 +14,7 @@ export function BotaoHome() {
     <Link
       href="/"
       aria-label="Voltar para a página inicial"
-      className="inline-flex shrink-0 items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-2.5 py-2 text-xs font-bold text-slate-600 transition-colors hover:border-primary/30 hover:text-primary"
+      className="inline-flex shrink-0 items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-2.5 py-2 text-xs font-semibold text-slate-600 transition-colors hover:border-primary/30 hover:text-primary"
     >
       <Home className="h-3.5 w-3.5" strokeWidth={2} />
       <span className="hidden sm:inline">Início</span>

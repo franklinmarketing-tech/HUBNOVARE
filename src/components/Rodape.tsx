@@ -43,7 +43,7 @@ export function Rodape() {
         >
           <Code2 className="h-3 w-3 text-ciano-forte" strokeWidth={2.5} />
           <span className="text-[10px] text-slate-500">Desenvolvido por</span>
-          <span className="bg-gradient-to-r from-accent-strong to-ciano-forte bg-clip-text font-display text-xs font-extrabold tracking-tight text-transparent">
+          <span className="bg-gradient-to-r from-accent-strong to-ciano-forte bg-clip-text font-display text-xs font-semibold tracking-tight text-transparent">
             Castriani Digital
           </span>
         </a>

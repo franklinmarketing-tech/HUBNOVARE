@@ -37,7 +37,7 @@ export default function Profissionais() {
   return (
     <div className="min-h-dvh bg-white text-slate-900">
       <section className="mx-auto max-w-5xl px-5 pt-16">
-        <p className="text-[11px] font-bold uppercase tracking-wider text-accent-strong">
+        <p className="text-[11px] font-semibold uppercase tracking-wider text-accent-strong">
           Novare por profissão
         </p>
         <h1 className="mt-2 max-w-3xl font-display text-3xl font-bold leading-tight text-primary sm:text-5xl">
@@ -93,7 +93,7 @@ export default function Profissionais() {
       <section className="mx-auto my-16 max-w-5xl px-5">
         <div className="flex flex-wrap items-center justify-between gap-6 rounded-3xl bg-gradient-to-br from-primary to-[hsl(215_55%_16%)] p-8 text-white sm:p-10">
           <div className="max-w-xl">
-            <p className="text-[11px] font-bold uppercase tracking-wider text-accent">
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-accent">
               Vale para todas
             </p>
             <h2 className="mt-2 font-display text-2xl font-bold">

@@ -58,7 +58,7 @@ export function FerramentaAssinante({
     <main className="mx-auto max-w-2xl px-4 pb-16 pt-12">
       <div className="overflow-hidden rounded-3xl border border-accent/25 bg-white shadow-[0_1px_2px_hsl(215_40%_20%_/_0.04),0_16px_40px_-24px_hsl(215_40%_20%_/_0.3)]">
         <div className="bg-gradient-to-br from-primary to-[hsl(216_58%_13%)] px-7 py-8 text-white">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 text-2xs font-bold uppercase tracking-wider">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 text-2xs font-semibold uppercase tracking-wider">
             <Lock className="h-3 w-3" />
             Exclusiva de assinante
           </span>

@@ -355,7 +355,7 @@ export default function CalendarioPage() {
                   <span
                     className={`text-[11px] tabular-nums ${
                       d === diaHoje
-                        ? "font-bold text-slate-900"
+                        ? "font-semibold text-slate-900"
                         : "text-slate-500"
                     }`}
                   >

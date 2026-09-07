@@ -76,7 +76,7 @@ export function SinoNotificacoes({ notificacoes }: { notificacoes: Notificacao[]
       >
         <Bell className="h-4 w-4" />
         {naoLidas.length > 0 && (
-          <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-accent-btn px-1 text-[10px] font-bold leading-none text-white">
+          <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-accent-btn px-1 text-[10px] font-semibold leading-none text-white">
             {naoLidas.length > 9 ? "9+" : naoLidas.length}
           </span>
         )}
@@ -92,7 +92,7 @@ export function SinoNotificacoes({ notificacoes }: { notificacoes: Notificacao[]
               <button
                 type="button"
                 onClick={() => marcar(naoLidas.map((n) => n.id))}
-                className="inline-flex items-center gap-1 text-[11px] font-bold text-accent-strong hover:underline"
+                className="inline-flex items-center gap-1 text-[11px] font-semibold text-accent-strong hover:underline"
               >
                 <Check className="h-3 w-3" />
                 Marcar todas

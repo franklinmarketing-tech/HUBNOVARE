@@ -56,7 +56,7 @@ export async function BarraMercado() {
             // a lista uma vez só.
             aria-hidden={i >= celulas.length}
           >
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[hsl(205_95%_72%)]">
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-[hsl(205_95%_72%)]">
               {c.rotulo}
             </span>
             <strong className="text-sm font-bold tabular-nums text-white">

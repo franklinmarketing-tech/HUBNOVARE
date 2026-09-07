@@ -68,7 +68,7 @@ export function CardPlanejamentoHome({
               "radial-gradient(16rem 9rem at 50% -20%, hsl(38 95% 62% / 0.32), transparent 65%)",
           }}
         />
-        <span className="absolute right-3 top-3 rounded-md bg-white px-1.5 py-0.5 text-2xs font-extrabold uppercase tracking-wider text-accent-strong">
+        <span className="absolute right-3 top-3 rounded-md bg-white px-1.5 py-0.5 text-2xs font-semibold uppercase tracking-wider text-accent-strong">
           PRO
         </span>
         <span className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-white/[0.14] ring-1 ring-white/[0.18]">

@@ -41,7 +41,7 @@ export function BannerNews({ className = "" }: { className?: string }) {
           <span className="font-display text-sm font-bold text-primary">
             Novare News
           </span>
-          <span className="rounded-md bg-accent-tint px-1.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-accent-strong">
+          <span className="rounded-md bg-accent-tint px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-accent-strong">
             grátis
           </span>
         </span>

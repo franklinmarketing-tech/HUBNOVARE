@@ -104,14 +104,14 @@ export default async function ArtigoPage({
       <main className="mx-auto max-w-3xl px-4 pb-14 pt-8 sm:pt-10">
         <Link
           href="/novare-news"
-          className="inline-flex items-center gap-1.5 text-2xs font-bold uppercase tracking-[0.14em] text-muted-foreground transition-colors hover:text-primary"
+          className="inline-flex items-center gap-1.5 text-2xs font-semibold uppercase tracking-[0.14em] text-muted-foreground transition-colors hover:text-primary"
         >
           <ArrowLeft className="h-3.5 w-3.5" />
           Novare News
         </Link>
 
         <article className="mt-6">
-          <p className="flex items-center gap-2 text-2xs font-bold uppercase tracking-[0.16em] text-accent-strong">
+          <p className="flex items-center gap-2 text-2xs font-semibold uppercase tracking-[0.16em] text-accent-strong">
             <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-accent" />
             {FAMILIAS[artigo.categoria]}
           </p>
@@ -128,7 +128,7 @@ export default async function ArtigoPage({
 
           <div className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-3 border-y border-border py-4 text-2xs text-muted-foreground">
             <span className="flex items-center gap-2">
-              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary font-display text-2xs font-bold text-white">
+              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary font-display text-2xs font-semibold text-white">
                 N
               </span>
               <span className="font-semibold text-primary">Equipe Novare</span>
@@ -181,7 +181,7 @@ export default async function ArtigoPage({
               href={linkCompartilhar}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 text-2xs font-bold text-accent-strong hover:underline"
+              className="inline-flex items-center gap-1.5 text-2xs font-semibold text-accent-strong hover:underline"
             >
               <MessageCircle className="h-3.5 w-3.5" />
               Compartilhar no WhatsApp
@@ -191,7 +191,7 @@ export default async function ArtigoPage({
           {/* A ponte entre o artigo e a ferramenta: é o motivo do canal
               existir, não um anúncio à parte. */}
           <div className="mx-auto mt-10 max-w-2xl rounded-2xl bg-primary p-6 shadow-elevated sm:p-7">
-            <p className="text-2xs font-bold uppercase tracking-[0.16em] text-accent-claro">
+            <p className="text-2xs font-semibold uppercase tracking-[0.16em] text-accent-claro">
               Coloque em prática
             </p>
             <h2 className="mt-1.5 font-display text-xl font-bold text-white">
@@ -238,7 +238,7 @@ export default async function ArtigoPage({
 
         {relacionados.length > 0 && (
           <section className="mt-14">
-            <h2 className="font-display text-2xs font-bold uppercase tracking-[0.16em] text-primary">
+            <h2 className="font-display text-2xs font-semibold uppercase tracking-[0.16em] text-primary">
               Leia também
             </h2>
             <div className="mt-5 grid gap-5 sm:grid-cols-3">
@@ -248,7 +248,7 @@ export default async function ArtigoPage({
                   href={`/novare-news/${r.slug}`}
                   className="group flex flex-col rounded-2xl border border-border bg-card p-5 shadow-subtle transition-all duration-300 hover:border-accent-soft hover:shadow-card-hover"
                 >
-                  <span className="text-2xs font-bold uppercase tracking-[0.14em] text-muted-foreground">
+                  <span className="text-2xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
                     {FAMILIAS[r.categoria]}
                   </span>
                   <h3 className="mt-2 font-display text-sm font-bold leading-snug tracking-tight text-primary underline-offset-4 group-hover:underline">
@@ -297,7 +297,7 @@ function ChamadaVizinha({
         proximo ? "sm:col-start-2 sm:items-end sm:text-right" : ""
       }`}
     >
-      <span className="flex items-center gap-1.5 text-2xs font-bold uppercase tracking-[0.14em] text-muted-foreground">
+      <span className="flex items-center gap-1.5 text-2xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
         {!proximo && <ArrowLeft className="h-3 w-3" />}
         {proximo ? "Próximo artigo" : "Artigo anterior"}
         {proximo && <ArrowRight className="h-3 w-3" />}

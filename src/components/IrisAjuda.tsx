@@ -165,7 +165,7 @@ export function IrisAjuda({
             <span className="font-display text-sm font-bold text-primary">
               Íris
             </span>
-            <span className="rounded-full bg-primary/[0.06] px-2 py-0.5 text-2xs font-bold uppercase tracking-wide text-primary">
+            <span className="rounded-full bg-primary/[0.06] px-2 py-0.5 text-2xs font-semibold uppercase tracking-wide text-primary">
               IA da Novare
             </span>
           </span>
@@ -203,7 +203,7 @@ export function IrisAjuda({
 
           <label
             htmlFor={idCampo}
-            className="block text-2xs font-bold uppercase tracking-[0.14em] text-muted-foreground"
+            className="block text-2xs font-semibold uppercase tracking-[0.14em] text-muted-foreground"
           >
             Seus dados ou sua dúvida
           </label>

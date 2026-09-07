@@ -116,7 +116,7 @@ export function CabecalhoNews() {
             priority
             className="h-6 w-auto sm:h-7"
           />
-          <span className="rounded-md bg-primary px-1.5 py-0.5 font-display text-[11px] font-extrabold uppercase tracking-wider text-white">
+          <span className="rounded-md bg-primary px-1.5 py-0.5 font-display text-[11px] font-semibold uppercase tracking-wider text-white">
             News
           </span>
         </Link>
@@ -133,7 +133,7 @@ export function CabecalhoNews() {
               onMouseLeave={agendarFechamento}
               onClick={() => setAberto((v) => !v)}
               aria-expanded={aberto}
-              className={`flex h-10 items-center gap-1.5 rounded-xl px-3 text-2xs font-bold uppercase tracking-[0.12em] transition-colors ${
+              className={`flex h-10 items-center gap-1.5 rounded-xl px-3 text-2xs font-semibold uppercase tracking-[0.12em] transition-colors ${
                 aberto
                   ? "bg-muted text-primary"
                   : "text-muted-foreground hover:bg-muted hover:text-primary"
@@ -169,13 +169,13 @@ export function CabecalhoNews() {
 
           <Link
             href="/aplicativos"
-            className="flex h-10 items-center rounded-xl px-3 text-2xs font-bold uppercase tracking-[0.12em] text-muted-foreground transition-colors hover:bg-muted hover:text-primary"
+            className="flex h-10 items-center rounded-xl px-3 text-2xs font-semibold uppercase tracking-[0.12em] text-muted-foreground transition-colors hover:bg-muted hover:text-primary"
           >
             Ferramentas
           </Link>
           <Link
             href="/consultoria"
-            className="flex h-10 items-center rounded-xl px-3 text-2xs font-bold uppercase tracking-[0.12em] text-muted-foreground transition-colors hover:bg-muted hover:text-primary"
+            className="flex h-10 items-center rounded-xl px-3 text-2xs font-semibold uppercase tracking-[0.12em] text-muted-foreground transition-colors hover:bg-muted hover:text-primary"
           >
             Consultoria
           </Link>
@@ -206,7 +206,7 @@ export function CabecalhoNews() {
             href={falarNoWhatsApp("Quero receber o Novare News no WhatsApp.")}
             target="_blank"
             rel="noopener noreferrer"
-            className="hidden items-center gap-1.5 rounded-xl border border-border px-3 py-2 text-2xs font-bold text-muted-foreground transition-colors hover:border-primary/30 hover:text-primary md:flex"
+            className="hidden items-center gap-1.5 rounded-xl border border-border px-3 py-2 text-2xs font-semibold text-muted-foreground transition-colors hover:border-primary/30 hover:text-primary md:flex"
           >
             <MessageCircle className="h-3.5 w-3.5" />
             Inscreva-se
@@ -214,7 +214,7 @@ export function CabecalhoNews() {
 
           <Link
             href="/assinar"
-            className="flex items-center gap-1.5 rounded-xl bg-accent-btn px-3.5 py-2 text-2xs font-bold text-accent-foreground transition-colors hover:bg-accent-strong sm:px-4"
+            className="flex items-center gap-1.5 rounded-xl bg-accent-btn px-3.5 py-2 text-2xs font-semibold text-accent-foreground transition-colors hover:bg-accent-strong sm:px-4"
           >
             <span className="hidden sm:inline">Quero meu Workspace</span>
             <span className="sm:hidden">Workspace</span>
@@ -279,7 +279,7 @@ function ItemEco({ item }: { item: (typeof ECOSSISTEMA)[number] }) {
         <item.icone className="h-4 w-4 text-primary" strokeWidth={1.75} />
       </span>
       <span className="min-w-0">
-        <span className="block text-xs font-bold text-primary">{item.nome}</span>
+        <span className="block text-xs font-semibold text-primary">{item.nome}</span>
         <span className="block truncate text-2xs text-muted-foreground">
           {item.desc}
         </span>

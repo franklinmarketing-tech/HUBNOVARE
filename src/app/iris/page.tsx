@@ -181,7 +181,7 @@ export default async function IrisPage({
         />
 
         <div className="revelar relative mx-auto max-w-3xl px-4 py-14 sm:px-6 sm:py-16">
-          <span className="inline-flex items-center gap-2 rounded-full bg-white/[0.12] px-3 py-1.5 text-2xs font-bold uppercase tracking-wider backdrop-blur-sm">
+          <span className="inline-flex items-center gap-2 rounded-full bg-white/[0.12] px-3 py-1.5 text-2xs font-semibold uppercase tracking-wider backdrop-blur-sm">
             <Eye className="h-3.5 w-3.5 text-accent-claro" aria-hidden="true" />
             Íris · a IA financeira da Novare
           </span>
@@ -287,7 +287,7 @@ export default async function IrisPage({
 
         {/* BETA — único bloco escuro depois do resultado. */}
         <section className="mt-14 rounded-3xl bg-primary p-7 text-white sm:p-9">
-          <span className="inline-block rounded bg-accent-btn px-2 py-0.5 text-2xs font-bold uppercase tracking-wide text-white">
+          <span className="inline-block rounded bg-accent-btn px-2 py-0.5 text-2xs font-semibold uppercase tracking-wide text-white">
             incluída na assinatura
           </span>
           <h2 className="mt-3 font-display text-xl font-bold sm:text-2xl">

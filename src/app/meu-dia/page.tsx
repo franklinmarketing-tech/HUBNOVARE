@@ -86,7 +86,7 @@ export default async function MeuDiaPage() {
 
         <main className="mx-auto w-full max-w-6xl flex-1 px-5 pb-10 pt-4">
           <header className="cine">
-            <p className="text-2xs font-bold uppercase tracking-[0.16em] text-ciano-forte">
+            <p className="text-2xs font-semibold uppercase tracking-[0.16em] text-ciano-forte">
               {hoje}
             </p>
             <h1 className="titulo-secao mt-1 text-2xl sm:text-3xl">

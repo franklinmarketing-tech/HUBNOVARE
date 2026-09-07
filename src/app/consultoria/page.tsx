@@ -89,13 +89,13 @@ export default async function ConsultoriaPage() {
 
                 <div className="absolute inset-x-0 top-0 flex flex-wrap items-center gap-2 p-4">
                   {item.isIsca && (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-400/90 px-2.5 py-1 text-xs font-bold text-emerald-950">
+                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-400/90 px-2.5 py-1 text-xs font-semibold text-emerald-950">
                       <Sparkles className="h-3.5 w-3.5" />
                       {ROTULO_PRIMEIRA_ANALISE}
                     </span>
                   )}
                   {item.coBranding && (
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-white/95 px-2.5 py-1 text-xs font-bold text-blue-900">
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-white/95 px-2.5 py-1 text-xs font-semibold text-blue-900">
                       <Users className="h-3.5 w-3.5 text-blue-700" />
                       {item.coBranding.badge}
                     </span>
@@ -104,7 +104,7 @@ export default async function ConsultoriaPage() {
 
                 <div className="absolute inset-x-0 bottom-0 p-6">
                   {item.subtitulo && (
-                    <p className="text-[11px] font-bold uppercase tracking-wider text-white/70">
+                    <p className="text-[11px] font-semibold uppercase tracking-wider text-white/70">
                       {item.subtitulo}
                     </p>
                   )}

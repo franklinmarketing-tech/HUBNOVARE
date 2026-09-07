@@ -17,7 +17,7 @@ export function SigaInstagram() {
           <InstagramLogo className="h-5 w-5" />
         </span>
         <div>
-          <p className="text-[11px] font-bold uppercase tracking-wider text-[hsl(16_90%_75%)]">
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-[hsl(16_90%_75%)]">
             @novare.invest
           </p>
           <p className="font-display text-sm font-bold">Siga no Instagram</p>
@@ -31,7 +31,7 @@ export function SigaInstagram() {
         href="https://www.instagram.com/novare.invest"
         target="_blank"
         rel="noopener noreferrer"
-        className="mt-4 inline-flex items-center gap-1.5 rounded-xl bg-white px-4 py-2.5 text-xs font-bold text-primary hover:bg-white/90"
+        className="mt-4 inline-flex items-center gap-1.5 rounded-xl bg-white px-4 py-2.5 text-xs font-semibold text-primary hover:bg-white/90"
       >
         Ver o perfil
       </a>

@@ -104,11 +104,11 @@ export function RoboNovare() {
       </span>
 
       <span className="flex min-w-0 flex-1 flex-wrap items-baseline gap-x-2">
-        <span className="text-[11px] font-bold uppercase tracking-wider text-primary">
+        <span className="text-[11px] font-semibold uppercase tracking-wider text-primary">
           Robô IA Novare
         </span>
         {aoVivo && (
-          <span className="rounded-full bg-success/12 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-success-strong">
+          <span className="rounded-full bg-success/12 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-success-strong">
             Ao vivo
           </span>
         )}

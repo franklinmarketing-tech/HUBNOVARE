@@ -113,7 +113,7 @@ export function BarrasPilares({
               }}
             />
           </span>
-          <span className="w-9 shrink-0 text-right text-xs font-bold tabular-nums text-slate-700">
+          <span className="w-9 shrink-0 text-right text-xs font-semibold tabular-nums text-slate-700">
             {p.score}
           </span>
         </div>
@@ -212,7 +212,7 @@ export function BarrasCategorias({
           <span className="w-24 shrink-0 text-right text-xs tabular-nums text-slate-600">
             {brl(i.valor)}
           </span>
-          <span className="w-9 shrink-0 text-right text-xs font-bold tabular-nums text-primary">
+          <span className="w-9 shrink-0 text-right text-xs font-semibold tabular-nums text-primary">
             {i.fatia}%
           </span>
         </div>
@@ -278,7 +278,7 @@ function Linha({
   return (
     <div className="flex items-center gap-3">
       <span
-        className={`w-16 shrink-0 text-xs ${destaque ? "font-bold text-primary" : "text-slate-600"}`}
+        className={`w-16 shrink-0 text-xs ${destaque ? "font-semibold text-primary" : "text-slate-600"}`}
       >
         {rotulo}
       </span>
@@ -287,7 +287,7 @@ function Linha({
       </span>
       <span
         className={`w-28 shrink-0 text-right text-xs tabular-nums ${
-          destaque ? "font-bold text-primary" : "text-slate-600"
+          destaque ? "font-semibold text-primary" : "text-slate-600"
         }`}
       >
         {brl(valor)}

@@ -132,7 +132,7 @@ export function TopoApp({
             pulsando é o jeito de dizer isso sem mais um botão colorido. */}
         <Link
           href="/novare-news"
-          className="hidden shrink-0 items-center gap-2 rounded-xl bg-ciano-tint px-3 py-2 text-xs font-bold text-ciano-forte ring-1 ring-ciano/20 transition-all hover:-translate-y-px hover:ring-ciano/40 md:flex"
+          className="hidden shrink-0 items-center gap-2 rounded-xl bg-ciano-tint px-3 py-2 text-xs font-semibold text-ciano-forte ring-1 ring-ciano/20 transition-all hover:-translate-y-px hover:ring-ciano/40 md:flex"
         >
           <span className="relative flex h-2 w-2">
             <span className="absolute inline-flex h-full w-full rounded-full bg-ciano opacity-60 motion-safe:animate-ping" />

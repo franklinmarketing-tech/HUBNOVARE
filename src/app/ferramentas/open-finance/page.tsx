@@ -94,7 +94,7 @@ export default function OpenFinancePage() {
           <div className="mb-4 inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
             <Network className="h-3.5 w-3.5" />
             Open Finance
-            <span className="rounded bg-warning/15 px-1.5 py-0.5 text-[10px] font-bold uppercase text-warning">
+            <span className="rounded bg-warning/15 px-1.5 py-0.5 text-[10px] font-semibold uppercase text-warning">
               beta
             </span>
           </div>

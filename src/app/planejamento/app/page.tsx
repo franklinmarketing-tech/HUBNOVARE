@@ -137,7 +137,7 @@ export default function PainelPage() {
               <li key={p.key}>
                 <div className="mb-1 flex items-baseline justify-between gap-3">
                   <span className="text-xs font-semibold text-foreground">{p.nome}</span>
-                  <span className="text-2xs font-bold tabular-nums text-muted-foreground">
+                  <span className="text-2xs font-semibold tabular-nums text-muted-foreground">
                     {p.score}/100
                   </span>
                 </div>

@@ -91,7 +91,7 @@ export function MenuAreas({ portais }: { portais: Portal[] }) {
                 className="absolute left-0 top-[calc(100%+6px)] z-40 w-[22rem] origin-top overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_24px_60px_-24px_hsl(215_50%_23%_/_0.45)] animate-[surgir_.18s_ease-out]"
               >
                 <p
-                  className="px-4 pb-2 pt-3.5 text-[11px] font-bold uppercase tracking-wider"
+                  className="px-4 pb-2 pt-3.5 text-[11px] font-semibold uppercase tracking-wider"
                   style={{ color: `hsl(${area.h} ${area.s}% 40%)` }}
                 >
                   {area.descricao}

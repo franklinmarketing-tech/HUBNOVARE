@@ -52,14 +52,14 @@ export function MenuConta({
         }`}
       >
         <span
-          className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[11px] font-bold text-white ${
+          className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[11px] font-semibold text-white ${
             assinante ? "bg-accent-btn" : "bg-primary"
           }`}
         >
           {iniciais(nome, email)}
         </span>
         <span className="hidden text-left leading-tight sm:block">
-          <span className="block max-w-[9rem] truncate text-xs font-bold text-foreground">
+          <span className="block max-w-[9rem] truncate text-xs font-semibold text-foreground">
             {primeiroNome}
           </span>
           <span className="block text-[10px] text-muted-foreground">
@@ -79,7 +79,7 @@ export function MenuConta({
             <p className="truncate text-sm font-bold text-foreground">{nome || primeiroNome}</p>
             <p className="truncate text-[11px] text-muted-foreground">{email}</p>
             <p
-              className={`mt-2 inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-[10px] font-bold uppercase tracking-wide ${
+              className={`mt-2 inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-[10px] font-semibold uppercase tracking-wide ${
                 assinante
                   ? "bg-accent-tint text-accent-strong"
                   : "bg-slate-100 text-slate-600"

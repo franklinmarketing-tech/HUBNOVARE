@@ -193,7 +193,7 @@ export default function VidaPlanPage() {
             <div className="grid gap-10 lg:grid-cols-[1.15fr_minmax(0,19rem)] lg:items-center">
               {/* Manchete */}
               <div className="surgir">
-                <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-2xs font-bold uppercase tracking-[0.14em] text-white">
+                <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-2xs font-semibold uppercase tracking-[0.14em] text-white">
                   <Sparkles className="h-3.5 w-3.5 text-accent-claro" />
                   Planejamento Financeiro · Produto PRO
                 </span>
@@ -225,7 +225,7 @@ export default function VidaPlanPage() {
                   </span>
                 </div>
 
-                <p className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-white/[0.12] px-2.5 py-1.5 text-xs font-bold">
+                <p className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-white/[0.12] px-2.5 py-1.5 text-xs font-semibold">
                   <Gift className="h-3.5 w-3.5 text-accent-claro" />
                   Uma assinatura, tudo liberado
                 </p>
@@ -259,7 +259,7 @@ export default function VidaPlanPage() {
                 className="surgir rounded-3xl border border-white/15 bg-white/[0.07] p-5 backdrop-blur-sm sm:p-6"
                 style={{ animationDelay: "120ms" }}
               >
-                <p className="text-2xs font-bold uppercase tracking-[0.14em] text-accent-claro">
+                <p className="text-2xs font-semibold uppercase tracking-[0.14em] text-accent-claro">
                   A conta, sem mistério
                 </p>
 
@@ -360,7 +360,7 @@ export default function VidaPlanPage() {
                   A conta roda no seu navegador.
                 </p>
               </div>
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-success/30 bg-success/10 px-3 py-1 text-2xs font-bold uppercase tracking-wider text-success-strong">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-success/30 bg-success/10 px-3 py-1 text-2xs font-semibold uppercase tracking-wider text-success-strong">
                 <Check className="h-3.5 w-3.5" />
                 Grátis, sem limite de uso
               </span>
@@ -442,7 +442,7 @@ export default function VidaPlanPage() {
                   atenção. É o retrato que a maioria encontra no primeiro dia.
                 </p>
               </div>
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-muted/50 px-3 py-1 text-2xs font-bold uppercase tracking-wider text-muted-foreground">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-muted/50 px-3 py-1 text-2xs font-semibold uppercase tracking-wider text-muted-foreground">
                 Exemplo ilustrativo
               </span>
             </div>
@@ -612,7 +612,7 @@ export default function VidaPlanPage() {
 
                 <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-3">
                   <div>
-                    <p className="text-2xs font-bold uppercase tracking-[0.14em] text-muted-foreground">
+                    <p className="text-2xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
                       Parceiro oficial
                     </p>
                     <div className="mt-1.5 inline-flex items-center rounded-lg border border-border bg-card px-2.5 py-1.5">

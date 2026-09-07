@@ -58,7 +58,7 @@ export function MeuPatrimonio({ dados }: { dados: DadosPlanejamento }) {
         <div>
           {/* O título da seção já diz "O que é meu" — repetir aqui só
               gastava uma linha. Este rótulo nomeia o NÚMERO. */}
-          <p className="text-2xs font-bold uppercase tracking-[0.14em] text-ciano-forte">
+          <p className="text-2xs font-semibold uppercase tracking-[0.14em] text-ciano-forte">
             Patrimônio líquido
           </p>
           <NumeroContado
@@ -73,7 +73,7 @@ export function MeuPatrimonio({ dados }: { dados: DadosPlanejamento }) {
 
         <Link
           href="/planejamento/app/meus-dados"
-          className="group inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-primary px-3.5 py-2 text-xs font-bold text-white transition-colors hover:bg-primary-soft"
+          className="group inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-primary px-3.5 py-2 text-xs font-semibold text-white transition-colors hover:bg-primary-soft"
         >
           <Plus className="h-3.5 w-3.5" />
           Adicionar um bem
@@ -114,7 +114,7 @@ export function MeuPatrimonio({ dados }: { dados: DadosPlanejamento }) {
                   {b.tipo}
                 </span>
               </span>
-              <span className="shrink-0 text-xs font-bold tabular-nums text-primary">
+              <span className="shrink-0 text-xs font-semibold tabular-nums text-primary">
                 {brl(b.valor)}
               </span>
             </li>
@@ -130,7 +130,7 @@ export function MeuPatrimonio({ dados }: { dados: DadosPlanejamento }) {
       {bens.length > 6 && (
         <Link
           href="/planejamento/app/meus-dados"
-          className="group mt-3 inline-flex items-center gap-1.5 text-xs font-bold text-accent-strong"
+          className="group mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-accent-strong"
         >
           Ver os {bens.length} itens
           <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
@@ -155,7 +155,7 @@ function Régua({
     <div>
       <div className="flex items-baseline justify-between gap-3">
         <span className="text-xs font-semibold text-foreground">{rotulo}</span>
-        <span className="text-xs font-bold tabular-nums text-muted-foreground">
+        <span className="text-xs font-semibold tabular-nums text-muted-foreground">
           {brl(valor)}
         </span>
       </div>
@@ -200,10 +200,10 @@ export function MeuRetrato({ dados }: { dados: DadosPlanejamento }) {
       style={{ transitionDelay: "380ms" }}
     >
       <div className="flex items-baseline justify-between gap-3">
-        <p className="text-2xs font-bold uppercase tracking-[0.14em] text-ciano-forte">
+        <p className="text-2xs font-semibold uppercase tracking-[0.14em] text-ciano-forte">
           Seu retrato
         </p>
-        <span className="text-xs font-bold tabular-nums text-primary">
+        <span className="text-xs font-semibold tabular-nums text-primary">
           {preenchidos}/{linhas.length}
         </span>
       </div>
@@ -220,13 +220,13 @@ export function MeuRetrato({ dados }: { dados: DadosPlanejamento }) {
           <li key={l.rotulo} className="flex items-center justify-between gap-3">
             <span className="text-xs text-foreground">{l.rotulo}</span>
             {l.n > 0 ? (
-              <span className="text-xs font-bold tabular-nums text-primary">
+              <span className="text-xs font-semibold tabular-nums text-primary">
                 {l.n}
               </span>
             ) : (
               <Link
                 href={l.href}
-                className="text-[11px] font-bold text-accent-strong hover:underline"
+                className="text-[11px] font-semibold text-accent-strong hover:underline"
               >
                 adicionar
               </Link>

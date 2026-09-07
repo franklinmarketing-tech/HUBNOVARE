@@ -124,7 +124,7 @@ export function BoasVindas({ nome }: { nome?: string }) {
                 />
                 <span className="min-w-0">
                   <span className="flex items-baseline gap-2">
-                    <span className="text-[10px] font-bold tabular-nums text-muted-foreground">
+                    <span className="text-[10px] font-semibold tabular-nums text-muted-foreground">
                       {String(etapa.numero).padStart(2, "0")}
                     </span>
                     <span className="font-display text-sm font-bold text-primary">

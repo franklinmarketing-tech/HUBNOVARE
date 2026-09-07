@@ -177,7 +177,7 @@ export function ModalApp({
 
             {app.pontosFortes && app.pontosFortes.length > 0 && (
               <>
-                <p className="mt-5 text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                <p className="mt-5 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
                   O que você leva
                 </p>
                 <ul className="mt-2.5 space-y-2">

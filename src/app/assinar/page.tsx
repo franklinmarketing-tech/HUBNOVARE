@@ -405,7 +405,7 @@ export default function AssinarPage() {
         {/* ========================================================= 2. A DOR */}
         <section className="bg-background">
           <div className="mx-auto max-w-4xl px-5 py-16 text-center sm:py-20">
-            <p className="cine text-2xs font-bold uppercase tracking-[0.18em] text-accent-strong">
+            <p className="cine text-2xs font-semibold uppercase tracking-[0.18em] text-accent-strong">
               Se você se reconhecer aqui
             </p>
             <h2 className="cine mx-auto mt-3 max-w-3xl font-display text-3xl font-bold leading-[1.1] tracking-tight text-primary sm:text-[2.8rem]">
@@ -494,7 +494,7 @@ export default function AssinarPage() {
         <section id="como-funciona" className="scroll-mt-16 bg-gelo">
           <div className="mx-auto max-w-5xl px-5 py-16 sm:py-20">
             <div className="cine text-center">
-              <p className="text-2xs font-bold uppercase tracking-[0.18em] text-accent-strong">
+              <p className="text-2xs font-semibold uppercase tracking-[0.18em] text-accent-strong">
                 Do zero ao plano
               </p>
               <h2 className="mt-3 font-display text-3xl font-bold leading-[1.1] tracking-tight text-primary sm:text-[2.6rem]">
@@ -661,7 +661,7 @@ export default function AssinarPage() {
         <section className="bg-gelo">
           <div className="mx-auto max-w-5xl px-5 py-16 sm:py-20">
             <div className="cine text-center">
-              <p className="text-2xs font-bold uppercase tracking-[0.18em] text-accent-strong">
+              <p className="text-2xs font-semibold uppercase tracking-[0.18em] text-accent-strong">
                 Por que confiar
               </p>
               <h2 className="mt-3 font-display text-3xl font-bold leading-[1.1] tracking-tight text-primary sm:text-[2.6rem]">
@@ -724,7 +724,7 @@ export default function AssinarPage() {
                 de quem ganha comissão pelo que indica. */}
             <div className="revelar mt-10 grid overflow-hidden rounded-3xl border border-border sm:grid-cols-2">
               <div className="bg-card p-6 sm:p-7">
-                <p className="text-2xs font-bold uppercase tracking-wider text-muted-foreground">
+                <p className="text-2xs font-semibold uppercase tracking-wider text-muted-foreground">
                   O banco
                 </p>
                 <p className="mt-2 font-display text-lg font-semibold leading-snug text-foreground">
@@ -732,7 +732,7 @@ export default function AssinarPage() {
                 </p>
               </div>
               <div className="bg-primary p-6 text-white sm:p-7">
-                <p className="text-2xs font-bold uppercase tracking-wider text-ciano-claro">
+                <p className="text-2xs font-semibold uppercase tracking-wider text-ciano-claro">
                   A Novare
                 </p>
                 <p className="mt-2 font-display text-lg font-semibold leading-snug">
@@ -757,7 +757,7 @@ export default function AssinarPage() {
 
           <div className="relative mx-auto max-w-3xl px-5 py-16 sm:py-20">
             <div className="cine text-center">
-              <p className="text-2xs font-bold uppercase tracking-[0.18em] text-accent-claro">
+              <p className="text-2xs font-semibold uppercase tracking-[0.18em] text-accent-claro">
                 Um preço só, sem letra miúda
               </p>
               <h2 className="mt-3 font-display text-3xl font-bold leading-[1.1] tracking-tight sm:text-[2.6rem]">
@@ -768,7 +768,7 @@ export default function AssinarPage() {
             {/* A caixa da oferta: tudo o que entra, o preço e o botão no mesmo
                 retângulo. Quem rolou até aqui não deve precisar procurar. */}
             <div className="cine borda-viva mt-10 rounded-3xl border border-white/15 bg-white/[0.07] p-6 backdrop-blur-sm sm:p-9">
-              <p className="text-center text-2xs font-bold uppercase tracking-wider text-white/55">
+              <p className="text-center text-2xs font-semibold uppercase tracking-wider text-white/55">
                 {ASSINATURA_NOME}
               </p>
 

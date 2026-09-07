@@ -168,7 +168,7 @@ export function ConviteDeSaida() {
         </button>
 
         <div className="relative min-h-0 flex-1 overflow-y-auto px-6 pb-6 pt-8 sm:px-7">
-          <span className="selo-pulsa inline-flex items-center gap-1.5 rounded-full bg-white/[0.12] px-3 py-1.5 text-2xs font-bold uppercase tracking-wider">
+          <span className="selo-pulsa inline-flex items-center gap-1.5 rounded-full bg-white/[0.12] px-3 py-1.5 text-2xs font-semibold uppercase tracking-wider">
             <Sparkles className="h-3.5 w-3.5 text-accent-claro" />
             {ASSINATURA_TRIAL_DIAS} dias grátis, sem cartão
           </span>

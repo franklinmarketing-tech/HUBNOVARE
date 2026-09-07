@@ -104,7 +104,7 @@ export function EcossistemaConectado() {
               <LineChart className="h-6 w-6 text-ciano-claro" strokeWidth={2} />
             </span>
           </div>
-          <p className="mt-1 text-center font-display text-xs font-bold text-white">
+          <p className="mt-1 text-center font-display text-xs font-semibold text-white">
             Workspace
           </p>
         </div>
@@ -126,7 +126,7 @@ export function EcossistemaConectado() {
               >
                 <Icone className="h-3.5 w-3.5" strokeWidth={2} />
               </span>
-              <span className="whitespace-nowrap text-xs font-bold text-white">
+              <span className="whitespace-nowrap text-xs font-semibold text-white">
                 {no.nome}
               </span>
             </div>

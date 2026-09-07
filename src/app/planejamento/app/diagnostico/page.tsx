@@ -102,7 +102,7 @@ export default function DiagnosticoPage() {
           <p className="font-display text-2xl font-extrabold text-primary">
             Situação {nota.rotulo.toLowerCase()}
           </p>
-          <span className="rounded-md bg-primary px-2 py-0.5 text-2xs font-extrabold text-white">
+          <span className="rounded-md bg-primary px-2 py-0.5 text-2xs font-semibold text-white">
             NOTA {d.risco}
           </span>
         </div>
@@ -156,7 +156,7 @@ export default function DiagnosticoPage() {
                       <span className="mr-1.5">{conhecida?.emoji ?? "•"}</span>
                       {conhecida?.rotulo ?? c.categoria}
                     </span>
-                    <span className="text-2xs font-bold tabular-nums text-muted-foreground">
+                    <span className="text-2xs font-semibold tabular-nums text-muted-foreground">
                       {brl(c.valor)} · {c.fatia}%
                     </span>
                   </div>

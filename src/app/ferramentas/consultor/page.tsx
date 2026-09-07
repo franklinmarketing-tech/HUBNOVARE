@@ -158,7 +158,7 @@ export default function ConsultorPage() {
           <div className="mb-4 inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
             <Bot className="h-3.5 w-3.5" />
             Consultor Financeiro IA
-            <span className="rounded bg-warning/15 px-1.5 py-0.5 text-[10px] font-bold uppercase text-warning">
+            <span className="rounded bg-warning/15 px-1.5 py-0.5 text-[10px] font-semibold uppercase text-warning">
               beta
             </span>
           </div>

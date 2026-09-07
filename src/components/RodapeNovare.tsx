@@ -46,7 +46,7 @@ export function RodapeNovare({
       <section className="mx-auto max-w-3xl px-4 pb-12">
         <div className="relative overflow-hidden rounded-3xl bg-primary sm:flex sm:items-stretch">
           <div className="relative z-10 p-7 sm:flex-1 sm:p-9">
-            <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[hsl(205_95%_75%)]">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[hsl(205_95%_75%)]">
               Novare · Consultoria de Investimentos
             </p>
             <h2 className="mt-3 max-w-md font-display text-2xl font-bold leading-tight text-white sm:text-[1.75rem]">
@@ -119,7 +119,7 @@ export function RodapeNovare({
           </div>
 
           <div>
-            <h3 className="text-[11px] font-bold uppercase tracking-[0.14em] text-[hsl(205_95%_75%)]">
+            <h3 className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[hsl(205_95%_75%)]">
               Ferramentas
             </h3>
             <ul className="mt-4 space-y-2.5">
@@ -145,7 +145,7 @@ export function RodapeNovare({
           </div>
 
           <div>
-            <h3 className="text-[11px] font-bold uppercase tracking-[0.14em] text-[hsl(205_95%_75%)]">
+            <h3 className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[hsl(205_95%_75%)]">
               Institucional
             </h3>
             <ul className="mt-4 space-y-2.5">
@@ -203,7 +203,7 @@ export function RodapeNovare({
           </div>
 
           <div>
-            <h3 className="text-[11px] font-bold uppercase tracking-[0.14em] text-[hsl(205_95%_75%)]">
+            <h3 className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[hsl(205_95%_75%)]">
               Fale com a gente
             </h3>
             <ul className="mt-4 space-y-2.5 text-[13px]">
