@@ -58,6 +58,21 @@ export const CAPAS: Record<string, string> = {
   rescisao: "/cards/card-aposentadoria.webp",
   ferias: "/cards/card-simulador.webp",
   "decimo-terceiro": "/cards/card-decimo-terceiro.webp",
+  "seguro-desemprego": "/cards/card-dividas.webp",
+
+  // Exclusivas de assinante
+  //
+  // Entraram no catálogo sem capa e caíam no gradiente genérico — oito cards
+  // chapados no meio de vinte com arte. Geradas no mesmo padrão das antigas:
+  // cena 3D em navy escuro, objeto em luz âmbar, chão reflexivo.
+  "controle-gastos": "/cards/card-controle-gastos.webp",
+  "organizador-assinaturas": "/cards/card-organizador-assinaturas.webp",
+  "calendario-financeiro": "/cards/card-calendario.webp",
+  "alertas-vencimento": "/cards/card-alertas.webp",
+  "central-financeira": "/cards/card-central-financeira.webp",
+  "scanner-extratos": "/cards/card-scanner-extratos.webp",
+  "dashboard-patrimonial": "/cards/card-dashboard-patrimonial.webp",
+  "raio-x-carteira": "/cards/card-raio-x-carteira.webp",
 
   // Investimentos
   "simulador-aposentadoria": "/cards/card-simulador-aposentadoria.webp",
