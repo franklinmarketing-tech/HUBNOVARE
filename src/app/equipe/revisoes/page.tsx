@@ -37,10 +37,23 @@ export default async function AcompanhamentoPage() {
   /* Os clientes com plano montado. Quem nunca preencheu o retrato não entra
      na fila: não há o que revisar, e encher a lista de casos vazios faz o
      consultor perder tempo abrindo um por um para descobrir isso. */
+  /* `clients` NAO tem coluna de nome — conferido no banco: id, user_id, cpf,
+     date_of_birth, profession... e nenhuma de nome. O nome vive em
+     `hub_profiles.nome`, entao vem numa segunda consulta e e casado por
+     `user_id`. Duas consultas em vez de um join: PostgREST so junta o que tem
+     FK declarada, e aqui nao ha. */
   const { data: clientes } = await supabase
     .from("clients")
-    .select("id, full_name, status, created_at")
+    .select("id, user_id, status, created_at")
     .order("created_at", { ascending: true });
+
+  const { data: perfis } = await supabase
+    .from("hub_profiles")
+    .select("id, nome");
+
+  const nomePorUsuario = new Map(
+    (perfis ?? []).map((p) => [p.id as string, (p.nome as string) || ""]),
+  );
 
   const { data: revisoes } = await supabase
     .from("revisoes")
@@ -55,7 +68,9 @@ export default async function AcompanhamentoPage() {
     const r = porCliente.get(c.id as string);
     return {
       id: c.id as string,
-      nome: (c.full_name as string) || "Cliente sem nome",
+      nome:
+        nomePorUsuario.get(c.user_id as string) ||
+        `Cliente ${String(c.id).slice(0, 8)}`,
       estado: !r ? "pendente" : r.status === "enviada" ? "enviada" : "rascunho",
     };
   });

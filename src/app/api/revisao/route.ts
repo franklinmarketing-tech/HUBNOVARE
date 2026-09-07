@@ -90,7 +90,7 @@ export async function POST(req: Request) {
 
   const { data: cliente } = await supabase
     .from("clients")
-    .select("user_id, full_name")
+    .select("user_id")
     .eq("id", clientId)
     .maybeSingle();
 
@@ -112,9 +112,19 @@ export async function POST(req: Request) {
     });
 
     if (typeof email === "string" && email.includes("@")) {
+      /* Sem nome no `clients` — o e-mail usa o do perfil, e cai numa
+         saudacao neutra quando nao houver. */
+      const { data: perfil } = cliente?.user_id
+        ? await supabase
+            .from("hub_profiles")
+            .select("nome")
+            .eq("id", cliente.user_id as string)
+            .maybeSingle()
+        : { data: null };
+
       await enviarAvisoDeRevisao({
         email,
-        nome: (cliente?.full_name as string) || "",
+        nome: (perfil?.nome as string) || "",
         periodo,
       });
       avisado = true;

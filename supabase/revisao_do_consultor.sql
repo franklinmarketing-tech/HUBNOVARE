@@ -148,6 +148,19 @@ begin
 end $$;
 
 
+-- 3b. O NOME do cliente.
+--
+-- `clients` não tem coluna de nome (conferido no banco: id, user_id, cpf,
+-- date_of_birth, profession… e nenhuma de nome). O nome vive em
+-- `hub_profiles.nome`, e a policy de lá só deixava 'admin' ler todos os
+-- perfis. Sem isto a fila do consultor lista clientes sem nome — ele teria de
+-- escolher o caso por UUID.
+drop policy if exists "hub_profiles: equipe le tudo" on public.hub_profiles;
+create policy "hub_profiles: equipe le tudo"
+  on public.hub_profiles for select
+  using (public.hub_papel() in ('admin', 'equipe'));
+
+
 -- ----------------------------------------------------------------------------
 -- 4. Avisar o cliente: sino e e-mail
 -- ----------------------------------------------------------------------------

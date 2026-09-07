@@ -66,7 +66,7 @@ export function EditorRevisao({
         carregarRetrato(clientId),
         supabase
           .from("clients")
-          .select("full_name, date_of_birth, dependents_count")
+          .select("user_id, date_of_birth, dependents_count")
           .eq("id", clientId)
           .maybeSingle(),
         supabase
@@ -93,7 +93,16 @@ export function EditorRevisao({
         );
       }
 
-      const nome = (cliente.data?.full_name as string) || "Cliente sem nome";
+      /* O nome vem de `hub_profiles`: `clients` nao tem coluna de nome. */
+      let nome = `Cliente ${clientId.slice(0, 8)}`;
+      if (cliente.data?.user_id) {
+        const { data: perfil } = await supabase
+          .from("hub_profiles")
+          .select("nome")
+          .eq("id", cliente.data.user_id as string)
+          .maybeSingle();
+        if (perfil?.nome) nome = perfil.nome as string;
+      }
 
       if (retrato.rendas.length === 0 && retrato.despesas.length === 0) {
         return setEstado({ fase: "vazio" });
