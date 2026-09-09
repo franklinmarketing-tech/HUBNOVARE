@@ -126,6 +126,50 @@ export const APPS: NovareApp[] = [
     _benchmarkInterno: "Monarch Money",
     temTeste: true,
   },
+  /**
+   * O outro produto com porta própria: o dia a dia do dinheiro.
+   *
+   * Fica ao lado do Planejamento, e não entre as ferramentas, porque é a
+   * mesma natureza — login, estado gravado e visita recorrente. A divisão de
+   * trabalho entre os dois: o Planejamento responde "onde eu quero chegar", o
+   * Organizador responde "posso gastar hoje". Um é o mapa, o outro é o mês.
+   *
+   * `href` aponta para a LANDING, não para `/fincash/app`: quem chega do
+   * catálogo sem assinar precisa ver a oferta antes da tela de login, e quem
+   * já assina entra pela landing em um clique.
+   *
+   * `temTeste` liga a mesma regra do Planejamento — o app se protege por
+   * dentro, e sem isto o `podeAbrir` empurraria para a página de venda quem
+   * está no teste grátis e já tem direito de usar.
+   */
+  {
+    slug: "fincash",
+    nome: "FINCASH",
+    chamada: "Quanto ainda dá para gastar este mês",
+    descricao:
+      "O dia a dia do dinheiro em um lugar só: contas, lançamentos, contas fixas e orçamento. O painel responde a única pergunta que muda comportamento — posso gastar? —, contando o que ainda vai sair até o fim do mês, não só o que já saiu.",
+    pontosFortes: [
+      "O número do topo é a sobra até o fim do mês, não o gasto do mês",
+      "Contas fixas cadastradas uma vez: fevereiro já abre preenchido",
+      "Orçamento sugerido pelo seu histórico, não por chute",
+      "Funciona com qualquer banco: não há nada para conectar",
+    ],
+    href: "/fincash",
+    /* CASA, e não TODOS, até o Franklin validar com dados reais.
+
+       O app está inteiro e testado, mas subiu ao ar no mesmo dia em que ganhou
+       importação de OFX, subcategorias e orçamento fixo/variável — e o SQL
+       dessas três ainda não rodou no banco de produção. Cliente pagante que
+       abre um app e encontra aviso de tabela faltando não volta.
+
+       Para liberar: troque por `TODOS`. É a única linha que muda. */
+    roles: CASA,
+    plano: "pago",
+    status: "ativo",
+    familia: "organizacao",
+    _benchmarkInterno: "Meu Planner Financeiro",
+    temTeste: true,
+  },
   {
     slug: "iris",
     nome: "Íris",
@@ -515,7 +559,7 @@ export const CONTAGEM = {
         a.href.includes("/ferramentas/"),
     ).length;
   },
-  /** Aplicativos com login e estado próprio: Planejamento e Íris. */
+  /** Aplicativos com login e estado próprio: Planejamento, Organizador e Íris. */
   get aplicativos() {
     return APPS.filter(
       (a) =>

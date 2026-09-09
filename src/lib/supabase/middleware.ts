@@ -7,7 +7,13 @@ import { NextResponse, type NextRequest } from "next/server";
  * depender só disso é frágil: quem criar a próxima página da área logada não
  * tem como saber que precisa repetir o redirect. A regra mora aqui.
  */
-const PROTEGIDAS = ["/hub", "/admin", "/perfil", "/planejamento/app"];
+const PROTEGIDAS = [
+  "/hub",
+  "/admin",
+  "/perfil",
+  "/planejamento/app",
+  "/fincash/app",
+];
 
 export async function atualizarSessao(request: NextRequest) {
   let response = NextResponse.next({ request });

@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="FINCASH">
+  <!--
+    A marca do FINCASH.
+
+    POR QUE VETOR, E NÃO A IMAGEM GERADA
+    O conceito nasceu de estudos gerados por IA, mas nenhum servia como marca:
+    JPG, fundo branco chapado, curva imprecisa e cor aproximada. Marca de
+    produto precisa sobreviver a 16px no favicon, ter fundo transparente e usar
+    a cor EXATA do token. Isto é o mesmo conceito, desenhado.
+
+    O CONCEITO
+    Uma carteira vista de frente, com a seta de crescimento subindo de dentro
+    dela. É a tese do app: o que entra na carteira é o que sobe.
+    Sem letra, porque marca que depende de texto morre no favicon.
+
+    TRÊS ELEMENTOS, E NÃO MAIS
+    A primeira versão tinha cartão inclinado, filete ciano e ponta de seta
+    separada. Renderizada a 16px virou borrão, e a 256px a ponta não encostava
+    na linha. Marca pequena se resolve tirando, não acrescentando: sobraram o
+    corpo, a aba e a seta. O ciano da casa ficou de fora de propósito — a
+    terceira cor num desenho deste tamanho vira sujeira, não informação.
+
+    AS CORES SÃO OS TOKENS DA CASA, não aproximações:
+      navy    hsl(215 50% 23%) = #1d3557
+      laranja hsl(16 80% 55%)  = #e8703a
+  -->
+  <defs>
+    <!-- Tudo que é pintado dentro do corpo passa por aqui. É o que impede a
+         aba de vazar pelo canto arredondado, que era o defeito da v1. -->
+    <clipPath id="fincash-corpo">
+      <rect x="6" y="16" width="52" height="42" rx="12" />
+    </clipPath>
+  </defs>
+
+  <g clip-path="url(#fincash-corpo)">
+    <rect x="6" y="16" width="52" height="42" fill="#1d3557" />
+    <!-- A aba da carteira. Levemente inclinada: reta demais lê como envelope. -->
+    <path d="M6 16 H58 V27 L6 31 Z" fill="#e8703a" />
+  </g>
+
+  <!-- A seta, em traço único com a ponta no mesmo path. Ponta como elemento
+       separado desalinha assim que a espessura muda, que foi o que aconteceu
+       na v1. -->
+  <path
+    d="M17 49 L28 38 L35 44 L44.5 33.7"
+    fill="none"
+    stroke="#ffffff"
+    stroke-width="5"
+    stroke-linecap="butt"
+    stroke-linejoin="round"
+  />
+  <!-- A ponta é girada para a MESMA direção do último trecho (-47,3°, medido
+       do vetor 35,44 → 47,31). Ponta desenhada em coordenada fixa desalinha
+       assim que alguém mexe no traçado, que foi o defeito da v2: virava uma
+       bandeirinha ao lado da linha em vez de terminá-la. -->
+  <path
+    d="M0 -6 L8.5 0 L0 6 Z"
+    fill="#ffffff"
+    transform="translate(45.6 32.4) rotate(-47.3)"
+  />
+</svg>

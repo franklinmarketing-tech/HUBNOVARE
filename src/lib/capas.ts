@@ -48,6 +48,19 @@ export const CAPAS: Record<string, string> = {
   "consultoria-revisao-carteira": "/cards/card-perfil.webp",
 
   // Vida Financeira
+  /**
+   * O Organizador Financeiro NÃO tem foto — e a ausência é decisão, não
+   * esquecimento.
+   *
+   * Ele é produto pago da casa e teria direito a arte como o Planejamento e a
+   * Íris, mas as duas únicas capas livres do acervo mentiriam sobre ele:
+   * `card-openfinance` mostra bancos conectados por fios, que é exatamente o
+   * que este app NÃO faz (a landing vende justamente o contrário — nada para
+   * conectar), e `card-projeto-vida` tem letreiros com texto gerado torto, o
+   * que esta lista já proíbe logo acima. Até existir capa própria ele fica só
+   * com o emblema 3D (ver `EMBLEMAS`, abaixo), que é acabamento suficiente:
+   * um card honesto vale mais que uma foto prometendo integração bancária.
+   */
   "orcamento-inteligente": "/cards/card-orcamento-inteligente.webp",
   "reserva-emergencia": "/cards/card-leads-objetivos.webp",
   "correcao-inflacao": "/cards/card-leads-simulador.webp",
@@ -103,6 +116,10 @@ export const EMBLEMAS: Record<string, string> = {
   "consultoria-revisao-carteira": "/icones-3d/dashboard-3d.png",
 
   // Vida financeira
+  // O calendário: o Organizador é o app do MÊS — é o mês que abre, fecha e
+  // recomeça nele. O mesmo emblema já ilustra o fechamento mensal na trilha
+  // do Planejamento, e a repetição aqui é proposital: é a mesma ideia.
+  fincash: "/icones-3d/etapa-mes.png",
   "orcamento-inteligente": "/icones-3d/icon-financas.png",
   "reserva-emergencia": "/icones-3d/goal-reserva.png",
   "correcao-inflacao": "/icones-3d/ipca-3d.png",

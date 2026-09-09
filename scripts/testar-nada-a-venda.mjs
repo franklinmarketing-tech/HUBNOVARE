@@ -22,15 +22,20 @@ const ROTAS = [
   "/profissionais/advogados", "/profissionais/dentistas",
   "/consultoria", "/assinar", "/iris", "/novare-news",
   "/ferramentas/raio-x-previdencia", "/ferramentas/salario-liquido",
-  "/planejamento", "/exame-saude-financeira",
+  "/planejamento", "/fincash", "/exame-saude-financeira",
 ];
 
 /**
- * Onde a oferta PODE aparecer: a home (card do produto), a landing do
- * Planejamento e a landing da assinatura. Em qualquer outra rota, preço
- * continua proibido.
+ * Onde a oferta PODE aparecer: a home (card do produto), as landings dos dois
+ * produtos pagos (Planejamento e Organizador) e a landing da assinatura. Em
+ * qualquer outra rota, preço continua proibido.
  */
-const ROTAS_COM_OFERTA = new Set(["/", "/planejamento", "/assinar"]);
+const ROTAS_COM_OFERTA = new Set([
+  "/",
+  "/planejamento",
+  "/fincash",
+  "/assinar",
+]);
 
 /**
  * O preço aprovado — LIDO de `src/lib/assinatura.ts`, não repetido aqui.

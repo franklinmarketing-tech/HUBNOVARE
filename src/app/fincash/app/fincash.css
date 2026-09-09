@@ -1,0 +1,239 @@
+/* ==========================================================================
+   FINCASH — profundidade e movimento.
+
+   POR QUE ESTE ARQUIVO EXISTE, E POR QUE ELE NÃO É O globals.css
+   O `globals.css` serve o Hub inteiro: landing, Planejamento, painel do
+   consultor. Tudo o que entra lá vira contrato de todo mundo. O que está aqui
+   é vocabulário de UM app — a escada de sombras do FINCASH e as quatro
+   animações que ele usa. Importado só pelo `layout.tsx` de /fincash/app, some
+   junto com o app se um dia ele mudar de cara.
+
+   POR QUE SÃO VARIÁVEIS E NÃO CLASSES (quase tudo)
+   Este arquivo NÃO passa pelas camadas (`@layer`) do Tailwind — CSS sem camada
+   ganha de qualquer utilitário, e uma classe `.fin-card` aqui venceria um
+   `shadow-none` escrito na tela. Então a sombra vive como VARIÁVEL e é chamada
+   no TSX por `shadow-[var(--fin-sombra-card)]`: quem quiser trocar, troca com
+   um utilitário normal e a cascata se comporta.
+   As poucas classes que sobraram só fazem animação e `:active` — território
+   que nenhum utilitário do app disputa.
+
+   A ESCADA DE PROFUNDIDADE (o diagnóstico era "tudo é plano")
+   página (fundo azulado + aurora)  →  card branco (sombra-card)
+     →  bloco interno afundado (gelo, sem sombra)
+   O herói é o único degrau acima: navy sólido com sombra própria. Um só por
+   tela — se dois elementos gritam, nenhum é ouvido.
+
+   SOMBRA TINTADA, NUNCA PRETA. Preto puro sobre fundo azulado deixa a borda
+   cinza-suja; o mesmo borrão em navy some no fundo e lê como profundidade.
+   ========================================================================== */
+
+:root {
+  /* A mola da casa: começa rápido, assenta devagar. É a curva do glass-card
+     do globals, repetida aqui para o app não depender de uma classe da
+     landing. */
+  --fin-mola: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* Repouso. Duas camadas: um fio de contato (1px) que gruda o card no fundo
+     e um borrão largo e MUITO transparente que dá o volume. Uma camada só
+     sempre parece adesivo colado. */
+  --fin-sombra-card: 0 1px 2px hsl(215 40% 20% / 0.04),
+    0 10px 28px -22px hsl(215 40% 20% / 0.5);
+
+  /* Hover/foco: o card sobe. A diferença tem de ser sentida sem ser vista —
+     por isso muda o raio do borrão, não a opacidade. */
+  --fin-sombra-alta: 0 2px 4px hsl(215 40% 20% / 0.05),
+    0 20px 44px -24px hsl(215 40% 20% / 0.6);
+
+  /* O herói navy. Sombra na cor dele mesmo: um bloco escuro com sombra
+     neutra por baixo parece recortado e colado. */
+  --fin-sombra-heroi: 0 2px 6px hsl(215 50% 23% / 0.2),
+    0 26px 56px -30px hsl(215 50% 23% / 0.75);
+
+  /* Elemento flutuante (menu de organizar, popovers do app). */
+  --fin-sombra-flutua: 0 18px 40px -14px hsl(215 40% 20% / 0.35);
+}
+
+/* --------------------------------------------------------------- entrada --
+   Os blocos do painel entram em cascata, de cima para baixo.
+
+   O atraso vem do TSX (`style={{ "--fin-i": n }}`) e não de `:nth-child`
+   porque a home é reordenável: com `nth-child`, o card que a pessoa moveu
+   para o topo herdaria o atraso do último e piscaria fora de ordem.
+
+   Teto de 6 passos (330ms): cascata longa é bonita na primeira vez e irrita
+   na décima — e este app é aberto todo dia.
+   -------------------------------------------------------------------------- */
+@keyframes fin-entra {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.fin-entra {
+  animation: fin-entra 420ms var(--fin-mola) both;
+  animation-delay: calc(min(var(--fin-i, 0), 6) * 55ms);
+}
+
+/* ----------------------------------------------------------- número herói --
+   O saldo previsto não aparece: ele ASSENTA. Sobe um pouco, sai do desfoque
+   e para. É a única animação do app que existe puramente para dar peso a uma
+   informação — e é a informação pela qual o app foi aberto.
+
+   `filter: blur` num texto grande é barato (uma camada, sem repaint de
+   layout) e é o que faz o número parecer entrar em foco em vez de deslizar.
+   -------------------------------------------------------------------------- */
+@keyframes fin-assenta {
+  from {
+    opacity: 0;
+    transform: translateY(0.16em);
+    filter: blur(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    filter: blur(0);
+  }
+}
+
+.fin-assenta {
+  animation: fin-assenta 620ms var(--fin-mola) both;
+}
+
+/* ------------------------------------------------------------------ toque --
+   Feedback de pressão.
+
+   No celular não existe hover: entre o dedo tocar e a rota trocar há um vazio
+   de uns 300ms em que o app parece travado. O afundamento de 1,5% cobre esse
+   vazio — é a diferença entre "não funcionou" e "já vai".
+
+   `-webkit-tap-highlight-color: transparent` tira o retângulo cinza do
+   Android, que aparece por cima do nosso próprio feedback e some depois dele.
+   -------------------------------------------------------------------------- */
+.fin-toque {
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    transform 140ms var(--fin-mola),
+    box-shadow 240ms ease,
+    border-color 240ms ease;
+}
+
+.fin-toque:active {
+  transform: scale(0.985);
+}
+
+/* Só onde hover existe de verdade: em tela de toque, `:hover` gruda depois do
+   clique e o card fica levantado até a pessoa tocar em outro lugar. */
+@media (hover: hover) {
+  .fin-toque:hover {
+    box-shadow: var(--fin-sombra-alta);
+  }
+}
+
+/* ------------------------------------------------------------------- orbe --
+   O avatar do assistente.
+
+   Um disco com um degradê cônico girando devagar. É o único enfeite
+   "vivo" do app, e existe por um motivo comercial explícito: assistente sem
+   presença não é lembrado. Nove segundos por volta é lento o bastante para
+   ler como respiração, e não como carregamento — spinner é promessa de
+   espera, e aqui não há espera nenhuma.
+   -------------------------------------------------------------------------- */
+@keyframes fin-orbe-gira {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.fin-orbe {
+  position: relative;
+  overflow: hidden;
+}
+
+.fin-orbe::before {
+  content: "";
+  position: absolute;
+  inset: -50%;
+  background: conic-gradient(
+    from 0deg,
+    hsl(197 70% 52%),
+    hsl(215 55% 38%),
+    hsl(16 80% 56%),
+    hsl(197 70% 52%)
+  );
+  animation: fin-orbe-gira 9s linear infinite;
+}
+
+/* O miolo (a inicial, o ícone) fica acima do degradê. */
+.fin-orbe > * {
+  position: relative;
+}
+
+/* -------------------------------------------------------- menos movimento --
+   Uma regra só, no fim, cobrindo tudo o que se mexe aqui.
+
+   Repare que a entrada não vira `animation: none` e sim opacidade 1: sem
+   isso, `both` deixaria o elemento congelado no quadro inicial (invisível) e
+   quem pediu menos movimento simplesmente não veria o painel.
+   -------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  .fin-entra,
+  .fin-assenta {
+    animation: none;
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+
+  .fin-orbe::before {
+    animation: none;
+  }
+
+  .fin-toque {
+    transition: none;
+  }
+
+  .fin-toque:active {
+    transform: none;
+  }
+}
+
+
+/* ----------------------------------------------------------------------------
+   Tabela visível só para leitor de tela
+   ----------------------------------------------------------------------------
+   Todo gráfico do app publica os mesmos números numa <table> escondida: quem usa
+   leitor de tela não lê barra, lê tabela.
+
+   POR QUE NÃO O `sr-only` DO TAILWIND
+   Ele esconde com `position:absolute; width:1px; overflow:hidden`. Funciona em
+   quase tudo — menos em <table>, que trata `width` como largura MÍNIMA e cresce
+   até caber o conteúdo. Uma tabela de 12 meses com valores na casa dos milhões
+   esticava para 427px dentro de um telefone de 390px e empurrava a página
+   inteira para o lado: rolagem horizontal em todas as telas, causada
+   justamente pelo recurso de acessibilidade.
+
+   `clip-path` + `position:absolute` recorta de verdade, independentemente do
+   que o elemento ache que precisa medir. O conteúdo continua no DOM e
+   continua sendo anunciado.
+   -------------------------------------------------------------------------- */
+.tabela-so-leitor {
+  position: absolute;
+  /* `table-layout: fixed` é a linha que faz a diferença, e sem ela o resto não
+     adianta: com o layout automático a tabela mede o conteúdo e trata `width`
+     como piso, devolvendo 326px onde se pediu 1px. Medido no navegador. */
+  table-layout: fixed;
+  width: 1px;
+  max-width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border-width: 0;
+}
