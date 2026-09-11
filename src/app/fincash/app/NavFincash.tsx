@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
+  ArrowRightLeft,
   ChevronsLeft,
   ChevronsRight,
   CreditCard,
@@ -157,6 +158,17 @@ const TELAS: Tela[] = [
     href: "/fincash/app/whatsapp",
     rotulo: "WhatsApp",
     Icone: MessageCircle,
+    grupo: "quando-precisa",
+  },
+  {
+    /* A ponte para o Planejamento. Fica perto do fim porque não é gesto
+       diário: leva-se um mês fechado de cada vez, e o mês fecha uma vez por
+       mês. Mas é o item que liga os dois apps da casa, então não pode ficar
+       escondido atrás de "Mais" no celular sem rótulo próprio. */
+    href: "/fincash/app/planejamento",
+    rotulo: "Levar ao Planejamento",
+    curto: "Planejar",
+    Icone: ArrowRightLeft,
     grupo: "quando-precisa",
   },
   {

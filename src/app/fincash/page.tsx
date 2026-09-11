@@ -1628,7 +1628,207 @@ export default function FincashPage() {
             </div>
           </section>
 
-          {/* ====================================== 13. CREDIBILIDADE === */}
+          {/* ================= 13. A PONTE PARA O PLANEJAMENTO ========== */}
+          {/* POR QUE ELA VEM LOGO DEPOIS DOS SÓCIOS, e não podia vir antes.
+
+              A seção de cima acabou de provar que existe uma pessoa do outro
+              lado escrevendo a revisão trimestral. Esta é a consequência
+              prática disso, e só faz sentido depois: essa pessoa passou a ler
+              o mês medido em vez da estimativa que o cliente digitou de
+              cabeça. Antes da prova humana, "o consultor lê o que você gastou"
+              seria uma frase sobre um consultor que o leitor ainda não sabe
+              que existe.
+
+              É O ÚNICO ARGUMENTO DA PÁGINA QUE NÃO SE COPIA ESCREVENDO CÓDIGO.
+              O concorrente tem IA e tem planilha, e ligar o medido ao plano
+              ele também ligaria em um release. O que ele não versiona é a
+              pessoa que assina embaixo do plano do outro lado da ponte.
+
+              FAMÍLIA DE LAYOUT: a passagem. Dois painéis com uma costura no
+              meio (o lado medido e o lado planejado) e, embaixo, uma fita de
+              quatro travas separada por filete. Não repete família nenhuma da
+              página: não é texto-e-foto (as seções 6, 7 e 12 já usam, e o
+              limite de duas seguidas está gasto), não é cartão numerado (é o
+              Ciclo), não é tabela de comparativo, não é declaração com número
+              grande (é a credibilidade, logo abaixo). Também não tem foto: não
+              existe captura desta tela, e remontar uma prévia em HTML de algo
+              que ninguém fotografou seria desenhar produto, que é justamente o
+              que `Molduras.tsx` proíbe.
+
+              ⚠️ CADA FRASE DAQUI SAI DE `lib/fincash/ponte-planejamento.ts` E
+              DA TELA `app/planejamento/page.tsx`: um mês por vez; receitas,
+              despesas por categoria, dívidas e patrimônio; divergente nascendo
+              desmarcado; lote recusado inteiro se algum divergente for marcado
+              sem escolha; nada apagado; lote reversível; nenhuma sincronização
+              no fundo; e o que não casa ficando fora da soma em vez de cair em
+              "Outros". Nada além disso é prometido, porque nada além disso
+              existe.
+
+              ⚠️ A EXIGÊNCIA DE FICHA ESTÁ ESCRITA, NÃO ESCONDIDA. Quem usa o
+              FINCASH sem ficha no Planejamento vê uma explicação, não um botão
+              (o ramo `sem-ficha` da tela). Guardar isso para depois da
+              assinatura transformaria o melhor argumento da página em
+              pegadinha, e a página inteira se sustenta em não ter nenhuma.
+
+              SEM RÓTULO EM CAIXA ALTA de propósito: eles estão em 3 de 16
+              seções, são exceção e não cabeçalho padrão, e o título aqui já
+              diz sozinho do que se trata. */}
+          <section className="pt-14 sm:pt-20">
+            <div className="rounded-3xl border border-border bg-card p-6 shadow-subtle sm:p-9">
+              <div className="max-w-3xl">
+                <h2 className="font-display text-[1.75rem] font-semibold leading-[1.12] tracking-tight text-primary sm:text-[2.2rem]">
+                  A revisão do consultor passa a ser escrita sobre o seu mês, e
+                  não sobre a sua memória
+                </h2>
+                <p className="mt-4 text-sm leading-relaxed text-muted-foreground sm:text-base">
+                  Até hoje os dois lados da casa não se falavam. Ao montar o
+                  plano, você estimava: gasto uns oitocentos no mercado. E era
+                  sobre essa estimativa que o consultor escrevia a revisão do
+                  trimestre. Do outro lado da parede, o FINCASH media o mesmo
+                  gasto lançamento a lançamento. A ponte derruba a parede: você
+                  escolhe um mês e leva para o seu plano as receitas, as
+                  despesas por categoria, as dívidas e o patrimônio daquele mês.
+                  O que a pessoa lê antes de escrever sobre a sua vida deixa de
+                  ser o que você lembra e passa a ser o que aconteceu.
+                </p>
+              </div>
+
+              {/* A PASSAGEM: a costura no meio é o argumento inteiro em uma
+                  peça. À esquerda o que foi MEDIDO, à direita o plano que o
+                  consultor lê e a pergunta que antecede qualquer gravação. É
+                  desenho declarado, com a palavra "exemplo" em cima: a linha de
+                  comparação existe mesmo na tela, os valores são ilustração. */}
+              <div className="mt-8 grid gap-px overflow-hidden rounded-3xl border border-border bg-border lg:grid-cols-2">
+                <div className="bg-gelo p-5 sm:p-6">
+                  <p className="font-display text-sm font-semibold text-primary">
+                    De um lado, o mês medido
+                  </p>
+                  <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">
+                    Um mês por vez, escolhido por você. Atravessa isto, e só
+                    isto:
+                  </p>
+                  <ul className="mt-4 space-y-2">
+                    {[
+                      "Receitas do mês",
+                      "Despesas por categoria",
+                      "Dívidas em aberto",
+                      "Patrimônio investido",
+                    ].map((item) => (
+                      <li
+                        key={item}
+                        className="flex items-center gap-2.5 text-sm text-primary"
+                      >
+                        <Check
+                          className="h-4 w-4 shrink-0 text-accent-strong"
+                          strokeWidth={2.25}
+                        />
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div className="bg-accent-tint p-5 sm:p-6">
+                  <p className="font-display text-sm font-semibold text-primary">
+                    Do outro, o seu plano, e a pergunta antes de gravar
+                  </p>
+                  <div className="mt-4 rounded-xl border border-accent-soft bg-card p-4">
+                    <p className="text-2xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                      Exemplo
+                    </p>
+                    <p className="mt-2 font-display text-sm font-semibold text-primary">
+                      Alimentação
+                    </p>
+                    <dl className="mt-2.5 grid grid-cols-2 gap-3">
+                      <div>
+                        <dt className="text-xs text-muted-foreground">
+                          No seu plano hoje
+                        </dt>
+                        <dd className="mt-0.5 font-display text-sm font-semibold tabular-nums text-muted-foreground">
+                          R$ 800,00
+                        </dd>
+                      </div>
+                      <div>
+                        <dt className="text-xs text-muted-foreground">
+                          O FINCASH mediu
+                        </dt>
+                        <dd className="mt-0.5 font-display text-sm font-semibold tabular-nums text-accent-strong">
+                          R$ 1.037,60
+                        </dd>
+                      </div>
+                    </dl>
+                    <p className="mt-3 border-t border-border pt-3 text-xs leading-relaxed text-muted-foreground">
+                      Item divergente chega desmarcado e continua desmarcado até
+                      você olhar os dois números e decidir. A escolha é de um em
+                      um, e nenhum deles vai de carona.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* A FITA DE TRAVAS. Filete no lugar de quatro cartõezinhos: o
+                  que estas quatro frases fazem é LIMITAR a promessa de cima, e
+                  promessa limitada não pede caixa com sombra. */}
+              <dl className="mt-8 grid divide-y divide-border border-y border-border sm:grid-cols-2 sm:divide-y-0 lg:grid-cols-4 lg:divide-x">
+                {[
+                  {
+                    titulo: "Nada entra calado",
+                    texto:
+                      "Onde já existe valor no plano, os dois números aparecem lado a lado. Se algum divergente seguir marcado sem a sua escolha, o envio inteiro é recusado.",
+                  },
+                  {
+                    titulo: "Nada é apagado",
+                    texto:
+                      "A ponte não apaga nada do seu plano, e o que ela grava é reversível: o valor anterior fica guardado e um botão desfaz o envio.",
+                  },
+                  {
+                    titulo: "Quem puxa é você",
+                    texto:
+                      "Não existe sincronização automática nem nada rodando no fundo. Sem o seu toque no botão, nenhum número atravessa.",
+                  },
+                  {
+                    titulo: "O que não casa fica de fora",
+                    texto:
+                      "Categoria que você inventou, ou lançamento sem categoria, não vai para Outros: sai numa lista à parte, com nome e valor, e fora da soma até você decidir.",
+                  },
+                ].map((trava) => (
+                  <div
+                    key={trava.titulo}
+                    className="py-5 sm:px-5 sm:first:pl-0 lg:first:pl-0"
+                  >
+                    <dt className="font-display text-sm font-semibold text-primary">
+                      {trava.titulo}
+                    </dt>
+                    <dd className="mt-1.5 text-xs leading-relaxed text-muted-foreground">
+                      {trava.texto}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+
+              {/* A BORDA DA PROMESSA, colada no argumento e não numa letra
+                  miúda de rodapé. Ver o comentário grande da seção. */}
+              <p className="mt-7 flex items-start gap-3 rounded-2xl border border-border bg-gelo p-4">
+                <Lock
+                  className="mt-0.5 h-4 w-4 shrink-0 text-accent-strong"
+                  strokeWidth={1.75}
+                />
+                <span className="text-xs leading-relaxed text-muted-foreground">
+                  <span className="font-display font-semibold text-primary">
+                    A ponte pede uma ficha no Planejamento Financeiro.
+                  </span>{" "}
+                  O FINCASH funciona sozinho, com a sua conta. O Planejamento
+                  trabalha sobre uma ficha de cliente, e ela nasce quando você
+                  abre o Planejamento pela primeira vez. Enquanto ela não
+                  existir, a tela da ponte mostra como abri-la, e não um botão
+                  que finge funcionar. Contas de equipe da Novare não têm ficha
+                  e, por isso, não têm ponte.
+                </span>
+              </p>
+            </div>
+          </section>
+
+          {/* ====================================== 14. CREDIBILIDADE === */}
           <section className="pt-14 sm:pt-20">
             <TituloSecao
               titulo="Sem número inflado, sem depoimento de encomenda"
@@ -1657,7 +1857,7 @@ export default function FincashPage() {
             </dl>
           </section>
 
-          {/* ============================================= 14. PREÇO ==== */}
+          {/* ============================================= 15. PREÇO ==== */}
           <section className="pt-14 sm:pt-20">
             <div className="relative overflow-hidden rounded-3xl border border-accent-soft bg-accent-tint p-6 sm:p-9">
               <div
@@ -1730,7 +1930,7 @@ export default function FincashPage() {
             </div>
           </section>
 
-          {/* ============================ 15. PERGUNTAS FREQUENTES ===== */}
+          {/* ============================ 16. PERGUNTAS FREQUENTES ===== */}
           <section className="pt-14 sm:pt-20">
             <OQueSignifica
               titulo="Perguntas frequentes"
@@ -1812,7 +2012,7 @@ export default function FincashPage() {
             />
           </section>
 
-          {/* ======================================== 16. CTA FINAL ==== */}
+          {/* ======================================== 17. CTA FINAL ==== */}
           <section className="pt-14 sm:pt-20">
             <div
               className="palco-cta relative isolate overflow-hidden rounded-3xl p-7 text-white sm:flex sm:items-center sm:justify-between sm:gap-8 sm:p-10"
