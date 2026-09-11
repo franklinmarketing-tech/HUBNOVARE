@@ -22,6 +22,10 @@
   --color-muted: hsl(220 14% 95%);
   --color-muted-foreground: hsl(220 9% 42%);
 
+  /* Este HSL É o `#1d3658` do site oficial (conferido: hsl(215 50% 23%)
+     converte exatamente nele). Circula por aí a versão "#1d3557", que é o
+     mesmo tom com o último dígito trocado — quem for "alinhar com o site"
+     não vai achar divergência nenhuma aqui. */
   --color-primary: hsl(215 50% 23%);
   --color-primary-foreground: hsl(0 0% 100%);
   --color-primary-soft: hsl(215 45% 32%);
@@ -33,8 +37,12 @@
   --color-accent-strong: hsl(16 82% 36%);
   --color-accent-soft: hsl(16 70% 82%);
   --color-accent-tint: hsl(16 90% 96%);
-  /* Papéis do laranja, medidos pela régua da WCAG:
-     • accent (55%) é decoração — barras, ícones, detalhes.
+  /* Papéis do laranja, medidos pela régua da WCAG.
+     O tom base aqui já é o `#e86130` do site oficial — hsl(16 80% 55%)
+     converte nele sem sobra. O "#e8703a" que aparece hardcoded em paletas
+     de gráfico e em e-mail é OUTRO laranja, mais claro; ver relatório.
+     • accent (55%) é decoração — barras, ícones, detalhes. Sobre o fundo
+       claro dá 3,15:1, que é por isso mesmo que ele nunca carrega texto.
      • accent-btn (44%) é superfície que carrega TEXTO BRANCO: 4,77:1.
        O laranja de 55% dava 3,40:1 e reprovava em todos os botões.
      • accent-claro (68%) é TEXTO laranja sobre o navy escuro: 5,15:1.
@@ -75,8 +83,14 @@
   --color-warning-claro: hsl(38 95% 65%);
   --color-destructive: hsl(0 72% 51%);
 
-  --font-sans: var(--font-inter), system-ui, -apple-system, sans-serif;
-  --font-display: var(--font-sora), system-ui, sans-serif;
+  /* Uma fonte só, a do site oficial da Novare: DM Sans.
+     `--font-display` continua existindo — são 436 usos de `font-display` no
+     Hub, e apagar o token para trocar 436 call sites seria muito risco por
+     zero ganho. O papel dele agora é semântico: marca "isto é título" e
+     é o ponto único por onde uma eventual fonte de título volta a entrar —
+     e não mais uma segunda família de verdade. */
+  --font-sans: var(--font-dm-sans), system-ui, -apple-system, sans-serif;
+  --font-display: var(--font-dm-sans), system-ui, sans-serif;
 
   /* Escala de fonte — base 16px, com entrelinha folgada.
      Era 15px de propósito, e o comentário aqui dizia que isso fazia a
@@ -134,7 +148,9 @@
     font-family: var(--font-sans);
     font-size: var(--text-base);
     -webkit-font-smoothing: antialiased;
-    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    /* As alternativas estilísticas `cv02/03/04/11` eram da Inter (o "l" com
+       cauda, o "1" sem base). DM Sans não tem esses eixos: deixar a lista
+       aqui só dava trabalho ao motor de texto para nada. */
   }
 
   /* Headings com tracking negativo e escala fluida, como no app. */

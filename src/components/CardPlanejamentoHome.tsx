@@ -85,7 +85,11 @@ export function CardPlanejamentoHome({
         </span>
       </span>
 
-      <span className="flex items-center justify-between border-t border-primary/5 px-4 py-3">
+      {/* `gap-2` e não só `justify-between`: com a fonte mais estreita da
+          marca o preço e a letra miúda passaram a caber na mesma linha, e
+          `justify-between` sozinho não reserva folga quando o conteúdo enche
+          a largura — os dois encostavam e viravam uma palavra só. */}
+      <span className="flex items-center justify-between gap-2 border-t border-primary/5 px-4 py-3">
         {assinatura.fase === "ativa" ? (
           /* Nenhum preço, nenhuma oferta: só a porta de entrada. */
           <>

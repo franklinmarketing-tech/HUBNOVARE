@@ -81,9 +81,16 @@ import estilos from "./whatsapp.module.css";
  *
  * O que ela NÃO promete, e a lista é curta de propósito: Open Finance (o app
  * não conecta banco nenhum, e dizer "em breve" é prometer roadmap alheio),
- * número de usuários (a Novare não tem base para citar) e depoimento (não há
- * nenhum coletado). Onde o concorrente põe prova social, aqui vai o que é
- * verdade sobre a casa: independência e nenhuma comissão.
+ * número de usuários (a Novare não tem base para citar) e depoimento DE
+ * USUÁRIO DO APP (não há nenhum coletado). Onde o concorrente põe prova
+ * social, aqui vai o que é verdade sobre a casa: independência e nenhuma
+ * comissão.
+ *
+ * ⚠️ OS DEPOIMENTOS DA SEÇÃO 14 NÃO SÃO EXCEÇÃO A ISSO. São clientes da
+ * CONSULTORIA, copiados do site oficial da casa, e a seção diz isso em corpo
+ * de texto antes da primeira aspa. Eles provam que existe consultor de
+ * verdade do outro lado, não que o app é bom. Quem for mexer ali: sem essa
+ * frase, viram prova social enganosa e a página perde o argumento inteiro.
  *
  * ── O QUE MUDOU NESTA VERSÃO, e por quê ────────────────────────────────
  *
@@ -497,6 +504,52 @@ const BALOES: { frase: string; efeito: string; lado: "esq" | "dir" }[] = [
  * comparar, há o que afirmar, e afirmação em linha larga se lê como parágrafo
  * de contrato em vez de item de catálogo.
  */
+/**
+ * ⚠️ LEIA ANTES DE MEXER: ESTA GENTE NÃO USOU O FINCASH.
+ *
+ * São clientes da CONSULTORIA da Novare, e os depoimentos estão publicados no
+ * site oficial da casa (diagnostico.novareapp.com.br/carteira-pontual). Nome
+ * abreviado, profissão e estado são o que há; o texto é copiado palavra por
+ * palavra e não se edita.
+ *
+ * O QUE ELES PROVAM, e é a única coisa que a página pode dizer que provam:
+ * que existe consultor de verdade do outro lado, e que ele não empurra
+ * produto. NÃO provam que o app é bom. Apresentar isso numa página de venda
+ * de app sem dizer de onde vieram faria o leitor entender que são usuários do
+ * produto, e a página inteira foi construída sobre não fazer isso.
+ *
+ * POR QUE ESTES QUATRO dos seis: são os que falam do que a página já afirma
+ * duas seções acima, a independência. "Não teve produto sendo empurrado",
+ * "sem vender nada", "vale por vários anos de conversa com gerente" e a
+ * leitura crítica da carteira. Os outros dois falam de custo e de ajuste de
+ * carteira, que é assunto de consultoria e não desta assinatura.
+ */
+const DEPOIMENTOS: { texto: string; nome: string; quem: string }[] = [
+  {
+    texto:
+      "O melhor: não teve produto sendo empurrado. Foi análise honesta.",
+    nome: "João P.",
+    quem: "engenheiro, MG",
+  },
+  {
+    texto:
+      "A devolutiva foi um divisor. Pela primeira vez alguém sentou comigo explicando meu patrimônio inteiro, sem pressa e sem vender nada.",
+    nome: "Felipe A.",
+    quem: "executivo, SP",
+  },
+  {
+    texto: "Vale por vários anos de conversa com gerente.",
+    nome: "Ana B.",
+    quem: "empresária, PR",
+  },
+  {
+    texto:
+      "Achei que ia receber um resumo bonito. Recebi uma leitura crítica que mudou como eu enxergava metade da minha carteira.",
+    nome: "Ricardo M.",
+    quem: "empresário, SP",
+  },
+];
+
 const PROVAS: { destaque: string; titulo: string; texto: string }[] = [
   {
     destaque: "Zero",
@@ -2037,11 +2090,24 @@ export default function FincashPage() {
               pilar do site. O endereço é o da Rua Seara, 26, em Sumaré. Os
               perfis citados são os seis que o site lista como atendidos.
 
-              ⚠️ O QUE CONTINUA FORA, e continua de propósito: nome de sócio,
-              ano de fundação, quantidade de consultores, número de clientes,
-              patrimônio sob gestão, prêmio e certificação. Nada disso está
-              escrito em lugar nenhum que dê para conferir, e inventar aqui
-              derrubaria a seção 14 inteira.
+              OS NOMES DOS SÓCIOS ENTRARAM, e entraram como legenda de foto:
+              Leonardo Freitas e Jefferson Freitas, identificados pelo site
+              oficial da casa como Novare Investimentos e Nord Wealth B2B.
+              Nome e vínculo é exatamente o que o site diz, e é exatamente o
+              que está escrito aqui.
+
+              A PARCERIA COM A NORD ganhou bloco próprio, com os números NO
+              NOME DELA. "Uma das maiores casas de análise independente do
+              Brasil", "10+ anos" e "1 milhão de investidores impactados" são
+              da Nord, não da Novare, e a frase que abre o bloco diz isso antes
+              de qualquer número aparecer. Número emprestado sem dono vira
+              número inflado duas seções adiante.
+
+              ⚠️ O QUE CONTINUA FORA, e continua de propósito: cargo, formação
+              e certificação dos sócios, ano de fundação, quantidade de
+              consultores, número de clientes, patrimônio sob gestão e prêmio.
+              Nada disso está escrito em lugar nenhum que dê para conferir, e
+              inventar aqui derrubaria a seção 14 inteira.
 
               A REVISÃO TRIMESTRAL segue citada de `ASSINATURA_INCLUI[0]`, e
               não reescrita à mão: duas promessas com palavras diferentes na
@@ -2059,13 +2125,26 @@ export default function FincashPage() {
                 <div className="relative aspect-[5/4] w-full overflow-hidden rounded-2xl lg:aspect-square">
                   <Image
                     src="/marca/novare-site/socios-novare-alta.jpg"
-                    alt="Dois sócios da Novare sentados lado a lado à mesa de reunião, de terno, olhando para a câmera."
+                    alt="Leonardo Freitas e Jefferson Freitas, sócios da Novare, sentados lado a lado à mesa de reunião, de terno, olhando para a câmera."
                     fill
                     sizes="(max-width: 640px) 92vw, (max-width: 1024px) 60vw, 20rem"
                     quality={62}
                     className="object-cover"
                   />
                 </div>
+
+                {/* A LEGENDA DA FOTO, e ela existe porque a página passou a
+                    ter os nomes. O site oficial da casa identifica os dois
+                    como Novare Investimentos e Nord Wealth B2B, e é só isso
+                    que está escrito aqui: cargo, formação e certificação não
+                    aparecem em lugar nenhum que dê para conferir, então não
+                    aparecem aqui. Nome e vínculo é o que há. */}
+                <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
+                  <span className="font-display font-semibold text-primary">
+                    Leonardo Freitas e Jefferson Freitas
+                  </span>
+                  , sócios da Novare Investimentos e da Nord Wealth B2B.
+                </p>
 
                 {/* Linha fina com filete, nunca número grande: destaque
                     numérico aqui viraria a mesma família da seção 14, que fica
@@ -2162,6 +2241,51 @@ export default function FincashPage() {
                   é estreito de propósito, e é o único item desta assinatura que
                   software nenhum entrega.
                 </p>
+
+                {/* A PARCERIA COM A NORD. Três linhas separadas por filete
+                    vertical, e nunca número grande em laranja: o destaque
+                    numérico desta página é da seção 14, e repeti-lo aqui
+                    faria os números da Nord parecerem da Novare. A frase de
+                    cima é obrigatória e não é letra miúda: são números da
+                    Nord. */}
+                <div className="mt-5 rounded-2xl border border-border bg-gelo p-4">
+                  <p className="text-xs leading-relaxed text-muted-foreground">
+                    <span className="font-display font-semibold text-primary">
+                      A casa é parceira da Nord Wealth.
+                    </span>{" "}
+                    Os três números abaixo são da Nord, e não da Novare nem
+                    deste app. Eles dizem com quem a casa anda, e nada sobre
+                    quantas pessoas usam o FINCASH.
+                  </p>
+                  <dl className="mt-3 grid gap-3 border-t border-border pt-3 sm:grid-cols-3 sm:gap-0 sm:divide-x sm:divide-border">
+                    {[
+                      {
+                        chave: "Uma das maiores",
+                        valor: "casas de análise independente do Brasil",
+                      },
+                      {
+                        chave: "10+ anos",
+                        valor: "de análise independente no mercado brasileiro",
+                      },
+                      {
+                        chave: "1 milhão",
+                        valor: "de investidores impactados pelo conteúdo Nord",
+                      },
+                    ].map((n) => (
+                      <div key={n.chave} className="sm:px-4 sm:first:pl-0">
+                        <dt className="font-display text-sm font-semibold leading-snug text-primary">
+                          {n.chave}
+                        </dt>
+                        <dd className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
+                          {n.valor}
+                        </dd>
+                      </div>
+                    ))}
+                  </dl>
+                  <p className="mt-3 border-t border-border pt-3 text-xs leading-relaxed text-muted-foreground">
+                    Renato Breia e Marília Fontes aparecem pela Nord Wealth.
+                  </p>
+                </div>
 
                 {/* GANCHO, não resumo: a seção seguinte abre justamente com a
                     revisão escrita sobre o mês medido. Dizer a frase inteira
@@ -2378,10 +2502,33 @@ export default function FincashPage() {
           </section>
 
           {/* ====================================== 14. CREDIBILIDADE === */}
+          {/* ⚠️ A FRASE DE ABERTURA FOI REESCRITA, NÃO APAGADA, e a diferença
+              importa. A versão anterior dizia que aqui não haveria depoimento
+              nenhum. A página passou a mostrar depoimento, então aquela frase
+              viraria mentira em uma linha. O que ela prometia de verdade
+              continua valendo e continua escrito: sobre O APP não há
+              depoimento, porque não há nenhum coletado, e número de usuário
+              continua fora porque seria fácil de escrever e impossível de
+              conferir.
+
+              OS DEPOIMENTOS SÃO DA CONSULTORIA, e a página diz isso no título
+              do bloco, em corpo de texto, antes de qualquer aspa. Não em letra
+              miúda embaixo: quem lê só os títulos precisa sair sabendo que
+              essa gente não usou o FINCASH. Eles provam que existe consultor
+              de verdade do outro lado, e não que o app é bom, e é por isso que
+              o bloco vem colado nas três declarações de independência: o
+              conteúdo deles é a prova viva do "sem comissão" que a seção
+              inteira afirma.
+
+              FAMÍLIA DE LAYOUT: a citação em coluna, com filete no topo de
+              cada uma e nenhuma caixa. Não repete os cartões da seção 6 nem os
+              painéis da 13, e de propósito não tem foto: inventar rosto de
+              cliente de consultoria seria a mesma fraude que esta seção
+              recusa. */}
           <section className="pt-14 sm:pt-20">
             <TituloSecao
-              titulo="Sem número inflado, sem depoimento de encomenda"
-              apoio="Não vamos dizer quantos milhares de pessoas usam o app: seria fácil de escrever e impossível de conferir. O que dá para provar é como a casa ganha dinheiro."
+              titulo="Sem número inflado e sem depoimento de app"
+              apoio="Não vamos dizer quantos milhares de pessoas usam o FINCASH: seria fácil de escrever e impossível de conferir. Nenhuma aspa desta página fala do app, porque não há depoimento de usuário coletado. O que dá para mostrar é como a casa ganha dinheiro, e quem já sentou com ela."
             />
 
             <dl className="mt-8 divide-y divide-border border-y border-border">
@@ -2404,6 +2551,38 @@ export default function FincashPage() {
                 </div>
               ))}
             </dl>
+
+            {/* O ENQUADRAMENTO VEM ANTES DAS ASPAS, sempre. */}
+            <div className="mt-10">
+              <h3 className="font-display text-xl font-semibold leading-snug tracking-tight text-primary sm:text-2xl">
+                Quem fala aqui é cliente da consultoria, não do app.
+              </h3>
+              <p className="mt-3 max-w-3xl text-sm leading-relaxed text-muted-foreground">
+                As quatro falas abaixo estão publicadas no site da Novare e são
+                de gente que contratou a consultoria da casa. Nenhuma dessas
+                pessoas usou o FINCASH, e por isso elas não provam nada sobre o
+                app. Elas provam a única coisa que software nenhum entrega e
+                que esta página vende: existe consultor de verdade do outro
+                lado, e ele não vive de comissão. Repare no que eles contam sem
+                serem perguntados.
+              </p>
+
+              <ul className="mt-7 grid gap-x-8 gap-y-7 sm:grid-cols-2">
+                {DEPOIMENTOS.map((d) => (
+                  <li key={d.nome} className="border-t border-border pt-5">
+                    <blockquote className="font-display text-base leading-relaxed text-primary">
+                      &ldquo;{d.texto}&rdquo;
+                    </blockquote>
+                    <p className="mt-3 text-xs text-muted-foreground">
+                      <span className="font-semibold text-primary">
+                        {d.nome}
+                      </span>
+                      , {d.quem}. Cliente da consultoria da Novare.
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </section>
 
           {/* ============================================ 15. OS PLANOS === */}

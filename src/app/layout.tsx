@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Sora } from "next/font/google";
+import { DM_Sans } from "next/font/google";
 import { LuzDoCursor } from "@/components/LuzDoCursor";
 import { InclinaAoCursor } from "@/components/InclinaAoCursor";
 import { FitaProgresso } from "@/components/FitaProgresso";
@@ -8,21 +8,29 @@ import { ConviteDeSaida } from "@/components/ConviteDeSaida";
 import { SITE_URL } from "@/lib/site";
 import "./globals.css";
 
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-inter",
-  display: "swap",
-});
-
 /**
- * Display do Hub: Sora — mesma fonte do Nord Liberta, a referência de
- * UX/UI que a Novare mandou seguir. Sans geométrica moderna, tech e limpa;
- * corpo segue Inter. (Cores permanecem no navy+laranja da marca Novare.)
+ * DM Sans, uma família só, corpo e display.
+ *
+ * O Hub vinha de Inter (corpo) + Sora (display) — Sora herdada do Nord
+ * Liberta, uma referência de UX que não é da casa. Só que o site oficial da
+ * Novare (diagnostico.novareapp.com.br) usa DM Sans em tudo e NÃO tem fonte
+ * de display separada. Quem saía do site e entrava no Hub trocava de
+ * tipografia duas vezes; agora nenhuma.
+ *
+ * Manter Sora só no display era defensável — os 436 `font-display` do Hub
+ * foram ajustados a olho com o tracking dela. Mas isso preservaria
+ * justamente a fonte que não é da marca no lugar mais visível da página: o
+ * título. Fidelidade ganha, e o custo se paga em duas linhas de ajuste de
+ * tracking no `globals.css`.
+ *
+ * Sem `weight`: é fonte variável (wght 100–1000), então o eixo inteiro vem
+ * num arquivo só — o que importa porque o Hub usa de 400 a 800, e uma lista
+ * fixa de pesos arredondaria os 100 `font-extrabold` para 700. Itálico fica
+ * de fora de propósito: seriam dois arquivos para zero ocorrência no código.
  */
-const sora = Sora({
+const dmSans = DM_Sans({
   subsets: ["latin"],
-  variable: "--font-sora",
-  weight: ["500", "600", "700", "800"],
+  variable: "--font-dm-sans",
   display: "swap",
 });
 
@@ -74,7 +82,7 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="pt-BR" className={`${inter.variable} ${sora.variable}`}>
+    <html lang="pt-BR" className={dmSans.variable}>
       <body>
         {children}
         <LuzDoCursor />
