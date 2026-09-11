@@ -249,7 +249,7 @@ export function BarraLateralFincash({
   const classeAlinha = recolhida
     ? "justify-center"
     : "justify-center lg:justify-start";
-  const classeRodape = `flex min-h-11 w-full items-center gap-3 rounded-xl px-3 py-2 text-xs font-medium text-muted-foreground outline-none transition-colors hover:bg-gelo hover:text-primary focus-visible:ring-2 focus-visible:ring-ciano motion-reduce:transition-none ${classeAlinha}`;
+  const classeRodape = `flex min-h-9 w-full items-center gap-3 rounded-xl px-3 py-1.5 text-xs font-medium text-white/70 outline-none transition-colors hover:bg-white/10 hover:text-white focus-visible:ring-2 focus-visible:ring-ciano motion-reduce:transition-none ${classeAlinha}`;
 
   function Secao({ titulo, telas }: { titulo: string; telas: Tela[] }) {
     return (
@@ -260,7 +260,7 @@ export function BarraLateralFincash({
             recebe o nome do grupo pelo `aria-label` da lista abaixo. */}
         <p
           aria-hidden
-          className={`mb-1 mt-3 px-3 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground ${
+          className={`mb-0.5 mt-2 px-3 text-[10px] font-semibold uppercase tracking-[0.12em] text-white/45 ${
             recolhida ? "hidden" : "hidden lg:block"
           }`}
         >
@@ -271,7 +271,7 @@ export function BarraLateralFincash({
           className={`mx-auto my-2 w-8 border-border ${recolhida ? "" : "lg:hidden"}`}
         />
 
-        <ul aria-label={titulo} className="flex flex-col gap-0.5">
+        <ul aria-label={titulo} className="flex flex-col">
           {telas.map((t) => {
             const ativo = estaAtivo(caminho, t);
 
@@ -285,10 +285,10 @@ export function BarraLateralFincash({
                   title={t.rotulo}
                   aria-label={t.rotulo}
                   aria-current={ativo ? "page" : undefined}
-                  className={`relative flex min-h-11 items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ciano motion-reduce:transition-none ${classeAlinha} ${
+                  className={`relative flex min-h-9 items-center gap-3 rounded-xl px-3 py-1.5 text-sm font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ciano motion-reduce:transition-none ${classeAlinha} ${
                     ativo
-                      ? "bg-primary text-white shadow-[0_8px_20px_-10px_hsl(215_50%_23%_/_0.7)]"
-                      : "text-muted-foreground hover:bg-gelo hover:text-primary"
+                      ? "bg-white text-primary shadow-[0_8px_20px_-10px_hsl(215_60%_8%_/_0.8)]"
+                      : "text-white/75 hover:bg-white/10 hover:text-white"
                   }`}
                 >
                   {/* Traço ciano à esquerda do item aceso. O fundo navy já
@@ -304,7 +304,7 @@ export function BarraLateralFincash({
                       casa. Aceso, o item é navy sólido e o ícone some dentro
                       dele — como tem de ser. */}
                   <t.Icone
-                    className={`h-[18px] w-[18px] shrink-0 ${ativo ? "" : "text-ciano"}`}
+                    className={`h-[18px] w-[18px] shrink-0 ${ativo ? "" : "text-ciano-claro"}`}
                     strokeWidth={2}
                   />
                   <span className={`${classeRotulo} truncate`}>{t.rotulo}</span>
@@ -321,7 +321,7 @@ export function BarraLateralFincash({
     <aside
       /* Sem `backdrop-blur` de propósito: a lateral é a moldura fixa do app, e
          moldura translúcida fica suja quando o conteúdo rola por trás dela. */
-      className={`nao-imprimir fixed inset-y-0 left-0 z-30 hidden w-[76px] flex-col border-r border-border/70 bg-white/95 md:flex ${
+      className={`nao-imprimir fixed inset-y-0 left-0 z-30 hidden w-[76px] flex-col border-r border-white/10 bg-primary md:flex ${
         recolhida ? "" : "lg:w-64"
       }`}
     >
@@ -329,19 +329,19 @@ export function BarraLateralFincash({
       <Link
         href="/fincash/app"
         aria-label="FINCASH, painel"
-        className={`flex min-h-14 shrink-0 items-center gap-2 border-b border-border/60 px-4 outline-none focus-visible:ring-2 focus-visible:ring-ciano ${classeAlinha}`}
+        className={`flex min-h-14 shrink-0 items-center gap-2 border-b border-white/10 px-4 outline-none focus-visible:ring-2 focus-visible:ring-ciano ${classeAlinha}`}
       >
         {/* O emblema é navy→ciano, e não laranja: laranja neste app é AÇÃO (o
             botão de lançar), e uma marca laranja competiria com o único botão
             que a pessoa realmente precisa achar. */}
         <span
           aria-hidden
-          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[linear-gradient(140deg,hsl(215_50%_23%),hsl(197_70%_38%))] text-white shadow-[0_4px_10px_-4px_hsl(215_50%_23%/0.7)]"
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/10 text-white ring-1 ring-white/20"
         >
           <Wallet className="h-4 w-4" strokeWidth={2.4} />
         </span>
         <span
-          className={`${classeRotulo} font-display text-sm font-semibold tracking-[0.14em] text-primary`}
+          className={`${classeRotulo} font-display text-sm font-semibold tracking-[0.14em] text-white`}
         >
           FINCASH
         </span>
@@ -356,7 +356,7 @@ export function BarraLateralFincash({
           aceita. Alto também é onde a mão já está: quem acabou de clicar na
           marca não atravessa a tela para encolher o menu. */}
       <div
-        className={`hidden shrink-0 px-2 pt-2 lg:block ${recolhida ? "" : "text-right"}`}
+        className={`hidden shrink-0 px-2 pt-1.5 lg:block ${recolhida ? "" : "text-right"}`}
       >
         <button
           type="button"
@@ -364,7 +364,7 @@ export function BarraLateralFincash({
           aria-pressed={recolhida}
           title={recolhida ? "Expandir o menu" : "Recolher o menu"}
           aria-label={recolhida ? "Expandir o menu" : "Recolher o menu"}
-          className="inline-flex h-11 w-11 items-center justify-center rounded-xl text-muted-foreground outline-none transition-colors hover:bg-gelo hover:text-primary focus-visible:ring-2 focus-visible:ring-ciano motion-reduce:transition-none"
+          className="inline-flex h-9 w-9 items-center justify-center rounded-xl text-white/60 outline-none transition-colors hover:bg-white/10 hover:text-white focus-visible:ring-2 focus-visible:ring-ciano motion-reduce:transition-none"
         >
           {recolhida ? (
             <ChevronsRight className="h-[18px] w-[18px]" strokeWidth={2} />
@@ -377,7 +377,7 @@ export function BarraLateralFincash({
       {/* ------------------------------------------------------- as telas -- */}
       <nav
         aria-label="Telas do FINCASH"
-        className="flex-1 overflow-y-auto px-2 py-1"
+        className="flex-1 overflow-y-auto px-2 py-0.5"
       >
         <ul className="flex flex-col">
           <Secao titulo="Todo dia" telas={DO_DIA} />
@@ -390,7 +390,7 @@ export function BarraLateralFincash({
           reduzido ao celular, elas descem para cá — que é onde se espera
           achá-las num app de trilho lateral: longe dos itens de navegação,
           para ninguém sair da conta mirando o "WhatsApp". */}
-      <div className="shrink-0 border-t border-border/60 px-2 py-2">
+      <div className="shrink-0 border-t border-white/10 px-2 py-1.5">
         <Link
           href="/"
           title="Voltar ao Workspace"
@@ -398,7 +398,7 @@ export function BarraLateralFincash({
           className={classeRodape}
         >
           <ChevronsLeft
-            className="h-[18px] w-[18px] shrink-0 text-ciano"
+            className="h-[18px] w-[18px] shrink-0 text-ciano-claro"
             strokeWidth={2}
           />
           <span className={`${classeRotulo} truncate`}>Voltar ao Workspace</span>
@@ -412,7 +412,7 @@ export function BarraLateralFincash({
             className={classeRodape}
           >
             <LogOut
-              className="h-[18px] w-[18px] shrink-0 text-ciano"
+              className="h-[18px] w-[18px] shrink-0 text-ciano-claro"
               strokeWidth={2}
             />
             {/* Expandido, o nome vem junto: é o que transforma um botão
