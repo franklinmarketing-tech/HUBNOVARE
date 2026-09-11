@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -244,12 +245,14 @@ export function BarraLateralFincash({
   /* Rótulo só existe quando há largura E a pessoa não recolheu. Em `md` ele
      nunca aparece — por isso `hidden lg:inline`, e não só `inline`. */
   const classeRotulo = recolhida ? "hidden" : "hidden lg:inline";
+  /** O par de `classeRotulo`: visivel justamente quando o rotulo nao cabe. */
+  const classeEmblema = recolhida ? "flex" : "flex lg:hidden";
   /* Recolhido o item centraliza sempre; expandido, só até `lg`, porque abaixo
      disso o trilho ainda é a versão estreita. */
   const classeAlinha = recolhida
     ? "justify-center"
     : "justify-center lg:justify-start";
-  const classeRodape = `flex min-h-9 w-full items-center gap-3 rounded-xl px-3 py-1.5 text-xs font-medium text-white/70 outline-none transition-colors hover:bg-white/10 hover:text-white focus-visible:ring-2 focus-visible:ring-ciano motion-reduce:transition-none ${classeAlinha}`;
+  const classeRodape = `flex min-h-8 w-full items-center gap-3 rounded-lg px-3 py-1 text-xs font-medium text-white/70 outline-none transition-colors hover:bg-white/10 hover:text-white focus-visible:ring-2 focus-visible:ring-ciano motion-reduce:transition-none ${classeAlinha}`;
 
   function Secao({ titulo, telas }: { titulo: string; telas: Tela[] }) {
     return (
@@ -260,7 +263,7 @@ export function BarraLateralFincash({
             recebe o nome do grupo pelo `aria-label` da lista abaixo. */}
         <p
           aria-hidden
-          className={`mb-0.5 mt-2 px-3 text-[10px] font-semibold uppercase tracking-[0.12em] text-white/45 ${
+          className={`mb-0.5 mt-1.5 px-3 text-[10px] font-semibold uppercase tracking-[0.12em] text-white/45 ${
             recolhida ? "hidden" : "hidden lg:block"
           }`}
         >
@@ -285,7 +288,7 @@ export function BarraLateralFincash({
                   title={t.rotulo}
                   aria-label={t.rotulo}
                   aria-current={ativo ? "page" : undefined}
-                  className={`relative flex min-h-9 items-center gap-3 rounded-xl px-3 py-1.5 text-sm font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ciano motion-reduce:transition-none ${classeAlinha} ${
+                  className={`relative flex min-h-8 items-center gap-3 rounded-lg px-3 py-1 text-sm font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ciano motion-reduce:transition-none ${classeAlinha} ${
                     ativo
                       ? "bg-white text-primary shadow-[0_8px_20px_-10px_hsl(215_60%_8%_/_0.8)]"
                       : "text-white/75 hover:bg-white/10 hover:text-white"
@@ -325,28 +328,57 @@ export function BarraLateralFincash({
         recolhida ? "" : "lg:w-64"
       }`}
     >
-      {/* -------------------------------------------------------- a marca -- */}
-      <Link
-        href="/fincash/app"
-        aria-label="FINCASH, painel"
-        className={`flex min-h-14 shrink-0 items-center gap-2 border-b border-white/10 px-4 outline-none focus-visible:ring-2 focus-visible:ring-ciano ${classeAlinha}`}
-      >
-        {/* O emblema é navy→ciano, e não laranja: laranja neste app é AÇÃO (o
-            botão de lançar), e uma marca laranja competiria com o único botão
-            que a pessoa realmente precisa achar. */}
-        <span
-          aria-hidden
-          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/10 text-white ring-1 ring-white/20"
-        >
-          <Wallet className="h-4 w-4" strokeWidth={2.4} />
-        </span>
-        <span
-          className={`${classeRotulo} font-display text-sm font-semibold tracking-[0.14em] text-white`}
-        >
-          FINCASH
-        </span>
-      </Link>
+      {/* ------------------------------------------------- marca e recolher -- */}
+      {/* Os dois na MESMA linha, e nao em duas.
 
+          A marca da NOVARE volta porque ela sumiu junto com o cabecalho
+          horizontal, e o Hub abriga varios apps na mesma casca: sem ela, o
+          FINCASH parecia um produto solto de outra empresa. A hierarquia e a
+          da casa — Novare primeiro, produto depois.
+
+          E juntar o recolher aqui devolve os ~42px que a linha propria dele
+          custava. Era exatamente o que faltava para as catorze telas nunca
+          rolarem, inclusive em janela baixa. Altura ganha tirando linha, nao
+          espremendo item. */}
+      <div className="flex min-h-12 shrink-0 items-center gap-2 border-b border-white/10 px-3">
+        <Link
+          href="/fincash/app"
+          aria-label="FINCASH, da Novare. Ir para o painel"
+          className={`flex min-w-0 flex-1 items-center gap-2 rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-ciano ${classeAlinha}`}
+        >
+          {/* A marca da casa em branco: o arquivo e escuro, e sobre o navy do
+              trilho ele sumiria. `brightness-0 invert` vira branco puro sem
+              precisar de um segundo arquivo para manter em sincronia. */}
+          <Image
+            src="/marca/logo-novare.png"
+            alt=""
+            width={96}
+            height={24}
+            aria-hidden
+            className={`${classeRotulo} h-5 w-auto shrink-0 brightness-0 invert`}
+          />
+          <span
+            aria-hidden
+            className={`${classeRotulo} h-3.5 w-px shrink-0 bg-white/25`}
+          />
+          <span
+            className={`${classeRotulo} font-display text-[13px] font-semibold tracking-[0.1em] text-white`}
+          >
+            FINCASH
+          </span>
+          {/* O emblema do produto aparece SO quando o trilho esta recolhido.
+              Expandido, "NOVARE | FINCASH" ja identifica tudo, e o emblema a
+              mais era justamente o que espremia a palavra ate ela truncar em
+              "FINCA...". Recolhido, ele e o unico sobrevivente: a marca da
+              casa fica ilegivel em 76px, e o que precisa continuar
+              reconhecivel e o app em que a pessoa esta. */}
+          <span
+            aria-hidden
+            className={`${classeEmblema} h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-white/10 text-white ring-1 ring-white/20`}
+          >
+            <Wallet className="h-3.5 w-3.5" strokeWidth={2.4} />
+          </span>
+        </Link>
       {/* O recolher só existe a partir de `lg`: abaixo disso o trilho já está
           na largura mínima e o botão não teria efeito.
 
@@ -355,9 +387,7 @@ export function BarraLateralFincash({
           inteira, do Hub todo, que cobre o rodapé da lateral enquanto não for
           aceita. Alto também é onde a mão já está: quem acabou de clicar na
           marca não atravessa a tela para encolher o menu. */}
-      <div
-        className={`hidden shrink-0 px-2 pt-1.5 lg:block ${recolhida ? "" : "text-right"}`}
-      >
+      <div className="hidden shrink-0 lg:block">
         <button
           type="button"
           onClick={aoAlternar}
@@ -372,6 +402,7 @@ export function BarraLateralFincash({
             <ChevronsLeft className="h-[18px] w-[18px]" strokeWidth={2} />
           )}
         </button>
+        </div>
       </div>
 
       {/* ------------------------------------------------------- as telas -- */}
@@ -390,7 +421,7 @@ export function BarraLateralFincash({
           reduzido ao celular, elas descem para cá — que é onde se espera
           achá-las num app de trilho lateral: longe dos itens de navegação,
           para ninguém sair da conta mirando o "WhatsApp". */}
-      <div className="shrink-0 border-t border-white/10 px-2 py-1.5">
+      <div className="shrink-0 border-t border-white/10 px-2 py-1">
         <Link
           href="/"
           title="Voltar ao Workspace"
