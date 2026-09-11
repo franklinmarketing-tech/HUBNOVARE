@@ -5,6 +5,7 @@ import {
   Building2,
   UserCog,
   Database,
+  Eye,
   Scale,
   Share2,
   Timer,
@@ -18,7 +19,7 @@ import { Cabecalho } from "@/components/Cabecalho";
 export const metadata: Metadata = {
   title: "Política de Privacidade",
   description:
-    "Como a Novare Consultoria de Investimentos coleta, usa, compartilha e protege os dados pessoais tratados no Workspace Novare, em conformidade com a LGPD (Lei nº 13.709/2018).",
+    "Como a Novare Consultoria de Investimentos coleta, usa, compartilha e protege os dados pessoais tratados no Workspace Novare, incluindo quem da Novare enxerga os dados financeiros do FINCASH, em conformidade com a LGPD (Lei nº 13.709/2018).",
   alternates: { canonical: "/privacidade" },
 };
 
@@ -47,7 +48,7 @@ export default function PrivacidadePage() {
           Política de Privacidade
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Última atualização: Agosto de 2026 • Novare Consultoria de Investimentos
+          Última atualização: Setembro de 2026 • Novare Consultoria de Investimentos
         </p>
 
         <p className="mt-6 text-sm leading-relaxed text-slate-700">
@@ -133,11 +134,97 @@ export default function PrivacidadePage() {
               pediu.
             </p>
             <p className="mt-3">
+              <strong>Dados financeiros do FINCASH.</strong> Se você usa o
+              FINCASH, guardamos na sua conta o que você registra ali: contas e
+              respectivos saldos, cartões e faturas, cada lançamento com data,
+              valor, categoria e a descrição que você escreveu, recorrências,
+              orçamento por categoria, metas e aportes, patrimônio e
+              investimentos (valor aplicado e instituição) e dívidas (credor,
+              tipo, saldo devedor, taxa de juros, parcelas, situação de atraso e
+              pagamentos). Se você vincular o assistente de WhatsApp, guardamos
+              também o número de telefone vinculado e um registro das mensagens
+              trocadas com o assistente, com o texto exatamente como você
+              escreveu.
+            </p>
+            <p className="mt-3">
               <strong>Dados técnicos e de uso.</strong> Para operar e proteger o
               serviço, registramos informações técnicas básicas geradas pelo uso
               (por exemplo, dados de sessão e de segurança). Guardamos também
               preferências e o estado das ferramentas no seu navegador e em nossa
-              base (ver seções 8 e 9).
+              base (ver seções 9 e 10).
+            </p>
+          </section>
+
+          {/*
+            Esta seção existe porque a policy de RLS "fincash: equipe le" dá
+            leitura dos dados financeiros a admin e equipe. Enquanto o banco
+            fizer isso, o texto precisa dizer isso: o FAQ da landing do FINCASH
+            já admite a leitura, e uma política que omitisse viraria contradição
+            entre duas páginas do mesmo produto.
+          */}
+          <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+            <div className="flex items-center gap-3">
+              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                <Eye className="h-4 w-4" />
+              </span>
+              <h2 className="font-display text-lg font-bold text-slate-900">
+                4. Quem da Novare lê os seus dados financeiros
+              </h2>
+            </div>
+            <p className="mt-3">
+              Esta é a parte que a gente prefere dizer com todas as letras:{" "}
+              <strong>
+                a equipe da Novare consegue ler os dados que você registra no
+                FINCASH
+              </strong>
+              . Não é um efeito colateral, é como o serviço funciona. A revisão
+              do seu plano é escrita por uma pessoa, e ela não tem como escrever
+              sobre um dinheiro que não enxerga.
+            </p>
+            <p className="mt-3">
+              <strong>Quem acessa.</strong> Somente os usuários com papel{" "}
+              <code className="rounded bg-slate-100 px-1 py-0.5 text-xs">admin</code>{" "}
+              ou{" "}
+              <code className="rounded bg-slate-100 px-1 py-0.5 text-xs">equipe</code>{" "}
+              no Workspace, ou seja, a equipe interna da Novare e os consultores.
+              Nenhum outro cliente enxerga a sua conta: a regra do banco de dados
+              amarra cada linha ao usuário dono.
+            </p>
+            <p className="mt-3">
+              <strong>O que exatamente.</strong> Lançamento a lançamento, com a
+              descrição que você digitou; saldo das contas e fatura dos cartões;
+              orçamento e categorias; metas, aportes, patrimônio e investimentos,
+              com valor aplicado e instituição; e as suas dívidas, com credor,
+              saldo devedor, taxa de juros, prazo e situação de atraso.
+            </p>
+            <p className="mt-3">
+              <strong>Para quê.</strong> Para a revisão do consultor e para o
+              suporte que você pedir. Não usamos esses dados para vender produto
+              financeiro, e a Novare não recebe comissão de banco, corretora ou
+              seguradora. Também não vendemos nem cedemos esses dados para
+              publicidade.
+            </p>
+            <p className="mt-3">
+              <strong>O que a equipe não faz.</strong> A permissão é de leitura e
+              só. Ninguém da Novare cria, altera ou apaga um lançamento, uma
+              meta, um investimento ou uma dívida sua: o banco de dados recusa a
+              escrita de quem não é o dono do dado. Quem edita a sua vida
+              financeira é você.
+            </p>
+            <p className="mt-3">
+              <strong>A exceção do WhatsApp.</strong> As duas tabelas do
+              assistente de WhatsApp ficam de fora dessa leitura, de propósito. O
+              registro de mensagens guarda o texto cru do que você escreveu, que
+              costuma ir muito além de valor e categoria, e o vínculo do telefone
+              guarda o código de confirmação. A equipe não lê nenhum dos dois. O
+              que o consultor precisa ver é o lançamento que a mensagem gerou, e
+              esse está na sua lista de lançamentos como qualquer outro. Só você
+              vê o histórico das suas mensagens no app.
+            </p>
+            <p className="mt-3">
+              Se você não quiser essa leitura, o caminho honesto é não manter os
+              dados aqui: fale com o nosso Encarregado (seção 11) e apagamos a
+              sua base do FINCASH.
             </p>
           </section>
 
@@ -148,7 +235,7 @@ export default function PrivacidadePage() {
                 <Scale className="h-4 w-4" />
               </span>
               <h2 className="font-display text-lg font-bold text-slate-900">
-                4. Para que usamos e com qual base legal
+                5. Para que usamos e com qual base legal
               </h2>
             </div>
             <p className="mt-3">
@@ -171,7 +258,7 @@ export default function PrivacidadePage() {
               <li>
                 <strong>Consentimento</strong> (art. 7º, I) — para tratamentos
                 que dependem da sua autorização, como enviar seu conteúdo para
-                processamento por inteligência artificial (ver seção 5) e usar
+                processamento por inteligência artificial (ver seção 6) e usar
                 cookies/armazenamento não essenciais. Você pode revogar o
                 consentimento a qualquer momento.
               </li>
@@ -190,7 +277,7 @@ export default function PrivacidadePage() {
                 <Share2 className="h-4 w-4" />
               </span>
               <h2 className="font-display text-lg font-bold text-slate-900">
-                5. Compartilhamento e transferência internacional
+                6. Compartilhamento e transferência internacional
               </h2>
             </div>
             <p className="mt-3">
@@ -231,7 +318,7 @@ export default function PrivacidadePage() {
                 <Timer className="h-4 w-4" />
               </span>
               <h2 className="font-display text-lg font-bold text-slate-900">
-                6. Por quanto tempo guardamos
+                7. Por quanto tempo guardamos
               </h2>
             </div>
             <p className="mt-3">
@@ -243,6 +330,26 @@ export default function PrivacidadePage() {
               guarda por prazo maior (por exemplo, obrigações fiscais ou de
               defesa em processos).
             </p>
+            {/*
+              Não existe rotina de expurgo do log de mensagens no código nem no
+              SQL: a única faxina automática é a dos códigos de vínculo vencidos
+              (`fin_whatsapp_limpar_pendentes`). Enquanto o dono não definir um
+              prazo e alguém não implementar o expurgo, prometer prazo aqui
+              seria promessa que o sistema não cumpre.
+            */}
+            <p className="mt-3">
+              <strong>Dados do FINCASH e do assistente de WhatsApp.</strong> Os
+              seus lançamentos, metas, investimentos e dívidas ficam guardados
+              enquanto a sua conta existir, porque é deles que sai o histórico e
+              a revisão do consultor. O registro das mensagens trocadas com o
+              assistente de WhatsApp, hoje, também fica guardado por tempo
+              indeterminado: ainda não temos prazo fixo nem rotina automática de
+              descarte, e preferimos dizer isso a prometer uma limpeza que não
+              acontece. Códigos de confirmação de vínculo não usados são
+              apagados pouco depois de vencerem. Você pode pedir a exclusão da
+              sua base financeira ou do histórico de mensagens a qualquer
+              momento pelo canal da seção 11.
+            </p>
           </section>
 
           {/* (g) Direitos do titular */}
@@ -252,7 +359,7 @@ export default function PrivacidadePage() {
                 <ShieldCheck className="h-4 w-4" />
               </span>
               <h2 className="font-display text-lg font-bold text-slate-900">
-                7. Seus direitos como titular
+                8. Seus direitos como titular
               </h2>
             </div>
             <p className="mt-3">
@@ -266,7 +373,16 @@ export default function PrivacidadePage() {
                 Solicitar anonimização, bloqueio ou eliminação de dados
                 desnecessários ou tratados em desconformidade.
               </li>
-              <li>Solicitar a portabilidade dos dados a outro fornecedor.</li>
+              <li>
+                Solicitar a portabilidade dos dados a outro fornecedor. No
+                FINCASH, você mesmo pode levar os seus dados embora: estamos
+                entregando a exportação em arquivo CSV de tudo que você
+                registrou, lançamentos, orçamento, metas, patrimônio e dívidas,
+                em formato que abre no Excel, no Google Planilhas ou em outro
+                aplicativo financeiro. Enquanto o botão não estiver disponível na
+                sua tela, peça a exportação pelo canal da seção 11 e nós
+                geramos.
+              </li>
               <li>
                 Obter informação sobre com quem compartilhamos seus dados.
               </li>
@@ -284,7 +400,7 @@ export default function PrivacidadePage() {
                 <KeyRound className="h-4 w-4" />
               </span>
               <h2 className="font-display text-lg font-bold text-slate-900">
-                8. Segurança
+                9. Segurança
               </h2>
             </div>
             <p className="mt-3">
@@ -306,7 +422,7 @@ export default function PrivacidadePage() {
                 <Cookie className="h-4 w-4" />
               </span>
               <h2 className="font-display text-lg font-bold text-slate-900">
-                9. Cookies e armazenamento no navegador
+                10. Cookies e armazenamento no navegador
               </h2>
             </div>
             <p className="mt-3">
@@ -328,7 +444,7 @@ export default function PrivacidadePage() {
                 <Mail className="h-4 w-4" />
               </span>
               <h2 className="font-display text-lg font-bold text-slate-900">
-                10. Como exercer seus direitos
+                11. Como exercer seus direitos
               </h2>
             </div>
             <p className="mt-3">

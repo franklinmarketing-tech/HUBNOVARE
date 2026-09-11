@@ -378,14 +378,18 @@ async function alertaDeOrcamento(
       .eq("categoria_id", r.categoria_id)
       .eq("mes_ref", ref)
       .maybeSingle(),
-    s
-      .from("fin_lancamentos")
-      .select("valor")
-      .eq("user_id", userId)
-      .eq("categoria_id", r.categoria_id)
-      .eq("tipo", "despesa")
-      .gte("data", inicio)
-      .lte("data", fim),
+    semApagadosServico((filtrar) => {
+      let q = s
+        .from("fin_lancamentos")
+        .select("valor")
+        .eq("user_id", userId)
+        .eq("categoria_id", r.categoria_id)
+        .eq("tipo", "despesa")
+        .gte("data", inicio)
+        .lte("data", fim);
+      if (filtrar) q = q.is("apagado_em", null);
+      return q;
+    }),
   ]);
 
   const limite = Number(orc.data?.valor ?? 0);
@@ -413,12 +417,18 @@ async function responderConsulta(userId: string, c: Consulta): Promise<string> {
   }
 
   if (c.escopo === "resumo") {
-    const { data } = await s
-      .from("fin_lancamentos")
-      .select("tipo, valor, pago")
-      .eq("user_id", userId)
-      .gte("data", inicio)
-      .lte("data", fim);
+    const { data } = await semApagadosServico<
+      { tipo: string; valor: number; pago: boolean }[]
+    >((filtrar) => {
+      let q = s
+        .from("fin_lancamentos")
+        .select("tipo, valor, pago")
+        .eq("user_id", userId)
+        .gte("data", inicio)
+        .lte("data", fim);
+      if (filtrar) q = q.is("apagado_em", null);
+      return q;
+    });
 
     let entrou = 0;
     let saiu = 0;
@@ -442,7 +452,12 @@ async function responderConsulta(userId: string, c: Consulta): Promise<string> {
     .lte("data", fim);
   if (c.categoria_id) q = q.eq("categoria_id", c.categoria_id);
 
-  const { data } = await q;
+  /* A consulta já está montada acima, então o filtro entra aqui e o fallback
+     refaz sem ele. Mesmo motivo das outras: chave de serviço não vê RLS. */
+  let { data, error: erroConsulta } = await q.is("apagado_em", null);
+  if (erroConsulta && (erroConsulta as { code?: string }).code === "42703") {
+    ({ data } = await q);
+  }
   const linhas = data ?? [];
   const total = linhas.reduce((soma, l) => soma + Number(l.valor), 0);
 
@@ -500,11 +515,23 @@ async function desfazerUltimo(userId: string): Promise<string> {
 
   if (!lanc) return respostaNadaParaDesfazer();
 
-  const { error } = await s
+  /* Carimbo, não `delete`: "desfazer" pelo WhatsApp precisa mandar o
+     lançamento para a MESMA lixeira do app, senão o mesmo gesto apaga de vez
+     por um caminho e é recuperável pelo outro. O fallback para `delete` cobre
+     o banco onde `fincash_lixeira.sql` ainda não rodou. */
+  let { error } = await s
     .from("fin_lancamentos")
-    .delete()
+    .update({ apagado_em: new Date().toISOString() })
     .eq("id", alvo.lancamento_id)
     .eq("user_id", userId);
+
+  if (error && (error as { code?: string }).code === "42703") {
+    ({ error } = await s
+      .from("fin_lancamentos")
+      .delete()
+      .eq("id", alvo.lancamento_id)
+      .eq("user_id", userId));
+  }
 
   if (error) return "Não consegui apagar agora. Tente pelo app.";
 
@@ -528,6 +555,30 @@ async function desfazerUltimo(userId: string): Promise<string> {
  *
  * Nunca lança: é faxina, não pode derrubar o processamento de uma mensagem.
  */
+/**
+ * Repete a consulta sem o filtro da lixeira quando a coluna ainda não existe.
+ *
+ * POR QUE ISTO PRECISA EXISTIR AQUI TAMBÉM
+ * O resto do app fica protegido pela policy restritiva de SELECT criada em
+ * `fincash_lixeira.sql`. Este arquivo não: ele usa a chave de SERVIÇO, que
+ * passa por cima de toda RLS. Sem filtro explícito, o assistente do WhatsApp
+ * responderia "você gastou X em mercado" contando lançamento que a pessoa
+ * apagou — e aí dois lugares do mesmo app dão números diferentes, que é o
+ * defeito que faz alguém parar de confiar num app de dinheiro.
+ *
+ * O fallback existe porque `fincash_lixeira.sql` é aditivo e pode não ter sido
+ * rodado ainda: melhor responder contando o apagado do que não responder.
+ */
+async function semApagadosServico<T>(
+  consulta: (filtrar: boolean) => PromiseLike<{ data: T | null; error: unknown }>,
+) {
+  const r = await consulta(true);
+  const codigo = (r.error as { code?: string } | null)?.code;
+  if (r.error && codigo === "42703") return consulta(false);
+  return r;
+}
+
+
 export async function faxinaEventual(): Promise<void> {
   if (Math.random() > 0.02) return;
   try {

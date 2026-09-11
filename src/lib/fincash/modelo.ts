@@ -97,6 +97,14 @@ export type Lancamento = {
    *  que ela sabe que a recorrência do mês já virou lançamento e não deve ser
    *  contada duas vezes. */
   recorrencia_id?: string | null;
+  /** A lixeira (`supabase/fincash_lixeira.sql`). Nulo = vivo.
+   *
+   *  OPCIONAL pela mesma razão de `pai_id` e `ordem`: o banco de quem ainda não
+   *  rodou o aditivo não devolve a coluna, e tipo obrigatório aqui viraria
+   *  `undefined` circulando como se fosse dado. Quem lê isto quase nunca precisa
+   *  do campo — as leituras já vêm filtradas (ver `semApagados`) —, ele existe
+   *  para a tela da lixeira poder dizer há quanto tempo aquilo está lá. */
+  apagado_em?: string | null;
 };
 
 export type Recorrencia = {
@@ -223,6 +231,45 @@ export function mesesEntre(de: string, ate: string) {
 
 // ── Leitura ─────────────────────────────────────────────────────────────────
 
+// ── A lixeira, do lado da leitura ───────────────────────────────────────────
+/**
+ * TODA leitura de `fin_lancamentos` deste arquivo passa por aqui.
+ *
+ * POR QUE UM ENVELOPE, e não um `.is("apagado_em", null)` solto em cada consulta
+ * Porque o filtro só é seguro num banco que já rodou `fincash_lixeira.sql`. Num
+ * que não rodou, `.is("apagado_em", null)` é erro de coluna inexistente (42703)
+ * e derruba o PAINEL de quem só queria ver o saldo — trocar "o cliente perdeu um
+ * lançamento" por "o app não abre" não é conserto. Então tenta com o filtro e,
+ * *só* no erro específico de coluna que falta, refaz sem ele.
+ *
+ * A segunda tentativa NÃO é o comportamento normal: é a ponte para quem ainda
+ * não rodou o aditivo. Quando ele estiver rodado em todo mundo, este envelope
+ * vira uma linha só.
+ *
+ * ⚠️ Isto é a primeira tranca, não a única. A de verdade é a policy restritiva
+ * do SQL, que torna o apagado invisível para QUALQUER consulta com a chave
+ * anônima — inclusive as que vivem em arquivos que este aqui não controla
+ * (`faturas.ts`, `importar.ts`, `projecao/carga.ts`). Filtro escrito à mão
+ * protege a consulta que alguém lembrou de proteger; a policy protege as outras.
+ */
+function colunaDaLixeiraAusente(erro: unknown): boolean {
+  if (!erro || typeof erro !== "object") return false;
+  const e = erro as { code?: unknown; message?: unknown };
+  if (e.code === "42703") return true;
+  const msg = typeof e.message === "string" ? e.message.toLowerCase() : "";
+  return msg.includes("apagado_em");
+}
+
+type Resposta<T> = { data: T[] | null; error: unknown };
+
+async function semApagados<T>(
+  consulta: (filtrar: boolean) => PromiseLike<Resposta<T>>,
+): Promise<Resposta<T>> {
+  const r = await consulta(true);
+  if (r.error && colunaDaLixeiraAusente(r.error)) return consulta(false);
+  return r;
+}
+
 /**
  * Carrega um mês inteiro.
  *
@@ -234,12 +281,18 @@ export async function carregarMes(ref: string): Promise<Mes> {
   const { inicio, fim } = limitesDoMes(ref);
 
   const [lanc, contas, cartoes, cats, recs] = await Promise.all([
-    supabase
-      .from("fin_lancamentos")
-      .select("*")
-      .gte("data", inicio)
-      .lte("data", fim)
-      .order("data", { ascending: false }),
+    /* Sem o que está na lixeira — senão o mês na tela soma dinheiro que a
+       pessoa apagou, e o resumo do topo diverge do saldo da conta. */
+    semApagados((filtrar) => {
+      const q = supabase
+        .from("fin_lancamentos")
+        .select("*")
+        .gte("data", inicio)
+        .lte("data", fim);
+      return (filtrar ? q.is("apagado_em", null) : q).order("data", {
+        ascending: false,
+      });
+    }),
     supabase.from("fin_contas").select("*").eq("arquivada", false).order("nome"),
     supabase.from("fin_cartoes").select("*").eq("arquivado", false).order("nome"),
     /* Continua ordenando por NOME no banco, e não por `ordem`, mesmo depois do
@@ -268,6 +321,55 @@ export async function carregarMes(ref: string): Promise<Mes> {
 }
 
 /**
+ * A base da EXPORTAÇÃO: o histórico inteiro, sem recorte de mês.
+ *
+ * Mora aqui, e não na tela de Dados, porque é leitura de `fin_lancamentos` — e a
+ * regra desta casa é que toda leitura de lançamento passa pelo mesmo envelope de
+ * lixeira. Uma consulta ampla escrita na tela seria justamente a que ninguém
+ * lembraria de filtrar, e o CSV sairia com o que a pessoa apagou.
+ *
+ * CONTAS, CARTÕES E CATEGORIAS VÊM INCLUSIVE ARQUIVADOS, ao contrário de
+ * `carregarMes`: a planilha resolve o id em NOME, e um lançamento de dois anos
+ * atrás aponta para a conta que a pessoa já fechou. Filtrando os arquivados, a
+ * coluna "Conta" sairia vazia justamente nas linhas antigas — que são as que só
+ * existem no arquivo exportado.
+ *
+ * SEM PAGINAÇÃO, e é uma decisão consciente: o PostgREST corta em mil linhas por
+ * padrão, então o range é pedido explicitamente até um teto alto. Cinquenta mil
+ * lançamentos são vinte anos de quem lança sete por dia; acima disso o problema
+ * deixa de ser o CSV.
+ */
+export async function carregarBaseExportacao(): Promise<Mes & { saldos: Record<string, number> }> {
+  const supabase = createClient();
+
+  const [lanc, contas, cartoes, cats, recs, saldos] = await Promise.all([
+    semApagados((filtrar) => {
+      const q = supabase.from("fin_lancamentos").select("*");
+      return (filtrar ? q.is("apagado_em", null) : q)
+        .order("data", { ascending: false })
+        .range(0, 49_999);
+    }),
+    supabase.from("fin_contas").select("*").order("nome"),
+    supabase.from("fin_cartoes").select("*").order("nome"),
+    supabase.from("fin_categorias").select("*").order("nome"),
+    supabase.from("fin_recorrencias").select("*").order("dia"),
+    carregarSaldos(),
+  ]);
+
+  const erro = lanc.error ?? contas.error ?? cartoes.error ?? cats.error ?? recs.error;
+  if (erro) throw erro;
+
+  return {
+    lancamentos: (lanc.data ?? []) as Lancamento[],
+    contas: (contas.data ?? []) as Conta[],
+    cartoes: (cartoes.data ?? []) as Cartao[],
+    categorias: (cats.data ?? []) as Categoria[],
+    recorrencias: (recs.data ?? []) as Recorrencia[],
+    saldos,
+  };
+}
+
+/**
  * O saldo de cada conta, da view `fin_saldos`.
  *
  * Vem do banco de propósito: se cada tela somasse do seu jeito, uma hora duas
@@ -278,9 +380,22 @@ export async function carregarMes(ref: string): Promise<Mes> {
  */
 export async function carregarSaldos(): Promise<Record<string, number>> {
   const supabase = createClient();
+
+  /* O `.eq("user_id", ...)` é redundante quando a RLS está certa — e é
+     exatamente por isso que ele fica. Em 10/09/2026 a view `fin_saldos` estava
+     sem `security_invoker`, a RLS não se aplicava a ela, e esta função devolveu
+     as contas de onze estranhos para uma conta recém-criada. O banco já foi
+     corrigido; este filtro é a segunda tranca, para a próxima falha de policy
+     não virar vazamento de novo. Uma consulta que só pode devolver o que é do
+     dono não deveria depender de uma única linha de configuração. */
+  const { data: sessao } = await supabase.auth.getUser();
+  const eu = sessao.user?.id;
+  if (!eu) return {};
+
   const { data, error } = await supabase
     .from("fin_saldos")
-    .select("conta_id, saldo");
+    .select("conta_id, saldo")
+    .eq("user_id", eu);
   if (error) throw error;
 
   const mapa: Record<string, number> = {};
@@ -428,10 +543,101 @@ export async function alternarPago(id: string, pago: boolean) {
   if (error) throw error;
 }
 
+/**
+ * Apagar um lançamento — para a LIXEIRA, não para o vazio.
+ *
+ * Era um `delete`. Um toque errado na lista do mês e o registro sumia sem
+ * desfazer, sem histórico e sem como saber o que faltou quando a conta do mês
+ * não fechasse. Agora é um carimbo de data (`supabase/fincash_lixeira.sql`): a
+ * linha continua onde estava, com o mesmo `id`, invisível para todas as leituras
+ * e restaurável por 30 dias.
+ *
+ * O FALLBACK PARA `delete` não é preguiça: enquanto houver banco sem o aditivo
+ * rodado, o update falharia com "coluna não existe" e o botão de apagar
+ * simplesmente não funcionaria — o que é pior que o comportamento antigo. Some
+ * junto com a última instalação sem o SQL.
+ */
 export async function apagarLancamento(id: string) {
   const supabase = createClient();
-  const { error } = await supabase.from("fin_lancamentos").delete().eq("id", id);
+  const { error } = await supabase
+    .from("fin_lancamentos")
+    .update({ apagado_em: new Date().toISOString() })
+    .eq("id", id);
+
+  if (error && colunaDaLixeiraAusente(error)) {
+    const { error: erroDelete } = await supabase
+      .from("fin_lancamentos")
+      .delete()
+      .eq("id", id);
+    if (erroDelete) throw erroDelete;
+    return;
+  }
   if (error) throw error;
+}
+
+// ── A lixeira ───────────────────────────────────────────────────────────────
+/**
+ * Por que TUDO aqui passa por RPC, e não por consulta direta à tabela.
+ *
+ * A policy restritiva do `fincash_lixeira.sql` torna o lançamento apagado
+ * invisível para qualquer `select` — de propósito, porque é ela que garante que
+ * nenhuma leitura esquecida some dinheiro apagado. O efeito colateral é que a
+ * própria tela da lixeira também não o veria, e o `update` que restaura tampouco
+ * acharia a linha (no PostgreSQL, `update ... where id = ?` aplica as policies
+ * de SELECT sobre a linha existente).
+ *
+ * As funções `security definer` são a exceção controlada: uma porta só, com o
+ * `auth.uid()` conferido dentro dela, em vez de um buraco permanente na policy.
+ */
+
+/** Dias que o lançamento fica na lixeira antes do expurgo. Espelha o padrão da
+    função no banco — está aqui só para a TELA poder dizer o prazo em palavras.
+    Quem manda é o SQL; mudar este número não muda o comportamento. */
+export const DIAS_NA_LIXEIRA = 30;
+
+export async function carregarLixeira(): Promise<Lancamento[]> {
+  const supabase = createClient();
+  const { data, error } = await supabase.rpc("fin_lixeira");
+  if (error) throw error;
+  return (data ?? []) as Lancamento[];
+}
+
+export async function restaurarLancamento(id: string) {
+  const supabase = createClient();
+  const { error } = await supabase.rpc("fin_lixeira_restaurar", { p_id: id });
+  if (error) throw error;
+}
+
+/** Apagar de vez, um. Só funciona sobre o que já está na lixeira — a função no
+    banco recusa o resto, para que um bug de tela não vire perda definitiva. */
+export async function apagarDeVez(id: string) {
+  const supabase = createClient();
+  const { error } = await supabase.rpc("fin_lixeira_apagar", { p_id: id });
+  if (error) throw error;
+}
+
+/** Esvaziar a lixeira inteira. Devolve quantos foram. */
+export async function esvaziarLixeira(): Promise<number> {
+  const supabase = createClient();
+  const { data, error } = await supabase.rpc("fin_lixeira_esvaziar");
+  if (error) throw error;
+  return Number(data ?? 0);
+}
+
+/**
+ * O expurgo do que passou dos 30 dias.
+ *
+ * Chamado pela TELA ao abrir, e não por um cron no banco: agendamento é
+ * configuração de projeto, e um `pg_cron` escondido num arquivo de schema é como
+ * se descobre, meses depois, que existe algo apagando dados de produção de
+ * madrugada. Aqui o expurgo acontece enquanto o dono está olhando para a lixeira
+ * — e ele custa uma consulta indexada sobre algumas dezenas de linhas.
+ */
+export async function expurgarLixeira(dias = DIAS_NA_LIXEIRA): Promise<number> {
+  const supabase = createClient();
+  const { data, error } = await supabase.rpc("fin_lixeira_expurgar", { p_dias: dias });
+  if (error) throw error;
+  return Number(data ?? 0);
 }
 
 export async function salvarConta(c: Omit<Conta, "id" | "arquivada">) {
@@ -755,12 +961,24 @@ export async function materializarRecorrencias(
 
   /* O que já existe neste mês, vindo de recorrência. Uma consulta própria
      porque `jaNoMes` pode ter sido filtrado pela tela. */
-  const { data: existentes } = await supabase
-    .from("fin_lancamentos")
-    .select("recorrencia_id, data")
-    .gte("data", inicio)
-    .lte("data", fim)
-    .not("recorrencia_id", "is", null);
+  /* ⚠️ A LIXEIRA ENTRA AQUI COM UM SENTIDO PRÓPRIO, e é o filtro mais fácil de
+     esquecer do arquivo. Sem ele, a recorrência do mês que a pessoa apagou de
+     propósito ("a academia deste mês eu não paguei") continuaria contando como
+     "já materializada" e o app nunca mais a geraria. Com ele, apagar a
+     ocorrência do mês faz a regra voltar a valer no mês seguinte — que é o que
+     a pessoa espera de uma lixeira. */
+  const { data: existentes } = await semApagados<{
+    recorrencia_id: string;
+    data: string;
+  }>((filtrar) => {
+    const q = supabase
+      .from("fin_lancamentos")
+      .select("recorrencia_id, data")
+      .gte("data", inicio)
+      .lte("data", fim)
+      .not("recorrencia_id", "is", null);
+    return filtrar ? q.is("apagado_em", null) : q;
+  });
 
   /* DUAS CHAVES DE IDEMPOTÊNCIA, e a diferença importa.
      Para mensal e anual basta "esta regra já apareceu neste mês": se a pessoa
@@ -1019,12 +1237,18 @@ export async function carregarProjecao(refInicial = refDoMes(), meses = 12) {
   const { fim } = limitesDoMes(mesVizinho(refInicial, meses - 1));
 
   const [lanc, recs, cartoes, saldos] = await Promise.all([
-    supabase
-      .from("fin_lancamentos")
-      .select("*")
-      .lte("data", fim)
-      .or(`data.gte.${inicio},pago.is.false`)
-      .order("data"),
+    /* Mesmo filtro do mês. Aqui ele importa em dobro: a projeção parte do saldo
+       (que já ignora o apagado, pela view) e soma o futuro por cima — se as duas
+       pontas não concordarem sobre o que existe, a linha do gráfico dá um degrau
+       que ninguém consegue explicar. */
+    semApagados((filtrar) => {
+      const q = supabase
+        .from("fin_lancamentos")
+        .select("*")
+        .lte("data", fim)
+        .or(`data.gte.${inicio},pago.is.false`);
+      return (filtrar ? q.is("apagado_em", null) : q).order("data");
+    }),
     supabase.from("fin_recorrencias").select("*").eq("ativa", true),
     supabase.from("fin_cartoes").select("*").eq("arquivado", false).order("nome"),
     carregarSaldos(),

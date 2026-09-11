@@ -6,10 +6,10 @@ import {
   CalendarClock,
   Check,
   CreditCard,
+  FileUp,
   Gauge,
   Gift,
   Layers,
-  LineChart,
   ListPlus,
   Lock,
   MessageCircle,
@@ -17,11 +17,12 @@ import {
   RefreshCw,
   ShieldCheck,
   Smartphone,
-  Target,
-  TrendingUp,
+  Tags,
+  TrendingDown,
   Wallet,
   type LucideIcon,
 } from "lucide-react";
+import { Foto } from "./Molduras";
 import { Cabecalho } from "@/components/Cabecalho";
 import { RodapeNovare } from "@/components/RodapeNovare";
 import { OQueSignifica } from "@/components/OQueSignifica";
@@ -86,7 +87,22 @@ import { falarNoWhatsApp } from "@/lib/contato";
  *    sobrevivem apenas DENTRO das prévias de dado, onde a cor não decora:
  *    ela é o dado (entrou, estourou o limite, ficou negativo).
  *
- * 5. UM SISTEMA DE RAIO SÓ: `rounded-3xl` para contêiner, `rounded-xl` para
+ * 5. AS FOTOS DO PRODUTO. A página inteira era desenho: prévias remontadas em
+ *    HTML dentro de uma moldura. Elas provavam a linguagem visual do app e não
+ *    provavam o APP, porque uma remontagem honesta nunca traz a barra lateral
+ *    com as doze telas, o menu do rodapé no celular, o velocímetro de renda
+ *    comprometida nem o resumo automático apontando as contas vencidas. Agora
+ *    oito capturas reais entram, cada uma colada na frase que ela prova. As
+ *    prévias em HTML que sobreviveram estão explicadas em `Molduras.tsx`: a
+ *    conta aberta é aritmética e não tela, Dívidas não tem captura entre as
+ *    disponíveis, e a conversa do WhatsApp descreve o que ainda não foi ligado.
+ *
+ * 6. DÍVIDAS GANHOU SEÇÃO PRÓPRIA, com peso de argumento e não de item de
+ *    lista. É o que a casa tem e o concorrente não: lá dívida é um indicador
+ *    solto num painel; aqui é amortização Price e SAC, ordem de pagamento
+ *    comparada entre avalanche e bola de neve, e a simulação do aporte extra.
+ *
+ * 7. UM SISTEMA DE RAIO SÓ: `rounded-3xl` para contêiner, `rounded-xl` para
  *    peça interna e botão, `rounded-full` para pílula. Nada de `2xl`/`lg`
  *    soltos (os que aparecem vêm de dentro de `SecoesVenda`, que é
  *    compartilhado com as outras landings e não se reescreve por aqui).
@@ -161,27 +177,29 @@ const SITUACOES: { icone: LucideIcon; titulo: string; texto: string }[] = [
 /**
  * A CONTA ABERTA, e ela é a tese da página em quatro linhas.
  *
- * Os números batem com o painel do herói de propósito: 7.400 que entraram
- * menos 4.180 que saíram dão os R$ 3.220 que o app do banco mostra; as contas
- * que ainda vencem (1.230) mais as parcelas e a fatura (750) dão os R$ 1.980
- * que ainda vão sair; e a diferença é a sobra de R$ 1.240. Um visitante
- * atento confere, e quem confere e vê que bate confia no resto da página.
+ * ⚠️ OS NÚMEROS SÃO OS DA FOTO DO HERÓI, linha por linha: 7.184 que entraram
+ * menos 4.793 que saíram dão os R$ 2.392 do extrato; menos as contas que ainda
+ * vencem (1.926), mais a entrada que ainda cai (600), dão os R$ 1.066 que o
+ * painel mostra na captura logo acima. Antes eles vinham de uma prévia
+ * desenhada, e podiam ser qualquer coisa. Agora existe uma imagem do produto
+ * na mesma dobra: um visitante atento confere, e se não bater, a foto passa a
+ * desmentir o texto.
  */
 const CONTA_LINHAS = [
   {
-    rotulo: "Saldo que o app do banco mostra hoje",
-    valor: "R$ 3.220",
-    obs: "Entraram R$ 7.400, saíram R$ 4.180",
+    rotulo: "O que sobrou do que já entrou e saiu",
+    valor: "R$ 2.392",
+    obs: "Entraram R$ 7.184, saíram R$ 4.793",
   },
   {
-    rotulo: "Contas fixas que ainda vencem este mês",
-    valor: "- R$ 1.230",
-    obs: "Energia, internet, escola",
+    rotulo: "Contas e faturas que ainda vencem",
+    valor: "- R$ 1.926",
+    obs: "Duas delas já venceram sem pagamento, R$ 533",
   },
   {
-    rotulo: "Parcelas e fatura que ainda caem",
-    valor: "- R$ 750",
-    obs: "Três compras parceladas fechando no mesmo mês",
+    rotulo: "A entrada que ainda cai até o dia 30",
+    valor: "+ R$ 600",
+    obs: "Prevista, e por isso não está no saldo",
   },
 ];
 
@@ -269,21 +287,17 @@ const CICLO: { icone: LucideIcon; titulo: string; texto: string }[] = [
 ];
 
 /**
- * As telas que não ganharam prévia desenhada.
+ * As telas que trabalham no bastidor.
  *
- * Três telas têm mosaico com prévia (painel, projeção e fatura) porque são as
- * que provam a tese: olhar para a frente. As outras seis viram LINHAS, e a
- * lista é curta e conferível. Desenhar seis prévias a mais transformaria a
- * seção numa escada de nove blocos iguais, que é exatamente o defeito que
- * esta versão veio corrigir.
+ * A lista encolheu de seis para quatro, e não porque o app diminuiu: quatro
+ * das antigas (lançamentos, orçamento, metas e investimentos) agora aparecem
+ * FOTOGRAFADAS mais acima, e repetir por escrito o que a imagem já mostrou é
+ * cobrar duas vezes a atenção da mesma pessoa. O que sobrou aqui é o trabalho
+ * que ninguém fotografa com orgulho e que decide se o segundo mês acontece:
+ * o que se repete sozinho, onde o dinheiro está parado, de onde ele é
+ * importado e como ele é classificado.
  */
 const TELAS_LISTA: { icone: LucideIcon; nome: string; texto: string }[] = [
-  {
-    icone: ListPlus,
-    nome: "Lançamentos",
-    texto:
-      "O gasto de hoje em segundos, com um clique para marcar como pago. Previsto e realizado convivem na mesma lista, e o que venceu sem pagamento aparece como atrasado, escrito por extenso.",
-  },
   {
     icone: CalendarClock,
     nome: "Contas fixas",
@@ -294,25 +308,19 @@ const TELAS_LISTA: { icone: LucideIcon; nome: string; texto: string }[] = [
     icone: Banknote,
     nome: "Contas",
     texto:
-      "Com o saldo inicial de cada conta, o app deixa de responder “quanto gastei” e passa a responder “quanto eu tenho”. O total vem com a fita de composição, mostrando quanto está em cada lugar.",
+      "Com o saldo inicial de cada conta, o app deixa de responder “quanto gastei” e passa a responder “quanto eu tenho”. Na captura do painel são R$ 16.106 divididos em duas contas.",
   },
   {
-    icone: Wallet,
-    nome: "Orçamento",
+    icone: FileUp,
+    nome: "Importar extrato",
     texto:
-      "Antes de você digitar o limite, ele mostra o mínimo, a média e o máximo que você já gastou na categoria, e de quantos meses vem essa média. Com menos de dois meses, avisa que ainda não dá para sugerir.",
+      "O arquivo OFX que o seu banco exporta entra aqui, e você confere linha por linha antes de gravar. O que já foi lançado uma vez não entra de novo: a deduplicação compara data, valor e identificador do banco.",
   },
   {
-    icone: Target,
-    nome: "Metas",
+    icone: Tags,
+    nome: "Categorias e subcategorias",
     texto:
-      "Quanto separar por mês para chegar na data, meta a meta. E a soma de todas elas contra a sua renda, porque cinco metas razoáveis somam 60% do salário e nenhuma acontece.",
-  },
-  {
-    icone: TrendingUp,
-    nome: "Investimentos",
-    texto:
-      "A carteira por classe e por instituição, com meses de reserva e a idade do dado em dias. Valor de três meses atrás é ficção com cara de fato, e a tela diz isso antes dos números grandes.",
+      "Mercado é uma categoria; feira, açougue e delivery são subcategorias dela. Serve para descobrir onde o limite estoura sem transformar a lista de categorias numa lista de trinta itens.",
   },
 ];
 
@@ -397,208 +405,25 @@ function BotaoComecar({
   );
 }
 
-/**
- * A moldura de aparelho: o que dá MATERIALIDADE à prévia.
+/*
+ * ONDE FORAM PARAR AS PEÇAS DE PRÉVIA.
  *
- * POR QUE NÃO É UM PRINT (e é a mesma decisão do `PainelExemplo` da
- * /assinar): print de tela envelhece calado. Muda um rótulo no produto e a
- * imagem da landing passa a mentir sem ninguém perceber, some no celular e
- * borra em tela retina. Isto é a interface de verdade, com os mesmos tokens e
- * a mesma tipografia, e continua legível a 390px.
+ * A `Moldura`, o `Telefone` e a `Foto` vivem em `./Molduras`, junto com o
+ * catálogo das capturas e o texto alternativo de cada uma: a moldura deixou de
+ * vestir uma peça só e ficou grande demais para morar no meio do argumento de
+ * venda.
  *
- * A MOLDURA existe porque uma prévia sem borda de aparelho lê como "mais um
- * card da página" em vez de "isto é o produto". As três camadas (anel escuro,
- * respiro branco, tela) são o que faz a peça parecer objeto pousado sobre a
- * seção, e não desenho impresso nela. A inclinação vem de `.moldura-produto`,
- * que já se desliga sozinha em `prefers-reduced-motion`.
+ * A `PreviaPainel`, a `CurvaProjecao` e a `LinhaValor` foram embora, e é a
+ * mudança mais cara desta versão. Elas remontavam em HTML o painel, a curva de
+ * doze meses e as linhas de fatura, e faziam isso bem: nítidas em qualquer
+ * tela, legíveis a 390px, sempre em dia com os tokens. O que nunca
+ * conseguiram foi provar que o app existe. A remontagem mostrava cinco números
+ * escolhidos aqui dentro; a captura mostra a barra lateral com as doze telas,
+ * o velocímetro de renda comprometida, o resumo automático apontando as contas
+ * vencidas e o gráfico de saldo mês a mês com a legenda inteira. Onde a foto
+ * entrega mais argumento que o desenho, o desenho sai, mesmo tendo sido
+ * defendido por escrito na versão anterior desta página.
  */
-function Moldura({
-  barra,
-  children,
-  inclinar = false,
-}: {
-  /** O que aparece na barra de topo do aparelho, no lugar da URL. */
-  barra: string;
-  children: React.ReactNode;
-  inclinar?: boolean;
-}) {
-  return (
-    <div
-      className={`rounded-3xl bg-primary/90 p-1.5 shadow-[0_24px_60px_-24px_hsl(215_50%_12%_/_0.55)] ring-1 ring-white/10 ${
-        inclinar ? "moldura-produto" : ""
-      }`}
-    >
-      <div className="overflow-hidden rounded-3xl bg-card">
-        <div className="flex items-center gap-2 border-b border-border bg-muted/60 px-4 py-2.5">
-          <span aria-hidden className="h-2 w-2 rounded-full bg-border" />
-          <span aria-hidden className="h-2 w-2 rounded-full bg-border" />
-          <p className="ml-1 truncate text-[11px] font-semibold text-muted-foreground">
-            {barra}
-          </p>
-        </div>
-        <div className="p-4 sm:p-5">{children}</div>
-      </div>
-    </div>
-  );
-}
-
-/** Uma linha de dado dentro da prévia: rótulo à esquerda, número à direita. */
-function LinhaValor({
-  titulo,
-  detalhe,
-  valor,
-  cor = "bg-primary/25",
-  previsto = false,
-  selo,
-}: {
-  titulo: string;
-  detalhe?: string;
-  valor: string;
-  cor?: string;
-  /** O que ainda não aconteceu aparece apagado, como no app. */
-  previsto?: boolean;
-  selo?: string;
-}) {
-  return (
-    <div
-      className={`flex items-center gap-2.5 border-b border-border/60 py-2 last:border-0 ${
-        previsto ? "opacity-55" : ""
-      }`}
-    >
-      <span className={`h-6 w-1 shrink-0 rounded-full ${cor}`} />
-      <div className="min-w-0 flex-1">
-        <p className="truncate text-xs font-semibold text-foreground">
-          {titulo}
-          {selo && (
-            <span className="ml-1.5 rounded-full bg-muted px-1.5 py-0.5 text-[10px] font-semibold tracking-wide text-muted-foreground">
-              {selo}
-            </span>
-          )}
-        </p>
-        {detalhe && (
-          <p className="truncate text-[11px] leading-snug text-muted-foreground">
-            {detalhe}
-          </p>
-        )}
-      </div>
-      <span className="shrink-0 text-xs font-bold tabular-nums text-slate-600">
-        {valor}
-      </span>
-    </div>
-  );
-}
-
-/**
- * A prévia do painel: o número grande, o quanto do mês já saiu e as duas
- * leituras. É a tela que a pessoa abre todo dia, então é a que aparece na
- * primeira dobra.
- */
-function PreviaPainel() {
-  return (
-    <>
-      <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-        Sobra prevista até o fim do mês
-      </p>
-      <p className="font-display text-3xl font-extrabold leading-none tabular-nums text-primary sm:text-4xl">
-        R$ 1.240
-      </p>
-
-      {/* A barra tem uma leitura, não é enfeite: quanto do que sai no mês já
-          saiu (4.180 de 6.160). Barra sem significado num painel financeiro
-          ensina a ignorar as outras. */}
-      <div className="mt-3 h-2 overflow-hidden rounded-full bg-border">
-        <div className="h-full w-[68%] rounded-full bg-accent" />
-      </div>
-      <p className="mt-1.5 text-[11px] text-muted-foreground">
-        68% do que sai neste mês já saiu
-      </p>
-
-      <div className="mt-4 grid grid-cols-3 gap-2">
-        {[
-          ["Já entrou", "R$ 7.400"],
-          ["Já saiu", "R$ 4.180"],
-          ["Ainda vai sair", "R$ 1.980"],
-        ].map(([rotulo, valor]) => (
-          <div key={rotulo} className="rounded-xl bg-gelo p-2.5">
-            <p className="text-[10px] leading-tight text-muted-foreground">
-              {rotulo}
-            </p>
-            <p className="mt-0.5 text-xs font-bold tabular-nums text-primary">
-              {valor}
-            </p>
-          </div>
-        ))}
-      </div>
-
-      <div className="mt-3 space-y-0">
-        <LinhaValor
-          titulo="Energia"
-          detalhe="25/09 · ainda vai sair"
-          valor="R$ 268"
-          previsto
-        />
-        <LinhaValor
-          titulo="Notebook"
-          detalhe="15/09 · pago"
-          valor="R$ 300"
-          cor="bg-accent"
-          selo="3/12"
-        />
-      </div>
-    </>
-  );
-}
-
-/**
- * A curva da projeção, em SVG.
- *
- * Doze pontos e uma linha de zero. O que a peça precisa mostrar não é a
- * beleza da curva: é o CRUZAMENTO, o mês em que o saldo passa para baixo do
- * zero. Por isso o ponto do cruzamento é o único marcado, e a área negativa
- * é a única pintada. Gráfico de landing que mostra tudo subindo não descreve
- * a tela, descreve o desejo.
- */
-function CurvaProjecao() {
-  const pontos =
-    "10,20.9 30,15.5 50,22.3 70,31.8 90,29.1 110,44.1 130,52.3 150,70 170,79.5 190,72.7 210,61.8 230,52.3";
-
-  return (
-    <svg
-      viewBox="0 0 240 92"
-      className="h-24 w-full"
-      role="img"
-      aria-label="Saldo projetado por doze meses, ficando negativo no oitavo mês"
-    >
-      {/* A faixa abaixo do zero, marcando o período no vermelho. */}
-      <rect
-        x="0"
-        y="64.5"
-        width="240"
-        height="27.5"
-        fill="hsl(0 72% 51% / 0.07)"
-      />
-      <line
-        x1="0"
-        y1="64.5"
-        x2="240"
-        y2="64.5"
-        stroke="hsl(220 13% 84%)"
-        strokeWidth="1"
-        strokeDasharray="3 3"
-      />
-      <polyline
-        points={pontos}
-        fill="none"
-        stroke="hsl(215 50% 23%)"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <circle cx="150" cy="70" r="4" fill="hsl(0 72% 51%)" />
-      <circle cx="150" cy="70" r="8" fill="hsl(0 72% 51% / 0.16)" />
-    </svg>
-  );
-}
 
 export default function FincashPage() {
   const inclui = ASSINATURA_INCLUI.map((i) =>
@@ -654,19 +479,25 @@ export default function FincashPage() {
                 </p>
               </div>
 
-              {/* O produto na primeira dobra. A tese da página é um número, e
-                  mostrá-lo dentro da moldura do app vale mais que descrevê-lo
-                  em três parágrafos. */}
-              <div
-                className="surgir"
-                style={{ animationDelay: "120ms" }}
-              >
-                <Moldura barra="FINCASH · Painel de setembro" inclinar>
-                  <PreviaPainel />
-                </Moldura>
-                <p className="mt-3 text-center text-[11px] text-white/55">
-                  A interface de verdade, com números de exemplo.
-                </p>
+              {/* O PRODUTO NA PRIMEIRA DOBRA, e agora ele é foto.
+                  Celular, e não desktop, por dois motivos: é onde a pessoa vai
+                  usar o app, e uma tela de 1440 encolhida para 22rem viraria
+                  uma mancha cinza com um borrão laranja no canto. A legenda
+                  que dizia "a interface de verdade, com números de exemplo"
+                  saiu junto: era o quinto elemento de texto de um herói que só
+                  pode ter quatro, e uma captura não precisa jurar que é
+                  captura.
+
+                  É A ÚNICA IMAGEM PRIORITÁRIA DA PÁGINA. As outras sete são
+                  lazy, porque nenhuma delas está na primeira tela. */}
+              <div className="surgir mx-auto w-full max-w-[15rem] lg:max-w-none">
+                <Foto
+                  tela="painelCelular"
+                  aparelho="telefone"
+                  prioridade
+                  inclinar
+                  sizes="(max-width: 1024px) 240px, 320px"
+                />
               </div>
             </div>
           </div>
@@ -728,9 +559,9 @@ export default function FincashPage() {
                   }}
                 />
                 <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
-                  O app do banco mostraria R$ 3.220 e você decidiria em cima
-                  desse número. O FINCASH mostra R$ 1.240, que é o que
-                  realmente está livre.
+                  O extrato mostraria R$ 2.392 e você decidiria em cima desse
+                  número. O FINCASH mostra R$ 1.066, que é o mesmo valor da
+                  captura ali em cima, e é o que realmente está livre.
                 </p>
               </div>
             </div>
@@ -799,127 +630,314 @@ export default function FincashPage() {
             </div>
           </section>
 
-          {/* ================================= 6. O PRODUTO, POR DENTRO == */}
-          {/* MOSAICO, não escada. Três telas ganham prévia porque são as que
-              provam a tese de olhar para a frente; as outras seis viram lista.
-              A versão anterior tinha cinco blocos "texto de um lado, exemplo
-              do outro" em sequência, e a partir do terceiro o olho já sabia o
-              que vinha e pulava. */}
+          {/* ============================ 6. O PAINEL, FOTOGRAFADO ====== */}
+          {/* FAMÍLIA: foto larga com as leituras embaixo. A captura ocupa a
+              largura inteira porque é o único lugar da página em que o produto
+              aparece por completo: barra lateral, mês, velocímetro e resumo na
+              mesma imagem. Espremê-la numa coluna de 20rem, como a prévia
+              desenhada ficava, seria mostrar o app pelo buraco da fechadura. */}
           <section className="pt-14 sm:pt-20">
             <TituloSecao
               sobre="Por dentro"
-              titulo="Nove telas, e cada uma responde uma pergunta"
-              apoio="Todas no ar hoje, inclusive as que apareciam como obra na versão anterior desta página. Nenhuma existe para ficar bonita no print: cada uma resolve um momento do ciclo."
+              titulo="Doze telas, e a que você abre amanhã é esta"
+              apoio="O número grande do topo não é quanto você gastou, porque isso é passado e passado não muda comportamento. É como o mês termina se nada mudar, já descontando o que ainda vai sair."
             />
 
-            <div className="mt-9 grid gap-4 lg:grid-cols-2">
-              {/* A tela de todo dia ocupa a largura inteira: é a única que a
-                  pessoa vai abrir amanhã de manhã. */}
-              <article className="rounded-3xl border border-border bg-card p-6 shadow-subtle sm:p-8 lg:col-span-2">
-                <div className="grid items-center gap-7 lg:grid-cols-[1fr_minmax(0,20rem)]">
-                  <div>
-                    <h3 className="font-display text-xl font-semibold leading-snug text-primary sm:text-2xl">
-                      Painel: posso gastar?
-                    </h3>
-                    <p className="mt-3 text-sm leading-relaxed text-muted-foreground sm:text-base">
-                      O número grande do topo não é quanto você gastou, porque
-                      isso é passado e passado não muda comportamento. É quanto
-                      sobra até o fim do mês, já descontando o que ainda vai
-                      sair. Ao lado dele ficam as duas leituras que importam:
-                      como o mês está agora e como ele termina se nada mudar.
-                      Embaixo, seis meses de barras, porque um mês isolado não
-                      diz se a vida está melhorando ou piorando.
-                    </p>
-                  </div>
-                  <Moldura barra="Painel de setembro">
-                    <PreviaPainel />
-                  </Moldura>
-                </div>
-              </article>
+            <div className="mt-9">
+              <Foto
+                tela="painelDesktop"
+                aparelho="janela"
+                barra="FINCASH · Painel de setembro"
+                sizes="(max-width: 1024px) 100vw, 62rem"
+              />
+            </div>
 
-              <article className="flex flex-col rounded-3xl border border-border bg-card p-6 shadow-subtle sm:p-8">
-                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent-tint text-accent-strong">
-                  <LineChart className="h-5 w-5" strokeWidth={1.75} />
-                </span>
-                <h3 className="mt-4 font-display text-lg font-semibold leading-snug text-primary">
-                  Projeção de 12 meses: em que mês a conta não fecha?
-                </h3>
-                <p className="mt-2.5 text-sm leading-relaxed text-muted-foreground">
-                  Ver em setembro que abril fecha no vermelho é o único aviso
-                  que chega enquanto ainda dá para cancelar uma assinatura ou
-                  adiar uma compra. A tela mostra o primeiro mês negativo, o
-                  menor saldo do período e a conta aberta de cada mês, linha
-                  por linha. Tem simulador de hipóteses, e ele não grava nada.
-                </p>
+            {/* As três leituras da mesma imagem, na ordem em que o olho bate
+                nela. Sem isto a foto vira enfeite: quem não usa o app não sabe
+                que 86% é renda comprometida e não porcentagem do mês. */}
+            <ul className="mt-6 grid gap-4 sm:grid-cols-3">
+              {[
+                {
+                  titulo: "R$ 1.066",
+                  texto:
+                    "O que resta em setembro depois de tudo o que já saiu e do que ainda está previsto sair. É o número da decisão de hoje.",
+                },
+                {
+                  titulo: "86% comprometida",
+                  texto:
+                    "Quanto da renda que entra já tem dono antes de qualquer escolha sua. Acima de 80%, um imprevisto vira dívida.",
+                },
+                {
+                  titulo: "2 contas atrasadas",
+                  texto:
+                    "O resumo do mês aponta o que venceu sem pagamento, com o valor somado e o atalho para resolver, em vez de esperar você procurar.",
+                },
+              ].map((l) => (
+                <li
+                  key={l.titulo}
+                  className="rounded-3xl border border-border bg-card p-5 shadow-subtle"
+                >
+                  <p className="font-display text-base font-semibold tabular-nums text-primary">
+                    {l.titulo}
+                  </p>
+                  <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
+                    {l.texto}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          </section>
 
-                <div className="mt-5 rounded-xl border border-border bg-gelo p-4">
-                  <div className="flex items-baseline justify-between gap-3">
-                    <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-                      Saldo projetado
-                    </p>
-                    <p className="text-[11px] font-semibold text-red-700">
-                      Negativo em abril
-                    </p>
-                  </div>
-                  <CurvaProjecao />
-                </div>
-              </article>
-
-              <article className="flex flex-col rounded-3xl border border-border bg-card p-6 shadow-subtle sm:p-8">
+          {/* ====================== 7. DECIDIR ANTES DE GASTAR ========== */}
+          {/* FAMÍLIA: texto de um lado, foto do outro, DUAS VEZES E PONTO.
+              Com 21 capturas na pasta, esta é a armadilha fácil da página: dá
+              para encher dez seções assim sem escrever uma frase nova, e a
+              partir da terceira o olho já sabe o que vem e pula. Duas, com o
+              lado invertido entre elas, e o resto da página muda de forma. */}
+          <section className="space-y-4 pt-14 sm:pt-20">
+            <article className="grid items-center gap-7 rounded-3xl border border-border bg-card p-6 shadow-subtle sm:p-8 lg:grid-cols-[1fr_minmax(0,15rem)] lg:gap-12">
+              <div>
                 <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent-tint text-accent-strong">
                   <CreditCard className="h-5 w-5" strokeWidth={1.75} />
                 </span>
-                <h3 className="mt-4 font-display text-lg font-semibold leading-snug text-primary">
-                  Cartões e faturas: quanto vem, e quando?
+                <h3 className="mt-4 font-display text-xl font-semibold leading-snug text-primary sm:text-2xl">
+                  A fatura deixa de ser surpresa
                 </h3>
-                <p className="mt-2.5 text-sm leading-relaxed text-muted-foreground">
-                  O susto da fatura não vem de esquecer uma compra, vem de não
-                  saber que as parcelas de três compras diferentes caem todas
-                  no mesmo mês. A tela abre com o valor, o dia do vencimento e
-                  o quanto da próxima já está comprometido. O ciclo aparece por
-                  extenso, porque fatura é a única coisa do app cujo período
-                  não é o mês do calendário.
+                <p className="mt-3 text-sm leading-relaxed text-muted-foreground sm:text-base">
+                  O susto não vem de esquecer uma compra, vem de as parcelas de
+                  três compras diferentes caírem todas no mesmo mês. A tela abre
+                  com quanto ainda falta pagar, quantas faturas já venceram e
+                  quanto do mês que vem já está comprometido antes de você
+                  comprar qualquer coisa. O ciclo aparece por extenso, porque a
+                  fatura é a única coisa do app cujo período não é o mês do
+                  calendário.
                 </p>
+              </div>
+              <div className="mx-auto w-full max-w-[15rem] lg:max-w-none">
+                <Foto
+                  tela="cartoesCelular"
+                  aparelho="telefone"
+                  sizes="240px"
+                />
+              </div>
+            </article>
 
-                <div className="mt-5 rounded-xl border border-border bg-gelo p-4">
-                  <div className="flex items-baseline justify-between gap-3">
-                    <div className="min-w-0">
-                      <p className="truncate text-xs font-bold text-primary">
-                        Cartão principal
-                      </p>
-                      <p className="mt-0.5 text-[11px] text-muted-foreground">
-                        De 26/08 a 25/09, vence 05/10
-                      </p>
-                    </div>
-                    <p className="font-display text-lg font-extrabold tabular-nums text-primary">
-                      R$ 1.870
-                    </p>
-                  </div>
-                  <div className="mt-3 space-y-0">
-                    <LinhaValor
-                      titulo="Restaurante"
-                      detalhe="6 compras"
-                      valor="R$ 612"
-                      cor="bg-warning"
-                    />
-                    <LinhaValor
-                      titulo="Parcelas em aberto"
-                      detalhe="Notebook 3/12, sofá 2/6"
-                      valor="R$ 480"
-                      cor="bg-accent"
-                    />
-                  </div>
-                  <p className="mt-3 text-[11px] leading-snug text-muted-foreground">
-                    A próxima fatura já tem R$ 480 comprometidos antes de você
-                    comprar qualquer coisa.
+            <article className="grid items-center gap-7 rounded-3xl border border-border bg-card p-6 shadow-subtle sm:p-8 lg:grid-cols-[minmax(0,26rem)_1fr] lg:gap-10">
+              {/* No desktop a foto vem primeiro; no celular ela cai para baixo
+                  do texto, porque na tela pequena quem chega precisa da frase
+                  antes da imagem, sempre. */}
+              <div className="order-2 lg:order-1">
+                <Foto
+                  tela="orcamentoDesktop"
+                  aparelho="janela"
+                  barra="Orçamento de setembro"
+                  sizes="(max-width: 1024px) 100vw, 26rem"
+                />
+              </div>
+              <div className="order-1 lg:order-2">
+                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent-tint text-accent-strong">
+                  <Wallet className="h-5 w-5" strokeWidth={1.75} />
+                </span>
+                <h3 className="mt-4 font-display text-xl font-semibold leading-snug text-primary sm:text-2xl">
+                  O limite não é chute, e não é digitado duas vezes
+                </h3>
+                <p className="mt-3 text-sm leading-relaxed text-muted-foreground sm:text-base">
+                  Antes de você escrever qualquer número, cada categoria mostra
+                  o mínimo, a média e o máximo que você já gastou ali nos
+                  últimos seis meses. O que é sempre igual você marca como fixo
+                  e não digita de novo; o que muda todo mês você ajusta. Quem
+                  passou do limite aparece no vermelho com o quanto passou, e o
+                  topo diz quantas linhas estouraram antes de você caçá-las na
+                  lista.
+                </p>
+              </div>
+            </article>
+          </section>
+
+          {/* ================================= 8. DÍVIDAS =============== */}
+          {/* O DIFERENCIAL DECLARADO DO PRODUTO, e por isso a única seção com
+              forma exclusiva. No concorrente, dívida é um indicador solto no
+              painel: quanto você deve. Aqui é um módulo com amortização Price e
+              SAC, ordem de pagamento comparada e simulação de aporte extra.
+
+              ⚠️ ESTA É A SEÇÃO SEM FOTO, e é decisão, não esquecimento: entre
+              as capturas disponíveis não há nenhuma de Dívidas. Ilustrar o
+              diferencial da casa com o print de outra tela seria pior que
+              descrevê-lo, e desenhar uma tela que ninguém fotografou seria
+              inventar. O que entra aqui é o que o motor faz, escrito.
+
+              As duas estratégias são o argumento inteiro em duas colunas, e as
+              frases são as mesmas do produto (`EXPLICACAO_ESTRATEGIA`, em
+              lib/fincash/dividas.ts): a landing não pode ser mais otimista que
+              a tela que a pessoa vai abrir depois de assinar. */}
+          <section className="pt-14 sm:pt-20">
+            <div className="rounded-3xl border border-border bg-card p-6 shadow-subtle sm:p-9">
+              <div className="max-w-2xl">
+                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent-tint text-accent-strong">
+                  <TrendingDown className="h-5 w-5" strokeWidth={1.75} />
+                </span>
+                <h2 className="mt-4 font-display text-2xl font-semibold leading-tight text-primary sm:text-[2rem]">
+                  Dívida aqui não é um número no painel, é um plano de saída
+                </h2>
+                <p className="mt-3.5 text-base leading-relaxed text-muted-foreground">
+                  Saber quanto você deve não muda nada. O que muda é saber em
+                  que ordem pagar, quanto de juro cada ordem custa e em que mês
+                  cai a última parcela. O FINCASH amortiza cada dívida parcela a
+                  parcela, em Price ou SAC, e põe lado a lado as duas
+                  estratégias que funcionam, com o preço de cada uma.
+                </p>
+              </div>
+
+              <div className="mt-8 grid gap-4 sm:grid-cols-2">
+                <div className="rounded-3xl border border-primary/20 bg-gelo p-5">
+                  <p className="font-display text-lg font-semibold text-primary">
+                    Avalanche
+                  </p>
+                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                    Ataca primeiro a dívida de maior juro. É a que custa menos
+                    dinheiro, e pode demorar a dar a primeira vitória.
+                  </p>
+                  <p className="mt-4 border-t border-border pt-3 text-xs font-semibold text-primary">
+                    Sai mais barato
                   </p>
                 </div>
-              </article>
+
+                <div className="rounded-3xl border border-accent-soft bg-accent-tint p-5">
+                  <p className="font-display text-lg font-semibold text-primary">
+                    Bola de neve
+                  </p>
+                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                    Ataca primeiro o menor saldo. Custa um pouco mais de juro,
+                    mas elimina uma dívida cedo, e é isso que sustenta o hábito
+                    de quem já desistiu antes.
+                  </p>
+                  <p className="mt-4 border-t border-accent-soft pt-3 text-xs font-semibold text-accent-strong">
+                    Termina uma dívida antes
+                  </p>
+                </div>
+              </div>
+
+              <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+                A tela diz, em reais, quanto a avalanche economiza de juro e
+                quantos meses ela adianta, e também em quanto tempo cada uma
+                derruba a primeira dívida. Escolher a mais cara continua sendo
+                uma escolha legítima: o app mostra o preço e deixa a decisão com
+                você.
+              </p>
+
+              <dl className="mt-7 grid gap-4 border-t border-border pt-6 sm:grid-cols-3">
+                {[
+                  {
+                    t: "Price ou SAC",
+                    d: "Parcela fixa ou amortização fixa com a parcela caindo mês a mês. A tabela sai parcela a parcela, com juro e amortização separados.",
+                  },
+                  {
+                    t: "Aporte extra",
+                    d: "Quanto um valor a mais por mês corta de juro e antecipa a última parcela. É simulação, e não grava nada.",
+                  },
+                  {
+                    t: "Renda comprometida",
+                    d: "Quanto do que entra já vai para dívida hoje, e quanto de juro você ainda vai pagar até a última parcela se nada mudar.",
+                  },
+                ].map((i) => (
+                  <div key={i.t}>
+                    <dt className="font-display text-base font-semibold text-primary">
+                      {i.t}
+                    </dt>
+                    <dd className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
+                      {i.d}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+            </div>
+          </section>
+
+          {/* ================================= 9. PROJEÇÃO ============== */}
+          {/* Volta a foto larga, agora com a leitura só em texto: repetir o
+              trio de cartões da seção 6 embaixo da imagem faria as duas seções
+              virarem a mesma seção duas vezes. */}
+          <section className="pt-14 sm:pt-20">
+            <div className="max-w-2xl">
+              <h2 className="font-display text-3xl font-semibold leading-[1.12] tracking-tight text-primary sm:text-[2.6rem]">
+                Ver em setembro como o ano termina
+              </h2>
+              <p className="mt-3.5 text-base leading-relaxed text-muted-foreground">
+                Todo app de finanças mostra o que já aconteceu. Esta tela mostra
+                os doze meses seguintes com o que você já cadastrou: as contas
+                fixas, as parcelas em aberto e os aportes das metas. Saldo
+                positivo o ano inteiro não é o mesmo que folga, e por isso o
+                destaque é o menor saldo do período, o mês em que um imprevisto
+                doeria mais.
+              </p>
             </div>
 
-            {/* As outras seis, em linha. Lista curta e conferível vale mais
-                que seis prévias desenhadas que ninguém lê até o fim. */}
-            <div className="mt-4 overflow-hidden rounded-3xl border border-border bg-card shadow-subtle">
+            <div className="mt-8">
+              <Foto
+                tela="projecaoDesktop"
+                aparelho="janela"
+                barra="Projeção · próximos 12 meses"
+                sizes="(max-width: 1024px) 100vw, 62rem"
+              />
+            </div>
+
+            <p className="mt-4 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+              Quando algum mês fecha no vermelho, ele é marcado como o primeiro
+              mês negativo, e esse é o aviso que chega enquanto ainda dá para
+              cancelar uma assinatura ou adiar uma compra. Tocar num mês abre a
+              conta dele, linha por linha, e o simulador de hipóteses não grava
+              nada.
+            </p>
+          </section>
+
+          {/* ======================== 10. O RESTO NA MÃO ================ */}
+          {/* FAMÍLIA: trio de telefones. Três telas que se abre uma vez por
+              semana, e não por dia, entram como vitrine: uma frase cada, porque
+              quem chegou até aqui já entendeu o método e agora quer medir a
+              extensão do produto. */}
+          <section className="pt-14 sm:pt-20">
+            <div className="grid gap-8 sm:grid-cols-3">
+              {[
+                {
+                  tela: "lancamentosCelular" as const,
+                  titulo: "Lançamentos",
+                  texto:
+                    "O gasto de hoje em segundos e um toque para marcar como pago. Previsto e realizado na mesma lista, com o que venceu sem pagamento escrito por extenso.",
+                },
+                {
+                  tela: "metasCelular" as const,
+                  titulo: "Metas",
+                  texto:
+                    "Quanto separar por mês para chegar na data, meta a meta, e a soma de todas contra a sua renda. Metas razoáveis demais somam meio salário e nenhuma acontece.",
+                },
+                {
+                  tela: "investimentosCelular" as const,
+                  titulo: "Investimentos",
+                  texto:
+                    "A carteira por classe e por instituição, com meses de reserva. Selic, CDI e IPCA vêm do Banco Central, e a tela diz de onde vieram.",
+                },
+              ].map((v) => (
+                <div key={v.titulo}>
+                  <div className="mx-auto w-full max-w-[13rem] sm:max-w-none">
+                    <Foto
+                      tela={v.tela}
+                      aparelho="telefone"
+                      sizes="(max-width: 640px) 208px, 20vw"
+                    />
+                  </div>
+                  <h3 className="mt-5 font-display text-lg font-semibold text-primary">
+                    {v.titulo}
+                  </h3>
+                  <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
+                    {v.texto}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            {/* As telas de bastidor, em linha. Lista curta e conferível vale
+                mais que quatro capturas a mais de tela sem número grande. */}
+            <div className="mt-8 overflow-hidden rounded-3xl border border-border bg-card shadow-subtle">
               {TELAS_LISTA.map((t) => (
                 <div
                   key={t.nome}
@@ -941,7 +959,7 @@ export default function FincashPage() {
             </div>
           </section>
 
-          {/* ============================ 7. O ASSISTENTE DE WHATSAPP ==== */}
+          {/* =========================== 11. O ASSISTENTE DE WHATSAPP === */}
           {/* ⚠️ A SEÇÃO MAIS DELICADA DA PÁGINA. O assistente é o item que mais
               separaria a Novare do concorrente mais direto, que cobra a mais
               para ter o mesmo. E é o único que ainda não está de pé inteiro: o
@@ -1013,7 +1031,7 @@ export default function FincashPage() {
             </div>
           </section>
 
-          {/* ======================================= 8. CREDIBILIDADE ==== */}
+          {/* ====================================== 12. CREDIBILIDADE === */}
           <section className="pt-14 sm:pt-20">
             <TituloSecao
               titulo="Sem número inflado, sem depoimento de encomenda"
@@ -1042,7 +1060,7 @@ export default function FincashPage() {
             </dl>
           </section>
 
-          {/* ============================================== 9. PREÇO ===== */}
+          {/* ============================================= 13. PREÇO ==== */}
           <section className="pt-14 sm:pt-20">
             <div className="relative overflow-hidden rounded-3xl border border-accent-soft bg-accent-tint p-6 sm:p-9">
               <div
@@ -1115,7 +1133,7 @@ export default function FincashPage() {
             </div>
           </section>
 
-          {/* ============================= 10. PERGUNTAS FREQUENTES ====== */}
+          {/* ============================ 14. PERGUNTAS FREQUENTES ===== */}
           <section className="pt-14 sm:pt-20">
             <OQueSignifica
               titulo="Perguntas frequentes"
@@ -1132,7 +1150,21 @@ export default function FincashPage() {
                      precisa acompanhar: uma landing que subestima o produto
                      custa venda tanto quanto uma que o superestima. */
                   resposta:
-                    "As nove telas estão no ar: Painel, Lançamentos, Cartões e faturas, Contas fixas, Contas, Orçamento, Metas, Investimentos e a projeção de 12 meses. A décima peça é o assistente de WhatsApp, que já está construído dentro do app mas ainda espera a linha oficial ser ligada.",
+                    "As doze telas estão no ar: Painel, Lançamentos, Cartões e faturas, Contas fixas, Contas, Importar extrato, Orçamento, Dívidas, Metas, Investimentos, Projeção de 12 meses e Categorias. As capturas desta página saíram todas do app, de uma conta de demonstração. A peça que ainda falta é o assistente de WhatsApp, construído dentro do app e à espera da linha oficial.",
+                },
+                {
+                  pergunta: "Preciso digitar tudo à mão?",
+                  /* A pergunta existe porque a resposta anterior ("não
+                     conectamos banco") deixava a impressão de que só havia o
+                     teclado. O OFX é o meio-termo honesto: sem senha de banco,
+                     sem Open Finance, e sem digitar o extrato inteiro. */
+                  resposta:
+                    "Não precisa. O extrato em OFX que o seu banco exporta entra pela tela de importação, e você confere linha por linha antes de gravar: o que já foi lançado uma vez não entra de novo. Continua sem conectar conta nenhuma e sem pedir a senha do banco, porque quem traz o arquivo é você.",
+                },
+                {
+                  pergunta: "Tenho dívida. O app ajuda ou só mostra o rombo?",
+                  resposta:
+                    "Ajuda, e é o módulo em que o FINCASH vai mais longe que os concorrentes: cada dívida é amortizada parcela a parcela, em Price ou SAC, com juro e amortização separados. O app compara as duas ordens de pagamento que funcionam, a avalanche e a bola de neve, diz quanto de juro cada uma custa e quantos meses ela adianta, e simula o que acontece se você conseguir pagar um pouco a mais por mês.",
                 },
                 {
                   pergunta: "O assistente de WhatsApp funciona hoje?",
@@ -1183,7 +1215,7 @@ export default function FincashPage() {
             />
           </section>
 
-          {/* ========================================= 11. CTA FINAL ===== */}
+          {/* ======================================== 15. CTA FINAL ==== */}
           <section className="pt-14 sm:pt-20">
             <div
               className="palco-cta relative isolate overflow-hidden rounded-3xl p-7 text-white sm:flex sm:items-center sm:justify-between sm:gap-8 sm:p-10"

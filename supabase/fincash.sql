@@ -213,6 +213,14 @@ create or replace view public.fin_saldos as
   where not c.arquivada
   group by c.id, c.user_id, c.nome, c.saldo_inicial;
 
+-- ⚠️ SEM ESTA LINHA A VIEW VAZA SALDO ENTRE USUÁRIOS.
+-- View no PostgreSQL roda com o privilégio de QUEM A CRIOU, não de quem
+-- consulta: a RLS de `fin_contas` e `fin_lancamentos` simplesmente não se
+-- aplica aqui. Aconteceu em produção — uma conta nova e vazia leu as contas de
+-- onze pessoas. Passou despercebido porque a RLS foi aplicada em loop sobre a
+-- lista de TABELAS, e view não é tabela: ficou de fora sem erro nenhum.
+alter view public.fin_saldos set (security_invoker = on);
+
 
 -- ----------------------------------------------------------------------------
 -- 7. RLS — o dono escreve, a equipe lê

@@ -7,6 +7,7 @@ import {
   ChevronsLeft,
   ChevronsRight,
   CreditCard,
+  Database,
   Flag,
   LayoutDashboard,
   LineChart,
@@ -18,6 +19,7 @@ import {
   PiggyBank,
   Repeat,
   Target,
+  TrendingDown,
   TrendingUp,
   Upload,
   Wallet,
@@ -123,6 +125,16 @@ const TELAS: Tela[] = [
     grupo: "quando-precisa",
   },
   {
+    /* Dívidas vem ANTES de Metas de propósito: quem tem as duas coisas precisa
+       ver primeiro o que drena, e só depois o que constrói. Guardar dívida no
+       fim da lista, como o concorrente faz ao tratá-la como indicador solto, é
+       a mesma escolha editorial de fingir que ela não é o problema central. */
+    href: "/fincash/app/dividas",
+    rotulo: "Dívidas",
+    Icone: TrendingDown,
+    grupo: "quando-precisa",
+  },
+  {
     href: "/fincash/app/metas",
     rotulo: "Metas",
     Icone: Flag,
@@ -145,6 +157,16 @@ const TELAS: Tela[] = [
     href: "/fincash/app/whatsapp",
     rotulo: "WhatsApp",
     Icone: MessageCircle,
+    grupo: "quando-precisa",
+  },
+  {
+    /* Exportar e lixeira. Vem antes de Categorias porque "quero meus dados de
+       volta" é pedido mais urgente que "quero renomear uma categoria" — e
+       porque o botão de exportar é o que prova que o app não prende ninguém. */
+    href: "/fincash/app/dados",
+    rotulo: "Meus dados",
+    curto: "Dados",
+    Icone: Database,
     grupo: "quando-precisa",
   },
   {

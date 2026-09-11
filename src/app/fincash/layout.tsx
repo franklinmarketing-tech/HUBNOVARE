@@ -29,11 +29,28 @@ import {
  * uma que o superestima custa confiança.
  */
 const TITULO = "FINCASH";
-const DESCRICAO = `Saiba quanto ainda dá para gastar até o fim do mês, não só quanto você já gastou. Lançamentos, contas fixas, faturas de cartão, orçamento, metas, investimentos e projeção de 12 meses em um lugar só, sem conectar banco. ${ASSINATURA_TRIAL_DIAS} dias grátis, depois ${ASSINATURA_PRECO_ROTULO}/mês com o Workspace inteiro liberado.`;
+const DESCRICAO = `Saiba quanto ainda dá para gastar até o fim do mês, não só quanto você já gastou. Lançamentos, contas fixas, faturas de cartão, orçamento, dívidas com Price e SAC, metas, investimentos, importação do extrato em OFX e projeção de 12 meses em um lugar só, sem conectar banco. ${ASSINATURA_TRIAL_DIAS} dias grátis, depois ${ASSINATURA_PRECO_ROTULO}/mês com o Workspace inteiro liberado.`;
 
 /** O preview que o WhatsApp e o Google mostram. Curto, porque é cortado. */
 const OG_SUB =
   "Quanto ainda dá para gastar até o fim do mês, contando o que ainda vai sair.";
+
+/**
+ * A imagem de compartilhamento: o PAINEL DE VERDADE, não um cartão de texto.
+ *
+ * Era `/api/og?t=...`, o cartão genérico que as 57 ferramentas dividem: navy,
+ * título, subtítulo. Ele serve bem uma calculadora que não tem cara, e serve
+ * mal um produto que tem: quem recebe o link no WhatsApp vê a miniatura antes
+ * de ler qualquer palavra, e uma tarja de texto não prova que existe app do
+ * outro lado. Aqui vai a captura do painel recortada em 1200x630, com o número
+ * grande, o velocímetro de renda comprometida e a barra lateral com as telas.
+ *
+ * É JPEG, e é de propósito: o material original é WebP, que o Facebook e o
+ * WhatsApp ainda tratam de forma irregular na prévia de link. O arquivo tem
+ * 57 kB, então a economia do WebP aqui não pagaria o risco de a prévia sair
+ * em branco.
+ */
+const OG_IMAGEM = "/fincash/og.jpg";
 
 export const metadata: Metadata = {
   title: `${TITULO}: quanto ainda dá para gastar este mês`,
@@ -46,8 +63,19 @@ export const metadata: Metadata = {
     type: "website",
     locale: "pt_BR",
     images: [
-      `/api/og?t=${encodeURIComponent(TITULO)}&s=${encodeURIComponent(OG_SUB)}`,
+      {
+        url: OG_IMAGEM,
+        width: 1200,
+        height: 630,
+        alt: "Painel do FINCASH fechando setembro com R$ 1.066 e 86% da renda já comprometida.",
+      },
     ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `${TITULO} · Novare`,
+    description: OG_SUB,
+    images: [OG_IMAGEM],
   },
 };
 

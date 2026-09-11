@@ -109,6 +109,13 @@ export default function TermosPage() {
               , que é parte destes termos — inclusive quanto ao uso de inteligência artificial e à
               transferência internacional de dados.
             </p>
+            <p>
+              Um ponto que vale repetir aqui: se você usa o FINCASH, a equipe da Novare consegue ler
+              os dados financeiros que você registra (lançamentos, orçamento, metas, patrimônio e
+              dívidas) para escrever a revisão do seu plano e prestar suporte. A equipe só lê, nunca
+              edita os seus registros, e o histórico do assistente de WhatsApp fica fora desse
+              acesso. Os detalhes estão na seção 4 da Política de Privacidade.
+            </p>
           </Secao>
 
           <Secao titulo="7. Conteúdo e marca">
