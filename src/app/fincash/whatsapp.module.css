@@ -1,0 +1,52 @@
+/*
+ * Os balões que flutuam FORA do celular, na seção do assistente.
+ *
+ * ── POR QUE UM MÓDULO, E NÃO CLASSE UTILITÁRIA ────────────────────────────
+ * A flutuação precisa de `@keyframes`, e `globals.css` é a folha compartilhada
+ * por todo o Hub: uma animação que só existe em uma seção de uma landing não
+ * tem por que pesar no CSS de todas as outras páginas. Módulo local entra no
+ * bundle da rota e some junto com ela.
+ *
+ * ── POR QUE A AMPLITUDE É RIDÍCULA (6px) ──────────────────────────────────
+ * O balão está POUSADO sobre uma fotografia de mão segurando um celular. Se
+ * ele se mexer o bastante para o olho perceber o movimento como movimento, a
+ * composição deixa de ler como "a conversa acontecendo" e passa a ler como
+ * banner animado. Seis pixels em sete segundos é o que faz a peça parecer
+ * viva sem nunca disputar a leitura do texto ao lado.
+ *
+ * Os três atrasos diferentes existem pelo mesmo motivo: três balões subindo
+ * em sincronia viram um bloco só se mexendo, que é exatamente o efeito de
+ * banner que a amplitude pequena estava tentando evitar.
+ */
+.balao {
+  animation: flutuar 7s ease-in-out infinite;
+}
+
+.balaoB {
+  animation-delay: -2.4s;
+}
+
+.balaoC {
+  animation-delay: -4.8s;
+}
+
+@keyframes flutuar {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+/*
+ * ⚠️ A ANIMAÇÃO É DECORATIVA INTEIRA: desligá-la não esconde nem move nada,
+ * porque a posição de repouso já é a posição final. Quem pediu menos
+ * movimento recebe a mesma composição, parada.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .balao {
+    animation: none;
+  }
+}

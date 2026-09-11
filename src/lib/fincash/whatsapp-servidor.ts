@@ -37,7 +37,30 @@ import {
   type Intencao,
   type RascunhoLancamento,
 } from "@/lib/fincash/whatsapp";
-import { midiaInterpretavel } from "@/lib/fincash/whatsapp-midia";
+import {
+  baixarMidia,
+  custoEstimadoCentavos,
+  midiaInterpretavel,
+  respostaFalhaMidia,
+  tetoMidiasMes,
+  tipoProcessavel,
+} from "@/lib/fincash/whatsapp-midia";
+import {
+  processarAudio,
+  respostaAudioIncompreensivel,
+  respostaDoAudio,
+  transcritorOpenAI,
+} from "@/lib/fincash/whatsapp-audio";
+import {
+  ehConfirmacao,
+  ehRecusa,
+  fraseDaProposta,
+  processarFoto,
+  respostaFotoImplausivel,
+  respostaProposta,
+  visaoOpenAI,
+  type Proposta,
+} from "@/lib/fincash/whatsapp-foto";
 import { enviarTexto, whatsappConfigurado } from "@/lib/fincash/whatsapp-envio";
 import {
   variantesTelefone,
@@ -588,6 +611,278 @@ export async function faxinaEventual(): Promise<void> {
   }
 }
 
+// ── Mídia ───────────────────────────────────────────────────────────────────
+
+/**
+ * Quantas mídias este usuário já mandou no mês.
+ *
+ * Conta pelo LOG, que já existe, em vez de um contador em coluna nova: contador
+ * é estado a mais para dessincronizar, e a tabela de mensagens é a fonte da
+ * verdade sobre o que a pessoa mandou. O mês é o civil, do fuso de São Paulo —
+ * o mesmo recorte que a pessoa vê no app, senão o limite "zera" num dia que não
+ * é o dia 1º para ela.
+ *
+ * A mensagem atual JÁ está registrada quando isto roda (a reserva vem antes de
+ * tudo), então a comparação certa é `> teto`, não `>=`.
+ */
+async function midiasNoMes(userId: string): Promise<number> {
+  const hoje = agoraNoBrasil();
+  const inicio = new Date(hoje.getFullYear(), hoje.getMonth(), 1).toISOString();
+
+  const { count } = await servico()
+    .from("fin_whatsapp_mensagens")
+    .select("id", { count: "exact", head: true })
+    .eq("user_id", userId)
+    .eq("direcao", "entrada")
+    .in("tipo", ["audio", "imagem"])
+    .gte("criado_em", inicio);
+
+  return count ?? 0;
+}
+
+/** Janela em que "sim" ainda se refere à foto. Curta de propósito — ver abaixo. */
+const JANELA_PROPOSTA_MIN = 15;
+
+/**
+ * A proposta de foto ainda aberta deste usuário, se houver.
+ *
+ * Quinze minutos porque "sim" é uma palavra perigosa: passada a conversa, um
+ * "sim" solto respondendo a outra coisa gravaria um gasto que a pessoa nem
+ * lembra de ter proposto. Confirmação que envelhece deixa de ser confirmação.
+ *
+ * Mora no `interpretacao` da própria linha da foto — jsonb que já existe — para
+ * não precisar de tabela nem coluna nova. `lancamento_id` nulo é o que marca
+ * "ainda não virou lançamento": no momento em que vira, a mesma linha deixa de
+ * ser encontrada aqui, e o "sim" repetido não duplica o gasto.
+ */
+type PropostaPendente = { id: string; proposta: Proposta; custoCentavos: number };
+
+async function propostaPendente(userId: string): Promise<PropostaPendente | null> {
+  const desde = new Date(Date.now() - JANELA_PROPOSTA_MIN * 60 * 1000).toISOString();
+
+  const { data } = await servico()
+    .from("fin_whatsapp_mensagens")
+    .select("id, interpretacao")
+    .eq("user_id", userId)
+    .eq("direcao", "entrada")
+    .eq("tipo", "imagem")
+    .is("lancamento_id", null)
+    .gte("criado_em", desde)
+    .order("criado_em", { ascending: false })
+    .limit(1);
+
+  const linha = data?.[0] as
+    | {
+        id: string;
+        interpretacao: { tipo?: string; proposta?: Proposta; custo_centavos?: number } | null;
+      }
+    | undefined;
+
+  if (linha?.interpretacao?.tipo !== "proposta-foto") return null;
+  const p = linha.interpretacao.proposta;
+  if (!p || typeof p.valor !== "number") return null;
+  return {
+    id: linha.id,
+    proposta: p,
+    custoCentavos: Number(linha.interpretacao.custo_centavos ?? 0),
+  };
+}
+
+/**
+ * Marca a proposta como resolvida sem ter virado lançamento.
+ *
+ * Necessário no "não": sem isto a proposta continuaria pendente e o próximo
+ * "sim" — sobre outro assunto — a ressuscitaria.
+ */
+async function descartarProposta(p: PropostaPendente): Promise<void> {
+  // O custo já pago pela leitura da foto vai junto: a pessoa ter recusado a
+  // proposta não devolve o dinheiro, e a auditoria de consumo tem que
+  // continuar fechando.
+  await servico()
+    .from("fin_whatsapp_mensagens")
+    .update({
+      interpretacao: { tipo: "proposta-foto-descartada", custo_centavos: p.custoCentavos },
+    })
+    .eq("id", p.id);
+}
+
+/**
+ * Áudio e foto, do arquivo à resposta.
+ *
+ * As duas mídias dividem tudo que é caro e arriscado — teto do mês, download em
+ * memória, registro de custo — e divergem só no fim: áudio vira texto e SEGUE
+ * pelo caminho normal (grava); foto vira proposta e PARA (espera "sim"). Essa
+ * assimetria é a decisão central e está explicada em `whatsapp-foto.ts`.
+ */
+async function tratarMidia(
+  vinculo: Vinculo,
+  msg: MensagemRecebida,
+  mensagemId: string,
+): Promise<void> {
+  const tipo = msg.tipo as "audio" | "imagem";
+  const base = { telefone: msg.de, userId: vinculo.user_id, mensagemId };
+
+  const usadas = await midiasNoMes(vinculo.user_id);
+  if (usadas > tetoMidiasMes()) {
+    await responder({ ...base, texto: respostaFalhaMidia("teto-do-mes", tipo) });
+    return;
+  }
+
+  if (!msg.midiaId) {
+    await responder({ ...base, texto: respostaFalhaMidia("formato-errado", tipo) });
+    return;
+  }
+
+  // O download acontece aqui e o resultado morre no fim desta função: nada de
+  // arquivo em disco, nada de URL pública. O que sobra no banco é o extraído.
+  let midia;
+  try {
+    midia = await baixarMidia(msg.midiaId);
+  } catch (e) {
+    console.warn("[whatsapp] midia nao baixou:", e);
+    await responder({ ...base, texto: respostaFalhaMidia("download-falhou", tipo) });
+    return;
+  }
+
+  /* O custo estimado vai para o log JUNTO com a interpretação, na linha da
+     entrada. É o que permite responder "quanto o assistente custou este mês"
+     com uma consulta ao banco, em vez de conferindo fatura da OpenAI. */
+  const custo = custoEstimadoCentavos(tipo, midia.tamanho / 1600);
+
+  if (tipo === "audio") {
+    const r = await processarAudio(midia, transcritorOpenAI());
+    if (!r.ok) {
+      await responder({
+        ...base,
+        interpretacao: { tipo: "midia", midia: "audio", falha: r.motivo, custo_centavos: custo },
+        texto:
+          r.motivo === "nao-entendi"
+            ? respostaAudioIncompreensivel()
+            : respostaFalhaMidia(r.motivo, "audio"),
+      });
+      return;
+    }
+
+    // A partir daqui é uma mensagem de texto como qualquer outra — de novo, um
+    // interpretador só para os dois canais.
+    const ctx = await carregarContexto(vinculo.user_id);
+    const intencao = interpretar(r.texto, {
+      ...ctx,
+      contaPadraoId: vinculo.conta_padrao_id,
+      cartaoPadraoId: vinculo.cartao_padrao_id,
+      hoje: agoraNoBrasil(),
+    });
+
+    await executar(vinculo, intencao, mensagemId, msg, {
+      transcricao: r.texto,
+      custoCentavos: custo,
+    });
+    return;
+  }
+
+  const r = await processarFoto(midia, visaoOpenAI(), agoraNoBrasil(), msg.texto);
+  if (!r.ok) {
+    await responder({
+      ...base,
+      interpretacao: { tipo: "midia", midia: "imagem", falha: r.motivo, custo_centavos: custo },
+      texto:
+        r.motivo === "implausivel"
+          ? respostaFotoImplausivel()
+          : respostaFalhaMidia(r.motivo, "imagem"),
+    });
+    return;
+  }
+
+  // Proposta gravada no log, lançamento NÃO. É o "sim" que grava.
+  await responder({
+    ...base,
+    interpretacao: { tipo: "proposta-foto", proposta: r.proposta, custo_centavos: custo },
+    texto: respostaProposta(r.proposta),
+  });
+}
+
+/**
+ * O "sim" que fecha uma proposta de foto.
+ *
+ * Passa a proposta pelo `interpretar()` de texto, e não direto para o banco: a
+ * escolha de categoria, de conta padrão e de data precisa sair do mesmo lugar em
+ * todos os canais, ou a foto criaria lançamentos com regra própria.
+ *
+ * Devolve `true` quando consumiu a mensagem; `false` deixa o texto seguir o
+ * caminho normal (quem responde uma foto com "mercado 280" está corrigindo o
+ * valor, não conversando — e corrigir tem que funcionar).
+ */
+async function tratarRespostaAProposta(
+  vinculo: Vinculo,
+  msg: MensagemRecebida,
+  mensagemId: string,
+): Promise<boolean> {
+  const sim = ehConfirmacao(msg.texto);
+  const nao = ehRecusa(msg.texto);
+  if (!sim && !nao) return false;
+
+  const pendente = await propostaPendente(vinculo.user_id);
+  if (!pendente) return false;
+
+  const base = { telefone: msg.de, userId: vinculo.user_id, mensagemId };
+
+  if (nao) {
+    await descartarProposta(pendente);
+    await responder({
+      ...base,
+      texto: "Beleza, não registrei nada. Me manda o valor certo em texto — por exemplo: “mercado 280”.",
+    });
+    return true;
+  }
+
+  const hoje = agoraNoBrasil();
+  const ctx = await carregarContexto(vinculo.user_id);
+  const intencao = interpretar(fraseDaProposta(pendente.proposta, hoje), {
+    ...ctx,
+    contaPadraoId: vinculo.conta_padrao_id,
+    cartaoPadraoId: vinculo.cartao_padrao_id,
+    hoje,
+  });
+
+  if (intencao.tipo !== "registrar") {
+    // Cai aqui quando falta conta padrão, por exemplo: a pergunta do
+    // interpretador é a resposta certa, e a proposta some para o "sim" seguinte
+    // não reabrir esta.
+    await descartarProposta(pendente);
+    await responder({
+      ...base,
+      texto:
+        intencao.tipo === "indefinido"
+          ? respostaIndefinida(intencao.motivo, intencao.opcoes)
+          : respostaFotoImplausivel(),
+    });
+    return true;
+  }
+
+  const id = await gravarLancamento(vinculo.user_id, intencao.rascunho);
+  if (!id) {
+    await responder({ ...base, texto: "Não consegui salvar agora. Tente de novo em instantes." });
+    return true;
+  }
+
+  /* O lançamento é carimbado na linha da FOTO, não na do "sim": é a foto que
+     gerou o gasto, é por ela que o `desfazer` procura, e é isso que fecha a
+     proposta para um segundo "sim" não duplicar. */
+  await servico()
+    .from("fin_whatsapp_mensagens")
+    .update({ lancamento_id: id })
+    .eq("id", pendente.id);
+
+  const alerta = await alertaDeOrcamento(vinculo.user_id, intencao.rascunho);
+  await responder({
+    ...base,
+    interpretacao: intencao as unknown,
+    lancamentoId: id,
+    texto: [respostaDeRegistro(intencao.rascunho), alerta].filter(Boolean).join("\n\n"),
+  });
+  return true;
+}
+
 // ── Orquestração ────────────────────────────────────────────────────────────
 
 /**
@@ -634,17 +929,26 @@ export async function processarMensagem(msg: MensagemRecebida): Promise<void> {
       return;
     }
 
-    // Mídia: reconhecida, respondida, não interpretada. O porquê está em
-    // `whatsapp-midia.ts`.
-    if (msg.tipo !== "texto" && !midiaInterpretavel()) {
-      await responder({
-        telefone: msg.de,
-        userId: vinculo.user_id,
-        texto: respostaMidiaNaoSuportada(msg.tipo),
-        mensagemId,
-      });
+    if (msg.tipo !== "texto") {
+      // Vídeo e documento continuam de fora: são caros de processar e quase
+      // nunca são comprovante — quem manda PDF de fatura quer o importador de
+      // OFX, que já existe no app.
+      if (!tipoProcessavel(msg.tipo) || !midiaInterpretavel()) {
+        await responder({
+          telefone: msg.de,
+          userId: vinculo.user_id,
+          texto: respostaMidiaNaoSuportada(msg.tipo),
+          mensagemId,
+        });
+        return;
+      }
+      await tratarMidia(vinculo, msg, mensagemId);
       return;
     }
+
+    // "sim"/"não" só ganham sentido quando há uma foto esperando confirmação.
+    // Vem antes do interpretador porque para ele "sim" é conversa fiada.
+    if (await tratarRespostaAProposta(vinculo, msg, mensagemId)) return;
 
     const ctx = await carregarContexto(vinculo.user_id);
     const intencao: Intencao = interpretar(msg.texto, {
@@ -667,13 +971,25 @@ async function executar(
   intencao: Intencao,
   mensagemId: string,
   msg: MensagemRecebida,
+  /* Só o áudio preenche isto. A transcrição entra na resposta E no log: na
+     resposta para a pessoa flagrar a palavra ouvida errada na hora, no log para
+     alguém conseguir explicar, meses depois, por que o gasto foi parar naquela
+     categoria. */
+  audio?: { transcricao: string; custoCentavos: number },
 ) {
   const base = {
     telefone: msg.de,
     userId: vinculo.user_id,
     mensagemId,
-    interpretacao: intencao as unknown,
+    interpretacao: (audio
+      ? { ...(intencao as object), transcricao: audio.transcricao, custo_centavos: audio.custoCentavos }
+      : intencao) as unknown,
   };
+
+  // A confirmação de áudio sempre mostra o que foi ouvido — inclusive quando o
+  // interpretador não entendeu, que é justamente quando a pista mais importa.
+  const comAudio = (texto: string) =>
+    audio ? respostaDoAudio(audio.transcricao, texto) : texto;
 
   switch (intencao.tipo) {
     case "registrar": {
@@ -681,7 +997,7 @@ async function executar(
       if (!id) {
         await responder({
           ...base,
-          texto: "Não consegui salvar agora. Tente de novo em instantes.",
+          texto: comAudio("Não consegui salvar agora. Tente de novo em instantes."),
         });
         return;
       }
@@ -689,9 +1005,9 @@ async function executar(
       await responder({
         ...base,
         lancamentoId: id,
-        texto: [respostaDeRegistro(intencao.rascunho), alerta]
-          .filter(Boolean)
-          .join("\n\n"),
+        texto: comAudio(
+          [respostaDeRegistro(intencao.rascunho), alerta].filter(Boolean).join("\n\n"),
+        ),
       });
       return;
     }
@@ -699,23 +1015,27 @@ async function executar(
     case "consulta":
       await responder({
         ...base,
-        texto: await responderConsulta(vinculo.user_id, intencao.consulta),
+        texto: comAudio(await responderConsulta(vinculo.user_id, intencao.consulta)),
       });
       return;
 
     case "desfazer":
-      await responder({ ...base, texto: await desfazerUltimo(vinculo.user_id) });
+      await responder({ ...base, texto: comAudio(await desfazerUltimo(vinculo.user_id)) });
       return;
 
     case "indefinido":
       await responder({
         ...base,
-        texto: respostaIndefinida(intencao.motivo, intencao.opcoes),
+        // Áudio mal entendido mostra a transcrição: sem ela a pessoa não sabe se
+        // o problema foi a fala, o ruído ou a frase.
+        texto: audio
+          ? respostaAudioIncompreensivel(audio.transcricao)
+          : respostaIndefinida(intencao.motivo, intencao.opcoes),
       });
       return;
 
     default:
-      await responder({ ...base, texto: respostaDeAjuda() });
+      await responder({ ...base, texto: comAudio(respostaDeAjuda()) });
   }
 }
 

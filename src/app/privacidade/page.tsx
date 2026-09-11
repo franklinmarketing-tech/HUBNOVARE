@@ -146,6 +146,22 @@ export default function PrivacidadePage() {
               trocadas com o assistente, com o texto exatamente como você
               escreveu.
             </p>
+            {/* Áudio e foto entraram no assistente depois da primeira versão
+                desta política. A frase é específica de propósito: dizer só
+                "tratamos sua mídia" deixaria a pessoa imaginar que o arquivo
+                fica guardado, que é justamente o que não acontece. */}
+            <p className="mt-3">
+              <strong>Áudio e foto enviados ao assistente.</strong> Se você
+              mandar um áudio dizendo um gasto, ou a foto de um comprovante, o
+              arquivo é processado na memória do servidor e descartado em
+              seguida. Ele não é gravado em disco, não vira link e não fica
+              guardado. O que permanece é apenas o resultado da leitura: a
+              transcrição do áudio, ou o valor, a data e o estabelecimento
+              lidos do comprovante. Para fazer essa leitura, o conteúdo é
+              enviado a um serviço de processamento de linguagem e de imagem
+              contratado pela Novare, que o utiliza para executar a tarefa e
+              não para treinar modelos.
+            </p>
             <p className="mt-3">
               <strong>Dados técnicos e de uso.</strong> Para operar e proteger o
               serviço, registramos informações técnicas básicas geradas pelo uso

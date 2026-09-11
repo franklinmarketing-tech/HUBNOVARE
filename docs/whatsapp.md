@@ -20,7 +20,9 @@ depois disso.
 | `src/lib/fincash/whatsapp-provedor.ts` | tradutor do formato do provedor + verificação de assinatura |
 | `src/lib/fincash/whatsapp-servidor.ts` | banco, vínculo, idempotência, respostas |
 | `src/lib/fincash/whatsapp-envio.ts` | o cliente de envio (mesmo desenho de `lib/email.ts`) |
-| `src/lib/fincash/whatsapp-midia.ts` | foto e áudio: estrutura pronta, motor **não** implementado |
+| `src/lib/fincash/whatsapp-midia.ts` | mídia: download em memória, tetos de tamanho e o teto mensal por usuário |
+| `src/lib/fincash/whatsapp-audio.ts` | áudio → transcrição (Whisper) → o **mesmo** interpretador do texto |
+| `src/lib/fincash/whatsapp-foto.ts` | foto → NFC-e (quando dá) ou visão → **proposta**, nunca lançamento direto |
 
 O que o assistente entende hoje, por texto:
 
@@ -172,21 +174,91 @@ Falta a tela que chama isso e, principalmente, **o seletor de conta padrão**. S
 ele, quem tem mais de uma conta ouve “de qual conta saiu?” em toda mensagem —
 porque o assistente se recusa a chutar em qual conta o dinheiro entra.
 
-### 7.2 Foto de nota fiscal e áudio
-Estrutura pronta (`whatsapp-midia.ts`); motor não. Ficou de fora **de
-propósito**, e o motivo não é técnico:
+### 7.2 Foto de nota fiscal e áudio *(implementado — falta ligar)*
+Os dois estão escritos e testados (`node scripts/testar-whatsapp-midia.mjs`).
+Ligam sozinhos quando `OPENAI_API_KEY` existe e `FINCASH_MIDIA_TETO_MES` não é
+`0`. Sem chave, o assistente volta a pedir texto — sem `if` novo em lugar nenhum.
 
-- **Custo por mensagem.** Transcrever áudio e ler nota com IA custa por uso, todo
-  mês, por assinante. O preço da assinatura precisa caber nisso antes.
-- **Nota fiscal tem um caminho melhor que OCR.** O QR Code da NFC-e leva à
-  SEFAZ, com emitente, itens e valor exatos, de graça. Escrever OCR primeiro
-  seria jogar fora o caminho bom.
+**Áudio.** OGG/Opus do WhatsApp vai direto para o Whisper (`whisper-1`,
+`language: "pt"`), sem ffmpeg e sem arquivo temporário. O texto transcrito entra
+em `interpretar()` de `whatsapp.ts` — **o mesmo interpretador do texto digitado**.
+Não existe, e não pode passar a existir, um segundo interpretador para voz: no
+dia em que existir, “mercado 280” escrito e falado começam a divergir e ninguém
+sabe dizer qual dos dois está certo. Efeito colateral bom: a regra do número por
+extenso vale para a voz também — “duzentos e oitenta” continua virando pergunta.
+A resposta **mostra a transcrição** (“🎤 Ouvi: …”), porque quem foi transcrito
+errado precisa ver o erro na hora, não no gráfico do fim do mês.
 
-Quando for implementar: áudio vai por Whisper (`OPENAI_API_KEY` já existe, o
-OGG/Opus do WhatsApp entra direto); nota vai por QR primeiro e visão só como
-plano B — e, nos dois casos, **o valor lido é confirmado pela pessoa antes de
-virar lançamento**. Nota fiscal tem subtotal, desconto e troco na mesma folha, e
-gravar o número errado calado é o pior defeito possível aqui.
+**Foto.** Dois caminhos, nesta ordem:
+
+1. **NFC-e.** Quando a URL do QR chega em **texto** (legenda da foto, ou o link
+   que o leitor de QR do celular copia), a chave de 44 dígitos é validada e o
+   valor sai dela — exato, oficial, custo zero.
+2. **Visão** (`gpt-4o-mini`, imagem em `detail: "low"`), pedindo **três campos e
+   só três**: valor total, estabelecimento e data. A lista de itens é proibida no
+   prompt — é onde o modelo inventa, e item inventado vira categoria errada.
+   O que volta é **validado**: valor entre R$ 0,50 e R$ 50.000 (as duas pontas
+   são modos de falha reais: total confundido com troco, e ponto decimal perdido
+   transformando R$ 17,80 em R$ 1.780,00), data existente, não futura e de no
+   máximo um ano atrás.
+
+**A foto nunca grava direto.** Ela responde com uma proposta e espera um “sim”.
+A proposta fica no `interpretacao` (jsonb) da própria linha da foto em
+`fin_whatsapp_mensagens`, vale **15 minutos** e some no instante em que vira
+lançamento — `lancamento_id` deixa de ser nulo e o “sim” repetido não duplica
+nada. Quinze minutos porque “sim” é palavra perigosa: passada a conversa, um
+“sim” solto sobre outro assunto gravaria um gasto que ninguém propôs. Responder
+com um valor em texto (“mercado 280”) corrige a proposta pelo caminho normal.
+
+#### O QR da NFC-e a partir dos PIXELS — não foi feito, e por quê
+Decodificar QR de um JPEG em Node pede **duas dependências novas de runtime**
+(um decodificador de imagem para produzir RGBA + um leitor tipo jsQR/zxing). O
+`qrcode` que o projeto já tem só **gera** QR, e é `devDependency` — não existe em
+produção. Instalar duas dependências é decisão do dono, não do código, então
+ficou o encaixe pronto: `decodificarQrDaImagem()` em `whatsapp-foto.ts` devolve
+`null` e o fluxo segue para a visão. Trocar o corpo dessa função liga o caminho
+inteiro, sem mexer em mais nada.
+
+Vale saber antes de começar: decodificar é metade do trabalho. A outra metade é
+consultar a SEFAZ — **27 portais diferentes**, vários só com HTML para raspar,
+alguns com captcha. O valor embutido no próprio QR (modo online) é o que dá
+retorno rápido; a consulta completa é projeto à parte.
+
+### 7.2.1 Custo e o teto mensal — **decisão de negócio pendente**
+Ordem de grandeza, aos preços de referência:
+
+| | por mensagem | 60 por mês |
+|---|---|---|
+| Áudio (Whisper, ~15s) | ~US$ 0,0015 | ~US$ 0,09 |
+| Foto (visão, `detail: low`) | ~US$ 0,0003 | ~US$ 0,02 |
+
+Ou seja: **poucos centavos de dólar por assinante/mês** no teto cheio. O risco
+não é o preço unitário, é o uso sem limite — um único cliente que fotografa todo
+comprovante do dia, todo dia, define a margem do produto.
+
+Por isso existe `FINCASH_MIDIA_TETO_MES`, **60 por padrão** (áudio + foto
+somados, por usuário, mês civil de São Paulo). O número é defensável — são ~2 por
+dia, e quem usa o assistente a sério lança de 3 a 5 coisas por dia sendo a
+maioria texto, que é grátis — mas **é provisório**: o definitivo depende do preço
+da assinatura. `0` desliga mídia sem remover código.
+
+O consumo é contado no próprio log (`fin_whatsapp_mensagens`, linhas de entrada
+com `tipo` em `audio`/`imagem`) e o custo estimado vai em `interpretacao.custo_centavos`
+— dá para responder “quanto o assistente custou este mês” com uma consulta ao
+banco, em vez de conferindo fatura da OpenAI.
+
+### 7.2.2 Privacidade da mídia
+- O arquivo é baixado **em memória** e descartado. Nunca toca disco do servidor,
+  nunca vira URL pública, nunca é reenviado para lugar nenhum além da OpenAI
+  (a imagem vai como data URL **no corpo** da requisição, não como link).
+- **Não se guarda o arquivo. Guarda-se o que foi extraído**: a transcrição do
+  áudio, ou valor/estabelecimento/data do comprovante.
+- Teto de tamanho **antes** da chamada paga: 6 MB para áudio, 5 MB para imagem,
+  8 MB no download. Vídeo e documento continuam fora.
+- ⚠️ **A política de privacidade precisa de uma frase sobre isto** (seção 4 de
+  `src/app/privacidade/page.tsx`): que áudio e foto são processados e
+  descartados, e que o que fica é o texto extraído. Não editei a política — é
+  trabalho de outra pessoa.
 
 ### 7.3 Lembrete semanal e alerta fora da conversa
 O alerta de orçamento já sai — mas junto da confirmação, dentro da conversa.
@@ -222,6 +294,15 @@ existe para vazar — só não decidi o prazo no lugar de quem responde por ele.
 **Valor é sempre positivo.** O sinal vem de `tipo`. Está no `modelo.ts`, está no
 `fincash.sql` e está repetido em `whatsapp-servidor.ts` porque é a regra que
 quebra o saldo do app inteiro se alguém esquecer.
+
+**Áudio grava; foto propõe.** A diferença não é técnica: no texto e no áudio
+quem ditou o número foi a pessoa; na foto, quem ditou foi o modelo. Por isso a
+foto sempre pede um “sim” antes de virar lançamento.
+
+**Um interpretador só.** Áudio vira texto e passa por `interpretar()`; a proposta
+da foto vira frase e passa por `interpretar()`. Categoria, conta padrão e data
+saem do mesmo lugar em todos os canais — dois caminhos até o banco seria duas
+verdades sobre a mesma frase.
 
 **Ambiguidade não vira chute.** Sem valor, sem descrição ou sem saber a conta, o
 assistente pergunta. Nunca escolhe a conta mais provável. Registro errado custa

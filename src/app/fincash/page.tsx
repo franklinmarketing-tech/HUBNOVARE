@@ -1,9 +1,11 @@
+import Image from "next/image";
 import Link from "next/link";
 import {
   ArrowRight,
   BadgeCheck,
   Banknote,
   CalendarClock,
+  Camera,
   Check,
   CreditCard,
   FileUp,
@@ -13,10 +15,13 @@ import {
   ListPlus,
   Lock,
   MessageCircle,
+  Mic,
+  PenLine,
   PiggyBank,
   RefreshCw,
   ShieldCheck,
   Smartphone,
+  Sparkles,
   Tags,
   TrendingDown,
   Wallet,
@@ -48,6 +53,7 @@ import {
 } from "@/lib/assinatura";
 import { CONTAGEM } from "@/lib/apps";
 import { falarNoWhatsApp } from "@/lib/contato";
+import estilos from "./whatsapp.module.css";
 
 /**
  * A landing do FINCASH.
@@ -331,20 +337,127 @@ const TELAS_LISTA: { icone: LucideIcon; nome: string; texto: string }[] = [
 ];
 
 /**
- * O que o assistente de WhatsApp entende, tirado do interpretador.
+ * O QUE O ASSISTENTE DE WHATSAPP FAZ, item a item.
  *
- * ⚠️ Cada frase daqui existe em `src/lib/fincash/whatsapp.ts` e está listada
- * na tela do app (`whatsapp/guia.tsx`). Uma landing que inventa uma frase a
- * mais queima o assistente inteiro: a pessoa manda, recebe "não entendi" e
- * não tenta uma terceira vez.
+ * ⚠️ TUDO AQUI ESTÁ SOB A MESMA RESSALVA, e ela não é um detalhe de rodapé: a
+ * linha oficial da Meta não está ligada, então NENHUMA destas linhas responde
+ * hoje, nem as mais antigas nem as mais novas. A tentação de escrever a lista
+ * em dois tons ("isto já vai, isto vem depois") existe e foi recusada: dois
+ * tons na mesma lista ensinam a pessoa a ler a ressalva como enfeite do item
+ * fraco, e ela passa a acreditar que o resto atende. Ou a pastilha vale para a
+ * lista inteira, ou ela não vale para nada.
+ *
+ * DE ONDE VEM CADA LINHA. As sete primeiras saem do interpretador que já
+ * existe (`src/lib/fincash/whatsapp.ts`, e a mesma lista está na tela do app
+ * em `whatsapp/guia.tsx`); o alerta de estouro sai de
+ * `respostaDeConsultaCategoria`, que compara o total da categoria com o
+ * orçamento e devolve quanto passou. Áudio e foto entram agora porque
+ * deixaram de ser recusa de produto e viraram obra em andamento: a estrutura
+ * de mídia já está em `whatsapp-midia.ts` e o motor está sendo escrito.
+ *
+ * ⚠️ E O TAMANHO DA PROMESSA DE MÍDIA É O DE UM ASSISTENTE DE GASTO, não o de
+ * um leitor de documento. Áudio é você dizendo o gasto em voz alta; foto é o
+ * valor do comprovante. "Lê qualquer documento" e "entende qualquer imagem"
+ * são a promessa que transforma uma boa entrega em reclamação, porque a
+ * primeira folha que ele não lê vira a prova de que a página mentiu.
  */
-const CONVERSA: { pessoa: string; efeito: string }[] = [
-  { pessoa: "Uber 35", efeito: "Gasto de R$ 35 hoje, na categoria de transporte." },
-  { pessoa: "mercado R$ 280 ontem", efeito: "Lançado com a data de ontem." },
-  { pessoa: "recebi 5000 de salário", efeito: "Entrada, não gasto." },
-  { pessoa: "saldo", efeito: "O saldo de cada conta e o total." },
-  { pessoa: "resumo", efeito: "Entrou, saiu, sobrou e o que ainda falta pagar." },
-  { pessoa: "desfazer", efeito: "Apaga o último lançamento que ele criou." },
+const CAPACIDADES: { icone: LucideIcon; titulo: string; exemplo: string }[] = [
+  {
+    icone: ListPlus,
+    titulo: "Lançar um gasto escrevendo",
+    exemplo: "“Uber 35”, “mercado R$ 280 ontem”, “farmácia 47,90 no nubank”",
+  },
+  {
+    icone: Banknote,
+    titulo: "Lançar o que entrou",
+    exemplo: "“recebi 5000 de salário”, e ele grava como receita, não como gasto",
+  },
+  {
+    icone: Mic,
+    titulo: "Falar o gasto em vez de digitar",
+    exemplo: "Um áudio dizendo o gasto, e ele registra o que você falou",
+  },
+  {
+    icone: Camera,
+    titulo: "Mandar a foto do comprovante",
+    exemplo: "Ele lê o valor da foto e lança, com você confirmando antes",
+  },
+  {
+    icone: Tags,
+    titulo: "Perguntar quanto foi numa categoria",
+    exemplo: "“quanto gastei com alimentação esse mês?”, e também no mês passado",
+  },
+  {
+    icone: Wallet,
+    titulo: "Consultar o saldo das contas",
+    exemplo: "“saldo”, e vem cada conta separada mais o total",
+  },
+  {
+    icone: Gauge,
+    titulo: "Pedir o resumo do mês",
+    exemplo: "“resumo”: entrou, saiu, sobrou e o que ainda falta pagar",
+  },
+  {
+    icone: RefreshCw,
+    titulo: "Desfazer o último lançamento",
+    exemplo: "“desfazer” apaga o que ele acabou de criar, e só o que foi dele",
+  },
+  {
+    icone: TrendingDown,
+    titulo: "Ser avisado quando a categoria estoura",
+    exemplo: "O aviso vem junto da confirmação do gasto que cruzou o limite",
+  },
+];
+
+/**
+ * O QUE ELE NÃO FAZ, e esta lista é metade do argumento.
+ *
+ * A seção do concorrente mais direto termina prometendo; esta termina
+ * mostrando a borda. O motivo é o mesmo que vale dentro do app
+ * (`whatsapp/guia.tsx` reserva uma caixa inteira para isso): num app de
+ * dinheiro, o limite descoberto no mês em que a conta não fecha custa a
+ * assinatura, e o limite escrito na página de venda custa nada.
+ *
+ * ⚠️ TRÊS DELAS SÃO RECUSA DELIBERADA DO INTERPRETADOR, não buraco: número
+ * por extenso, data vaga e parcelamento ele devolve como pergunta em vez de
+ * chutar. Escrever isso como defeito seria mentir ao contrário.
+ */
+const NAO_FAZ: { frase: string; porque: string }[] = [
+  {
+    frase: "“mil e duzentos”",
+    porque:
+      "Número por extenso ele pergunta em vez de gravar. Chutar entre 1.200 e 1.000 é o erro que ninguém revisa.",
+  },
+  {
+    frase: "“300 em 3x”",
+    porque:
+      "Parcelamento se faz na tela de lançamentos, onde dá para conferir as três parcelas antes de gravar.",
+  },
+  {
+    frase: "“na terça retrasada”",
+    porque:
+      "De data ele entende hoje, ontem, anteontem, “dia 12” e “12/03”. Adivinhar joga o gasto no mês errado.",
+  },
+];
+
+/**
+ * OS BALÕES QUE FLUTUAM POR CIMA DA FOTOGRAFIA.
+ *
+ * ⚠️ CADA FRASE DAQUI TEM DE EXISTIR NO INTERPRETADOR. Este é o texto mais
+ * copiado da página inteira: é o que a pessoa lê antes de decidir testar, e é
+ * literalmente o que ela vai digitar na primeira mensagem. Uma frase inventada
+ * aqui não erra uma promessa de marketing, erra a PRIMEIRA tentativa de uso, e
+ * quem manda e ouve “não entendi” não tenta uma terceira vez.
+ *
+ * As três foram escolhidas para mostrar as três naturezas do assistente em
+ * três linhas curtas: uma que GRAVA, uma que RESPONDE e uma que CORRIGE. Um
+ * balão de cada tipo prova que ele é um assistente; três balões de gasto
+ * provariam só que ele tem um campo de texto.
+ */
+const BALOES: { frase: string; efeito: string; lado: "esq" | "dir" }[] = [
+  { frase: "Uber 35", efeito: "Gasto de R$ 35, hoje", lado: "esq" },
+  { frase: "saldo", efeito: "Cada conta e o total", lado: "dir" },
+  { frase: "desfazer", efeito: "Apaga o último lançamento", lado: "esq" },
 ];
 
 /**
@@ -1100,119 +1213,351 @@ export default function FincashPage() {
           </section>
 
           {/* =========================== 11. O ASSISTENTE DE WHATSAPP === */}
-          {/* ⚠️ A SEÇÃO MAIS DELICADA DA PÁGINA. O assistente é o item que mais
-              separaria a Novare do concorrente mais direto, que cobra a mais
-              para ter o mesmo. E é o único que ainda não está de pé inteiro: o
-              interpretador, o vínculo do número e a tela existem, a linha
-              oficial não.
+          {/* ⚠️ A SEÇÃO MAIS DELICADA DA PÁGINA, e agora também a mais alta.
 
-              Por isso ele aparece com a ressalva ANTES do encanto, e não
-              depois: quem lê "em breve" no fim de uma seção entusiasmada já
-              comprou a promessa e vai cobrar por ela. E não entra no
-              comparativo nem na contagem de telas prontas.
+              O assistente é o item que mais separa a Novare do concorrente
+              mais direto, que cobra a mais para ter o mesmo. E é o único que
+              ainda não está de pé inteiro: o interpretador, o vínculo do
+              número e a tela existem, a linha oficial da Meta não.
 
-              Foto de nota e áudio ficaram deliberadamente de fora do produto.
-              A página diz isso com todas as letras, porque é uma decisão
-              defensável e porque calar sobre ela criaria a expectativa.
+              ── POR QUE ELA VIROU UM BLOCO NAVY ───────────────────────────
+              Ela estava do mesmo tamanho visual que "Contas fixas": card
+              branco, título de 2xl, uma foto ao lado. O argumento mais forte
+              da página tinha o peso de um item de lista, e o olho, que já
+              tinha visto seis cards brancos, passava por ela como passa pelos
+              outros. O navy não é um segundo tema nem uma inversão de página:
+              é a mesma moldura do herói e do CTA final, que a página já usa
+              duas vezes para dizer "isto aqui é o produto". A terceira vez é
+              para dizer "isto aqui é o produto onde você já vive".
+
+              ⚠️ ISSO NÃO AUTORIZA UM SEGUNDO ACENTO. Dentro do navy o laranja
+              continua sendo o único destaque, e branco continua sendo texto
+              sobre navy, nunca sobre laranja.
 
               ── A IMAGEM QUE MANDA NESTA SEÇÃO ────────────────────────────
-              O celular na mão com a conversa na tela é a peça mais persuasiva
-              da página, porque é a única que mostra o produto ACONTECENDO no
-              lugar onde a pessoa já vive, sem app aberto e sem tela de
-              cadastro. Ela ganhou a coluna larga e a conversa remontada em
-              HTML saiu: as duas mostravam a mesma coisa, e a remontagem perdia
-              no confronto.
+              O celular na mão é a única peça da página que mostra o produto
+              ACONTECENDO no lugar onde a pessoa já vive, sem app aberto e sem
+              tela de cadastro. Os balões em HTML por cima dela são o que
+              transforma uma fotografia de celular em uma CONVERSA: eles saem
+              da moldura do aparelho, e é justamente o que sai da moldura que
+              o olho lê como vivo. Custam zero quilobyte, porque são texto.
 
-              ⚠️ E É JUSTAMENTE POR SER A MAIS PERSUASIVA QUE ELA É A MAIS
-              PERIGOSA. A conversa é composição, não print de um número que
-              responde hoje. A pastilha de "construído, ainda não ligado" fica
-              ao lado dela, e a linha de ressalva vai COLADA na imagem, dentro
-              do mesmo bloco: separadas por uma coluna, a imagem viaja em
-              print, em story e em anúncio sem a ressalva junto, e aí a página
-              passa a prometer o que não entrega. Quando a linha da Meta for
-              ligada, sai a pastilha, sai a linha, e não sai nada além disso. */}
+              ⚠️ E É POR SER A MAIS PERSUASIVA QUE ELA É A MAIS PERIGOSA. A
+              conversa é composição, não print de um número que responde hoje.
+              A pastilha "Construído, ainda não ligado" e a linha de ressalva
+              ficam COLADAS na imagem, dentro do mesmo bloco: separadas por uma
+              coluna, a imagem viaja em print, em story e em anúncio sem a
+              ressalva junto, e aí a página passa a prometer o que não entrega.
+
+              ⚠️ E A RESSALVA VALE PARA A LISTA INTEIRA, incluindo áudio e
+              foto, que entraram agora. A tentação era marcar as duas como "em
+              breve" e deixar o resto parecendo pronto; a verdade é que nada
+              responde hoje, porque falta credencial da Meta, e uma lista em
+              dois tons ensina a ler a ressalva como enfeite do item fraco.
+              Quando a linha for ligada, sai a pastilha, sai a linha de
+              ressalva, e não sai mais nada. */}
           <section className="pt-14 sm:pt-20">
-            <div className="grid gap-8 rounded-3xl border border-border bg-card p-6 shadow-subtle sm:p-9 lg:grid-cols-[1fr_minmax(0,26rem)] lg:items-center lg:gap-12">
-              <div>
-                <span className="inline-flex items-center gap-2 rounded-full bg-muted px-3 py-1 text-xs font-semibold text-muted-foreground">
-                  <Smartphone className="h-3.5 w-3.5" />
-                  Construído, ainda não ligado
+            <div
+              className="relative isolate overflow-hidden rounded-3xl p-6 text-white sm:p-10"
+              style={PALCO_NAVY}
+            >
+              {/* O CABEÇALHO DA SEÇÃO, e ele é o único lugar da página em que
+                  dois ícones aparecem somados.
+
+                  Os dois selos com o "+" no meio não são enfeite: eles contam
+                  a peça inteira antes da primeira frase ser lida, que é o que
+                  um título de duas linhas sozinho não consegue. O interpretador
+                  fica de um lado, o aplicativo onde ele mora fica do outro, e a
+                  soma é o produto. Quem só passa o olho já entendeu. */}
+              <div className="flex items-center gap-3">
+                <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/10 ring-1 ring-white/15">
+                  <Sparkles className="h-5 w-5 text-accent-claro" strokeWidth={1.75} />
                 </span>
-
-                <h2 className="mt-4 font-display text-2xl font-semibold leading-tight text-primary sm:text-3xl">
-                  Lançar o gasto mandando uma mensagem
-                </h2>
-
-                <p className="mt-4 text-sm leading-relaxed text-muted-foreground sm:text-base">
-                  Dentro do app já existem o interpretador, a tela do
-                  assistente e o vínculo do seu número, que é confirmado por um
-                  código de dez minutos que você manda pelo WhatsApp. Falta
-                  plugar a linha oficial, e essa parte não depende de código.
-                  Enquanto ela não estiver no ar, você não paga nada a mais por
-                  isso e não vai encontrar essa promessa marcada como pronta em
-                  lugar nenhum desta página. Quando ligar, entra para quem já
-                  assina.
-                </p>
-
-                <p className="mt-4 rounded-xl border border-border bg-gelo p-4 text-sm leading-relaxed text-muted-foreground">
-                  <b className="font-semibold text-foreground">
-                    Foto de nota e áudio ficaram de fora, de propósito.
-                  </b>{" "}
-                  Uma nota fiscal tem subtotal, desconto e troco na mesma
-                  folha, e gravar o número errado calado é o pior defeito
-                  possível num app de dinheiro. Parcelamento e data solta
-                  continuam na tela de lançamentos, onde dá para conferir as
-                  parcelas antes de gravar.
-                </p>
-
-                {/* O QUE A IMAGEM NÃO CABE MOSTRAR. A foto traz três frases; o
-                    interpretador reconhece estas seis, e as três que faltam
-                    (saldo, resumo, desfazer) são as que respondem em vez de
-                    lançar. Elas continuam escritas aqui porque foram tiradas
-                    de `lib/fincash/whatsapp.ts`, uma a uma: inventar uma
-                    sétima queimaria o assistente inteiro, já que quem manda e
-                    ouve "não entendi" não tenta uma terceira vez. */}
-                <dl className="mt-5 grid gap-x-6 gap-y-2 sm:grid-cols-2">
-                  {CONVERSA.map((c) => (
-                    <div
-                      key={c.pessoa}
-                      className="border-t border-border/60 pt-2 first:border-t-0 sm:[&:nth-child(2)]:border-t-0"
-                    >
-                      <dt className="font-mono text-xs font-semibold text-primary">
-                        {c.pessoa}
-                      </dt>
-                      <dd className="mt-0.5 text-xs leading-snug text-muted-foreground">
-                        {c.efeito}
-                      </dd>
-                    </div>
-                  ))}
-                </dl>
+                <span aria-hidden className="font-display text-xl font-medium text-white/40">
+                  +
+                </span>
+                <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/10 ring-1 ring-white/15">
+                  <MessageCircle className="h-5 w-5 text-accent-claro" strokeWidth={1.75} />
+                </span>
               </div>
 
-              {/* COMPOSIÇÃO 5 DE 5: a fotografia É a tela, e não tem moldura
-                  de aparelho por cima porque o aparelho já está na foto. É a
-                  única imagem da página em que o produto aparece fora do
-                  produto, e é esse o argumento: não é preciso abrir o app.
+              {/* ESCALA, e é onde esta seção ganha presença sem trocar de
+                  fonte. Sora em 500 e `tracking-tight` num tamanho que chega a
+                  3,25rem no desktop: o título de seção mais alto da página
+                  depois do herói, e pela mesma razão do herói. Peso 500, não
+                  800, porque em corpo grande o negrito fecha a contraforma das
+                  letras e vira anúncio; leve e grande lê como publicação. */}
+              <h2 className="mt-6 max-w-2xl font-display text-[1.9rem] font-medium leading-[1.08] tracking-tight sm:text-[2.6rem] lg:text-[3.25rem]">
+                O gasto de hoje cabe
+                <br className="hidden sm:block" />{" "}
+                <span className="font-semibold text-accent-claro">
+                  numa mensagem
+                </span>
+                .
+              </h2>
 
-                  A ressalva mora dentro do mesmo bloco, encostada na imagem,
-                  pelo motivo escrito no cabeçalho da seção. */}
-              <figure className="rounded-3xl border border-border bg-gelo p-3 sm:p-4">
-                <div className="overflow-hidden rounded-xl">
-                  <Pessoa
-                    quem="whatsappNaMao"
-                    sizes="(max-width: 1024px) 90vw, 25rem"
-                  />
+              {/* A DOR EM TEXTO CORRIDO, e não em bullet.
+
+                  A frase descreve um momento contínuo (sair do restaurante,
+                  não abrir o app, esquecer), e momento contínuo picado em três
+                  tiques deixa de ser cena e vira especificação. É a única
+                  caixa de texto puro da seção, e ela existe para a lista de
+                  capacidades logo abaixo chegar depois do problema, e não
+                  antes. */}
+              <p className="mt-6 max-w-2xl rounded-2xl bg-white/[0.06] p-5 text-sm leading-relaxed text-white/75 ring-1 ring-white/10 sm:text-base">
+                O gasto que some é sempre o mesmo: o do almoço de terça, o da
+                farmácia na volta para casa, o do Uber que você pegou com
+                pressa. Ninguém abre um aplicativo de finanças na fila do caixa.
+                O WhatsApp, esse você já abriu quatro vezes hoje.
+              </p>
+
+              <div className="mt-10 grid gap-10 lg:grid-cols-[minmax(0,25rem)_1fr] lg:items-start lg:gap-14">
+                {/* ── A COMPOSIÇÃO: FOTOGRAFIA + BALÕES FLUTUANDO ─────────
+                    A fotografia É a tela, e não leva moldura de aparelho por
+                    cima porque o aparelho já está na foto.
+
+                    ⚠️ COMO ISTO NÃO QUEBRA EM 390px, que é onde composição de
+                    celular com balão flutuante costuma morrer: os balões são
+                    UM ÚNICO bloco de marcação que troca de comportamento na
+                    largura. Abaixo de `lg` eles são uma lista empilhada NO
+                    FLUXO, embaixo da foto, onde cabem inteiros e continuam
+                    legíveis; de `lg` para cima a mesma lista vira camada
+                    absoluta por cima da imagem. Duplicar a marcação (uma
+                    versão para cada largura) resolveria igual e custaria o
+                    dobro de HTML, além de garantir que uma das duas cópias
+                    envelhecesse sozinha na primeira edição de texto.
+
+                    A folga lateral de `lg:px-12` no contêiner é o que permite
+                    ao balão sair da moldura do aparelho sem sair do bloco
+                    navy: ele flutua sobre a foto e sobre o respiro, nunca
+                    sobre a borda, e por isso o `overflow-hidden` da seção
+                    nunca corta um pedaço de frase. */}
+                <figure className="relative lg:px-12">
+                  <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold text-white/80 ring-1 ring-white/15">
+                    <Smartphone className="h-3.5 w-3.5" />
+                    Construído, ainda não ligado
+                  </span>
+
+                  <div className="relative mt-4">
+                    <div className="overflow-hidden rounded-2xl ring-1 ring-white/10">
+                      <Pessoa
+                        quem="whatsappNaMao"
+                        sizes="(max-width: 1024px) 92vw, 24rem"
+                      />
+                    </div>
+
+                    {/* `aria-hidden` na camada inteira: cada frase daqui já
+                        está escrita na lista de capacidades ao lado, com o
+                        efeito por extenso, e o `alt` da fotografia já carrega
+                        a conversa completa. Sem isto, quem navega por leitor
+                        de tela ouviria a mesma conversa três vezes seguidas. */}
+                    <ul
+                      aria-hidden
+                      className="mt-4 grid gap-2 lg:pointer-events-none lg:absolute lg:inset-0 lg:mt-0 lg:block"
+                    >
+                      {BALOES.map((b, i) => (
+                        <li
+                          key={b.frase}
+                          className={`${estilos.balao} ${
+                            i === 1 ? estilos.balaoB : i === 2 ? estilos.balaoC : ""
+                          } rounded-2xl bg-white px-3.5 py-2 shadow-[0_16px_36px_-16px_hsl(215_50%_6%_/_0.75)] lg:absolute lg:w-[12rem] ${
+                            b.lado === "esq"
+                              ? "lg:left-[-3rem]"
+                              : "lg:right-[-3rem]"
+                          } ${
+                            i === 0
+                              ? "lg:top-[14%]"
+                              : i === 1
+                                ? "lg:top-[44%]"
+                                : "lg:top-[72%]"
+                          }`}
+                        >
+                          <p className="font-mono text-xs font-semibold text-primary">
+                            {b.frase}
+                          </p>
+                          <p className="mt-0.5 text-2xs leading-snug tabular-nums text-muted-foreground">
+                            {b.efeito}
+                          </p>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <figcaption className="mt-5 text-2xs leading-snug text-white/60">
+                    Conversa de demonstração, montada com as frases que o
+                    interpretador já reconhece e com os números da conta de
+                    exemplo. A linha oficial do WhatsApp ainda não está ligada,
+                    e nada nesta seção responde hoje.
+                  </figcaption>
+                </figure>
+
+                {/* A LISTA DE CAPACIDADES, com o ícone à esquerda.
+
+                    Duas colunas a partir de `sm` porque são nove linhas, e
+                    nove linhas empilhadas numa coluna só viram um rolar longo
+                    que a pessoa abandona no sexto item. O exemplo vem embaixo
+                    do título em mono: é o que ela vai digitar, e texto que se
+                    digita tem de parecer texto que se digita. */}
+                <div>
+                  <h3 className="font-display text-lg font-semibold tracking-tight text-white">
+                    O que dá para fazer por lá
+                  </h3>
+
+                  <dl className="mt-5 grid gap-x-8 gap-y-5 sm:grid-cols-2">
+                    {CAPACIDADES.map((c) => (
+                      <div key={c.titulo} className="flex gap-3">
+                        <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-white/10 text-accent-claro ring-1 ring-white/10">
+                          <c.icone className="h-4 w-4" strokeWidth={1.75} />
+                        </span>
+                        <div>
+                          <dt className="font-display text-sm font-semibold leading-snug text-white">
+                            {c.titulo}
+                          </dt>
+                          <dd className="mt-1 text-xs leading-relaxed tabular-nums text-white/60">
+                            {c.exemplo}
+                          </dd>
+                        </div>
+                      </div>
+                    ))}
+                  </dl>
+
+                  {/* O BLOCO DE FECHAMENTO, e ele fecha pelo avesso.
+
+                      É o único lugar da seção com fundo de acento, e o que
+                      está escrito nele é o que o assistente NÃO faz. A escolha
+                      é deliberada: o espaço mais destacado de uma seção de
+                      venda normalmente carrega a promessa maior, e aqui ele
+                      carrega a borda. Quem lê isto antes de assinar não é
+                      surpreendido depois, e num app de dinheiro a surpresa
+                      custa a assinatura inteira. */}
+                  <div className="mt-8 rounded-2xl bg-accent-btn/15 p-5 ring-1 ring-accent-claro/25">
+                    <p className="font-display text-sm font-semibold text-accent-claro">
+                      E o que ele devolve como pergunta, em vez de gravar
+                    </p>
+                    <dl className="mt-3 space-y-2.5">
+                      {NAO_FAZ.map((n) => (
+                        <div key={n.frase} className="sm:flex sm:gap-3">
+                          <dt className="font-mono text-xs font-semibold text-white/80 sm:w-40 sm:shrink-0">
+                            {n.frase}
+                          </dt>
+                          <dd className="mt-0.5 text-xs leading-relaxed text-white/60 sm:mt-0">
+                            {n.porque}
+                          </dd>
+                        </div>
+                      ))}
+                    </dl>
+                    <p className="mt-3.5 border-t border-white/10 pt-3 text-xs leading-relaxed text-white/60">
+                      É a regra da casa, e vale também para a foto e para o
+                      áudio: quando ele não tem certeza do valor, ele pergunta.
+                      Registro errado gravado calado custa mais caro que uma
+                      mensagem a mais.
+                    </p>
+                  </div>
+
+                  {/* A LINHA DE ESTADO, escrita por extenso e sem "em breve".
+                      "Em breve" é uma data que ninguém assina; o que está aqui
+                      é o que falta, de quem depende e o que a pessoa paga por
+                      isso, que é nada. */}
+                  <p className="mt-6 text-xs leading-relaxed text-white/55">
+                    Dentro do app já existem o interpretador, a tela do
+                    assistente e o vínculo do seu número, confirmado por um
+                    código de dez minutos que você manda pelo WhatsApp. Falta
+                    plugar a linha oficial, e essa parte não depende de código.
+                    Enquanto ela não estiver no ar, você não paga nada a mais
+                    por isso, e não vai encontrar esta promessa marcada como
+                    pronta em lugar nenhum desta página. Quando ligar, entra
+                    para quem já assina.
+                  </p>
                 </div>
-                <figcaption className="mt-3 text-[11px] leading-snug text-muted-foreground">
-                  Conversa de demonstração, montada com as frases que o
-                  interpretador já reconhece e com os números da conta de
-                  exemplo. A linha oficial ainda não está ligada.
-                </figcaption>
-              </figure>
+              </div>
             </div>
           </section>
 
-          {/* ====================================== 12. CREDIBILIDADE === */}
+          {/* ========================== 12. A PROVA HUMANA (SÓCIOS) ===== */}
+          {/* POR QUE ESTA SEÇÃO EXISTE, e por que ela vem logo depois do
+              assistente.
+
+              A seção anterior é a mais tecnológica da página: interpretador,
+              mensagem, transcrição, leitura de comprovante. É exatamente o
+              ponto em que alguém pensa "isso um chatbot de graça também faz".
+              A resposta não é software, e por isso ela não podia ser mais uma
+              lista de recurso: do outro lado desta assinatura existe gente que
+              abre o seu plano e escreve sobre ele.
+
+              ⚠️ O QUE ESTÁ ESCRITO AQUI É SÓ O QUE O REPOSITÓRIO SUSTENTA. A
+              revisão trimestral é o primeiro item de `ASSINATURA_INCLUI`, e o
+              comentário ao lado dela em `lib/assinatura.ts` diz, com todas as
+              letras, que é o único item que não é software e que é ele que
+              responde "por que não uso um chatbot de graça". O escopo estreito
+              (organizar, projetar, priorizar, e NÃO indicar ativo) sai do
+              mesmo arquivo. A independência e a ausência de comissão já são
+              afirmadas na seção de credibilidade logo abaixo.
+
+              ⚠️ O QUE NÃO ESTÁ ESCRITO, e não está de propósito: nome de
+              sócio, ano de fundação, quantidade de consultores, tempo de casa
+              e número de clientes atendidos. Nenhum desses fatos existe no
+              repositório, e esta é a página que se recusa a inventar prova
+              social a duas seções daqui. Inventar aqui derrubaria lá.
+
+              A FOTO É A MESMA DO RODAPÉ e das outras landings da casa: são os
+              sócios de verdade, e o arquivo `-alta` é o ampliado por upscaler
+              de precisão (a história está em `/assinar`). Ela não é `priority`
+              e não precisa ser: mora depois da décima primeira seção. */}
+          <section className="pt-14 sm:pt-20">
+            <div className="grid items-center gap-8 rounded-3xl border border-border bg-card p-6 shadow-subtle sm:p-9 lg:grid-cols-[minmax(0,20rem)_1fr] lg:gap-12">
+              <div className="relative aspect-[5/4] w-full overflow-hidden rounded-2xl lg:aspect-square">
+                <Image
+                  src="/marca/novare-site/socios-novare-alta.jpg"
+                  alt="Dois sócios da Novare sentados lado a lado à mesa de reunião, de terno, olhando para a câmera."
+                  fill
+                  sizes="(max-width: 640px) 92vw, (max-width: 1024px) 60vw, 20rem"
+                  quality={62}
+                  className="object-cover"
+                />
+              </div>
+
+              <div>
+                <h2 className="font-display text-[1.75rem] font-semibold leading-[1.12] tracking-tight text-primary sm:text-[2.2rem]">
+                  Do outro lado do app tem gente.
+                </h2>
+
+                <p className="mt-4 text-sm leading-relaxed text-muted-foreground sm:text-base">
+                  A Novare é uma consultoria financeira independente, e o
+                  FINCASH é a ferramenta que ela abriu para quem quer se
+                  organizar sozinho. A diferença é o que vem junto: a
+                  assinatura inclui uma revisão a cada trimestre, escrita por um
+                  consultor da casa, com o seu nome em cima. Não é um relatório
+                  que o sistema gera às três da manhã.
+                </p>
+
+                {/* A LINHA CITADA DA FONTE, e ela é citação mesmo: o texto sai
+                    de `ASSINATURA_INCLUI[0]`, o mesmo que a lista de preço
+                    logo abaixo imprime. Escrever à mão aqui criaria duas
+                    promessas com palavras diferentes na mesma página, que é o
+                    jeito mais barato de perder quem está comparando. */}
+                <p className="mt-5 flex items-start gap-3 rounded-2xl border border-accent-soft bg-accent-tint p-4">
+                  <PenLine
+                    className="mt-0.5 h-4 w-4 shrink-0 text-accent-strong"
+                    strokeWidth={1.75}
+                  />
+                  <span className="font-display text-sm font-semibold leading-snug text-primary">
+                    {ASSINATURA_INCLUI[0]}
+                  </span>
+                </p>
+
+                <p className="mt-5 text-sm leading-relaxed text-muted-foreground">
+                  O escopo é estreito, e é assim de propósito: a revisão
+                  organiza, projeta e prioriza. Ela comenta o seu plano e não
+                  indica ativo, produto, fundo nem corretora, porque a Novare
+                  não recebe comissão de nenhum deles. É o único item desta
+                  assinatura que nenhum software entrega, e é o que responde por
+                  que não basta um chatbot de graça.
+                </p>
+              </div>
+            </div>
+          </section>
+
+          {/* ====================================== 13. CREDIBILIDADE === */}
           <section className="pt-14 sm:pt-20">
             <TituloSecao
               titulo="Sem número inflado, sem depoimento de encomenda"
@@ -1241,7 +1586,7 @@ export default function FincashPage() {
             </dl>
           </section>
 
-          {/* ============================================= 13. PREÇO ==== */}
+          {/* ============================================= 14. PREÇO ==== */}
           <section className="pt-14 sm:pt-20">
             <div className="relative overflow-hidden rounded-3xl border border-accent-soft bg-accent-tint p-6 sm:p-9">
               <div
@@ -1314,7 +1659,7 @@ export default function FincashPage() {
             </div>
           </section>
 
-          {/* ============================ 14. PERGUNTAS FREQUENTES ===== */}
+          {/* ============================ 15. PERGUNTAS FREQUENTES ===== */}
           <section className="pt-14 sm:pt-20">
             <OQueSignifica
               titulo="Perguntas frequentes"
@@ -1350,7 +1695,7 @@ export default function FincashPage() {
                 {
                   pergunta: "O assistente de WhatsApp funciona hoje?",
                   resposta:
-                    "Ainda não. O interpretador, o vínculo do número e a tela do assistente estão prontos dentro do app, e falta plugar a linha oficial do WhatsApp. Quando ela entrar no ar, vale para quem já assina, sem custo adicional. Foto de nota e áudio não estão nos planos: nota tem subtotal, desconto e troco na mesma folha, e gravar o número errado calado seria pior que não ter o recurso.",
+                    "Ainda não, e isso vale para tudo o que a seção dele lista, inclusive o áudio e a foto do comprovante: nada responde enquanto a linha oficial do WhatsApp não estiver plugada. O interpretador, o vínculo do número e a tela do assistente já estão prontos dentro do app. Quando a linha entrar no ar, vale para quem já assina, sem custo adicional.",
                 },
                 {
                   pergunta: "Funciona no celular?",
@@ -1396,7 +1741,7 @@ export default function FincashPage() {
             />
           </section>
 
-          {/* ======================================== 15. CTA FINAL ==== */}
+          {/* ======================================== 16. CTA FINAL ==== */}
           <section className="pt-14 sm:pt-20">
             <div
               className="palco-cta relative isolate overflow-hidden rounded-3xl p-7 text-white sm:flex sm:items-center sm:justify-between sm:gap-8 sm:p-10"

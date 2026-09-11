@@ -32,6 +32,16 @@ const ENTENDE: Exemplo[] = [
   { frase: "resumo", efeito: "Entrou, saiu, o que sobrou e o que ainda falta pagar no mês." },
   { frase: "desfazer", efeito: "Apaga o último lançamento que ele criou. Só o dele." },
   { frase: "ajuda", efeito: "O menu do assistente, dentro da conversa." },
+  {
+    frase: "🎤 um áudio",
+    efeito:
+      "Fale “mercado 280” e ele registra. A resposta mostra o que ele ouviu — quem for transcrito errado corrige na hora, com “desfazer”.",
+  },
+  {
+    frase: "📷 foto do comprovante",
+    efeito:
+      "Ele lê valor, estabelecimento e data e PERGUNTA antes de gravar. Você responde “sim”. Nota fiscal tem subtotal, desconto e troco na mesma folha — aqui ele nunca grava calado.",
+  },
 ];
 
 const NAO_ENTENDE: Exemplo[] = [
@@ -51,9 +61,14 @@ const NAO_ENTENDE: Exemplo[] = [
       "De data ele só entende hoje, ontem, anteontem, “dia 12” e “12/03”. Adivinhar data joga o gasto no mês errado.",
   },
   {
-    frase: "uma foto da nota, um áudio",
+    frase: "vídeo, PDF, planilha",
     efeito:
-      "Ainda não. Ler nota fiscal e transcrever áudio custam por mensagem, e nota tem subtotal, desconto e troco na mesma folha — gravar o número errado calado seria o pior defeito possível.",
+      "Só áudio e foto. Fatura em PDF ou extrato tem caminho melhor dentro do app: o importador de OFX, que confere tudo antes de gravar.",
+  },
+  {
+    frase: "áudio e foto sem limite",
+    efeito:
+      "São 60 por mês, somados. Transcrever e ler imagem custam por mensagem — o teto é o que mantém a assinatura de pé. Texto continua ilimitado.",
   },
 ];
 
@@ -150,6 +165,17 @@ export function Privacidade() {
             , como você escreveu, junto do que o assistente entendeu. É o que permite
             descobrir por que ele errou um lançamento meses depois, sem pedir para você
             repetir a mensagem.
+          </span>
+        </li>
+        <li className="flex gap-2">
+          <span aria-hidden className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-ciano" />
+          <span>
+            <strong className="font-semibold text-foreground">
+              O áudio e a foto, não.
+            </strong>{" "}
+            O arquivo é processado na memória do servidor e descartado — nunca é
+            gravado em disco nem vira link. Fica só o que foi lido dele: a transcrição
+            do áudio, ou o valor e o estabelecimento do comprovante.
           </span>
         </li>
         <li className="flex gap-2">

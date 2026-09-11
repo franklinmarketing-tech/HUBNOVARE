@@ -661,7 +661,10 @@ export function respostaDeAjuda(): string {
     "*Ver saldo* — “saldo”",
     "*Corrigir* — “desfazer” apaga o último lançamento que eu criei",
     "",
-    "Foto de nota fiscal e áudio ainda não; por enquanto, texto.",
+    "*Mandar áudio* — fala o gasto e eu registro",
+    "*Mandar foto do comprovante* — eu leio o valor e te pergunto antes de lançar",
+    "",
+    "Vídeo e documento eu ainda não leio.",
   ].join("\n");
 }
 
@@ -760,9 +763,20 @@ export function respostaDeSaldo(contas: { nome: string; saldo: number }[]): stri
   return linhas.join("\n");
 }
 
+/**
+ * A recusa que sobrou.
+ *
+ * Áudio e foto SAEM daqui: os dois passaram a funcionar (ver
+ * `whatsapp-audio.ts` e `whatsapp-foto.ts`), e uma função que continuasse
+ * recusando-os faria o assistente mentir sobre si mesmo — o pior lugar para
+ * uma resposta desatualizada é a que explica o que o produto faz.
+ *
+ * Vídeo e documento continuam de fora, e a mensagem diz o caminho em vez de
+ * só dizer não.
+ */
 export function respostaMidiaNaoSuportada(tipo: string): string {
-  const nome = tipo === "audio" ? "áudio" : tipo === "imagem" ? "foto" : "arquivo";
-  return `Recebi seu ${nome}, mas ainda não sei ler ${nome === "áudio" ? "áudios" : "isso"}. Me manda em texto — por exemplo: “mercado 280”.`;
+  const nome = tipo === "video" ? "vídeo" : tipo === "documento" ? "arquivo" : "arquivo";
+  return `Recebi seu ${nome}, mas ainda não sei ler isso. Me manda em texto, em áudio, ou uma foto do comprovante — por exemplo: “mercado 280”.`;
 }
 
 /** "2026-09" → "setembro de 2026". Mesma saída de `nomeDoMes` em `modelo.ts`. */
