@@ -104,10 +104,10 @@ import estilos from "./whatsapp.module.css";
  *    provavam o APP, porque uma remontagem honesta nunca traz a barra lateral
  *    com as doze telas, o menu do rodapé no celular, o velocímetro de renda
  *    comprometida nem o resumo automático apontando as contas vencidas. Agora
- *    oito capturas reais entram, cada uma colada na frase que ela prova. As
+ *    nove capturas reais entram, cada uma colada na frase que ela prova. As
  *    prévias em HTML que sobreviveram estão explicadas em `Molduras.tsx`: a
- *    conta aberta é aritmética e não tela, Dívidas não tem captura entre as
- *    disponíveis, e a conversa do WhatsApp descreve o que ainda não foi ligado.
+ *    conta aberta é aritmética e não tela, e a conversa do WhatsApp descreve o
+ *    que ainda não foi ligado.
  *
  * 6. DÍVIDAS GANHOU SEÇÃO PRÓPRIA, com peso de argumento e não de item de
  *    lista. É o que a casa tem e o concorrente não: lá dívida é um indicador
@@ -941,19 +941,27 @@ export default function FincashPage() {
               painel: quanto você deve. Aqui é um módulo com amortização Price e
               SAC, ordem de pagamento comparada e simulação de aporte extra.
 
-              ⚠️ ESTA É A SEÇÃO SEM CAPTURA, e é decisão, não esquecimento:
-              entre as capturas disponíveis não há nenhuma de Dívidas. Ilustrar
-              o diferencial da casa com o print de outra tela seria pior que
-              descrevê-lo, e desenhar uma tela que ninguém fotografou seria
-              inventar. O que entra aqui é o que o motor faz, escrito.
+              ERA A SEÇÃO SEM CAPTURA, e deixou de ser: a tela de Dívidas não
+              tinha banco quando as 21 fotos foram feitas. Agora tem, a conta de
+              demonstração foi semeada com três dívidas de verdade (rotativo,
+              consignado e crediário, em `lib/fincash/demo.ts`) e a tela foi
+              fotografada como as outras. O diferencial da casa era o único
+              argumento da página defendido só por escrito.
 
-              COMPOSIÇÃO 3 DE 4, e ela é a única que NÃO tem tela junto, pelo
-              motivo acima: é uma faixa larga de fotografia encimando o cartão,
-              de borda a borda. Dívida é a conversa que duas pessoas têm com os
-              papéis na mão, e é essa cena que a foto traz para uma seção que,
-              sem ela, seria a maior mancha de texto corrido da página. Faixa e
-              não retrato: 21:9 dá o corte de cabeçalho e deixa claro que a
-              imagem é ambiente, não conteúdo.
+              COMPOSIÇÃO 3 DE 4 (a fotografia), e é a única seção da página com
+              DUAS imagens de naturezas diferentes no mesmo cartão, que é o
+              privilégio que o diferencial do produto merece: a faixa de 21:9
+              abre, porque dívida é a conversa que duas pessoas têm com os
+              papéis na mão, e a captura FECHA, entrando pelo pé do cartão e
+              sendo cortada pela borda dele.
+
+              ⚠️ O CORTE É O QUE IMPEDE A REPETIÇÃO. Posta inteira num quadro,
+              a captura daria a mesma família de "texto e tela lado a lado" que
+              as seções 6 e 7 já usam em sequência, e a página tem limite de
+              duas seguidas. Cortada pela base, ela lê como a tela continuando
+              para fora do cartão, que é o que ela de fato faz: o comparativo
+              de estratégias e a simulação de aporte estão logo abaixo do que
+              cabe na foto.
 
               As duas estratégias são o argumento inteiro em duas colunas, e as
               frases são as mesmas do produto (`EXPLICACAO_ESTRATEGIA`, em
@@ -1047,6 +1055,69 @@ export default function FincashPage() {
                   </div>
                 ))}
               </dl>
+
+              {/* A CAPTURA QUE FECHA O CARTÃO.
+                  Os números da legenda saem TODOS da imagem ao lado dela, e é
+                  por isso que eles estão escritos: a seção passou a página
+                  inteira afirmando que o app faz uma conta que o concorrente
+                  não faz, e um visitante atento confere um número antes de
+                  acreditar numa promessa.
+
+                  A ALTURA FIXA É O CORTE. A janela tem a largura do cartão e a
+                  moldura recorta o que passa dela, então a tela continua para
+                  fora da peça em vez de caber inteira num quadro. `top-0`
+                  porque o que importa está no alto: o alarme vermelho, o
+                  quanto se deve e o velocímetro da renda.
+
+                  ⚠️ `sizes` MENOR QUE A LARGURA DO CARTÃO de propósito. A
+                  janela é a peça mais larga da seção, mas a imagem servida não
+                  precisa da largura do contêiner: no celular o corte mostra
+                  meia tela, e pedir 100vw traria o dobro do arquivo para
+                  desenhar o mesmo pedaço. */}
+              <figure className="-mx-6 -mb-6 mt-9 border-t border-border bg-gelo px-6 pt-7 sm:-mx-9 sm:-mb-9 sm:px-9 sm:pt-9">
+                <figcaption className="max-w-2xl text-sm leading-relaxed text-muted-foreground">
+                  <b className="font-semibold text-foreground">
+                    A tela avisa antes de consolar.
+                  </b>{" "}
+                  Nesta conta de demonstração o rotativo do cartão custa R$
+                  502,79 de juro no mês e a parcela paga é de R$ 468,35, então o
+                  saldo sobe mesmo com a parcela em dia. É a primeira coisa que
+                  a tela diz, com o valor exato que faz a dívida parar de
+                  crescer.
+                </figcaption>
+                {/* DUAS CAPTURAS, UMA POR LARGURA, e a escondida não custa
+                    nada: `display:none` nunca entra em viewport, então o
+                    `loading="lazy"` do Next jamais busca o arquivo. Quem abre
+                    no celular baixa só o telefone, quem abre no computador só
+                    a janela.
+
+                    E é obrigatório: a tela de 1440 reduzida a 330 pixels de
+                    largura vira um borrão de números que ninguém lê, e a
+                    captura existe justamente para ser conferida. O app muda de
+                    layout de verdade abaixo de `md` (o trilho lateral vira
+                    barra do polegar), então a foto do celular não é a mesma
+                    imagem menor: é a outra tela. */}
+                <div className="relative mx-auto mt-6 h-[22rem] max-w-3xl overflow-hidden sm:hidden">
+                  <div className="absolute inset-x-0 top-0 mx-auto w-52">
+                    <Foto
+                      tela="dividasCelular"
+                      aparelho="telefone"
+                      sizes="208px"
+                    />
+                  </div>
+                </div>
+
+                <div className="relative mx-auto mt-6 hidden max-w-3xl overflow-hidden sm:block sm:h-80 lg:h-[26rem]">
+                  <div className="absolute inset-x-0 top-0">
+                    <Foto
+                      tela="dividasDesktop"
+                      aparelho="janela"
+                      barra="FINCASH · Dívidas"
+                      sizes="(max-width: 1024px) 88vw, 44rem"
+                    />
+                  </div>
+                </div>
+              </figure>
               </div>
             </div>
           </section>

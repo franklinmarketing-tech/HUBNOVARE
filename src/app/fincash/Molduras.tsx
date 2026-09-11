@@ -24,8 +24,9 @@ import Image from "next/image";
  * ONDE A PRÉVIA EM HTML FICOU, ficou por mérito, não por inércia:
  *   • a conta aberta da terceira seção é aritmética, não tela: mostrar um
  *     print ali seria trocar um argumento por uma ilustração dele;
- *   • a seção de Dívidas não tem captura entre as 21 disponíveis, e inventar
- *     uma seria pior que desenhá-la;
+ *   • Dívidas DEIXOU de ser exceção: a tela passou a ter banco, foi semeada
+ *     com três dívidas de verdade e fotografada como as outras. A prévia
+ *     desenhada que ocupava o lugar dela saiu;
  *   • a conversa do WhatsApp descreve algo que AINDA NÃO ESTÁ LIGADO, e um
  *     print de conversa faria parecer que está.
  */
@@ -72,6 +73,18 @@ export const TELAS = {
     largura: 2880,
     altura: 1800,
     alt: "Orçamento de setembro de 2026: R$ 6.718 gastos contra R$ 6.680 planejados, 101% do orçamento consumido, três categorias acima do limite, e a linha de Moradia mostrando mínimo, média e máximo dos últimos seis meses.",
+  },
+  dividasCelular: {
+    src: "/fincash/telas/dividas-celular.webp",
+    largura: 780,
+    altura: 1688,
+    alt: "Tela de dívidas no celular: um alerta vermelho avisa que o rotativo do cartão está crescendo, porque os R$ 502,79 de juro do mês passam da parcela de R$ 468,35, e diz que a R$ 502,80 a dívida para de crescer.",
+  },
+  dividasDesktop: {
+    src: "/fincash/telas/dividas-desktop.webp",
+    largura: 2880,
+    altura: 1800,
+    alt: "Tela de dívidas do FINCASH: um alerta vermelho no topo avisa que o rotativo do cartão está crescendo, porque os R$ 502,79 de juro do mês passam da parcela de R$ 468,35, e diz que pagando R$ 502,80 ela para de crescer. Embaixo, R$ 15.160 ainda devidos, 17% da renda comprometida, R$ 1.323,97 por mês em parcelas, R$ 700,70 só de juro no próximo mês, três dívidas ativas e R$ 19.041 de juro ainda a pagar no ritmo atual.",
   },
   projecaoDesktop: {
     src: "/fincash/telas/projecao-desktop.webp",

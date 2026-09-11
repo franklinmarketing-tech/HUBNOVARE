@@ -30,16 +30,42 @@ const BASE = process.env.BASE ?? "http://localhost:3000";
 const DESTINO = fileURLToPath(new URL("../public/fincash/telas/", import.meta.url));
 mkdirSync(DESTINO, { recursive: true });
 
+/**
+ * Quais telas refazer nesta rodada. Vazio = todas.
+ *
+ *   SOMENTE=dividas BASE=http://localhost:3000 node scripts/fotografar-fincash.mjs
+ *
+ * EXISTE PORQUE REFAZER TUDO TEM CUSTO. A semeadura é relativa ao dia de hoje
+ * (o mês corrente, o que já venceu, o que ainda vai vencer), então a mesma
+ * conta fotografada uma semana depois mostra números um pouco diferentes — e a
+ * landing cita esses números por escrito, linha por linha. Trocar as 21 fotos
+ * para acrescentar uma faria o texto da página deixar de bater com as imagens
+ * que ele descreve.
+ */
+const SOMENTE = (process.env.SOMENTE ?? "")
+  .split(",")
+  .map((t) => t.trim())
+  .filter(Boolean);
+
 /** As telas, na ordem em que a página de vendas conta a história. */
-const TELAS = [
+const TODAS = [
   { arquivo: "painel", rota: "/fincash/app" },
   { arquivo: "lancamentos", rota: "/fincash/app/lancamentos" },
   { arquivo: "cartoes", rota: "/fincash/app/faturas" },
   { arquivo: "orcamento", rota: "/fincash/app/orcamento" },
   { arquivo: "metas", rota: "/fincash/app/metas" },
   { arquivo: "investimentos", rota: "/fincash/app/investimentos" },
+  { arquivo: "dividas", rota: "/fincash/app/dividas" },
   { arquivo: "projecao", rota: "/fincash/app/projecao" },
 ];
+
+const TELAS =
+  SOMENTE.length > 0 ? TODAS.filter((t) => SOMENTE.includes(t.arquivo)) : TODAS;
+
+if (TELAS.length === 0) {
+  console.error(`Nenhuma tela chamada ${SOMENTE.join(", ")}.`);
+  process.exit(1);
+}
 
 const TAMANHOS = [
   { sufixo: "desktop", viewport: { width: 1440, height: 900 } },

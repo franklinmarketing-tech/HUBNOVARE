@@ -52,6 +52,12 @@ import {
 } from "./faturas";
 import { carregarMetas, salvarAporte, salvarMeta } from "./metas";
 import { salvarInvestimento } from "./investimentos";
+import {
+  carregarDividas,
+  registrarPagamento,
+  salvarDivida,
+  type Divida,
+} from "./dividas";
 
 /** Quantos meses de passado a conta carrega, o mês corrente incluído.
  *
@@ -176,6 +182,112 @@ const ORCAMENTOS: Record<string, number> = {
   Assinaturas: 130,
   Compras: 260,
 };
+
+
+/* -------------------------------------------------------------------------- */
+/* Dívidas                                                                    */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * As três dívidas da conta, e por que são exatamente estas três.
+ *
+ * ⚠️ A FRONTEIRA COM O CARTÃO, que o motor documenta e esta lista respeita:
+ * o que já está em `fin_lancamentos` NÃO entra aqui. O notebook em 10x e as
+ * passagens em 6x são lançamentos parcelados de cartão, já pesam na fatura e
+ * já pesam no orçamento — recadastrá-los como dívida faria o comprometimento
+ * da renda contar o mesmo dinheiro duas vezes, que num módulo de dívida é o
+ * pior erro possível. Por isso as três nascem com `ja_no_fluxo: false` e com
+ * parcela distante das parcelas lançadas: o detector de contagem dupla casa
+ * por valor com folga de um real, e um alarme laranja na foto diria ao
+ * visitante que o app se enganou.
+ *
+ * O TRIO cobre os três estados que a tela sabe ler, e uma composição mais
+ * confortável deixaria dois deles invisíveis:
+ *
+ *  • o ROTATIVO cresce. A parcela de R$ 468,35 não cobre os R$ 502 de juro
+ *    do mês, e é esse o caso duro: o alarme vermelho no topo, o "esta dívida não
+ *    acaba" e o número que falta para ela ao menos parar de subir só existem
+ *    na tela quando existe uma dívida assim. Semear três dívidas comportadas
+ *    seria fotografar o módulo com a parte mais importante dele desligada;
+ *
+ *  • o CONSIGNADO amortiza normalmente, em Price, com prazo e data de saída —
+ *    é o contraponto que prova que o vermelho de cima é diagnóstico e não
+ *    decoração da tela;
+ *
+ *  • o CREDIÁRIO está a duas parcelas do fim e sem juro. É ele que dá à bola
+ *    de neve uma vitória próxima para mostrar, e é a comparação entre essa
+ *    vitória e a economia da avalanche que a tela existe para fazer.
+ *
+ * Os saldos são os de SETE MESES ATRÁS: o estado de hoje sai dos pagamentos
+ * registrados mês a mês logo abaixo, pela mesma função que a tela usa. Nada
+ * aqui é um saldo escrito à mão para a foto ficar bonita.
+ */
+const DIVIDAS: {
+  credor: string;
+  tipo: "cartao_rotativo" | "consignado" | "parcelamento";
+  valor_original: number;
+  /** O saldo no primeiro mês da série, não o de hoje. */
+  saldo_inicial: number;
+  taxa_mensal: number;
+  parcela: number;
+  parcelas_total: number | null;
+  /** Quantas já estavam pagas no primeiro mês da série. */
+  parcelas_pagas_inicio: number;
+  dia_vencimento: number;
+  cor: string;
+  observacao: string | null;
+}[] = [
+  {
+    credor: "Rotativo do cartão principal",
+    tipo: "cartao_rotativo",
+    valor_original: 3482.9,
+    saldo_inicial: 3482.9,
+    // 13,9% ao mês é o rotativo brasileiro como ele é — a média do Banco
+    // Central ronda isso. Arredondar para 10% deixaria a foto mais gentil e o
+    // produto menos verdadeiro.
+    taxa_mensal: 13.9,
+    /* ⚠️ O VALOR É ESCOLHIDO PARA NÃO BATER com nenhuma parcela lançada no
+       cartão: o detector de contagem dupla casa por valor com folga de um
+       real, e R$ 430 encostava nos R$ 429,90 do notebook em 10x. A tela
+       abria com um aviso laranja de confira, correto pela regra e falso no
+       fato — e numa foto de venda isso lê como app confuso. */
+    parcela: 468.35,
+    parcelas_total: null, // rotativo não tem prazo: tem saldo e juro
+    parcelas_pagas_inicio: 0,
+    dia_vencimento: 5,
+    cor: "#dc2626",
+    observacao: "Pagando perto do mínimo desde a fatura de fevereiro",
+  },
+  {
+    credor: "Consignado Banco Sul Digital",
+    tipo: "consignado",
+    valor_original: 16150,
+    // Onze parcelas depois da contratação. A parcela é a do Price sobre os
+    // R$ 16.150 em 36 meses, e não um número escolhido: quem conferir a conta
+    // acha o mesmo valor.
+    saldo_inicial: 13395.18,
+    taxa_mensal: 1.79,
+    parcela: 612.44,
+    parcelas_total: 36,
+    parcelas_pagas_inicio: 8,
+    dia_vencimento: 12,
+    cor: "#1e3a5f",
+    observacao: null,
+  },
+  {
+    credor: "Crediário da geladeira, Loja Mirante",
+    tipo: "parcelamento",
+    valor_original: 2918.16,
+    saldo_inicial: 1945.44,
+    taxa_mensal: 0, // sem juro, e o motor trata isso como caso normal
+    parcela: 243.18,
+    parcelas_total: 12,
+    parcelas_pagas_inicio: 4,
+    dia_vencimento: 18,
+    cor: "#0891b2",
+    observacao: null,
+  },
+];
 
 /* -------------------------------------------------------------------------- */
 
@@ -612,6 +724,95 @@ export async function semearDemonstracao(): Promise<ResultadoDemo> {
         lancamento_id: null,
         observacao: null,
       });
+    }
+  }
+
+  /* ── Dívidas ──────────────────────────────────────────────────────────── */
+  /**
+   * Cadastra as três com o saldo de sete meses atrás e depois PAGA mês a mês,
+   * pela mesma `registrarPagamento` que o botão da tela chama.
+   *
+   * POR QUE NÃO ESCREVER O SALDO DE HOJE DIRETO, que daria uma ida ao banco em
+   * vez de dezoito: o histórico de pagamento é dado de primeira classe neste
+   * módulo — é dele que saem o "já pago" de cada dívida e a curva que desce. Um
+   * saldo digitado à mão sem pagamento nenhum atrás produziria uma tela que
+   * afirma seis meses de esforço e não mostra um único registro dele.
+   *
+   * E o efeito colateral é justamente o que se quer: o saldo do rotativo SOBE
+   * ao longo dos seis meses, apesar dos seis pagamentos, porque a parcela não
+   * cobre o juro. Isso não é escrito em lugar nenhum — é o resultado da
+   * aritmética do próprio motor, mês a mês, e é o argumento inteiro da tela.
+   *
+   * O mês corrente fica de fora: a parcela dele ainda vence, e é ela que a
+   * tela mostra como o próximo compromisso.
+   */
+  for (const d of DIVIDAS) {
+    await salvarDivida({
+      credor: d.credor,
+      tipo: d.tipo,
+      valor_original: d.valor_original,
+      saldo_atual: d.saldo_inicial,
+      taxa_mensal: d.taxa_mensal,
+      sistema: "price",
+      parcela: d.parcela,
+      parcelas_total: d.parcelas_total,
+      parcelas_pagas: d.parcelas_pagas_inicio,
+      dia_vencimento: d.dia_vencimento,
+      cartao_id: null,
+      // Ver a nota do bloco DIVIDAS: nenhuma delas tem lançamento no extrato.
+      ja_no_fluxo: false,
+      cor: d.cor,
+      observacao: d.observacao,
+    });
+  }
+
+  const cadastradas = new Map(
+    (await carregarDividas()).dividas.map((d) => [d.credor, d]),
+  );
+
+  for (const d of DIVIDAS) {
+    /* O objeto é reatribuído a cada mês porque `registrarPagamento` lê dele o
+       saldo e a contagem de parcelas para decidir o que gravar. Passar sempre
+       a foto do cadastro faria os seis pagamentos escreverem seis vezes o
+       mesmo saldo, e a dívida terminaria devendo o que devia no primeiro mês. */
+    const cadastrada = cadastradas.get(d.credor);
+    if (!cadastrada) continue;
+    let atual: Divida = cadastrada;
+
+    for (const ref of refs.slice(0, -1)) {
+      const saldo = atual.saldo_atual;
+      /* Centavos inteiros, como o motor: a mesma conta em ponto flutuante
+         deixaria um resíduo por mês, e depois de seis meses o saldo da tela
+         não bateria com o extrato que a pessoa confere. */
+      const juros = Math.round(saldo * d.taxa_mensal) / 100;
+      const pago = Math.min(d.parcela, saldo + juros);
+      const saldoApos = Math.round((saldo + juros - pago) * 100) / 100;
+
+      await registrarPagamento(
+        {
+          divida_id: atual.id,
+          tipo: "parcela",
+          valor: pago,
+          data: dia(ref, d.dia_vencimento),
+          juros,
+          /* NULO quando a parcela não cobre o juro, e não um número negativo:
+             a coluna exige `amortizacao >= 0`, e a razão é boa — amortização
+             negativa não é amortização, é a dívida crescendo, e isso quem diz
+             é o `saldo_apos`. Gravar zero seria pior: afirmaria que o
+             pagamento abateu alguma coisa. */
+          amortizacao: pago > juros ? Math.round((pago - juros) * 100) / 100 : null,
+          saldo_apos: saldoApos,
+          lancamento_id: null,
+          observacao: null,
+        },
+        atual,
+      );
+
+      atual = {
+        ...atual,
+        saldo_atual: saldoApos,
+        parcelas_pagas: atual.parcelas_pagas + 1,
+      };
     }
   }
 
