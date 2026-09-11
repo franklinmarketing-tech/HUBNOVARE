@@ -23,6 +23,12 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { Foto } from "./Molduras";
+import { Pessoa } from "./Pessoas";
+import {
+  MedidorRenda,
+  OrcamentoPorCategoria,
+  ProjecaoDozeMeses,
+} from "./Graficos";
 import { Cabecalho } from "@/components/Cabecalho";
 import { RodapeNovare } from "@/components/RodapeNovare";
 import { OQueSignifica } from "@/components/OQueSignifica";
@@ -550,15 +556,40 @@ export default function FincashPage() {
                 </ul>
               </div>
 
+              {/* COMPOSIÇÃO 1 DE 4: a foto é o FUNDO e a conta flutua por cima.
+                  A cena (a mesa da cozinha com as contas espalhadas) é o mesmo
+                  momento que as três linhas da esquerda descrevem, e pousar a
+                  aritmética por cima dela é dizer, sem escrever, que o número
+                  frio nasce daquela mesa. O degradê navy existe para o cartão
+                  branco ter contraste onde encosta, e não para escurecer a
+                  foto por gosto.
+
+                  ⚠️ Sem legenda, aqui e nas outras três. Ver `Pessoas.tsx`. */}
               <div className="lg:sticky lg:top-24">
-                <ContaAberta
-                  linhas={CONTA_LINHAS}
-                  resultado={{
-                    rotulo: "Sobra de verdade até o dia 30",
-                    valor: "R$ 1.240",
-                  }}
-                />
-                <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
+                <div className="relative overflow-hidden rounded-3xl">
+                  <Pessoa
+                    quem="casalPreocupado"
+                    qualidade={62}
+                    sizes="(max-width: 1024px) 100vw, 23rem"
+                    className="aspect-[4/3]"
+                  />
+                  <span
+                    aria-hidden
+                    className="absolute inset-0 bg-gradient-to-t from-primary/80 via-primary/25 to-transparent"
+                  />
+                </div>
+
+                <div className="relative -mt-14 px-3 sm:px-4">
+                  <ContaAberta
+                    linhas={CONTA_LINHAS}
+                    resultado={{
+                      rotulo: "Sobra de verdade até o dia 30",
+                      valor: "R$ 1.066",
+                    }}
+                  />
+                </div>
+
+                <p className="mt-3 px-3 text-xs leading-relaxed text-muted-foreground sm:px-4">
                   O extrato mostraria R$ 2.392 e você decidiria em cima desse
                   número. O FINCASH mostra R$ 1.066, que é o mesmo valor da
                   captura ali em cima, e é o que realmente está livre.
@@ -652,39 +683,41 @@ export default function FincashPage() {
               />
             </div>
 
-            {/* As três leituras da mesma imagem, na ordem em que o olho bate
-                nela. Sem isto a foto vira enfeite: quem não usa o app não sabe
-                que 86% é renda comprometida e não porcentagem do mês. */}
+            {/* As leituras da mesma imagem, na ordem em que o olho bate nela.
+                Sem isto a foto vira enfeite: quem não usa o app não sabe que
+                86% é renda comprometida e não porcentagem do mês.
+
+                GRÁFICO VIVO 1 DE 3, e ele ocupa o lugar do card do meio. O
+                velocímetro que estava chapado na captura passa a andar de zero
+                até 86 quando entra na tela, com o entalhe dos 85% marcado na
+                escala. É a mesma peça do app (`app/pecas.tsx`), não uma
+                imitação: quem assinar vai reencontrar este desenho no painel,
+                com o número dele no lugar do número da demonstração. */}
             <ul className="mt-6 grid gap-4 sm:grid-cols-3">
-              {[
-                {
-                  titulo: "R$ 1.066",
-                  texto:
-                    "O que resta em setembro depois de tudo o que já saiu e do que ainda está previsto sair. É o número da decisão de hoje.",
-                },
-                {
-                  titulo: "86% comprometida",
-                  texto:
-                    "Quanto da renda que entra já tem dono antes de qualquer escolha sua. Acima de 80%, um imprevisto vira dívida.",
-                },
-                {
-                  titulo: "2 contas atrasadas",
-                  texto:
-                    "O resumo do mês aponta o que venceu sem pagamento, com o valor somado e o atalho para resolver, em vez de esperar você procurar.",
-                },
-              ].map((l) => (
-                <li
-                  key={l.titulo}
-                  className="rounded-3xl border border-border bg-card p-5 shadow-subtle"
-                >
-                  <p className="font-display text-base font-semibold tabular-nums text-primary">
-                    {l.titulo}
-                  </p>
-                  <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
-                    {l.texto}
-                  </p>
-                </li>
-              ))}
+              <li className="rounded-3xl border border-border bg-card p-5 shadow-subtle">
+                <p className="font-display text-base font-semibold tabular-nums text-primary">
+                  R$ 1.066
+                </p>
+                <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
+                  O que resta em setembro depois de tudo o que já saiu e do que
+                  ainda está previsto sair. É o número da decisão de hoje.
+                </p>
+              </li>
+
+              <li className="flex flex-col items-center justify-center rounded-3xl border border-border bg-card p-5 shadow-subtle">
+                <MedidorRenda />
+              </li>
+
+              <li className="rounded-3xl border border-border bg-card p-5 shadow-subtle">
+                <p className="font-display text-base font-semibold tabular-nums text-primary">
+                  2 contas atrasadas
+                </p>
+                <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
+                  O resumo do mês aponta o que venceu sem pagamento, com o valor
+                  somado e o atalho para resolver, em vez de esperar você
+                  procurar.
+                </p>
+              </li>
             </ul>
           </section>
 
@@ -695,7 +728,7 @@ export default function FincashPage() {
               partir da terceira o olho já sabe o que vem e pula. Duas, com o
               lado invertido entre elas, e o resto da página muda de forma. */}
           <section className="space-y-4 pt-14 sm:pt-20">
-            <article className="grid items-center gap-7 rounded-3xl border border-border bg-card p-6 shadow-subtle sm:p-8 lg:grid-cols-[1fr_minmax(0,15rem)] lg:gap-12">
+            <article className="grid items-center gap-7 rounded-3xl border border-border bg-card p-6 shadow-subtle sm:p-8 lg:grid-cols-[1fr_minmax(0,21rem)] lg:gap-12">
               <div>
                 <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent-tint text-accent-strong">
                   <CreditCard className="h-5 w-5" strokeWidth={1.75} />
@@ -713,11 +746,28 @@ export default function FincashPage() {
                   calendário.
                 </p>
               </div>
-              <div className="mx-auto w-full max-w-[15rem] lg:max-w-none">
+              {/* COMPOSIÇÃO 2 DE 4: foto e tela LADO A LADO, alinhadas pela
+                  base. A cena é alguém conferindo o celular no meio da rotina,
+                  que é exatamente quando a pergunta "posso comprar isto?"
+                  aparece; ao lado dela, a tela que responde. Separadas por uma
+                  calha e não sobrepostas, porque aqui as duas imagens têm o
+                  mesmo peso de argumento: uma é a hora, a outra é a resposta.
+
+                  A foto é a coluna estreita e alta (3:4): recorte de retrato
+                  ao lado de um telefone dá duas peças verticais irmãs, e a
+                  faixa larga brigaria com o formato do aparelho. */}
+              <div className="grid grid-cols-2 items-end gap-3 sm:gap-5">
+                <div className="overflow-hidden rounded-xl">
+                  <Pessoa
+                    quem="cozinhaCelular"
+                    sizes="(max-width: 1024px) 45vw, 10rem"
+                    className="aspect-[3/4]"
+                  />
+                </div>
                 <Foto
                   tela="cartoesCelular"
                   aparelho="telefone"
-                  sizes="240px"
+                  sizes="(max-width: 1024px) 45vw, 10rem"
                 />
               </div>
             </article>
@@ -751,6 +801,24 @@ export default function FincashPage() {
                   lista.
                 </p>
               </div>
+
+              {/* GRÁFICO VIVO 2 DE 3, atravessando as duas colunas por baixo da
+                  captura e do texto. Ele responde a pergunta que a captura ao
+                  lado não responde: para onde o dinheiro foi, em proporção. O
+                  furo da rosca traz o mesmo total da imagem, e esse total sobre
+                  a renda é o 86% do velocímetro da seção anterior. É aí que as
+                  três peças de desenho da página deixam de ser três enfeites e
+                  viram uma conta só. */}
+              <figure className="order-3 rounded-3xl border border-border bg-gelo p-5 sm:p-6 lg:col-span-2">
+                <figcaption className="mb-4 text-sm leading-relaxed text-muted-foreground">
+                  <b className="font-semibold text-foreground">
+                    Para onde foram os R$ 6.718 de setembro.
+                  </b>{" "}
+                  É o mesmo total da captura desta seção, e ele sobre os R$ 7.784
+                  de renda prevista dá os 86% do velocímetro da seção anterior.
+                </figcaption>
+                <OrcamentoPorCategoria />
+              </figure>
             </article>
           </section>
 
@@ -760,18 +828,34 @@ export default function FincashPage() {
               painel: quanto você deve. Aqui é um módulo com amortização Price e
               SAC, ordem de pagamento comparada e simulação de aporte extra.
 
-              ⚠️ ESTA É A SEÇÃO SEM FOTO, e é decisão, não esquecimento: entre
-              as capturas disponíveis não há nenhuma de Dívidas. Ilustrar o
-              diferencial da casa com o print de outra tela seria pior que
+              ⚠️ ESTA É A SEÇÃO SEM CAPTURA, e é decisão, não esquecimento:
+              entre as capturas disponíveis não há nenhuma de Dívidas. Ilustrar
+              o diferencial da casa com o print de outra tela seria pior que
               descrevê-lo, e desenhar uma tela que ninguém fotografou seria
               inventar. O que entra aqui é o que o motor faz, escrito.
+
+              COMPOSIÇÃO 3 DE 4, e ela é a única que NÃO tem tela junto, pelo
+              motivo acima: é uma faixa larga de fotografia encimando o cartão,
+              de borda a borda. Dívida é a conversa que duas pessoas têm com os
+              papéis na mão, e é essa cena que a foto traz para uma seção que,
+              sem ela, seria a maior mancha de texto corrido da página. Faixa e
+              não retrato: 21:9 dá o corte de cabeçalho e deixa claro que a
+              imagem é ambiente, não conteúdo.
 
               As duas estratégias são o argumento inteiro em duas colunas, e as
               frases são as mesmas do produto (`EXPLICACAO_ESTRATEGIA`, em
               lib/fincash/dividas.ts): a landing não pode ser mais otimista que
               a tela que a pessoa vai abrir depois de assinar. */}
           <section className="pt-14 sm:pt-20">
-            <div className="rounded-3xl border border-border bg-card p-6 shadow-subtle sm:p-9">
+            <div className="overflow-hidden rounded-3xl border border-border bg-card shadow-subtle">
+              <Pessoa
+                quem="casalContas"
+                qualidade={62}
+                sizes="(max-width: 1024px) 100vw, 62rem"
+                className="aspect-[16/9] sm:aspect-[21/9]"
+              />
+
+              <div className="p-6 sm:p-9">
               <div className="max-w-2xl">
                 <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent-tint text-accent-strong">
                   <TrendingDown className="h-5 w-5" strokeWidth={1.75} />
@@ -850,6 +934,7 @@ export default function FincashPage() {
                   </div>
                 ))}
               </dl>
+              </div>
             </div>
           </section>
 
@@ -872,14 +957,69 @@ export default function FincashPage() {
               </p>
             </div>
 
-            <div className="mt-8">
-              <Foto
-                tela="projecaoDesktop"
-                aparelho="janela"
-                barra="Projeção · próximos 12 meses"
+            {/* COMPOSIÇÃO 4 DE 4: a foto vira PALCO e a tela pousa em cima
+                dela. É a composição mais cara da página, e por isso está na
+                seção que vale mais: planejar doze meses é a promessa grande, e
+                aqui a cena de alguém sentado com o notebook em casa e a tela do
+                produto aparecem no mesmo enquadramento, que é o que as outras
+                três não fazem.
+
+                O navy por cima da foto é obrigatório, não estético: a captura é
+                clara e cheia de números miúdos, e sem escurecer o fundo a
+                textura da fotografia atravessaria a borda da moldura e comeria
+                a legibilidade do gráfico que a página está pedindo para a
+                pessoa ler. */}
+            <div className="relative mt-8 overflow-hidden rounded-3xl">
+              <Pessoa
+                quem="mesaNotebook"
+                qualidade={50}
                 sizes="(max-width: 1024px) 100vw, 62rem"
+                className="absolute inset-0 h-full"
               />
+              {/* O véu é o ajuste fino desta composição: opaco esconde a
+                  fotografia e não sobra palco nenhum, transparente demais e a
+                  textura da cena atravessa a borda da moldura e come os
+                  números da captura. 55% é onde a cena ainda se lê e a tela
+                  continua sendo a coisa mais nítida do bloco. */}
+              <span aria-hidden className="absolute inset-0 bg-primary/55" />
+              {/* A respiração generosa é o que faz a composição existir: com
+                  quatro pixels de margem a fotografia vira uma borda e a peça
+                  lê como moldura escura qualquer. O ar em volta é onde a cena
+                  aparece. */}
+              <div className="relative px-5 py-10 sm:px-10 sm:py-14 lg:px-16 lg:py-20">
+                <Foto
+                  tela="projecaoDesktop"
+                  aparelho="janela"
+                  barra="Projeção · próximos 12 meses"
+                  sizes="(max-width: 1024px) 88vw, 48rem"
+                />
+              </div>
             </div>
+
+            {/* GRÁFICO VIVO 3 DE 3. A captura acima mostra a curva do saldo;
+                este desenho mostra o que a curva esconde, que é a sobra de cada
+                mês, coluna por coluna.
+
+                ⚠️ AS COLUNAS SÃO BAIXAS, E ISSO NÃO É DEFEITO. Elas dividem a
+                régua com um saldo de quarenta e oito mil, então três mil de
+                sobra viram um filete. A tentação seria dar um segundo eixo às
+                colunas para elas ficarem bonitas, e é exatamente o gráfico mais
+                desonesto que existe: quem desenha passa a escolher onde a curva
+                cruza a barra. A peça se recusa a fazer isso, e a legenda abaixo
+                assume a proporção em vez de disfarçá-la. */}
+            <figure className="mt-4 rounded-3xl border border-border bg-card p-5 shadow-subtle sm:p-6">
+              <figcaption className="mb-4 text-sm leading-relaxed text-muted-foreground">
+                <b className="font-semibold text-foreground">
+                  Os doze meses da mesma projeção.
+                </b>{" "}
+                A coluna é o que sobra em cada mês e a curva é o saldo
+                acumulado, os dois na mesma régua. Cada mês empurra pouco, e é a
+                repetição que leva o saldo de R$ 14.991 a R$ 48.847. Dezembro é
+                o único que tira em vez de pôr, e por isso vira para baixo, em
+                vermelho.
+              </figcaption>
+              <ProjecaoDozeMeses />
+            </figure>
 
             <p className="mt-4 max-w-2xl text-sm leading-relaxed text-muted-foreground">
               Quando algum mês fecha no vermelho, ele é marcado como o primeiro
@@ -973,9 +1113,26 @@ export default function FincashPage() {
 
               Foto de nota e áudio ficaram deliberadamente de fora do produto.
               A página diz isso com todas as letras, porque é uma decisão
-              defensável e porque calar sobre ela criaria a expectativa. */}
+              defensável e porque calar sobre ela criaria a expectativa.
+
+              ── A IMAGEM QUE MANDA NESTA SEÇÃO ────────────────────────────
+              O celular na mão com a conversa na tela é a peça mais persuasiva
+              da página, porque é a única que mostra o produto ACONTECENDO no
+              lugar onde a pessoa já vive, sem app aberto e sem tela de
+              cadastro. Ela ganhou a coluna larga e a conversa remontada em
+              HTML saiu: as duas mostravam a mesma coisa, e a remontagem perdia
+              no confronto.
+
+              ⚠️ E É JUSTAMENTE POR SER A MAIS PERSUASIVA QUE ELA É A MAIS
+              PERIGOSA. A conversa é composição, não print de um número que
+              responde hoje. A pastilha de "construído, ainda não ligado" fica
+              ao lado dela, e a linha de ressalva vai COLADA na imagem, dentro
+              do mesmo bloco: separadas por uma coluna, a imagem viaja em
+              print, em story e em anúncio sem a ressalva junto, e aí a página
+              passa a prometer o que não entrega. Quando a linha da Meta for
+              ligada, sai a pastilha, sai a linha, e não sai nada além disso. */}
           <section className="pt-14 sm:pt-20">
-            <div className="grid gap-8 rounded-3xl border border-border bg-card p-6 shadow-subtle sm:p-9 lg:grid-cols-[1fr_minmax(0,21rem)] lg:items-center lg:gap-12">
+            <div className="grid gap-8 rounded-3xl border border-border bg-card p-6 shadow-subtle sm:p-9 lg:grid-cols-[1fr_minmax(0,26rem)] lg:items-center lg:gap-12">
               <div>
                 <span className="inline-flex items-center gap-2 rounded-full bg-muted px-3 py-1 text-xs font-semibold text-muted-foreground">
                   <Smartphone className="h-3.5 w-3.5" />
@@ -1007,27 +1164,51 @@ export default function FincashPage() {
                   continuam na tela de lançamentos, onde dá para conferir as
                   parcelas antes de gravar.
                 </p>
+
+                {/* O QUE A IMAGEM NÃO CABE MOSTRAR. A foto traz três frases; o
+                    interpretador reconhece estas seis, e as três que faltam
+                    (saldo, resumo, desfazer) são as que respondem em vez de
+                    lançar. Elas continuam escritas aqui porque foram tiradas
+                    de `lib/fincash/whatsapp.ts`, uma a uma: inventar uma
+                    sétima queimaria o assistente inteiro, já que quem manda e
+                    ouve "não entendi" não tenta uma terceira vez. */}
+                <dl className="mt-5 grid gap-x-6 gap-y-2 sm:grid-cols-2">
+                  {CONVERSA.map((c) => (
+                    <div
+                      key={c.pessoa}
+                      className="border-t border-border/60 pt-2 first:border-t-0 sm:[&:nth-child(2)]:border-t-0"
+                    >
+                      <dt className="font-mono text-xs font-semibold text-primary">
+                        {c.pessoa}
+                      </dt>
+                      <dd className="mt-0.5 text-xs leading-snug text-muted-foreground">
+                        {c.efeito}
+                      </dd>
+                    </div>
+                  ))}
+                </dl>
               </div>
 
-              {/* A conversa, com as frases tiradas do interpretador de
-                  verdade. Nenhuma foi escrita para a página. */}
-              <div className="rounded-3xl border border-border bg-gelo p-4 sm:p-5">
-                <ul className="space-y-3">
-                  {CONVERSA.map((c) => (
-                    <li key={c.pessoa}>
-                      <p className="ml-auto w-fit max-w-[85%] rounded-xl bg-primary px-3 py-2 text-xs font-semibold text-white">
-                        {c.pessoa}
-                      </p>
-                      <p className="mt-1.5 w-fit max-w-[90%] rounded-xl border border-border bg-card px-3 py-2 text-xs leading-snug text-muted-foreground">
-                        {c.efeito}
-                      </p>
-                    </li>
-                  ))}
-                </ul>
-                <p className="mt-4 text-center text-[11px] text-muted-foreground">
-                  Frases que o interpretador já reconhece
-                </p>
-              </div>
+              {/* COMPOSIÇÃO 5 DE 5: a fotografia É a tela, e não tem moldura
+                  de aparelho por cima porque o aparelho já está na foto. É a
+                  única imagem da página em que o produto aparece fora do
+                  produto, e é esse o argumento: não é preciso abrir o app.
+
+                  A ressalva mora dentro do mesmo bloco, encostada na imagem,
+                  pelo motivo escrito no cabeçalho da seção. */}
+              <figure className="rounded-3xl border border-border bg-gelo p-3 sm:p-4">
+                <div className="overflow-hidden rounded-xl">
+                  <Pessoa
+                    quem="whatsappNaMao"
+                    sizes="(max-width: 1024px) 90vw, 25rem"
+                  />
+                </div>
+                <figcaption className="mt-3 text-[11px] leading-snug text-muted-foreground">
+                  Conversa de demonstração, montada com as frases que o
+                  interpretador já reconhece e com os números da conta de
+                  exemplo. A linha oficial ainda não está ligada.
+                </figcaption>
+              </figure>
             </div>
           </section>
 
