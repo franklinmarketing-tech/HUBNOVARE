@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import {
+  ASSINATURA_GARANTIA_DIAS,
+  ASSINATURA_PRECO_ANUAL_MENSAL_ROTULO,
   ASSINATURA_PRECO_ROTULO,
-  ASSINATURA_TRIAL_DIAS,
 } from "@/lib/assinatura";
 
 /**
@@ -19,6 +20,16 @@ import {
  * descrição de busca prometendo um valor diferente do checkout é o tipo de
  * divergência que só aparece quando o cliente já está com o cartão na mão.
  *
+ * ⚠️ A DESCRIÇÃO TERMINAVA EM "7 DIAS GRÁTIS", e essa oferta não existe mais:
+ * virou garantia de reembolso, que é a promessa contrária (paga-se e devolve-se
+ * em vez de usar antes de pagar). É o pior lugar possível para o texto velho
+ * sobreviver, porque a descrição é o que o Google e o WhatsApp mostram antes
+ * de a pessoa abrir a página e descobrir que a promessa era outra.
+ *
+ * Ela lidera pelo ANUAL pelo mesmo motivo da página: é o plano que a casa quer
+ * vender, e o mensal aparece ao lado para a comparação acontecer na própria
+ * linha do resultado de busca.
+ *
  * ⚠️ NADA DE TRAVESSÃO AQUI. O título e a descrição são texto VISÍVEL (aba do
  * navegador, resultado do Google, prévia no WhatsApp), e o padrão da casa
  * proíbe o travessão em texto visível. O separador do título é o dois-pontos.
@@ -29,7 +40,7 @@ import {
  * uma que o superestima custa confiança.
  */
 const TITULO = "FINCASH";
-const DESCRICAO = `Saiba quanto ainda dá para gastar até o fim do mês, não só quanto você já gastou. Lançamentos, contas fixas, faturas de cartão, orçamento, dívidas com Price e SAC, metas, investimentos, importação do extrato em OFX e projeção de 12 meses em um lugar só, sem conectar banco. ${ASSINATURA_TRIAL_DIAS} dias grátis, depois ${ASSINATURA_PRECO_ROTULO}/mês com o Workspace inteiro liberado.`;
+const DESCRICAO = `Saiba quanto ainda dá para gastar até o fim do mês, não só quanto você já gastou. Lançamentos, contas fixas, faturas de cartão, orçamento, dívidas com Price e SAC, metas, investimentos, importação do extrato em OFX e projeção de 12 meses em um lugar só, sem conectar banco. ${ASSINATURA_PRECO_ANUAL_MENSAL_ROTULO}/mês no plano anual ou ${ASSINATURA_PRECO_ROTULO}/mês sem compromisso, com o Workspace inteiro liberado e ${ASSINATURA_GARANTIA_DIAS} dias de garantia.`;
 
 /** O preview que o WhatsApp e o Google mostram. Curto, porque é cortado. */
 const OG_SUB =

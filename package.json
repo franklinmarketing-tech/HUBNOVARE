@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "test:motores": "node scripts/testar-trabalhista.mjs && node scripts/testar-previdencia.mjs && node scripts/testar-extrato.mjs && node scripts/testar-planejamento-motores.mjs && node scripts/testar-ofx.mjs && node scripts/testar-categorias.mjs && node scripts/testar-dividas.mjs && node scripts/testar-exportar.mjs && node scripts/testar-whatsapp-midia.mjs && node scripts/testar-ponte.mjs",
+    "test:motores": "node scripts/testar-assinatura.mjs && node scripts/testar-trabalhista.mjs && node scripts/testar-previdencia.mjs && node scripts/testar-extrato.mjs && node scripts/testar-planejamento-motores.mjs && node scripts/testar-ofx.mjs && node scripts/testar-categorias.mjs && node scripts/testar-dividas.mjs && node scripts/testar-exportar.mjs && node scripts/testar-whatsapp-midia.mjs && node scripts/testar-ponte.mjs",
     "test:web": "node scripts/varredura.mjs && node scripts/garantia.mjs && node scripts/testar-nada-a-venda.mjs && node scripts/testar-planejamento.mjs",
     "test": "npm run typecheck && npm run test:motores"
   },

@@ -1,47 +1,46 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Check, Gift, Lock, Sparkles, X } from "lucide-react";
+import { Check, Lock, MessageCircle, ShieldCheck, Sparkles, X } from "lucide-react";
+import { PLANO_INCLUI, PLANO_OFERTA } from "@/lib/planejamento/oferta";
 import {
-  PLANO_CHECKOUT_URL,
-  PLANO_INCLUI,
-  PLANO_PRECO_ROTULO,
-  PLANO_TRIAL_DIAS,
-} from "@/lib/planejamento/oferta";
-import { ASSINATURA_INCLUI, ASSINATURA_NOME } from "@/lib/assinatura";
+  ASSINATURA_GARANTIA_FRASE,
+  ASSINATURA_INCLUI,
+  ASSINATURA_NOME,
+  ASSINATURA_PLANOS,
+  assinaturaCheckout,
+  type PlanoAssinatura,
+} from "@/lib/assinatura";
 import { CONTAGEM } from "@/lib/apps";
 import { falarNoWhatsApp } from "@/lib/contato";
 
 /**
- * Como a oferta é apresentada. É a MESMA compra — mesmo preço, mesmo trial,
- * mesmo checkout — vista de dois ângulos: quem chegou pelo app quer ouvir
- * falar do plano; quem chegou pela página do Workspace quer ouvir que leva
- * tudo. Um modal só evita duas verdades sobre uma cobrança só.
+ * Como a oferta é apresentada. É a MESMA compra — mesmos preços, mesma
+ * garantia, mesmo checkout — vista de dois ângulos: quem chegou pelo app quer
+ * ouvir falar do plano; quem chegou pela página do Workspace quer ouvir que
+ * leva tudo. Um modal só evita duas verdades sobre uma cobrança só.
  */
 export type ContextoAssinatura = "plano" | "workspace";
 
 /**
  * O que este botão está tentando fazer.
  *
- * `comecar` é a porta de entrada: a pessoa ainda não tem conta, e o caminho
- * mais curto é criar a senha e cair dentro do produto — os 7 dias começam a
- * correr sozinhos, sem cartão e sem ninguém liberar nada.
+ * A distinção era estrutural quando existia teste grátis: `comecar` criava a
+ * conta e o relógio começava a correr sem cartão; `pagar` era o dia de
+ * fechar. Com a garantia no lugar do teste, os dois caminhos terminam no
+ * MESMO checkout — não há mais o que "começar" antes de pagar.
  *
- * `pagar` é o dia em que ela decide continuar. Aí sim precisa de checkout — e
- * enquanto ele não existe, quem conclui é um consultor pelo WhatsApp.
- *
- * A distinção existe porque mandar quem JÁ está usando o app para uma tela de
- * "criar conta" é ofensivo, e mandar quem nunca entrou para o WhatsApp perde a
- * venda que se fecharia sozinha.
+ * O que sobrou é TOM, e isso ainda importa: quem já está dentro do app não
+ * precisa ouvir a promessa inteira de novo, e quem nunca entrou precisa.
  */
 export type ObjetivoAssinatura = "comecar" | "pagar";
 
 /**
  * Onde a pessoa cria a senha e cai direto no produto.
  *
- * Exportada porque o `BotaoAssinarPlano` em modo `direto` aponta para cá sem
- * abrir o pop-up: em telas onde a oferta INTEIRA já está à vista (a landing
- * /assinar), o modal só repetiria o cartão de preço e custaria um clique.
+ * NÃO é mais o destino do botão de assinar — esse vai para o checkout. Fica
+ * aqui porque continua sendo a rota de quem já comprou e está entrando pela
+ * primeira vez, e porque o e-mail de boas-vindas aponta para ela.
  */
 export const ROTA_COMECAR = "/login?modo=criar&proximo=%2Fplanejamento%2Fapp";
 
@@ -50,7 +49,7 @@ const CONTEXTOS = {
     sobretitulo: "Planejamento Financeiro",
     itens: PLANO_INCLUI,
     brinde: "A Íris vai junto, de brinde",
-    mensagem: `Olá! Quero começar o teste grátis de ${PLANO_TRIAL_DIAS} dias do App Novare Planejamento Financeiro (depois ${PLANO_PRECO_ROTULO}/mês, com a Íris de brinde).`,
+    mensagem: `Olá! Quero assinar o App Novare Planejamento Financeiro (${PLANO_OFERTA}) e tenho uma dúvida antes.`,
   },
   workspace: {
     sobretitulo: ASSINATURA_NOME,
@@ -61,7 +60,7 @@ const CONTEXTOS = {
       i.replace("{EXCLUSIVAS}", String(CONTAGEM.exclusivasAssinante)),
     ),
     brinde: "Uma assinatura, tudo liberado",
-    mensagem: `Olá! Quero começar o teste grátis de ${PLANO_TRIAL_DIAS} dias do ${ASSINATURA_NOME} (depois ${PLANO_PRECO_ROTULO}/mês, com tudo liberado).`,
+    mensagem: `Olá! Quero assinar o ${ASSINATURA_NOME} (${PLANO_OFERTA}) e tenho uma dúvida antes.`,
   },
 } as const;
 
@@ -91,7 +90,11 @@ export function ModalAssinarPlano({
   objetivo?: ObjetivoAssinatura;
 }) {
   const caixaRef = useRef<HTMLDivElement>(null);
-  const [saindo, setSaindo] = useState(false);
+  /* Começa no ANUAL porque é o plano que a casa quer vender e o que a pessoa
+     escolheria se lesse os dois com calma. Quem quer o mensal muda com um
+     toque — o contrário (começar no mensal e torcer para a pessoa reparar no
+     anual) deixa a melhor oferta escondida atrás de um clique. */
+  const [plano, setPlano] = useState<PlanoAssinatura>("anual");
 
   // Esc fecha e o fundo não rola enquanto o pop-up está aberto.
   useEffect(() => {
@@ -112,24 +115,17 @@ export function ModalAssinarPlano({
   if (!aberto) return null;
 
   const copia = CONTEXTOS[contexto];
-  const temCheckout = PLANO_CHECKOUT_URL.trim().length > 0;
-
-  // Começar o teste NUNCA depende de checkout: são 7 dias sem cobrança, então
-  // o caminho é sempre criar a senha e entrar. O checkout só entra na conversa
-  // na hora de pagar de verdade.
   const comecando = objetivo === "comecar";
-  const destino = comecando
-    ? ROTA_COMECAR
-    : temCheckout
-      ? PLANO_CHECKOUT_URL
-      : falarNoWhatsApp(copia.mensagem);
 
-  const externo = !comecando && !temCheckout;
-  const rotuloBotao = comecando
-    ? "Criar minha conta e começar"
-    : temCheckout
-      ? "Ir para o pagamento"
-      : "Falar com a Novare e assinar";
+  /* O destino sai inteiro de `assinaturaCheckout`: Hotmart quando a oferta
+     daquele plano existe, /assinar/em-breve quando ainda não. O modal não
+     conhece URL de checkout nem decide fallback — se conhecesse, seria o
+     sexto lugar do código com opinião própria sobre isso. */
+  const destino = assinaturaCheckout(plano);
+  const externo = destino.startsWith("http");
+  const rotuloBotao = externo
+    ? "Ir para o pagamento"
+    : "Assinar o Workspace";
 
   return (
     <div
@@ -171,34 +167,58 @@ export function ModalAssinarPlano({
               {copia.sobretitulo}
             </p>
 
-            {/* O preço grande é R$ 0: o que se oferece AGORA é o teste, não a
-                mensalidade. O valor futuro fica logo abaixo, legível, para
-                ninguém se sentir enganado depois. */}
-            <div className="mt-3 flex items-end gap-2 sm:mt-4">
-              <span
-                id="titulo-assinar"
-                className="font-display text-[2.75rem] font-extrabold leading-none tabular-nums sm:text-5xl"
-              >
-                R$ 0
-              </span>
-              <span className="pb-1 text-sm leading-tight text-white/70">
-                pelos primeiros
-                <br />
-                {PLANO_TRIAL_DIAS} dias
-              </span>
+            <h2 id="titulo-assinar" className="sr-only">
+              Assinar o {ASSINATURA_NOME}
+            </h2>
+
+            {/* Os dois planos, escolhíveis aqui dentro. A pessoa não sai do
+                pop-up para descobrir que existe um anual mais barato: o
+                número grande de cada cartão é sempre um "por mês", porque é
+                assim que ela compara — e o total do anual vem escrito na
+                linha de baixo, sem esconder que a cobrança é de uma vez. */}
+            <div className="mt-4 space-y-2">
+              {ASSINATURA_PLANOS.map((p) => {
+                const escolhido = plano === p.chave;
+                return (
+                  <button
+                    key={p.chave}
+                    type="button"
+                    onClick={() => setPlano(p.chave)}
+                    aria-pressed={escolhido}
+                    className={`w-full rounded-xl border px-3.5 py-3 text-left transition-colors ${
+                      escolhido
+                        ? "border-accent-claro bg-white/[0.16]"
+                        : "border-white/15 bg-white/[0.05] hover:bg-white/[0.1]"
+                    }`}
+                  >
+                    <span className="flex items-baseline justify-between gap-2">
+                      <span className="text-2xs font-semibold uppercase tracking-wider text-white/60">
+                        {p.nome}
+                      </span>
+                      {p.selo && (
+                        <span className="rounded-md bg-accent-btn px-1.5 py-0.5 text-[0.625rem] font-bold uppercase tracking-wide text-white">
+                          {p.selo}
+                        </span>
+                      )}
+                    </span>
+                    <span className="mt-1 flex items-end gap-1">
+                      <span className="font-display text-2xl font-extrabold leading-none tabular-nums sm:text-3xl">
+                        {p.valorRotulo}
+                      </span>
+                      <span className="text-xs font-semibold text-white/70">
+                        {p.periodo}
+                      </span>
+                    </span>
+                    <span className="mt-1 block text-2xs leading-snug text-white/60">
+                      {p.detalhe}
+                    </span>
+                  </button>
+                );
+              })}
             </div>
 
-            <p className="mt-2.5 text-xs leading-relaxed text-white/70 sm:mt-3.5 sm:text-sm">
-              Depois {PLANO_PRECO_ROTULO}/mês. Cancele antes do fim do teste e
-              não paga nada.
-            </p>
-
-            <p className="mt-3.5 inline-flex items-center gap-1.5 rounded-lg bg-white/[0.14] px-2.5 py-1.5 text-2xs font-semibold sm:mt-5">
-              {comecando ? (
-                <Gift className="h-3.5 w-3.5 text-accent-claro" />
-              ) : (
-                <Sparkles className="h-3.5 w-3.5 text-accent-claro" />
-              )}
+            <p className="mt-3.5 inline-flex items-center gap-1.5 rounded-lg bg-white/[0.14] px-2.5 py-1.5 text-2xs font-semibold">
+              <Sparkles className="h-3.5 w-3.5 text-accent-claro" />
               {copia.brinde}
             </p>
 
@@ -233,24 +253,29 @@ export function ModalAssinarPlano({
               href={destino}
               target={externo ? "_blank" : "_self"}
               rel="noopener noreferrer"
-              onClick={() => externo && setSaindo(true)}
               className="flex w-full items-center justify-center gap-2 rounded-xl bg-accent-btn px-5 py-3.5 text-sm font-bold text-white shadow-[0_10px_26px_-12px_hsl(16_80%_35%_/_0.8)] transition-all hover:-translate-y-0.5 hover:bg-accent-strong"
             >
               {rotuloBotao}
             </a>
 
-            {comecando && (
-              <p className="mt-2.5 text-center text-xs leading-relaxed text-muted-foreground">
-                Você cria a senha e já entra no app. Nenhum cartão é pedido nos
-                primeiros {PLANO_TRIAL_DIAS} dias.
-              </p>
-            )}
+            <p className="mt-2.5 flex items-start justify-center gap-1.5 text-center text-xs leading-relaxed text-muted-foreground">
+              <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-success" />
+              {ASSINATURA_GARANTIA_FRASE}
+            </p>
 
-            {externo && !saindo && (
-              <p className="mt-2.5 text-center text-xs leading-relaxed text-muted-foreground">
-                O pagamento online está sendo liberado. Por enquanto um consultor
-                conclui a assinatura com você pelo WhatsApp.
-              </p>
+            {/* A saída de quem tem dúvida. Some para quem já está no app
+                (`pagar`): quem está lá dentro já conhece a casa e mandar essa
+                pessoa para o WhatsApp é atrasar a compra que ela já decidiu. */}
+            {comecando && (
+              <a
+                href={falarNoWhatsApp(copia.mensagem)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-3 flex items-center justify-center gap-1.5 text-2xs font-semibold text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+              >
+                <MessageCircle className="h-3 w-3" />
+                Prefiro tirar uma dúvida antes
+              </a>
             )}
 
             {/* No celular a coluna navy não tem espaço para o aviso; ele volta

@@ -9,11 +9,17 @@ import {
   type ContextoAssinatura,
   type ObjetivoAssinatura,
 } from "@/components/ModalAssinarPlano";
-import { PLANO_TRIAL_DIAS } from "@/lib/planejamento/oferta";
+import { assinaturaCheckout, type PlanoAssinatura } from "@/lib/assinatura";
 
 /**
  * Abre o pop-up de assinatura. Fica na landing page, depois da pessoa já ter
  * entendido o produto e visto o próprio número na calculadora.
+ *
+ * COM `direto`, ele é o botão de COMPRAR: o destino sai de
+ * `assinaturaCheckout(plano)` — a Hotmart, quando a oferta daquele plano
+ * existe; `/assinar/em-breve`, quando ainda não. O `href` já vem resolvido no
+ * HTML: não há decisão no clique, então não existe a janela em que a pessoa
+ * clica antes de o JavaScript carregar e o botão não faz nada.
  */
 export function BotaoAssinarPlano({
   variante = "principal",
@@ -23,6 +29,7 @@ export function BotaoAssinarPlano({
   rotulo,
   tamanho = "normal",
   direto = false,
+  plano = "mensal",
 }: {
   /** `clara` é para usar sobre o bloco navy do fim da página. */
   variante?: "principal" | "clara";
@@ -46,6 +53,8 @@ export function BotaoAssinarPlano({
    * Com `direto`, `contexto` e `objetivo` ficam inertes — não combine com
    * `objetivo="pagar"` esperando checkout. */
   direto?: boolean;
+  /** Qual oferta comprar. Só muda alguma coisa junto com `direto`. */
+  plano?: PlanoAssinatura;
 }) {
   const [aberto, setAberto] = useState(false);
 
@@ -64,14 +73,24 @@ export function BotaoAssinarPlano({
   }`;
   const conteudo = (
     <>
-      {rotulo ?? `Começar ${PLANO_TRIAL_DIAS} dias grátis`}
+      {rotulo ?? "Assinar o Workspace"}
       <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
     </>
   );
 
   if (direto) {
+    const destino = assinaturaCheckout(plano);
+    // A Hotmart abre em aba nova (a pessoa não perde a página de venda); a
+    // tela de "em breve" é da casa e abre no lugar, como qualquer link interno.
+    const externo = destino.startsWith("http");
     return (
-      <Link href={ROTA_COMECAR} className={classe}>
+      <Link
+        href={destino}
+        className={classe}
+        {...(externo
+          ? { target: "_blank", rel: "noopener noreferrer" }
+          : undefined)}
+      >
         {conteudo}
       </Link>
     );

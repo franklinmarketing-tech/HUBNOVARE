@@ -21,6 +21,7 @@ import { appsParaBusca } from "@/lib/navegacao";
 import { getPerfil, temFichaPreenchida } from "@/lib/perfil";
 import { getNotificacoes } from "@/lib/notificacoes";
 import { estadoDaAssinatura } from "@/lib/assinatura-servidor";
+import { ASSINATURA_GARANTIA, ASSINATURA_OFERTA_CURTA } from "@/lib/assinatura";
 
 /**
  * Só o canonical: title, description e Open Graph da home são os do layout
@@ -405,8 +406,9 @@ function ConviteWorkspace({ assinante }: { assinante: boolean }) {
           </p>
           <p className="truncate text-xs text-white/70">
             {/* Era "Planejamento, Íris e todos os recursos liberados por 7
-                dias." e chegava cortado no celular. */}
-            Planejamento, Íris e tudo mais por 7 dias.
+                dias." — número escrito à mão, e ainda por cima do teste
+                grátis que não existe mais. Agora sai da fonte única. */}
+            {ASSINATURA_OFERTA_CURTA} · {ASSINATURA_GARANTIA}
           </p>
         </div>
       </div>
@@ -414,7 +416,7 @@ function ConviteWorkspace({ assinante }: { assinante: boolean }) {
         href="/assinar"
         className="group inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-warning-claro px-4 py-2 text-xs font-semibold text-primary transition-colors hover:bg-warning"
       >
-        Experimentar gratuitamente
+        Ver a assinatura
         <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
       </Link>
     </section>

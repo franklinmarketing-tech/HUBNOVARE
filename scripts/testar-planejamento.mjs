@@ -16,24 +16,22 @@
  *
  * Roda com: BASE=http://localhost:3100 node scripts/testar-planejamento.mjs
  */
-import { readFileSync } from "node:fs";
 import { chromium } from "playwright";
+import {
+  ASSINATURA_PRECO_ANUAL_MENSAL_ROTULO,
+  ASSINATURA_PRECO_ROTULO,
+} from "../src/lib/assinatura.ts";
 
 const BASE = process.env.BASE ?? "http://localhost:3000";
 
-/* Lido de `src/lib/assinatura.ts`, a fonte unica do preco. */
-const PRECO_ESPERADO = (() => {
-  const fonte = readFileSync(
-    new URL("../src/lib/assinatura.ts", import.meta.url),
-    "utf8",
-  );
-  const m = fonte.match(/ASSINATURA_PRECO\s*=\s*(\d+)/);
-  if (!m) throw new Error("nao achei ASSINATURA_PRECO em assinatura.ts");
-  return Number(m[1]).toLocaleString("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-  });
-})();
+/* Importado de `src/lib/assinatura.ts`, a fonte unica do preco.
+ *
+ * Era uma regex sobre o texto do arquivo (`ASSINATURA_PRECO = (\d+)`), e ela
+ * morreu no dia em que o preco deixou de ser inteiro: R$ 29,90 nao e "(\d+)".
+ * Ler a constante de verdade nao tem esse problema — e ainda pega de graca o
+ * mensal equivalente do plano anual, que a landing tambem mostra. */
+const PRECO_ESPERADO = ASSINATURA_PRECO_ROTULO;
+const PRECO_ANUAL_ESPERADO = ASSINATURA_PRECO_ANUAL_MENSAL_ROTULO;
 
 const falhas = [];
 let oks = 0;
@@ -110,7 +108,7 @@ async function abrir(rota) {
 const lp = await abrir("/planejamento");
 
 conferir("a LP não chama mais o produto de Vida Plan", !/vida plan/i.test(lp));
-conferir("a LP anuncia o teste grátis", /7 dias grátis/i.test(lp));
+conferir("a LP anuncia a garantia de 7 dias", /7 dias de garantia/i.test(lp));
 /* O preço vem do codigo, nao repetido aqui: quando ele mudou de 19,90 para
    49, esta linha continuou exigindo o valor antigo e a conferencia passou a
    reprovar uma pagina correta. Guardiao que precisa ser atualizado a mao
@@ -118,6 +116,10 @@ conferir("a LP anuncia o teste grátis", /7 dias grátis/i.test(lp));
 conferir(
   `a LP mostra o preço aprovado (${PRECO_ESPERADO})`,
   lp.includes(PRECO_ESPERADO),
+);
+conferir(
+  `a LP mostra o mensal do plano anual (${PRECO_ANUAL_ESPERADO})`,
+  lp.includes(PRECO_ANUAL_ESPERADO),
 );
 conferir("a LP explica o Marco Horizonte", /marco horizonte/i.test(lp));
 conferir(
@@ -165,7 +167,14 @@ conferir("a home tem o card do produto", (await cartao.count()) > 0);
 if ((await cartao.count()) > 0) {
   const textoCartao = await cartao.innerText();
   conferir("o card carrega o selo PRO", /PRO/.test(textoCartao), textoCartao.replace(/\n/g, " "));
-  conferir("o card anuncia o teste grátis", /dias grátis/i.test(textoCartao));
+  /* Era "dias grátis": o card anunciava o teste, que saiu da oferta. O que
+     ele mostra agora é o preço do plano anual — e continua sendo obrigatório
+     mostrar ALGUMA coisa ali, senão o card vira só mais um atalho. */
+  conferir(
+    `o card anuncia o preço do anual (${PRECO_ANUAL_ESPERADO})`,
+    textoCartao.includes(PRECO_ANUAL_ESPERADO),
+    textoCartao.replace(/\n/g, " "),
+  );
 }
 
 await navegador.close();

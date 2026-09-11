@@ -3,6 +3,22 @@
 /**
  * O teste grátis de 7 dias, self-service — e a leitura ÚNICA de "pode usar?".
  *
+ * ⚠️ O TESTE SAIU DA VENDA, MAS O MOTOR CONTINUA LIGADO. A oferta da casa
+ * agora é garantia de 7 dias (paga e devolve; ver `lib/assinatura.ts`), e
+ * nenhuma página pública anuncia teste grátis. Este arquivo não foi desligado
+ * junto por dois motivos concretos:
+ *
+ *   1. Tem gente em teste NESTE MOMENTO, com dias correndo, que entrou sob a
+ *      promessa antiga. Cortar o acesso no mesmo dia em que a oferta muda é
+ *      quebrar a palavra com quem aceitou o convite da casa.
+ *   2. O checkout ainda não existe. Enquanto `ASSINATURA_CHECKOUT_URL`
+ *      estiver vazia, criar conta e cair aqui é o ÚNICO caminho que entrega o
+ *      produto a alguém. Desligar antes de haver como pagar deixaria o app
+ *      sem porta nenhuma.
+ *
+ * O dia de apagar este arquivo é o dia em que as ofertas da Hotmart entrarem
+ * no ar. Até lá ele é motor silencioso: funciona, mas não é anunciado.
+ *
  * A pessoa clica em "começar grátis", cria a senha, entra no app e usa. Não há
  * cartão na porta de entrada e não há ninguém para liberar nada — o relógio
  * começa a correr sozinho na primeira vez que ela abre o produto.
@@ -24,7 +40,7 @@
  * alguém de estender o próprio teste pelo console do navegador).
  *
  * ATIVAÇÃO PÓS-PAGAMENTO
- * Quem compra (checkout Kiwify/Hotmart) é marcado `pro` em `hub_profiles` —
+ * Quem compra (checkout da Hotmart) é marcado `pro` em `hub_profiles` —
  * pelo webhook quando existir, ou pelo admin enquanto não existe. Este
  * módulo já entende isso hoje: marcou `pro`, liberou.
  */

@@ -8,11 +8,12 @@ import { createClient } from "@/lib/supabase/client";
  * Entrada de visitante para o Planejamento Financeiro — SEM link nenhum
  * apontando para cá, em lugar nenhum do site.
  *
- * Por quê: o Planejamento é produto pago hoje (assinatura ativa, 7 dias
- * grátis sem cartão). Um botão público de "entrar sem cadastro" deixaria
- * qualquer pessoa pular a assinatura inteira — o oposto do que a página de
- * vendas existe para fazer. Esta rota serve só para teste interno: quem
- * tem o endereço de cor entra, quem não tem nunca vai encontrar.
+ * Por quê: o Planejamento é produto pago hoje (assinatura ativa, com
+ * garantia de 7 dias — não mais teste grátis). Um botão público de "entrar
+ * sem cadastro" deixaria qualquer pessoa pular a assinatura inteira — o
+ * oposto do que a página de vendas existe para fazer. Esta rota serve só para
+ * teste interno: quem tem o endereço de cor entra, quem não tem nunca vai
+ * encontrar.
  *
  * Como funciona: cria uma conta de verdade no Supabase, com e-mail gerado
  * e senha aleatória (a autenticação anônima está desligada neste projeto —
@@ -20,7 +21,9 @@ import { createClient } from "@/lib/supabase/client";
  * confirmada na hora, sem precisar clicar em link de e-mail. A partir daí é
  * uma conta igual a qualquer outra: `garantirTeste()` (src/lib/trial.ts)
  * detecta o primeiro acesso e libera os 7 dias sozinho, do lado de dentro
- * do app — não precisei mexer em nada lá.
+ * do app — não precisei mexer em nada lá. Esse motor continua ligado de
+ * propósito mesmo depois de o teste sair da venda; o porquê está no cabeçalho
+ * de `lib/trial.ts`.
  *
  * A credencial fica guardada no navegador para a mesma pessoa voltar à
  * mesma conta depois, em vez de criar uma nova a cada visita.

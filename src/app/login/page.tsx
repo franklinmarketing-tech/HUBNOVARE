@@ -18,10 +18,13 @@ function FormularioLogin() {
   /**
    * `?modo=criar` abre direto no cadastro.
    *
-   * É o que faz o botão "7 dias grátis" da página de venda cair numa tela que
-   * já pede nome e senha, em vez de numa tela de login onde a pessoa precisa
-   * primeiro achar o link de criar conta. Cada clique a mais aqui é venda
-   * perdida.
+   * É o que faz quem vem criar conta cair numa tela que já pede nome e
+   * senha, em vez de numa tela de login onde a pessoa precisa primeiro achar
+   * o link de criar conta. Cada clique a mais aqui é venda perdida.
+   *
+   * (O botão de ASSINAR não passa mais por aqui: desde que a oferta virou
+   * "pague e tenha 7 dias de garantia", ele vai direto para o checkout. Esta
+   * rota continua sendo a de quem já comprou e vem entrar pela primeira vez.)
    */
   const modoInicial: Modo = params.get("modo") === "criar" ? "criar" : "entrar";
 

@@ -3,8 +3,9 @@
 import { useEffect, useState } from "react";
 import { BotaoAssinarPlano } from "@/components/BotaoAssinarPlano";
 import {
+  ASSINATURA_GARANTIA,
+  ASSINATURA_PRECO_ANUAL_MENSAL_ROTULO,
   ASSINATURA_PRECO_ROTULO,
-  ASSINATURA_TRIAL_DIAS,
 } from "@/lib/assinatura";
 
 /**
@@ -54,18 +55,22 @@ export function BarraAssinarFixa() {
           ficava por cima do preço. O espaço é reservado, não disputado. */}
       <div className="mx-auto flex max-w-md items-center justify-between gap-3 pl-14">
         <div className="min-w-0">
+          {/* O número grande é o do ANUAL, que é o plano que a casa quer
+              vender; o mensal vem na linha fina, para a barra não esconder
+              que existe uma opção sem compromisso. */}
           <p className="font-display text-sm font-bold leading-tight text-white">
-            {ASSINATURA_TRIAL_DIAS} dias grátis
+            {ASSINATURA_PRECO_ANUAL_MENSAL_ROTULO}/mês
           </p>
           <p className="truncate text-[11px] text-white/60">
-            depois {ASSINATURA_PRECO_ROTULO}/mês
+            no anual · {ASSINATURA_PRECO_ROTULO}/mês avulso · {ASSINATURA_GARANTIA}
           </p>
         </div>
         <div className="shrink-0 whitespace-nowrap">
           <BotaoAssinarPlano
             contexto="workspace"
             direto
-            rotulo="Começar grátis"
+            plano="anual"
+            rotulo="Assinar"
           />
         </div>
       </div>

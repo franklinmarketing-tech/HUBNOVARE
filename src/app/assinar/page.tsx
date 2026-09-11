@@ -34,10 +34,16 @@ import { EcossistemaConectado } from "@/components/EcossistemaConectado";
 import { RevelarAoRolar } from "@/components/RevelarAoRolar";
 import { Chapeu, Etapa, Pilar, tomPor } from "@/components/SecoesVenda";
 import {
+  ASSINATURA_ANUAL_ECONOMIA_ROTULO,
+  ASSINATURA_GARANTIA,
+  ASSINATURA_GARANTIA_DIAS,
+  ASSINATURA_GARANTIA_FRASE,
   ASSINATURA_NOME,
-  ASSINATURA_PRECO,
+  ASSINATURA_OFERTA,
+  ASSINATURA_PLANOS,
+  ASSINATURA_PRECO_ANUAL_MENSAL_ROTULO,
+  ASSINATURA_PRECO_DIA_ANUAL_ROTULO,
   ASSINATURA_PRECO_ROTULO,
-  ASSINATURA_TRIAL_DIAS,
 } from "@/lib/assinatura";
 import { APPS, CONTAGEM } from "@/lib/apps";
 import { iconeDe } from "@/lib/icones";
@@ -48,11 +54,11 @@ export const metadata: Metadata = {
   title: `${ASSINATURA_NOME}: sua vida financeira inteira, num lugar só`,
   /* Sem "1º hub financeiro do Brasil": é superlativo que não temos como
      comprovar, e claim de pioneirismo sem prova é passivo — não vantagem. */
-  description: `Planejamento financeiro, IA que lê seu extrato e todas as ferramentas da casa. ${ASSINATURA_TRIAL_DIAS} dias grátis, sem cartão.`,
+  description: `Planejamento financeiro, IA que lê seu extrato e todas as ferramentas da casa. ${ASSINATURA_OFERTA}. ${ASSINATURA_GARANTIA}.`,
   alternates: { canonical: "/assinar" },
   openGraph: {
     title: `${ASSINATURA_NOME}: sua vida financeira inteira, num lugar só`,
-    description: `Tudo o que a Novare construiu, por ${ASSINATURA_PRECO_ROTULO}/mês. Comece com ${ASSINATURA_TRIAL_DIAS} dias grátis.`,
+    description: `Tudo o que a Novare construiu, por ${ASSINATURA_PRECO_ANUAL_MENSAL_ROTULO}/mês no plano anual. ${ASSINATURA_GARANTIA}.`,
     url: "/assinar",
     type: "website",
     locale: "pt_BR",
@@ -76,10 +82,17 @@ const NAVY: React.CSSProperties = {
  * vertical, blocos escuros e claros alternados, e um CTA em cada dobra.
  *
  * REGRA DESTA PÁGINA: nada aqui é fabricado para vender. Sem depoimento
- * (a casa não publicou nenhum), sem preço "de/por" (não existe preço cheio
- * de referência) e sem contador regressivo (a assinatura é recorrente e não
- * tem vaga limitada). A urgência que a página usa é a real — os
- * 7 dias grátis sem cartão. Numa casa que vende confiança financeira, o
+ * (a casa não publicou nenhum) e sem contador regressivo (a assinatura é
+ * recorrente e não tem vaga limitada).
+ *
+ * O "de/por" que apareceu no cartão do anual não é preço-âncora inventado: a
+ * referência riscada é o que a pessoa pagaria de verdade assinando mês a mês
+ * (12 × o mensal), e os dois valores existem no site. Preço cheio fictício
+ * continua proibido.
+ *
+ * O que a página usa no lugar da urgência é a REVERSÃO DE RISCO — a garantia
+ * de 7 dias, que tem processo real por trás: quem cancela no prazo é
+ * devolvido pela própria Hotmart. Numa casa que vende confiança financeira, o
  * truque de conversão custa mais caro do que rende.
  */
 
@@ -127,8 +140,8 @@ const VIRADA = [
 const PASSOS = [
   {
     icone: CreditCard,
-    titulo: "Crie a conta em 1 minuto",
-    texto: "E-mail e senha. Nenhum cartão é pedido para começar o teste.",
+    titulo: "Assine em 1 minuto",
+    texto: `Pagamento pela Hotmart e ${ASSINATURA_GARANTIA_DIAS} dias para desistir e ser devolvido.`,
   },
   {
     icone: ClipboardList,
@@ -221,20 +234,17 @@ const CONFIANCA = [
 /** Os números que a casa pode provar. Nada aqui é estimativa de marketing. */
 const NUMEROS = [
   { valor: String(CONTAGEM.calculadoras), rotulo: "ferramentas e calculadoras" },
-  { valor: `${ASSINATURA_TRIAL_DIAS} dias`, rotulo: "grátis, sem pedir cartão" },
+  { valor: `${ASSINATURA_GARANTIA_DIAS} dias`, rotulo: "de garantia, dinheiro de volta" },
   { valor: ROTULO_DESCONTO, rotulo: "na consultoria particular" },
   { valor: "0%", rotulo: "de comissão de banco" },
 ];
 
 const SELOS = [
-  { icone: CreditCard, texto: "Sem cartão para testar" },
+  { icone: CreditCard, texto: ASSINATURA_GARANTIA },
   { icone: Lock, texto: "Cancele quando quiser" },
   { icone: ShieldCheck, texto: "Consultoria independente" },
   { icone: Wallet, texto: "Sem comissão de corretora" },
 ];
-
-const brl = (v: number) =>
-  v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
 /**
  * ⚠️ Esta lista é local e diverge de `ASSINATURA_INCLUI` (`lib/assinatura.ts`),
@@ -252,7 +262,7 @@ const brl = (v: number) =>
  */
 const INCLUI = [
   "Revisão trimestral com um consultor da Novare",
-  `${ASSINATURA_TRIAL_DIAS} dias grátis, sem cartão`,
+  ASSINATURA_GARANTIA,
   "Planejamento Financeiro completo",
   "Íris, a IA que lê seu extrato",
   `${CONTAGEM.exclusivasAssinante} ferramentas exclusivas de assinante`,
@@ -281,7 +291,10 @@ const EXCLUSIVAS = APPS.filter(
     a.href.includes("/ferramentas/"),
 );
 
-const porDia = brl(ASSINATURA_PRECO / 30);
+/* O "por dia" vem pronto de `assinatura.ts`. Era `brl(ASSINATURA_PRECO / 30)`
+   aqui: uma tela de venda fazendo conta de preço, que é o começo de duas
+   verdades sobre a mesma cobrança. */
+const porDia = ASSINATURA_PRECO_DIA_ANUAL_ROTULO;
 
   return (
     <div className="min-h-dvh bg-background">
@@ -343,7 +356,8 @@ const porDia = brl(ASSINATURA_PRECO / 30);
             <p className="cine mx-auto mt-7 max-w-2xl text-lg leading-relaxed text-white/80 sm:text-xl">
               Planejamento completo, a Íris lendo seu extrato, {CONTAGEM.calculadoras} calculadoras
               e consultoria com {ROTULO_DESCONTO}. Por{" "}
-              {ASSINATURA_PRECO_ROTULO} por mês.
+              {ASSINATURA_PRECO_ANUAL_MENSAL_ROTULO} por mês no plano anual —
+              ou {ASSINATURA_PRECO_ROTULO}/mês, sem compromisso.
             </p>
 
             <div className="cine mt-9 flex flex-col items-center gap-4">
@@ -352,10 +366,10 @@ const porDia = brl(ASSINATURA_PRECO / 30);
                 tamanho="grande"
                 destaque
                 direto
-                rotulo={`Começar meus ${ASSINATURA_TRIAL_DIAS} dias grátis`}
+                rotulo="Assinar o Workspace"
               />
               <p className="text-sm text-white/60">
-                Sem cartão de crédito · cancele quando quiser
+                {ASSINATURA_GARANTIA} · cancele quando quiser
               </p>
             </div>
 
@@ -482,7 +496,7 @@ const porDia = brl(ASSINATURA_PRECO / 30);
               <BotaoAssinarPlano
                 contexto="workspace"
                 direto
-                rotulo={`Começar meus ${ASSINATURA_TRIAL_DIAS} dias grátis`}
+                rotulo="Assinar o Workspace"
               />
             </div>
           </div>
@@ -526,7 +540,7 @@ const porDia = brl(ASSINATURA_PRECO / 30);
                 contexto="workspace"
                 variante="clara"
                 direto
-                rotulo={`Começar meus ${ASSINATURA_TRIAL_DIAS} dias grátis`}
+                rotulo="Assinar o Workspace"
               />
             </div>
           </div>
@@ -617,7 +631,7 @@ const porDia = brl(ASSINATURA_PRECO / 30);
                   contexto="workspace"
                   variante="clara"
                   direto
-                  rotulo={`Começar meus ${ASSINATURA_TRIAL_DIAS} dias grátis`}
+                  rotulo="Assinar o Workspace"
                 />
               </div>
             </div>
@@ -735,15 +749,15 @@ const porDia = brl(ASSINATURA_PRECO / 30);
           <p className="cine text-sm text-muted-foreground">
             Tudo isso por{" "}
             <span className="font-bold text-primary">
-              {ASSINATURA_PRECO_ROTULO}/mês
-            </span>
-            , começando sem pagar nada.
+              {ASSINATURA_PRECO_ANUAL_MENSAL_ROTULO}/mês
+            </span>{" "}
+            no plano anual, com {ASSINATURA_GARANTIA}.
           </p>
           <div className="cine">
             <BotaoAssinarPlano
               contexto="workspace"
               direto
-              rotulo={`Começar meus ${ASSINATURA_TRIAL_DIAS} dias grátis`}
+              rotulo="Assinar o Workspace"
             />
           </div>
         </div>
@@ -850,10 +864,10 @@ const porDia = brl(ASSINATURA_PRECO / 30);
           <div className="relative mx-auto max-w-3xl px-5 py-16 sm:py-20">
             <div className="cine text-center">
               <p className="text-2xs font-semibold uppercase tracking-[0.18em] text-accent-claro">
-                Um preço só, sem letra miúda
+                Dois prazos, um produto só, sem letra miúda
               </p>
               <h2 className="mt-3 font-display text-3xl font-semibold leading-[1.1] tracking-tight sm:text-[2.6rem]">
-                Comece hoje sem pagar nada
+                Escolha como prefere pagar
               </h2>
             </div>
 
@@ -864,16 +878,72 @@ const porDia = brl(ASSINATURA_PRECO / 30);
                 {ASSINATURA_NOME}
               </p>
 
-              <div className="mt-5 flex items-end justify-center gap-2">
-                <span className="preco-lustro font-display text-[3.5rem] font-extrabold leading-none tabular-nums sm:text-7xl">
-                  {ASSINATURA_PRECO_ROTULO}
-                </span>
-                <span className="pb-3 text-lg font-semibold text-white/60">
-                  /mês
-                </span>
+              {/* Os dois planos lado a lado, com o anual em destaque.
+
+                  O número grande dos DOIS é um "por mês" — é a única
+                  comparação que a pessoa faz sozinha. Mostrar R$ 238,80 no
+                  lugar do número grande do anual faria o plano mais barato
+                  parecer sete vezes o outro, e é assim que uma página honesta
+                  vende menos por acidente. O total anual está logo abaixo,
+                  inteiro: esconder a cobrança de uma vez seria a pegadinha
+                  que esta casa não pratica. */}
+              <div className="mt-6 grid gap-3 sm:grid-cols-2">
+                {ASSINATURA_PLANOS.map((p) => (
+                  <div
+                    key={p.chave}
+                    className={`rounded-2xl border p-5 text-center ${
+                      p.destaque
+                        ? "border-accent-claro/60 bg-white/[0.12]"
+                        : "border-white/15 bg-white/[0.04]"
+                    }`}
+                  >
+                    <div className="flex items-center justify-center gap-2">
+                      <p className="text-2xs font-semibold uppercase tracking-wider text-white/60">
+                        {p.nome}
+                      </p>
+                      {p.selo && (
+                        <span className="rounded-md bg-accent-btn px-2 py-0.5 text-[0.625rem] font-bold uppercase tracking-wide text-white">
+                          {p.selo}
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="mt-3 flex items-end justify-center gap-1.5">
+                      {/* Sem `.preco-lustro` aqui, e é correção de bug, não
+                          gosto: o gradiente daquela classe pinta o texto com
+                          `--color-primary` (o navy da marca) e só passa o
+                          laranja por cima durante a varredura. Sobre o palco
+                          escuro, o preço ficava navy sobre navy na maior
+                          parte do ciclo — invisível justamente no número que
+                          a página inteira existe para mostrar. Branco sólido
+                          resolve sem tocar no CSS global. */}
+                      <span className="font-display text-[2.75rem] font-extrabold leading-none tabular-nums text-white sm:text-5xl">
+                        {p.valorRotulo}
+                      </span>
+                      <span className="pb-1.5 text-base font-semibold text-white/60">
+                        {p.periodo}
+                      </span>
+                    </div>
+
+                    <p className="mt-2 text-xs leading-relaxed text-white/60">
+                      {p.detalhe}
+                    </p>
+
+                    <div className="mt-4">
+                      <BotaoAssinarPlano
+                        contexto="workspace"
+                        direto
+                        plano={p.chave}
+                        variante={p.destaque ? "principal" : "clara"}
+                        rotulo={`Assinar ${p.nome.toLowerCase()}`}
+                      />
+                    </div>
+                  </div>
+                ))}
               </div>
-              <p className="mt-2 text-center text-sm text-white/60">
-                Menos que um lanche. {porDia} por dia.
+
+              <p className="mt-4 text-center text-sm text-white/60">
+                No anual sai por {porDia} por dia — menos que um café.
               </p>
 
               <ul className="mx-auto mt-8 grid max-w-xl gap-2.5 border-t border-white/15 pt-7 sm:grid-cols-2">
@@ -889,18 +959,10 @@ const porDia = brl(ASSINATURA_PRECO / 30);
                 ))}
               </ul>
 
-              <div className="mt-9 flex flex-col items-center gap-4">
-                <BotaoAssinarPlano
-                  contexto="workspace"
-                  tamanho="grande"
-                  destaque
-                  direto
-                  rotulo={`Começar meus ${ASSINATURA_TRIAL_DIAS} dias grátis`}
-                />
-                <p className="text-xs text-white/55">
-                  Sem cartão de crédito · cancele quando quiser
-                </p>
-              </div>
+              <p className="mt-8 text-center text-xs text-white/55">
+                {ASSINATURA_GARANTIA} · cancele quando quiser · pagamento pela
+                Hotmart
+              </p>
             </div>
 
             {/* ======================================== 8. A GARANTIA (selo) */}
@@ -910,14 +972,13 @@ const porDia = brl(ASSINATURA_PRECO / 30);
               </span>
               <div>
                 <p className="font-display text-lg font-bold text-white">
-                  Risco zero para testar
+                  Risco zero: {ASSINATURA_GARANTIA}
                 </p>
                 <p className="mt-1.5 text-sm leading-relaxed text-white/70">
-                  Nenhum cartão é pedido para começar. Nos{" "}
-                  {ASSINATURA_TRIAL_DIAS} dias de teste não existe cobrança
-                  nenhuma. Se você não voltar, a conta simplesmente não vira
-                  assinatura. Se ficar e depois cancelar, a cobrança para na
-                  hora, sem multa.
+                  {ASSINATURA_GARANTIA_FRASE} Quem devolve é a própria Hotmart,
+                  automaticamente, sem passar por ninguém da Novare. Depois dos{" "}
+                  {ASSINATURA_GARANTIA_DIAS} dias você continua podendo
+                  cancelar quando quiser: a cobrança para na hora, sem multa.
                 </p>
               </div>
             </div>
@@ -936,8 +997,8 @@ const porDia = brl(ASSINATURA_PRECO / 30);
               titulo="O que você deve estar se perguntando"
               itens={[
                 {
-                  pergunta: "É grátis mesmo? Qual a pegadinha?",
-                  resposta: `Não tem. Você cria a conta com e-mail e senha, sem pedir cartão, e usa tudo por ${ASSINATURA_TRIAL_DIAS} dias. A cobrança de ${ASSINATURA_PRECO_ROTULO} só existe se você continuar depois disso.`,
+                  pergunta: "E se eu não gostar? Qual a pegadinha?",
+                  resposta: `Não tem. Você tem ${ASSINATURA_GARANTIA_DIAS} dias para usar tudo e pedir o dinheiro de volta — a devolução é automática, feita pela Hotmart, e não perguntamos o motivo. No mensal são ${ASSINATURA_PRECO_ROTULO} por mês; no anual, ${ASSINATURA_PRECO_ANUAL_MENSAL_ROTULO} por mês (cobrados de uma vez), o que economiza ${ASSINATURA_ANUAL_ECONOMIA_ROTULO} no ano.`,
                 },
                 {
                   pergunta: "A Íris vê a senha do meu banco?",
@@ -1020,7 +1081,7 @@ const porDia = brl(ASSINATURA_PRECO / 30);
               Seu dinheiro já está indo embora.
               <br />
               <span className="text-accent-claro">
-                Descobrir para onde é grátis.
+                Descobrir para onde leva 10 minutos.
               </span>
             </h2>
 
@@ -1030,11 +1091,10 @@ const porDia = brl(ASSINATURA_PRECO / 30);
                 tamanho="grande"
                 destaque
                 direto
-                rotulo={`Começar meus ${ASSINATURA_TRIAL_DIAS} dias grátis`}
+                rotulo="Assinar o Workspace"
               />
               <p className="text-2xs text-white/60">
-                {ASSINATURA_TRIAL_DIAS} dias grátis · sem cartão · cancele
-                quando quiser
+                {ASSINATURA_GARANTIA} · cancele quando quiser
               </p>
               <a
                 href={falarNoWhatsApp(

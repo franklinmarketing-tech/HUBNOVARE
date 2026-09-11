@@ -9,7 +9,12 @@ export type LeadTipo =
   | "produto"
   // Guia prático baixado na estante. O `payload.guia` diz QUAL — e é isso que
   // torna o lead útil: o assunto revela a intenção de quem baixou.
-  | "guia";
+  | "guia"
+  // Quis assinar antes de a oferta existir (/assinar/em-breve). É o lead mais
+  // quente que a casa capta: a pessoa clicou em COMPRAR e esbarrou numa porta
+  // fechada. Etiqueta própria para essa lista ser a primeira a ser avisada no
+  // dia em que o checkout abrir.
+  | "lista-espera";
 
 /**
  * Grava um lead captado numa isca (calculadora ou landing page) na tabela

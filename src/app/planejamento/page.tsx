@@ -30,10 +30,14 @@ import { PainelExemplo } from "@/components/PainelExemplo";
 import { OQueSignifica } from "@/components/OQueSignifica";
 import { BotaoAssinarPlano } from "@/components/BotaoAssinarPlano";
 import {
+  PLANO_ECONOMIA_ANUAL_ROTULO,
+  PLANO_GARANTIA,
+  PLANO_GARANTIA_DIAS,
   PLANO_INCLUI,
   PLANO_OFERTA,
+  PLANO_PRECO_ANUAL_MENSAL_ROTULO,
+  PLANO_PRECO_ANUAL_ROTULO,
   PLANO_PRECO_ROTULO,
-  PLANO_TRIAL_DIAS,
 } from "@/lib/planejamento/oferta";
 import { ROTULO_DESCONTO } from "@/lib/consultoria";
 import { falarNoWhatsApp } from "@/lib/contato";
@@ -41,7 +45,7 @@ import { falarNoWhatsApp } from "@/lib/contato";
 export const metadata: Metadata = {
   title: "Planejamento Financeiro — seus objetivos viram um número só",
   description:
-    `O Marco Horizonte é o patrimônio que sustenta a renda que você quer até os 90 anos. Calcule o seu de graça e teste por ${PLANO_TRIAL_DIAS} dias sem pagar nada — depois ${PLANO_PRECO_ROTULO} ao mês, com a Íris e o desconto na consultoria inclusos.`,
+    `O Marco Horizonte é o patrimônio que sustenta a renda que você quer até os 90 anos. Calcule o seu de graça e assine por ${PLANO_PRECO_ANUAL_MENSAL_ROTULO} ao mês no plano anual (ou ${PLANO_PRECO_ROTULO} ao mês avulso), com a Íris e o desconto na consultoria inclusos e ${PLANO_GARANTIA}.`,
   alternates: { canonical: "/planejamento" },
 };
 
@@ -127,7 +131,7 @@ const PASSOS: { icone: LucideIcon; titulo: string; texto: string }[] = [
 
 /** Um ícone para cada linha de `PLANO_INCLUI`, na mesma ordem. */
 const ICONES_INCLUI: LucideIcon[] = [
-  Sparkles, // 7 dias grátis para testar
+  Sparkles, // garantia de 7 dias
   Wallet, // retrato financeiro completo
   Target, // diagnóstico e Marco Horizonte
   Route, // plano de ação com valor e prazo
@@ -214,14 +218,17 @@ export default function VidaPlanPage() {
                   caminho até lá, sem depender de ninguém liberar nada.
                 </p>
 
-                {/* A oferta lidera pelo teste: o preço vem depois, como
-                    consequência, não como barreira de entrada. */}
+                {/* A oferta liderava pelo teste grátis, que não existe
+                    mais. Lidera agora pelo MENOR preço verdadeiro — o mensal
+                    equivalente do anual —, com o mensal avulso ao lado para
+                    ninguém achar que é obrigado a fechar o ano. */}
                 <div className="mt-7 flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
                   <span className="font-display text-3xl font-extrabold leading-none tabular-nums sm:text-4xl">
-                    {PLANO_TRIAL_DIAS} dias grátis
+                    {PLANO_PRECO_ANUAL_MENSAL_ROTULO}/mês
                   </span>
                   <span className="text-sm text-white/70">
-                    depois {PLANO_PRECO_ROTULO}/mês · cancele quando quiser
+                    no plano anual · ou {PLANO_PRECO_ROTULO}/mês · cancele
+                    quando quiser
                   </span>
                 </div>
 
@@ -458,9 +465,9 @@ export default function VidaPlanPage() {
               O que vem na assinatura
             </h2>
             <p className="mt-4 max-w-2xl text-base text-muted-foreground">
-              São {PLANO_TRIAL_DIAS} dias para testar sem pagar nada. Depois,{" "}
-              {PLANO_PRECO_ROTULO} ao mês — sem taxa de entrada e sem
-              fidelidade.
+              São {PLANO_PRECO_ROTULO} ao mês, ou{" "}
+              {PLANO_PRECO_ANUAL_ROTULO} por ano — {PLANO_GARANTIA}, sem taxa
+              de entrada e sem fidelidade.
             </p>
 
             <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -655,13 +662,13 @@ export default function VidaPlanPage() {
 
                   <h2 className="mt-4 font-display text-2xl font-extrabold leading-tight text-primary sm:text-3xl">
                     <span className="whitespace-nowrap tabular-nums text-accent-strong">
-                      {PLANO_TRIAL_DIAS} dias grátis
-                    </span>
-                    . Depois,{" "}
+                      {PLANO_PRECO_ANUAL_MENSAL_ROTULO} ao mês
+                    </span>{" "}
+                    no anual. Ou{" "}
                     <span className="whitespace-nowrap tabular-nums">
                       {PLANO_PRECO_ROTULO}
                     </span>{" "}
-                    ao mês.
+                    ao mês, avulso.
                   </h2>
 
                   <p className="mt-3 max-w-lg text-sm leading-relaxed text-muted-foreground">
@@ -702,7 +709,7 @@ export default function VidaPlanPage() {
                   </a>
                   <p className="flex items-center justify-center gap-1.5 text-2xs text-muted-foreground">
                     <Lock className="h-3 w-3 shrink-0" />
-                    Sem cobrança nos primeiros {PLANO_TRIAL_DIAS} dias.
+                    {PLANO_GARANTIA}.
                   </p>
                 </div>
               </div>
@@ -735,11 +742,11 @@ export default function VidaPlanPage() {
                     "Não. O percentual mostra onde você chega mantendo exatamente o ritmo de hoje — ele não conta aumento de renda, herança, venda de bem nem melhora nos aportes. Serve para responder uma pergunta: o ritmo atual basta? Se não bastar, dá para ajustar aporte, prazo ou renda-alvo.",
                 },
                 {
-                  pergunta: `Como funcionam os ${PLANO_TRIAL_DIAS} dias grátis?`,
-                  resposta: `Você entra no plano completo na hora e não paga nada nos primeiros ${PLANO_TRIAL_DIAS} dias. A primeira cobrança de ${PLANO_PRECO_ROTULO} só acontece quando o prazo vence — e se você cancelar antes disso, ela não acontece.`,
+                  pergunta: `Como funciona a garantia de ${PLANO_GARANTIA_DIAS} dias?`,
+                  resposta: `Você assina, entra no plano completo na hora e tem ${PLANO_GARANTIA_DIAS} dias para pedir o dinheiro de volta. A devolução é automática, feita pela Hotmart, e não perguntamos o motivo: é reembolso integral, não crédito nem desconto na próxima.`,
                 },
                 {
-                  pergunta: `O que eu recebo pagando ${PLANO_PRECO_ROTULO} por mês?`,
+                  pergunta: `O que eu recebo pagando ${PLANO_PRECO_ROTULO} por mês (ou ${PLANO_PRECO_ANUAL_ROTULO} por ano)?`,
                   resposta:
                     `Tudo. Uma assinatura só libera o pacote inteiro: o planejamento completo (retrato, diagnóstico, plano de ação, acompanhamento mensal e relatório em PDF), a Íris sem custo adicional, todas as ferramentas da casa e ${ROTULO_DESCONTO} na consultoria particular. Não existe plano mais caro com mais coisas.`,
                 },
@@ -761,7 +768,7 @@ export default function VidaPlanPage() {
                 },
                 {
                   pergunta: "Como faço para cancelar?",
-                  resposta: `É só avisar a gente: a cobrança para, sem multa e sem fidelidade. Cancelando dentro dos ${PLANO_TRIAL_DIAS} dias de teste, você não paga nada. E a calculadora gratuita continua aberta para você de qualquer jeito.`,
+                  resposta: `É só avisar a gente: a cobrança para, sem multa e sem fidelidade. Cancelando dentro dos ${PLANO_GARANTIA_DIAS} dias de garantia, o valor volta integral. E a calculadora gratuita continua aberta para você de qualquer jeito.`,
                 },
                 {
                   pergunta: "E os meus dados?",
@@ -800,7 +807,8 @@ export default function VidaPlanPage() {
                   Calcular de graça antes
                 </a>
                 <p className="text-center text-2xs text-white/70">
-                  Os primeiros {PLANO_TRIAL_DIAS} dias não são cobrados.
+                  {PLANO_GARANTIA} — no anual você economiza{" "}
+                  {PLANO_ECONOMIA_ANUAL_ROTULO}.
                 </p>
               </div>
             </div>

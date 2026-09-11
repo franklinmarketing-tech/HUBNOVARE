@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Inteligência que lê o que você escreve">
+  <!--
+    O emblema do interpretador, para aparecer somado ao ícone do WhatsApp na
+    seção do assistente ("isto + aquilo").
+
+    POR QUE VETOR, DE NOVO
+    Nasceu de um estudo gerado por IA, mas o arquivo vinha em PNG de 2 MB para
+    um emblema que a página mostra a 48px. Desenhado, são 700 bytes e fica
+    nítido em qualquer tamanho. Mesma decisão da marca em `marca.svg`.
+
+    A FORMA
+    Duas estrelas de quatro pontas com lados côncavos, que é o desenho que o
+    mercado inteiro passou a usar para dizer "inteligência". Vale usar o
+    vocabulário que a pessoa já lê sem legenda: emblema que precisa de
+    explicação não é emblema, é charada.
+
+    A cor é o navy do token da casa. O laranja fica de fora: nesta página ele
+    é AÇÃO (o botão), e um emblema laranja competiria com o único botão que a
+    pessoa precisa achar.
+  -->
+  <rect width="64" height="64" rx="16" fill="#f7f3ee" />
+  <!-- A estrela grande, deslocada para a direita e para baixo: o par assimétrico
+       lê como brilho, e duas estrelas do mesmo tamanho leriam como ornamento. -->
+  <path
+    d="M38 16 C40 30, 48 37, 58 39 C48 41, 40 48, 38 60 C36 48, 28 41, 18 39 C28 37, 36 30, 38 16 Z"
+    fill="#1d3557"
+  />
+  <path
+    d="M20 12 C21 19, 25 22, 31 23 C25 24, 21 28, 20 34 C19 28, 15 24, 9 23 C15 22, 19 19, 20 12 Z"
+    fill="#1d3557"
+    opacity="0.75"
+  />
+</svg>

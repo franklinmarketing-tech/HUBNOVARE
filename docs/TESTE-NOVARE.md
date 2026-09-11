@@ -75,7 +75,8 @@ e faz aparecer o menu de Administração.
 
 ### 4.2 — Liberar o PRO para a conta de teste (opcional)
 
-Ela já tem 7 dias grátis automáticos. Rode isto só se quiser testar como
+Ela já tem 7 dias de teste automáticos (motor legado de `lib/trial.ts`, que
+sobreviveu à troca do teste pela garantia). Rode isto só se quiser testar como
 assinante pagante:
 
 ```sql
@@ -136,10 +137,11 @@ values ('Íris agora lê extrato em PDF',
 
 ## 5. O QUE AINDA NÃO FUNCIONA
 
-**Checkout.** O botão "Assinar" abre o WhatsApp em vez de cobrar. Falta criar
-o produto na Kiwify/Hotmart (R$ 19,90/mês, SEM trial no provedor — o teste de
-7 dias já roda dentro do app) e colar a URL em
-`src/lib/assinatura.ts` → `ASSINATURA_CHECKOUT_URL`.
+**Checkout.** O botão "Assinar" leva para `/assinar/em-breve` em vez de
+cobrar. Falta criar na Hotmart o produto de assinatura com DUAS ofertas —
+mensal a R$ 29,90 e anual a R$ 238,80 — e colar as duas URLs no ambiente
+(`NEXT_PUBLIC_CHECKOUT_HOTMART_MENSAL` e `..._ANUAL`). Sem trial no provedor:
+a oferta é garantia de 7 dias, ou seja, cobra e devolve.
 
 **Ativação automática após o pagamento.** Por enquanto é manual: quando
 alguém pagar, rode o SQL 4.2 com o e-mail da pessoa. O app libera na hora.

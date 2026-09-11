@@ -13,8 +13,8 @@ import { ArrowUp, Loader2, Lock, RotateCcw, Sparkles } from "lucide-react";
  *    um chat aberto na internet é cota queimada por robô num fim de semana.
  *    Mas em vez de mostrar um cadeado seco, a caixa fica visível e convidativa
  *    — a pessoa lê as sugestões, entende o que a Íris faz, e o convite para
- *    criar conta aparece no lugar do botão de enviar. O teste grátis começa
- *    junto, então o custo do cadastro é zero para ela.
+ *    criar conta aparece no lugar do botão de enviar. Criar a conta não
+ *    custa nada: o que é pago é a assinatura, e ela tem 7 dias de garantia.
  *
  * 2. **A conversa não é salva.** Ela vive na memória da aba. Extrato e vida
  *    financeira são dados sensíveis; guardar histórico de chat exigiria uma

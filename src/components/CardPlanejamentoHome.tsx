@@ -1,7 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Target } from "lucide-react";
-import { PLANO_PRECO_ROTULO, PLANO_TRIAL_DIAS } from "@/lib/planejamento/oferta";
+import {
+  PLANO_PRECO_ANUAL_MENSAL_ROTULO,
+  PLANO_PRECO_ROTULO,
+} from "@/lib/planejamento/oferta";
 import type { EstadoAssinatura } from "@/lib/assinatura-servidor";
 
 /**
@@ -106,10 +109,10 @@ export function CardPlanejamentoHome({
         ) : (
           <>
             <span className="text-sm font-bold text-accent-strong">
-              {PLANO_TRIAL_DIAS} dias grátis
+              {PLANO_PRECO_ANUAL_MENSAL_ROTULO}/mês
             </span>
             <span className="flex items-center gap-1.5 text-2xs font-semibold text-muted-foreground">
-              depois {PLANO_PRECO_ROTULO}/mês
+              no anual, ou {PLANO_PRECO_ROTULO}/mês
               <ArrowRight className="h-3.5 w-3.5 text-accent-strong transition-transform group-hover:translate-x-0.5" />
             </span>
           </>

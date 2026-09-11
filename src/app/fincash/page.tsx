@@ -22,7 +22,6 @@ import {
   RefreshCw,
   ShieldCheck,
   Smartphone,
-  Sparkles,
   Tags,
   TrendingDown,
   Wallet,
@@ -47,10 +46,19 @@ import {
   type LinhaComparativo,
 } from "@/components/SecoesVenda";
 import {
+  ASSINATURA_ANUAL_DESCONTO_ROTULO,
+  ASSINATURA_ANUAL_ECONOMIA_MESES_ROTULO,
+  ASSINATURA_ANUAL_ECONOMIA_ROTULO,
+  ASSINATURA_ANUAL_REFERENCIA_ROTULO,
+  ASSINATURA_GARANTIA,
+  ASSINATURA_GARANTIA_DIAS,
+  ASSINATURA_GARANTIA_FRASE,
   ASSINATURA_INCLUI,
   ASSINATURA_OFERTA,
+  ASSINATURA_PLANOS,
+  ASSINATURA_PRECO_ANUAL_MENSAL_ROTULO,
+  ASSINATURA_PRECO_ANUAL_ROTULO,
   ASSINATURA_PRECO_ROTULO,
-  ASSINATURA_TRIAL_DIAS,
 } from "@/lib/assinatura";
 import { CONTAGEM } from "@/lib/apps";
 import { falarNoWhatsApp } from "@/lib/contato";
@@ -130,6 +138,25 @@ const PALCO_NAVY: React.CSSProperties = {
   background: [
     "radial-gradient(42rem 24rem at 84% -14%, hsl(16 85% 55% / 0.32), transparent 62%)",
     "radial-gradient(34rem 22rem at 2% 106%, hsl(215 60% 40% / 0.30), transparent 60%)",
+    "linear-gradient(155deg, hsl(215 50% 17%) 0%, hsl(215 55% 10%) 100%)",
+  ].join(","),
+};
+
+/**
+ * O MESMO NAVY, EM OUTRA ESCALA — para o cartão do plano em destaque.
+ *
+ * Não é um segundo tema nem uma segunda cor: são as mesmas paradas do
+ * `PALCO_NAVY`, com o raio das luzes medido para uma peça de 26rem em vez de
+ * um bloco de 62rem. Reaproveitar o palco aqui não daria "o mesmo fundo
+ * menor": um brilho de 42rem sobre um cartão de 26rem cobre o cartão inteiro,
+ * e o navy que separa o destacado do comum some dentro do próprio destaque.
+ *
+ * A luz vem do alto à direita, como no palco, para os dois lerem como a mesma
+ * fonte de luz na mesma página.
+ */
+const CARTAO_NAVY: React.CSSProperties = {
+  background: [
+    "radial-gradient(17rem 11rem at 88% -12%, hsl(16 85% 55% / 0.34), transparent 64%)",
     "linear-gradient(155deg, hsl(215 50% 17%) 0%, hsl(215 55% 10%) 100%)",
   ].join(","),
 };
@@ -499,9 +526,19 @@ const PROVAS: { destaque: string; titulo: string; texto: string }[] = [
  * component: nenhum JavaScript sai daqui para o navegador.
  *
  * O RÓTULO É UM SÓ EM TODA A PÁGINA, e curto o bastante para nunca quebrar em
- * duas linhas. "Começar grátis" no herói e "Criar minha conta" no preço
- * seriam a mesma intenção com palavras diferentes, e é assim que uma página
- * de venda passa a parecer duas.
+ * duas linhas. Dois rótulos para a mesma intenção ("Começar" no herói,
+ * "Criar conta" no preço) é como uma página de venda passa a parecer duas.
+ *
+ * ⚠️ ELE DIZIA "COMEÇAR GRÁTIS", e não podia mais: a oferta deixou de ser
+ * teste grátis e virou garantia de reembolso — paga-se e devolve-se se não
+ * servir. Um botão prometendo "grátis" acima de um cartão de preço não é
+ * detalhe de redação, é a contradição que faz a pessoa desconfiar do resto da
+ * página. O rótulo passou a dizer o que o clique faz de verdade: abre a tela
+ * de criar conta.
+ *
+ * ⚠️ E ELE NÃO É O BOTÃO DOS PLANOS. Este leva ao cadastro; o dos cartões de
+ * preço leva ao checkout, por `assinaturaCheckout(plano)`. São dois destinos
+ * diferentes de propósito, e por isso dois componentes.
  */
 function BotaoComecar({
   variante = "principal",
@@ -519,9 +556,168 @@ function BotaoComecar({
       href={ROTA_COMECAR}
       className={`cta-varredura group inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl px-5 py-3 text-sm font-bold transition-all hover:-translate-y-0.5 ${estilo}`}
     >
-      Começar grátis
+      Criar minha conta
       <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
     </Link>
+  );
+}
+
+/**
+ * O CARTÃO DE UM PLANO — e os dois saem desta mesma função.
+ *
+ * ⚠️ NADA AQUI ESCREVE PREÇO, NOME NEM PERÍODO. Tudo vem de
+ * `ASSINATURA_PLANOS`, que por sua vez deriva dos dois únicos números do
+ * `lib/assinatura`. Uma landing que digita "R$ 19,90" no meio da marcação é
+ * uma landing que continua anunciando o preço velho no dia seguinte ao
+ * aumento, e é para isso que existe o guardião `testar-nada-a-venda.mjs`.
+ *
+ * O QUE DISTINGUE O DESTACADO É SUPERFÍCIE, NUNCA CONTEÚDO. Os dois planos
+ * entregam o produto inteiro, então o cartão do anual não pode ganhar um
+ * tique a mais nem uma linha de recurso que o outro não tenha: a diferença é
+ * navy contra branco, laranja cheio contra contorno, e o selo. Inventar
+ * diferença de funcionalidade aqui seria construir na página a escada de
+ * planos que a casa decidiu não ter.
+ *
+ * POR QUE O NÚMERO GRANDE DOS DOIS É UM "POR MÊS": é a única comparação que a
+ * pessoa faz sozinha. Pôr R$ 238,80 no lugar do número grande do anual faria
+ * o plano mais barato parecer oito vezes o outro. O total cobrado de uma vez
+ * vem logo abaixo, inteiro e sem letra miúda — escondê-lo seria a pegadinha
+ * que esta página passou dezesseis seções dizendo que não pratica.
+ *
+ * ⚠️ É UM `<a>`, e não um botão com `onClick`: o destino já vem resolvido de
+ * `assinaturaCheckout(plano)` (Hotmart quando a oferta existe, `/assinar/em-breve`
+ * quando ainda não), então o `href` sai pronto do servidor. A página inteira
+ * segue sem mandar um byte de JavaScript próprio para o navegador, que é o que
+ * mantém esta landing leve mesmo com nove capturas dentro dela.
+ */
+function CartaoPlano({ plano }: { plano: (typeof ASSINATURA_PLANOS)[number] }) {
+  const destaque = plano.destaque;
+
+  return (
+    <div
+      className={`relative flex h-full flex-col rounded-3xl p-6 sm:p-7 ${
+        destaque
+          ? "borda-viva text-white ring-1 ring-accent-claro/25"
+          : "border border-border bg-card shadow-subtle"
+      }`}
+      style={destaque ? CARTAO_NAVY : undefined}
+    >
+      {/* O selo de recomendado pousa NA BORDA, meio dentro e meio fora: é o
+          que faz o cartão parecer levantado em relação ao vizinho sem precisar
+          de escala nem de sombra colorida. O anel que pulsa em volta é o mesmo
+          `selo-pulsa` do resto da casa, e ele já desliga sozinho em
+          `prefers-reduced-motion`.
+
+          ⚠️ `w-fit` NÃO É ENFEITE. Filho absoluto de um contêiner flex herda o
+          `align-self: stretch` do pai no eixo transversal, e num flex em
+          coluna o eixo transversal é a horizontal: sem isto, a pílula deixa de
+          ter o tamanho do texto e atravessa o cartão de ponta a ponta. */}
+      {destaque && (
+        <span className="selo-pulsa absolute -top-3 left-6 w-fit rounded-full bg-accent-btn px-3 py-1 text-2xs font-bold uppercase tracking-[0.14em] text-white">
+          Recomendado
+        </span>
+      )}
+
+      <div className="flex flex-wrap items-center gap-2.5">
+        <p
+          className={`font-display text-base font-semibold ${
+            destaque ? "text-white" : "text-primary"
+          }`}
+        >
+          {plano.nome}
+        </p>
+        {/* O selo da economia vem da fonte, com o valor já formatado. */}
+        {plano.selo && (
+          <span className="rounded-full bg-white/10 px-2.5 py-0.5 text-xs font-semibold text-accent-claro ring-1 ring-accent-claro/30">
+            {plano.selo}
+          </span>
+        )}
+      </div>
+
+      {/* A HIERARQUIA DE PREÇO: o número manda, e manda por tamanho, não por
+          cor. Quase três vezes o corpo do texto, `tabular-nums` para os dois
+          cartões alinharem a vírgula na mesma coluna, e o "/mês" preso à base
+          do número em peso menor — é sufixo, não segunda informação. */}
+      <p className="mt-4 flex items-end gap-1.5">
+        <span
+          className={`font-display text-[2.9rem] font-extrabold leading-none tracking-tight tabular-nums sm:text-[3.25rem] ${
+            destaque ? "text-white" : "text-primary"
+          }`}
+        >
+          {plano.valorRotulo}
+        </span>
+        <span
+          className={`pb-1.5 text-base font-semibold ${
+            destaque ? "text-white/60" : "text-muted-foreground"
+          }`}
+        >
+          {plano.periodo}
+        </span>
+      </p>
+
+      <p
+        className={`mt-2.5 text-sm leading-relaxed ${
+          destaque ? "text-white/70" : "text-muted-foreground"
+        }`}
+      >
+        {plano.detalhe}
+      </p>
+
+      {/* A CAIXA DO MEIO existe nos DOIS cartões, e é o que os deixa da mesma
+          altura sem esticar um deles com espaço vazio. No anual ela carrega o
+          tamanho do desconto; no mensal, o motivo de ele existir. */}
+      {destaque ? (
+        <div className="mt-5 rounded-xl bg-white/[0.06] p-4 ring-1 ring-white/10">
+          <p className="text-sm leading-relaxed tabular-nums text-white/70">
+            De{" "}
+            <span className="line-through decoration-white/40">
+              {ASSINATURA_ANUAL_REFERENCIA_ROTULO}
+            </span>{" "}
+            por{" "}
+            <span className="font-display font-bold text-white">
+              {ASSINATURA_PRECO_ANUAL_ROTULO}
+            </span>
+            .
+          </p>
+          {/* ⚠️ AS DUAS LEITURAS DA MESMA ECONOMIA, e as duas saem da fonte: o
+              selo acima diz em reais, esta linha diz em porcentagem e em
+              mensalidades. "Cerca de" está embutido na constante, e não é
+              modéstia: a conta exata dá quatro mensalidades e mais quarenta
+              centavos a favor de quem assina. */}
+          <p className="mt-2 text-xs leading-relaxed text-white/60">
+            {ASSINATURA_ANUAL_DESCONTO_ROTULO} de desconto, ou{" "}
+            {ASSINATURA_ANUAL_ECONOMIA_MESES_ROTULO} que você deixa de pagar.
+          </p>
+        </div>
+      ) : (
+        <div className="mt-5 rounded-xl border border-border bg-gelo p-4">
+          <p className="text-sm leading-relaxed text-muted-foreground">
+            Sem compromisso de prazo: o mês que você paga é o mês que você usa,
+            e no mês seguinte a decisão volta a ser sua.
+          </p>
+        </div>
+      )}
+
+      {/* `mt-auto` no INVÓLUCRO, e o respiro no `pt-6` dele: o automático
+          empurra o botão para o pé dos dois cartões (para o olho comparar
+          preço com preço e ação com ação), e a margem de cima continua
+          existindo no cartão que não sobrou espaço nenhum — que é o que
+          acontece no celular, onde cada cartão tem a altura do próprio
+          conteúdo. */}
+      <div className="mt-auto pt-6">
+        <a
+          href={plano.checkout}
+          className={`flex w-full items-center justify-center gap-2 whitespace-nowrap rounded-xl px-5 py-3 text-sm font-bold transition-all ${
+            destaque
+              ? "cta-varredura bg-accent-btn text-white hover:-translate-y-0.5 hover:bg-accent-strong"
+              : "border border-border bg-card text-primary hover:border-primary/25 hover:bg-muted"
+          }`}
+        >
+          Assinar o {plano.nome.toLowerCase()}
+          <ArrowRight className="h-4 w-4" />
+        </a>
+      </div>
+    </div>
   );
 }
 
@@ -593,9 +789,15 @@ export default function FincashPage() {
                   <BotaoComecar variante="clara" />
                 </div>
 
+                {/* ⚠️ DIZIA "SEM CARTÃO PARA TESTAR", e era a promessa
+                    contrária à que a casa passou a fazer: agora se paga e se
+                    devolve, em vez de usar antes de pagar. A reversão de risco
+                    continua na primeira dobra, porque é ela que segura quem
+                    acabou de ler um preço — só que agora é a garantia, citada
+                    da fonte. */}
                 <p className="mt-4 text-xs text-white/65">
-                  {ASSINATURA_OFERTA}. Sem cartão para testar e sem
-                  fidelidade.
+                  {ASSINATURA_OFERTA}. {ASSINATURA_GARANTIA}, e cancele quando
+                  quiser.
                 </p>
               </div>
 
@@ -1342,9 +1544,27 @@ export default function FincashPage() {
                   fica de um lado, o aplicativo onde ele mora fica do outro, e a
                   soma é o produto. Quem só passa o olho já entendeu. */}
               <div className="flex items-center gap-3">
-                <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/10 ring-1 ring-white/15">
-                  <Sparkles className="h-5 w-5 text-accent-claro" strokeWidth={1.75} />
-                </span>
+                {/* O EMBLEMA DO INTERPRETADOR, e ele é arquivo, não ícone de
+                    biblioteca: `public/fincash/ia.svg`, desenhado para este
+                    par. Um ícone genérico de "brilho" dizia inteligência com o
+                    vocabulário de qualquer app; o emblema tem a superfície de
+                    um produto, e é isso que o põe no mesmo nível do selo do
+                    WhatsApp ao lado, em vez de um degrau abaixo.
+
+                    ⚠️ `unoptimized` é obrigatório, não preguiça: o otimizador
+                    de imagem do Next recusa SVG por padrão (é executável de
+                    fato, e liberar isso seria mexer na configuração do site
+                    inteiro por causa de um emblema de 1,5 kB). Assim o arquivo
+                    é servido direto de `public`, sem passar por `/_next/image`
+                    — e SVG não tem o que otimizar. */}
+                <Image
+                  src="/fincash/ia.svg"
+                  alt=""
+                  width={44}
+                  height={44}
+                  unoptimized
+                  className="h-11 w-11 rounded-xl ring-1 ring-white/15"
+                />
                 <span aria-hidden className="font-display text-xl font-medium text-white/40">
                   +
                 </span>
@@ -1755,9 +1975,9 @@ export default function FincashPage() {
               assinatura transformaria o melhor argumento da página em
               pegadinha, e a página inteira se sustenta em não ter nenhuma.
 
-              SEM RÓTULO EM CAIXA ALTA de propósito: eles estão em 3 de 16
-              seções, são exceção e não cabeçalho padrão, e o título aqui já
-              diz sozinho do que se trata. */}
+              SEM RÓTULO EM CAIXA ALTA de propósito: eles estão em 3 de 17
+              seções (a 5, a 6 e a 15), são exceção e não cabeçalho padrão, e o
+              título aqui já diz sozinho do que se trata. */}
           <section className="pt-14 sm:pt-20">
             <div className="rounded-3xl border border-border bg-card p-6 shadow-subtle sm:p-9">
               <div className="max-w-3xl">
@@ -1942,7 +2162,48 @@ export default function FincashPage() {
             </dl>
           </section>
 
-          {/* ============================================= 15. PREÇO ==== */}
+          {/* ============================================ 15. OS PLANOS === */}
+          {/* A SEÇÃO QUE A PÁGINA INTEIRA ESTAVA CONSTRUINDO, e ela mudou de
+              natureza: era um bloco de OFERTA (um preço, uma lista, um botão)
+              e virou uma ESCOLHA entre dois prazos. Quem chega aqui já foi
+              convencido; o que falta é decidir como paga, e decisão pede duas
+              colunas para comparar, não um parágrafo para ler.
+
+              ⚠️ O QUE SAIU DAQUI, e é a mudança mais cara desta versão: o
+              "7 dias grátis" que ocupava o título. A oferta deixou de ser
+              teste e passou a ser garantia, e as duas são promessas OPOSTAS.
+              No teste ninguém pedia cartão e o produto abria antes de qualquer
+              cobrança; na garantia a pessoa paga, usa e recebe de volta se
+              desistir dentro do prazo. Cada frase de "grátis" que sobrevivesse
+              aqui venderia uma coisa que o checkout não faz.
+
+              ── A FORMA, E POR QUE ELA NÃO REPETE NENHUMA DA PÁGINA ────────
+              É a única seção com dois cartões IRMÃOS e assimétricos: mesma
+              estrutura, superfícies diferentes. Não é o trio de cartões da
+              seção 6, não é o par de estratégias da 8 (que são dois caminhos,
+              não duas compras), não é a passagem costurada da 13. O contraste
+              de superfície faz o trabalho que em página de venda costuma ser
+              feito com tamanho: o destacado é navy sobre o creme da seção, o
+              comum é branco, e o destacado não precisa crescer nem ganhar
+              sombra colorida para ser o primeiro que o olho encontra.
+
+              ── A HIERARQUIA DE AÇÃO ──────────────────────────────────────
+              Laranja cheio no anual, contorno no mensal. Dois botões do mesmo
+              peso empatam a decisão, e empate numa página de venda é a pessoa
+              adiando. Os dois levam ao checkout do próprio plano, resolvido em
+              `assinaturaCheckout`: enquanto a oferta da Hotmart não existir, o
+              destino é a tela de "em breve", nunca um `href` vazio.
+
+              ⚠️ E OS DOIS DÃO O MESMO PRODUTO. É a linha que separa esta
+              página da concorrência, que parte a funcionalidade em dois níveis
+              e cobra o nível de cima: aqui muda o prazo e muda o preço, mais
+              nada. Isso está escrito com todas as letras logo abaixo dos
+              cartões, porque é argumento, e argumento que a pessoa precisa
+              deduzir sozinha não é argumento.
+
+              O RÓTULO EM CAIXA ALTA (o `Chapeu`) é o terceiro e último da
+              página, junto com os das seções 5 e 6. Três em dezessete seções:
+              é exceção, e continua sendo. */}
           <section className="pt-14 sm:pt-20">
             <div className="relative overflow-hidden rounded-3xl border border-accent-soft bg-accent-tint p-6 sm:p-9">
               <div
@@ -1958,14 +2219,7 @@ export default function FincashPage() {
                 <Chapeu tom="navy">Uma assinatura para a casa inteira</Chapeu>
 
                 <h2 className="mt-4 max-w-2xl font-display text-2xl font-extrabold leading-tight text-primary sm:text-3xl">
-                  <span className="whitespace-nowrap tabular-nums text-accent-strong">
-                    {ASSINATURA_TRIAL_DIAS} dias grátis
-                  </span>
-                  . Depois,{" "}
-                  <span className="whitespace-nowrap tabular-nums">
-                    {ASSINATURA_PRECO_ROTULO}
-                  </span>{" "}
-                  ao mês.
+                  Dois prazos. O mesmo produto inteiro.
                 </h2>
 
                 {/* A frase que esta página não pode omitir: assinar o FINCASH
@@ -1978,8 +2232,48 @@ export default function FincashPage() {
                   nenhum.
                 </p>
 
-                <div className="mt-7 grid gap-5 md:grid-cols-[1.15fr_minmax(0,16rem)] md:items-start">
-                  <ul className="grid gap-x-5 gap-y-2.5 sm:grid-cols-2">
+                {/* ⚠️ O `.map` é o ponto inteiro: os planos, a ordem, os
+                    valores e o destaque vêm de `ASSINATURA_PLANOS`. Nenhum
+                    cartão é escrito à mão aqui, e por isso nenhum deles
+                    envelhece sozinho quando o preço mudar.
+
+                    `items-stretch` é o que mantém os dois da mesma altura no
+                    desktop, com o botão de cada um na mesma linha. */}
+                <div className="mt-8 grid items-stretch gap-4 lg:grid-cols-2 lg:gap-5">
+                  {ASSINATURA_PLANOS.map((plano) => (
+                    <CartaoPlano key={plano.chave} plano={plano} />
+                  ))}
+                </div>
+
+                {/* A DECLARAÇÃO QUE VALE POR UMA TABELA DE COMPARAÇÃO. Ela
+                    fica embaixo dos dois cartões, e não dentro de um deles,
+                    porque é sobre os dois. */}
+                <p className="mt-4 flex items-start gap-3 rounded-2xl border border-border bg-card p-4 sm:p-5">
+                  <Layers
+                    className="mt-0.5 h-4 w-4 shrink-0 text-accent-strong"
+                    strokeWidth={1.75}
+                  />
+                  <span className="text-sm leading-relaxed text-muted-foreground">
+                    <span className="font-display font-semibold text-primary">
+                      Os dois planos dão exatamente o mesmo produto.
+                    </span>{" "}
+                    Nenhuma tela fica trancada no mais barato, nenhum recurso
+                    espera você subir de degrau: a diferença entre eles é o
+                    prazo e o preço, e acaba aí. Onde a concorrência divide a
+                    funcionalidade em dois níveis e cobra pelo de cima, aqui os
+                    dois níveis são o produto inteiro.
+                  </span>
+                </p>
+
+                {/* O QUE ENTRA, citado de `ASSINATURA_INCLUI` e não reescrito:
+                    a mesma lista que a landing da assinatura imprime. Duas
+                    páginas prometendo com palavras diferentes é o jeito mais
+                    barato de perder quem compara as duas. */}
+                <div className="mt-4 rounded-2xl border border-border bg-card p-5 sm:p-7">
+                  <h3 className="font-display text-base font-semibold text-primary">
+                    O que vem junto nos dois, do primeiro dia ao último
+                  </h3>
+                  <ul className="mt-4 grid gap-x-6 gap-y-2.5 sm:grid-cols-2">
                     {inclui.map((linha) => (
                       <li
                         key={linha}
@@ -1990,26 +2284,57 @@ export default function FincashPage() {
                       </li>
                     ))}
                   </ul>
+                </div>
 
-                  <div className="flex flex-col gap-2.5">
-                    <BotaoComecar />
-                    <a
-                      href={falarNoWhatsApp(
-                        "Olá! Tenho dúvidas sobre o FINCASH da Novare antes de assinar.",
-                      )}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-accent-soft bg-card px-5 py-3 text-sm font-semibold text-primary transition-colors hover:bg-accent-tint"
-                    >
-                      <MessageCircle className="h-4 w-4" />
-                      Falar com um consultor
-                    </a>
-                    <p className="flex items-center justify-center gap-1.5 text-center text-2xs text-muted-foreground">
-                      <Lock className="h-3 w-3 shrink-0" />
-                      Sem cobrança e sem cartão nos primeiros{" "}
-                      {ASSINATURA_TRIAL_DIAS} dias.
+                {/* A GARANTIA, EM DESTAQUE E COMO FATO OPERACIONAL.
+                    Quem devolve é a plataforma, automaticamente, e é por isso
+                    que ela pode ser escrita como fato e não como promessa da
+                    casa: cancelar dentro do prazo é o que dispara o estorno,
+                    sem ninguém da Novare no meio do caminho. Escrita em outro
+                    lugar, seria letra miúda; colada no preço, é o que tira o
+                    risco da decisão que a pessoa está tomando agora. */}
+                <div className="mt-4 flex flex-col gap-4 rounded-2xl border border-accent-soft bg-card p-5 sm:flex-row sm:items-start sm:p-7">
+                  <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border-2 border-accent-soft bg-accent-tint">
+                    <ShieldCheck
+                      className="h-6 w-6 text-accent-strong"
+                      strokeWidth={1.75}
+                    />
+                  </span>
+                  <div>
+                    <p className="font-display text-lg font-bold leading-snug text-primary">
+                      Risco zero: {ASSINATURA_GARANTIA}
+                    </p>
+                    <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
+                      {ASSINATURA_GARANTIA_FRASE} Quem devolve é a própria
+                      Hotmart, automaticamente: você cancela dentro do prazo e a
+                      plataforma estorna, sem passar por ninguém da Novare.
+                      Depois dos {ASSINATURA_GARANTIA_DIAS} dias, cancelar
+                      continua sendo um clique, e a cobrança para na hora, sem
+                      multa.
                     </p>
                   </div>
+                </div>
+
+                {/* A SAÍDA DE QUEM AINDA NÃO DECIDIU. Peso baixo de propósito:
+                    é a alternativa a fechar a aba, não um segundo caminho
+                    competindo com os dois botões acima. */}
+                <div className="mt-5 flex flex-col items-center gap-3 sm:flex-row sm:justify-between">
+                  <p className="flex items-center gap-1.5 text-center text-xs text-muted-foreground sm:text-left">
+                    <Lock className="h-3 w-3 shrink-0" />
+                    Pagamento pela Hotmart. Cancele quando quiser, sem multa nem
+                    fidelidade.
+                  </p>
+                  <a
+                    href={falarNoWhatsApp(
+                      "Olá! Tenho dúvidas sobre o FINCASH da Novare antes de assinar.",
+                    )}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-accent-soft bg-card px-5 py-2.5 text-sm font-semibold text-primary transition-colors hover:bg-accent-tint"
+                  >
+                    <MessageCircle className="h-4 w-4" />
+                    Falar com um consultor antes
+                  </a>
                 </div>
               </div>
             </div>
@@ -2075,13 +2400,18 @@ export default function FincashPage() {
                     "Não. A casa tem uma mensalidade só, e ela libera tudo. Se você já assina, o FINCASH já está liberado na sua conta: é só entrar.",
                 },
                 {
-                  pergunta: `Como funcionam os ${ASSINATURA_TRIAL_DIAS} dias grátis?`,
-                  resposta: `Você cria a conta e usa o produto completo por ${ASSINATURA_TRIAL_DIAS} dias sem cadastrar cartão. A primeira cobrança de ${ASSINATURA_PRECO_ROTULO} só existe quando você decide continuar, e se não decidir, ela não acontece.`,
+                  /* ⚠️ ERA "COMO FUNCIONAM OS 7 DIAS GRÁTIS?". Não é a mesma
+                     pergunta com outro nome: lá a pessoa usava antes de pagar,
+                     aqui ela paga e recebe de volta se desistir. A resposta diz
+                     quem executa o estorno, porque garantia sem responsável é
+                     promessa, e promessa de dinheiro de volta que depende de
+                     alguém responder um e-mail não tranquiliza ninguém. */
+                  pergunta: `E se eu não gostar? Como funciona a garantia de ${ASSINATURA_GARANTIA_DIAS} dias?`,
+                  resposta: `Você assina, usa o produto completo e tem ${ASSINATURA_GARANTIA_DIAS} dias para pedir o dinheiro de volta. O estorno é automático, feito pela própria Hotmart, e ninguém pergunta o motivo nem cobra taxa. No mensal são ${ASSINATURA_PRECO_ROTULO} por mês; no anual, ${ASSINATURA_PRECO_ANUAL_MENSAL_ROTULO} por mês cobrados de uma vez, o que economiza ${ASSINATURA_ANUAL_ECONOMIA_ROTULO} no ano.`,
                 },
                 {
                   pergunta: "Como faço para cancelar?",
-                  resposta:
-                    "É só avisar a gente: a cobrança para, sem multa e sem fidelidade. Cancelando dentro do teste, você não paga nada.",
+                  resposta: `Pela Hotmart, onde a assinatura é cobrada, ou avisando a gente: a cobrança para, sem multa e sem fidelidade. Dentro dos ${ASSINATURA_GARANTIA_DIAS} dias de garantia, o valor ainda volta integral.`,
                 },
                 {
                   pergunta: "E os meus dados?",
@@ -2107,12 +2437,17 @@ export default function FincashPage() {
                 <h2 className="max-w-md font-display text-2xl font-extrabold leading-tight sm:text-3xl">
                   Comece pelo mês que já está correndo.
                 </h2>
+                {/* ⚠️ O FECHO DIZIA "SEM PAGAR NADA E SEM CARTÃO". Ele lidera
+                    pelo anual porque é o plano que a casa quer vender, e a
+                    reversão de risco vem colada: o último parágrafo da página
+                    é onde a pessoa decide se rola de volta até os cartões ou
+                    fecha a aba. */}
                 <p className="max-w-lg text-sm leading-relaxed text-white/75">
                   Cadastre as contas, jogue o que se repete todo mês e veja, em
-                  poucos minutos, quanto ainda dá para gastar até o dia 30. São{" "}
-                  {ASSINATURA_TRIAL_DIAS} dias sem pagar nada e sem cartão.
-                  Depois, {ASSINATURA_PRECO_ROTULO} ao mês com o Workspace
-                  inteiro liberado.
+                  poucos minutos, quanto ainda dá para gastar até o dia 30. A
+                  partir de {ASSINATURA_PRECO_ANUAL_MENSAL_ROTULO} ao mês no
+                  plano anual, com o Workspace inteiro liberado e{" "}
+                  {ASSINATURA_GARANTIA}.
                 </p>
               </div>
 

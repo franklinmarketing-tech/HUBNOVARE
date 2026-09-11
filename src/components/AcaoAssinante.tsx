@@ -3,7 +3,7 @@
 import { Lock } from "lucide-react";
 import { useAssinatura } from "@/lib/planejamento/useAssinatura";
 import { BotaoAssinarPlano } from "@/components/BotaoAssinarPlano";
-import { ASSINATURA_PRECO_ROTULO } from "@/lib/assinatura";
+import { ASSINATURA_GARANTIA, ASSINATURA_PRECO_ROTULO } from "@/lib/assinatura";
 
 /**
  * A porta das três ações pagas do Planejamento: gerar plano, fechar o mês e
@@ -38,8 +38,8 @@ export function AcaoAssinante({
     <div className="nao-imprimir flex flex-wrap items-center gap-3 rounded-2xl border border-accent-soft bg-accent-tint px-4 py-3">
       <p className="flex min-w-0 items-center gap-2 text-xs text-slate-600">
         <Lock className="h-3.5 w-3.5 shrink-0 text-accent-strong" />
-        Seu teste terminou. Assine por {ASSINATURA_PRECO_ROTULO}/mês para{" "}
-        {acao}.
+        Seu acesso terminou. Assine por {ASSINATURA_PRECO_ROTULO}/mês para{" "}
+        {acao}. {ASSINATURA_GARANTIA}.
       </p>
       <BotaoAssinarPlano contexto="workspace" objetivo="pagar" rotulo="Assinar agora" />
     </div>

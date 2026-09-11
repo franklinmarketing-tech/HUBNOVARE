@@ -4,7 +4,7 @@ import Link from "next/link";
 import { ArrowRight, Check, Lock } from "lucide-react";
 import { useAssinatura } from "@/lib/planejamento/useAssinatura";
 import { BotaoAssinarPlano } from "@/components/BotaoAssinarPlano";
-import { ASSINATURA_PRECO_ROTULO, ASSINATURA_TRIAL_DIAS } from "@/lib/assinatura";
+import { ASSINATURA_GARANTIA_FRASE, ASSINATURA_OFERTA_CURTA } from "@/lib/assinatura";
 
 /**
  * A porta das ferramentas exclusivas de assinante.
@@ -86,11 +86,11 @@ export function FerramentaAssinante({
           <div className="mt-6 flex flex-wrap items-center gap-3">
             <BotaoAssinarPlano
               contexto="workspace"
-              objetivo="comecar"
-              rotulo={`Testar ${ASSINATURA_TRIAL_DIAS} dias grátis`}
+              objetivo="pagar"
+              rotulo="Assinar o Workspace"
             />
             <p className="text-xs text-muted-foreground">
-              Depois {ASSINATURA_PRECO_ROTULO}/mês. Sem cartão para começar.
+              {ASSINATURA_OFERTA_CURTA}. {ASSINATURA_GARANTIA_FRASE}
             </p>
           </div>
 

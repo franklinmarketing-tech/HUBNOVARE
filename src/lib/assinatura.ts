@@ -1,11 +1,13 @@
 /**
  * O Workspace Novare — a única assinatura da casa.
  *
- * A regra do negócio, em uma frase: **uma mensalidade libera tudo** (o valor
- * mora em `ASSINATURA_PRECO`, logo abaixo — não repetido aqui, senão este
- * comentário envelhece calado, como já envelheceu uma vez dizendo R$ 19,90).
- * Não há plano básico nem avançado. Quem assina leva o Planejamento
- * Financeiro PRO, a Íris e as ferramentas.
+ * A regra do negócio, em uma frase: **uma assinatura libera tudo** (o valor
+ * mora em `ASSINATURA_PRECO`/`ASSINATURA_PRECO_ANUAL`, logo abaixo — não
+ * repetido aqui, senão este comentário envelhece calado, como já envelheceu
+ * uma vez dizendo R$ 19,90). Não há plano básico nem avançado: o que existe
+ * são dois PRAZOS de pagamento para o mesmo produto inteiro — FINCASH,
+ * Planejamento, Íris e as ferramentas. Quem paga por ano paga menos por mês,
+ * e é só isso que muda.
  *
  * O QUE MUDOU, e é a decisão mais importante deste arquivo: a assinatura
  * passou a incluir uma **revisão trimestral escrita por um consultor**. Antes
@@ -21,10 +23,13 @@
  * A consultoria particular completa continua fora e cobrada à parte, com
  * desconto para quem assina. O que entrou aqui é a revisão, não ela.
  *
- * Este arquivo é a fonte única do preço. Nenhuma tela escreve o valor à
- * mão — `testar-nada-a-venda.mjs` é o guarda-costas dessa regra, e existe
- * porque uma oferta divergente entre duas páginas destrói a confiança de quem
- * está com o cartão na mão.
+ * Este arquivo é a fonte única do preço, e também da ARITMÉTICA do preço:
+ * nenhuma tela escreve o valor à mão e nenhuma tela faz conta própria. Quem
+ * precisa dizer "economize R$ X" lê a constante daqui — porque no dia em que
+ * o anual mudar, a economia muda junto, e uma página que calculou sozinha
+ * continua anunciando o desconto velho. `testar-nada-a-venda.mjs` é o
+ * guarda-costas dessa regra, e existe porque uma oferta divergente entre duas
+ * páginas destrói a confiança de quem está com o cartão na mão.
  */
 
 /** Liga a venda em todas as telas. */
@@ -38,70 +43,396 @@ export const ASSINATURA_ATIVA = true;
  */
 export const ASSINATURA_NOME = "Planejamento Financeiro com IA";
 
+const brl = (v: number) =>
+  v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+
 /**
- * R$ 49, e não os R$ 19,90 de antes.
+ * TUDO É CONTADO EM CENTAVOS, e não em reais com vírgula.
  *
- * R$ 19,90 é quase exatamente a mediana de preço de app de assinatura na
- * América Latina (US$ 3,75 ≈ R$ 19,20, RevenueCat sobre 115 mil apps) — ou
- * seja, o produto estava precificado como app genérico de celular. Pior: é o
- * mesmo preço do concorrente mais direto (Meu Planner Essencial), que tem
- * canal melhor e nenhuma versão grátis para se canibalizar.
+ * Não é preciosismo: `29.9 * 12` em ponto flutuante dá 358.79999999999995, e
+ * a economia do anual sairia como R$ 119,99999999999994 — que arredondado
+ * para baixo vira "economize R$ 119" numa tela de venda. Preço é dinheiro
+ * exato; dinheiro exato se faz com inteiro e só vira decimal na hora de
+ * escrever na tela.
  *
- * Dois motivos para subir, os dois contraintuitivos:
- *
- * 1. Ticket maior tem churn MENOR. Recurly, sobre ~2.200 merchants: a faixa
- *    de US$ 10-25/mês perde 4,29% ao mês; a de US$ 25-50, 3,84%. Preço mais
- *    alto não espanta cliente, filtra quem nunca ia ficar — e o churn
- *    involuntário (cartão recusado) também cai.
- *
- * 2. Preço baixo demais MATA promessa alta. A oferta diz que a Íris já achou
- *    mais de R$ 400/mês vazando na conta de gente real. Cobrar R$ 19,90 para
- *    entregar R$ 400 faz a pessoa desconfiar do R$ 400, não achar barato.
- *
- * R$ 49 fica acima do Meu Planner Premium (R$ 34,90), dentro da faixa do
- * Organizze (R$ 35-69) e abaixo da barreira psicológica dos R$ 50. Sai da
- * zona de retenção estruturalmente ruim (ARPA < US$ 25) sem exigir a
- * reconstrução de posicionamento que R$ 79+ exigiria.
+ * Os dois números abaixo são a ÚNICA coisa a mudar quando o preço mudar.
+ * Todo o resto deste arquivo é derivado deles.
  */
-export const ASSINATURA_PRECO = 49;
+const CENTAVOS_MES = 2990;
+const CENTAVOS_ANO = 23880;
+const MESES_DO_ANO = 12;
 
-export const ASSINATURA_PRECO_ROTULO = ASSINATURA_PRECO.toLocaleString("pt-BR", {
-  style: "currency",
-  currency: "BRL",
-});
+/**
+ * R$ 29,90 por mês — e não os R$ 49 de antes, nem os R$ 19,90 de antes disso.
+ *
+ * O histórico importa porque as duas mudanças tiveram motivos opostos e os
+ * dois continuam valendo:
+ *
+ * 1. R$ 19,90 avulso era preço de app genérico — quase exatamente a mediana
+ *    de assinatura de app na América Latina (US$ 3,75 ≈ R$ 19,20, RevenueCat
+ *    sobre 115 mil apps) e o mesmo preço do concorrente mais direto (Meu
+ *    Planner Essencial), que tem canal melhor. Cobrar a mediana é aceitar ser
+ *    comparado a lanterna de celular.
+ *
+ * 2. R$ 49 avulso resolvia isso mas criava outro problema: virou a barreira
+ *    de entrada de um produto que ainda precisa ser experimentado para
+ *    convencer. Ticket maior tem churn menor (Recurly, ~2.200 merchants: a
+ *    faixa de US$ 10-25/mês perde 4,29% ao mês contra 3,84% na de US$ 25-50)
+ *    — mas isso vale para quem ENTROU, e nada disso ajuda quem desiste na
+ *    porta.
+ *
+ * R$ 29,90/mês fica acima do Meu Planner Premium (R$ 34,90 é o teto da faixa
+ * popular; ficamos logo abaixo dele), dentro da faixa do Organizze
+ * (R$ 35-69) e longe da mediana de app genérico. O preço que carrega a
+ * promessa alta não é mais o mensal — é o COMPROMISSO: quem escolhe o anual
+ * paga R$ 238,80 e trava o produto inteiro por doze meses.
+ *
+ * E é por isso que o mensal existe mesmo sendo o plano pior para a casa: ele
+ * é a rampa. Quem entra por R$ 29,90 e fica é quem renova no anual depois.
+ */
+export const ASSINATURA_PRECO = CENTAVOS_MES / 100;
 
-/** Período de teste antes da primeira cobrança. */
+export const ASSINATURA_PRECO_ROTULO = brl(ASSINATURA_PRECO);
+
+/**
+ * O preço "por dia", pronto. Existia como `brl(ASSINATURA_PRECO / 30)` dentro
+ * da landing — uma tela fazendo conta de preço, que é exatamente o que este
+ * arquivo existe para impedir. Trinta dias, não 30,44: a frase é comparação
+ * de bolso ("menos que um café"), não competência atuarial.
+ */
+export const ASSINATURA_PRECO_DIA_ROTULO = brl(ASSINATURA_PRECO / 30);
+
+/**
+ * R$ 238,80 cobrados de uma vez, uma vez por ano.
+ *
+ * O número não é um desconto percentual arredondado para trás: ele foi
+ * escolhido de frente, para que dividido por 12 caia EXATAMENTE em R$ 19,90 —
+ * o valor que a casa quer que a pessoa leia no cartão de preço. Um anual de
+ * R$ 239 daria R$ 19,9166... por mês, e nenhuma tela consegue escrever isso
+ * sem mentir um centavo.
+ */
+export const ASSINATURA_PRECO_ANUAL = CENTAVOS_ANO / 100;
+
+export const ASSINATURA_PRECO_ANUAL_ROTULO = brl(ASSINATURA_PRECO_ANUAL);
+
+/**
+ * O mensal equivalente do anual: R$ 19,90.
+ *
+ * É DERIVADO, nunca digitado. Foi por isso que a divisão exata entrou na
+ * escolha do preço lá em cima — e a conferência abaixo existe para o dia em
+ * que alguém trocar o anual por um número que não divide redondo. Melhor
+ * quebrar o build do que publicar "R$ 19,92 por mês" numa peça de venda.
+ */
+if (CENTAVOS_ANO % MESES_DO_ANO !== 0) {
+  throw new Error(
+    `ASSINATURA_PRECO_ANUAL (${CENTAVOS_ANO} centavos) não divide em 12 meses ` +
+      `redondos. Escolha um anual divisível por 12 ou o "por mês" do plano ` +
+      `anual vira dízima e a tela arredonda por conta própria.`,
+  );
+}
+export const ASSINATURA_PRECO_ANUAL_MENSAL =
+  CENTAVOS_ANO / MESES_DO_ANO / 100;
+
+export const ASSINATURA_PRECO_ANUAL_MENSAL_ROTULO = brl(
+  ASSINATURA_PRECO_ANUAL_MENSAL,
+);
+
+/**
+ * O "por dia" do plano anual: R$ 0,66.
+ *
+ * Existe separado do mensal por um motivo que só aparece depois de fazer a
+ * conta: o mensal dá R$ 1,00 por dia (0,9966 arredondado), e "um real por
+ * dia" já não é comparação, é o preço de novo. A frase de bolso — "menos que
+ * um café" — só é verdade no anual. Duas constantes porque são dois valores
+ * diferentes, e uma tela que usasse a errada estaria mentindo com a conta
+ * certa de outro plano.
+ */
+export const ASSINATURA_PRECO_DIA_ANUAL_ROTULO = brl(
+  ASSINATURA_PRECO_ANUAL_MENSAL / 30,
+);
+
+/** O que o anual custaria pagando mês a mês: R$ 358,80. É a base da economia. */
+export const ASSINATURA_ANUAL_REFERENCIA = (CENTAVOS_MES * MESES_DO_ANO) / 100;
+
+export const ASSINATURA_ANUAL_REFERENCIA_ROTULO = brl(
+  ASSINATURA_ANUAL_REFERENCIA,
+);
+
+/**
+ * ═══ AS DUAS LEITURAS DA ECONOMIA, E POR QUE ELAS NÃO SÃO A MESMA COISA ═══
+ *
+ * A mesma oferta tem duas frases verdadeiras que dão números diferentes, e a
+ * confusão entre elas é o jeito mais fácil de uma landing prometer errado:
+ *
+ * LEITURA 1 — quanto você deixa de gastar: R$ 358,80 (12 × R$ 29,90) contra
+ *   R$ 238,80. Economia = **R$ 120,00**, ou 33% de desconto. É o número
+ *   honesto para qualquer frase com cifrão ou porcentagem, e é o que
+ *   `ASSINATURA_ANUAL_ECONOMIA` vale.
+ *
+ * LEITURA 2 — quantas mensalidades isso representa: R$ 120,00 ÷ R$ 29,90 =
+ *   4,01. Ou seja, **cerca de quatro mensalidades**, não duas. É o que
+ *   `ASSINATURA_ANUAL_ECONOMIA_MESES` vale, e ele é arredondado de propósito
+ *   (4,01 e não 4,0133) — mas repare que a conta exata dá R$ 119,60 e a
+ *   economia real é R$ 120,00: sobram R$ 0,40 a favor do cliente. Por isso a
+ *   frase certa é "cerca de quatro mensalidades", com "cerca de", e nunca
+ *   "4 × R$ 29,90 = a sua economia", que dá quarenta centavos a menos.
+ *
+ * ⚠️ O DONO DESCREVE A OFERTA COMO "DOIS MESES DE GRAÇA". Essa frase NÃO sai
+ * desta aritmética: "dois meses grátis" é a convenção de mercado para anual =
+ * 10 × mensal (aqui seria R$ 299,00), e o anual da casa é bem mais barato que
+ * isso — equivale a oito mensalidades, não a dez. A frase do dono SUBESTIMA a
+ * própria oferta pela metade.
+ *
+ * Conclusão prática, e o motivo de este bloco existir: **nenhuma tela escreve
+ * "dois meses de graça"**. Quem quiser falar em meses usa
+ * `ASSINATURA_ANUAL_ECONOMIA_MESES_ROTULO`; quem quiser falar em dinheiro usa
+ * `ASSINATURA_ANUAL_ECONOMIA_ROTULO`. Se o dono insistir na expressão, ela
+ * vira decisão comercial registrada AQUI, com o número ao lado — e não um
+ * literal solto num componente, onde ninguém mais acha para corrigir.
+ */
+export const ASSINATURA_ANUAL_ECONOMIA =
+  (CENTAVOS_MES * MESES_DO_ANO - CENTAVOS_ANO) / 100;
+
+export const ASSINATURA_ANUAL_ECONOMIA_ROTULO = brl(ASSINATURA_ANUAL_ECONOMIA);
+
+/** Quantas mensalidades cabem na economia. Ver o bloco acima: são ~4, não 2. */
+export const ASSINATURA_ANUAL_ECONOMIA_MESES = Math.round(
+  (CENTAVOS_MES * MESES_DO_ANO - CENTAVOS_ANO) / CENTAVOS_MES,
+);
+
+/** "cerca de 4 mensalidades" — com o "cerca de" embutido, de propósito. */
+export const ASSINATURA_ANUAL_ECONOMIA_MESES_ROTULO = `cerca de ${ASSINATURA_ANUAL_ECONOMIA_MESES} mensalidades`;
+
+/**
+ * 33%. Arredondado para BAIXO (33,44% de verdade), porque desconto anunciado
+ * maior do que o praticado é promessa que a fatura desmente.
+ */
+export const ASSINATURA_ANUAL_DESCONTO_PERCENTUAL = Math.floor(
+  ((CENTAVOS_MES * MESES_DO_ANO - CENTAVOS_ANO) /
+    (CENTAVOS_MES * MESES_DO_ANO)) *
+    100,
+);
+
+export const ASSINATURA_ANUAL_DESCONTO_ROTULO = `${ASSINATURA_ANUAL_DESCONTO_PERCENTUAL}%`;
+
+/**
+ * A GARANTIA — que substituiu o teste grátis de 7 dias.
+ *
+ * São coisas OPOSTAS, e a troca não é de palavra: no teste ninguém pedia
+ * cartão e o produto abria antes de qualquer cobrança; na garantia a pessoa
+ * paga primeiro e a casa devolve se ela desistir. Toda frase de "sem cartão"
+ * virou mentira no dia da troca — por isso a busca por "grátis", "sem cartão"
+ * e "teste" precisa ser feita no site inteiro, e não só onde a constante
+ * aparece.
+ *
+ * Por que trocar, já que teste grátis converte mais na entrada: porque ele
+ * converte para DENTRO do produto, não para dentro da receita. Um teste sem
+ * cartão entrega o produto inteiro para quem nunca teve intenção de pagar, e
+ * a decisão de compra é empurrada para o sétimo dia — quando a pessoa já não
+ * está na página de venda, já não está no clima e só precisa não fazer nada
+ * para não pagar. A garantia inverte: a decisão acontece agora, com a oferta
+ * na frente, e o risco continua zero porque o dinheiro volta.
+ *
+ * INCONDICIONAL é literal e não tem letra miúda: não se pergunta o motivo,
+ * não se pede justificativa, não se cobra taxa. Garantia com condição é pior
+ * do que nenhuma, porque quem descobre a condição descobre no pior momento.
+ */
+export const ASSINATURA_GARANTIA_DIAS = 7;
+
+/** Uma linha, para selo e rodapé. */
+export const ASSINATURA_GARANTIA = `${ASSINATURA_GARANTIA_DIAS} dias de garantia incondicional`;
+
+/** O parágrafo, para quando houver espaço de explicar. */
+export const ASSINATURA_GARANTIA_FRASE = `Você tem ${ASSINATURA_GARANTIA_DIAS} dias para usar tudo. Se não for para você, peça o reembolso e devolvemos o valor integral — sem perguntar o motivo.`;
+
+/**
+ * ⚠️ O MOTOR DO TESTE CONTINUA LIGADO — e isso é deliberado, não esquecimento.
+ *
+ * `lib/trial.ts` grava `vidaplan_subscriptions` com `trial_until` no primeiro
+ * acesso, e `FaixaTeste`/`CardPlanejamentoHome` mostram o relógio de quem
+ * está dentro desse prazo. Duas razões para não arrancar junto com o texto:
+ *
+ * 1. Tem gente em teste AGORA, com dias correndo. Desligar o motor no mesmo
+ *    commit que muda a oferta tira o acesso dessas pessoas sem aviso — e elas
+ *    entraram sob uma promessa que a casa fez.
+ * 2. O checkout ainda não existe (ver `ASSINATURA_CHECKOUT_URL`). Hoje o
+ *    único caminho que entrega o produto é criar conta e cair no teste. Matar
+ *    o motor antes de haver como pagar deixaria o app sem porta de entrada
+ *    nenhuma.
+ *
+ * Enquanto isso: o teste não é mais ANUNCIADO em lugar nenhum (a venda fala
+ * de garantia), mas quem já está nele continua vendo o próprio prazo, com o
+ * texto certo. O dia de desligar é o dia em que o checkout entrar no ar — e
+ * aí este bloco inteiro sai daqui junto com `trial.ts`.
+ */
 export const ASSINATURA_TRIAL_DIAS = 7;
 
-/** A oferta em uma linha — use sempre esta, para nenhuma tela divergir. */
-export const ASSINATURA_OFERTA = `${ASSINATURA_TRIAL_DIAS} dias grátis, depois ${ASSINATURA_PRECO_ROTULO}/mês`;
+/**
+ * A oferta em uma linha — use sempre esta, para nenhuma tela divergir.
+ *
+ * Lidera pelo ANUAL porque é o plano que a casa quer vender, e mostra o
+ * mensal ao lado para a comparação acontecer na própria frase, sem a pessoa
+ * precisar procurar o outro número em outro lugar da página.
+ */
+export const ASSINATURA_OFERTA = `${ASSINATURA_PRECO_ANUAL_MENSAL_ROTULO}/mês no plano anual (${ASSINATURA_PRECO_ANUAL_ROTULO} por ano) ou ${ASSINATURA_PRECO_ROTULO}/mês sem compromisso`;
+
+/** A oferta curta, para selo, barra fixa e meta description. */
+export const ASSINATURA_OFERTA_CURTA = `${ASSINATURA_PRECO_ROTULO}/mês · ${ASSINATURA_PRECO_ANUAL_MENSAL_ROTULO}/mês no anual`;
 
 /**
- * Link do checkout do provedor de pagamento.
+ * Os links de compra na HOTMART — um por PLANO, e é assim porque tem de ser.
  *
- * Enquanto estiver vazio, o botão de assinar conversa com a Novare pelo
- * WhatsApp em vez de prometer um pagamento que não existe — um CTA que não
- * cobra nada queima a confiança de quem clica. Basta preencher aqui quando o
- * link existir: nenhuma tela precisa mudar.
+ * Na Hotmart cada OFERTA tem endereço próprio (`pay.hotmart.com/...?off=xxxx`).
+ * Não existe URL única que sirva aos dois planos: querystring de valor num
+ * checkout hospedado não muda o que a plataforma cobra, só enfeita a tela e
+ * cria a chance de anunciar R$ 238,80 e a fatura vir R$ 29,90. Dois planos,
+ * dois links, sem atalho.
  *
- * PROVEDOR ESCOLHIDO: Kiwify ou Hotmart (assinatura recorrente).
+ * POR QUE VÊM DO AMBIENTE e não cravados aqui: link de checkout é
+ * configuração de operação, não decisão de produto. O dono cria as ofertas no
+ * painel da Hotmart e cola as URLs no `.env.local` (e na Vercel) sem abrir o
+ * editor — e o `localhost` de quem desenvolve continua sem link, que é o
+ * estado certo para não mandar ninguém pagar num teste.
+ *
+ * COMO O BOTÃO DECIDE: `assinaturaCheckout()`, logo abaixo. Link preenchido →
+ * Hotmart. Link vazio → `/assinar/em-breve`. A decisão acontece no HTML que o
+ * servidor produz, não num `onClick`: o `href` do botão já sai pronto, e
+ * ninguém consegue clicar antes de o JavaScript decidir.
+ *
  * O caminho para ligar a venda de verdade:
  *
- *   1. Criar o produto no painel (Kiwify: Produtos → Novo → Assinatura;
- *      Hotmart: Produto → Assinatura), preço R$ 19,90/mês.
- *   2. NÃO configurar trial no provedor: o teste de 7 dias já acontece
- *      dentro do app, sem cartão (vidaplan_subscriptions). O checkout é
- *      para quem decidiu pagar.
- *   3. Colar aqui a URL do checkout. Só isso liga o botão em todo o site.
- *   4. Quando alguém pagar, marcar o plano no Supabase:
+ *   1. Hotmart → Produto → Assinatura, com DUAS ofertas: mensal a R$ 29,90 e
+ *      anual a R$ 238,80 (cobrança única, renovação a cada 12 meses).
+ *   2. NÃO configurar trial no provedor. A oferta hoje é garantia de 7 dias,
+ *      ou seja: cobra-se e devolve-se se preciso. Trial faria a cobrança só
+ *      existir no oitavo dia e a garantia perderia o sentido.
+ *   3. Conferir o prazo de reembolso da oferta (o padrão da Hotmart é 7 dias,
+ *      que é o mínimo do CDC e é o que a página promete). Se o painel disser
+ *      30 e a página disser 7, quem manda é a página — e o reembolso é
+ *      AUTOMÁTICO: quem cancela no prazo é devolvido pela própria plataforma,
+ *      sem ninguém da Novare no meio. É por isso que a garantia pode ser
+ *      escrita como fato, e não como promessa da casa.
+ *   4. Colar as duas URLs no ambiente (as variáveis abaixo). Só isso liga os
+ *      botões em todo o site e apaga a tela de "em breve".
+ *   5. Quando alguém pagar, marcar o plano no Supabase:
  *        update hub_profiles set plano='pro' where id =
  *          (select id from auth.users where email='CLIENTE@AQUI');
  *      O app libera na hora (trial.ts lê hub_profiles primeiro).
- *   5. Depois, automatizar o passo 4 com o webhook do provedor apontando
- *      para uma rota /api/webhook-pagamento com a service role key —
- *      pendência conhecida, hoje a ativação é manual.
+ *   6. Depois, automatizar o passo 5 com o webhook (postback) da Hotmart
+ *      apontando para uma rota /api/webhook-pagamento com a service role key —
+ *      pendência conhecida, hoje a ativação é manual. O webhook precisa
+ *      distinguir mensal de anual PELO CÓDIGO DA OFERTA que vem no evento,
+ *      para gravar `plano_expira_em` certo: 30 dias contra 365.
  */
-export const ASSINATURA_CHECKOUT_URL = "";
+export const ASSINATURA_CHECKOUT_URL: string = (
+  process.env.NEXT_PUBLIC_CHECKOUT_HOTMART_MENSAL ?? ""
+).trim();
+
+export const ASSINATURA_CHECKOUT_URL_ANUAL: string = (
+  process.env.NEXT_PUBLIC_CHECKOUT_HOTMART_ANUAL ?? ""
+).trim();
+
+/** Os planos, como chave — o que `assinaturaCheckout` aceita. */
+export type PlanoAssinatura = "mensal" | "anual";
+
+/**
+ * A tela que recebe quem clicou em assinar antes de a oferta existir.
+ *
+ * Mora aqui, e não na página, porque é o DESTINO do botão: quem decide entre
+ * Hotmart e "em breve" é `assinaturaCheckout`, e uma rota escrita à mão em
+ * seis componentes é uma rota que um dia vira 404 em cinco deles.
+ */
+export const ROTA_ASSINAR_EM_BREVE = "/assinar/em-breve";
+
+/**
+ * Para onde o botão de assinar leva, por plano.
+ *
+ * NUNCA devolve string vazia: um `href=""` recarrega a própria página e o
+ * visitante conclui que o botão está quebrado — que é exatamente a impressão
+ * que a tela de "em breve" existe para evitar.
+ */
+export function assinaturaCheckout(plano: PlanoAssinatura = "mensal"): string {
+  const url =
+    plano === "anual" ? ASSINATURA_CHECKOUT_URL_ANUAL : ASSINATURA_CHECKOUT_URL;
+  return url || ROTA_ASSINAR_EM_BREVE;
+}
+
+/** Algum plano já dá para comprar? */
+export const ASSINATURA_CHECKOUT_ABERTO =
+  ASSINATURA_CHECKOUT_URL !== "" || ASSINATURA_CHECKOUT_URL_ANUAL !== "";
+
+/**
+ * Os DOIS planos têm link — e é só isso que aposenta `/assinar/em-breve`.
+ *
+ * A distinção entre "algum" e "os dois" não é preciosismo: com só o mensal
+ * cadastrado, o botão do anual ainda precisa de um lugar para onde ir. A tela
+ * de "em breve" só pode se recusar a existir quando nenhum botão puder mais
+ * cair nela — senão o visitante chega numa página que se redireciona sozinha
+ * e volta para onde ele já estava.
+ */
+export const ASSINATURA_CHECKOUT_COMPLETO =
+  ASSINATURA_CHECKOUT_URL !== "" && ASSINATURA_CHECKOUT_URL_ANUAL !== "";
+
+/**
+ * Os dois planos prontos para renderizar, na ordem em que devem aparecer.
+ *
+ * Existe para a tela não montar cartão de preço no braço: nome, valor,
+ * período, rodapé e selo já saem daqui. A ordem é MENSAL primeiro e anual
+ * depois porque o anual é o destaque, e destaque que aparece primeiro não é
+ * destaque — é o padrão. A pessoa lê R$ 29,90, lê R$ 19,90 em seguida e a
+ * comparação acontece sozinha, na direção certa.
+ */
+export const ASSINATURA_PLANOS = [
+  {
+    chave: "mensal",
+    nome: "Mensal",
+    /** O número grande do cartão. */
+    valorRotulo: ASSINATURA_PRECO_ROTULO,
+    periodo: "/mês",
+    /** A linha fina embaixo do número. */
+    detalhe: "Cobrado todo mês. Cancele quando quiser.",
+    /** O que se paga de uma vez, quando difere do número grande. */
+    cobranca: `${ASSINATURA_PRECO_ROTULO} por mês`,
+    selo: null,
+    destaque: false,
+    /** Já resolvido: Hotmart se a oferta existe, `/assinar/em-breve` se não. */
+    checkout: assinaturaCheckout("mensal"),
+    ofertaNoAr: ASSINATURA_CHECKOUT_URL !== "",
+  },
+  {
+    chave: "anual",
+    nome: "Anual",
+    /* O número grande do anual é o MENSAL EQUIVALENTE, não os R$ 238,80: a
+       comparação que a pessoa faz é entre dois "por mês", e mostrar o total
+       no lugar do número grande faz o plano mais barato parecer o mais caro.
+       O total vem logo abaixo, inteiro — escondê-lo seria a pegadinha que
+       esta casa não pratica. */
+    valorRotulo: ASSINATURA_PRECO_ANUAL_MENSAL_ROTULO,
+    periodo: "/mês",
+    detalhe: `${ASSINATURA_PRECO_ANUAL_ROTULO} cobrados uma vez por ano.`,
+    cobranca: `${ASSINATURA_PRECO_ANUAL_ROTULO} por ano`,
+    selo: `Economize ${ASSINATURA_ANUAL_ECONOMIA_ROTULO}`,
+    destaque: true,
+    checkout: assinaturaCheckout("anual"),
+    ofertaNoAr: ASSINATURA_CHECKOUT_URL_ANUAL !== "",
+  },
+] as const;
+
+/**
+ * A receita recorrente de N assinantes, já formatada.
+ *
+ * Mora aqui porque é conta de PREÇO, e conta de preço em componente é como
+ * nasce a segunda verdade sobre a mesma cobrança.
+ *
+ * ⚠️ Ela assume que todo mundo está no MENSAL. Com dois planos no ar isso
+ * vira uma estimativa por cima: quem paga anual entra por R$ 19,90/mês, não
+ * por R$ 29,90. O painel do admin diz "estimativa" na tela por causa disso, e
+ * o número certo só existe quando `hub_assinantes()` devolver o prazo de cada
+ * assinatura — hoje ela não devolve.
+ */
+export function assinaturaReceitaMensal(assinantes: number): string {
+  return brl(assinantes * ASSINATURA_PRECO);
+}
 
 /** Selo do que só existe para assinante. */
 export const ROTULO_PRO = "PRO";
@@ -183,6 +514,11 @@ export const ASSINATURA_PILARES = [
  * existem em qualquer app de banco — ocupava uma linha sem convencer ninguém
  * e diluía os itens fortes. O conteúdo continua no ar, só não é argumento de
  * venda.
+ *
+ * O último item mudou de natureza junto com a oferta: era "7 dias grátis para
+ * testar, sem cadastrar cartão" e agora é a garantia. Não é a mesma promessa
+ * com outras palavras — é a promessa contrária, e por isso ela precisa
+ * aparecer na lista do que se compra, não sumir dela.
  */
 export const ASSINATURA_INCLUI = [
   /* Primeiro da lista porque é o único item que não é software — e é o que
@@ -200,6 +536,6 @@ export const ASSINATURA_INCLUI = [
   "{EXCLUSIVAS} ferramentas exclusivas de assinante: seus gastos, contas e assinaturas conversando entre si",
   "Todas as calculadoras da casa, com as tabelas oficiais de 2026",
   "Desconto na consultoria particular da Novare",
-  `${ASSINATURA_TRIAL_DIAS} dias grátis para testar, sem cadastrar cartão`,
+  `${ASSINATURA_GARANTIA_DIAS} dias de garantia: não gostou, devolvemos o valor`,
   "Cancele quando quiser, sem multa nem fidelidade",
 ];

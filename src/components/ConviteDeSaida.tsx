@@ -6,7 +6,8 @@ import { usePathname } from "next/navigation";
 import { ArrowRight, Check, Sparkles, X } from "lucide-react";
 import {
   ASSINATURA_PRECO_ROTULO,
-  ASSINATURA_TRIAL_DIAS,
+  ASSINATURA_GARANTIA,
+  ASSINATURA_PRECO_ANUAL_MENSAL_ROTULO,
 } from "@/lib/assinatura";
 import { ROTULO_DESCONTO } from "@/lib/consultoria";
 
@@ -23,7 +24,8 @@ import { ROTULO_DESCONTO } from "@/lib/consultoria";
  * Não tem contagem regressiva, não diz "últimas vagas" e não inventa oferta
  * que expira. Escassez fabricada converte no primeiro clique e destrói a
  * confiança no segundo — e a Novare vende justamente confiança. O que ele
- * mostra é a oferta real, que é boa o suficiente: 7 dias grátis, sem cartão.
+ * mostra é a oferta real, que é boa o suficiente: o preço do plano anual e
+ * a garantia de 7 dias.
  *
  * REGRAS DE EDUCAÇÃO
  * Aparece uma vez por pessoa (guardado no navegador), nunca antes de 12
@@ -170,7 +172,7 @@ export function ConviteDeSaida() {
         <div className="relative min-h-0 flex-1 overflow-y-auto px-6 pb-6 pt-8 sm:px-7">
           <span className="selo-pulsa inline-flex items-center gap-1.5 rounded-full bg-white/[0.12] px-3 py-1.5 text-2xs font-semibold uppercase tracking-wider">
             <Sparkles className="h-3.5 w-3.5 text-accent-claro" />
-            {ASSINATURA_TRIAL_DIAS} dias grátis, sem cartão
+{ASSINATURA_GARANTIA}
           </span>
 
           <h2
@@ -211,7 +213,8 @@ export function ConviteDeSaida() {
           </Link>
 
           <p className="mt-3 text-center text-2xs text-white/55">
-            Depois {ASSINATURA_PRECO_ROTULO}/mês. Cancele quando quiser.
+            {ASSINATURA_PRECO_ANUAL_MENSAL_ROTULO}/mês no plano anual, ou{" "}
+            {ASSINATURA_PRECO_ROTULO}/mês avulso. Cancele quando quiser.
           </p>
 
           <button

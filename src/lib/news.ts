@@ -358,7 +358,7 @@ export const ARTIGOS: Artigo[] = [
       "O que entra: o Planejamento Financeiro completo, com retrato, diagnóstico, plano de ação, acompanhamento mensal e relatório em PDF. A Íris, a IA que lê seu extrato e acha assinatura esquecida, tarifa e juro escondido. E todas as calculadoras e simuladores da casa.",
       "O que não entra, dito na cara: a consultoria particular. Ela é analisada caso a caso e cobrada à parte, porque escopo de gente não cabe numa tabela. O que a assinatura dá é desconto em qualquer formato que você contratar — e é aí que a conta costuma virar, porque um único atendimento com desconto devolve mais do que o ano inteiro de assinatura.",
       "Boa parte do Workspace, aliás, continua aberta a quem não assina: as calculadoras, o Novare News e os indicadores ao vivo do Banco Central seguem gratuitos, sem login. A assinatura é para quem quer o plano de verdade — salvo na conta, revisado e acompanhado.",
-      "O teste são sete dias sem cobrança e sem cartão: você cria a senha, entra e usa. Se não fizer sentido, cancela antes de vencer e não paga nada.",
+      "E o risco de experimentar é zero, mas por outro caminho: são sete dias de garantia incondicional. Você assina, usa tudo, e se não fizer sentido pede o dinheiro de volta — a devolução é automática, feita pela plataforma de pagamento, e ninguém pergunta o motivo.",
     ],
     ferramenta: {
       slug: "assinar",
