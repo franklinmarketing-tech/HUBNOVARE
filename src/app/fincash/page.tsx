@@ -7,6 +7,7 @@ import {
   CalendarClock,
   Camera,
   Check,
+  ChevronDown,
   CreditCard,
   FileUp,
   Gauge,
@@ -54,7 +55,7 @@ import {
   ASSINATURA_GARANTIA_DIAS,
   ASSINATURA_GARANTIA_FRASE,
   ASSINATURA_INCLUI,
-  ASSINATURA_OFERTA,
+  ASSINATURA_OFERTA_CURTA,
   ASSINATURA_PLANOS,
   ASSINATURA_PRECO_ANUAL_MENSAL_ROTULO,
   ASSINATURA_PRECO_ANUAL_ROTULO,
@@ -563,6 +564,76 @@ function BotaoComecar({
 }
 
 /**
+ * Quantos itens da lista o cartão mostra abertos.
+ *
+ * São onze ao todo. Onze abertos dão um cartão de quase mil pixels a 390px, e
+ * dois cartões assim viram cinco telas de rolagem entre o primeiro preço e o
+ * segundo botão: a pessoa desiste antes de comparar, que é o oposto do que uma
+ * seção de planos existe para fazer. Seis é o que cabe sem o cartão deixar de
+ * ser cartão.
+ *
+ * E são os seis PRIMEIROS porque `ASSINATURA_INCLUI` já vem ordenado por força
+ * de argumento: a revisão do consultor na frente (o item que não é software), o
+ * que apenas confirma a compra no fim. Recolher pelo fim é recolher o que menos
+ * convence.
+ *
+ * O resto não some: vai para um `<details>` nativo, que abre no Enter, entra na
+ * ordem de tabulação sozinho e é anunciado como expansível por leitor de tela.
+ * Escrever isso à mão com estado em React custaria JavaScript numa página que
+ * hoje não manda nenhum, e ainda teria de reimplementar o que o navegador já
+ * acerta.
+ */
+const ITENS_ABERTOS = 6;
+
+/**
+ * Uma linha da lista do que entra, nos dois tons de superfície.
+ *
+ * O TIQUE É LARANJA, e não verde como era quando a lista morava fora do
+ * cartão. Dois motivos: o verde era a única cor fora do sistema num arquivo
+ * que declara "um acento só" no cabeçalho, e agora a lista aparece sobre as
+ * duas superfícies, onde um verde só não serve para as duas.
+ *
+ * MEDIDO EM PIXEL, e não estimado sobre a cor de fundo declarada: o cartão
+ * navy é degradê com uma luz laranja no alto à direita, então "o fundo" é uma
+ * faixa de cores e não uma. O método foi esconder a lista, fotografar a área
+ * que ela ocupava, varrer um pixel a cada quatro e guardar o PIOR caso:
+ *   • texto `white/85` sobre o navy: 11,96:1 no pior pixel, 12,82:1 no melhor;
+ *   • tique `accent-claro` sobre o mesmo navy: 6,80:1 no pior, contra os 3:1
+ *     que a WCAG pede de gráfico que carrega significado;
+ *   • no cartão branco, texto `foreground` dá 16,92:1 e tique `accent-strong`
+ *     dá 6,49:1.
+ *
+ * O `white/70` que o resto do cartão usa daria 8,51:1 e também passaria. A
+ * lista subiu para 85% mesmo assim porque ela é o texto que a pessoa varre
+ * item a item com o dedo, e não o rodapé de uma caixa lido uma vez: aprovado
+ * na régua não é o mesmo que confortável no polegar.
+ */
+function LinhaInclui({
+  texto,
+  destaque,
+}: {
+  texto: string;
+  /** Cartão navy. */
+  destaque: boolean;
+}) {
+  return (
+    <li
+      className={`flex items-start gap-2.5 text-sm leading-snug ${
+        destaque ? "text-white/85" : "text-foreground"
+      }`}
+    >
+      <Check
+        className={`mt-[0.15rem] h-4 w-4 shrink-0 ${
+          destaque ? "text-accent-claro" : "text-accent-strong"
+        }`}
+        strokeWidth={2.5}
+      />
+      <span>{texto}</span>
+    </li>
+  );
+}
+
+/**
  * O CARTÃO DE UM PLANO — e os dois saem desta mesma função.
  *
  * ⚠️ NADA AQUI ESCREVE PREÇO, NOME NEM PERÍODO. Tudo vem de
@@ -578,6 +649,20 @@ function BotaoComecar({
  * diferença de funcionalidade aqui seria construir na página a escada de
  * planos que a casa decidiu não ter.
  *
+ * ⚠️ E É POR ISSO QUE A LISTA ENTROU AQUI DENTRO, idêntica nos dois cartões.
+ * Ela vivia num bloco separado abaixo, com o título "o que vem junto nos
+ * dois" — informação certa no lugar errado, porque quem compara preço compara
+ * dentro do cartão e ninguém rola para baixo para descobrir o que o número de
+ * cima compra. Stripe, Notion e Linear põem a lista entre o preço e o botão, e
+ * o concorrente também.
+ *
+ * A repetição não é desperdício, é o argumento virando imagem: duas colunas de
+ * tiques rigorosamente iguais provam num olhar o que o parágrafo abaixo levava
+ * cinco linhas para afirmar. Por isso a declaração encolheu para uma linha, e
+ * a lista ganhou um título que diz a mesma coisa em quatro palavras. No dia em
+ * que alguém quiser tirar um item de um dos cartões, é esta a linha a ler
+ * antes.
+ *
  * POR QUE O NÚMERO GRANDE DOS DOIS É UM "POR MÊS": é a única comparação que a
  * pessoa faz sozinha. Pôr R$ 238,80 no lugar do número grande do anual faria
  * o plano mais barato parecer oito vezes o outro. O total cobrado de uma vez
@@ -590,14 +675,46 @@ function BotaoComecar({
  * segue sem mandar um byte de JavaScript próprio para o navegador, que é o que
  * mantém esta landing leve mesmo com nove capturas dentro dela.
  */
-function CartaoPlano({ plano }: { plano: (typeof ASSINATURA_PLANOS)[number] }) {
+function CartaoPlano({
+  plano,
+  itens,
+}: {
+  plano: (typeof ASSINATURA_PLANOS)[number];
+  /**
+   * A lista chega pronta de fora, e não importada aqui, porque um dos itens
+   * carrega o contador de ferramentas exclusivas: `lib/assinatura` é fonte de
+   * preço e não pode depender do catálogo de apps para não virar um nó de
+   * importação entre os dois. Quem faz a troca é a página, uma vez só.
+   */
+  itens: string[];
+}) {
   const destaque = plano.destaque;
+  const abertos = itens.slice(0, ITENS_ABERTOS);
+  const guardados = itens.slice(ITENS_ABERTOS);
 
   return (
     <div
       className={`relative flex h-full flex-col rounded-3xl p-6 sm:p-7 ${
+        /* ⚠️ O DESTACADO VEM PRIMEIRO NO CELULAR, e só no celular.
+           Empilhados, os cartões ficam com quase setecentos pixels cada: quem
+           rola encontra o mensal inteiro, lê R$ 29,90 e decide ali, sem nunca
+           ter visto que existe metade disso logo abaixo. No desktop a ordem da
+           fonte volta a valer, porque lado a lado a comparação acontece da
+           esquerda para a direita e o caro antes do barato é o que faz o
+           desconto aparecer.
+
+           A ordem do DOM não muda (mensal, anual): são dois elementos, e a
+           tabulação continua percorrendo a seção na ordem em que ela foi
+           escrita. */
+        destaque ? "order-first lg:order-none " : ""
+      }${
+        /* ⚠️ `border-transparent` NO DESTACADO, pelo mesmo motivo do botão:
+           o cartão claro tem contorno de 1px e o navy só tem `ring`, que
+           desenha por fora e não entra no cálculo da caixa. Sem esta borda os
+           dois cartões têm a mesma altura mas conteúdos deslocados em 1px, e
+           os dois botões do pé nascem em linhas diferentes. */
         destaque
-          ? "borda-viva text-white ring-1 ring-accent-claro/25"
+          ? "borda-viva border border-transparent text-white ring-1 ring-accent-claro/25"
           : "border border-border bg-card shadow-subtle"
       }`}
       style={destaque ? CARTAO_NAVY : undefined}
@@ -698,6 +815,73 @@ function CartaoPlano({ plano }: { plano: (typeof ASSINATURA_PLANOS)[number] }) {
         </div>
       )}
 
+      {/* ═══ O QUE ENTRA, DENTRO DO CARTÃO E ENTRE O PREÇO E O BOTÃO ═══
+          O lugar não é gosto: é onde a lista responde a pergunta que o número
+          grande acabou de abrir ("o que isso compra?") e onde ela ainda está
+          na frente quando a mão vai para o botão.
+
+          O TÍTULO DIZ "NOS DOIS PLANOS" nos DOIS cartões. Lido no de cima,
+          promete; lido no de baixo, confirma. É a frase que substituiu o
+          parágrafo de cinco linhas que ficava embaixo da seção explicando que
+          nada fica trancado no plano barato.
+
+          Ele NÃO é caixa alta de propósito. A página tem três rótulos em
+          versalete, todos acima de título de seção, e um quarto aqui os
+          transformaria em decoração de lista. */}
+      <div
+        className={`mt-6 border-t pt-5 ${
+          destaque ? "border-white/10" : "border-border"
+        }`}
+      >
+        <p
+          className={`font-display text-sm font-semibold ${
+            destaque ? "text-white" : "text-primary"
+          }`}
+        >
+          Tudo isto, nos dois planos
+        </p>
+
+        <ul className="mt-3.5 space-y-2.5">
+          {abertos.map((linha) => (
+            <LinhaInclui key={linha} texto={linha} destaque={destaque} />
+          ))}
+        </ul>
+
+        {guardados.length > 0 && (
+          /* O `<details>` NATIVO, e não um acordeão de biblioteca: ele já
+             chega focável, já responde a Enter e a barra de espaço, e o leitor
+             de tela já anuncia recolhido/expandido sem uma linha de ARIA. O
+             que a marcação precisa fazer é só tirar o triângulo padrão do
+             navegador (que é diferente em cada um) e pôr uma seta que gira.
+
+             A CONTAGEM É CALCULADA. Cravar "e mais 5" aqui é o mesmo erro que
+             cravar o preço: no dia em que `ASSINATURA_INCLUI` ganhar um item,
+             o cartão passaria a mentir um número pequeno, que é o tipo de
+             mentira que ninguém revisa. */
+          <details className="group mt-3">
+            <summary
+              className={`flex w-fit cursor-pointer list-none items-center gap-1.5 rounded-lg text-sm font-semibold outline-none [&::-webkit-details-marker]:hidden ${
+                destaque
+                  ? "text-accent-claro focus-visible:ring-2 focus-visible:ring-accent-claro focus-visible:ring-offset-2 focus-visible:ring-offset-primary"
+                  : "text-accent-strong focus-visible:ring-2 focus-visible:ring-accent-strong focus-visible:ring-offset-2 focus-visible:ring-offset-card"
+              }`}
+            >
+              <ChevronDown
+                aria-hidden
+                className="h-4 w-4 shrink-0 transition-transform group-open:rotate-180 motion-reduce:transition-none"
+              />
+              e mais {guardados.length} itens
+            </summary>
+
+            <ul className="mt-3 space-y-2.5">
+              {guardados.map((linha) => (
+                <LinhaInclui key={linha} texto={linha} destaque={destaque} />
+              ))}
+            </ul>
+          </details>
+        )}
+      </div>
+
       {/* `mt-auto` no INVÓLUCRO, e o respiro no `pt-6` dele: o automático
           empurra o botão para o pé dos dois cartões (para o olho comparar
           preço com preço e ação com ação), e a margem de cima continua
@@ -707,10 +891,17 @@ function CartaoPlano({ plano }: { plano: (typeof ASSINATURA_PLANOS)[number] }) {
       <div className="mt-auto pt-6">
         <a
           href={plano.checkout}
-          className={`flex w-full items-center justify-center gap-2 whitespace-nowrap rounded-xl px-5 py-3 text-sm font-bold transition-all ${
+          /* A BORDA TRANSPARENTE NO DESTACADO não é sobra de copiar e colar: o
+             botão do mensal tem contorno de 1px e o do anual não tinha,
+             então um media 50px de altura e o outro 48. Lado a lado, com os
+             dois presos no pé do cartão pelo `mt-auto`, a diferença aparecia
+             como dois pixels de desalinho no topo dos botões, que é
+             exatamente o defeito que esta seção não pode ter. Reservar a
+             mesma caixa nos dois é mais barato do que cravar altura. */
+          className={`flex w-full items-center justify-center gap-2 whitespace-nowrap rounded-xl border px-5 py-3 text-sm font-bold transition-all ${
             destaque
-              ? "cta-varredura bg-accent-btn text-white hover:-translate-y-0.5 hover:bg-accent-strong"
-              : "border border-border bg-card text-primary hover:border-primary/25 hover:bg-muted"
+              ? "cta-varredura border-transparent bg-accent-btn text-white hover:-translate-y-0.5 hover:bg-accent-strong"
+              : "border-border bg-card text-primary hover:border-primary/25 hover:bg-muted"
           }`}
         >
           Assinar o {plano.nome.toLowerCase()}
@@ -767,13 +958,35 @@ export default function FincashPage() {
             selo, dois botões e uma lista de três tiques. Nada disso cabia na
             primeira tela do celular, e o CTA ficava abaixo da dobra bem na
             página em que ele é a única coisa a fazer. O que a pessoa precisa
-            ver aqui é a pergunta, a resposta e o produto. */}
+            ver aqui é a pergunta, a resposta e o produto.
+
+            ── O QUE MUDOU, e nenhum item é enfeite ──────────────────────────
+            1. A MICROCÓPIA ERA DE TRÊS LINHAS. Ela imprimia a oferta por
+               extenso (os dois preços, o total do ano, o prazo, a garantia e o
+               cancelamento), e três linhas de cinza a 65% logo abaixo do botão
+               não são lidas: são um bloco que o olho contorna a caminho da
+               imagem. Passou a `ASSINATURA_OFERTA_CURTA`, que existe na fonte
+               exatamente para este lugar, mais a garantia. Uma linha no
+               desktop, duas no celular, e a reversão de risco continua acima
+               da dobra, que era a razão de ela estar aqui.
+            2. A GRADE DE FUNDO (`cine-grade`, a mesma da /assinar): o palco
+               era um degradê liso, e degradê liso atrás de um aparelho faz o
+               aparelho parecer recortado e colado. A grade some nas bordas por
+               máscara e desliga sozinha em `prefers-reduced-motion`. Ela é
+               `::before` posicionado, então o conteúdo precisa vir num filho
+               `relative` para não ficar embaixo dela.
+            3. O APARELHO GANHOU CHÃO E DEIXOU DE ESTICAR A DOBRA. A 22rem de
+               largura, a captura de celular passava de 760px de altura e
+               sozinha definia a altura do herói: sobravam quase 300px de navy
+               vazio de cada lado do texto, e num monitor de 900px o fim da
+               seção já não cabia. A 19rem a composição fecha na primeira tela,
+               e o halo por trás resolve o recorte sem tocar na foto. */}
         <section
-          className="relative isolate overflow-hidden text-white"
+          className="cine-grade relative isolate overflow-hidden text-white"
           style={PALCO_NAVY}
         >
-          <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16">
-            <div className="grid gap-9 lg:grid-cols-[1fr_minmax(0,22rem)] lg:items-center lg:gap-14">
+          <div className="relative mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-14 lg:py-16">
+            <div className="grid gap-9 lg:grid-cols-[1fr_minmax(0,20rem)] lg:items-center lg:gap-14">
               <div className="surgir">
                 <h1 className="font-display text-[1.75rem] font-extrabold leading-[1.1] tracking-tight sm:text-[2.6rem] lg:text-[3rem]">
                   Quanto ainda dá para gastar{" "}
@@ -794,10 +1007,18 @@ export default function FincashPage() {
                     devolve, em vez de usar antes de pagar. A reversão de risco
                     continua na primeira dobra, porque é ela que segura quem
                     acabou de ler um preço — só que agora é a garantia, citada
-                    da fonte. */}
-                <p className="mt-4 text-xs text-white/65">
-                  {ASSINATURA_OFERTA}. {ASSINATURA_GARANTIA}, e cancele quando
-                  quiser.
+                    da fonte.
+
+                    OS DOIS PREÇOS VÊM DE `ASSINATURA_OFERTA_CURTA`, e não da
+                    versão por extenso: o herói não é onde se compra, é onde se
+                    descobre que o preço não assusta. O total do ano, a conta
+                    do desconto e o cancelamento estão inteiros na seção de
+                    planos, onde a pessoa chega já querendo o detalhe. Também
+                    saiu daqui o "cancele quando quiser": ele é o quarto selo
+                    da faixa que começa dois centímetros abaixo, e repetir uma
+                    promessa em dois lugares seguidos a enfraquece nos dois. */}
+                <p className="mt-4 text-xs leading-relaxed text-white/70">
+                  {ASSINATURA_OFERTA_CURTA}. {ASSINATURA_GARANTIA}.
                 </p>
               </div>
 
@@ -811,14 +1032,30 @@ export default function FincashPage() {
                   captura.
 
                   É A ÚNICA IMAGEM PRIORITÁRIA DA PÁGINA. As outras sete são
-                  lazy, porque nenhuma delas está na primeira tela. */}
-              <div className="surgir mx-auto w-full max-w-[15rem] lg:max-w-none">
+                  lazy, porque nenhuma delas está na primeira tela.
+
+                  O HALO ATRÁS DO APARELHO é o que faz ele pousar no palco em
+                  vez de flutuar recortado. Não é brilho de enfeite: é a mesma
+                  luz laranja que o `PALCO_NAVY` já joga pelo alto à direita,
+                  repetida no tamanho da peça, de modo que a fonte de luz da
+                  dobra continua sendo uma só. `-z-10` funciona porque a seção
+                  é `isolate`: o halo cai atrás do conteúdo sem cair atrás do
+                  fundo da própria seção. */}
+              <div className="surgir relative mx-auto w-full max-w-[15rem] lg:max-w-[19rem]">
+                <span
+                  aria-hidden
+                  className="pointer-events-none absolute -inset-x-12 -inset-y-10 -z-10"
+                  style={{
+                    background:
+                      "radial-gradient(closest-side, hsl(16 85% 55% / 0.28), hsl(215 60% 40% / 0.16) 55%, transparent 78%)",
+                  }}
+                />
                 <Foto
                   tela="painelCelular"
                   aparelho="telefone"
                   prioridade
                   inclinar
-                  sizes="(max-width: 1024px) 240px, 320px"
+                  sizes="(max-width: 1024px) 240px, 304px"
                 />
               </div>
             </div>
@@ -1749,8 +1986,15 @@ export default function FincashPage() {
                   {/* A LINHA DE ESTADO, escrita por extenso e sem "em breve".
                       "Em breve" é uma data que ninguém assina; o que está aqui
                       é o que falta, de quem depende e o que a pessoa paga por
-                      isso, que é nada. */}
-                  <p className="mt-6 text-xs leading-relaxed text-white/55">
+                      isso, que é nada.
+
+                      ⚠️ ERA `white/55`, e era a única reprova de contraste da
+                      página inteira no axe: 4,34:1 a 13px, contra os 4,5:1 que
+                      a régua pede. O parágrafo mais honesto da landing, aquele
+                      que admite o que ainda não está pronto, não pode ser o
+                      único que alguém não consegue ler. A 65% dá 5,4:1 e
+                      continua secundário. */}
+                  <p className="mt-6 text-xs leading-relaxed text-white/65">
                     Dentro do app já existem o interpretador, a tela do
                     assistente e o vínculo do seu número, confirmado por um
                     código de dez minutos que você manda pelo WhatsApp. Falta
@@ -2241,50 +2485,34 @@ export default function FincashPage() {
                     desktop, com o botão de cada um na mesma linha. */}
                 <div className="mt-8 grid items-stretch gap-4 lg:grid-cols-2 lg:gap-5">
                   {ASSINATURA_PLANOS.map((plano) => (
-                    <CartaoPlano key={plano.chave} plano={plano} />
+                    <CartaoPlano
+                      key={plano.chave}
+                      plano={plano}
+                      itens={inclui}
+                    />
                   ))}
                 </div>
 
-                {/* A DECLARAÇÃO QUE VALE POR UMA TABELA DE COMPARAÇÃO. Ela
-                    fica embaixo dos dois cartões, e não dentro de um deles,
-                    porque é sobre os dois. */}
-                <p className="mt-4 flex items-start gap-3 rounded-2xl border border-border bg-card p-4 sm:p-5">
+                {/* A DECLARAÇÃO, AGORA COMO LEGENDA E NÃO COMO ARGUMENTO.
+                    Ela tinha cinco linhas e carregava sozinha a ideia de que
+                    nada fica trancado no plano barato. Não carrega mais: as
+                    duas listas idênticas dentro dos cartões acabaram de provar
+                    isso, e quem já viu não precisa ler de novo. O que sobra
+                    aqui é o nome do que a pessoa viu, que é o trabalho de uma
+                    legenda. Texto que repete a imagem logo acima é texto que
+                    ensina o olho a pular o próximo. */}
+                <p className="mt-4 flex items-start justify-center gap-2.5 text-center text-sm leading-relaxed text-muted-foreground sm:items-center">
                   <Layers
-                    className="mt-0.5 h-4 w-4 shrink-0 text-accent-strong"
+                    className="mt-0.5 h-4 w-4 shrink-0 text-accent-strong sm:mt-0"
                     strokeWidth={1.75}
                   />
-                  <span className="text-sm leading-relaxed text-muted-foreground">
-                    <span className="font-display font-semibold text-primary">
-                      Os dois planos dão exatamente o mesmo produto.
+                  <span>
+                    <span className="font-semibold text-primary">
+                      As duas listas são iguais porque o produto é o mesmo.
                     </span>{" "}
-                    Nenhuma tela fica trancada no mais barato, nenhum recurso
-                    espera você subir de degrau: a diferença entre eles é o
-                    prazo e o preço, e acaba aí. Onde a concorrência divide a
-                    funcionalidade em dois níveis e cobra pelo de cima, aqui os
-                    dois níveis são o produto inteiro.
+                    Muda o prazo, muda o preço, e acaba aí.
                   </span>
                 </p>
-
-                {/* O QUE ENTRA, citado de `ASSINATURA_INCLUI` e não reescrito:
-                    a mesma lista que a landing da assinatura imprime. Duas
-                    páginas prometendo com palavras diferentes é o jeito mais
-                    barato de perder quem compara as duas. */}
-                <div className="mt-4 rounded-2xl border border-border bg-card p-5 sm:p-7">
-                  <h3 className="font-display text-base font-semibold text-primary">
-                    O que vem junto nos dois, do primeiro dia ao último
-                  </h3>
-                  <ul className="mt-4 grid gap-x-6 gap-y-2.5 sm:grid-cols-2">
-                    {inclui.map((linha) => (
-                      <li
-                        key={linha}
-                        className="flex items-start gap-2.5 text-sm text-foreground"
-                      >
-                        <Check className="mt-0.5 h-4 w-4 shrink-0 text-success" />
-                        <span>{linha}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
 
                 {/* A GARANTIA, EM DESTAQUE E COMO FATO OPERACIONAL.
                     Quem devolve é a plataforma, automaticamente, e é por isso
