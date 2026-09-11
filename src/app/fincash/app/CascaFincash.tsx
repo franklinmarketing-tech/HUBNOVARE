@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 
 import { BarraLateralFincash, NavFincashCelular } from "./NavFincash";
+import { SEM_AVISOS, type AvisosDoMenu } from "./avisos";
 
 const CHAVE = "fincash:menu-recolhido";
 
@@ -27,10 +28,15 @@ const CHAVE = "fincash:menu-recolhido";
  */
 export function CascaFincash({
   nome,
+  avisos = SEM_AVISOS,
   sair,
   children,
 }: {
   nome?: string;
+  /* Os contadores atravessam daqui, e não são buscados em cada barra: o dado
+     é o mesmo nas duas, e duas barras pedindo a mesma coisa ao banco é o jeito
+     clássico de fazer um número aparecer diferente em cada lugar. */
+  avisos?: AvisosDoMenu;
   sair: () => Promise<void>;
   children: React.ReactNode;
 }) {
@@ -59,6 +65,7 @@ export function CascaFincash({
     <>
       <BarraLateralFincash
         nome={nome}
+        avisos={avisos}
         recolhida={recolhida}
         aoAlternar={alternar}
         sair={sair}
@@ -80,7 +87,7 @@ export function CascaFincash({
         </main>
       </div>
 
-      <NavFincashCelular />
+      <NavFincashCelular avisos={avisos} />
     </>
   );
 }

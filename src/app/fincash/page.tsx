@@ -14,6 +14,7 @@ import {
   Layers,
   ListPlus,
   Lock,
+  MapPin,
   MessageCircle,
   Mic,
   PenLine,
@@ -1552,60 +1553,132 @@ export default function FincashPage() {
               mensagem, transcrição, leitura de comprovante. É exatamente o
               ponto em que alguém pensa "isso um chatbot de graça também faz".
               A resposta não é software, e por isso ela não podia ser mais uma
-              lista de recurso: do outro lado desta assinatura existe gente que
-              abre o seu plano e escreve sobre ele.
+              lista de recurso: do outro lado desta assinatura existe uma casa
+              de consultoria, com endereço e tempo de estrada, e gente que abre
+              o seu plano e escreve sobre ele.
 
-              ⚠️ O QUE ESTÁ ESCRITO AQUI É SÓ O QUE O REPOSITÓRIO SUSTENTA. A
-              revisão trimestral é o primeiro item de `ASSINATURA_INCLUI`, e o
-              comentário ao lado dela em `lib/assinatura.ts` diz, com todas as
-              letras, que é o único item que não é software e que é ele que
-              responde "por que não uso um chatbot de graça". O escopo estreito
-              (organizar, projetar, priorizar, e NÃO indicar ativo) sai do
-              mesmo arquivo. A independência e a ausência de comissão já são
-              afirmadas na seção de credibilidade logo abaixo.
+              É O TRUNFO QUE O CONCORRENTE NÃO VERSIONA. O Meu Planner tem IA e
+              tem planilha, e qualquer recurso desta página ele copiaria em um
+              release. Consultor não sai em release, e consultor INDEPENDENTE
+              menos ainda: é ele que explica, sem precisar de desculpa, por que
+              este app não recomenda produto nenhum.
 
-              ⚠️ O QUE NÃO ESTÁ ESCRITO, e não está de propósito: nome de
-              sócio, ano de fundação, quantidade de consultores, tempo de casa
-              e número de clientes atendidos. Nenhum desses fatos existe no
-              repositório, e esta é a página que se recusa a inventar prova
-              social a duas seções daqui. Inventar aqui derrubaria lá.
+              ⚠️ DE ONDE VEM CADA FATO INSTITUCIONAL DAQUI, porque esta é a
+              página que se recusa a inventar prova social a duas seções daqui:
+              o site oficial da casa (novareinvestimentos.com.br). "Mais de
+              cinco anos" é o "5+ anos" do Quem Somos, escrito por extenso e
+              sem ano de fundação de propósito, para envelhecer bem caso a
+              página de lá fique parada. A origem do nome em "renovar" é a
+              própria marca que conta. A consultoria independente é o primeiro
+              pilar do site. O endereço é o da Rua Seara, 26, em Sumaré. Os
+              perfis citados são os seis que o site lista como atendidos.
+
+              ⚠️ O QUE CONTINUA FORA, e continua de propósito: nome de sócio,
+              ano de fundação, quantidade de consultores, número de clientes,
+              patrimônio sob gestão, prêmio e certificação. Nada disso está
+              escrito em lugar nenhum que dê para conferir, e inventar aqui
+              derrubaria a seção 14 inteira.
+
+              A REVISÃO TRIMESTRAL segue citada de `ASSINATURA_INCLUI[0]`, e
+              não reescrita à mão: duas promessas com palavras diferentes na
+              mesma página é o jeito mais barato de perder quem compara.
 
               A FOTO É A MESMA DO RODAPÉ e das outras landings da casa: são os
               sócios de verdade, e o arquivo `-alta` é o ampliado por upscaler
               de precisão (a história está em `/assinar`). Ela não é `priority`
-              e não precisa ser: mora depois da décima primeira seção. */}
+              e não precisa ser: mora depois da décima primeira seção. A ficha
+              da casa entra COLADA NELA, e não solta no texto, porque é o que
+              ela é: a legenda do que se está vendo. */}
           <section className="pt-14 sm:pt-20">
             <div className="grid items-center gap-8 rounded-3xl border border-border bg-card p-6 shadow-subtle sm:p-9 lg:grid-cols-[minmax(0,20rem)_1fr] lg:gap-12">
-              <div className="relative aspect-[5/4] w-full overflow-hidden rounded-2xl lg:aspect-square">
-                <Image
-                  src="/marca/novare-site/socios-novare-alta.jpg"
-                  alt="Dois sócios da Novare sentados lado a lado à mesa de reunião, de terno, olhando para a câmera."
-                  fill
-                  sizes="(max-width: 640px) 92vw, (max-width: 1024px) 60vw, 20rem"
-                  quality={62}
-                  className="object-cover"
-                />
+              <div>
+                <div className="relative aspect-[5/4] w-full overflow-hidden rounded-2xl lg:aspect-square">
+                  <Image
+                    src="/marca/novare-site/socios-novare-alta.jpg"
+                    alt="Dois sócios da Novare sentados lado a lado à mesa de reunião, de terno, olhando para a câmera."
+                    fill
+                    sizes="(max-width: 640px) 92vw, (max-width: 1024px) 60vw, 20rem"
+                    quality={62}
+                    className="object-cover"
+                  />
+                </div>
+
+                {/* Linha fina com filete, nunca número grande: destaque
+                    numérico aqui viraria a mesma família da seção 14, que fica
+                    a duas telas daqui. */}
+                <dl className="mt-5 divide-y divide-border border-t border-border text-sm">
+                  <div className="flex items-start gap-3 py-3">
+                    <CalendarClock
+                      className="mt-0.5 h-4 w-4 shrink-0 text-accent-strong"
+                      strokeWidth={1.75}
+                    />
+                    <div>
+                      <dt className="font-display font-semibold text-primary">
+                        Mais de cinco anos de mercado
+                      </dt>
+                      <dd className="text-muted-foreground">
+                        A Novare não nasceu com este app.
+                      </dd>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3 py-3">
+                    <ShieldCheck
+                      className="mt-0.5 h-4 w-4 shrink-0 text-accent-strong"
+                      strokeWidth={1.75}
+                    />
+                    <div>
+                      <dt className="font-display font-semibold text-primary">
+                        Consultoria independente
+                      </dt>
+                      <dd className="text-muted-foreground">
+                        Sem comissão de banco e sem comissão de corretora.
+                      </dd>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3 py-3">
+                    <MapPin
+                      className="mt-0.5 h-4 w-4 shrink-0 text-accent-strong"
+                      strokeWidth={1.75}
+                    />
+                    <div>
+                      <dt className="font-display font-semibold text-primary">
+                        Rua Seara, 26, Sumaré, São Paulo
+                      </dt>
+                      <dd className="text-muted-foreground">
+                        Endereço de escritório, não de perfil.
+                      </dd>
+                    </div>
+                  </div>
+                </dl>
               </div>
 
               <div>
                 <h2 className="font-display text-[1.75rem] font-semibold leading-[1.12] tracking-tight text-primary sm:text-[2.2rem]">
-                  Do outro lado do app tem gente.
+                  Do outro lado do app tem consultor.
                 </h2>
 
                 <p className="mt-4 text-sm leading-relaxed text-muted-foreground sm:text-base">
-                  A Novare é uma consultoria financeira independente, e o
-                  FINCASH é a ferramenta que ela abriu para quem quer se
-                  organizar sozinho. A diferença é o que vem junto: a
+                  A Novare é uma consultoria financeira independente, com mais
+                  de cinco anos de mercado e escritório em Sumaré, São Paulo.
+                  Ela atende de médico e engenheira a atleta, empresário e
+                  influenciador, gente com contas bem diferentes e sempre a
+                  mesma pergunta na entrada: para onde foi o dinheiro do mês
+                  passado. O FINCASH é a ferramenta que ela abriu para quem
+                  quer responder isso sozinho, com clareza e sem chute.
+                </p>
+
+                <p className="mt-4 text-sm leading-relaxed text-muted-foreground sm:text-base">
+                  O nome da casa vem de renovar, e é literalmente o serviço:
+                  quem chega afogado em fatura não precisa de mais um gráfico,
+                  precisa recomeçar a contagem com alguém junto. Por isso a
                   assinatura inclui uma revisão a cada trimestre, escrita por um
-                  consultor da casa, com o seu nome em cima. Não é um relatório
-                  que o sistema gera às três da manhã.
+                  consultor, com o seu nome em cima. Não é um relatório que o
+                  sistema gera às três da manhã.
                 </p>
 
                 {/* A LINHA CITADA DA FONTE, e ela é citação mesmo: o texto sai
                     de `ASSINATURA_INCLUI[0]`, o mesmo que a lista de preço
-                    logo abaixo imprime. Escrever à mão aqui criaria duas
-                    promessas com palavras diferentes na mesma página, que é o
-                    jeito mais barato de perder quem está comparando. */}
+                    logo abaixo imprime. */}
                 <p className="mt-5 flex items-start gap-3 rounded-2xl border border-accent-soft bg-accent-tint p-4">
                   <PenLine
                     className="mt-0.5 h-4 w-4 shrink-0 text-accent-strong"
@@ -1617,12 +1690,24 @@ export default function FincashPage() {
                 </p>
 
                 <p className="mt-5 text-sm leading-relaxed text-muted-foreground">
-                  O escopo é estreito, e é assim de propósito: a revisão
-                  organiza, projeta e prioriza. Ela comenta o seu plano e não
-                  indica ativo, produto, fundo nem corretora, porque a Novare
-                  não recebe comissão de nenhum deles. É o único item desta
-                  assinatura que nenhum software entrega, e é o que responde por
-                  que não basta um chatbot de graça.
+                  Independente, aqui, é uma regra de caixa antes de ser palavra
+                  bonita: a casa não recebe nada de banco, corretora ou gestora
+                  por onde o seu dinheiro para. É por isso que o app organiza e
+                  projeta, mas não indica ativo, produto nem fundo, e é por isso
+                  que a revisão comenta o seu plano sem empurrar nada. O escopo
+                  é estreito de propósito, e é o único item desta assinatura que
+                  software nenhum entrega.
+                </p>
+
+                {/* GANCHO, não resumo: a seção seguinte abre justamente com a
+                    revisão escrita sobre o mês medido. Dizer a frase inteira
+                    aqui entregaria duas vezes a mesma promessa em duas telas
+                    seguidas, que é o defeito que esta página mais evita. */}
+                <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+                  E ela não é escrita no escuro: o que você lançou aqui durante
+                  o trimestre é o que chega à mesa de quem vai escrever. Faltava
+                  só os dois lados da casa se falarem, e é disso que trata o
+                  resto desta página.
                 </p>
               </div>
             </div>

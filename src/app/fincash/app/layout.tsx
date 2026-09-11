@@ -5,6 +5,7 @@ import type { Metadata } from "next";
 import { LogOut, Wallet } from "lucide-react";
 import { getPerfil } from "@/lib/perfil";
 import { CascaFincash } from "./CascaFincash";
+import { carregarAvisosDoMenu } from "./avisos-servidor";
 import { sair } from "@/app/planejamento/app/actions";
 
 /* A folha de tokens e animações DESTE app.
@@ -45,7 +46,17 @@ export default async function FincashLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const perfil = await getPerfil();
+  /* EM PARALELO, e não em fila: os avisos do menu (ver `avisos.ts`) são três
+     consultas estreitas que não dependem do perfil, e encadeá-las depois do
+     `getPerfil` somaria a latência das duas idas ao banco na abertura do app.
+     Assim o custo do contador é o de nada — ele termina antes do perfil.
+
+     O erro deles já vem tratado lá dentro, devolvendo zeros: contador é
+     acessório, e acessório não derruba a única forma de sair da tela. */
+  const [perfil, avisos] = await Promise.all([
+    getPerfil(),
+    carregarAvisosDoMenu(),
+  ]);
 
   // O middleware já barra quem não tem sessão; isto é a segunda tranca.
   if (!perfil) redirect("/login?proximo=/fincash/app");
@@ -106,7 +117,7 @@ export default async function FincashLayout({
         </div>
       </header>
 
-      <CascaFincash nome={primeiroNome} sair={sair}>
+      <CascaFincash nome={primeiroNome} avisos={avisos} sair={sair}>
         {children}
       </CascaFincash>
     </div>
