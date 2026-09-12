@@ -31,6 +31,21 @@ import {
 import { Foto } from "./Molduras";
 import { Pessoa } from "./Pessoas";
 import Vitrine from "./Vitrine";
+/**
+ * ⚠️ ESTE `Comparativo` NÃO É O DE `@/components/SecoesVenda`, e os dois não
+ * podem conviver no mesmo arquivo — mesmo nome, erro de compilação. A troca
+ * foi por SUBSTITUIÇÃO: o daqui compara TRÊS colunas (app do banco, planilha,
+ * FINCASH) e o de lá compara duas, juntando banco e planilha numa coluna só.
+ * Juntos eles se anulam, porque cada linha da tabela só podia dizer a verdade
+ * sobre um dos dois.
+ *
+ * O de `SecoesVenda` continua exportado e não foi tocado: ele é a peça
+ * compartilhada das outras landings da casa, e reescrevê-lo para três colunas
+ * mudaria a /planejamento e a /assinar sem ninguém pedir.
+ */
+import Calculo from "./Calculo";
+import Comparativo from "./Comparativo";
+import ParaQuem from "./ParaQuem";
 import {
   MedidorRenda,
   OrcamentoPorCategoria,
@@ -39,14 +54,7 @@ import {
 import { Cabecalho } from "@/components/Cabecalho";
 import { RodapeNovare } from "@/components/RodapeNovare";
 import { OQueSignifica } from "@/components/OQueSignifica";
-import {
-  Chapeu,
-  Comparativo,
-  ContaAberta,
-  Etapa,
-  TituloSecao,
-  type LinhaComparativo,
-} from "@/components/SecoesVenda";
+import { Chapeu, Etapa, TituloSecao } from "@/components/SecoesVenda";
 import {
   ASSINATURA_ANUAL_DESCONTO_ROTULO,
   ASSINATURA_ANUAL_ECONOMIA_MESES_ROTULO,
@@ -144,7 +152,7 @@ import { falarNoWhatsApp } from "@/lib/contato";
  *    lugar ao leque de três telas da `<Vitrine />`. Uma captura prova que
  *    existe UMA tela; três provam que existe um app.
  *
- * 9. DEZESSETE SEÇÕES VIRARAM TREZE, por fusão e nunca por corte de fato.
+ * 9. DEZESSETE SEÇÕES VIRARAM TREZE (ver o item 16), por fusão e nunca por corte de fato.
  *    Quatro pares diziam a mesma coisa duas vezes, e o que saiu foi sempre
  *    cabeçalho duplicado e rodeio, nunca informação:
  *      • a dor do extrato + o comparativo (o mesmo argumento, contado duas
@@ -167,6 +175,64 @@ import { falarNoWhatsApp } from "@/lib/contato";
  *    (depois da dor, depois do futuro do dinheiro e depois da prova humana),
  *    com o MESMO botão e sem nenhuma frase que não esteja provada na seção
  *    logo acima delas.
+ *
+ * ══ A REVISÃO DO JEFFERSON, 11/09/2026 ═══════════════════════════════════
+ *
+ * O Jefferson é sócio da Novare, e a tese dele numa frase: "enfatizar a venda
+ * da TRANSFORMAÇÃO que ele proporciona". A página descrevia o que o produto
+ * FAZ; ele quer que ela venda o que muda na vida de quem assina. As frases em
+ * bloco abaixo são dele e estão na página literais, palavra por palavra —
+ * quem for reescrever alguma está editando a voz da casa, não um rascunho.
+ *
+ * 11. A TESE SUBIU PARA O `<h1>`. "Quanto você REALMENTE pode gastar este
+ *    mês?" no lugar de "quanto ainda dá para gastar até o fim do mês". A
+ *    diferença é uma palavra, e é a palavra que a página inteira existe para
+ *    provar: a primeira versão é uma pergunta que o extrato também acha que
+ *    responde. O porquê está escrito por extenso no herói.
+ *
+ * 12. O PREÇO DEIXOU DE SER SEGREDO ATÉ A DÉCIMA QUARTA SEÇÃO. Ele aparecia
+ *    como uma linha de 12px em cinza embaixo do botão, e inteiro lá embaixo.
+ *    Agora a primeira dobra traz o plano anual, o que ele custaria pago mês a
+ *    mês, a economia e a garantia — os quatro vindos de `lib/assinatura`,
+ *    nenhum digitado. E a garantia passou a repetir embaixo de CADA
+ *    `FaixaComecar`, que é onde a pessoa hesita.
+ *
+ * 13. TRÊS SEÇÕES TROCARAM MECÂNICA POR TRANSFORMAÇÃO, com as frases dele:
+ *    dívidas ("saiba como sair das dívidas mais rápido", no lugar de "dívida
+ *    aqui não é um número no painel"), projeção ("veja o futuro financeiro
+ *    antes que ele aconteça", no lugar de "ver em setembro como o ano
+ *    termina") e a seção de planos, que passou a abrir dizendo que o que se
+ *    compra não é um aplicativo, é uma estrutura com acompanhamento.
+ *
+ * 14. A SEGURANÇA GANHOU SEÇÃO (a 11). "Sem senha bancária, sem conexão
+ *    automática, sem Open Finance" era o item DO MEIO de uma lista de três
+ *    declarações — o argumento que mais separa este app de todo concorrente
+ *    que exige Open Finance, com peso de nota de rodapé. Ele mudou de lugar,
+ *    não foi inventado: saiu de `PROVAS`, que ficou com duas linhas.
+ *
+ * 15. TRÊS PEÇAS NOVAS ENTRARAM, e duas velhas saíram porque elas faziam o
+ *    mesmo trabalho pior. `<Calculo />` (as duas barras da mesma régua)
+ *    substituiu o `ContaAberta`; `<Comparativo />` de TRÊS colunas substituiu
+ *    o de duas de `SecoesVenda`; e `<ParaQuem />` substituiu a lista de três
+ *    situações. As notas de cada troca estão onde as constantes antigas
+ *    moravam — e nenhum fato foi perdido em nenhuma das três, só o lugar
+ *    dele mudou.
+ *
+ * 16. TREZE SEÇÕES VIRARAM DEZESSEIS, e desta vez o total subiu. Não é
+ *    contradição com o item 9: lá o que caiu foi cabeçalho duplicado, aqui o
+ *    que subiu foi assunto que estava escondido dentro de outro (o "para quem
+ *    é", o comparativo e a segurança). O texto CORRIDO encolheu — nove
+ *    parágrafos foram cortados entre um quarto e um terço, sempre tirando
+ *    rodeio e enumeração repetida, nunca fato.
+ *
+ * ⚠️ E NADA DISTO AUTORIZOU UMA PROMESSA NOVA. A pastilha do assistente que
+ * ainda não está ligado, a linha que diz que nada responde hoje, o
+ * enquadramento dos depoimentos como clientes da CONSULTORIA e a recusa de
+ * citar número de usuário continuam palavra por palavra. O pedido de "provas
+ * sociais (antes e depois)" foi atendido só na metade que é verdade: o antes
+ * e depois VISUAL (extrato contra painel) está na `<Calculo />` e no
+ * comparativo. Depoimento de usuário do app continua não existindo, porque
+ * não há nenhum coletado.
  */
 
 /**
@@ -225,105 +291,32 @@ const SELOS: { icone: LucideIcon; texto: string }[] = [
   { icone: ShieldCheck, texto: "Cancele quando quiser" },
 ];
 
-/**
- * As situações em que a pessoa se reconhece.
+/*
+ * ── ONDE FORAM PARAR `SITUACOES`, `CONTA_LINHAS` E `COMPARATIVO` ──────────
  *
- * Vêm antes do argumento contra as outras ferramentas porque ninguém aceita
- * ouvir a solução antes de admitir o problema. Deixaram de ser três cards
- * lado a lado: viraram três linhas empilhadas ao lado da conta aberta, para
- * a dor e a matemática da dor ficarem na mesma dobra.
+ * `SITUACOES` eram três cenas de reconhecimento ("o salário evapora", "a
+ * fatura é surpresa", "a planilha durou até fevereiro"). Saíram porque a
+ * página passou a ter a `<ParaQuem />`, que faz o MESMO trabalho com sete
+ * frases escritas pelo sócio da casa — e dez itens de reconhecimento em
+ * sequência ensinam o olho a pular a segunda leva. Nenhum fato foi perdido
+ * junto: a fatura que chega somada vive na seção 8 ("A fatura deixa de ser
+ * surpresa"), e a planilha abandonada em fevereiro continua escrita por
+ * extenso na abertura do comparativo, que é o único lugar da página que
+ * explica por que a planilha falha mesmo estando certa.
+ *
+ * `CONTA_LINHAS` alimentava o `ContaAberta`: três linhas e um resultado,
+ * 2.392 − 1.926 + 600 = 1.066. A `<Calculo />` diz a MESMA aritmética com as
+ * duas barras da mesma régua, e diz melhor — o argumento vira geometria em
+ * vez de virar lista. Manter as duas seria contar a tese da página duas vezes
+ * na mesma rolagem. Os dois fatos que só o `ContaAberta` carregava foram
+ * para onde ainda são verdade: as duas contas vencidas (R$ 533) estão no
+ * cartão do painel, na seção 7, e os valores brutos do mês (R$ 7.184 que
+ * entraram, R$ 4.793 que saíram) viraram a linha logo abaixo da `Calculo`.
+ *
+ * `COMPARATIVO` era a lista de 11 critérios do comparativo de DUAS colunas.
+ * O novo `<Comparativo />` traz as próprias linhas, em três colunas, com a
+ * fonte de cada uma conferida dentro dele.
  */
-const SITUACOES: { icone: LucideIcon; titulo: string; texto: string }[] = [
-  {
-    icone: Wallet,
-    titulo: "O salário entra e evapora",
-    texto:
-      "Você ganha bem, não se considera gastador e mesmo assim chega no dia 25 sem saber o que aconteceu.",
-  },
-  {
-    icone: CreditCard,
-    titulo: "A fatura é sempre uma surpresa",
-    texto:
-      "As parcelas de três meses atrás continuam chegando, e ninguém soma tudo antes de você decidir gastar.",
-  },
-  {
-    icone: CalendarClock,
-    titulo: "A planilha durou até fevereiro",
-    texto:
-      "Em fevereiro teria de digitar o aluguel de novo. A planilha nunca mais foi aberta.",
-  },
-];
-
-/**
- * A CONTA ABERTA, e ela é a tese da página em quatro linhas.
- *
- * ⚠️ OS NÚMEROS SÃO OS DA FOTO DO HERÓI, linha por linha: 7.184 que entraram
- * menos 4.793 que saíram dão os R$ 2.392 do extrato; menos as contas que ainda
- * vencem (1.926), mais a entrada que ainda cai (600), dão os R$ 1.066 que o
- * painel mostra na captura logo acima. Antes eles vinham de uma prévia
- * desenhada, e podiam ser qualquer coisa. Agora existe uma imagem do produto
- * na mesma dobra: um visitante atento confere, e se não bater, a foto passa a
- * desmentir o texto.
- */
-const CONTA_LINHAS = [
-  {
-    rotulo: "O que sobrou do que já entrou e saiu",
-    valor: "R$ 2.392",
-    obs: "Entraram R$ 7.184, saíram R$ 4.793",
-  },
-  {
-    rotulo: "Contas e faturas que ainda vencem",
-    valor: "- R$ 1.926",
-    obs: "Duas delas já venceram sem pagamento, R$ 533",
-  },
-  {
-    rotulo: "A entrada que ainda cai até o dia 30",
-    valor: "+ R$ 600",
-    obs: "Prevista, e por isso não está no saldo",
-  },
-];
-
-/**
- * O comparativo, critério a critério.
- *
- * Uma coluna só do outro lado ("app do banco ou planilha") porque é o que a
- * pessoa realmente usa hoje: inventar uma coluna por concorrente citaria nome
- * alheio dentro da nossa página e entregaria a régua deles.
- *
- * Toda linha aqui é verificável no produto. O assistente de WhatsApp NÃO
- * entra nesta tabela, mesmo sendo o item que mais separaria a Novare do
- * concorrente: enquanto a linha não estiver ligada, um tique aqui seria
- * promessa. Ele tem seção própria, com a ressalva escrita.
- */
-const COMPARATIVO: LinhaComparativo[] = [
-  { criterio: "Mostra o que já saiu da conta", sem: "Sim", com: true },
-  { criterio: "Conta o que ainda vai sair no mês", sem: false, com: true },
-  { criterio: "Responde “posso gastar hoje?”", sem: false, com: true },
-  { criterio: "As contas fixas se repetem sozinhas", sem: false, com: true },
-  {
-    criterio: "Parcelamento entra com todas as parcelas",
-    sem: false,
-    com: true,
-  },
-  {
-    criterio: "Avisa em que mês o saldo fica negativo",
-    sem: false,
-    com: "12 meses à frente",
-  },
-  {
-    criterio: "Sugere o limite pelo seu histórico",
-    sem: false,
-    com: "Mín, média, máx",
-  },
-  {
-    criterio: "Soma quanto as suas metas pedem por mês",
-    sem: false,
-    com: true,
-  },
-  { criterio: "Tem um método para seguir", sem: false, com: "Ciclo Novare" },
-  { criterio: "Funciona com qualquer banco", sem: "Um por vez", com: true },
-  { criterio: "Quem cuida não ganha comissão", sem: false, com: true },
-];
 
 /**
  * O CICLO NOVARE, o método da casa, em cinco passos.
@@ -332,25 +325,44 @@ const COMPARATIVO: LinhaComparativo[] = [
  * por isso que abandona: sem estruturar antes, o segundo mês pede que se
  * digite tudo de novo. E sem reservar antes de gastar, o que sobra no fim do
  * mês é o resto, que nunca é o bastante.
+ *
+ * ── "REORGANIZAR O CICLO", 11/09/2026: O QUE MUDOU FOI O TEXTO ───────────
+ * O pedido veio sem detalhe, e a conclusão depois de olhar a seção é que a
+ * ESTRUTURA está certa e não devia ser mexida: cinco passos numerados com
+ * denominador (01 de 05, que diz desde o primeiro que o processo é curto e
+ * tem fim), a ordem que é o próprio argumento, e a peça de fechamento que
+ * transforma a escada em ciclo. Trocar isso por abas, por acordeão ou por uma
+ * trilha horizontal custaria JavaScript numa página que não manda nenhum, e
+ * resolveria um problema que a seção não tem.
+ *
+ * O que ela TINHA era volume: cinco parágrafos de três a quatro linhas, todos
+ * com a mesma cadência, num bloco creme de quase mil pixels no celular — o
+ * ponto exato em que a pessoa rola sem ler. Cada passo foi reescrito para
+ * abrir pela AÇÃO e fechar no ganho, e o que saiu foi rodeio.
+ *
+ * ⚠️ O ÚNICO FATO QUE SAIU INTEIRO foi "sobra que ignora a parcela de
+ * novembro é sobra falsa", do passo Registre. Não sumiu da página: é a tese
+ * que a `<Calculo />` agora desenha em duas barras, quatro seções acima, e
+ * repeti-la aqui em uma linha era a versão fraca do mesmo argumento.
  */
 const CICLO: { icone: LucideIcon; titulo: string; texto: string }[] = [
   {
     icone: Layers,
     titulo: "Estruture",
     texto:
-      "Diga onde o dinheiro está e o que se repete todo mês: as contas com o saldo de hoje, o salário, o aluguel, a escola, a assinatura de streaming. Cadastrado uma vez, o mês que vem já abre preenchido.",
+      "Cadastre uma vez o que se repete todo mês: as contas com o saldo de hoje, o salário, o aluguel, a escola, o streaming. O mês que vem já abre preenchido.",
   },
   {
     icone: PiggyBank,
     titulo: "Reserve",
     texto:
-      "Decida antes de gastar. O que já tem dono sai na frente: contas fixas, o limite de cada categoria e o aporte de cada meta. E o limite não é chute, porque o app mostra o mínimo, a média e o máximo que você já gastou ali.",
+      "Decida antes de gastar: contas fixas, limite de cada categoria e aporte de cada meta saem na frente. E o limite não é chute — o app mostra o mínimo, a média e o máximo que você já gastou ali.",
   },
   {
     icone: ListPlus,
     titulo: "Registre",
     texto:
-      "Lance no dia, não no fim do mês. Marcar a conta de luz como paga é um toque, e um parcelamento em 12x já nasce com as doze parcelas na linha do tempo. Sobra que ignora a parcela de novembro é sobra falsa.",
+      "Lance no dia, não no fim do mês. Marcar a conta de luz como paga é um toque, e um parcelamento em 12x já nasce com as doze parcelas na linha do tempo.",
   },
   {
     icone: Gauge,
@@ -362,7 +374,7 @@ const CICLO: { icone: LucideIcon; titulo: string; texto: string }[] = [
     icone: RefreshCw,
     titulo: "Ajuste",
     texto:
-      "No fim do mês, compare o que planejou com o que aconteceu. Corrija o limite que não coube, corte a assinatura que ninguém usa e comece o mês seguinte com números que já provaram funcionar na sua vida.",
+      "No fim do mês, compare o planejado com o que aconteceu: corrija o limite que não coube, corte a assinatura que ninguém usa e recomece com números que já provaram funcionar na sua vida.",
   },
 ];
 
@@ -563,6 +575,20 @@ const DEPOIMENTOS: { texto: string; nome: string; quem: string }[] = [
   },
 ];
 
+/**
+ * ⚠️ ERAM TRÊS, E A DO MEIO NÃO FOI APAGADA: FOI MUDADA DE LUGAR.
+ *
+ * "Nenhuma conta bancária conectada" morava aqui, no meio das declarações de
+ * como a casa ganha dinheiro, e é o argumento de SEGURANÇA da página — o
+ * único diferencial que vale contra todo concorrente que exige Open Finance.
+ * Enterrado como item do meio de uma lista de três, ele tinha peso de nota de
+ * rodapé. Virou bloco próprio (a seção 11), com o fato inteiro que ele
+ * carregava: sem senha do banco, sem Open Finance e, por consequência,
+ * funcionando com qualquer banco brasileiro.
+ *
+ * O que sobra aqui é o que a seção realmente responde, que é como a casa se
+ * paga: nenhuma comissão, e uma mensalidade só.
+ */
 const PROVAS: { destaque: string; titulo: string; texto: string }[] = [
   {
     destaque: "Zero",
@@ -571,16 +597,51 @@ const PROVAS: { destaque: string; titulo: string; texto: string }[] = [
       "A Novare é consultoria independente: não vende produto de banco e não recebe nada por onde o seu dinheiro é alocado. A única receita nessa relação é a sua assinatura, à vista de todos.",
   },
   {
-    destaque: "Nenhuma",
-    titulo: "conta bancária conectada",
-    texto:
-      "O app não pede a senha do seu banco nem acesso ao Open Finance. Você lança, ele calcula. Por isso funciona com qualquer banco brasileiro, inclusive com a conta que nenhum agregador lê.",
-  },
-  {
     destaque: "Uma",
     titulo: "mensalidade para a casa inteira",
     texto:
       "Não há versão básica nem versão turbinada. Quem assina leva este app, o Planejamento Financeiro, a Íris e todas as calculadoras, pelo mesmo valor, do primeiro dia ao último.",
+  },
+];
+
+/**
+ * AS TRÊS RECUSAS QUE VIRARAM O ARGUMENTO DE SEGURANÇA.
+ *
+ * ⚠️ AS TRÊS FORAM CONFERIDAS ANTES DE VIRAREM PROMESSA DE VITRINE, porque
+ * aqui a página está afirmando o que ela NÃO faz — e afirmação negativa é a
+ * mais fácil de desmentir com uma tela. As três batem com o produto e com o
+ * que a própria FAQ desta página responde: não existe campo de senha de banco
+ * em lugar nenhum, não existe Open Finance nem agregador, e não existe nada
+ * buscando dado no fundo. O único caminho de entrada automática é o arquivo
+ * OFX que VOCÊ exporta do seu banco e confere linha por linha antes de gravar
+ * — e é por isso que a quarta linha existe: sem ela, "sem conexão" se lê como
+ * "digite tudo à mão", que seria mentir ao contrário.
+ *
+ * A CONSEQUÊNCIA VEM JUNTO E NÃO É DECORAÇÃO: é justamente por não depender
+ * de conexão que o app funciona com qualquer banco brasileiro, inclusive com
+ * a conta que nenhum agregador consegue ler. Este fato veio da lista `PROVAS`,
+ * onde ele vivia enterrado no item do meio.
+ */
+const SEGURANCA: { titulo: string; texto: string }[] = [
+  {
+    titulo: "Sem senha bancária",
+    texto:
+      "Não existe campo para a senha do seu banco no FINCASH. Nunca vai existir.",
+  },
+  {
+    titulo: "Sem conexão automática",
+    texto:
+      "Nada fica buscando movimentação na sua conta. Quem decide o que entra é você.",
+  },
+  {
+    titulo: "Sem Open Finance",
+    texto:
+      "Não é uma etapa que ficou para depois: é a escolha que faz o app funcionar com qualquer banco.",
+  },
+  {
+    titulo: "E sem digitar tudo à mão",
+    texto:
+      "O extrato em OFX que o seu banco exporta entra pela tela de importação, conferido linha por linha antes de gravar.",
   },
 ];
 
@@ -606,6 +667,17 @@ const PROVAS: { destaque: string; titulo: string; texto: string }[] = [
  * ⚠️ E ELE NÃO É O BOTÃO DOS PLANOS. Este leva ao cadastro; o dos cartões de
  * preço leva ao checkout, por `assinaturaCheckout(plano)`. São dois destinos
  * diferentes de propósito, e por isso dois componentes.
+ *
+ * ── O RÓTULO: "QUERO COMEÇAR AGORA" ──────────────────────────────────────
+ * Pedido do Jefferson, sócio da casa, em 11/09/2026: um CTA principal único,
+ * repetido do começo ao fim. "Criar minha conta" descreve a MECÂNICA do
+ * clique; "Quero começar agora" é a frase na primeira pessoa de quem decidiu.
+ * É a diferença entre rotular o botão e dar voz a quem aperta.
+ *
+ * ⚠️ UM RÓTULO SÓ, NA PÁGINA INTEIRA. O ganho do CTA único é o
+ * reconhecimento: na sexta vez que a pessoa passa por ele, ela não lê mais,
+ * reconhece. Trocar a frase em uma das ocorrências "para variar" desfaz
+ * exatamente isso. Se precisar mudar, muda aqui e muda em todas.
  */
 function BotaoComecar({
   variante = "principal",
@@ -623,7 +695,7 @@ function BotaoComecar({
       href={ROTA_COMECAR}
       className={`cta-varredura group inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl px-5 py-3 text-sm font-bold transition-all hover:-translate-y-0.5 ${estilo}`}
     >
-      Criar minha conta
+      Quero começar agora
       <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
     </Link>
   );
@@ -659,6 +731,14 @@ function BotaoComecar({
  * seguinte, que é exatamente o oposto do que ela existe para fazer. O creme
  * continua reservado ao que é da CASA (o Ciclo e as duas molduras de textura).
  */
+/* ⚠️ A GARANTIA ENTROU AQUI, E É FIXA — não é prop, e não deve virar uma.
+   Pedido do Jefferson em 11/09/2026: a reversão de risco era uma linha
+   discreta perdida no cartão de preço, no fim da página. O lugar dela é
+   colado em CADA convite a clicar, porque é ali que a pessoa hesita — e a
+   frase só é curta o bastante para caber embaixo do botão porque ela vem
+   pronta da fonte (`ASSINATURA_GARANTIA`), em vez de ser reescrita a cada
+   ocorrência. Três faixas, três vezes a mesma frase, palavra por palavra:
+   quem lê duas vezes reconhece, quem lê duas versões desconfia. */
 function FaixaComecar({ frase }: { frase: string }) {
   return (
     <div className="pt-12 sm:pt-16">
@@ -668,6 +748,10 @@ function FaixaComecar({ frase }: { frase: string }) {
         </p>
         <div className="shrink-0">
           <BotaoComecar />
+          <p className="mt-2 flex items-center gap-1.5 text-2xs text-muted-foreground">
+            <ShieldCheck className="h-3.5 w-3.5 shrink-0 text-accent-strong" />
+            {ASSINATURA_GARANTIA}
+          </p>
         </div>
       </div>
     </div>
@@ -957,9 +1041,9 @@ function CartaoPlano({
           parágrafo de cinco linhas que ficava embaixo da seção explicando que
           nada fica trancado no plano barato.
 
-          Ele NÃO é caixa alta de propósito. A página tem três rótulos em
-          versalete, todos acima de título de seção, e um quarto aqui os
-          transformaria em decoração de lista. */}
+          Ele NÃO é caixa alta de propósito. Os rótulos em versalete desta
+          página vivem todos acima de um título de seção, e um aqui, no meio de
+          um cartão, os transformaria em decoração de lista. */}
       <div
         className={`mt-6 border-t pt-5 ${
           destaque ? "border-white/10" : "border-border"
@@ -1085,22 +1169,23 @@ export default function FincashPage() {
       <main>
         {/* ============================================== 1. HERÓI ====== */}
         {/* QUATRO ELEMENTOS DE TEXTO, e não mais: título, uma linha de apoio,
-            o botão e a microcópia da oferta. A versão anterior tinha pílula de
-            categoria, parágrafo de três linhas, preço em display, um segundo
-            selo, dois botões e uma lista de três tiques. Nada disso cabia na
-            primeira tela do celular, e o CTA ficava abaixo da dobra bem na
-            página em que ele é a única coisa a fazer. O que a pessoa precisa
-            ver aqui é a pergunta, a resposta e o produto.
+            o botão e a oferta. A versão anterior tinha pílula de categoria,
+            parágrafo de três linhas, preço em display, um segundo selo, dois
+            botões e uma lista de três tiques. Nada disso cabia na primeira
+            tela do celular, e o CTA ficava abaixo da dobra bem na página em
+            que ele é a única coisa a fazer. O que a pessoa precisa ver aqui é
+            a pergunta, a resposta, o produto e quanto custa.
 
             ── O QUE MUDOU, e nenhum item é enfeite ──────────────────────────
-            1. A MICROCÓPIA ERA DE TRÊS LINHAS. Ela imprimia a oferta por
-               extenso (os dois preços, o total do ano, o prazo, a garantia e o
-               cancelamento), e três linhas de cinza a 65% logo abaixo do botão
-               não são lidas: são um bloco que o olho contorna a caminho da
-               imagem. Passou a `ASSINATURA_OFERTA_CURTA`, que existe na fonte
-               exatamente para este lugar, mais a garantia. Uma linha no
-               desktop, duas no celular, e a reversão de risco continua acima
-               da dobra, que era a razão de ela estar aqui.
+            1. A MICROCÓPIA DE TRÊS LINHAS VIROU UMA PEÇA DE OFERTA. Ela
+               imprimia a oferta por extenso (os dois preços, o total do ano, o
+               prazo, a garantia e o cancelamento) em cinza claro a 12px, e
+               três linhas assim logo abaixo do botão não são lidas: são um
+               bloco que o olho contorna a caminho da imagem. Encolheu uma vez
+               para `ASSINATURA_OFERTA_CURTA` mais a garantia, e na revisão do
+               Jefferson (11/09/2026) virou a caixa com contorno que está aqui
+               — mesma informação, hierarquia de peça de venda. O porquê e a
+               conta de altura estão escritos nela.
             2. A GRADE DE FUNDO (`cine-grade`, a mesma da /assinar): o palco
                era um degradê liso, e degradê liso atrás de um aparelho faz o
                aparelho parecer recortado e colado. A grade some nas bordas por
@@ -1168,38 +1253,148 @@ export default function FincashPage() {
                   </span>
                 </div>
 
+                {/* ── O TÍTULO, E A PALAVRA QUE ELE GANHOU ────────────────
+                    Era "Quanto ainda dá para gastar até o fim do mês?", e o
+                    que entrou no lugar é a frase do Jefferson, sócio da casa,
+                    pedida na revisão de 11/09/2026.
+
+                    A DIFERENÇA ENTRE AS DUAS É UMA PALAVRA, e é a palavra que
+                    a página inteira existe para provar: REALMENTE. "Quanto
+                    ainda dá para gastar" é uma pergunta que o extrato também
+                    acha que responde — quem lê aquilo pensa no saldo e segue
+                    em frente. "Quanto você REALMENTE pode gastar" abre uma
+                    distância entre dois números e admite que o primeiro está
+                    errado, que é a tese do produto. É por isso que o acento
+                    de cor foi para ela, e não para o prazo: o prazo é
+                    circunstância, o advérbio é o argumento.
+
+                    ⚠️ "ESTE MÊS" E NÃO "ATÉ O FIM DO MÊS", também dele, e o
+                    ganho é de leitura no celular: a frase fecha em três linhas
+                    a 390px em vez de quatro, e o botão sobe junto. */}
                 <h1 className="font-display text-[1.75rem] font-extrabold leading-[1.1] tracking-tight sm:text-[2.6rem] lg:text-[3rem]">
-                  Quanto ainda dá para gastar{" "}
-                  <span className="text-accent-claro">até o fim do mês</span>?
+                  Quanto você{" "}
+                  <span className="text-accent-claro">realmente</span> pode
+                  gastar este mês?
                 </h1>
 
+                {/* ── A LINHA DE APOIO É UMA FUSÃO, E ISSO FOI DELIBERADO ──
+                    O Jefferson ofereceu duas: "Seu saldo mostra quanto você
+                    tem. O FINCASH mostra quanto você realmente pode gastar." e
+                    "Descubra quanto você realmente pode gastar sem comprometer
+                    o seu futuro financeiro."
+
+                    A PRIMEIRA NÃO PODIA VIR INTEIRA PARA CÁ, e o motivo é que
+                    ela JÁ ESTÁ na página, palavra por palavra: é a frase que a
+                    peça `<Calculo />` carrega em cima das duas barras, duas
+                    dobras abaixo. Repetida aqui, a pessoa leria treze palavras
+                    idênticas duas vezes em trinta segundos — e a segunda vez,
+                    que é onde a prova está desenhada, chegaria como coisa já
+                    lida. A metade que ela empresta ao herói é a primeira ("o
+                    seu saldo mostra quanto você tem"), que é a PERGUNTA; a
+                    metade da resposta fica guardada para a peça que a prova.
+
+                    A SEGUNDA NÃO PODIA VIR INTEIRA porque repetiria "realmente
+                    pode gastar" a dois centímetros do `<h1>` que acabou de
+                    dizer isso.
+
+                    O QUE FICOU FORA DAS DUAS E CONTINUA AQUI: "sem conectar
+                    banco nenhum". É o único fato do herói, é o diferencial
+                    contra todo concorrente que exige Open Finance, e a seção
+                    de segurança lá embaixo existe para sustentá-lo. */}
                 <p className="mt-5 max-w-lg text-base leading-relaxed text-white/80 sm:text-lg">
-                  O FINCASH soma o que ainda vai sair e mostra a sobra real,
-                  sem conectar banco nenhum.
+                  O seu saldo mostra quanto você tem. O FINCASH desconta o que
+                  ainda vai sair, soma o que ainda entra e mostra o que sobra de
+                  verdade — sem conectar banco nenhum.
                 </p>
 
-                <div className="mt-7">
+                {/* `mt-6` e não `mt-7`: quatro pixels comprados para o herói
+                    inteiro caber em 1366×768. Ver a nota da peça de oferta. */}
+                <div className="mt-6">
                   <BotaoComecar variante="clara" />
                 </div>
 
-                {/* ⚠️ DIZIA "SEM CARTÃO PARA TESTAR", e era a promessa
-                    contrária à que a casa passou a fazer: agora se paga e se
-                    devolve, em vez de usar antes de pagar. A reversão de risco
-                    continua na primeira dobra, porque é ela que segura quem
-                    acabou de ler um preço — só que agora é a garantia, citada
-                    da fonte.
+                {/* ══ A OFERTA NA PRIMEIRA DOBRA ═══════════════════════════
+                    Pedido do Jefferson em 11/09/2026, e ele usou a palavra
+                    "antecipar": o preço só aparecia como uma linha de 12px em
+                    cinza claro embaixo do botão, e inteiro a treze seções
+                    daqui. Quem chega de anúncio decide em duas perguntas —
+                    "isto resolve o meu problema?" e "quanto custa?" — e a
+                    segunda ficava sem resposta até a página inteira ter sido
+                    rolada.
 
-                    OS DOIS PREÇOS VÊM DE `ASSINATURA_OFERTA_CURTA`, e não da
-                    versão por extenso: o herói não é onde se compra, é onde se
-                    descobre que o preço não assusta. O total do ano, a conta
-                    do desconto e o cancelamento estão inteiros na seção de
-                    planos, onde a pessoa chega já querendo o detalhe. Também
-                    saiu daqui o "cancele quando quiser": ele é o quarto selo
-                    da faixa que começa dois centímetros abaixo, e repetir uma
-                    promessa em dois lugares seguidos a enfraquece nos dois. */}
-                <p className="mt-4 text-xs leading-relaxed text-white/70">
-                  {ASSINATURA_OFERTA_CURTA}. {ASSINATURA_GARANTIA}.
-                </p>
+                    ⚠️ NENHUM NÚMERO AQUI É DIGITADO. Os quatro (o preço do
+                    anual, o que ele custaria mês a mês, a economia e o prazo
+                    da garantia) saem de `lib/assinatura`, que deriva tudo de
+                    dois inteiros em centavos. Uma peça de venda com preço
+                    escrito à mão é uma peça que anuncia o valor velho no dia
+                    seguinte ao aumento, e esta é a peça mais vista da página.
+
+                    ⚠️ E O NÚMERO GRANDE É O TOTAL DO ANO, NÃO O "POR MÊS" —
+                    ao contrário do cartão de preço da seção 12, onde o grande
+                    é o mensal equivalente. Não é incoerência, são duas
+                    perguntas diferentes: lá a pessoa COMPARA dois planos, e
+                    "por mês" é a única régua que serve para os dois; aqui ela
+                    ainda não sabe se cabe no bolso dela, e o que responde isso
+                    é o que a fatura vai cobrar. O riscado ao lado é o que o
+                    mesmo ano custaria pago mês a mês, e a economia é a
+                    subtração dos dois — as três coisas na mesma linha, sem
+                    letra miúda nenhuma explicando depois.
+
+                    ⚠️ A GARANTIA FICA COLADA NO PREÇO, e não numa linha
+                    separada: o trabalho dela é desarmar o susto do número que
+                    está logo acima. Separada dele por um respiro, ela vira
+                    mais uma promessa solta de herói. */}
+                {/* ⚠️ TRÊS LINHAS, E A CONTA DE PIXEL É O MOTIVO. A primeira
+                    versão desta peça tinha cinco (selo, preço, economia, os
+                    dois mensais, garantia) e empurrava o pé do herói para
+                    809px — cabia em 1440×900 e estourava em 1366×768, que é
+                    justamente o notebook mais comum de quem lê isto no
+                    trabalho. Cada par que ficou na mesma linha ficou por
+                    caber com folga na coluna: selo + economia, e garantia +
+                    os dois mensais.
+
+                    ⚠️ E NENHUMA DAS TRÊS USA "·" ENTRE DUAS METADES. Um
+                    separador no meio de um `flex-wrap` vira ponto pendurado no
+                    fim da linha assim que a segunda metade desce, e isso
+                    acontece no celular em todas elas. Onde há duas metades,
+                    quem separa é `justify-between` no desktop e a própria
+                    quebra no celular. */}
+                <div className="mt-4 max-w-lg rounded-2xl bg-white/[0.07] p-4 ring-1 ring-white/15">
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+                    <p className="inline-flex items-center gap-1.5 rounded-full bg-accent-btn px-2.5 py-1 text-2xs font-bold uppercase tracking-[0.12em] text-white">
+                      <BadgeCheck className="h-3.5 w-3.5" />
+                      Plano mais recomendado
+                    </p>
+                    <p className="text-xs font-semibold tabular-nums text-accent-claro">
+                      Economize {ASSINATURA_ANUAL_ECONOMIA_ROTULO} por ano
+                    </p>
+                  </div>
+
+                  <p className="mt-3 flex flex-wrap items-baseline gap-x-2.5 gap-y-1 tabular-nums">
+                    <span className="text-sm font-semibold text-white/70">
+                      Plano anual
+                    </span>
+                    <span className="font-display text-2xl font-extrabold leading-none tracking-tight text-white sm:text-[1.75rem]">
+                      {ASSINATURA_PRECO_ANUAL_ROTULO}
+                    </span>
+                    <span className="text-sm text-white/50 line-through decoration-white/40">
+                      {ASSINATURA_ANUAL_REFERENCIA_ROTULO}
+                    </span>
+                  </p>
+
+                  <p className="mt-3 flex flex-wrap items-center justify-between gap-x-4 gap-y-1 border-t border-white/10 pt-2.5 text-xs tabular-nums">
+                    <span className="inline-flex items-center gap-1.5 font-semibold text-white/85">
+                      <ShieldCheck className="h-4 w-4 shrink-0 text-accent-claro" />
+                      {ASSINATURA_GARANTIA}
+                    </span>
+                    {/* 70% de branco, e não 60: a 12px sobre este navy o 60 dá
+                        pouco mais de 4,5:1 — passa na régua e cansa no polegar.
+                        O resto do herói já usa 70 pelo mesmo motivo. */}
+                    <span className="text-white/70">
+                      {ASSINATURA_OFERTA_CURTA}
+                    </span>
+                  </p>
+                </div>
               </div>
 
               {/* O PRODUTO NA PRIMEIRA DOBRA, e agora são TRÊS telas.
@@ -1244,116 +1439,133 @@ export default function FincashPage() {
         </section>
 
         <div className="mx-auto max-w-5xl px-4 pb-16 sm:px-6">
-          {/* ========= 3. A CONTA QUE O EXTRATO NÃO FAZ, E O COMPARATIVO = */}
-          {/* Duas metades que se explicam uma à outra: à esquerda a dor em três
-              linhas, à direita a matemática da mesma dor. Separadas, a dor
-              vira lamento e a conta vira planilha. */}
+          {/* ===== 3. SALDO NÃO É DISPONÍVEL, E ESTA É A CONTA ========== */}
+          {/* ⚠️ A SEÇÃO MUDOU DE PEÇA CENTRAL, e não de assunto.
+
+              Ela era: a dor em três linhas de um lado, o `ContaAberta` (três
+              linhas e um resultado) flutuando sobre uma fotografia do outro, e
+              o comparativo de duas colunas grudado no pé. Três argumentos
+              diferentes dentro de uma seção só, e a tese da página — que o
+              saldo e o disponível são números diferentes — cabendo numa coluna
+              de 23rem no canto direito.
+
+              Agora a tese ocupa a largura inteira, desenhada: a `<Calculo />`
+              corta a MESMA régua em dois lugares, e o trecho que sobra é
+              visivelmente um terço dela. É a aritmética do `ContaAberta` dita
+              em geometria, que é a única gramática que essa distância cabe em
+              três segundos. O comparativo saiu para seção própria e a lista de
+              dor saiu inteira (ver a nota onde `SITUACOES` morava).
+
+              A FOTOGRAFIA FICOU, e ficou por cima e não por baixo: a cena da
+              mesa com as contas espalhadas é o momento que o título descreve,
+              e ela agora emoldura o título em vez de servir de fundo para um
+              cartão branco. O degradê navy que existia só para dar contraste
+              ao cartão saiu junto com o cartão — sem nada pousado em cima, ele
+              escurecia a foto por gosto. */}
           <section className="pt-14 sm:pt-20">
-            <div className="grid gap-9 lg:grid-cols-[1fr_minmax(0,23rem)] lg:items-start lg:gap-12">
-              <div>
-                <TituloSecao
-                  centro={false}
-                  titulo="O saldo do banco mente por omissão"
-                  apoio="Ele mostra o que já saiu. Não mostra o aluguel do dia 5, a parcela do notebook que vai até dezembro nem a fatura que fecha semana que vem. A diferença entre esses dois números é o que estoura o mês."
-                />
+            <div className="grid gap-8 lg:grid-cols-[1fr_minmax(0,22rem)] lg:items-center lg:gap-12">
+              <TituloSecao
+                centro={false}
+                titulo="O saldo do banco mente por omissão"
+                apoio="Ele mostra o que já saiu. Não mostra o aluguel do dia 5, a parcela do notebook que vai até dezembro nem a fatura que fecha semana que vem. A diferença entre os dois é o que estoura o mês."
+              />
 
-                <ul className="mt-8 divide-y divide-border border-y border-border">
-                  {SITUACOES.map((s) => (
-                    <li key={s.titulo} className="flex gap-4 py-4">
-                      <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-accent-tint text-accent-strong">
-                        <s.icone className="h-4 w-4" strokeWidth={1.75} />
-                      </span>
-                      <div>
-                        <p className="font-display text-base font-semibold leading-snug text-primary">
-                          {s.titulo}
-                        </p>
-                        <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-                          {s.texto}
-                        </p>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              {/* COMPOSIÇÃO 1 DE 4: a foto é o FUNDO e a conta flutua por cima.
-                  A cena (a mesa da cozinha com as contas espalhadas) é o mesmo
-                  momento que as três linhas da esquerda descrevem, e pousar a
-                  aritmética por cima dela é dizer, sem escrever, que o número
-                  frio nasce daquela mesa. O degradê navy existe para o cartão
-                  branco ter contraste onde encosta, e não para escurecer a
-                  foto por gosto.
-
-                  ⚠️ Sem legenda, aqui e nas outras três. Ver `Pessoas.tsx`. */}
-              <div className="lg:sticky lg:top-24">
-                <div className="relative overflow-hidden rounded-3xl">
-                  <Pessoa
-                    quem="casalPreocupado"
-                    qualidade={62}
-                    sizes="(max-width: 1024px) 100vw, 23rem"
-                    className="aspect-[4/3]"
-                  />
-                  <span
-                    aria-hidden
-                    className="absolute inset-0 bg-gradient-to-t from-primary/80 via-primary/25 to-transparent"
-                  />
-                </div>
-
-                <div className="relative -mt-14 px-3 sm:px-4">
-                  <ContaAberta
-                    linhas={CONTA_LINHAS}
-                    resultado={{
-                      rotulo: "Sobra de verdade até o dia 30",
-                      valor: "R$ 1.066",
-                    }}
-                  />
-                </div>
-
-                <p className="mt-3 px-3 text-xs leading-relaxed text-muted-foreground sm:px-4">
-                  O extrato mostraria R$ 2.392 e você decidiria em cima desse
-                  número. O FINCASH mostra R$ 1.066, que é o mesmo valor da
-                  captura ali em cima, e é o que realmente está livre.
-                </p>
-              </div>
-            </div>
-
-            {/* ── O COMPARATIVO, QUE ERA UMA SEÇÃO INTEIRA À PARTE ────────
-                Ele tinha cabeçalho próprio ("A culpa não é da sua disciplina")
-                e apoio próprio, e os dois contavam o MESMO argumento que a
-                metade de cima desta seção acabou de contar: o extrato só sabe
-                do passado. Dois títulos de seção seguidos para uma ideia só é
-                o que ensina o olho a pular a segunda.
-
-                ⚠️ O QUE SAIU FOI O CABEÇALHO DUPLICADO, NÃO O CONTEÚDO. O
-                título virou a linha de virada desta seção (é o veredito da
-                dor, e veredito não precisa de moldura de seção) e o apoio
-                continua inteiro logo abaixo dele, com a frase sobre a planilha
-                — que é o único lugar da página que explica por que a planilha
-                falha mesmo estando certa. A tabela não perdeu uma linha. */}
-            <div className="mt-14 sm:mt-20">
-              <h3 className="max-w-3xl font-display text-2xl font-semibold leading-tight tracking-tight text-primary sm:text-[2rem]">
-                A culpa não é da sua disciplina
-              </h3>
-              <p className="mt-3 max-w-3xl text-sm leading-relaxed text-muted-foreground sm:text-base">
-                O extrato é um retrovisor: conta o que já aconteceu, quando não
-                dá mais para decidir nada. A planilha faz a conta certa, mas
-                cobra que você lembre de abrir, de repetir o aluguel todo mês e
-                de inventar sozinho um método.
-              </p>
-
-              <div className="mt-8">
-                <Comparativo
-                  linhas={COMPARATIVO}
-                  rotuloSem="App do banco ou planilha"
-                  rotuloCom="FINCASH"
+              {/* ⚠️ Sem legenda, aqui e nas outras fotografias de pessoas da
+                  página. O motivo está escrito em `Pessoas.tsx`. */}
+              <div className="overflow-hidden rounded-3xl">
+                <Pessoa
+                  quem="casalPreocupado"
+                  qualidade={62}
+                  sizes="(max-width: 1024px) 100vw, 22rem"
+                  className="aspect-[4/3]"
                 />
               </div>
             </div>
+
+            {/* A PEÇA TRAZ O PRÓPRIO CARTÃO BRANCO E A PRÓPRIA FRASE, e não
+                traz título de seção: o nível de cabeçalho é decidido por quem
+                encaixa, senão o sumário da página é furado por dentro de um
+                componente. O título desta seção é o de cima. */}
+            <Calculo className="mt-9" />
+
+            {/* ⚠️ ESTA LINHA EXISTE PARA RESPONDER QUEM CONFERE, e ela é a
+                correção de um resíduo publicado.
+
+                O texto anterior dizia "Entraram R$ 7.184, saíram R$ 4.793" como
+                explicação dos R$ 2.392 — e 7.184 menos 4.793 dá 2.391. Não é
+                erro de digitação nem número inventado: os três valores estão
+                assim, exatamente assim, na captura de `lancamentos-desktop.webp`,
+                porque a tela arredonda CADA linha ao real antes de mostrar. A
+                conta com centavos fecha (o salário da conta de demonstração é
+                R$ 7.184,36, em `lib/fincash/demo.ts`); a conta com os três
+                números já arredondados, não.
+
+                Trocar um dos números para os dois "baterem" faria a página
+                desmentir a própria captura, que está logo acima nesta mesma
+                rolagem — e é a captura que manda. O que dava para consertar era
+                o silêncio: quem subtrai os dois agora encontra a explicação no
+                mesmo parágrafo, em vez de encontrar um erro. */}
+            <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
+              Em setembro entraram R$ 7.184 e saíram R$ 4.793 nessa conta de
+              demonstração. Cada linha da tela é arredondada ao real, e é por
+              isso que a diferença aparece como R$ 2.392 e não como R$ 2.391.
+            </p>
           </section>
 
+          {/* ================================== 4. PARA QUEM É ========== */}
+          {/* AS SETE FRASES SÃO DO JEFFERSON, sócio da casa, e estão literais
+              dentro do componente. Elas ocupam o lugar da lista de três
+              situações que vivia na seção anterior: eram o mesmo trabalho —
+              a pessoa se reconhecer — e dez itens de reconhecimento em
+              sequência ensinam o olho a pular a segunda leva.
+
+              ⚠️ AQUI, E NÃO DEPOIS DO PREÇO. "Isto é para você se…" é comum
+              como filtro de última hora, no pé da página de venda. Nesta o
+              lugar é logo depois da prova: a pessoa acabou de ver a distância
+              entre o saldo e o disponível desenhada, e a pergunta imediata é
+              "isso é comigo?". Perguntar isso treze seções depois é perguntar
+              para quem já decidiu.
+
+              O componente traz o próprio `TituloSecao`, então o espaçamento
+              vem por `className` e não por uma `<section>` em volta — duas
+              `<section>` aninhadas anunciariam duas seções para quem navega
+              por leitor de tela. */}
+          <ParaQuem className="pt-14 sm:pt-20" />
+
+          {/* ========== 5. A CULPA NÃO É DA SUA DISCIPLINA ============== */}
+          {/* ERA O PÉ DA SEÇÃO 3, sem cabeçalho próprio, e voltou a ser seção.
+
+              Quando o comparativo tinha DUAS colunas ("app do banco ou
+              planilha" contra FINCASH), ele repetia o argumento que a dor
+              acabava de dar, e por isso morava grudado nela sem título. O de
+              três colunas não repete nada: ele separa o banco da planilha, e
+              cada um passa a ganhar onde de fato ganha (o banco tem o dado na
+              fonte e não cobra nada; a planilha aceita qualquer formato e
+              funciona com qualquer banco). Isso é assunto próprio, e assunto
+              próprio tem cabeçalho próprio.
+
+              ⚠️ O COMPARATIVO NÃO É UMA `<table>`, e isso está resolvido dentro
+              do componente: três colunas de veredito não cabem em 390px, e
+              `<table>` trata `width` como mínimo. Ele troca de FORMA por
+              largura, com uma marcação só. A página nunca ganha rolagem
+              lateral por causa dele. */}
+          <section className="pt-14 sm:pt-20">
+            <h2 className="max-w-3xl font-display text-3xl font-semibold leading-[1.12] tracking-tight text-primary sm:text-[2.6rem]">
+              A culpa não é da sua disciplina
+            </h2>
+            <p className="mt-3.5 max-w-3xl text-base leading-relaxed text-muted-foreground">
+              O extrato é um retrovisor: conta o que já aconteceu, quando não dá
+              mais para decidir nada. A planilha faz a conta certa, mas cobra
+              que você lembre de abrir, de repetir o aluguel todo mês e de
+              inventar sozinho um método — e é por isso que a de janeiro quase
+              nunca é aberta de novo em fevereiro.
+            </p>
+
+            <Comparativo className="mt-8" />
+          </section>
           <FaixaComecar frase="A conta que falta é a do que ainda vai sair. O FINCASH faz essa conta desde o primeiro lançamento." />
 
-          {/* ============================== 4. O MÉTODO: CICLO NOVARE ==== */}
+          {/* ============================== 6. O MÉTODO: CICLO NOVARE ==== */}
           {/* Encaixotado em creme, e é o único bloco da página com fundo
               próprio no meio do branco: o método é o que a Novare tem e um app
               de banco não tem, e um respiro de cor faz esse ponto sem precisar
@@ -1400,7 +1612,7 @@ export default function FincashPage() {
             </div>
           </section>
 
-          {/* ============================ 5. O PAINEL, FOTOGRAFADO ====== */}
+          {/* ============================ 7. O PAINEL, FOTOGRAFADO ====== */}
           {/* FAMÍLIA: foto larga com as leituras embaixo. A captura ocupa a
               largura inteira porque é o único lugar da página em que o produto
               aparece por completo: barra lateral, mês, velocímetro e resumo na
@@ -1459,8 +1671,14 @@ export default function FincashPage() {
               </li>
 
               <li className="fin-relevo rounded-3xl border border-border bg-card p-5">
+                {/* ⚠️ O "R$ 533" VEIO DE OUTRO LUGAR DA PÁGINA, e não é
+                    enfeite: era a observação da segunda linha do `ContaAberta`
+                    ("duas delas já venceram sem pagamento, R$ 533"), que saiu
+                    quando a `<Calculo />` tomou o lugar daquela peça. O fato
+                    continua verdadeiro e continua conferível na captura logo
+                    acima — então ele mudou de lugar em vez de ser cortado. */}
                 <p className="font-display text-base font-semibold tabular-nums text-primary">
-                  2 contas atrasadas
+                  2 contas atrasadas, R$ 533
                 </p>
                 <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
                   O resumo do mês aponta o que venceu sem pagamento, com o valor
@@ -1471,7 +1689,7 @@ export default function FincashPage() {
             </ul>
           </section>
 
-          {/* =============== 6. AS TELAS, DA DECISÃO AO BASTIDOR ======== */}
+          {/* =============== 8. AS TELAS, DA DECISÃO AO BASTIDOR ======== */}
           {/* FAMÍLIA: texto de um lado, foto do outro, DUAS VEZES E PONTO.
               Com 21 capturas na pasta, esta é a armadilha fácil da página: dá
               para encher dez seções assim sem escrever uma frase nova, e a
@@ -1493,14 +1711,16 @@ export default function FincashPage() {
                 <h3 className="mt-4 font-display text-xl font-semibold leading-snug text-primary sm:text-2xl">
                   A fatura deixa de ser surpresa
                 </h3>
+                {/* ⚠️ TRÊS FATOS, TRÊS ORAÇÕES, e nenhum deles saiu: o que a
+                    fatura já comprometeu, quantas venceram, e o ciclo por
+                    extenso. O que saiu foi o rodeio em volta deles. */}
                 <p className="mt-3 text-sm leading-relaxed text-muted-foreground sm:text-base">
-                  O susto não vem de esquecer uma compra, vem de as parcelas de
-                  três compras diferentes caírem todas no mesmo mês. A tela abre
-                  com quanto ainda falta pagar, quantas faturas já venceram e
-                  quanto do mês que vem já está comprometido antes de você
-                  comprar qualquer coisa. O ciclo aparece por extenso, porque a
-                  fatura é a única coisa do app cujo período não é o mês do
-                  calendário.
+                  O susto não vem de esquecer uma compra: vem das parcelas de
+                  três compras diferentes caindo no mesmo mês. A tela abre com
+                  quanto falta pagar, quantas faturas venceram e quanto do mês
+                  que vem já está comprometido antes de você comprar qualquer
+                  coisa. O ciclo aparece por extenso: é a única coisa do app
+                  cujo período não é o mês do calendário.
                 </p>
               </div>
               {/* COMPOSIÇÃO 2 DE 4: foto e tela LADO A LADO, alinhadas pela
@@ -1552,10 +1772,9 @@ export default function FincashPage() {
                   Antes de você escrever qualquer número, cada categoria mostra
                   o mínimo, a média e o máximo que você já gastou ali nos
                   últimos seis meses. O que é sempre igual você marca como fixo
-                  e não digita de novo; o que muda todo mês você ajusta. Quem
-                  passou do limite aparece no vermelho com o quanto passou, e o
-                  topo diz quantas linhas estouraram antes de você caçá-las na
-                  lista.
+                  e nunca mais digita. Quem passou do limite aparece em vermelho
+                  com o quanto passou, e o topo já diz quantas linhas
+                  estouraram.
                 </p>
               </div>
 
@@ -1670,7 +1889,7 @@ export default function FincashPage() {
             </div>
           </section>
 
-          {/* ============ 7. O FUTURO DO DINHEIRO: DÍVIDA E PROJEÇÃO ==== */}
+          {/* ============ 9. O FUTURO DO DINHEIRO: DÍVIDA E PROJEÇÃO ==== */}
           {/* O DIFERENCIAL DECLARADO DO PRODUTO, e por isso a única seção com
               forma exclusiva. No concorrente, dívida é um indicador solto no
               painel: quanto você deve. Aqui é um módulo com amortização Price e
@@ -1692,7 +1911,7 @@ export default function FincashPage() {
 
               ⚠️ O CORTE É O QUE IMPEDE A REPETIÇÃO. Posta inteira num quadro,
               a captura daria a mesma família de "texto e tela lado a lado" que
-              as seções 5 e 6 já usam em sequência, e a página tem limite de
+              as seções 7 e 8 já usam em sequência, e a página tem limite de
               duas seguidas. Cortada pela base, ela lê como a tela continuando
               para fora do cartão, que é o que ela de fato faz: o comparativo
               de estratégias e a simulação de aporte estão logo abaixo do que
@@ -1716,15 +1935,29 @@ export default function FincashPage() {
                 <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent-tint text-accent-strong">
                   <TrendingDown className="h-5 w-5" strokeWidth={1.75} />
                 </span>
+                {/* ⚠️ O TÍTULO ERA UMA COMPARAÇÃO, E VIROU UM VERBO.
+                    Dizia "Dívida aqui não é um número no painel, é um plano de
+                    saída" — uma frase sobre a diferença entre este app e o
+                    concorrente, que é assunto do comparativo e não daqui.
+                    Quem chega nesta seção não quer saber o que o FINCASH não é;
+                    quer sair da dívida. O título do Jefferson (11/09/2026) diz
+                    isso com um verbo e um advérbio: SAIR, e MAIS RÁPIDO.
+
+                    As três frases dele entraram inteiras, e o que elas
+                    substituíram foi a versão em torneio da mesma ideia. Nenhum
+                    fato saiu: a ordem de pagamento, o juro de cada ordem, o mês
+                    da última parcela, Price e SAC, e as duas estratégias lado a
+                    lado continuam no parágrafo. */}
                 <h2 className="mt-4 font-display text-2xl font-semibold leading-tight text-primary sm:text-[2rem]">
-                  Dívida aqui não é um número no painel, é um plano de saída
+                  Saiba como sair das dívidas mais rápido
                 </h2>
                 <p className="mt-3.5 text-base leading-relaxed text-muted-foreground">
-                  Saber quanto você deve não muda nada. O que muda é saber em
-                  que ordem pagar, quanto de juro cada ordem custa e em que mês
-                  cai a última parcela. O FINCASH amortiza cada dívida parcela a
-                  parcela, em Price ou SAC, e põe lado a lado as duas
-                  estratégias que funcionam, com o preço de cada uma.
+                  Não basta saber quanto você deve. O FINCASH transforma a sua
+                  dívida em um plano de saída: em que ordem pagar, quanto de
+                  juro cada ordem custa e em que mês cai a última parcela. Cada
+                  dívida é amortizada parcela a parcela, em Price ou SAC, e as
+                  duas estratégias que funcionam ficam lado a lado, com o preço
+                  de cada uma.
                 </p>
               </div>
 
@@ -1877,22 +2110,34 @@ export default function FincashPage() {
                 metade deste argumento, não um assunto novo.
 
                 A FORMA CONTINUA SENDO A QUE ELA TINHA: foto larga com a
-                leitura só em texto. Repetir aqui o trio de cartões da seção 5
+                leitura só em texto. Repetir aqui o trio de cartões da seção 7
                 faria as duas virarem a mesma seção duas vezes — e agora que
                 elas moram juntas, isso seria repetição dentro da mesma
                 rolagem. */}
             <div className="pt-12 sm:pt-16">
             <div className="max-w-2xl">
+              {/* ⚠️ ERA "VER EM SETEMBRO COMO O ANO TERMINA", que descrevia a
+                  MECÂNICA da tela (escolhe um mês, olha para a frente). As duas
+                  frases do Jefferson, de 11/09/2026, dizem o que a pessoa ganha
+                  com isso, e a segunda nomeia a pergunta que ninguém faz em voz
+                  alta: o meu dinheiro vai dar?
+
+                  ⚠️ O QUE SAIU FOI "todo app de finanças mostra o que já
+                  aconteceu", e saiu por redundância e não por ser falso: é
+                  exatamente a primeira linha do comparativo de três colunas,
+                  seis seções acima, onde o banco leva "Sim" e é o único lugar
+                  em que ele leva. Argumento contra o concorrente repetido no
+                  meio de uma seção de produto enfraquece os dois. */}
               <h3 className="font-display text-[1.75rem] font-semibold leading-[1.12] tracking-tight text-primary sm:text-[2.2rem]">
-                Ver em setembro como o ano termina
+                Veja o futuro financeiro antes que ele aconteça
               </h3>
               <p className="mt-3.5 text-base leading-relaxed text-muted-foreground">
-                Todo app de finanças mostra o que já aconteceu. Esta tela mostra
-                os doze meses seguintes com o que você já cadastrou: as contas
-                fixas, as parcelas em aberto e os aportes das metas. Saldo
-                positivo o ano inteiro não é o mesmo que folga, e por isso o
-                destaque é o menor saldo do período, o mês em que um imprevisto
-                doeria mais.
+                Saiba antecipadamente se o seu dinheiro será suficiente para os
+                seus compromissos e objetivos. A tela projeta os doze meses
+                seguintes com o que você já cadastrou: as contas fixas, as
+                parcelas em aberto e os aportes das metas. Saldo positivo o ano
+                inteiro não é o mesmo que folga — por isso o destaque é o menor
+                saldo do período, o mês em que um imprevisto doeria mais.
               </p>
             </div>
 
@@ -1973,7 +2218,7 @@ export default function FincashPage() {
           <FaixaComecar frase="Dívida com data de fim e doze meses à frente: o app calcula os dois com o que você já cadastrou." />
 
 
-          {/* =========================== 8. O ASSISTENTE DE WHATSAPP ==== */}
+          {/* ========================== 10. O ASSISTENTE DE WHATSAPP ==== */}
           {/* ⚠️ A SEÇÃO MAIS DELICADA DA PÁGINA, e agora também a mais alta.
 
               O assistente é o item que mais separa a Novare do concorrente
@@ -2261,7 +2506,100 @@ export default function FincashPage() {
             </div>
           </section>
 
-          {/* ======== 9. A PROVA HUMANA: OS SÓCIOS E A CREDIBILIDADE ==== */}
+          {/* ================================ 11. SEGURANÇA ============= */}
+          {/* ⚠️ SEÇÃO NOVA, e o fato dela não é novo: estava enterrado.
+              "Nenhuma conta bancária conectada" era o item DO MEIO de uma lista
+              de três declarações na seção seguinte, entre "zero comissão" e
+              "uma mensalidade". É o argumento que mais separa este app de todo
+              concorrente que exige Open Finance, e ele tinha peso de nota de
+              rodapé. Pedido do Jefferson em 11/09/2026: destaque próprio. A
+              frase do título é dele, palavra por palavra.
+
+              ⚠️ E ELA É UMA PROMESSA NEGATIVA, o tipo mais fácil de desmentir:
+              basta UMA tela pedindo senha de banco para a página inteira virar
+              mentira. As quatro linhas foram conferidas contra o produto antes
+              de subirem — não existe campo de senha bancária no FINCASH, não
+              existe integração de Open Finance nem agregador, e nada busca
+              movimentação no fundo. A FAQ desta mesma página responde as três
+              do mesmo jeito, e é de propósito: promessa que muda de tamanho
+              entre a vitrine e a resposta é promessa quebrada.
+
+              ⚠️ A QUARTA LINHA NÃO É UM "SEM", E ESSE É O PONTO DELA. Três
+              recusas seguidas fazem a pessoa concluir que vai digitar o extrato
+              inteiro à mão, e a conclusão é falsa: o OFX que o banco exporta
+              entra pela tela de importação. Vender a segurança escondendo o
+              custo dela seria a mesma desonestidade, ao contrário.
+
+              ── POR QUE AQUI, ENTRE O WHATSAPP E OS SÓCIOS ────────────────
+              A seção acima acabou de dizer que um assistente vai ler as suas
+              mensagens, os seus áudios e as fotos dos seus comprovantes. É o
+              ponto exato da página em que alguém pensa "espera, quanto desta
+              minha vida vocês pegam?". A resposta chega na pergunta, e não
+              treze seções depois, dentro de uma lista.
+
+              FAMÍLIA DE LAYOUT: declaração larga com quatro travas em filete,
+              a mesma da fita da ponte — e de propósito: as duas fazem o mesmo
+              trabalho, que é LIMITAR uma promessa, e limite não pede cartão
+              com sombra. */}
+          <section className="pt-14 sm:pt-20">
+            <div className="fin-relevo rounded-3xl border border-border bg-card p-6 sm:p-9">
+              <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent-tint text-accent-strong">
+                <Lock className="h-5 w-5" strokeWidth={1.75} />
+              </span>
+
+              <h2 className="mt-5 max-w-2xl font-display text-2xl font-semibold leading-tight tracking-tight text-primary sm:text-[2rem]">
+                Seus dados financeiros continuam sob o seu controle
+              </h2>
+
+              <p className="mt-3.5 max-w-2xl text-base leading-relaxed text-muted-foreground">
+                O FINCASH não se conecta ao seu banco. Você lança, ele calcula —
+                e é essa recusa, e não uma integração a mais, que faz o app
+                funcionar com qualquer banco brasileiro, inclusive com a conta
+                que nenhum agregador consegue ler.
+              </p>
+
+              <dl className="mt-8 grid divide-y divide-border border-y border-border sm:grid-cols-2 sm:divide-y-0 lg:grid-cols-4 lg:divide-x">
+                {SEGURANCA.map((s) => (
+                  <div
+                    key={s.titulo}
+                    className="py-5 sm:px-5 sm:first:pl-0 lg:first:pl-0"
+                  >
+                    <dt className="font-display text-sm font-semibold text-primary">
+                      {s.titulo}
+                    </dt>
+                    <dd className="mt-1.5 text-xs leading-relaxed text-muted-foreground">
+                      {s.texto}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+
+              {/* ⚠️ QUEM LÊ O QUE VOCÊ LANÇA, ESCRITO AQUI E NÃO SÓ NA FAQ.
+                  A equipe da Novare ABRE os lançamentos de quem assina — é a
+                  regra do banco de dados, e é com eles que a revisão trimestral
+                  é escrita. Uma seção inteira sobre controle de dados que
+                  omitisse isso seria pior que não existir: a pessoa descobriria
+                  depois de pagar, e descobriria sozinha. */}
+              <p className="mt-6 flex items-start gap-3 rounded-2xl border border-border bg-gelo p-4">
+                <ShieldCheck
+                  className="mt-0.5 h-4 w-4 shrink-0 text-accent-strong"
+                  strokeWidth={1.75}
+                />
+                <span className="text-xs leading-relaxed text-muted-foreground">
+                  <span className="font-display font-semibold text-primary">
+                    O que a Novare vê, e por quê.
+                  </span>{" "}
+                  Seus lançamentos ficam na sua conta, com regra de banco de
+                  dados que amarra cada linha ao seu usuário. A equipe pode
+                  abri-los para escrever a revisão trimestral do seu plano: é
+                  para isso, e para mais nada. A casa não vende dado e não
+                  recebe comissão de banco nenhum.
+                </span>
+              </p>
+            </div>
+          </section>
+
+          {/* ======= 12. A PROVA HUMANA: OS SÓCIOS E A CREDIBILIDADE ==== */}
           {/* POR QUE ESTA SEÇÃO EXISTE, e por que ela vem logo depois do
               assistente.
 
@@ -2330,6 +2668,32 @@ export default function FincashPage() {
               da casa entra COLADA NELA, e não solta no texto, porque é o que
               ela é: a legenda do que se está vendo. */}
           <section className="pt-14 sm:pt-20">
+            {/* ══ A FRASE QUE ABRE A SEÇÃO, E ELA É DO JEFFERSON ═════════
+                Palavra por palavra, da revisão de 11/09/2026. Ele escreveu
+                duas sobre o mesmo assunto; esta é a curta, e por ser curta ela
+                ganhou um momento próprio em vez de virar mais um parágrafo
+                dentro do cartão. (A longa — "você não está apenas adquirindo
+                um aplicativo financeiro" — abre a seção de planos, que é onde
+                a pessoa está decidindo exatamente o que compra.)
+
+                ⚠️ ELA NÃO REPETE O `<h2>` DO CARTÃO LOGO ABAIXO, e a diferença
+                é de altura: esta diz o que a CASA faz com os números que o app
+                organiza; o título do cartão diz quem é essa casa. Promessa
+                primeiro, prova depois. Se um dia as duas passarem a dizer a
+                mesma coisa, é esta que sai — o cartão carrega os fatos.
+
+                SEM ASPAS, e de propósito: é a voz da página, não uma citação
+                de terceiro. As únicas aspas desta landing são as dos clientes
+                da consultoria, no fim desta mesma seção, e gastá-las aqui
+                confundiria as duas coisas. */}
+            <p className="mx-auto max-w-3xl text-center font-display text-[1.5rem] font-semibold leading-[1.2] tracking-tight text-primary sm:text-[2rem]">
+              O FINCASH organiza seus números.{" "}
+              <span className="text-accent-strong">
+                A Novare ajuda você a entender o que eles significam
+              </span>{" "}
+              e tomar melhores decisões.
+            </p>
+
             {/* A TEXTURA DA CASA COMO MOLDURA, e só como moldura.
                 É a mesma linguagem do quadro que aparece atrás dos dois na
                 fotografia e do fundo do site oficial: quem chega aqui vindo do
@@ -2342,7 +2706,7 @@ export default function FincashPage() {
                 a textura em força cheia compete com a foto dos sócios, que é a
                 peça que manda nesta seção. */}
             <div
-              className="relative overflow-hidden rounded-[1.75rem] p-2.5 sm:p-4"
+              className="relative mt-9 overflow-hidden rounded-[1.75rem] p-2.5 sm:p-4"
               style={TEXTURA_CASA}
             >
             <span aria-hidden className="absolute inset-0 bg-background/45" />
@@ -2435,23 +2799,34 @@ export default function FincashPage() {
                   Do outro lado do app tem consultor.
                 </h2>
 
+                {/* ⚠️ "MAIS DE CINCO ANOS" E "SUMARÉ" SAÍRAM DAQUI porque
+                    estão na ficha ao lado, na mesma dobra, em linha própria e
+                    com ícone. Ler o mesmo par de fatos duas vezes em dois
+                    centímetros não reforça: ensina a pular o parágrafo. O que
+                    sobrou é o que só o texto corrido diz — quem a casa atende e
+                    com que pergunta essa gente chega. */}
                 <p className="mt-4 text-sm leading-relaxed text-muted-foreground sm:text-base">
-                  A Novare é uma consultoria financeira independente, com mais
-                  de cinco anos de mercado e escritório em Sumaré, São Paulo.
-                  Ela atende de médico e engenheira a atleta, empresário e
-                  influenciador, gente com contas bem diferentes e sempre a
-                  mesma pergunta na entrada: para onde foi o dinheiro do mês
-                  passado. O FINCASH é a ferramenta que ela abriu para quem
-                  quer responder isso sozinho, com clareza e sem chute.
+                  A Novare é uma consultoria financeira independente, e atende
+                  de médico e engenheira a atleta, empresário e influenciador:
+                  contas bem diferentes e sempre a mesma pergunta na entrada —
+                  para onde foi o dinheiro do mês passado. O FINCASH é a
+                  ferramenta que ela abriu para quem quer responder isso
+                  sozinho.
                 </p>
 
+                {/* ⚠️ A DESCRIÇÃO DA REVISÃO TRIMESTRAL SAIU DESTE PARÁGRAFO,
+                    e não da página: ela está duas linhas abaixo, citada de
+                    `ASSINATURA_INCLUI[0]`, na caixa de acento. Dizê-la aqui em
+                    palavras próprias e ali na palavra da fonte era ter duas
+                    versões da mesma promessa a três linhas uma da outra, que é
+                    o jeito mais barato de perder quem compara. A ressalva
+                    final ficou, porque essa a fonte não diz. */}
                 <p className="mt-4 text-sm leading-relaxed text-muted-foreground sm:text-base">
                   O nome da casa vem de renovar, e é literalmente o serviço:
                   quem chega afogado em fatura não precisa de mais um gráfico,
-                  precisa recomeçar a contagem com alguém junto. Por isso a
-                  assinatura inclui uma revisão a cada trimestre, escrita por um
-                  consultor, com o seu nome em cima. Não é um relatório que o
-                  sistema gera às três da manhã.
+                  precisa recomeçar a contagem com alguém junto. E esse alguém
+                  escreve — não é um relatório que o sistema gera às três da
+                  manhã.
                 </p>
 
                 {/* A LINHA CITADA DA FONTE, e ela é citação mesmo: o texto sai
@@ -2468,13 +2843,12 @@ export default function FincashPage() {
                 </p>
 
                 <p className="mt-5 text-sm leading-relaxed text-muted-foreground">
-                  Independente, aqui, é uma regra de caixa antes de ser palavra
+                  Independente, aqui, é regra de caixa antes de ser palavra
                   bonita: a casa não recebe nada de banco, corretora ou gestora
                   por onde o seu dinheiro para. É por isso que o app organiza e
-                  projeta, mas não indica ativo, produto nem fundo, e é por isso
-                  que a revisão comenta o seu plano sem empurrar nada. O escopo
-                  é estreito de propósito, e é o único item desta assinatura que
-                  software nenhum entrega.
+                  projeta, mas não indica ativo, produto nem fundo, e que a
+                  revisão comenta o seu plano sem empurrar nada. É o único item
+                  desta assinatura que software nenhum entrega.
                 </p>
 
                 {/* A PARCERIA COM A NORD. Três linhas separadas por filete
@@ -2583,7 +2957,7 @@ export default function FincashPage() {
                 mesma rolagem.
 
                 FAMÍLIA DE LAYOUT: a citação em coluna, com filete no topo de
-                cada uma e nenhuma caixa. Não repete os cartões da seção 5 nem
+                cada uma e nenhuma caixa. Não repete os cartões da seção 7 nem
                 os painéis da 10, e de propósito não tem foto de cliente:
                 inventar rosto de cliente de consultoria seria a mesma fraude
                 que esta metade recusa. */}
@@ -2657,7 +3031,7 @@ export default function FincashPage() {
 
           <FaixaComecar frase="A assinatura é uma só e libera a casa inteira. Dá para começar agora e decidir depois, dentro da garantia." />
 
-          {/* ================ 10. A PONTE PARA O PLANEJAMENTO ========== */}
+          {/* ================ 13. A PONTE PARA O PLANEJAMENTO ========== */}
           {/* POR QUE ELA VEM LOGO DEPOIS DOS SÓCIOS, e não podia vir antes.
 
               A seção de cima acabou de provar que existe uma pessoa do outro
@@ -2676,7 +3050,7 @@ export default function FincashPage() {
               FAMÍLIA DE LAYOUT: a passagem. Dois painéis com uma costura no
               meio (o lado medido e o lado planejado) e, embaixo, uma fita de
               quatro travas separada por filete. Não repete família nenhuma da
-              página: não é texto-e-foto (as seções 5, 6 e 9 já usam, e o
+              página: não é texto-e-foto (as seções 7, 8 e 12 já usam, e o
               limite de duas seguidas está gasto), não é cartão numerado (é o
               Ciclo), não é tabela de comparativo, não é declaração com número
               grande (é a credibilidade, logo abaixo). Também não tem foto: não
@@ -2699,10 +3073,9 @@ export default function FincashPage() {
               assinatura transformaria o melhor argumento da página em
               pegadinha, e a página inteira se sustenta em não ter nenhuma.
 
-              SEM RÓTULO EM CAIXA ALTA de propósito: eles estão em 4 de 13
-              seções (a 4, a 5, a 6 e a 11), são exceção e não cabeçalho padrão,
-              e o
-              título aqui já diz sozinho do que se trata. */}
+              SEM RÓTULO EM CAIXA ALTA de propósito: eles estão em 5 das 16
+              seções (a 4, a 6, a 7, a 8 e a 14), são exceção e não cabeçalho
+              padrão, e o título aqui já diz sozinho do que se trata. */}
           <section className="pt-14 sm:pt-20">
             <div className="rounded-3xl border border-border bg-card p-6 shadow-subtle sm:p-9">
               <div className="max-w-3xl">
@@ -2710,16 +3083,22 @@ export default function FincashPage() {
                   A revisão do consultor passa a ser escrita sobre o seu mês, e
                   não sobre a sua memória
                 </h2>
+                {/* ⚠️ A LISTA DO QUE ATRAVESSA SAIU DESTE PARÁGRAFO — receitas,
+                    despesas por categoria, dívidas e patrimônio — e está
+                    logo abaixo, no painel da esquerda, item a item e com
+                    tique. Escrita nos dois lugares, ela era a mesma enumeração
+                    duas vezes em meia tela; e a versão em prosa era a pior das
+                    duas, porque uma lista de quatro itens dentro de um
+                    parágrafo de seis linhas não se lê como lista. */}
                 <p className="mt-4 text-sm leading-relaxed text-muted-foreground sm:text-base">
                   Até hoje os dois lados da casa não se falavam. Ao montar o
                   plano, você estimava: gasto uns oitocentos no mercado. E era
                   sobre essa estimativa que o consultor escrevia a revisão do
-                  trimestre. Do outro lado da parede, o FINCASH media o mesmo
-                  gasto lançamento a lançamento. A ponte derruba a parede: você
-                  escolhe um mês e leva para o seu plano as receitas, as
-                  despesas por categoria, as dívidas e o patrimônio daquele mês.
-                  O que a pessoa lê antes de escrever sobre a sua vida deixa de
-                  ser o que você lembra e passa a ser o que aconteceu.
+                  trimestre — enquanto, do outro lado da parede, o FINCASH media
+                  o mesmo gasto lançamento a lançamento. A ponte derruba a
+                  parede: você escolhe um mês e o leva para o seu plano. O que a
+                  pessoa lê antes de escrever sobre a sua vida deixa de ser o
+                  que você lembra e passa a ser o que aconteceu.
                 </p>
               </div>
 
@@ -2858,7 +3237,7 @@ export default function FincashPage() {
             </div>
           </section>
 
-          {/* ============================================ 11. OS PLANOS === */}
+          {/* ============================================ 14. OS PLANOS === */}
           {/* A SEÇÃO QUE A PÁGINA INTEIRA ESTAVA CONSTRUINDO, e ela mudou de
               natureza: era um bloco de OFERTA (um preço, uma lista, um botão)
               e virou uma ESCOLHA entre dois prazos. Quem chega aqui já foi
@@ -2876,7 +3255,7 @@ export default function FincashPage() {
               ── A FORMA, E POR QUE ELA NÃO REPETE NENHUMA DA PÁGINA ────────
               É a única seção com dois cartões IRMÃOS e assimétricos: mesma
               estrutura, superfícies diferentes. Não é o trio de cartões da
-              seção 5, não é o par de estratégias da 7 (que são dois caminhos,
+              seção 7, não é o par de estratégias da 9 (que são dois caminhos,
               não duas compras), não é a passagem costurada da 10. O contraste
               de superfície faz o trabalho que em página de venda costuma ser
               feito com tamanho: o destacado é navy sobre o creme da seção, o
@@ -2898,7 +3277,7 @@ export default function FincashPage() {
               deduzir sozinha não é argumento.
 
               O RÓTULO EM CAIXA ALTA (o `Chapeu`) é o terceiro e último da
-              página, junto com os das seções 4 e 5. Três em treze seções: é
+              página, junto com os das seções 6 e 7. Três em dezesseis seções: é
               exceção, e continua sendo. */}
           <section className="pt-14 sm:pt-20">
             {/* A MESMA MOLDURA DE TEXTURA DA SEÇÃO DOS SÓCIOS, e o segundo e
@@ -2929,14 +3308,31 @@ export default function FincashPage() {
                   Dois prazos. O mesmo produto inteiro.
                 </h2>
 
+                {/* ══ O QUE A PESSOA ESTÁ COMPRANDO, NA VOZ DO SÓCIO ═══════
+                    Frase do Jefferson, 11/09/2026, literal. Ela entra AQUI, e
+                    não em qualquer outra seção, porque este é o parágrafo que
+                    a pessoa lê com o dedo a caminho do botão: o único momento
+                    da página em que "o que é isto que eu estou pagando?" é
+                    uma pergunta ativa, e não retórica.
+
+                    Ela vem em corpo maior e em `text-primary`, e não em cinza
+                    de apoio, porque é uma REDEFINIÇÃO do produto e não um
+                    detalhe dele — abaixo dela o cinza volta ao normal, com o
+                    fato que esta página é obrigada a dizer. */}
+                <p className="mt-3 max-w-2xl font-display text-base font-medium leading-relaxed text-primary sm:text-lg">
+                  Você não está apenas adquirindo um aplicativo financeiro. Está
+                  tendo acesso a uma estrutura para organizar sua vida
+                  financeira, projetar decisões e contar com acompanhamento da
+                  Novare.
+                </p>
+
                 {/* A frase que esta página não pode omitir: assinar o FINCASH
                     é assinar o Workspace. */}
                 <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-                  Não existe plano do FINCASH. Existe a assinatura da Novare, e
-                  ela libera este app junto com todo o resto: o Planejamento
-                  Financeiro, a Íris e as calculadoras da casa. Sem taxa de
-                  entrada, sem fidelidade e sem comissão embutida em produto
-                  nenhum.
+                  Não existe plano do FINCASH: existe a assinatura da Novare, e
+                  ela libera este app junto com o Planejamento Financeiro, a
+                  Íris e as calculadoras da casa. Sem taxa de entrada, sem
+                  fidelidade e sem comissão embutida em produto nenhum.
                 </p>
 
                 {/* ⚠️ O `.map` é o ponto inteiro: os planos, a ordem, os
@@ -3045,7 +3441,7 @@ export default function FincashPage() {
             </div>
           </section>
 
-          {/* ============================ 12. PERGUNTAS FREQUENTES ===== */}
+          {/* ============================ 15. PERGUNTAS FREQUENTES ===== */}
           <section className="pt-14 sm:pt-20">
             <OQueSignifica
               titulo="Perguntas frequentes"
@@ -3132,7 +3528,7 @@ export default function FincashPage() {
             />
           </section>
 
-          {/* ======================================== 13. CTA FINAL ==== */}
+          {/* ======================================== 16. CTA FINAL ==== */}
           <section className="pt-14 sm:pt-20">
             <div
               className="palco-cta relative isolate overflow-hidden rounded-3xl p-7 text-white sm:flex sm:items-center sm:justify-between sm:gap-8 sm:p-10"

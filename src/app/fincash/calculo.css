@@ -1,0 +1,95 @@
+/* ==========================================================================
+   FINCASH — a demonstração do cálculo (`Calculo.tsx`).
+
+   POR QUE NÃO ENTROU NO `vitrine.css`
+   Aquele arquivo é importado pela `<Vitrine />` e só existe na página se a
+   vitrine estiver renderizada nela — está escrito lá, no cabeçalho. A peça do
+   cálculo é a tese da landing e pode acabar sozinha numa dobra sem vitrine
+   nenhuma; amarrar as regras dela à entrega de outro componente é o mesmo
+   defeito, um andar acima. Cada peça carrega o próprio CSS.
+
+   SÃO QUATRO REGRAS, e três delas servem a UM movimento só: a barra sendo
+   medida da esquerda para a direita. Nada aqui pinta informação — as duas
+   barras têm cor, largura e legenda no TSX, e continuam completas com a folha
+   inteira desligada. É isso que autoriza o bloco de `prefers-reduced-motion`
+   do fim a cortar tudo sem tirar um número da página.
+   ========================================================================== */
+
+/* ------------------------------------------------ a barra sendo medida ----
+   A barra não CRESCE: ela é descoberta por uma tampa que sai deslizando para
+   a direita.
+
+   ⚠️ POR QUE NÃO `scaleX(0 → 1)`, que seria o óbvio. A barra é uma régua
+   composta: dois trechos de larguras diferentes, cantos arredondados e a
+   hachura diagonal do trecho comprometido. Escalar o conjunto no eixo X
+   espreme os três: os cantos viram elipses e a hachura chega quase deitada,
+   endireitando só no último quadro. Como a proporção entre os trechos É o
+   argumento da peça, uma proporção que mente durante 800ms é pior do que não
+   animar. A tampa translada e mais nada; o desenho por baixo nunca se deforma.
+
+   A tampa é pintada com `--color-card` porque a peça inteira mora dentro de um
+   cartão branco — ela traz o próprio fundo, justamente para esta cor ser
+   conhecida onde quer que a peça seja encaixada na página. ⚠️ Se um dia a peça
+   passar a viver sobre fundo navy, esta cor tem de acompanhar, senão fica uma
+   lasca branca correndo por cima da barra. */
+.fin-conta-medir {
+  position: relative;
+  overflow: hidden;
+}
+.fin-conta-medir::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: var(--color-card, hsl(0 0% 100%));
+
+  /* O estado de REPOUSO é fora da barra, e a animação parte do zero para cá.
+     Escrito nesta ordem de propósito: quando o `prefers-reduced-motion` lá
+     embaixo apaga a animação, o que sobra é esta linha, e a barra aparece
+     inteira. Se o repouso fosse `translateX(0)`, apagar a animação esconderia
+     a barra — o defeito clássico de animação de entrada sem guarda. */
+  transform: translateX(101%);
+  animation: fin-conta-medir-passa 820ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes fin-conta-medir-passa {
+  from { transform: translateX(0); }
+  to   { transform: translateX(101%); }
+}
+
+/* A segunda barra sai DEPOIS da primeira. As duas têm o mesmo comprimento e
+   cortes diferentes: é essa comparação que a peça vende, e ela só acontece se
+   o olho vir uma, e então a outra. Medidas juntas, viram um gráfico de duas
+   linhas — bonito e mudo. */
+.fin-conta-medir-tarde::after {
+  animation-delay: 300ms;
+}
+
+/* --------------------------------------------------- o trecho com dono ----
+   A hachura do que já está comprometido. Diagonal e apertada: é o rabisco de
+   "área ocupada" de planta baixa, e lê como bloqueio mesmo em preto e branco.
+
+   ⚠️ AS LISTRAS ESCURECEM, NUNCA CLAREIAM. O trecho é `bg-primary` e o vizinho
+   é `bg-accent`; a razão medida entre os dois é 3,61:1, que passa raspando o
+   mínimo de 3:1 para elemento de interface. Listra branca por cima subiria a
+   luminância do navy e derrubaria a razão abaixo do mínimo — listra preta só
+   pode melhorá-la. */
+.fin-conta-dono {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    transparent 0 6px,
+    hsl(220 20% 4% / 0.22) 6px 12px
+  );
+}
+
+/* ==========================================================================
+   MENOS MOVIMENTO.
+
+   As duas barras ficam descobertas e a peça é exatamente a mesma: quatro
+   números, dois cortes, um herói. Esta é a forma em que a maior parte das
+   pessoas vai ver a peça, e ela foi desenhada para essa forma primeiro.
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .fin-conta-medir::after {
+    animation: none;
+  }
+}
