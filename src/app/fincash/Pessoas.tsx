@@ -85,6 +85,34 @@ export const PESSOAS = {
     altura: 1800,
     alt: "Mão segurando um celular com uma conversa do FINCASH no WhatsApp. A pessoa escreve “mercado R$ 280 ontem” e recebe “Lancei R$ 280,00 em Mercado, ontem, na conta Nubank”; pergunta “quanto gastei com alimentação esse mês?” e recebe “Alimentação em setembro: R$ 1.284,60. O seu limite é R$ 1.200, então passou R$ 84,60”; escreve “recebi 5000 de salário” e recebe “Receita de R$ 5.000,00 lançada hoje. Sobra prevista do mês: R$ 1.066,00”.",
   },
+  /**
+   * A EXCEÇÃO À REGRA LÁ DE CIMA, e a única que tem nome próprio.
+   *
+   * Leonardo Freitas e Jefferson Freitas são os sócios da casa, não figurantes:
+   * é a única foto daqui que pode e deve receber legenda, porque a legenda não
+   * inventa prova social — diz quem são as duas pessoas que assinam o produto.
+   * Ela mora na seção 12 (a prova humana), onde a própria página já explica de
+   * onde vem cada fato institucional.
+   *
+   * ⚠️ QUEM É QUEM SE CONFERE, NÃO SE CHUTA. Na imagem, o de óculos à esquerda
+   * é o Jefferson e o careca de terno azul à direita é o Leonardo — batido
+   * contra os retratos legendados do site oficial da casa
+   * (diagnostico.novareapp.com.br/carteira-pontual). Trocar o nome de duas
+   * pessoas reais é o pior erro possível nesta página; se um dia a foto for
+   * substituída e a ordem não puder ser confirmada, a legenda volta a citar os
+   * dois nomes SEM amarrar nome a rosto, como já faz hoje.
+   *
+   * ⚠️ E NADA ALÉM DE NOME E VÍNCULO entra ao lado dela. Cargo, formação,
+   * certificação e tempo de casa não estão escritos em nenhuma fonte que dê
+   * para conferir, e a seção 14 desta mesma página é construída sobre a recusa
+   * de escrever exatamente esse tipo de coisa.
+   */
+  socios: {
+    src: "/fincash/pessoas/socios.webp",
+    largura: 900,
+    altura: 1200,
+    alt: "Dois homens de terno sentados lado a lado a uma mesa de madeira, sorrindo para a câmera, com um quadro abstrato em tons dourados e prateados na parede atrás. À esquerda, um homem de óculos de armação escura e suéter escuro sob o blazer; à direita, um homem careca de terno azul-marinho e camisa branca, com as mãos entrelaçadas sobre a mesa.",
+  },
 } satisfies Record<string, Retrato>;
 
 export type NomePessoa = keyof typeof PESSOAS;

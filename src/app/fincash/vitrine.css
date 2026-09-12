@@ -1,0 +1,249 @@
+/* ==========================================================================
+   FINCASH — camada cenográfica da LANDING.
+
+   POR QUE ESTE ARQUIVO EXISTE, E POR QUE NÃO É O globals.css NEM O fincash.css
+   O `globals.css` serve o Hub inteiro: o que entra lá vira contrato de todas
+   as páginas, e a maior parte do que a landing precisava JÁ ESTÁ LÁ
+   (`.borda-viva`, `.cta-varredura`, `.cta-halo`, `.surgir`, `.moldura-produto`).
+   O `app/fincash.css` é o vocabulário da ÁREA LOGADA e só é importado pelo
+   layout de `/fincash/app` — a landing só o recebe de carona, porque o
+   `Graficos.tsx` o importa. Depender dessa carona seria depender de um gráfico
+   continuar na página.
+
+   Então: o que é NOVO e só da landing mora aqui, e este arquivo é importado
+   pelo `Vitrine.tsx`. ⚠️ CONSEQUÊNCIA: as classes abaixo só existem na página
+   se a `<Vitrine />` estiver renderizada nela. Se um dia a vitrine sair da
+   landing e as classes continuarem em uso, mova o `import "./vitrine.css"`
+   para o componente que sobreviver — nada aqui depende da vitrine, só a
+   entrega do arquivo depende.
+
+   TUDO AQUI É DECORAÇÃO. Nenhuma palavra da página aparece por causa destas
+   regras, e é isso que permite o bloco de `prefers-reduced-motion` do fim
+   desligar o conjunto inteiro sem esconder informação de ninguém.
+
+   ANIMA-SE `transform` E `opacity`, E MAIS NADA. Sombra, largura e posição em
+   keyframe obrigam o navegador a refazer layout/paint a cada quadro; numa
+   página longa de venda isso aparece como travada ao rolar, justo no momento
+   em que a pessoa está decidindo comprar.
+   ========================================================================== */
+
+/* --------------------------------------------------------------- vitrine --
+   O leque de três aparelhos. Estas três classes são USADAS SÓ PELA `Vitrine`:
+   o que dá para dizer em utilitário do Tailwind está no TSX, e só o que o
+   utilitário não alcança (transform composto com guarda de movimento) veio
+   para cá.
+
+   ⚠️ Os laterais NÃO usam `.moldura-produto`: aquela classe já aplica uma
+   perspectiva própria e, somada à rotação do leque, o aparelho entorta em dois
+   eixos e lê como erro de renderização, não como profundidade. */
+.fin-leque-peca {
+  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.fin-leque-esq {
+  transform: rotate(-8deg) translateY(1.25rem);
+}
+.fin-leque-dir {
+  transform: rotate(8deg) translateY(1.25rem);
+}
+
+/* No hover do conjunto o leque ABRE: os laterais giram mais e se afastam. É o
+   único movimento por gesto da peça — três telefones dançando sozinhos roubam
+   a leitura do título que está ao lado. */
+.fin-leque:hover .fin-leque-esq {
+  transform: rotate(-11deg) translate(-0.6rem, 1rem);
+}
+.fin-leque:hover .fin-leque-dir {
+  transform: rotate(11deg) translate(0.6rem, 1rem);
+}
+
+/* ----------------------------------------------------------- 1. relevo ---
+   ONDE USAR: em qualquer card branco da landing que hoje está chapado — os
+   cards de recurso, os passos, a lista de telas de bastidor.
+
+   ESTENDE a escada de sombras do app em vez de inventar outra: o valor vem de
+   `--fin-sombra-card`/`--fin-sombra-alta` quando `app/fincash.css` está
+   carregado, e o literal do fallback é a MESMA sombra, copiada para a landing
+   não ficar sem relevo se um dia o arquivo do app deixar de vir de carona.
+   Tintada no navy: preto puro sobre o fundo azulado da casa vira borda
+   cinza-suja. */
+.fin-relevo {
+  box-shadow: var(
+    --fin-sombra-card,
+    0 1px 2px hsl(215 40% 20% / 0.04),
+    0 10px 28px -22px hsl(215 40% 20% / 0.5)
+  );
+  /* `box-shadow` TRANSICIONA aqui, e nunca entra em keyframe: uma transição de
+     hover é um evento isolado; um keyframe rodando sozinho repinta para
+     sempre, inclusive fora da tela. */
+  transition:
+    transform 0.32s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.fin-relevo:hover {
+  transform: translateY(-3px);
+  box-shadow: var(
+    --fin-sombra-alta,
+    0 2px 4px hsl(215 40% 20% / 0.05),
+    0 20px 44px -24px hsl(215 40% 20% / 0.6)
+  );
+}
+
+/* --------------------------------------------------- 2. borda com luz ----
+   ONDE USAR: no card de destaque de cada seção — o plano anual, a caixa da
+   garantia. Um por seção; dois lado a lado e nenhum é o destaque.
+
+   POR QUE NÃO É A `.borda-viva` DO GLOBALS: aquela é a mesma ideia, mas só
+   acende no HOVER e só em laranja. Esta fica ACESA em repouso e vai do navy ao
+   laranja da marca, porque o destaque de uma landing precisa ser visto por
+   quem está rolando com o dedo e nunca vai passar cursor em coisa nenhuma.
+   O `padding: 1px` com máscara é o truque de anel: pinta a moldura sem cobrir
+   o conteúdo e sem custar uma borda de verdade no cálculo de layout. */
+.fin-anel {
+  position: relative;
+  isolation: isolate;
+}
+.fin-anel::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  pointer-events: none;
+  background: linear-gradient(
+    140deg,
+    hsl(215 50% 23% / 0.45),
+    hsl(16 80% 55% / 0.85) 55%,
+    hsl(215 50% 23% / 0.2)
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+
+  /* ⚠️ NÃO VOLTE PARA `z-index: -1`. O pai é `isolation: isolate`, o que cria
+     um contexto de empilhamento próprio; dentro dele, um filho negativo cai
+     atrás do FUNDO do próprio pai, e como todo card que usa esta classe tem
+     fundo opaco, o anel simplesmente não aparecia — borda cinza do Tailwind e
+     nada mais. Por cima é seguro: a máscara já recorta o miolo, então só
+     sobra 1px de borda, e o `pointer-events: none` acima garante que ele não
+     intercepta clique nenhum. */
+  z-index: 1;
+}
+
+/* ------------------------------------------- 3. entrada ao rolar, em fila --
+   ONDE USAR: na LISTA (o `<ul>`, o `<div class="grid">`), não em cada item.
+
+   NÃO É UMA SEGUNDA `.surgir`: é a `.surgir` do `globals.css`, a mesma
+   duração e a mesma curva, aplicada aos filhos com atraso crescente. A de lá
+   continua sendo a única animação de entrada da casa — aqui só se decide
+   QUANDO cada filho a executa.
+
+   ⚠️ POR QUE NÃO A `.revelar-escada` DO GLOBALS, que faz quase isto: aquela
+   depende do `<RevelarAoRolar />` marcar `data-revelar="pronto"` no <html>, e
+   a landing do FINCASH não monta esse componente. Sem ele `.revelar` não faz
+   nada — por isso esta variante é CSS puro, sem observador. Se um dia a página
+   passar a montar o `RevelarAoRolar`, troque esta classe pela de lá, que
+   dispara na hora certa em vez de disparar no carregamento.
+
+   Para de escalonar no sexto filho de propósito: a partir daí o atraso passa
+   de meio segundo e a lista parece lenta, não coreografada. */
+.fin-escada > * {
+  animation: surgir 560ms cubic-bezier(0.2, 0.7, 0.3, 1) both;
+}
+.fin-escada > *:nth-child(2) { animation-delay: 80ms; }
+.fin-escada > *:nth-child(3) { animation-delay: 160ms; }
+.fin-escada > *:nth-child(4) { animation-delay: 240ms; }
+.fin-escada > *:nth-child(5) { animation-delay: 320ms; }
+.fin-escada > *:nth-child(n + 6) { animation-delay: 400ms; }
+
+/* --------------------------------------------- 4. brilho que varre ------
+   ONDE USAR: no cartão de preço e no botão principal de uma dobra. Uma peça
+   por dobra.
+
+   UMA PASSADA, NÃO UM LAÇO. Brilho em laço numa página de venda lê como banner
+   de anúncio, e a pessoa aprende a ignorar a região inteira. O atraso existe
+   para a passada acontecer DEPOIS de a peça ter aparecido; o `forwards` deixa
+   a lâmina parada fora do quadro para sempre.
+
+   ⚠️ Exige `overflow: hidden` (a lâmina é mais larga que a peça) e fundo
+   opaco: sobre transparente a faixa branca some. */
+.fin-lustro {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+.fin-lustro::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -60%;
+  width: 45%;
+  pointer-events: none;
+  background: linear-gradient(
+    100deg,
+    transparent,
+    hsl(0 0% 100% / 0.35),
+    transparent
+  );
+  transform: skewX(-18deg) translateX(0);
+  animation: fin-lustro-passa 1.1s ease-out 0.7s 1 forwards;
+}
+@keyframes fin-lustro-passa {
+  from { transform: skewX(-18deg) translateX(0); }
+  to   { transform: skewX(-18deg) translateX(420%); }
+}
+
+/* ----------------------------------------------- 5. halo da peça --------
+   ONDE USAR: no `<span aria-hidden>` que fica ATRÁS de uma foto de produto —
+   é o que a `Vitrine` faz. É a mesma luz laranja que o herói navy já joga pelo
+   alto à direita, repetida no tamanho da peça, para a dobra continuar tendo
+   UMA fonte de luz só. Duas luzes de cores diferentes na mesma seção é o que
+   faz a página parecer montada por duas pessoas.
+
+   É `background`, e não `filter: blur()`: borrão de filtro numa área grande
+   que rola é exatamente o custo de GPU que trava a rolagem no celular. */
+.fin-halo {
+  background: radial-gradient(
+    closest-side,
+    hsl(16 85% 55% / 0.28),
+    hsl(215 60% 40% / 0.16) 55%,
+    transparent 78%
+  );
+}
+
+/* ==========================================================================
+   MENOS MOVIMENTO — a guarda, para TODAS as regras acima.
+
+   Nada some: o leque continua aberto (a rotação é POSTURA da peça, não
+   animação — tirá-la mudaria a composição, não o movimento), a escada aparece
+   inteira de uma vez e a lâmina fica fora do quadro. Quem pediu menos
+   movimento no sistema lê a mesma página, sem um único gesto.
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .fin-leque-peca {
+    transition: none;
+  }
+  .fin-leque:hover .fin-leque-esq {
+    transform: rotate(-8deg) translateY(1.25rem);
+  }
+  .fin-leque:hover .fin-leque-dir {
+    transform: rotate(8deg) translateY(1.25rem);
+  }
+  .fin-relevo,
+  .fin-relevo:hover {
+    transform: none;
+    transition: none;
+  }
+  .fin-escada > * {
+    animation: none;
+  }
+  .fin-lustro::after {
+    animation: none;
+    opacity: 0;
+  }
+}
