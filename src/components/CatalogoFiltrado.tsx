@@ -15,8 +15,8 @@ import {
 } from "@/lib/icones";
 import { capaDe, emblemaDe } from "@/lib/capas";
 import { BotaoLampada, ModalApp } from "@/components/ModalApp";
-import { INTRO_FAMILIAS, type Familia } from "@/lib/apps";
-import type { AppLeve } from "@/lib/navegacao";
+import { INTRO_ASSINATURA, INTRO_FAMILIAS, type Familia } from "@/lib/apps";
+import { FILTRO_ASSINATURA, type AppLeve } from "@/lib/navegacao";
 
 /**
  * O catálogo: estrutura limpa (títulos fortes, página direta) com os tiles
@@ -26,7 +26,21 @@ import type { AppLeve } from "@/lib/navegacao";
 
 type Filtro = { chave: string; rotulo: string; total: number };
 
-/** Card dos apps do Workspace: navy com aurora, uma linha. */
+/**
+ * Card dos aplicativos da casa: navy com aurora, uma linha.
+ *
+ * ⚠️ ELE ESTAVA INVISÍVEL, e ninguém tinha visto: a classe `glass-card` só
+ * desenha as duas camadas de luz — fundo é com quem a usa —, e este card
+ * ficou com `text-white` sobre o creme da página em alguma reescrita. Texto
+ * branco em fundo claro. Passou despercebido porque a regra que o escolhia
+ * ("pago sem família") não classificava mais nenhum app: o componente existia
+ * e nunca era montado. Quando a prateleira da assinatura voltou a usá-lo,
+ * apareceram duas faixas em branco no alto do catálogo.
+ *
+ * O navy é o mesmo do palco do `CardPortal`, de propósito: os dois são a
+ * moldura escura da marca, e duas receitas de azul lado a lado leem como
+ * descuido.
+ */
 function CardWorkspace({ app }: { app: AppLeve }) {
   const Icone = iconeDe(app.slug);
 
@@ -34,6 +48,9 @@ function CardWorkspace({ app }: { app: AppLeve }) {
     <div
       className="glass-card rounded-2xl p-5 text-white"
       style={{
+        background:
+          "linear-gradient(160deg, hsl(216 44% 27%) 0%, hsl(218 50% 16%) 60%, hsl(220 55% 12%) 100%)",
+        boxShadow: "inset 0 1px 0 hsl(210 60% 80% / 0.18)",
         "--brilho": "hsl(16 90% 60% / 0.3)",
         "--eleva": "0 22px 48px -18px hsl(215 60% 12% / 0.75)",
       } as CSSProperties}
@@ -62,13 +79,13 @@ function CardWorkspace({ app }: { app: AppLeve }) {
 
   if (app.externo) {
     return (
-      <a href={app.href} target="_blank" rel="noopener noreferrer" className="group block">
+      <a href={app.href} target="_blank" rel="noopener noreferrer" className="group block min-w-0">
         {miolo}
       </a>
     );
   }
   return (
-    <Link href={app.href} className="group block">
+    <Link href={app.href} className="group block min-w-0">
       {miolo}
     </Link>
   );
@@ -132,7 +149,7 @@ function CardApp({ app }: { app: AppLeve }) {
               ? "em breve"
               : app.aberto
                 ? app.chamada
-                : "Incluso no Workspace"}
+                : "Incluso na assinatura"}
           </p>
 
           {/* O benchmark NÃO é renderizado: era anotação interna de
@@ -252,18 +269,27 @@ export function CatalogoFiltrado({
       : "todos",
   );
 
-  const visiveis = useMemo(
-    () => (ativo === "todos" ? apps : apps.filter((a) => a.filtro === ativo)),
-    [apps, ativo],
-  );
+  const visiveis = useMemo(() => {
+    if (ativo === "todos") return apps;
+    // A aba da assinatura atravessa as áreas: ela não filtra por assunto, e
+    // sim por quem paga. Ver `filtrosDoTopo`.
+    if (ativo === FILTRO_ASSINATURA) return apps.filter((a) => a.assinatura);
+    return apps.filter((a) => a.filtro === ativo);
+  }, [apps, ativo]);
 
   const grupos = useMemo(() => {
     if (ativo !== "todos") return null;
     const mapa = new Map<string, AppLeve[]>();
     for (const app of apps) {
-      const lista = mapa.get(app.filtro) ?? [];
+      /* O que a assinatura abre sai da área dele NESTA VISÃO, e só nesta.
+         Se ficasse nos dois lugares, a página inteira mostraria cada produto
+         pago duas vezes ao rolar — e catálogo que repete é catálogo em que
+         não se confia para saber o que existe. Quem procura por assunto
+         clica na aba da área e encontra tudo lá, inclusive os pagos. */
+      const chave = app.assinatura ? FILTRO_ASSINATURA : app.filtro;
+      const lista = mapa.get(chave) ?? [];
       lista.push(app);
-      mapa.set(app.filtro, lista);
+      mapa.set(chave, lista);
     }
     return filtros
       .filter((f) => f.chave !== "todos")
@@ -272,13 +298,26 @@ export function CatalogoFiltrado({
   }, [apps, ativo, filtros]);
 
   function Grade({ lista }: { lista: AppLeve[] }) {
-    const workspace = lista.filter((a) => a.filtro === "workspace");
-    const comuns = lista.filter((a) => a.filtro !== "workspace");
+    /* Os aplicativos com porta própria abrem qualquer prateleira em que
+       apareçam — inclusive a da área deles. É o card largo navy contra o tile:
+       produto tem de parecer produto, e não item de lista, em toda tela em
+       que a pessoa cair. */
+    const produtos = lista.filter((a) => a.assinatura === "app");
+    const comuns = lista.filter((a) => a.assinatura !== "app");
     return (
       <>
-        {workspace.length > 0 && (
-          <div className="grid gap-3 sm:grid-cols-2">
-            {workspace.map((app) => (
+        {/* ⚠️ `grid-cols-1` EXPLÍCITO na grade abaixo, e não é redundância.
+
+            Sem ele, a única coluna do celular é IMPLÍCITA e nasce com largura
+            `auto` — e item de grade `auto` não encolhe abaixo do próprio
+            conteúdo, por mais `truncate` e `min-w-0` que os filhos tenham. O
+            card largo do FINCASH ficava com 537px num viewport de 390, e a
+            página inteira ganhava rolagem lateral. O Tailwind só escreve
+            `minmax(0, 1fr)` nas colunas que você DECLARA: por isso o
+            `sm:grid-cols-2` nunca teve o problema, e o celular sempre teve. */}
+        {produtos.length > 0 && (
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            {produtos.map((app) => (
               <CardWorkspace key={app.slug} app={app} />
             ))}
           </div>
@@ -293,7 +332,7 @@ export function CatalogoFiltrado({
                catálogo chegavam truncadas no telefone. Numa coluna o card
                fica mais largo que alto e o texto cabe inteiro. */
             className={`grid grid-cols-1 gap-3 min-[420px]:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 ${
-              workspace.length > 0 ? "mt-3" : ""
+              produtos.length > 0 ? "mt-3" : ""
             }`}
           >
             {comuns.map((app, i) => (
@@ -340,7 +379,15 @@ export function CatalogoFiltrado({
       {grupos ? (
         <div className="space-y-10">
           {grupos.map((grupo) => {
-            const intro = INTRO_FAMILIAS[grupo.chave as Familia];
+            /* A prateleira da assinatura tem introdução própria: é a única
+               que precisa dizer o que NÃO está ali dentro — que a maior parte
+               do catálogo continua aberta a qualquer um. Sem essa linha, uma
+               seção de produtos pagos no alto da página faz o visitante
+               concluir que o Hub inteiro é pago e ir embora. */
+            const intro =
+              grupo.chave === FILTRO_ASSINATURA
+                ? INTRO_ASSINATURA
+                : INTRO_FAMILIAS[grupo.chave as Familia];
             return (
               <section key={grupo.chave} className="surgir">
                 <h2 className="titulo-secao text-xl sm:text-2xl">

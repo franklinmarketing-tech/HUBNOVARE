@@ -192,10 +192,18 @@ const NOS: No[] = [
     nome: FINCASH.nome,
     chamada: FINCASH.chamada,
     Icone: Wallet,
-    /* Do catálogo, porque `ASSINATURA_INCLUI` não fala dele — ver o aviso no
-       cabeçalho do arquivo. */
+    /* Os extras vêm do catálogo. A promessa da lista de assinatura passou a
+       existir em 12/09/2026, quando o FINCASH virou o produto-âncora e ganhou
+       linha própria em `ASSINATURA_INCLUI` — antes disso a lista não falava
+       dele, e este nó reivindicava nada.
+
+       ⚠️ SEM O `contem("fincash")` A LINHA CAI NO PARA-QUEDAS. O repartidor
+       entrega cada frase de `ASSINATURA_INCLUI` ao primeiro nó que a
+       reconhece, e o que sobra vai para o rodapé "E ainda" — que é o lugar
+       das CONDIÇÕES da compra, não dos produtos. A promessa do FINCASH
+       apareceria duas vezes na mesma peça: no nó dele e no rodapé. */
     extras: FINCASH.pontosFortes,
-    minha: () => false,
+    minha: contem("fincash"),
   },
   {
     chave: "planejamento",

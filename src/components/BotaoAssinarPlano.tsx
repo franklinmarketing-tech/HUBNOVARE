@@ -9,7 +9,11 @@ import {
   type ContextoAssinatura,
   type ObjetivoAssinatura,
 } from "@/components/ModalAssinarPlano";
-import { assinaturaCheckout, type PlanoAssinatura } from "@/lib/assinatura";
+import {
+  ASSINATURA_NOME,
+  assinaturaCheckout,
+  type PlanoAssinatura,
+} from "@/lib/assinatura";
 
 /**
  * Abre o pop-up de assinatura. Fica na landing page, depois da pessoa já ter
@@ -73,7 +77,12 @@ export function BotaoAssinarPlano({
   }`;
   const conteudo = (
     <>
-      {rotulo ?? "Assinar o Workspace"}
+      {/* ⚠️ O PADRÃO SAI DA FONTE, e não de um literal: este é o rótulo de
+          todo botão de assinar que não passa `rotulo` — hoje `/meu-dia`, a
+          `FerramentaAssinante` e a `IrisExtrato`. Cravado, ele continuaria
+          dizendo "Workspace" depois de o produto ter virado o FINCASH, e a
+          casa passaria a vender dois nomes em telas diferentes. */}
+      {rotulo ?? `Assinar o ${ASSINATURA_NOME}`}
       <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
     </>
   );

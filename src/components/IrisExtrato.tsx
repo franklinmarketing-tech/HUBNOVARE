@@ -11,6 +11,7 @@ import {
   Lock,
   TrendingDown,
 } from "lucide-react";
+import { ASSINATURA_NOME } from "@/lib/assinatura";
 import { brl } from "@/lib/calculos";
 import { lerExtrato, pareceOfx, resumirExtrato } from "@/lib/extrato";
 import { RoboIris } from "@/components/RoboIris";
@@ -285,13 +286,13 @@ export function IrisExtrato() {
                 <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">
                   Os números acima continuam sendo calculados aqui, de graça e
                   sem limite. A leitura da Íris — com os achados e o que fazer
-                  — faz parte do Workspace.
+                  — faz parte da assinatura.
                 </p>
                 <Link
                   href="/assinar"
                   className="mt-4 inline-flex items-center gap-2 rounded-xl bg-accent-btn px-4 py-2.5 text-sm font-semibold text-accent-foreground transition-colors hover:bg-accent-strong"
                 >
-                  Assinar o Workspace
+                  Assinar o {ASSINATURA_NOME}
                   <ArrowRight className="h-4 w-4" aria-hidden="true" />
                 </Link>
               </div>

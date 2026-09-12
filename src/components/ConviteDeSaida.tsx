@@ -9,7 +9,7 @@ import {
   ASSINATURA_GARANTIA,
   ASSINATURA_PRECO_ANUAL_MENSAL_ROTULO,
 } from "@/lib/assinatura";
-import { ROTULO_DESCONTO } from "@/lib/consultoria";
+import { ROTULO_DESCONTO_ASSINANTE } from "@/lib/consultoria";
 
 /**
  * O convite que aparece quando a pessoa está indo embora.
@@ -194,7 +194,7 @@ export function ConviteDeSaida() {
             {[
               "Planejamento Financeiro completo",
               "A Íris, a IA que lê seu extrato",
-              `${ROTULO_DESCONTO} na consultoria particular`,
+              `${ROTULO_DESCONTO_ASSINANTE} na consultoria particular`,
             ].map((item) => (
               <li key={item} className="flex items-start gap-2.5 text-sm text-white/85">
                 <Check className="mt-0.5 h-4 w-4 shrink-0 text-accent-claro" />

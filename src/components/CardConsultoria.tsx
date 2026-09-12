@@ -13,8 +13,7 @@ import {
 } from "lucide-react";
 import {
   PRECOS_DEFINIDOS,
-  ROTULO_DESCONTO,
-  precoComDesconto,
+  ROTULO_DESCONTO_ASSINANTE,
   type Consultoria,
 } from "@/lib/consultoria";
 
@@ -74,7 +73,7 @@ export function CardConsultoria({
           </span>
         ) : ASSINATURA_ATIVA ? (
           <span className="rounded-full bg-amber-100 px-2.5 py-1 text-[11px] font-semibold text-amber-800">
-            {ROTULO_DESCONTO}
+            {ROTULO_DESCONTO_ASSINANTE}
           </span>
         ) : null}
       </div>
@@ -96,7 +95,7 @@ export function CardConsultoria({
           {item.isIsca
             ? "Análise Gratuita"
             : PRECOS_DEFINIDOS
-            ? brl(assinante ? precoComDesconto(item.precoCheio) : item.precoCheio)
+            ? brl(item.precoCheio)
             : "Sob consulta"}
         </span>
         <span className="inline-flex items-center gap-1 text-xs font-semibold text-primary transition-transform duration-200 group-hover:translate-x-0.5">

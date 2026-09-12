@@ -13,7 +13,11 @@ import { portais } from "@/lib/categorias";
 import { appsParaBusca } from "@/lib/navegacao";
 import { getPerfil } from "@/lib/perfil";
 import { getNotificacoes } from "@/lib/notificacoes";
-import { ASSINATURA_GARANTIA, ASSINATURA_OFERTA_CURTA } from "@/lib/assinatura";
+import {
+  ASSINATURA_GARANTIA,
+  ASSINATURA_NOME,
+  ASSINATURA_OFERTA_CURTA,
+} from "@/lib/assinatura";
 
 export const metadata: Metadata = {
   title: "Meu dia",
@@ -129,7 +133,7 @@ function ConvitePainel() {
         href="/assinar"
         className="group mt-7 inline-flex items-center gap-2 rounded-xl bg-warning-claro px-5 py-3 text-sm font-bold text-primary transition-colors hover:bg-warning"
       >
-        Assinar o Workspace
+        Assinar o {ASSINATURA_NOME}
         <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
       </Link>
       <p className="mt-3 text-xs text-white/50">

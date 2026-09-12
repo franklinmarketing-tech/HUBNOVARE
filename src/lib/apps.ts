@@ -1,10 +1,27 @@
 /**
- * Catálogo do Novare Workspace: 18 ferramentas em 5 áreas.
+ * Catálogo do Novare Workspace: os aplicativos da casa, as ferramentas e as
+ * consultorias, em quatro áreas.
+ *
+ * ⚠️ NENHUM NÚMERO DE CATÁLOGO SE ESCREVE À MÃO — nem aqui neste comentário,
+ * que já disse "18 ferramentas em 5 áreas" enquanto o array tinha 26 em 4.
+ * Quem precisa contar chama `CONTAGEM`, no fim do arquivo.
  *
  * Cada uma nasce de um benchmark mundial (o `_benchmarkInterno`), para o time ter
  * claro qual padrão precisa ser batido. Fonte única do que aparece no Hub:
  * publicar uma solução nova é adicionar uma entrada aqui e o ícone em
  * `icones.ts` — nenhuma tela precisa mudar.
+ *
+ * ═══ O QUE A ORDEM DESTE ARRAY DECIDE (e o que ela NÃO decide) ═════════════
+ *
+ * DECIDE: a ordem dentro de cada prateleira de `/aplicativos` (o catálogo
+ * agrupa por filtro e preserva a ordem daqui), a ordem da seção "Incluso na
+ * assinatura" e a ordem das exclusivas listadas em `/assinar`.
+ *
+ * NÃO DECIDE: o primeiro card da home. A home (`src/app/page.tsx`) monta o
+ * card do produto-âncora à parte, num componente próprio — mover linhas aqui
+ * não muda nada lá. Foi por isso que este bloco foi escrito: quem receber
+ * "põe o FINCASH na frente" e reordenar só o array vai jurar que fez, e a
+ * home continuará igual.
  */
 
 export type Role = "admin" | "equipe" | "cliente";
@@ -105,7 +122,89 @@ function app(
 }
 
 export const APPS: NovareApp[] = [
-  // ================================================== WORKSPACE (assinatura)
+  // ============================================ O QUE A ASSINATURA ABRE
+  // Os três aplicativos com porta própria — login, estado gravado e visita
+  // recorrente. As ferramentas exclusivas de assinante entram mais abaixo,
+  // depois das gratuitas (ver o bloco delas e o porquê da posição).
+
+  /**
+   * ⚠️ O FINCASH É O PRIMEIRO DO CATÁLOGO, E ISSO É DECISÃO DE DONO —
+   * 12/09/2026. Não reordene sem ler `lib/assinatura.ts`, que registra a
+   * troca por extenso: **o que se assina passou a ser o FINCASH**. Até essa
+   * data a casa vendia "o Workspace" e este app era um item dentro dele;
+   * agora é o contrário, e o Planejamento é o que vem junto.
+   *
+   * POR QUE ELE E NÃO O PLANEJAMENTO: o Planejamento cobra uma trilha de oito
+   * blocos antes de devolver qualquer coisa, e porta de entrada que exige
+   * esforço antes de entregar valor é porta estreita. O FINCASH responde
+   * "posso gastar?" no primeiro dia.
+   *
+   * O QUE QUEBRA SE ALGUÉM MOVER ESTA LINHA PARA BAIXO: o app-âncora deixa de
+   * abrir a prateleira "Incluso na assinatura" em `/aplicativos`, e o catálogo
+   * passa a apresentar como principal um produto que a venda apresenta como
+   * acompanhante. A home NÃO depende desta posição — ela monta o card do
+   * âncora à parte (`components/CardFincashHome.tsx`); mudar um sem o outro é
+   * como as duas telas voltam a discordar.
+   *
+   * `href` aponta para a LANDING, não para `/fincash/app`: quem chega do
+   * catálogo sem assinar precisa ver a oferta antes da tela de login, e quem
+   * já assina entra pela landing em um clique.
+   *
+   * `temTeste` libera qualquer pessoa LOGADA no `podeAbrir` — sem isto, quem
+   * está no teste grátis e já tem direito de usar era empurrado para a página
+   * de venda em vez do produto.
+   */
+  {
+    slug: "fincash",
+    nome: "FINCASH",
+    chamada: "Quanto ainda dá para gastar este mês",
+    descricao:
+      "O dia a dia do dinheiro em um lugar só: contas, lançamentos, contas fixas e orçamento. O painel responde a única pergunta que muda comportamento — posso gastar? —, contando o que ainda vai sair até o fim do mês, não só o que já saiu.",
+    pontosFortes: [
+      "O número do topo é a sobra até o fim do mês, não o gasto do mês",
+      "Contas fixas cadastradas uma vez: fevereiro já abre preenchido",
+      "Orçamento sugerido pelo seu histórico, não por chute",
+      "Funciona com qualquer banco: não há nada para conectar",
+    ],
+    href: "/fincash",
+    /* TODOS, e não mais CASA — 12/09/2026.
+
+       O motivo do CASA era honesto e cumpriu o prazo dele: o app tinha subido
+       no mesmo dia em que ganhou importação de OFX, subcategorias e orçamento
+       fixo/variável, e o SQL das três ainda não tinha rodado em produção.
+       Só que o produto-âncora da casa escondido de cliente é pior: quem
+       assinasse hoje não acharia o app que acabou de comprar.
+
+       O QUE ACONTECE COM CLIENTE SEM PLANO, conferido no código e na tela: o
+       card aparece com cadeado e leva para `/fincash` — a landing, que vende
+       —, e não para `/assinar`. Quem decide isso é `destinoBloqueado`
+       (`lib/navegacao.ts`): produto pago com vitrine própria vai para a
+       vitrine dele. Mandar para `/assinar` seria pior, porque lá a página
+       anuncia o pacote inteiro sem explicar o app.
+
+       ⚠️ O RISCO DO SQL NÃO EVAPOROU, ele só deixou de ser motivo para
+       esconder: se uma tabela faltar, o app mostra `AvisoSQL` em vez de
+       quebrar (ver `lib/fincash/erros.ts`). Rodar as migrações de
+       `supabase/` continua sendo tarefa do dono antes de anunciar. */
+    roles: TODOS,
+    plano: "pago",
+    status: "ativo",
+    familia: "organizacao",
+    _benchmarkInterno: "Meu Planner Financeiro",
+    temTeste: true,
+  },
+  /**
+   * O SEGUNDO, e o lugar dele mudou de significado em 12/09/2026.
+   *
+   * Ele era o âncora — o produto que a casa vendia e o primeiro card da home.
+   * Continua inteiro, continua sendo entregue e continua com landing própria;
+   * o que deixou de ser é o SUJEITO da frase "assine o ___". Hoje ele é o que
+   * vem junto com o FINCASH, pela mesma cobrança.
+   *
+   * A divisão de trabalho entre os dois, que é o que justifica os dois
+   * existirem: o FINCASH responde "posso gastar hoje", o Planejamento responde
+   * "onde eu quero chegar". Um é o mês, o outro é o mapa.
+   */
   {
     slug: "planejamento",
     nome: "Planejamento Financeiro",
@@ -132,50 +231,6 @@ export const APPS: NovareApp[] = [
     status: "ativo",
     familia: "ia",
     _benchmarkInterno: "Monarch Money",
-    temTeste: true,
-  },
-  /**
-   * O outro produto com porta própria: o dia a dia do dinheiro.
-   *
-   * Fica ao lado do Planejamento, e não entre as ferramentas, porque é a
-   * mesma natureza — login, estado gravado e visita recorrente. A divisão de
-   * trabalho entre os dois: o Planejamento responde "onde eu quero chegar", o
-   * Organizador responde "posso gastar hoje". Um é o mapa, o outro é o mês.
-   *
-   * `href` aponta para a LANDING, não para `/fincash/app`: quem chega do
-   * catálogo sem assinar precisa ver a oferta antes da tela de login, e quem
-   * já assina entra pela landing em um clique.
-   *
-   * `temTeste` liga a mesma regra do Planejamento — o app se protege por
-   * dentro, e sem isto o `podeAbrir` empurraria para a página de venda quem
-   * está no teste grátis e já tem direito de usar.
-   */
-  {
-    slug: "fincash",
-    nome: "FINCASH",
-    chamada: "Quanto ainda dá para gastar este mês",
-    descricao:
-      "O dia a dia do dinheiro em um lugar só: contas, lançamentos, contas fixas e orçamento. O painel responde a única pergunta que muda comportamento — posso gastar? —, contando o que ainda vai sair até o fim do mês, não só o que já saiu.",
-    pontosFortes: [
-      "O número do topo é a sobra até o fim do mês, não o gasto do mês",
-      "Contas fixas cadastradas uma vez: fevereiro já abre preenchido",
-      "Orçamento sugerido pelo seu histórico, não por chute",
-      "Funciona com qualquer banco: não há nada para conectar",
-    ],
-    href: "/fincash",
-    /* CASA, e não TODOS, até o Franklin validar com dados reais.
-
-       O app está inteiro e testado, mas subiu ao ar no mesmo dia em que ganhou
-       importação de OFX, subcategorias e orçamento fixo/variável — e o SQL
-       dessas três ainda não rodou no banco de produção. Cliente pagante que
-       abre um app e encontra aviso de tabela faltando não volta.
-
-       Para liberar: troque por `TODOS`. É a única linha que muda. */
-    roles: CASA,
-    plano: "pago",
-    status: "ativo",
-    familia: "organizacao",
-    _benchmarkInterno: "Meu Planner Financeiro",
     temTeste: true,
   },
   {
@@ -261,74 +316,66 @@ export const APPS: NovareApp[] = [
     ],
   }),
 
-  // ================================== INTELIGÊNCIA ARTIFICIAL
-  // O diferencial da casa. Planejamento e Íris estão logo acima, no bloco
-  // do Workspace, porque também são produto próprio.
+  // ══════════════════════════════════════ AS FERRAMENTAS, POR PROBLEMA
+  //
+  // A ORDEM DENTRO DE CADA ÁREA DEIXOU DE SER A DE CRIAÇÃO — 12/09/2026.
+  // Antes era a ordem em que cada uma foi escrita, o que não diz nada a quem
+  // chega. Agora são três regras, nesta prioridade:
+  //
+  //   1. o que mais gente procura vem primeiro — o mesmo ranking de busca que
+  //      escolhe a fileira da home (ver `FERRAMENTAS_CAPA`);
+  //   2. ferramenta que só faz sentido DEPOIS de outra vem logo atrás dela
+  //      (amortização depois do financiamento, seguro-desemprego depois da
+  //      rescisão): a área vira caminho, e não prateleira;
+  //   3. o que abre em OUTRO SITE fica por último, sempre. Clicar ali é sair
+  //      do Hub, e ninguém despede o visitante no meio da lista.
+  //
+  // ⚠️ E AS EXCLUSIVAS DE ASSINANTE FICAM NO BLOCO PRÓPRIO, LÁ EMBAIXO —
+  // depois de todas as gratuitas. Se alguém as trouxer para dentro da área
+  // delas, quem filtra "Vida Financeira" passa a encontrar cinco cadeados
+  // antes da primeira ferramenta aberta, e a promessa da casa é o contrário:
+  // a maior parte do catálogo é aberta a qualquer um.
 
-  // ========================================== ORGANIZAÇÃO
+  // ========================================== VIDA FINANCEIRA
+  // Do mês para a vida: primeiro para onde o dinheiro vai, depois o
+  // compromisso de dez anos, e por fim os índices — que são consulta pontual,
+  // não rotina de ninguém.
   app("organizacao", "orcamento-inteligente", "Orçamento Inteligente", "Cada real com destino", "/ferramentas/orcamento", "YNAB"),
   app("organizacao", "reserva-emergencia", "Reserva de Emergência", "Quanto guardar antes de investir", "/ferramentas/reserva", "PocketGuard"),
+  // A calculadora financeira mais procurada do país — e a que explica por que
+  // as outras importam. Estava perdida no fim do arquivo, sob um título
+  // "SIMULADORES" que não existe em tela nenhuma, longe da área dela.
+  app("organizacao", "juros-compostos", "Juros Compostos", "O tempo trabalhando por você", "/ferramentas/juros-compostos", "Investor.gov"),
+  app("organizacao", "simulador-financiamento", "Financiamento da Casa", "A casa própria de olhos abertos", "/ferramentas/financiamento?tipo=casa", "Rocket Mortgage"),
+  app("organizacao", "financiamento-carro", "Financiamento do Carro", "A parcela e o custo real do veículo", "/ferramentas/financiamento?tipo=carro", "Bankrate"),
+  // Logo atrás dos dois financiamentos: amortizar é o que se faz com um
+  // contrato que já existe. Sozinha, a palavra não diz nada a quem nunca
+  // assinou um.
+  app("organizacao", "simulador-amortizacao", "Simulador de Amortização", "Prazo ou parcela? Veja a diferença", "/ferramentas/amortizacao", "Bankrate"),
   app("organizacao", "correcao-inflacao", "Correção pela Inflação", "Quanto aquele valor vale hoje", "/ferramentas/correcao", "Calculadora do Cidadão (BC)"),
   app("organizacao", "reajuste-aluguel", "Reajuste de Aluguel", "IGP-M ou IPCA, sem erro no contrato", "/ferramentas/reajuste-aluguel", "Calculadora do Cidadão (BC)"),
 
   // ===================================== TRABALHO E SALÁRIO
   // A área de maior procura do Brasil: é o que Mobills e iDinheiro põem
   // em primeiro lugar, e o que faltava aqui.
+  //
+  // A ordem conta uma história de trabalho: o salário do mês, a saída, o que
+  // se recebe depois dela, e só então os direitos do ano.
   app("trabalho", "salario-liquido", "Salário Líquido", "Quanto de fato cai na conta", "/ferramentas/salario-liquido", "Mobills"),
   app("trabalho", "rescisao", "Cálculo de Rescisão", "Confira antes de assinar", "/ferramentas/rescisao", "iDinheiro"),
-  app("trabalho", "ferias", "Férias", "Com o terço e a venda de dias", "/ferramentas/ferias", "Mobills"),
-  app("trabalho", "decimo-terceiro", "13º Salário", "As duas parcelas, sem surpresa", "/ferramentas/decimo-terceiro", "iDinheiro"),
-  // Estava fora do catálogo mas viva: a página de Rescisão linka para ela
-  // ("Você tem direito ao seguro-desemprego"). Quem chegava por ali usava uma
-  // ferramenta que a busca do Hub jurava não existir.
+  // Colada na Rescisão de propósito — e não por afinidade de tema: a página
+  // de Rescisão LINKA para ela ("Você tem direito ao seguro-desemprego"), e
+  // quem acabou de calcular a própria demissão é exatamente quem precisa da
+  // próxima. Ela já esteve fora do catálogo enquanto esse link existia: a
+  // busca do Hub jurava que a ferramenta não existia.
   app("trabalho", "seguro-desemprego", "Seguro-Desemprego", "Valor e quantas parcelas", "/ferramentas/seguro-desemprego", "Gov.br"),
-
-  // ======================================== EXCLUSIVAS DE QUEM ASSINA
-  /**
-   * Oito ferramentas que já existiam no disco e voltaram como benefício da
-   * assinatura — não como calculadora avulsa.
-   *
-   * Elas foram podadas do catálogo grátis em 08/2026 com motivo documentado
-   * no bloco de arquivadas mais abaixo, e a maioria por uma razão só:
-   * "exige lançar cada gasto para sempre", "obriga cadastrar cada cartão
-   * antes de mostrar qualquer número". Isso é veneno para um visitante que
-   * chegou de busca e quer uma resposta em trinta segundos — e é exatamente
-   * o comportamento de quem assina, que volta todo mês de qualquer jeito.
-   *
-   * As cinco primeiras SE ALIMENTAM: Gastos, Assinaturas e Calendário
-   * gravam; Alertas lê os dois últimos; a Central junta os quatro num painel
-   * (ver `useArmazenado` em central/page.tsx). Hoje a Central existe sem
-   * alimentadores e os alimentadores sem destino — religar uma sem as outras
-   * não entrega valor nenhum. Por isso vão juntas ou não vão.
-   *
-   * Não voltou o que foi cortado por motivo que CONTINUA valendo: crédito
-   * caro (fora do foco de construir patrimônio), FGTS (o app da Caixa dá o
-   * número certo), Assistente Financeiro (canibaliza a Íris).
-   */
-  app("organizacao", "controle-gastos", "Controle de Gastos", "Para onde vai o seu dinheiro", "/ferramentas/gastos", "Copilot Money", { plano: "pago" }),
-  app("organizacao", "organizador-assinaturas", "Organizador de Assinaturas", "Cace as cobranças esquecidas", "/ferramentas/assinaturas", "Rocket Money", { plano: "pago" }),
-  app("organizacao", "calendario-financeiro", "Calendário de Contas", "Nenhum vencimento esquecido", "/ferramentas/calendario", "Rocket Money", { plano: "pago" }),
-  app("organizacao", "alertas-vencimento", "Alertas de Vencimento", "O que vence nos próximos 30 dias", "/ferramentas/alertas", "Rocket Money", { plano: "pago" }),
-  app("organizacao", "central-financeira", "Central Financeira", "Sua vida financeira num painel só", "/ferramentas/central", "Monarch Money", { plano: "pago" }),
-  app("ia", "scanner-extratos", "Scanner de Extratos", "Cole o extrato e ele categoriza tudo", "/ferramentas/scanner-extratos", "Copilot Money", { plano: "pago" }),
-  app("investimentos", "dashboard-patrimonial", "Dashboard Patrimonial", "Tudo o que você tem, num painel", "/ferramentas/dashboard-patrimonial", "Monarch Money", { plano: "pago" }),
-  app("investimentos", "raio-x-carteira", "Raio-X da Carteira", "Concentração e risco expostos", "/ferramentas/raio-x", "Morningstar X-Ray", { plano: "pago" }),
+  app("trabalho", "decimo-terceiro", "13º Salário", "As duas parcelas, sem surpresa", "/ferramentas/decimo-terceiro", "iDinheiro"),
+  app("trabalho", "ferias", "Férias", "Com o terço e a venda de dias", "/ferramentas/ferias", "Mobills"),
 
   // ========================================= INVESTIMENTOS
-  /**
-   * As duas únicas ferramentas do catálogo que moram FORA do Hub.
-   *
-   * Continuam no site institucional (novareapp.com.br) porque são iscas de
-   * captação já publicadas lá, com tráfego e formulário de lead próprios —
-   * refazê-las aqui dividiria o mesmo público em dois endereços. O card
-   * avisa que abre noutro site (ver `CatalogoFiltrado`).
-   *
-   * Para trazer qualquer uma para dentro basta apontar o `href` para a rota
-   * local e tirar `externo` — mas isso é decisão de produto (o que fazer com
-   * a página antiga e com os leads que ela ainda capta), não de código.
-   */
-  app("investimentos", "simulador-aposentadoria", "Simulador de Aposentadoria", "Quando viver de renda", `${NOVAREAPP}/ferramentas/calculadora-de-aposentadoria`, "Empower", { externo: true }),
-  app("investimentos", "simulador-cdi", "Simulador CDI", "CDB e renda fixa no líquido", `${NOVAREAPP}/ferramentas/simulador-de-renda-fixa`, "TradingView", { externo: true }),
+  // Primeiro onde o dinheiro do brasileiro efetivamente entra (Tesouro e
+  // renda fixa), depois o que quase ninguém confere (o custo da previdência),
+  // e por fim as duas que abrem noutro site.
   app("investimentos", "tesouro-direto", "Simulador Tesouro Direto", "Selic, prefixado e IPCA+", "/ferramentas/tesouro-direto", "Morningstar"),
   app("investimentos", "rentabilidade-real", "Rentabilidade Real", "O ganho acima da inflação", "/ferramentas/rentabilidade-real", "Portfolio Visualizer"),
   // A ferramenta que só uma casa sem comissão pode publicar: mostra o que
@@ -343,18 +390,58 @@ export const APPS: NovareApp[] = [
       "Sem indicação de produto: a Novare não ganha comissão",
     ],
   }),
+  /**
+   * As duas únicas ferramentas do catálogo que moram FORA do Hub — e por isso
+   * são as duas últimas da área (regra 3 lá em cima).
+   *
+   * Continuam no site institucional (novareapp.com.br) porque são iscas de
+   * captação já publicadas lá, com tráfego e formulário de lead próprios —
+   * refazê-las aqui dividiria o mesmo público em dois endereços. O card
+   * avisa que abre noutro site (ver `CatalogoFiltrado`).
+   *
+   * Para trazer qualquer uma para dentro basta apontar o `href` para a rota
+   * local e tirar `externo` — mas isso é decisão de produto (o que fazer com
+   * a página antiga e com os leads que ela ainda capta), não de código.
+   */
+  app("investimentos", "simulador-cdi", "Simulador CDI", "CDB e renda fixa no líquido", `${NOVAREAPP}/ferramentas/simulador-de-renda-fixa`, "TradingView", { externo: true }),
+  app("investimentos", "simulador-aposentadoria", "Simulador de Aposentadoria", "Quando viver de renda", `${NOVAREAPP}/ferramentas/calculadora-de-aposentadoria`, "Empower", { externo: true }),
 
-  // ============================================ SIMULADORES
-  // O crédito que mais cresce no país: 53% dos brasileiros já usaram,
-  // e o aplicativo nunca mostra a taxa.
-  app("organizacao", "juros-compostos", "Juros Compostos", "O tempo trabalhando por você", "/ferramentas/juros-compostos", "Investor.gov"),
-
-  // =========================================== 31 a 40 · IMOBILIÁRIO
-  app("organizacao", "simulador-financiamento", "Financiamento da Casa", "A casa própria de olhos abertos", "/ferramentas/financiamento?tipo=casa", "Rocket Mortgage"),
-  app("organizacao", "financiamento-carro", "Financiamento do Carro", "A parcela e o custo real do veículo", "/ferramentas/financiamento?tipo=carro", "Bankrate"),
-  app("organizacao", "simulador-amortizacao", "Simulador de Amortização", "Prazo ou parcela? Veja a diferença", "/ferramentas/amortizacao", "Bankrate"),
-
-  // ============================================ 41 a 50 · PATRIMÔNIO
+  // ======================================== EXCLUSIVAS DE QUEM ASSINA
+  /**
+   * Oito ferramentas que já existiam no disco e voltaram como benefício da
+   * assinatura — não como calculadora avulsa.
+   *
+   * ⚠️ ELAS FICAM POR ÚLTIMO NO ARRAY, E ISSO É POSIÇÃO DE PROJETO, não sobra
+   * de arquivo: é daqui que sai a ordem delas na prateleira "Incluso na
+   * assinatura" (`/aplicativos`) e na lista de `/assinar`, e é por estarem
+   * DEPOIS das gratuitas que nenhuma área abre com uma fila de cadeados.
+   *
+   * Elas foram podadas do catálogo grátis em 08/2026 com motivo documentado
+   * no bloco de arquivadas mais abaixo, e a maioria por uma razão só:
+   * "exige lançar cada gasto para sempre", "obriga cadastrar cada cartão
+   * antes de mostrar qualquer número". Isso é veneno para um visitante que
+   * chegou de busca e quer uma resposta em trinta segundos — e é exatamente
+   * o comportamento de quem assina, que volta todo mês de qualquer jeito.
+   *
+   * As cinco primeiras SE ALIMENTAM, e por isso vêm juntas e nessa ordem:
+   * Gastos, Assinaturas e Calendário gravam; Alertas lê os dois últimos; a
+   * Central junta os quatro num painel (ver `useArmazenado` em
+   * central/page.tsx). Hoje a Central existe sem alimentadores e os
+   * alimentadores sem destino — religar uma sem as outras não entrega valor
+   * nenhum. Depois delas vêm as duas de patrimônio, que formam o outro par.
+   *
+   * Não voltou o que foi cortado por motivo que CONTINUA valendo: crédito
+   * caro (fora do foco de construir patrimônio), FGTS (o app da Caixa dá o
+   * número certo), Assistente Financeiro (canibaliza a Íris).
+   */
+  app("organizacao", "controle-gastos", "Controle de Gastos", "Para onde vai o seu dinheiro", "/ferramentas/gastos", "Copilot Money", { plano: "pago" }),
+  app("organizacao", "organizador-assinaturas", "Organizador de Assinaturas", "Cace as cobranças esquecidas", "/ferramentas/assinaturas", "Rocket Money", { plano: "pago" }),
+  app("organizacao", "calendario-financeiro", "Calendário de Contas", "Nenhum vencimento esquecido", "/ferramentas/calendario", "Rocket Money", { plano: "pago" }),
+  app("organizacao", "alertas-vencimento", "Alertas de Vencimento", "O que vence nos próximos 30 dias", "/ferramentas/alertas", "Rocket Money", { plano: "pago" }),
+  app("organizacao", "central-financeira", "Central Financeira", "Sua vida financeira num painel só", "/ferramentas/central", "Monarch Money", { plano: "pago" }),
+  app("ia", "scanner-extratos", "Scanner de Extratos", "Cole o extrato e ele categoriza tudo", "/ferramentas/scanner-extratos", "Copilot Money", { plano: "pago" }),
+  app("investimentos", "dashboard-patrimonial", "Dashboard Patrimonial", "Tudo o que você tem, num painel", "/ferramentas/dashboard-patrimonial", "Monarch Money", { plano: "pago" }),
+  app("investimentos", "raio-x-carteira", "Raio-X da Carteira", "Concentração e risco expostos", "/ferramentas/raio-x", "Morningstar X-Ray", { plano: "pago" }),
 
   // ============================================================ INTERNO
   {
@@ -603,3 +690,23 @@ export const CONTAGEM = {
     return APPS.filter((a) => a.familia && a.status !== "em-breve").length;
   },
 };
+
+/**
+ * A linha que abre a prateleira "Incluso na assinatura" em `/aplicativos`.
+ *
+ * ⚠️ MORA DEPOIS DE `CONTAGEM` POR OBRIGAÇÃO, e não por gosto: ela lê os
+ * getters na hora em que o módulo carrega. Subir este bloco para o meio do
+ * arquivo quebra o import com um erro de inicialização difícil de ler.
+ *
+ * O QUE ELA PRECISA DIZER, e por que não pode ser só elogio ao pacote: esta é
+ * a primeira seção da página, e uma fila de produtos pagos no alto faz o
+ * visitante concluir que o Hub inteiro é pago — que é o contrário da casa. Por
+ * isso a frase termina contando quantas continuam abertas a qualquer um.
+ *
+ * Os três números saem de `CONTAGEM`. Nenhum se escreve à mão: o arquivo
+ * inteiro existe porque cinco telas já anunciaram cinco totais diferentes.
+ */
+export const INTRO_ASSINATURA =
+  `${CONTAGEM.aplicativos} aplicativos com login e ${CONTAGEM.exclusivasAssinante} ferramentas ` +
+  `que só abrem assinando. As outras ${CONTAGEM.ferramentas} são abertas a qualquer um, ` +
+  `e continuam sendo.`;

@@ -47,7 +47,7 @@ import { AvisarQuandoAbrir } from "./AvisarQuandoAbrir";
 export const metadata: Metadata = {
   title: `Assinatura em breve — ${ASSINATURA_NOME}`,
   description:
-    "A assinatura do Workspace Novare está abrindo. Veja os planos, a garantia e o que dá para usar hoje mesmo.",
+    "A assinatura do FINCASH está abrindo. Veja os planos, a garantia e o que dá para usar hoje mesmo.",
   alternates: { canonical: "/assinar/em-breve" },
   /* Fora do Google de propósito: é uma tela de passagem, com prazo de
      validade curto. Indexada, ela sobreviveria à própria utilidade e ainda
@@ -97,7 +97,7 @@ export default function AssinarEmBrevePage() {
             Quanto vai custar
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            Uma assinatura libera tudo: planejamento, FINCASH, Íris e as
+            Uma assinatura libera tudo: o FINCASH, o planejamento, a Íris e as
             ferramentas. Os valores abaixo são os definitivos.
           </p>
 

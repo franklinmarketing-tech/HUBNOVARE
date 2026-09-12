@@ -293,6 +293,85 @@
   }
 }
 
+
+/* ------------------------------------------------- 5. fin-faixa ----------
+   AS FAIXAS DE SEÇÃO — o que esta página não tinha e a `/assinar` tem.
+
+   O PROBLEMA QUE ELA RESOLVE, e é o maior da página: as nove seções depois do
+   herói viviam dentro de UMA coluna de 64rem sobre um degradê contínuo. São
+   26.000px de superfície idêntica. Sem troca de fundo o olho não tem onde
+   marcar "acabou um assunto, começou outro", e a página — que é densa de
+   propósito, porque explica um produto — lê como um documento longo em vez de
+   uma sequência de argumentos. A `/assinar` alterna branco, gelo e navy de
+   borda a borda, e é DAÍ que vem a sensação de as duas serem casas diferentes;
+   não do tamanho do título nem da cor do botão.
+
+   POR QUE `::before` A 100VW, E NÃO REESCREVER O HTML: pôr cada seção numa
+   `<section>` full-bleed com um `<div>` de largura por dentro obrigaria a
+   reindentar duas mil linhas de JSX comentado — um diff que ninguém consegue
+   revisar por uma mudança que é só de fundo. Aqui a faixa é uma camada
+   atrás do conteúdo e a marcação fica exatamente como está.
+
+   ⚠️ `100VW` INCLUI A BARRA DE ROLAGEM, e é por isso que a `.fin-faixas`
+   existe: sem o `overflow-x: clip` no elemento que segura as seções, todo
+   Windows com barra clássica ganha ~15px de rolagem horizontal na página
+   inteira. `clip` e não `hidden` de propósito — `hidden` cria um contêiner de
+   rolagem e mataria qualquer `position: sticky` que venha a morar aqui dentro.
+
+   ⚠️ A FAIXA É `z-index: -1` E A SEÇÃO NÃO PODE SER `isolate`. Se alguém puser
+   `isolate` numa `<section>` com esta classe, a faixa cai atrás do fundo do
+   próprio pai e some. */
+.fin-faixas {
+  overflow-x: clip;
+}
+
+.fin-faixa {
+  position: relative;
+}
+.fin-faixa::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset-block: 0;
+  left: 50%;
+  width: 100vw;
+  transform: translateX(-50%);
+}
+
+/* Branco e gelo: os dois fundos claros que a casa já usa na `/assinar`
+   (`bg-background` e `--color-gelo`). Ficam aqui, e não em classe do Tailwind
+   na `<section>`, porque quem pinta é o pseudo-elemento. */
+.fin-faixa-clara::before { background: var(--color-card); }
+.fin-faixa-gelo::before  { background: var(--color-gelo); }
+
+/* A FAIXA NAVY — a pausa escura, e há UMA na página.
+
+   Ela é o equivalente de borda a borda do que a `/assinar` faz com
+   `<FundoCena>`: degradê navy, uma cena por trás com opacidade baixa e um véu
+   por cima para o texto branco não perder contraste. A cena entra por
+   `background-image` e não por `next/image` porque esta página não manda um
+   byte de JS de aplicação e a arte é pura decoração — um webp servido direto
+   de `public` é o caminho mais barato que existe.
+
+   A ORDEM DAS CAMADAS no `background` é de cima para baixo: primeiro o véu
+   vertical (escuro em cima, onde mora o texto; aberto embaixo, onde a arte
+   aparece), depois a cena, depois o degradê navy que fecha o fundo. É a mesma
+   receita do `FundoCena`, escrita em uma propriedade só. */
+.fin-faixa-navy::before {
+  background-image:
+    linear-gradient(
+      180deg,
+      hsl(216 58% 11% / 0.82) 0%,
+      hsl(216 58% 11% / 0.7) 45%,
+      hsl(216 58% 11% / 0.55) 100%
+    ),
+    url("/cenas/cena-luz.webp"),
+    linear-gradient(160deg, hsl(217 55% 14%) 0%, hsl(216 60% 9%) 55%, hsl(215 62% 7%) 100%);
+  background-size: auto, cover, auto;
+  background-position: center, center, center;
+  background-repeat: no-repeat;
+}
+
 /* ==========================================================================
    MENOS MOVIMENTO — a guarda, para tudo o que se mexe aqui.
 

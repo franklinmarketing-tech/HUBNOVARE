@@ -39,7 +39,7 @@ import {
   PLANO_PRECO_ANUAL_ROTULO,
   PLANO_PRECO_ROTULO,
 } from "@/lib/planejamento/oferta";
-import { ROTULO_DESCONTO } from "@/lib/consultoria";
+import { ROTULO_DESCONTO_ASSINANTE } from "@/lib/consultoria";
 import { falarNoWhatsApp } from "@/lib/contato";
 
 export const metadata: Metadata = {
@@ -162,7 +162,7 @@ const SO_NO_PRO = [
   "Plano de aportes que cabe no seu mês",
   "Relatório completo em PDF, quando quiser",
   `A Íris incluída: a IA que acha o dinheiro que some`,
-  `${ROTULO_DESCONTO} na consultoria particular da Novare`,
+  ROTULO_DESCONTO_ASSINANTE + " na consultoria particular da Novare",
 ];
 
 /** Os selos de confiança — só o que é verdade sobre a Novare. */
@@ -673,14 +673,14 @@ export default function VidaPlanPage() {
 
                   <p className="mt-3 max-w-lg text-sm leading-relaxed text-muted-foreground">
                     É a assinatura da Novare: a mesma mensalidade
-                    libera este app, a Íris, todas as ferramentas e{" "}
-                    {ROTULO_DESCONTO} na consultoria particular. Sem taxa de
+                    libera este app, a Íris, todas as ferramentas e condição de
+                    assinante na consultoria particular. Sem taxa de
                     entrada, sem fidelidade e sem comissão embutida em produto
                     nenhum.
                   </p>
 
                   <ul className="mt-5 flex flex-wrap gap-x-5 gap-y-2">
-                    {["Cancele quando quiser, sem multa", "A Íris incluída", `${ROTULO_DESCONTO} na consultoria`].map(
+                    {["Cancele quando quiser, sem multa", "A Íris incluída", "Condição de assinante na consultoria"].map(
                       (linha) => (
                         <li
                           key={linha}
@@ -748,7 +748,7 @@ export default function VidaPlanPage() {
                 {
                   pergunta: `O que eu recebo pagando ${PLANO_PRECO_ROTULO} por mês (ou ${PLANO_PRECO_ANUAL_ROTULO} por ano)?`,
                   resposta:
-                    `Tudo. Uma assinatura só libera o pacote inteiro: o planejamento completo (retrato, diagnóstico, plano de ação, acompanhamento mensal e relatório em PDF), a Íris sem custo adicional, todas as ferramentas da casa e ${ROTULO_DESCONTO} na consultoria particular. Não existe plano mais caro com mais coisas.`,
+                    `Tudo. Uma assinatura só libera o pacote inteiro: o planejamento completo (retrato, diagnóstico, plano de ação, acompanhamento mensal e relatório em PDF), a Íris sem custo adicional, todas as ferramentas da casa e condição de assinante na consultoria particular. Não existe plano mais caro com mais coisas.`,
                 },
                 {
                   pergunta: "Preciso já ter dinheiro investido para assinar?",

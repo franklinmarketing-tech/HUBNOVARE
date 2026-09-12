@@ -83,11 +83,13 @@ const PROIBIDOS = [
   { nome: "valor do acompanhamento", re: /R\$\s?149/ },
   // Qualquer preço mensal que não seja o aprovado é um segundo plano nascendo.
   { nome: "plano superior inventado", re: /plano (premium|avan[çc]ado|completo|plus|gold)/i },
-  // O desconto do assinante é real e vale 30% (DESCONTO_ASSINANTE), então
-  // pode aparecer onde faz sentido. O que este teste caça é OUTRO número:
-  // desconto inventado numa campanha, cupom de parceiro vazando para tela
-  // pública, promoção que a casa não pratica.
-  { nome: "desconto diferente do praticado", re: /\d{1,2}\s?% ?OFF/i, so: /^30\s?% ?OFF$/i },
+  // ⚠️ ESTA REGRA FICOU MAIS DURA EM 12/09/2026, e de propósito.
+  // Antes ela abria exceção para "30% OFF", porque o desconto do assinante
+  // era um percentual fixo no código. O dono decidiu que a condição é
+  // combinada caso a caso no atendimento — então NENHUM percentual de
+  // desconto pode aparecer em tela pública, nem o antigo. Número publicado
+  // que o atendimento não honra vira discussão na hora do fechamento.
+  { nome: "percentual de desconto em tela pública", re: /\d{1,2}\s?% ?OFF/i },
   { nome: "chamada para assinar", re: /assine j[áa]|assine agora|assinar agora|quero assinar|assinar por/i, podeTerOferta: true },
   { nome: "chamada para comprar", re: /comprar agora|finalizar compra|adicionar ao carrinho|pagar agora/i },
   /* A oferta virou GARANTIA de 7 dias: paga-se e devolve-se. Teste grátis e
@@ -178,10 +180,12 @@ for (const [nome, re] of [
   else falhas.push(`/assinar: não ${nome}`);
 }
 
-// O desconto anunciado tem de ser o que o código pratica (DESCONTO_ASSINANTE).
-// Um número solto na página é a forma mais fácil de prometer o que não se dá.
-if (/30\s?% ?OFF/i.test(tAssinar)) oks++;
-else falhas.push("/assinar: não mostra o desconto de 30% do assinante");
+// ⚠️ A ASSERÇÃO INVERTEU EM 12/09/2026. Antes ela EXIGIA "30% OFF" na
+// /assinar, porque o desconto era um percentual que a casa praticava sempre.
+// Agora a condição é combinada caso a caso, então o que se exige é o
+// contrário: que percentual nenhum apareça ali.
+if (!/\d{1,2}\s?% ?OFF/i.test(tAssinar)) oks++;
+else falhas.push("/assinar: anuncia percentual de desconto, e a condição é caso a caso");
 
 await b.close();
 console.log(`\n${oks} conferências passaram em ${ROTAS.length} rotas`);

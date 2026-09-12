@@ -47,17 +47,23 @@ import {
 } from "@/lib/assinatura";
 import { APPS, CONTAGEM } from "@/lib/apps";
 import { iconeDe } from "@/lib/icones";
-import { ROTULO_DESCONTO } from "@/lib/consultoria";
+import { ROTULO_DESCONTO_ASSINANTE } from "@/lib/consultoria";
 import { falarNoWhatsApp } from "@/lib/contato";
 
+/* ⚠️ O TÍTULO CARREGA A BUSCA, O NOME CARREGA A MARCA — e é de propósito que
+   eles não são a mesma frase. `ASSINATURA_NOME` virou "FINCASH" com a troca de
+   âncora (ver `lib/assinatura.ts`), e ninguém digita "FINCASH" no Google: as
+   palavras que se procuram ("organizar o dinheiro", "planejamento
+   financeiro") migraram para cá, que é onde o buscador lê. Trocar o nome do
+   produto sem fazer essa migração seria sumir do Google de graça. */
 export const metadata: Metadata = {
-  title: `${ASSINATURA_NOME}: sua vida financeira inteira, num lugar só`,
+  title: `Assine o ${ASSINATURA_NOME}: organize o mês e leve a casa inteira`,
   /* Sem "1º hub financeiro do Brasil": é superlativo que não temos como
      comprovar, e claim de pioneirismo sem prova é passivo — não vantagem. */
-  description: `Planejamento financeiro, IA que lê seu extrato e todas as ferramentas da casa. ${ASSINATURA_OFERTA}. ${ASSINATURA_GARANTIA}.`,
+  description: `O app que mostra quanto ainda dá para gastar até o fim do mês — e junto vêm o planejamento financeiro, a IA que lê seu extrato e todas as ferramentas da casa. ${ASSINATURA_OFERTA}. ${ASSINATURA_GARANTIA}.`,
   alternates: { canonical: "/assinar" },
   openGraph: {
-    title: `${ASSINATURA_NOME}: sua vida financeira inteira, num lugar só`,
+    title: `Assine o ${ASSINATURA_NOME}: organize o mês e leve a casa inteira`,
     description: `Tudo o que a Novare construiu, por ${ASSINATURA_PRECO_ANUAL_MENSAL_ROTULO}/mês no plano anual. ${ASSINATURA_GARANTIA}.`,
     url: "/assinar",
     type: "website",
@@ -132,11 +138,23 @@ const VIRADA = [
   },
   {
     antes: "Quem te orienta ganha comissão do que te vende.",
-    depois: `Consultoria com ${ROTULO_DESCONTO} e comissão zero.`,
+    depois: "Consultoria com condição de assinante e comissão zero.",
   },
 ];
 
-/** O caminho, em quatro passos curtos: o medo real é o do trabalho. */
+/** O caminho, em quatro passos curtos: o medo real é o do trabalho.
+ *
+ * ⚠️ A ESCADA COMEÇA PELO FINCASH, e antes começava pelo Planejamento
+ * ("Responda 8 perguntas" → "Receba seu plano"). Não é ordem estética: era a
+ * escada da âncora velha, e ela pedia dez minutos de formulário antes de
+ * devolver a primeira resposta. Com o FINCASH na frente, o primeiro retorno é
+ * o número que a pessoa veio buscar — quanto ainda dá para gastar —, e o
+ * plano de dez anos aparece depois, quando ela já tem motivo para voltar.
+ *
+ * O Planejamento não sumiu da venda: ele está no pacote, na lista da caixa de
+ * oferta e na seção do ecossistema. O que ele perdeu foi o lugar de PRIMEIRO
+ * ESFORÇO exigido de quem acabou de pagar.
+ */
 const PASSOS = [
   {
     icone: CreditCard,
@@ -144,19 +162,21 @@ const PASSOS = [
     texto: `Pagamento pela Hotmart e ${ASSINATURA_GARANTIA_DIAS} dias para desistir e ser devolvido.`,
   },
   {
-    icone: ClipboardList,
-    titulo: "Responda 8 perguntas",
-    texto: "Em português simples, sobre quanto entra e quanto sai. Leva 10 minutos.",
+    icone: Wallet,
+    titulo: "Lance o mês no FINCASH",
+    texto:
+      "Contas fixas e cartões entram uma vez só. O mês seguinte já abre preenchido.",
   },
   {
     icone: Target,
-    titulo: "Receba seu plano",
-    texto: "Nota de saúde financeira, seus objetivos em um número e um prazo.",
+    titulo: "Veja quanto ainda sobra",
+    texto:
+      "O painel conta o que ainda vai sair até o dia 30, não só o que já saiu.",
   },
   {
     icone: Bot,
-    titulo: "Cole seu extrato",
-    texto: "A Íris mostra as tarifas, juros e assinaturas que somem com seu dinheiro.",
+    titulo: "Cole seu extrato na Íris",
+    texto: "Ela mostra as tarifas, juros e assinaturas que somem com seu dinheiro.",
   },
 ];
 
@@ -172,6 +192,17 @@ const PACOTE = [
     nome: "Revisão trimestral com um consultor",
     texto:
       "A cada três meses alguém da Novare lê o seu plano e escreve o que mudou, o que está travando e o próximo passo. A primeira vem no primeiro mês.",
+  },
+  {
+    /* O PRODUTO-ÂNCORA, e o primeiro do bloco de software — a mesma ordem e o
+       mesmo motivo de `ASSINATURA_INCLUI` (ver `lib/assinatura.ts`): o item
+       humano fica no topo porque é o único que a concorrência não copia; o
+       FINCASH lidera o que é tela. Ele faltava nesta lista inteira, o que
+       deixava a página vendendo tudo menos o que a pessoa veio comprar. */
+    emblema: "/icones-3d/dashboard-3d.png",
+    nome: "O FINCASH inteiro",
+    texto:
+      "Contas, lançamentos, cartões, dívidas e metas num lugar só — e no topo o número que muda comportamento: quanto ainda dá para gastar até o fim do mês.",
   },
   {
     emblema: "/icones-3d/icon-vault-3d.png",
@@ -193,7 +224,7 @@ const PACOTE = [
   },
   {
     emblema: "/icones-3d/users-3d.png",
-    nome: `${ROTULO_DESCONTO} na consultoria particular`,
+    nome: ROTULO_DESCONTO_ASSINANTE + " na consultoria particular",
     texto:
       "Consultor de verdade do outro lado, sem comissão de banco. Válido enquanto a assinatura estiver ativa.",
   },
@@ -235,7 +266,7 @@ const CONFIANCA = [
 const NUMEROS = [
   { valor: String(CONTAGEM.calculadoras), rotulo: "ferramentas e calculadoras" },
   { valor: `${ASSINATURA_GARANTIA_DIAS} dias`, rotulo: "de garantia, dinheiro de volta" },
-  { valor: ROTULO_DESCONTO, rotulo: "na consultoria particular" },
+  { valor: "Condição", rotulo: "especial na consultoria particular" },
   { valor: "0%", rotulo: "de comissão de banco" },
 ];
 
@@ -263,11 +294,20 @@ const SELOS = [
 const INCLUI = [
   "Revisão trimestral com um consultor da Novare",
   ASSINATURA_GARANTIA,
+  /* O FINCASH entrou aqui junto com a troca de âncora: a caixa de oferta é o
+     último lugar onde a pessoa lê o que está levando antes de clicar, e ela
+     não mencionava o produto do título da página. */
+  "O FINCASH inteiro, o app do seu mês",
   "Planejamento Financeiro completo",
-  "Íris, a IA que lê seu extrato",
+  /* ⚠️ "SEM LIMITE", e não "a IA que lê seu extrato": a Íris é ABERTA a
+     qualquer um, com teto de leituras (ver `plano` dela em `apps.ts`). Numa
+     lista do que a assinatura entrega, o nome sozinho vende o que a pessoa já
+     tem de graça — e a conta chega no dia em que ela descobre. O que se compra
+     aqui é o teto saindo, que é o que `ASSINATURA_INCLUI` também diz. */
+  "Íris sem limite: leia quantos extratos quiser",
   `${CONTAGEM.exclusivasAssinante} ferramentas exclusivas de assinante`,
   "Todas as calculadoras da casa",
-  `${ROTULO_DESCONTO} na consultoria particular`,
+  ROTULO_DESCONTO_ASSINANTE + " na consultoria particular",
   "Cancele quando quiser, sem multa",
 ];
 
@@ -341,23 +381,46 @@ const porDia = ASSINATURA_PRECO_DIA_ANUAL_ROTULO;
               {/* Dizia "O 1º hub financeiro do Brasil": pioneirismo que não
                   temos como provar, e claim sem prova é passivo. O que
                   está abaixo é verificável — e é o que a pessoa compra. */}
-              Planejamento, IA e ferramentas num lugar só
+              {/* ⚠️ NÃO REPETIR A HEADLINE. Esta pílula chegou a dizer "O
+                  FINCASH e a casa inteira, numa assinatura só" e ficava colada
+                  em "Leve a casa inteira." logo abaixo — no celular, duas
+                  linhas seguidas com a mesma frase. O selo existe para ADIANTAR
+                  o que a headline não cabe dizer: quais são as outras coisas. */}
+              Planejamento, IA e ferramentas vêm junto
             </span>
 
             {/* A headline ocupa a dobra inteira: em tráfego pago, quem chega
                 decide em três segundos se continua lendo. Entra palavra por
                 palavra — ver TituloCine. */}
+            {/* ⚠️ O SUJEITO DA HEADLINE É O FINCASH, e essa é a mudança
+                inteira desta página. Dizia "Seu plano. Sua IA. Seu consultor. /
+                Num Workspace só." — três entregáveis e, no destaque, o nome da
+                ARQUITETURA. Ninguém acorda querendo comprar um workspace;
+                quem chega aqui quer saber se pode gastar até o dia 30.
+
+                O verbo no imperativo ("Assine o FINCASH") é o que a casa
+                decidiu vender; o destaque é o que vem junto, e ele é a segunda
+                metade da mesma frase de propósito — separar as duas em dois
+                parágrafos faria o pacote parecer upsell, que é justamente o
+                que esta casa não vende (existe uma assinatura só).
+
+                A frase é a mesma de `fincash/Pacote.tsx` ("Quem assina o
+                FINCASH leva a casa inteira"), e a repetição é intencional: as
+                duas páginas precisam soar como a mesma oferta para quem vier
+                de uma para a outra. */}
             <TituloCine
-              texto="Seu plano. Sua IA. Seu consultor."
-              destaque="Num Workspace só."
+              texto="Assine o FINCASH."
+              destaque="Leve a casa inteira."
               className="mx-auto mt-6 max-w-4xl font-display text-4xl font-bold leading-[1.06] tracking-tight sm:text-5xl"
             />
 
             <p className="cine mx-auto mt-7 max-w-2xl text-lg leading-relaxed text-white/80 sm:text-xl">
-              Planejamento completo, a Íris lendo seu extrato, {CONTAGEM.calculadoras} calculadoras
-              e consultoria com {ROTULO_DESCONTO}. Por{" "}
-              {ASSINATURA_PRECO_ANUAL_MENSAL_ROTULO} por mês no plano anual —
-              ou {ASSINATURA_PRECO_ROTULO}/mês, sem compromisso.
+              O app que mostra quanto ainda dá para gastar até o fim do mês. E
+              junto: a Íris sem limite de leituras, o Planejamento Financeiro,{" "}
+              {CONTAGEM.calculadoras} calculadoras e condição de assinante na
+              consultoria. Por {ASSINATURA_PRECO_ANUAL_MENSAL_ROTULO} por
+              mês no plano anual — ou {ASSINATURA_PRECO_ROTULO}/mês, sem
+              compromisso.
             </p>
 
             <div className="cine mt-9 flex flex-col items-center gap-4">
@@ -366,7 +429,7 @@ const porDia = ASSINATURA_PRECO_DIA_ANUAL_ROTULO;
                 tamanho="grande"
                 destaque
                 direto
-                rotulo="Assinar o Workspace"
+                rotulo={`Assinar o ${ASSINATURA_NOME}`}
               />
               <p className="text-sm text-white/60">
                 {ASSINATURA_GARANTIA} · cancele quando quiser
@@ -496,7 +559,7 @@ const porDia = ASSINATURA_PRECO_DIA_ANUAL_ROTULO;
               <BotaoAssinarPlano
                 contexto="workspace"
                 direto
-                rotulo="Assinar o Workspace"
+                rotulo={`Assinar o ${ASSINATURA_NOME}`}
               />
             </div>
           </div>
@@ -540,7 +603,7 @@ const porDia = ASSINATURA_PRECO_DIA_ANUAL_ROTULO;
                 contexto="workspace"
                 variante="clara"
                 direto
-                rotulo="Assinar o Workspace"
+                rotulo={`Assinar o ${ASSINATURA_NOME}`}
               />
             </div>
           </div>
@@ -551,7 +614,7 @@ const porDia = ASSINATURA_PRECO_DIA_ANUAL_ROTULO;
           <div className="mx-auto max-w-5xl px-5 py-16 sm:py-20">
             <div className="cine text-center">
               <p className="text-2xs font-semibold uppercase tracking-[0.18em] text-accent-strong">
-                Do zero ao plano
+                Do zero ao mês sob controle
               </p>
               <h2 className="mt-3 font-display text-3xl font-semibold leading-[1.1] tracking-tight text-primary sm:text-[2.6rem]">
                 Quatro passos, menos de 15 minutos
@@ -631,7 +694,7 @@ const porDia = ASSINATURA_PRECO_DIA_ANUAL_ROTULO;
                   contexto="workspace"
                   variante="clara"
                   direto
-                  rotulo="Assinar o Workspace"
+                  rotulo={`Assinar o ${ASSINATURA_NOME}`}
                 />
               </div>
             </div>
@@ -688,6 +751,35 @@ const porDia = ASSINATURA_PRECO_DIA_ANUAL_ROTULO;
             <div className="cortina mt-10 overflow-hidden rounded-3xl">
               <BannerDemo legenda="O app de verdade, sem retoque. Os números do exemplo são fictícios; os seus entram quando você criar sua conta." />
             </div>
+
+            {/* ⚠️ A PONTE PARA A /fincash, E ELA SÓ EXISTE NUM SENTIDO DE
+                PROPÓSITO.
+
+                Antes desta troca de âncora não havia ligação nenhuma daqui
+                para lá: a /fincash apontava para cá ("Ver tudo o que vem
+                junto") e esta página não citava o FINCASH uma única vez — o
+                produto que passou a dar nome à assinatura era o único que não
+                aparecia na página que a vende.
+
+                A ponte é um LINK DE TEXTO, e não um segundo botão, porque a
+                divisão de trabalho entre as duas páginas é o que impede a
+                venda de existir duplicada em dois lugares que depois divergem:
+                a /fincash aprofunda o APP (telas, funções, o mês por dentro);
+                a /assinar vende o PACOTE. Quem já está aqui não precisa voltar
+                um passo para comprar — precisa poder conferir o app antes, se
+                quiser. Um botão de peso igual ao de assinar mandaria a pessoa
+                para fora da página de venda no meio da dobra que mais
+                converte. */}
+            <p className="cine mt-8 text-center text-sm text-muted-foreground">
+              Quer ver o FINCASH por dentro antes?{" "}
+              <Link
+                href="/fincash"
+                className="font-semibold text-accent-strong underline-offset-4 hover:underline"
+              >
+                Conheça o app do seu mês
+                <ArrowRight className="ml-1 inline h-3.5 w-3.5 align-[-0.15em]" />
+              </Link>
+            </p>
           </div>
         </section>
 
@@ -757,7 +849,7 @@ const porDia = ASSINATURA_PRECO_DIA_ANUAL_ROTULO;
             <BotaoAssinarPlano
               contexto="workspace"
               direto
-              rotulo="Assinar o Workspace"
+              rotulo={`Assinar o ${ASSINATURA_NOME}`}
             />
           </div>
         </div>
@@ -774,8 +866,13 @@ const porDia = ASSINATURA_PRECO_DIA_ANUAL_ROTULO;
                 Com quem você está falando
               </h2>
               <p className="mx-auto mt-4 max-w-xl text-base text-muted-foreground">
-                A Novare é consultoria de investimentos. O Workspace é a
-                ferramenta que ela abriu para todo mundo.
+                {/* Dizia "O Workspace é a ferramenta que ela abriu": era a
+                    frase que apresentava o Workspace como O produto. Ele
+                    continua na frase — mas como o LUGAR onde o app mora, que é
+                    o papel que ele passou a ter. */}
+                A Novare é consultoria de investimentos. O FINCASH é a
+                ferramenta que ela abriu para todo mundo, dentro do Workspace
+                onde os apps da casa conversam entre si.
               </p>
             </div>
 
@@ -1091,7 +1188,7 @@ const porDia = ASSINATURA_PRECO_DIA_ANUAL_ROTULO;
                 tamanho="grande"
                 destaque
                 direto
-                rotulo="Assinar o Workspace"
+                rotulo={`Assinar o ${ASSINATURA_NOME}`}
               />
               <p className="text-2xs text-white/60">
                 {ASSINATURA_GARANTIA} · cancele quando quiser

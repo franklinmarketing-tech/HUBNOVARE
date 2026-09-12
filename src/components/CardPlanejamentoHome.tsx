@@ -8,6 +8,23 @@ import {
 import type { EstadoAssinatura } from "@/lib/assinatura-servidor";
 
 /**
+ * ⚠️ FORA DA HOME DESDE 12/09/2026 — ESTE COMPONENTE NÃO ESTÁ MONTADO EM
+ * LUGAR NENHUM. Não é esquecimento, e não foi apagado por um motivo: ele é o
+ * primeiro lugar onde alguém vai procurar "o card do Planejamento na home", e
+ * um arquivo que some não explica nada a quem procura.
+ *
+ * O que aconteceu: o produto-âncora da casa passou a ser o FINCASH (a decisão
+ * está por extenso em `lib/assinatura.ts`), e o primeiro card da home é agora
+ * o `CardFincashHome`. O Planejamento não perdeu nada do que entrega — landing
+ * própria em `/planejamento`, prateleira "Incluso na assinatura" no catálogo,
+ * menu de áreas e busca. O que ele deixou de ser é o sujeito da frase
+ * "assine o ___".
+ *
+ * ⚠️ NÃO O REMONTE AO LADO DO FINCASH sem pensar no preço: dois cards com
+ * valor na mesma dobra leem como dois planos, e a casa tem uma assinatura só.
+ * Se um dia o âncora voltar a ser este produto, o caminho é trocar um pelo
+ * outro em `src/app/page.tsx` — não somar os dois.
+ *
  * O Planejamento Financeiro como PRIMEIRO card da home, na mesma forma
  * palco + rodapé dos cards de área — mas no laranja da marca, porque é o
  * único produto que se compra. O rodapé muda conforme a assinatura.

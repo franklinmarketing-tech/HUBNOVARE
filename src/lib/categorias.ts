@@ -78,11 +78,26 @@ export function portais(role: Role): Portal[] {
 
   return ORDEM_FAMILIAS.map((familia) => {
     const daArea = visiveis.filter((a) => a.familia === familia);
+    /**
+     * O CARD CONTA SÓ O QUE ESTÁ ABERTO — e a razão está estampada nele
+     * mesmo: o canto do cartão diz "Grátis".
+     *
+     * Enquanto isto contava a área inteira, "Vida Financeira · Grátis ·
+     * 14 ferramentas" somava o FINCASH e as cinco exclusivas de assinante.
+     * Seis dos catorze pediam pagamento, e a pessoa só descobria depois de
+     * entrar. Número e selo agora dizem a mesma coisa, e quem chegar lá
+     * encontra MAIS do que o card prometeu — que é o erro certo de cometer.
+     *
+     * ⚠️ `itens` continua com a área INTEIRA, de propósito: o menu de áreas
+     * (`MenuAreas`) mostra os pagos com cadeado, e esconder deles o que a
+     * assinatura abre seria esconder a oferta de quem está procurando.
+     */
+    const abertos = daArea.filter((a) => a.plano !== "pago");
     return {
       chave: familia,
       titulo: FAMILIAS[familia],
       ...CONFIG[familia],
-      total: daArea.length,
+      total: abertos.length,
       /**
        * Como chamar o que está dentro desta área.
        *
@@ -91,11 +106,14 @@ export function portais(role: Role): Portal[] {
        * conta, o rótulo passa a ser "itens": é honesto sem precisar de dois
        * números num card que só tem espaço para um.
        */
-      rotuloTotal: daArea.some((a) => a.tipo === "servico")
+      rotuloTotal: abertos.some((a) => a.tipo === "servico")
         ? "itens"
         : "ferramentas",
-      // Dois, não três: o terceiro ícone só poluía a capa do card.
-      destaques: daArea.slice(0, 2).map((a) => a.slug),
+      /* Dois, não três: o terceiro ícone só poluía a capa do card.
+         Saem dos ABERTOS pelo mesmo motivo do total — o ícone é a cara de um
+         cartão que se anuncia grátis, e a cara não pode ser a de um produto
+         pago. */
+      destaques: abertos.slice(0, 2).map((a) => a.slug),
       itens: daArea.map((a) => ({
         slug: a.slug,
         nome: a.nome,

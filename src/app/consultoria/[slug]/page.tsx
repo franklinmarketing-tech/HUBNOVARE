@@ -45,7 +45,7 @@ import {
   buildTrackingUrl,
   consultoriaPorSlug,
   temVideoReal,
-  ROTULO_DESCONTO,
+  ROTULO_DESCONTO_ASSINANTE,
 } from "@/lib/consultoria";
 import { falarNoWhatsApp } from "@/lib/contato";
 
@@ -588,7 +588,7 @@ export default async function ProdutoPage({
             <div className="flex flex-wrap items-center justify-between gap-5">
               <div className="min-w-0 max-w-xl">
                 <p className="text-2xs font-semibold uppercase tracking-[0.14em] text-accent-strong">
-                  {ROTULO_DESCONTO} para assinante
+                  {ROTULO_DESCONTO_ASSINANTE}
                 </p>
                 <h2 className="mt-2 font-display text-2xl font-bold tracking-tight text-primary">
                   Quem assina o Workspace paga menos aqui

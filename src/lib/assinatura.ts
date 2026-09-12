@@ -1,5 +1,5 @@
 /**
- * O Workspace Novare — a única assinatura da casa.
+ * A assinatura do FINCASH — a única assinatura da casa.
  *
  * A regra do negócio, em uma frase: **uma assinatura libera tudo** (o valor
  * mora em `ASSINATURA_PRECO`/`ASSINATURA_PRECO_ANUAL`, logo abaixo — não
@@ -9,11 +9,40 @@
  * Planejamento, Íris e as ferramentas. Quem paga por ano paga menos por mês,
  * e é só isso que muda.
  *
- * O QUE MUDOU, e é a decisão mais importante deste arquivo: a assinatura
- * passou a incluir uma **revisão trimestral escrita por um consultor**. Antes
- * era só software mais desconto na consultoria — e software com IA deixou de
- * ser diferencial no dia em que qualquer chatbot passou a montar um plano de
- * graça. O que um chatbot não faz é assinar embaixo.
+ * ═══ O PRODUTO-ÂNCORA MUDOU (12/09/2026) ═══════════════════════════════════
+ *
+ * Decisão do dono, registrada aqui para ninguém reverter sem saber o que está
+ * revertendo: **o que se assina passou a ser o FINCASH**. Até esta data a casa
+ * vendia "o Workspace" e o FINCASH era um app dentro dele; agora é o
+ * contrário. Assina-se o app do mês, e junto vêm a Íris sem limite, o
+ * Planejamento, as ferramentas exclusivas, a revisão trimestral escrita por um
+ * consultor e a condição especial na consultoria.
+ *
+ * ⚠️ O QUE **NÃO** MUDOU — e é o que torna esta virada barata: o preço (os
+ * dois inteiros em centavos logo abaixo), a garantia, os dois prazos e a
+ * ENTREGA. Ninguém passa a receber mais nem menos do que recebia ontem. Mudou
+ * o NOME do que se compra e a ORDEM em que as coisas são apresentadas.
+ *
+ * POR QUE TROCAR A ÂNCORA: o Planejamento cobra uma trilha de perguntas antes
+ * de devolver qualquer coisa, e porta de entrada que exige esforço antes de
+ * entregar valor é porta estreita. O FINCASH responde "posso gastar?" no
+ * primeiro dia de uso. Quem entra pelo que resolve hoje é quem continua por
+ * perto no dia do plano de dez anos.
+ *
+ * ⚠️ O WORKSPACE NÃO SUMIU, e confundir as duas coisas é o erro fácil daqui
+ * em diante: ele continua existindo e continua sendo entregue — é o lugar onde
+ * os apps moram e onde o que você responde num aparece no outro. O que ele
+ * deixou de ser é o PRODUTO À VENDA. Em texto de venda, "Workspace" vira um
+ * dos entregáveis; nunca o sujeito da frase "assine o ___".
+ *
+ * A REVISÃO TRIMESTRAL — a decisão anterior, que continua de pé: a assinatura
+ * inclui uma **revisão trimestral escrita por um consultor**. Antes era só
+ * software mais desconto na consultoria — e software com IA deixou de ser
+ * diferencial no dia em que qualquer chatbot passou a montar um plano de
+ * graça. O que um chatbot não faz é assinar embaixo. Foi por isso que ela
+ * abria `ASSINATURA_INCLUI`, e é por isso que ela continua abrindo mesmo
+ * depois da troca de âncora: a âncora mudou qual SOFTWARE lidera, não o fato
+ * de o item humano ser o único que a concorrência não copia numa tarde.
  *
  * O ESCOPO é estreito de propósito: consultoria FINANCEIRA — organizar,
  * projetar, priorizar. A revisão comenta o plano da pessoa; NÃO indica ativo,
@@ -36,12 +65,22 @@
 export const ASSINATURA_ATIVA = true;
 
 /**
- * O nome lidera pelo que a pessoa procura ("planejamento financeiro") e
- * carrega o diferencial ("com IA"). "Workspace" descrevia a arquitetura do
- * produto, não o que o cliente compra — quem busca solução para o próprio
- * dinheiro não digita "workspace".
+ * O NOME DO QUE SE COMPRA. Hoje é o FINCASH — ver a troca de âncora no topo.
+ *
+ * Já foi "Planejamento Financeiro com IA", que liderava pelo que a pessoa
+ * digita no Google. O argumento continua válido e não foi esquecido: ninguém
+ * busca "FINCASH" nem "workspace". O que mudou foi ONDE esse argumento é
+ * atendido — a descoberta mora no `title` e na `description` de cada página,
+ * que seguem escritos com as palavras que se procuram ("organizar o dinheiro",
+ * "planejamento financeiro"); esta constante é o NOME PRÓPRIO do produto, o
+ * que a pessoa vê no checkout e o que ela diz quando fala de nós.
+ *
+ * ⚠️ ELE ENTRA EM FRASES PRONTAS: "Assinar o ___", "Quero assinar o ___".
+ * Por isso é só a marca, sem "Assinatura" nem "Plano" na frente — qualquer
+ * prefixo aqui produz "Assinar o Plano FINCASH" em três telas de uma vez
+ * (`ModalAssinarPlano`, `/assinar` e a mensagem de WhatsApp).
  */
-export const ASSINATURA_NOME = "Planejamento Financeiro com IA";
+export const ASSINATURA_NOME = "FINCASH";
 
 const brl = (v: number) =>
   v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -510,6 +549,57 @@ export const ASSINATURA_PILARES = [
  * sozinho: desceu, e ganhou o motivo pelo qual ele importa ("inclusive para
  * outro consultor" prova que a casa não prende cliente).
  *
+ * ═══ O FINCASH ENTROU NA LISTA, EM SEGUNDO — E O SEGUNDO É A DECISÃO ═══════
+ *
+ * Ele não estava aqui, e a ausência tinha motivo escrito: esta lista foi
+ * redigida para quem chegava pelo Planejamento, e quem chega pelo
+ * Planejamento não compra um app de mês. Com a troca de âncora (ver o topo do
+ * arquivo) esse motivo caducou — a lista agora é lida por quem chegou pelo
+ * FINCASH, e um pacote que não menciona o produto que a pessoa veio comprar
+ * parece pacote de outra coisa.
+ *
+ * POR QUE SEGUNDO E NÃO PRIMEIRO, que era o lugar "óbvio" da âncora: porque
+ * a primeira posição não é a do produto mais importante, é a do argumento
+ * mais forte — e esses dois não são a mesma coisa. A revisão trimestral
+ * continua sendo o único item que não é software, o único que um concorrente
+ * não copia numa tarde e o único que responde "por que não uso um chatbot de
+ * graça". Ceder o topo para o FINCASH trocaria o argumento que ninguém mais
+ * tem pelo argumento que todo app de finanças faz.
+ *
+ * O que a âncora conquistou foi o topo do BLOCO DE SOFTWARE: o FINCASH passa
+ * à frente da Íris e do Planejamento, que é onde a ordem diz "este é o
+ * produto". A Íris perdeu essa posição sem perder força — ela segue logo
+ * abaixo, e segue sendo o item que devolve dinheiro no primeiro uso.
+ *
+ * ⚠️ E TEM UM EFEITO FORA DAQUI, que é o motivo real de o segundo lugar ser
+ * mais barato que o primeiro: `fincash/Pacote.tsx` reparte esta lista entre os
+ * nós da peça e `fincash/page.tsx` abre só os SEIS PRIMEIROS itens no cartão
+ * de preço. Ambos os arquivos declaram por escrito que a revisão abre a lista.
+ * Mantê-la no topo é o que faz esta mudança não reescrever, de longe, duas
+ * peças que já estão no ar.
+ *
+ * ⚠️⚠️ PENDÊNCIA ABERTA, DE UMA LINHA, E ELA ESTÁ VISÍVEL EM PRODUÇÃO:
+ *
+ * `fincash/Pacote.tsx` tem um nó "fincash" com `minha: () => false` — escrito
+ * quando o FINCASH não morava nesta lista e portanto não havia o que
+ * reivindicar. Com o item novo aqui, ele não é reivindicado por nó nenhum e
+ * cai no para-quedas "E ainda" do rodapé da peça, que é onde moram as
+ * CONDIÇÕES da compra (garantia, cancelamento, consultoria) — duplicando, a
+ * três centímetros de distância, o nó FINCASH que está logo acima.
+ *
+ * Isso não é acidente do repartidor: é o comportamento que ele documenta por
+ * escrito ("item que nenhum nó reivindicar aparece AQUI, e não some... a peça
+ * pediu, por escrito, na própria tela"). O conserto é o que ele mesmo
+ * prescreve — dar o nó ao item:
+ *
+ *     fincash/Pacote.tsx:198   minha: () => false
+ *                         →    minha: contem("fincash"),
+ *
+ * Não foi feito aqui porque `src/app/fincash/` estava congelado (a landing
+ * acabara de ser reestruturada e está no ar). Quem descongelar, faz essa
+ * linha ANTES de publicar — senão a peça anuncia o produto-âncora no rodapé
+ * das letras miúdas.
+ *
  * Saiu da lista: "Novare News e indicadores ao vivo". Selic e IPCA ao vivo
  * existem em qualquer app de banco — ocupava uma linha sem convencer ninguém
  * e diluía os itens fortes. O conteúdo continua no ar, só não é argumento de
@@ -524,6 +614,13 @@ export const ASSINATURA_INCLUI = [
   /* Primeiro da lista porque é o único item que não é software — e é o que
      responde "por que não uso um chatbot de graça". */
   "Revisão trimestral do seu plano, escrita por um consultor da Novare",
+  /* O produto-âncora, e o primeiro do bloco de software — ver o bloco acima.
+     A promessa é a do próprio app ("quanto ainda dá para gastar", e não
+     "quanto você já gastou"), porque é a única que o concorrente de prateleira
+     não faz. Escrita à mão, e não lida de `apps.ts`, pelo mesmo motivo de
+     `{EXCLUSIVAS}` mais abaixo: este arquivo é fonte pura e importar o
+     catálogo criaria acoplamento. */
+  "O FINCASH inteiro: quanto ainda dá para gastar até o fim do mês, com contas, cartões, dívidas e metas no mesmo lugar",
   "Íris ilimitada: leia quantos extratos quiser, todo mês",
   "Seu Marco Horizonte calculado — o número que você precisa atingir, com prazo",
   "Plano de ação com valor e prazo: o que fazer primeiro, segundo, terceiro",
@@ -535,7 +632,32 @@ export const ASSINATURA_INCLUI = [
      uma vez. O marcador é substituído em `/assinar`. */
   "{EXCLUSIVAS} ferramentas exclusivas de assinante: seus gastos, contas e assinaturas conversando entre si",
   "Todas as calculadoras da casa, com as tabelas oficiais de 2026",
-  "Desconto na consultoria particular da Novare",
+  /* ⚠️ SEM PERCENTUAL, E A AUSÊNCIA DO NÚMERO É A INFORMAÇÃO.
+
+     O dono confirmou em 12/09/2026: o desconto na consultoria existe, mas é
+     COMBINADO CASO A CASO — o escopo de um atendimento de gente não cabe numa
+     tabela, e já não cabia quando `/consultoria/[slug]` passou a dizer que o
+     valor sai na conversa. Um número aqui seria a casa se amarrando, na peça
+     de venda, a uma condição que o atendimento não garante.
+
+     ⚠️ E JÁ VALE PARA O SITE INTEIRO — fechado no mesmo dia, nos quatro
+     lugares de uma vez, que era a condição para não deixar a página dizendo
+     um número que esta lista não diz:
+       • `consultoria.ts` perdeu o `DESCONTO_ASSINANTE`, o `ROTULO_DESCONTO`
+         ("30% OFF") e o `precoComDesconto()`. Sobrou `ROTULO_DESCONTO_ASSINANTE`,
+         que é texto, não conta;
+       • `/assinar`, `/planejamento`, `/consultoria/[slug]`, `CardConsultoria`
+         e `ConviteDeSaida` passaram a dizer "condição de assinante";
+       • `testar-nada-a-venda.mjs` INVERTEU a asserção: antes exigia "30% OFF"
+         na `/assinar`, agora exige que percentual nenhum apareça lá.
+
+     O `precoComDesconto` nunca chegou a calcular nada em tela: `PRECOS_DEFINIDOS`
+     é `false` e todo preço de consultoria sai como "Sob consulta". O desconto
+     era rótulo, não conta — o que torna a remoção barata e a volta cara.
+
+     ⚠️ SE UM DIA VOLTAR UM PERCENTUAL, ele volta junto com o preço cheio de
+     referência. Desconto sem preço de referência não é informação, é adjetivo. */
+  "Condição especial na consultoria particular da Novare, combinada no atendimento",
   `${ASSINATURA_GARANTIA_DIAS} dias de garantia: não gostou, devolvemos o valor`,
   "Cancele quando quiser, sem multa nem fidelidade",
 ];

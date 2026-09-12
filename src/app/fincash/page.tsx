@@ -66,6 +66,10 @@ import { Cabecalho } from "@/components/Cabecalho";
 import { RodapeNovare } from "@/components/RodapeNovare";
 import { OQueSignifica } from "@/components/OQueSignifica";
 import { Chapeu, Etapa, TituloSecao } from "@/components/SecoesVenda";
+/* Apelidado porque esta página tem um `Icone3D` PRÓPRIO, logo abaixo: o
+   daqui conhece os seis desenhos do FINCASH pelo nome e sabe quando pôr o
+   chip branco do navy; o de lá desenha o halo. O daqui chama o de lá. */
+import { Icone3D as Icone3DHalo } from "@/components/Icone3D";
 import {
   ASSINATURA_ANUAL_DESCONTO_ROTULO,
   ASSINATURA_ANUAL_ECONOMIA_MESES_ROTULO,
@@ -805,7 +809,13 @@ function BotaoComecar({
 function FaixaComecar({ frase }: { frase: string }) {
   return (
     <div className="pt-12 sm:pt-16">
-      <div className="fin-anel flex flex-col items-start gap-5 rounded-3xl border border-border bg-gelo p-6 sm:flex-row sm:items-center sm:justify-between sm:gap-8 sm:p-7">
+      {/* `bg-card` E NÃO `bg-gelo`, desde que a página passou a alternar
+          faixas: a fita mora dentro de uma delas agora, e gelo sobre gelo
+          some. Branco com sombra funciona sobre as duas superfícies claras
+          — sobre o gelo ela salta, sobre o branco a sombra é o que a
+          levanta. Nenhuma faixa clara da página é escura o bastante para
+          exigir a versão navy. */}
+      <div className="fin-anel flex flex-col items-start gap-5 rounded-3xl border border-border bg-card p-6 shadow-subtle sm:flex-row sm:items-center sm:justify-between sm:gap-8 sm:p-7">
         <p className="max-w-xl font-display text-base font-semibold leading-snug text-primary sm:text-lg">
           {frase}
         </p>
@@ -1246,32 +1256,69 @@ function CartaoPlano({
  * tridimensional" faria o leitor de tela anunciar o assunto duas vezes antes
  * de chegar na frase que importa.
  */
+/* O tom do halo de cada emblema. É `Record<NomeIcone, ...>` e não um mapa
+   parcial de propósito: o `chat` sai hoje em `chip`, e o caminho do chip nunca
+   lê esta tabela — mas o dia em que alguém tirar o chip dele, o tom já está
+   escolhido em vez de o emblema cair num laranja padrão por omissão. */
+const TOM_DO_ICONE: Record<NomeIcone, "ciano" | "accent"> = {
+  carteira: "accent",
+  cartao: "ciano",
+  projecao: "accent",
+  divida: "ciano",
+  escudo: "accent",
+  chat: "ciano",
+};
+
+type NomeIcone =
+  | "carteira"
+  | "cartao"
+  | "projecao"
+  | "divida"
+  | "escudo"
+  | "chat";
+
 function Icone3D({
   nome,
   tamanho = 48,
   chip = false,
 }: {
-  nome: "carteira" | "cartao" | "projecao" | "divida" | "escudo" | "chat";
+  nome: NomeIcone;
   tamanho?: number;
   /** Obrigatório sobre navy. Ver a nota de cor acima. */
   chip?: boolean;
 }) {
-  const img = (
-    <Image
-      src={`/fincash/icones/${nome}.webp`}
-      alt=""
-      width={256}
-      height={256}
-      style={{ width: tamanho, height: tamanho }}
-      className="shrink-0"
-    />
-  );
+  const src = `/fincash/icones/${nome}.webp`;
 
-  if (!chip) return img;
+  /* SOBRE FUNDO CLARO quem desenha é o `Icone3D` da casa, o mesmo que a
+     `/assinar` usa nas `Etapa` e nas `Persona`. Ele acrescenta uma coisa só
+     ao que havia aqui — um halo desfocado ATRÁS do PNG —, e é essa coisa que
+     assenta um recorte transparente na superfície. Sem ele o emblema parece
+     colado por cima da página; com ele parece apoiado nela. É o acabamento
+     que separava visualmente as duas landings, e não custa arte nova.
+
+     ⚠️ E ELE NÃO RESOLVE O PROBLEMA DO NAVY, ao contrário do que o halo
+     sugere: o corpo destes desenhos é navy, e um brilho por trás não devolve
+     contraste ao miolo da figura. Sobre escuro continua valendo o `chip` —
+     o quadrado branco abaixo —, que é o único jeito de o desenho existir ali.
+     Por isso os dois caminhos, e não um só. */
+  if (!chip) {
+    /* O TOM DO HALO ALTERNA, e é a mesma regra do `tomPor` da casa: o laranja
+       só tem força enquanto é exceção. Cinco emblemas com halo laranja seriam
+       uma página laranja — aqui cada um pega o tom do argumento em que está,
+       e os dois se revezam pela ordem de leitura. */
+    return <Icone3DHalo src={src} tamanho={tamanho} tom={TOM_DO_ICONE[nome]} />;
+  }
 
   return (
     <span className="inline-flex items-center justify-center rounded-xl bg-white p-1.5 ring-1 ring-white/25">
-      {img}
+      <Image
+        src={src}
+        alt=""
+        width={256}
+        height={256}
+        style={{ width: tamanho, height: tamanho }}
+        className="shrink-0"
+      />
     </span>
   );
 }
@@ -1551,10 +1598,15 @@ export default function FincashPage() {
                   por dentro — duas luzes empilhadas deixavam o palco leitoso.
 
                   ⚠️ E É O `import` DELA QUE ENTREGA O `vitrine.css` À PÁGINA.
-                  As classes `.fin-relevo`, `.fin-anel`, `.fin-escada`,
-                  `.fin-lustro` e `.fin-halo` são usadas em meia dúzia de
-                  seções abaixo e morrem todas juntas se alguém tirar a vitrine
-                  daqui sem mover o import. Está escrito no topo do CSS.
+                  As classes `.fin-relevo`, `.fin-anel`, `.fin-lustro` e
+                  `.fin-halo` são usadas em meia dúzia de seções abaixo e
+                  morrem todas juntas se alguém tirar a vitrine daqui sem mover
+                  o import. Está escrito no topo do CSS. (A `.fin-escada`
+                  estava nesta lista e saiu da página: quem faz a entrada em
+                  fila agora é a `.fin-chega-fila` do `cinema.css`, e o motivo
+                  está escrito lá — a escada dispara no CARREGAMENTO, então
+                  toda lista abaixo da dobra terminava a animação antes de
+                  alguém chegar nela.)
 
                   A PRIORIDADE CONTINUA SENDO UMA SÓ: a vitrine marca só o
                   aparelho do centro, que é a mesma captura do painel. */}
@@ -1601,7 +1653,7 @@ export default function FincashPage() {
           </div>
         </section>
 
-        <div className="mx-auto max-w-5xl px-4 pb-16 sm:px-6">
+        <div className="fin-faixas">
           {/* ===================== 2. VOCÊ RECONHECE ISTO ============== */}
           {/* TRÊS SEÇÕES VIRARAM UMA, e elas eram o mesmo movimento contado em
               três cabeçalhos: a dor do saldo ("o banco mente por omissão"), a
@@ -1637,7 +1689,7 @@ export default function FincashPage() {
               duas seções para quem navega por leitor de tela; um `h2` dentro
               de uma `<section>` aninhada anuncia uma subseção, que é o que ele
               é. A mesma regra vale para o `<Pacote />`, na seção 7. */}
-          <section className="pt-14 sm:pt-20">
+          <section className="fin-faixa fin-faixa-gelo mx-auto max-w-5xl px-4 py-14 sm:px-6 sm:py-20">
             <div className="grid gap-8 lg:grid-cols-[1fr_minmax(0,22rem)] lg:items-center lg:gap-12">
               <div>
                 {/* ÍCONE 3D 1 DE 6. A carteira com a seta é literalmente o
@@ -1725,7 +1777,7 @@ export default function FincashPage() {
               cabeçalho disputaria com ela a primeira leitura. Ícone entra onde
               NOMEIA o assunto; aqui o assunto já está nomeado três vezes, no
               alto de cada coluna. */}
-          <section className="pt-14 sm:pt-20">
+          <section className="fin-faixa fin-faixa-clara mx-auto max-w-5xl px-4 py-14 sm:px-6 sm:py-20">
             <h2 className="max-w-3xl font-display text-3xl font-semibold leading-[1.12] tracking-tight text-primary sm:text-[2.6rem]">
               A culpa não é da sua disciplina
             </h2>
@@ -1738,8 +1790,9 @@ export default function FincashPage() {
             </p>
 
             <Comparativo className="mt-8" />
+            <FaixaComecar frase="A conta que falta é a do que ainda vai sair. O FINCASH faz essa conta desde o primeiro lançamento." />
+
           </section>
-          <FaixaComecar frase="A conta que falta é a do que ainda vai sair. O FINCASH faz essa conta desde o primeiro lançamento." />
 
           {/* ======================= 4. O PRODUTO, EM TELAS ============= */}
           {/* DUAS SEÇÕES VIRARAM UMA, e as duas abriam a MESMA promessa: que
@@ -1765,7 +1818,7 @@ export default function FincashPage() {
               pasta, esta é a armadilha fácil da página: dá para encher dez
               seções assim sem escrever uma frase nova, e a partir da terceira o
               olho já sabe o que vem e pula. */}
-          <section className="pt-14 sm:pt-20">
+          <section className="fin-faixa fin-faixa-gelo mx-auto max-w-5xl px-4 py-14 sm:px-6 sm:py-20">
             <TituloSecao
               sobre="Por dentro"
               titulo="Quinze telas, e a que você abre amanhã é esta"
@@ -1791,7 +1844,7 @@ export default function FincashPage() {
                 escala. É a mesma peça do app (`app/pecas.tsx`), não uma
                 imitação: quem assinar vai reencontrar este desenho no painel,
                 com o número dele no lugar do número da demonstração. */}
-            {/* `fin-escada` NO `<ul>`, e não em cada `<li>`: a classe escalona
+            {/* `fin-chega-fila` NO `<ul>`, e não em cada `<li>`: a classe escalona
                 a mesma `.surgir` da casa nos filhos, com atraso crescente. A
                 lista aparece como uma leitura depois da outra, que é a ordem
                 em que o olho bate na captura logo acima — e não como três
@@ -1802,7 +1855,7 @@ export default function FincashPage() {
                 que sobra é o custo de pintar as duas. O `fin-relevo` é a
                 mesma escada de sombra do app, com o degrau de hover que o
                 `shadow-subtle` não tem. */}
-            <ul className="fin-escada mt-6 grid gap-4 sm:grid-cols-3">
+            <ul className="fin-chega-fila mt-6 grid gap-4 sm:grid-cols-3">
               <li className="fin-relevo rounded-3xl border border-border bg-card p-5">
                 <p className="font-display text-base font-semibold tabular-nums text-primary">
                   R$ 1.066
@@ -1976,7 +2029,7 @@ export default function FincashPage() {
                   exigiria. A alternativa sem script seria um `<details>` por
                   tela, que ESCONDE captura — e captura escondida numa landing
                   de app é a prova que ninguém abre. */}
-              <div className="fin-escada mt-8 grid gap-8 sm:grid-cols-3">
+              <div className="fin-chega-fila mt-8 grid gap-8 sm:grid-cols-3">
                 {[
                   {
                     tela: "lancamentosCelular" as const,
@@ -2075,7 +2128,7 @@ export default function FincashPage() {
               frases são as mesmas do produto (`EXPLICACAO_ESTRATEGIA`, em
               lib/fincash/dividas.ts): a landing não pode ser mais otimista que
               a tela que a pessoa vai abrir depois de assinar. */}
-          <section className="pt-14 sm:pt-20">
+          <section className="fin-faixa fin-faixa-clara mx-auto max-w-5xl px-4 py-14 sm:px-6 sm:py-20">
             <div className="overflow-hidden rounded-3xl border border-border bg-card shadow-subtle">
               <Pessoa
                 quem="casalContas"
@@ -2399,10 +2452,9 @@ export default function FincashPage() {
                 hipóteses não grava nada.
               </p>
             </div>
+            <FaixaComecar frase="Dívida com data de fim e doze meses à frente: o app calcula os dois com o que você já cadastrou." />
+
           </section>
-
-          <FaixaComecar frase="Dívida com data de fim e doze meses à frente: o app calcula os dois com o que você já cadastrou." />
-
           {/* ==================== 6. DIRETO NO WHATSAPP ================= */}
           {/* ⚠️ A SEÇÃO MAIS DELICADA DA PÁGINA, e agora também a mais alta.
 
@@ -2447,11 +2499,17 @@ export default function FincashPage() {
               falta credencial da Meta, e uma lista em dois tons ensina a ler a
               ressalva como enfeite do item fraco. Quando a linha for ligada,
               sai a pastilha, sai a linha de ressalva, e não sai mais nada. */}
-          <section className="pt-14 sm:pt-20">
-            <div
-              className="fin-palco relative isolate overflow-hidden rounded-3xl p-6 text-white sm:p-10"
-              style={PALCO_NAVY}
-            >
+          <section className="fin-faixa fin-faixa-navy mx-auto max-w-5xl px-4 py-14 sm:px-6 sm:py-20">
+            {/* O CARTÃO NAVY VIROU A FAIXA. Ele era um retângulo navy
+                arredondado flutuando numa coluna clara; agora a `<section>`
+                inteira é a `.fin-faixa-navy` — navy de borda a borda, com a
+                cena por trás, que é a pausa escura que a `/assinar` tem quatro
+                vezes e esta página não tinha nenhuma. Por isso saíram daqui o
+                `fin-palco` (a vinheta é do bloco recortado, não da faixa), o
+                `rounded-3xl`, o `PALCO_NAVY` e o padding: quem responde por
+                tudo isso agora é a faixa. Fica só o que este bloco sempre foi,
+                o conteúdo branco sobre o escuro. */}
+            <div className="relative text-white">
               {/* O CABEÇALHO DA SEÇÃO, e ele é o único lugar da página em que
                   dois ícones aparecem somados.
 
@@ -2725,7 +2783,12 @@ export default function FincashPage() {
                 trabalho, que é LIMITAR uma promessa, e limite não pede cartão
                 com sombra. */}
             <div className="pt-12 sm:pt-16">
-              <div className="fin-relevo rounded-3xl border border-border bg-card p-6 sm:p-9">
+              {/* `fin-sobreposto` E NÃO `fin-relevo`: o cartão agora pousa sobre
+                  a faixa navy, e as duas classes são a mesma ideia calibrada
+                  para fundos opostos — sobre escuro a sombra clara do relevo
+                  some e a borda cinza claro some junto. Ver a nota das duas em
+                  `cinema.css` e `vitrine.css`. */}
+              <div className="fin-sobreposto rounded-3xl border border-white/15 bg-card p-6 sm:p-9">
                 {/* ÍCONE 3D 6 DE 6: o escudo com fechadura, sobre o branco do
                     cartão. Substitui o chip com o cadeado de traço que morava
                     aqui. Ele é o único 3D que sobrevive ao vizinho navy logo
@@ -2824,7 +2887,7 @@ export default function FincashPage() {
               passagem costurada da ponte e a caixa do Pacote: é a seção mais
               densa da página, e um adesivo a mais seria o que a faz virar
               colagem. */}
-          <section className="pt-14 sm:pt-20">
+          <section className="fin-faixa fin-faixa-clara mx-auto max-w-5xl px-4 py-14 sm:px-6 sm:py-20">
             {/* ══ A FRASE DO JEFFERSON, PALAVRA POR PALAVRA ═══════════════
                 Ela vem em corpo grande e em `text-primary`, e não em cinza de
                 apoio, porque é uma REDEFINIÇÃO do produto e não um detalhe
@@ -3361,10 +3424,9 @@ export default function FincashPage() {
                 que estão no ar). Ele tem a seção 6 inteira, com a ressalva por
                 extenso. */}
             <Pacote className="pt-12 sm:pt-16" />
+            <FaixaComecar frase="A assinatura é uma só e libera a casa inteira. Dá para começar agora e decidir depois, dentro da garantia." />
+
           </section>
-
-          <FaixaComecar frase="A assinatura é uma só e libera a casa inteira. Dá para começar agora e decidir depois, dentro da garantia." />
-
           {/* ========================= 8. ANTES E DEPOIS ================ */}
           {/* ⚠️ O QUE ESTA SEÇÃO PROVA, E O QUE ELA SE RECUSA A PROVAR.
               O "antes e depois" daqui é de DOCUMENTO, não de pessoa: o extrato
@@ -3406,7 +3468,7 @@ export default function FincashPage() {
               empurrado", "sem vender nada"), e é por isso que as duas coisas
               andam juntas. O que ficou na seção 7 é quem a casa é; o que está
               aqui é como ela se paga, e quem já sentou com ela. */}
-          <section className="pt-14 sm:pt-20">
+          <section className="fin-faixa fin-faixa-gelo mx-auto max-w-5xl px-4 py-14 sm:px-6 sm:py-20">
             {/* ⚠️ O TÍTULO NÃO PODE DIZER "EXTRATO", e a razão é vocabulário e
                 não gosto: "o extrato é um retrovisor" abre a seção 3, e "O que
                 o extrato te mostra" é o rótulo que a `<Calculo />` imprime na
@@ -3520,10 +3582,9 @@ export default function FincashPage() {
                 </ul>
               </div>
             </div>
+            <FaixaComecar frase="O painel da direita é o que abre na sua conta no primeiro lançamento, com os seus números no lugar dos da demonstração." />
+
           </section>
-
-          <FaixaComecar frase="O painel da direita é o que abre na sua conta no primeiro lançamento, com os seus números no lugar dos da demonstração." />
-
           {/* ====================== 9. PLANOS E GARANTIA ================ */}
           {/* A SEÇÃO QUE A PÁGINA INTEIRA ESTAVA CONSTRUINDO, e ela mudou de
               natureza: era um bloco de OFERTA (um preço, uma lista, um botão)
@@ -3576,7 +3637,7 @@ export default function FincashPage() {
               hierarquia desta página de novo, comece por aqui — o candidato
               natural a sair é o desta seção, porque o `<h2>` logo abaixo dele
               ("Dois prazos. O mesmo produto inteiro.") já diz o que ele diz. */}
-          <section className="pt-14 sm:pt-20">
+          <section className="fin-faixa fin-faixa-clara mx-auto max-w-5xl px-4 py-14 sm:px-6 sm:py-20">
             {/* A MESMA MOLDURA DE TEXTURA DA SEÇÃO DOS SÓCIOS, e o segundo e
                 último uso dela na página. Os dois lugares em que ela aparece
                 são os dois em que a página fala da CASA e não do app: de quem
@@ -3728,7 +3789,7 @@ export default function FincashPage() {
               ("Perguntas frequentes"): ele é a subseção, e o `h2` desta seção é
               o do fecho. É a mesma estrutura do `<ParaQuem />` na 2 e do
               `<Pacote />` na 7. */}
-          <section className="pt-14 sm:pt-20">
+          <section className="fin-faixa fin-faixa-gelo mx-auto max-w-5xl px-4 py-14 sm:px-6 sm:py-20">
             <OQueSignifica
               titulo="Perguntas frequentes"
               itens={[

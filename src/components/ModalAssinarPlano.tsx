@@ -123,9 +123,14 @@ export function ModalAssinarPlano({
      sexto lugar do código com opinião própria sobre isso. */
   const destino = assinaturaCheckout(plano);
   const externo = destino.startsWith("http");
+  /* ⚠️ O NOME VEM DA FONTE, e isso é conserto de divergência, não enfeite:
+     o rótulo estava cravado como "Assinar o Workspace" enquanto o título do
+     mesmo pop-up sai de `ASSINATURA_NOME`. Na troca de âncora (o produto
+     passou a ser o FINCASH — ver `lib/assinatura.ts`) o modal passaria a
+     dizer os dois nomes ao mesmo tempo, em botões vizinhos. */
   const rotuloBotao = externo
     ? "Ir para o pagamento"
-    : "Assinar o Workspace";
+    : `Assinar o ${ASSINATURA_NOME}`;
 
   return (
     <div

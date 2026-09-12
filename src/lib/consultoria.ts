@@ -11,8 +11,22 @@
 
 export const PRECOS_DEFINIDOS = false;
 
-/** Desconto do assinante do Workspace sobre a tabela cheia. */
-export const DESCONTO_ASSINANTE = 0.3; // 30%
+/**
+ * O desconto do assinante na consultoria — SEM PERCENTUAL, e isso é decisão
+ * do dono, tomada em 12/09/2026.
+ *
+ * ⚠️ ERA `0.3` E ANUNCIAVA "30% OFF" EM OITO LUGARES DO SITE. O dono
+ * confirmou que a condição existe, mas é **combinada caso a caso** no
+ * atendimento — não é um percentual fixo que a casa pratica sempre. Um número
+ * publicado que o atendimento não honra vira discussão na hora do fechamento,
+ * que é o pior lugar possível para uma surpresa.
+ *
+ * Por isso não sobrou constante numérica aqui: enquanto não houver um número
+ * que a casa pratique SEMPRE, não há número a publicar. Se um dia houver,
+ * volte a tabela cheia e o percentual JUNTOS — desconto sem preço de
+ * referência não é informação, é adjetivo.
+ */
+export const ROTULO_DESCONTO_ASSINANTE = "Condição especial para assinante";
 
 export const PRIMEIRA_ANALISE_GRATIS = true;
 export const ROTULO_PRIMEIRA_ANALISE = "Primeira análise grátis";
@@ -324,12 +338,16 @@ export const CONSULTORIAS: Consultoria[] = [
   },
 ];
 
-export const ROTULO_DESCONTO = `${Math.round(DESCONTO_ASSINANTE * 100)}% OFF`;
+/**
+ * ⚠️ `ROTULO_DESCONTO` ("30% OFF") e `precoComDesconto()` FORAM REMOVIDOS em
+ * 12/09/2026. Não os traga de volta sem que o dono defina um percentual que a
+ * casa pratique sempre — ver a nota em `ROTULO_DESCONTO_ASSINANTE` acima.
+ *
+ * `precoComDesconto` nunca chegou a calcular nada em tela, aliás:
+ * `PRECOS_DEFINIDOS` é `false`, então todo preço de consultoria sai como
+ * "Sob consulta". O desconto era rótulo, não conta.
+ */
 export const ROTULO_DESCONTO_NEUTRO = "Desconto na consultoria";
-
-export function precoComDesconto(precoCheio: number): number {
-  return Math.round(precoCheio * (1 - DESCONTO_ASSINANTE));
-}
 
 export function consultoriaPorSlug(slug: string): Consultoria | undefined {
   return CONSULTORIAS.find((c) => c.slug === slug);

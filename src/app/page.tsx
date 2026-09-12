@@ -8,7 +8,7 @@ import { TopoApp } from "@/components/TopoApp";
 import { PaletaComandos } from "@/components/PaletaComandos";
 import { BarraMercado } from "@/components/BarraMercado";
 import { CardPortal } from "@/components/CardPortal";
-import { CardPlanejamentoHome } from "@/components/CardPlanejamentoHome";
+import { CardFincashHome } from "@/components/CardFincashHome";
 import { BannerEbooks } from "@/components/BannerEbooks";
 import { BannerNews } from "@/components/BannerNews";
 import { FerramentasHome } from "@/components/FerramentasHome";
@@ -54,8 +54,9 @@ export default async function Home() {
   // trilha inteira não pode ser tratado como quem nunca abriu o app — ver o
   // convite do painel, no fim do arquivo.
   const temFicha = perfil ? await temFichaPreenchida(perfil.id) : false;
-  // Sem/teste/ativa: é o que decide se o card do Planejamento pode falar em
-  // preço. Ver `assinatura-servidor.ts`.
+  // Sem/teste/ativa: é o que decide se o card do FINCASH — o primeiro da
+  // fileira — pode falar em preço, e para onde ele leva. Ver
+  // `assinatura-servidor.ts`.
   const assinatura = await estadoDaAssinatura();
   // "cliente"/"free" continua o padrão para visitante anônimo; logado=!!perfil
   // é o que diferencia um cliente em teste de um visitante sem conta — sem
@@ -164,18 +165,26 @@ export default async function Home() {
               A Íris continua com porta na home, na faixa logo abaixo das
               ferramentas, e no trilho lateral. */}
 
-          {/* As quatro vitrines: o PRO laranja abre, três áreas navy seguem. */}
+          {/* As quatro vitrines: o PRO laranja abre, três áreas navy seguem.
+
+              ⚠️ O PRIMEIRO É O FINCASH desde 12/09/2026 — decisão do dono, o
+              produto-âncora da casa (o porquê está em `CardFincashHome` e em
+              `lib/assinatura.ts`). Até essa data era o Planejamento, que
+              continua inteiro e agora se apresenta como o que vem junto.
+
+              ⚠️ E A ORDEM DESTA FILEIRA NÃO SAI DO CATÁLOGO: o âncora é
+              montado aqui, à mão, e só as três áreas vêm de `portais()`. Quem
+              quiser trocar o primeiro card mexe NESTE arquivo — reordenar
+              `lib/apps.ts` não move nada aqui. */}
           <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
             {/* O card PRO é o único com borda girando: ele é a oferta da
                 casa, e o efeito perde a graça se estiver em tudo. */}
             <div className="cine" style={{ transitionDelay: "120ms" }}>
-              {/* O card PRO é o único com borda girando: ele é a oferta da
-                  casa, e o efeito perde a graça se estiver em tudo. */}
               <div className="inclina borda-girando rounded-2xl">
-                <CardPlanejamentoHome
-                  href={perfil ? "/planejamento/app" : "/planejamento"}
-                  assinatura={assinatura}
-                />
+                {/* O destino e o texto do rodapé saem da `assinatura`: quem
+                    já paga entra no app sem passar pela venda, e não vê
+                    preço nenhum. */}
+                <CardFincashHome assinatura={assinatura} />
               </div>
             </div>
             {areas

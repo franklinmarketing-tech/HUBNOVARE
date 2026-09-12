@@ -84,11 +84,10 @@ export function FerramentaAssinante({
           </ul>
 
           <div className="mt-6 flex flex-wrap items-center gap-3">
-            <BotaoAssinarPlano
-              contexto="workspace"
-              objetivo="pagar"
-              rotulo="Assinar o Workspace"
-            />
+            {/* Sem `rotulo`: o padrão de `BotaoAssinarPlano` sai de
+                `ASSINATURA_NOME`, então este botão acompanha a troca do nome do
+                produto sozinho. Cravado, ele era mais um lugar para esquecer. */}
+            <BotaoAssinarPlano contexto="workspace" objetivo="pagar" />
             <p className="text-xs text-muted-foreground">
               {ASSINATURA_OFERTA_CURTA}. {ASSINATURA_GARANTIA_FRASE}
             </p>
