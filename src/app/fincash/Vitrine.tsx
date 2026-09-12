@@ -1,5 +1,6 @@
 import { Foto } from "./Molduras";
 import "./vitrine.css";
+import "./cinema.css";
 
 /**
  * A VITRINE: três telas do FINCASH em leque, para a página provar que existe

@@ -1,0 +1,314 @@
+/* ==========================================================================
+   FINCASH — camada CINEMATOGRÁFICA da landing.
+
+   POR QUE UM TERCEIRO ARQUIVO, E NÃO MAIS REGRAS NO `vitrine.css`
+   O `vitrine.css` responde por uma pergunta só: como uma PEÇA da landing se
+   comporta (o card levanta, o anel acende, a lista entra em fila). O que está
+   aqui responde por outra: como o PALCO se comporta — profundidade do bloco
+   navy, o destaque único da página, e o momento em que cada seção chega. São
+   dois assuntos, e misturá-los num arquivo só é o começo de um `landing.css`
+   de mil linhas onde ninguém mais acha nada.
+
+   ⚠️ ESTE ARQUIVO SÓ EXISTE NA PÁGINA SE ALGUÉM O IMPORTAR. Ele é CSS global
+   de componente, como o `vitrine.css`: o Next só o entrega se um componente
+   RENDERIZADO fizer `import "./cinema.css"`. O `vitrine.css` resolveu isso
+   sendo importado por TRÊS componentes (`Vitrine`, `ParaQuem`, `Pacote`) —
+   o bundler entrega o arquivo uma vez só, e a página continua estilizada se
+   dois deles saírem. Faça o mesmo aqui: o import vive ao lado do de lá, nos
+   mesmos três arquivos.
+   ⚠️ NÃO importe no `fincash/layout.tsx`: aquele layout fica ACIMA de
+   `/fincash/app`, e mandaria o CSS da landing para dentro do produto logado.
+
+   ── AS TRÊS DECISÕES QUE GOVERNAM O ARQUIVO ─────────────────────────────
+   1. UM EFEITO CARO, E UM SÓ. O LED que corre na borda é o gesto que a casa
+      já aprovou em outro produto, e ele vale porque é RARO: aparece numa peça
+      da página inteira (o cartão do plano anual). Se um dia ele acender em
+      dois lugares, ele para de dizer "este aqui" e passa a dizer "esta página
+      pisca" — que numa página de serviço financeiro é o oposto do que se está
+      tentando provar.
+   2. O RESTO É PROFUNDIDADE, NÃO MOVIMENTO. Vinheta, aresta de luz e
+      granulado não se mexem: eles fazem o bloco navy parecer um painel com
+      volume em vez de um retângulo pintado. Efeito que não se mexe não
+      compete com o botão.
+   3. SÓ `transform` E `opacity` EM KEYFRAME. Sombra, largura e posição em
+      quadro obrigam o navegador a refazer layout e pintura sessenta vezes por
+      segundo; numa página longa isso aparece como travada ao rolar, no
+      minuto exato em que a pessoa está decidindo pagar.
+
+   TUDO AQUI É DECORAÇÃO: nenhuma palavra da página aparece por causa destas
+   regras. É isso que permite o bloco de `prefers-reduced-motion` do fim
+   desligar o conjunto sem esconder informação de ninguém.
+   ========================================================================== */
+
+/* ------------------------------------------------------- 1. fin-palco ----
+   ONDE USAR: nos blocos NAVY — a `<section>` do herói e os `<div>` que levam
+   `style={PALCO_NAVY}` (a seção do assistente + WhatsApp e o fecho "Comece
+   pelo mês que já está correndo"). Some a classe ao que já está lá; ela não
+   substitui `cine-grade` nem `palco-cta`, trabalha por cima deles.
+
+   ONDE NÃO USAR: em bloco claro. A vinheta é navy quase preto — sobre creme
+   ou branco ela lê como mancha de impressão. E não use junto com `.fin-lustro`
+   nem com a `.vinheta` do `globals.css`: os três disputam o mesmo `::after` e
+   o último declarado ganha.
+
+   O QUE ELA RESOLVE, e são três problemas diferentes:
+
+   • VINHETA — vem de `box-shadow: inset`, e isso NÃO é preciosismo: sombra
+     interna é pintada junto com o fundo do elemento, ou seja, POR BAIXO dos
+     filhos. Um `::after` escurecendo as bordas passaria por cima do texto.
+     Como a vinheta escurece, ela só AUMENTA o contraste do texto branco que
+     encosta nas bordas; é o único efeito do arquivo que não tem custo de
+     legibilidade nenhum.
+
+   • ARESTA DE LUZ no topo — 1px de branco a 8%. É o detalhe que faz o olho
+     ler "painel com espessura" em vez de "cor de fundo". Sem ele, o bloco
+     navy arredondado no meio da página clara parece um buraco.
+
+   • GRANULADO — mata o banding. O degradê do `PALCO_NAVY` atravessa 7% de
+     luminosidade ao longo de 62rem; num monitor grande de 8 bits isso vira
+     faixas visíveis, e faixa de degradê é a assinatura visual de página
+     montada às pressas.
+     ⚠️ POR QUE ESTE GRANULADO NÃO CUSTA CARO: o `feTurbulence` é rasterizado
+     UMA VEZ, num ladrilho de 140px que o navegador guarda decodificado, e
+     repetido com `background-repeat`. O que custa caro — e foi evitado de
+     propósito — é `background-size: cover` num turbulence de tela inteira:
+     aí o filtro é calculado para cada pixel da viewport, a cada repintura.
+     O `stitchTiles` é o que faz as emendas do ladrilho sumirem.
+     ⚠️ O `feColorMatrix saturate 0` não é enfeite: sem ele o turbulence sai
+     colorido, e granulado colorido sobre navy vira chiado de TV velha.
+     ⚠️ 3,5% DE OPACIDADE É NÚMERO MEDIDO, não gosto. O granulado passa POR
+     CIMA do texto (ele precisa cobrir o bloco inteiro, e `z-index: -1` cairia
+     atrás do fundo do próprio pai, que é `isolate`), então ele custa
+     contraste. O custo foi medido em pixel composto, com amostra sólida sob a
+     camada e média da área para cancelar o ruído:
+        accent-claro sobre o navy escuro .... 7,56:1 → 7,37:1
+        branco sobre o navy escuro .......... 17,99:1 → 17,33:1
+        branco a 75% sobre o navy escuro .... 10,28:1 → 10,00:1
+     Ou seja: ~2,5% do valor, e o par mais apertado da página continua com
+     mais de uma vez e meia a folga que a AA exige. Quem subir este número
+     mede de novo — o método está aqui descrito e leva dois minutos. */
+.fin-palco {
+  position: relative;
+  box-shadow:
+    inset 0 0 6rem 1.5rem hsl(215 60% 5% / 0.45),
+    inset 0 1px 0 hsl(0 0% 100% / 0.08);
+}
+.fin-palco::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  opacity: 0.035;
+  background-repeat: repeat;
+  background-size: 140px 140px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='fin-grao'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23fin-grao)'/%3E%3C/svg%3E");
+}
+
+/* --------------------------------------------------------- 2. fin-led ----
+   O EFEITO CARO DA PÁGINA. Uma luz laranja que corre pela borda, sem parar.
+
+   ONDE USAR: no cartão do PLANO ANUAL, e em mais nada. Ele é o único lugar da
+   landing onde a página toma partido sobre qual plano comprar, e o LED é o
+   que diz isso antes de qualquer palavra ser lida.
+
+   ⚠️ ONDE NÃO USAR: na caixa da garantia, no botão, na vitrine, no fecho. Não
+   porque ficaria feio — ficaria —, mas porque o efeito só significa alguma
+   coisa enquanto for o único. Dois LEDs na mesma página e a peça destacada
+   deixa de existir.
+
+   COMO APLICAR — ele precisa de um elemento próprio, vazio:
+       <span aria-hidden className="fin-led" />
+   como PRIMEIRO filho do cartão destacado. É o mesmo padrão do `.fin-halo`
+   da `Vitrine`: o efeito vive numa camada dele, e nunca em cima do conteúdo.
+   ⚠️ O cartão precisa continuar `relative` (já é) e ter `border-radius`
+   próprio (já tem, `rounded-3xl`) — o anel herda o raio.
+   ⚠️ SUBSTITUA a `borda-viva` do cartão por esta classe, não some as duas: a
+   `borda-viva` do `globals.css` só acende no `:hover`, o que num cartão de
+   preço visto por quem rola com o dedo nunca acontece; e as duas desenhando
+   1px no mesmo lugar viram uma borda de 2px mal registrada.
+
+   ── POR QUE NÃO É A `.borda-girando` DO `globals.css`, que parece a mesma ──
+   Aquela põe o cônico num `::before` com `z-index: -1` e conta com o FUNDO
+   OPACO DE UM FILHO para tapar o miolo. O cartão anual não tem filho assim: o
+   navy dele é `style={CARTAO_NAVY}` no próprio elemento, então o cônico
+   pintaria por cima do navy inteiro em vez de virar borda. Além disso ela só
+   acende no hover. Mesma ideia, outra mecânica.
+
+   ── POR QUE A LUZ CORRE COM `transform`, E NÃO COM GRADIENTE ANIMADO ──────
+   O caminho óbvio é animar o ângulo de um `conic-gradient` (um `@property`
+   de tipo `<angle>` em keyframe). Funciona, e repinta um gradiente do tamanho
+   do cartão a cada quadro — no celular, a 60fps, ao lado de uma página
+   rolando. Aqui o cônico é pintado UMA VEZ num quadrado maior que o cartão, e
+   o que anima é `transform: rotate()` desse quadrado: trabalho de composição,
+   não de pintura. A máscara de anel fica no <span> PAI, e máscara de pai
+   recorta o filho — é isso que transforma o quadrado girando em 1px de borda
+   acesa.
+   ⚠️ O quadrado é 240% em cada eixo (`inset: -70%`) para o círculo inscrito
+   dele cobrir a diagonal do cartão em qualquer rotação. Isso vale enquanto a
+   peça não for mais de ~2,4× mais alta que larga; numa coluna muito estreita
+   e muito alta os cantos ficariam sem luz por um instante do giro. */
+.fin-led {
+  position: absolute;
+  inset: -1px;
+  z-index: 1;
+  border-radius: inherit;
+  padding: 1px;
+  overflow: hidden;
+  pointer-events: none;
+
+  /* O recorte de anel: pinta a moldura sem cobrir o conteúdo e sem custar uma
+     borda de verdade no cálculo de layout. `mask` de pai vale para os filhos,
+     e é o filho girando que está sendo recortado aqui. */
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+.fin-led::before {
+  content: "";
+  position: absolute;
+  /* Percentuais de `top/bottom` resolvem contra a ALTURA e os de
+     `left/right` contra a LARGURA — é o que mantém o quadrado proporcional
+     ao cartão em vez de exigir um tamanho fixo. */
+  inset: -70%;
+
+  /* O cometa: cauda longa e fria, cabeça curta e quente, e o resto do círculo
+     transparente. O corte em 360deg = 0deg fecha no transparente, então a
+     volta não tem emenda visível.
+     LARANJA DA CASA, e não amarelo: o amarelo do outro produto é a marca DELE.
+     A cabeça é `hsl(24 100% 90%)` — laranja quase branco de tão claro, que é
+     como luz forte se comporta; branco puro aqui apagaria a cor. */
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg 264deg,
+    hsl(16 85% 55% / 0.25) 300deg,
+    hsl(16 92% 66%) 338deg,
+    hsl(24 100% 90%) 354deg,
+    hsl(16 92% 66%) 358deg,
+    transparent 360deg
+  );
+  animation: fin-led-corre 5.5s linear infinite;
+  will-change: transform;
+}
+
+/* 5,5s é devagar de propósito. Uma volta rápida lê como carregamento travado
+   ou alerta; devagar lê como acabamento. */
+@keyframes fin-led-corre {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* ----------------------------------------------------- 3. fin-sobreposto --
+   ONDE USAR: no que está À FRENTE dentro de um bloco navy — as caixas claras,
+   os cartões internos e as capturas de tela que pousam sobre o `PALCO_NAVY`.
+
+   ONDE NÃO USAR: em card branco sobre fundo claro. Ali quem manda é a
+   `.fin-relevo` do `vitrine.css`, que tem a sombra certa para fundo claro e
+   ainda responde ao hover. Esta aqui é a MESMA ideia calibrada para o escuro:
+   sobre navy, uma sombra clara some, e uma sombra preta suja.
+
+   É ESTÁTICA, e é o efeito mais barato do arquivo: duas sombras, zero
+   animação, zero repintura. Profundidade em camadas é quase toda hierarquia
+   de sombra e quase nada de movimento — a página inteira passa a parecer
+   composta em vez de empilhada sem nada se mexer.
+
+   A aresta de luz no topo é a mesma do `.fin-palco`, mais forte (12% contra
+   8%): quanto mais à frente a peça está, mais luz ela pega. É esse degrau que
+   conta a ordem das camadas. */
+.fin-sobreposto {
+  box-shadow:
+    0 18px 40px -24px hsl(215 65% 4% / 0.85),
+    0 2px 6px -3px hsl(215 65% 4% / 0.5),
+    inset 0 1px 0 hsl(0 0% 100% / 0.12);
+}
+
+/* ------------------------------------------------ 4. fin-chega / -fila ----
+   ⚠️ O NOME NÃO É `fin-entra`, E O MOTIVO IMPORTA: `.fin-entra` JÁ EXISTE, no
+   `app/fincash.css`, com outra animação (420ms, disparada no carregamento) —
+   e aquele arquivo chega na landing de carona, porque o `Graficos.tsx` o
+   importa. Duas regras com o mesmo nome e comportamentos diferentes é o pior
+   tipo de bug de CSS: não quebra, só faz a coisa errada dependendo da ordem
+   em que os arquivos entraram no pacote. Se um dia alguém quiser unificar as
+   duas, o lugar da conversa é lá, não aqui.
+
+   ONDE USAR: na `<section>` inteira (ou no bloco que abre a seção), para ela
+   chegar em vez de já estar lá. A `-fila` vai na LISTA (o `<ul>`, o
+   `<div class="grid">`), nunca em cada item.
+
+   ⚠️ ELA CORRIGE UM DEFEITO REAL, e não é só enfeite: a `.fin-escada` do
+   `vitrine.css` dispara no CARREGAMENTO. Numa página de 3.500 linhas isso
+   quer dizer que toda lista abaixo da dobra termina a animação antes de a
+   pessoa chegar nela — o efeito é pago e nunca visto. Aqui a linha do tempo é
+   a PRÓPRIA ROLAGEM: a peça anima quando entra na tela, que é o único momento
+   em que a animação significa alguma coisa.
+
+   ZERO JAVASCRIPT, e isso é o ponto. A `.revelar` do `globals.css` faz o
+   mesmo, mas depende do `<RevelarAoRolar />` marcar `data-revelar="pronto"`
+   no <html> — componente que esta landing não monta, e que custaria hidratação
+   numa página que hoje não manda um byte de JS de aplicação. `view()` é
+   linha do tempo nativa do navegador.
+
+   ⚠️ O `@supports` NÃO É OPCIONAL. Onde `animation-timeline` não existe
+   (Safari e Firefox, hoje), a regra inteira é ignorada e a peça fica
+   simplesmente VISÍVEL — nunca invisível. Se alguém tirar o `@supports` para
+   "simplificar", metade dos visitantes recebe uma página de venda em branco:
+   é o pior defeito possível aqui, e é por isso que o guarda vem antes da
+   animação e não depois.
+
+   ⚠️ O FIM DA FAIXA É `cover`, E NÃO `entry`. Com `entry 100%` a animação só
+   fecha quando a peça cabe INTEIRA na tela — e uma seção mais alta que a
+   janela nunca cabe, então ela ficaria congelada meio transparente para
+   sempre. `cover` é medido sobre a travessia completa e fecha em qualquer
+   tamanho de peça. */
+@keyframes fin-chega-sobe {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: none; }
+}
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .fin-chega,
+    .fin-chega-fila > * {
+      animation: fin-chega-sobe linear both;
+      animation-timeline: view();
+      animation-range: entry 4% cover 20%;
+    }
+
+    /* A cascata da lista NÃO vem de `animation-delay`: numa linha do tempo de
+       rolagem o atraso é medido em tempo, e tempo não existe aqui — quem
+       parou de rolar parou a animação. O escalonamento vem de cada filho
+       começar um pouco mais tarde na PRÓPRIA travessia, que é o equivalente
+       geométrico do delay e funciona mesmo com a pessoa rolando devagar.
+       Para no quinto item: além disso a lista parece lenta, não coreografada
+       (é a mesma regra da `.fin-escada`). */
+    .fin-chega-fila > *:nth-child(2) { animation-range: entry 9% cover 24%; }
+    .fin-chega-fila > *:nth-child(3) { animation-range: entry 14% cover 28%; }
+    .fin-chega-fila > *:nth-child(4) { animation-range: entry 19% cover 32%; }
+    .fin-chega-fila > *:nth-child(n + 5) { animation-range: entry 23% cover 36%; }
+  }
+}
+
+/* ==========================================================================
+   MENOS MOVIMENTO — a guarda, para tudo o que se mexe aqui.
+
+   Nada some, e a página fica COMPLETA parada: a vinheta, a aresta, o
+   granulado e as sombras nunca se moveram; o LED congela num ângulo em que a
+   luz está visível na borda (continua sendo o cartão destacado, só não corre);
+   e a entrada ao rolar nem chega a ser declarada, porque o `@media
+   (prefers-reduced-motion: no-preference)` acima já a exclui na origem — é
+   por isso que ela não aparece nesta lista.
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .fin-led::before {
+    animation: none;
+    /* -118deg põe a cabeça do cometa no alto à direita, que é de onde vem a
+       luz do `PALCO_NAVY` e do `CARTAO_NAVY`. A página parada continua tendo
+       uma fonte de luz só. */
+    transform: rotate(-118deg);
+  }
+}

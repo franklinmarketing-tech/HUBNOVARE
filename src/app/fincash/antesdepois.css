@@ -1,0 +1,101 @@
+/* ==========================================================================
+   FINCASH — a passagem do <AntesDepois />.
+
+   POR QUE UM ARQUIVO SÓ PARA ISTO, em vez de entrar no `vitrine.css`
+   O `vitrine.css` é importado pela `Vitrine` e pelo `ParaQuem`, e o comentário
+   de abertura dele avisa: as classes de lá só existem na página se uma dessas
+   duas peças estiver montada. O "antes e depois" precisa poder ser encaixado
+   sozinho — numa página de teste, numa variante da landing, numa peça avulsa
+   — sem carregar junto o leque de três aparelhos. Por isso ele traz o próprio
+   CSS, e por isso este arquivo não depende de nada de lá.
+
+   SÃO DUAS REGRAS, E É TUDO O QUE O TAILWIND NÃO ALCANÇA:
+   o fio pontilhado que muda de eixo no desktop, e o único movimento da peça.
+   Todo o resto (cores, espaços, grade, tipografia) está em utilitário no TSX,
+   porque é lá que dá para ver a decisão junto com a marcação.
+
+   ANIMA `transform`, E MAIS NADA — mesma regra do `vitrine.css`. A peça vive
+   no meio de uma página longa de venda, e um keyframe que mexa em sombra,
+   largura ou posição repinta a cada quadro enquanto a pessoa rola.
+   ========================================================================== */
+
+/* ------------------------------------------------------------------ fio --
+   A linha tracejada que atravessa a ponte. No celular ela é horizontal e a
+   travessia é de cima para baixo; no desktop ela CONTINUA horizontal, porque
+   lá a travessia é da esquerda para a direita — o fio liga o extrato ao
+   aparelho, passando por dentro da coluna do meio.
+
+   ⚠️ É DECORAÇÃO, e os `<span>` que a usam são `aria-hidden`. Nenhuma
+   informação da peça depende de ver o fio: quem chega por leitor de tela lê
+   extrato → ponte → painel na ordem do DOM, que é a ordem do argumento.
+
+   A cor não é `--color-border` (1,24:1 sobre branco, some): é o navy da marca
+   rebaixado, que fica visível sobre qualquer superfície clara da casa sem
+   virar uma segunda régua competindo com as bordas dos cartões. */
+.ad-fio {
+  flex: 1 1 0;
+  min-width: 1.25rem;
+  border-top: 1px dashed hsl(215 50% 23% / 0.28);
+}
+
+/* ------------------------------------------------------------------ seta --
+   O ÚNICO MOVIMENTO DA PEÇA, e ele é pequeno de propósito.
+
+   A `Calculo`, que vive na mesma rolagem, já recusou brilho e pulso no
+   número herói dela com o argumento certo: um terceiro movimento na mesma
+   dobra transforma prova em banner. Aqui sobra um cutucão de 3px, lento, que
+   só diz UMA coisa — para que lado se lê a peça. No celular ele empurra para
+   baixo (o extrato está em cima); a partir de `lg` ele empurra para a direita
+   (o extrato está à esquerda), acompanhando a rotação que o TSX aplica no
+   ícone.
+
+   ⚠️ O que anima é o BOTÃO REDONDO, nunca o ícone: o ícone recebe
+   `rotate-[-90deg]` no desktop, e somar `translate` a ele no CSS faria os
+   dois `transform` brigarem pelo mesmo eixo já girado.
+
+   ⚠️ SÃO DOIS NOMES DE KEYFRAME, e não um redefinido dentro do `@media`.
+   Redefinir `@keyframes` com o mesmo nome em media query é CSS válido, mas
+   depende de ordem de cascata e é exatamente o tipo de coisa que um
+   minificador junta por nome ao empacotar. Dois nomes e uma troca de
+   `animation-name` não têm como dar errado. */
+.ad-seta {
+  animation: ad-cutuca-y 2.6s ease-in-out infinite;
+}
+@keyframes ad-cutuca-y {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(3px);
+  }
+}
+@keyframes ad-cutuca-x {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(3px);
+  }
+}
+
+@media (min-width: 64rem) {
+  .ad-seta {
+    animation-name: ad-cutuca-x;
+  }
+}
+
+/* ==========================================================================
+   MENOS MOVIMENTO.
+
+   Nada some e nada encolhe: a seta continua no lugar, apontando para o mesmo
+   lado, e o fio continua ligando os dois lados. A peça inteira é legível
+   PARADA — foi desenhada assim, e o cutucão é só um reforço de direção para
+   quem não pediu o contrário.
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .ad-seta {
+    animation: none;
+  }
+}

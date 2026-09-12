@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { Persona, TituloSecao, tomPor } from "@/components/SecoesVenda";
 import "./vitrine.css";
+import "./cinema.css";
 
 /**
  * "Para quem é o FINCASH" — as sete linhas do Jefferson.

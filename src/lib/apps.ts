@@ -109,7 +109,15 @@ export const APPS: NovareApp[] = [
   {
     slug: "planejamento",
     nome: "Planejamento Financeiro",
-    chamada: "Seu plano completo, sem depender de ninguém",
+    /* ⚠️ "PLANO FINANCEIRO COMPLETO", E NÃO "PLANO COMPLETO". A palavra do
+       meio não é enfeite: sem ela a frase é literalmente "plano completo", que
+       é o nome que uma escada de planos dá ao degrau de cima — e o guardião
+       `scripts/testar-nada-a-venda.mjs` caça exatamente isso, com razão. A
+       colisão só apareceu quando o `<Pacote />` passou a imprimir esta chamada
+       na landing do FINCASH, ao lado de dois cartões de preço: ali "Seu plano
+       completo" se lê como plano de ASSINATURA, e não como o plano financeiro
+       da pessoa. A promessa não mudou, o sujeito dela ficou explícito. */
+    chamada: "Seu plano financeiro completo, sem depender de ninguém",
     descricao:
       "Você preenche seu retrato financeiro em 10 minutos e o app faz o resto: diagnóstico, Marco Horizonte, plano de ação com valor e prazo, e acompanhamento mês a mês com relatório em PDF.",
     pontosFortes: [
