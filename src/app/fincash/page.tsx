@@ -24,7 +24,7 @@ import {
   Wallet,
   type LucideIcon,
 } from "lucide-react";
-import { Foto } from "./Molduras";
+import { Foto, type NomeTela } from "./Molduras";
 import Vitrine from "./Vitrine";
 import Conversa from "./Conversa";
 import SequenciaProduto from "./SequenciaProduto";
@@ -47,7 +47,6 @@ import {
   ASSINATURA_GARANTIA_DIAS,
   ASSINATURA_GARANTIA_FRASE,
   ASSINATURA_INCLUI,
-  ASSINATURA_OFERTA_CURTA,
   ASSINATURA_PLANOS,
   ASSINATURA_PRECO_ANUAL_MENSAL_ROTULO,
   ASSINATURA_PRECO_ANUAL_ROTULO,
@@ -136,7 +135,7 @@ const CARTAO_NAVY: React.CSSProperties = {
 /**
  * Onde a pessoa cria a conta e cai DENTRO do FINCASH.
  *
- * Não é a rota do `BotaoAssinarPlano`, que leva à trilha do Planejamento:
+ * Não é a rota do `BotaoAssinarPlano`, que leva à trilha do FINPLAN:
  * quem clicou aqui quer lançar o gasto de hoje, e receber um questionário de
  * oito blocos no lugar disso é perder a pessoa na porta. O pop-up de oferta
  * também não entra: a oferta INTEIRA já está nesta página, e nesse caso ele
@@ -341,7 +340,7 @@ const FAQ = [
                      à mão em 12/09/2026: catorze subpastas com `page.tsx` em
                      `src/app/fincash/app/` mais o painel da raiz. A lista velha
                      esquecia três telas que existem e funcionam — Meus dados, a
-                     ponte com o Planejamento e a do assistente —, e uma landing
+                     ponte com o FINPLAN e a do assistente —, e uma landing
                      que subestima o produto custa venda tanto quanto uma que o
                      superestima.
 
@@ -353,7 +352,7 @@ const FAQ = [
                      que não entrega; omitir a tela seria mentir ao contrário. A
                      frase diz as duas em orações separadas, de propósito. */
                   resposta:
-                    "As quinze telas estão no ar: Painel, Lançamentos, Cartões e faturas, Contas fixas, Contas, Importar extrato, Orçamento, Dívidas, Metas, Investimentos, Projeção de 12 meses, Categorias, Meus dados, a ponte que leva o seu mês ao Planejamento e a do assistente de WhatsApp, onde você vincula o seu número. As capturas desta página saíram todas do app, de uma conta de demonstração. O que ainda falta não é tela: é a linha oficial do WhatsApp, e enquanto ela não estiver plugada o assistente não responde.",
+                    "As quinze telas estão no ar: Painel, Lançamentos, Cartões e faturas, Contas fixas, Contas, Importar extrato, Orçamento, Dívidas, Metas, Investimentos, Projeção de 12 meses, Categorias, Meus dados, a ponte que leva o seu mês ao FINPLAN e a do assistente de WhatsApp, onde você vincula o seu número. As capturas desta página saíram todas do app, de uma conta de demonstração. O que ainda falta não é tela: é a linha oficial do WhatsApp, e enquanto ela não estiver plugada o assistente não responde.",
                 },
                 {
                   pergunta: "Preciso digitar tudo à mão?",
@@ -391,7 +390,7 @@ const FAQ = [
                 },
                 {
                   pergunta:
-                    "Já assino o Planejamento Financeiro. Preciso pagar de novo?",
+                    "Já assino o FINPLAN (antes Planejamento Financeiro). Preciso pagar de novo?",
                   resposta:
                     "Não. A casa tem uma mensalidade só, e ela libera tudo. Se você já assina, o FINCASH já está liberado na sua conta: é só entrar.",
                 },
@@ -439,6 +438,71 @@ function BotaoComecar({
       Quero começar agora
       <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
     </Link>
+  );
+}
+
+/**
+ * A ÂNCORA DE PREÇO DO HERÓI — a caixa que o Jefferson pediu por escrito e que
+ * a reescrita de 12/09/2026 levou junto com o texto que ela cortou.
+ *
+ * O QUE ELA SUBSTITUIU: uma linha de microcópia cinza embaixo do botão, com a
+ * oferta curta e a garantia. Era exatamente o formato que ele apontou como o
+ * que ninguém lê — preço em corpo 12, na mesma cor do resto, sem hierarquia
+ * nenhuma. Âncora de preço não é informação de rodapé: é o argumento que faz o
+ * visitante comparar R$ 238,80 com R$ 358,80 antes de rolar a página inteira.
+ *
+ * ⚠️ NENHUM NÚMERO É DIGITADO AQUI. Os quatro valores (anual, referência
+ * riscada, economia e mensal) saem de `lib/assinatura`, que por sua vez deriva
+ * tudo de dois inteiros em centavos. Escrever "R$ 238,80" nesta marcação é o
+ * jeito conhecido de a página continuar anunciando o preço velho no dia
+ * seguinte ao aumento — e é o que `testar-nada-a-venda.mjs` guarda.
+ *
+ * ⚠️ E SÃO TRÊS LINHAS, NÃO CINCO, e isso é medida e não estética. A primeira
+ * versão desta caixa (selo, preço, referência, economia e garantia, uma por
+ * linha) levou o herói a 809px num 1366×768 e estourou a dobra. Selo e
+ * economia dividem a primeira linha; garantia e mensal dividem a terceira. A
+ * regra para quem for mexer: o que cresce aqui tem de sair de outro lugar do
+ * herói que não seja o `h1` nem o botão — os dois são o que faz a pessoa ficar.
+ *
+ * ⚠️ SEM PERCENTUAL. `ASSINATURA_ANUAL_DESCONTO_ROTULO` existe e é verdade,
+ * mas desconto anunciado em porcentagem numa tela pública é o que o guardião
+ * reprova. O que convence aqui é a subtração, e ela está escrita em reais.
+ */
+function CaixaOferta() {
+  return (
+    <div className="w-full max-w-md rounded-2xl bg-white/[0.07] p-3.5 ring-1 ring-white/15">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
+        {/* ⚠️ O VERSALETE DESTA PÍLULA É CURTO (`0.06em`) E NÃO É DESCUIDO.
+            Com os `0.14em` dos outros selos da página, "PLANO MAIS RECOMENDADO"
+            passa de 230px e a economia ao lado cai para a linha de baixo — a
+            caixa vira quatro linhas e o herói cresce 20px, que é dinheiro que
+            não existe aqui. O texto do Jefferson fica inteiro; o que aperta é
+            o espaçamento entre letras, e o "Economize" ao lado perdeu o
+            versalete pelo mesmo motivo: a caixa inteira tem 342px úteis dentro
+            desta coluna, e a primeira linha precisa caber neles. */}
+        <span className="rounded-full bg-accent-btn px-2 py-0.5 text-2xs font-bold uppercase tracking-[0.02em] text-white">
+          Plano mais recomendado
+        </span>
+        <span className="text-2xs font-bold text-accent-claro">
+          Economize {ASSINATURA_ANUAL_ECONOMIA_ROTULO}
+        </span>
+      </div>
+
+      <p className="mt-2.5 flex flex-wrap items-baseline gap-x-2 gap-y-1 tabular-nums">
+        <span className="font-display text-2xl font-extrabold leading-none tracking-tight text-white sm:text-[1.7rem]">
+          {ASSINATURA_PRECO_ANUAL_ROTULO}
+        </span>
+        <span className="text-sm font-semibold text-white/70">por ano</span>
+        <span className="text-sm text-white/55 line-through decoration-white/40">
+          {ASSINATURA_ANUAL_REFERENCIA_ROTULO}
+        </span>
+      </p>
+
+      <p className="mt-2 flex flex-wrap items-center gap-x-1.5 text-2xs leading-relaxed text-white/70">
+        <ShieldCheck className="h-3.5 w-3.5 shrink-0 text-accent" />
+        {ASSINATURA_GARANTIA} · ou {ASSINATURA_PRECO_ROTULO}/mês
+      </p>
+    </div>
   );
 }
 
@@ -574,6 +638,24 @@ const GANHA = [
 ];
 
 const ITENS_ABERTOS = 6;
+
+/**
+ * Quantos itens o cartão abre NO CELULAR — e por que o número é outro.
+ *
+ * A 390px os dois cartões custavam 1.579px empilhados, quase dois telefones de
+ * rolagem entre o primeiro preço e o segundo botão. E há uma circunstância que
+ * só existe no celular: o `<QuadroOferta />` acabou de listar os mesmos quatro
+ * produtos, um bloco por produto, a um dedo de distância daqui — no desktop
+ * ele é uma faixa que o olho lê de uma vez, no celular são cinco blocos que a
+ * pessoa acabou de rolar. Repetir seis linhas logo abaixo é cobrar duas vezes
+ * pela mesma leitura.
+ *
+ * ⚠️ O QUE NUNCA ENTRA NO RECOLHIDO: o preço, o valor riscado, a economia, a
+ * garantia e o botão. Eles não passam nem perto do `<details>` — só a lista do
+ * que vem junto é que encolhe, e ela continua inteira a um toque, no HTML, em
+ * qualquer largura.
+ */
+const ITENS_ABERTOS_CELULAR = 3;
 
 /**
  * Uma linha da lista do que entra, nos dois tons de superfície.
@@ -847,7 +929,49 @@ function CartaoPlano({
         </p>
 
         <ul className="mt-3.5 space-y-2.5">
-          {abertos.map((linha) => (
+          {abertos.slice(0, ITENS_ABERTOS_CELULAR).map((linha) => (
+            <LinhaInclui key={linha} texto={linha} destaque={destaque} />
+          ))}
+        </ul>
+
+        {/* ⚠️ OS TRÊS ÚLTIMOS ABERTOS VIVEM ATRÁS DE UM `<details>` QUE SÓ
+            EXISTE NO CELULAR, e a mecânica é a mesma do comparativo: o
+            `<details>` é o próprio `peer` (aqui ele é irmão da lista, e não
+            o avô dela como no comparativo — por isso `peer-open:` e não
+            `peer-has-[details[open]]:`; trocar um pelo outro faz o botão abrir
+            e NADA aparecer, em silêncio). Ele precisa vir ANTES da lista que
+            comanda: o seletor de irmão do CSS não olha para trás.
+
+            `peer-open:block` e `lg:block` mandam a MESMA coisa, então não há
+            disputa possível entre as duas regras — que é o motivo de aqui não
+            ser preciso o `max-md` que o comparativo usa.
+
+            No desktop o `<details>` é `lg:hidden` e a segunda lista é
+            `lg:block`: os seis itens continuam abertos lá, exatamente como
+            estavam. Nada foi duplicado no HTML — cada item aparece uma vez só,
+            o que muda é quem o revela.
+
+            A CONTAGEM É CALCULADA, como no "e mais N itens" logo abaixo. */}
+        {abertos.length > ITENS_ABERTOS_CELULAR && (
+          <details className="peer group mt-3 lg:hidden">
+            <summary
+              className={`flex w-fit cursor-pointer list-none items-center gap-1.5 rounded-lg text-sm font-semibold outline-none [&::-webkit-details-marker]:hidden ${
+                destaque
+                  ? "text-accent-claro focus-visible:ring-2 focus-visible:ring-accent-claro focus-visible:ring-offset-2 focus-visible:ring-offset-primary"
+                  : "text-accent-strong focus-visible:ring-2 focus-visible:ring-accent-strong focus-visible:ring-offset-2 focus-visible:ring-offset-card"
+              }`}
+            >
+              <ChevronDown
+                aria-hidden
+                className="h-4 w-4 shrink-0 transition-transform group-open:rotate-180 motion-reduce:transition-none"
+              />
+              e mais {abertos.length - ITENS_ABERTOS_CELULAR} no pacote
+            </summary>
+          </details>
+        )}
+
+        <ul className="mt-2.5 hidden space-y-2.5 peer-open:block lg:mt-2.5 lg:block">
+          {abertos.slice(ITENS_ABERTOS_CELULAR).map((linha) => (
             <LinhaInclui key={linha} texto={linha} destaque={destaque} />
           ))}
         </ul>
@@ -1064,7 +1188,7 @@ export default function FincashPage() {
           className="cine-grade fin-palco relative isolate overflow-hidden text-white"
           style={PALCO_NAVY}
         >
-          <div className="relative mx-auto grid max-w-5xl items-center gap-10 px-4 py-16 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:gap-12 lg:py-20">
+          <div className="relative mx-auto grid max-w-5xl items-center gap-10 px-4 py-14 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:gap-12 lg:py-12">
             <div>
               <div className="inline-flex items-center gap-2.5 rounded-full bg-white/10 px-3 py-1.5 text-2xs font-semibold uppercase tracking-[0.16em] text-white/85 ring-1 ring-white/15">
                 Novare
@@ -1074,12 +1198,12 @@ export default function FincashPage() {
                 FINCASH
               </div>
 
-              <h1 className="mt-5 font-display text-[1.9rem] font-extrabold leading-[1.08] tracking-tight sm:text-[2.7rem] lg:text-[3.1rem]">
+              <h1 className="mt-4 font-display text-[1.9rem] font-extrabold leading-[1.08] tracking-tight sm:text-[2.7rem] lg:text-[3.1rem]">
                 Quanto você <span className="text-accent">realmente</span> pode
                 gastar este mês?
               </h1>
 
-              <p className="mt-4 max-w-lg text-base leading-relaxed text-white/80">
+              <p className="mt-3.5 max-w-xl text-base leading-relaxed text-white/80">
                 O saldo mostra o que você tem. O FINCASH desconta o que ainda
                 vai sair e mostra o que sobra de verdade — sem conectar banco
                 nenhum.
@@ -1094,16 +1218,14 @@ export default function FincashPage() {
 
                   O preco foi para BAIXO do botao, e nao ao lado: ao lado ele
                   quebrava em tres linhas e empurrava o botao. */}
-              <div className="mt-7 flex flex-col items-start gap-3">
+              <div className="mt-5 flex flex-col items-start gap-2.5">
                 <div className="shrink-0">
                   <BotaoComecar variante="clara" />
                 </div>
-                <p className="text-xs leading-relaxed text-white/70">
-                  {ASSINATURA_OFERTA_CURTA} · {ASSINATURA_GARANTIA}
-                </p>
+                <CaixaOferta />
               </div>
 
-              <ul className="mt-8 grid gap-x-6 gap-y-2.5 sm:grid-cols-2">
+              <ul className="mt-5 grid gap-x-6 gap-y-2 sm:grid-cols-2">
                 {SELOS.map((s) => (
                   <li
                     key={s.texto}
@@ -1204,40 +1326,75 @@ export default function FincashPage() {
               </div>
             </div>
 
-            <ul className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {/* ⚠️ DUAS COLUNAS JÁ NO CELULAR, e `grid-cols-2` está declarado:
+                em CSS Grid a coluna implícita nasce `auto` e não encolhe abaixo
+                do conteúdo — foi assim que um card desta página já nasceu com
+                537px num viewport de 390. Empilhados em uma coluna, estes seis
+                cards custavam 973px (1,2 tela) para dizer seis frases de uma
+                linha. Em duas colunas custam cerca de 500px e continuam com as
+                seis frases inteiras: nada foi recolhido nem encurtado aqui, só
+                repartido. O `p-4`/`text-xs` do celular volta a `p-5`/`text-sm`
+                a partir de `sm`, onde há largura para isso. */}
+            <ul className="mt-4 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3">
               {RECURSOS.map((r) => (
                 <li
                   key={r.titulo}
-                  className="fin-carta rounded-3xl bg-gelo p-5 ring-1 ring-primary/10"
+                  className="fin-carta rounded-2xl bg-gelo p-4 ring-1 ring-primary/10 sm:rounded-3xl sm:p-5"
                 >
                   <r.icone className="h-5 w-5 text-accent-strong" />
-                  <h3 className="mt-3 font-display text-base font-semibold leading-snug text-primary">
+                  <h3 className="mt-2.5 font-display text-sm font-semibold leading-snug text-primary sm:mt-3 sm:text-base">
                     {r.titulo}
                   </h3>
-                  <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
+                  <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground sm:text-sm">
                     {r.linha}
                   </p>
                 </li>
               ))}
             </ul>
 
-            <div className="mt-4 grid gap-4 sm:grid-cols-3">
-              <Foto
-                tela="cartoesCelular"
-                aparelho="telefone"
-                sizes="(min-width: 640px) 16rem, 60vw"
-              />
-              <Foto
-                tela="lancamentosCelular"
-                aparelho="telefone"
-                sizes="(min-width: 640px) 16rem, 60vw"
-              />
-              <Foto
-                tela="metasCelular"
-                aparelho="telefone"
-                sizes="(min-width: 640px) 16rem, 60vw"
-              />
+            {/* ⚠️ AS TRÊS CAPTURAS DE CELULAR ROLAM DE LADO — e a rolagem vive
+                DENTRO desta caixa, nunca na página. Empilhadas, elas custavam
+                2.314px: uma foto de aparelho em `w-full` num viewport de 390
+                nasce com quase 770px de altura, e três delas eram 2,7 telas de
+                rolagem para mostrar três capturas.
+
+                Nada foi escondido: as três continuam no HTML, na mesma ordem,
+                com o mesmo `alt`. O que mudou é o eixo. Cada cartão ocupa 62%
+                da largura de propósito — o pedaço do segundo aparecendo na
+                borda é o que diz "tem mais aqui do lado" sem precisar de seta,
+                de ponto nem de uma linha de JavaScript.
+
+                A partir de `sm` volta a ser a grade de três colunas de sempre:
+                `flex` e `snap` só existem abaixo dela, e `overflow-visible`
+                devolve o estouro para o navegador quando não há mais rolagem.
+
+                `-mx-4 px-4` (e o par em `sm`) sangra a faixa até a borda da
+                tela sem tirar o respiro do primeiro cartão: sem isso a última
+                foto encosta no limite do `px-4` da seção e parece cortada. */}
+            <div className="-mx-4 mt-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 [scrollbar-width:thin] sm:mx-0 sm:grid sm:grid-cols-3 sm:gap-4 sm:overflow-visible sm:px-0 sm:pb-0">
+              {(
+                [
+                  "cartoesCelular",
+                  "lancamentosCelular",
+                  "metasCelular",
+                ] as NomeTela[]
+              ).map((tela) => (
+                <div
+                  key={tela}
+                  className="w-[62%] shrink-0 snap-center sm:w-auto sm:shrink"
+                >
+                  <Foto
+                    tela={tela}
+                    aparelho="telefone"
+                    sizes="(min-width: 640px) 16rem, 62vw"
+                  />
+                </div>
+              ))}
             </div>
+
+            <p className="mt-2 text-2xs text-muted-foreground sm:hidden">
+              Arraste para o lado para ver as três telas.
+            </p>
           </section>
 
           <SequenciaProduto />
@@ -1537,7 +1694,7 @@ export default function FincashPage() {
                   mensalidade para a casa inteira
                 </h3>
                 <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                  Este app, o Planejamento, a Íris e as calculadoras.
+                  Este app, o FINPLAN, a Íris e as calculadoras.
                 </p>
               </div>
             </div>

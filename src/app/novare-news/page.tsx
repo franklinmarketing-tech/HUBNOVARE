@@ -373,7 +373,7 @@ function SidebarNews() {
           veja o Marco Horizonte por dentro.
         </p>
         <a
-          href="/planejamento"
+          href="/finplan"
           className="mt-4 inline-flex items-center gap-1.5 rounded-xl bg-white px-4 py-2.5 text-xs font-semibold text-primary transition-colors hover:bg-white/90"
         >
           Ver por dentro
@@ -427,7 +427,7 @@ function BannerWorkspace() {
           Workspace Novare
         </p>
         <h3 className="mt-1.5 font-display text-lg font-bold leading-snug sm:text-xl">
-          Todas as ferramentas, o Planejamento e a Íris num lugar só
+          Todas as ferramentas, o FINPLAN e a Íris num lugar só
         </h3>
         <p className="mt-1.5 text-sm leading-relaxed text-white/75">
           E desconto exclusivo nas consultorias — com a primeira análise grátis.

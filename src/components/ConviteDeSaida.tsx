@@ -43,7 +43,7 @@ const ESPERA_MS = 12_000;
  * é cliente; quem está no login está no meio de um formulário. Interromper
  * qualquer um dos três é atrapalhar, não converter.
  */
-const MUDO_EM = ["/assinar", "/login", "/hub", "/admin", "/perfil", "/planejamento/app"];
+const MUDO_EM = ["/assinar", "/login", "/hub", "/admin", "/perfil", "/finplan/app"];
 
 export function ConviteDeSaida() {
   const caminho = usePathname();
@@ -192,7 +192,7 @@ export function ConviteDeSaida() {
 
           <ul className="mt-5 space-y-2">
             {[
-              "Planejamento Financeiro completo",
+              "O FINPLAN inteiro, o plano do seu ano",
               "A Íris, a IA que lê seu extrato",
               `${ROTULO_DESCONTO_ASSINANTE} na consultoria particular`,
             ].map((item) => (

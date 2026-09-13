@@ -11,7 +11,7 @@ import {
   TrendingUp,
   Wallet,
 } from "lucide-react";
-import { usePlanejamento } from "@/app/planejamento/app/usePlanejamento";
+import { usePlanejamento } from "@/app/finplan/app/usePlanejamento";
 import { BarrasPatrimonio } from "@/components/BarrasPatrimonio";
 import { NumeroContado } from "@/components/NumeroContado";
 import { MeuPatrimonio, MeuRetrato } from "@/components/MeuPatrimonio";
@@ -116,7 +116,7 @@ export function PainelMeuDia({
             </div>
 
             <Link
-              href="/planejamento/app/diagnostico"
+              href="/finplan/app/diagnostico"
               className="group mt-6 inline-flex items-center gap-1.5 text-xs font-semibold text-accent-strong"
             >
               Ver o diagnóstico completo
@@ -124,7 +124,7 @@ export function PainelMeuDia({
             </Link>
           </section>
 
-          <Bloco icone={Target} titulo="Plano de vida" href="/planejamento/app/plano" delay={80}>
+          <Bloco icone={Target} titulo="Plano de vida" href="/finplan/app/plano" delay={80}>
             <p className="font-display text-3xl font-extrabold tabular-nums text-primary">
               <NumeroContado valor={pctPlano} />%
             </p>
@@ -137,7 +137,7 @@ export function PainelMeuDia({
           <Bloco
             icone={Shield}
             titulo="Reserva de emergência"
-            href="/planejamento/app/plano"
+            href="/finplan/app/plano"
             delay={140}
           >
             <p className="font-display text-3xl font-extrabold tabular-nums text-primary">
@@ -238,7 +238,7 @@ export function PainelMeuDia({
                 O que o plano recomenda
               </p>
               <Link
-                href="/planejamento/app/plano"
+                href="/finplan/app/plano"
                 className="text-[11px] font-semibold text-accent-strong hover:underline"
               >
                 Abrir plano
@@ -504,7 +504,7 @@ function SemFicha() {
           </div>
         </div>
         <Link
-          href="/planejamento/app/meus-dados"
+          href="/finplan/app/meus-dados"
           className="group inline-flex shrink-0 items-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-primary-soft"
         >
           Preencher meus dados

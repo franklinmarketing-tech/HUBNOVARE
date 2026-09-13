@@ -1,9 +1,9 @@
 /**
- * O App Novare Planejamento Financeiro, como produto.
+ * O FINPLAN — antes "App Novare Planejamento Financeiro" —, como produto.
  *
  * ⚠️ O preço NÃO mora aqui, nem neste comentário: escrever o número aqui já
  * criou uma verdade velha uma vez. Existe **uma assinatura só** na casa — o
- * Workspace Novare — e assinar o Planejamento é assinar o Workspace: a
+ * Workspace Novare — e assinar o FINPLAN é assinar o Workspace: a
  * pessoa leva o plano, a Íris, as ferramentas e o desconto na consultoria pelo
  * mesmo valor. São duas portas para a mesma porteira.
  *
@@ -29,11 +29,23 @@ import {
   ASSINATURA_PRECO_ROTULO,
 } from "@/lib/assinatura";
 
-/** Nome completo — catálogo, metadata, documentos. */
-export const PLANO_NOME = "App Novare Planejamento Financeiro";
+/**
+ * O NOME PROPRIO DO PRODUTO - FINPLAN desde 13/09/2026.
+ *
+ * Era "App Novare Planejamento Financeiro" (completo) e "Planejamento
+ * Financeiro" (curto). Os dois viraram a mesma palavra porque a marca ja e
+ * curta: manter as duas constantes com o mesmo valor e o que evita cacar
+ * `PLANO_NOME_CURTO` em dez telas no dia em que houver um nome longo de novo.
+ *
+ * IMPORTANTE: isto e o NOME, nao a ATIVIDADE. "planejamento financeiro" em
+ * minusculas continua existindo e continua certo nos textos - e o que a
+ * pessoa digita no Google, e e por isso que o `title` e a `description` da
+ * landing seguem carregando a expressao por extenso ao lado da marca.
+ */
+export const PLANO_NOME = "FINPLAN";
 
-/** Nome curto — cards, cabeçalhos, qualquer lugar estreito. */
-export const PLANO_NOME_CURTO = "Planejamento Financeiro";
+/** Nome curto - cards, cabecalhos, qualquer lugar estreito. */
+export const PLANO_NOME_CURTO = "FINPLAN";
 
 export const PLANO_PRECO = ASSINATURA_PRECO;
 export const PLANO_PRECO_ROTULO = ASSINATURA_PRECO_ROTULO;
@@ -64,4 +76,4 @@ export const PLANO_INCLUI = [
 ];
 
 /** Para onde o botão de assinar leva quem já tem sessão. */
-export const PLANO_ROTA_APP = "/planejamento/app";
+export const PLANO_ROTA_APP = "/finplan/app";

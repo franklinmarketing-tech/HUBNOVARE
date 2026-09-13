@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { ArrowRight, CalendarCheck, CircleCheckBig } from "lucide-react";
-import { brl } from "@/app/planejamento/app/pecas";
+import { brl } from "@/app/finplan/app/pecas";
 import { rotuloMes, mesAtual } from "@/lib/planejamento/catalogos";
 import { nextMonthRef } from "@/lib/planejamento/mesSeguinte";
 
@@ -48,7 +48,7 @@ export function ProximoPasso({
         titulo: "Seu mês fecha no vermelho",
         texto:
           "Antes de guardar qualquer coisa, é preciso sobrar. Abra o seu plano e veja onde o corte dói menos.",
-        href: "/planejamento/app/plano",
+        href: "/finplan/app/plano",
         cta: "Ver onde cortar",
       };
     }
@@ -56,7 +56,7 @@ export function ProximoPasso({
       return {
         titulo: "A dívida está comendo o seu mês",
         texto: `Hoje ${Math.round(comprometimentoDividas)}% da sua renda vai em parcela. Enquanto isso não cair, nenhum investimento compensa — o juro que você paga é maior que o que você ganharia.`,
-        href: "/planejamento/app/plano",
+        href: "/finplan/app/plano",
         cta: "Ver o plano da dívida",
       };
     }
@@ -64,7 +64,7 @@ export function ProximoPasso({
       return {
         titulo: "Complete a sua reserva",
         texto: `Faltam ${brl(reserva.faltam)} para os ${reserva.meses} meses de reserva. É ela que segura o primeiro imprevisto sem desmontar o resto do plano.`,
-        href: "/planejamento/app/plano",
+        href: "/finplan/app/plano",
         cta: "Ver o plano da reserva",
       };
     }
@@ -72,7 +72,7 @@ export function ProximoPasso({
       return {
         titulo: "Mantenha o aporte de pé",
         texto: `Reserva feita e dívida sob controle. O movimento agora é guardar ${brl(aporteRecomendado)} por mês — é o que fecha a conta no prazo que você definiu.`,
-        href: "/planejamento/app/plano",
+        href: "/finplan/app/plano",
         cta: "Ver o meu plano",
       };
     }
@@ -80,7 +80,7 @@ export function ProximoPasso({
       titulo: "Você está no ritmo",
       texto:
         "Reserva feita, dívida sob controle e aporte em dia. Não há nada urgente — o próximo movimento é só continuar.",
-      href: "/planejamento/app/evolucao",
+      href: "/finplan/app/evolucao",
       cta: "Ver a minha evolução",
     };
   })();
@@ -128,7 +128,7 @@ export function ProximoPasso({
           Não precisa lançar nada até lá. Se algo mudar no meio do caminho —
           salário, dívida nova, um objetivo — atualize em{" "}
           <Link
-            href="/planejamento/app/meus-dados"
+            href="/finplan/app/meus-dados"
             className="font-semibold text-accent-strong underline-offset-2 hover:underline"
           >
             Meus dados

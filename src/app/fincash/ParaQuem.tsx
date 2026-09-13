@@ -132,7 +132,7 @@ export default function ParaQuem({ className }: { className?: string }) {
           `Persona` é a peça de card da casa (fita colorida no topo, pastilha,
           ícone, título, parágrafo) e é reusada inteira: desenhar um card
           próprio aqui criaria uma segunda linhagem de card que envelhece
-          separada da /planejamento e da /assinar.
+          separada da /finplan e da /assinar.
 
           `tomPor` alterna ciano e laranja pela posição — o laranja só tem
           força enquanto é exceção, e seis cards laranja seguidos o gastam.

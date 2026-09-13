@@ -8,7 +8,7 @@ export default function robots(): MetadataRoute.Robots {
       userAgent: "*",
       allow: "/",
       // Área logada, administração e dados de gente não entram em busca.
-      // /planejamento/testar cria conta e entra sozinho, sem passar pela
+      // /finplan/testar cria conta e entra sozinho, sem passar pela
       // assinatura — é só para teste interno, não pode ser indexado nem
       // achado por quem não tem o endereço de cor.
       //
@@ -20,7 +20,7 @@ export default function robots(): MetadataRoute.Robots {
         "/perfil",
         "/admin",
         "/api",
-        "/planejamento/testar",
+        "/finplan/testar",
       ],
     },
     sitemap: `${SITE_URL}/sitemap.xml`,

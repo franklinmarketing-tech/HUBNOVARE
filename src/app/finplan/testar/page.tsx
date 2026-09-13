@@ -5,10 +5,10 @@ import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 
 /**
- * Entrada de visitante para o Planejamento Financeiro — SEM link nenhum
+ * Entrada de visitante para o FINPLAN — SEM link nenhum
  * apontando para cá, em lugar nenhum do site.
  *
- * Por quê: o Planejamento é produto pago hoje (assinatura ativa, com
+ * Por quê: o FINPLAN é produto pago hoje (assinatura ativa, com
  * garantia de 7 dias — não mais teste grátis). Um botão público de "entrar
  * sem cadastro" deixaria qualquer pessoa pular a assinatura inteira — o
  * oposto do que a página de vendas existe para fazer. Esta rota serve só para
@@ -69,7 +69,7 @@ export default function EntrarComoVisitante() {
           password: salvo.senha,
         });
         if (!error) {
-          window.location.href = "/planejamento/app";
+          window.location.href = "/finplan/app";
           return;
         }
         localStorage.removeItem(CHAVE_VISITANTE);
@@ -100,7 +100,7 @@ export default function EntrarComoVisitante() {
         /* navegador sem storage: a sessão desta visita continua valendo */
       }
 
-      window.location.href = "/planejamento/app";
+      window.location.href = "/finplan/app";
     })();
   }, []);
 
@@ -118,8 +118,8 @@ export default function EntrarComoVisitante() {
           <p className="max-w-sm text-sm text-destructive">{erro}</p>
           <p className="text-xs text-muted-foreground">
             Use o cadastro normal em{" "}
-            <a href="/planejamento" className="font-semibold text-primary">
-              /planejamento
+            <a href="/finplan" className="font-semibold text-primary">
+              /finplan
             </a>
             .
           </p>

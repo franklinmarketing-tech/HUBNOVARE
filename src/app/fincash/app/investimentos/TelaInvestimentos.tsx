@@ -617,10 +617,10 @@ function BlocoPatrimonio({
         Imóveis e outros bens não entram aqui — eles são patrimônio, não reserva,
         e vivem no{" "}
         <Link
-          href="/planejamento/app"
+          href="/finplan/app"
           className="font-medium text-ciano-forte underline-offset-2 hover:underline"
         >
-          Planejamento
+          FINPLAN
         </Link>
         .
       </p>

@@ -43,10 +43,15 @@ import { ROTULO_DESCONTO_ASSINANTE } from "@/lib/consultoria";
 import { falarNoWhatsApp } from "@/lib/contato";
 
 export const metadata: Metadata = {
-  title: "Planejamento Financeiro — seus objetivos viram um número só",
+  /* ⚠️ A MARCA ABRE, MAS A EXPRESSÃO BUSCADA FICA. Ninguém digita "FINPLAN"
+     no Google — quem procura escreve "planejamento financeiro", e era esse o
+     argumento que segurava o nome antigo aqui. Ele continua atendido: o nome
+     próprio identifica o produto, a expressão em minúsculas mantém a página
+     encontrável. Ver a mesma decisão em `lib/assinatura.ts` (ASSINATURA_NOME). */
+  title: "FINPLAN — planejamento financeiro: seus objetivos viram um número só",
   description:
     `O Marco Horizonte é o patrimônio que sustenta a renda que você quer até os 90 anos. Calcule o seu de graça e assine por ${PLANO_PRECO_ANUAL_MENSAL_ROTULO} ao mês no plano anual (ou ${PLANO_PRECO_ROTULO} ao mês avulso), com a Íris e o desconto na consultoria inclusos e ${PLANO_GARANTIA}.`,
-  alternates: { canonical: "/planejamento" },
+  alternates: { canonical: "/finplan" },
 };
 
 /**
@@ -158,6 +163,11 @@ const GRATIS = [
  */
 const SO_NO_PRO = [
   "Seu plano salvo, revisado e acompanhado mês a mês",
+  /* ⚠️ O IRMÃO, E ELE É ARGUMENTO — não um item de inventário. A frase diz
+     o PAPEL dele (medir o mês) e o que isso faz por ESTA página (abastecer o
+     plano). Quem vende o FINCASH inteiro aqui duplica a landing dele e a
+     pessoa acaba lendo a mesma oferta duas vezes, em dois endereços. */
+  "O FINCASH junto: ele mede o seu mês de verdade e o número medido vem parar neste plano",
   "Projeção ano a ano até a independência",
   "Plano de aportes que cabe no seu mês",
   "Relatório completo em PDF, quando quiser",
@@ -199,7 +209,7 @@ export default function VidaPlanPage() {
               <div className="surgir">
                 <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-2xs font-semibold uppercase tracking-[0.14em] text-white">
                   <Sparkles className="h-3.5 w-3.5 text-accent-claro" />
-                  Planejamento Financeiro · Produto PRO
+                  FINPLAN · Produto PRO
                 </span>
 
                 <h1 className="mt-5 font-display text-[1.75rem] font-extrabold leading-[1.12] tracking-tight sm:text-[2.4rem] lg:text-[2.75rem]">
@@ -490,6 +500,68 @@ export default function VidaPlanPage() {
             </div>
           </section>
 
+          {/* ================================= 6b. A PONTE COM O FINCASH = */}
+          {/* ⚠️ ESTA SEÇÃO NÃO VENDE O FINCASH — ela explica a LIGAÇÃO.
+              A divisão de trabalho entre as duas landings é explícita: a do
+              FINCASH aprofunda o app do mês, esta aprofunda o plano do ano, e
+              cada uma cita a outra no papel dela. Duplicar a venda inteira nas
+              duas páginas faria a pessoa ler a mesma oferta em dois endereços
+              e concluir que são dois produtos para comprar — quando é uma
+              assinatura só.
+
+              ⚠️ E SEM PREÇO AQUI, de propósito: o valor desta página já está
+              no cartão de oferta, e repetir a mensalidade ao lado do nome de
+              outro produto é exatamente como uma assinatura única passa a
+              parecer duas. */}
+          <section className="pt-14 sm:pt-20">
+            <div className="glass-card rounded-3xl border border-accent-soft/60 bg-accent-tint p-6 sm:p-8">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-accent-btn px-2.5 py-1 text-2xs font-semibold uppercase tracking-wider text-white">
+                <Route className="h-3.5 w-3.5" />
+                FINCASH → FINPLAN
+              </span>
+
+              <h2 className="mt-4 font-display text-xl font-extrabold leading-tight text-primary sm:text-2xl">
+                O plano deixa de ser chute quando o mês é medido
+              </h2>
+
+              <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+                O retrato que você preenche aqui começa com o que você lembra
+                de cabeça. O FINCASH — o outro app da mesma assinatura — mede
+                o seu mês lançamento a lançamento, e tem uma tela que traz esse
+                número medido para cá: você vê os dois lado a lado e escolhe,
+                item a item, qual vale. Não são dois produtos para comprar; são
+                dois lados do mesmo dinheiro, e um alimenta o outro.
+              </p>
+
+              <div className="mt-5 grid gap-3 sm:grid-cols-2">
+                <div className="rounded-2xl bg-card/70 p-4 ring-1 ring-primary/5">
+                  <p className="text-2xs font-semibold uppercase tracking-wider text-accent-strong">
+                    FINCASH
+                  </p>
+                  <p className="mt-1 text-sm font-semibold leading-snug text-primary">
+                    O mês: quanto ainda dá para gastar até o dia 30.
+                  </p>
+                </div>
+                <div className="rounded-2xl bg-card/70 p-4 ring-1 ring-primary/5">
+                  <p className="text-2xs font-semibold uppercase tracking-wider text-accent-strong">
+                    FINPLAN
+                  </p>
+                  <p className="mt-1 text-sm font-semibold leading-snug text-primary">
+                    O ano: onde você precisa chegar, e quando.
+                  </p>
+                </div>
+              </div>
+
+              <Link
+                href="/fincash"
+                className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-accent-strong underline-offset-4 hover:underline"
+              >
+                Ver o FINCASH por dentro
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
+          </section>
+
           {/* ========================================= 7. GRÁTIS × PRO == */}
           <section className="pt-14 sm:pt-20">
             <h2 className="titulo-secao text-xl sm:text-2xl">
@@ -552,7 +624,7 @@ export default function VidaPlanPage() {
               >
                 <div className="flex flex-wrap items-center gap-2">
                   <h3 className="font-display text-lg font-bold text-primary">
-                    Planejamento Financeiro
+                    FINPLAN
                   </h3>
                   <span className="rounded-md bg-accent-btn px-2 py-0.5 text-2xs font-semibold uppercase tracking-wider text-white">
                     PRO
@@ -657,7 +729,7 @@ export default function VidaPlanPage() {
                 <div>
                   <span className="inline-flex items-center gap-1.5 rounded-full bg-accent-btn px-2.5 py-1 text-2xs font-semibold uppercase tracking-wider text-white">
                     <Sparkles className="h-3.5 w-3.5" />
-                    Único produto pago do Workspace
+                    Vem na mesma assinatura do FINCASH
                   </span>
 
                   <h2 className="mt-4 font-display text-2xl font-extrabold leading-tight text-primary sm:text-3xl">
@@ -672,8 +744,8 @@ export default function VidaPlanPage() {
                   </h2>
 
                   <p className="mt-3 max-w-lg text-sm leading-relaxed text-muted-foreground">
-                    É a assinatura da Novare: a mesma mensalidade
-                    libera este app, a Íris, todas as ferramentas e condição de
+                    É a assinatura da Novare: a mesma mensalidade libera este
+                    app, o FINCASH, a Íris, todas as ferramentas e condição de
                     assinante na consultoria particular. Sem taxa de
                     entrada, sem fidelidade e sem comissão embutida em produto
                     nenhum.
@@ -698,7 +770,7 @@ export default function VidaPlanPage() {
                   <BotaoAssinarPlano />
                   <a
                     href={falarNoWhatsApp(
-                      "Olá! Tenho dúvidas sobre o App Novare Planejamento Financeiro antes de assinar.",
+                      "Olá! Tenho dúvidas sobre o FINPLAN antes de assinar.",
                     )}
                     target="_blank"
                     rel="noopener noreferrer"
@@ -748,7 +820,7 @@ export default function VidaPlanPage() {
                 {
                   pergunta: `O que eu recebo pagando ${PLANO_PRECO_ROTULO} por mês (ou ${PLANO_PRECO_ANUAL_ROTULO} por ano)?`,
                   resposta:
-                    `Tudo. Uma assinatura só libera o pacote inteiro: o planejamento completo (retrato, diagnóstico, plano de ação, acompanhamento mensal e relatório em PDF), a Íris sem custo adicional, todas as ferramentas da casa e condição de assinante na consultoria particular. Não existe plano mais caro com mais coisas.`,
+                    `Tudo. Uma assinatura só libera o pacote inteiro: o FINPLAN completo (retrato, diagnóstico, plano de ação, acompanhamento mensal e relatório em PDF), o FINCASH — o app do seu mês —, a Íris sem custo adicional, todas as ferramentas da casa e condição de assinante na consultoria particular. Não existe plano mais caro com mais coisas.`,
                 },
                 {
                   pergunta: "Preciso já ter dinheiro investido para assinar?",

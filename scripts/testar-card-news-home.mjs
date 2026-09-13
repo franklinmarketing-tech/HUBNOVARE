@@ -32,7 +32,7 @@ const corpo = await p.locator("body").innerText();
 // quando ela rodava.
 conferir(
   "o banner antigo saiu",
-  !/planejamento e íris liberados/i.test(corpo),
+  !/finplan e íris liberados/i.test(corpo),
   corpo.match(/.{0,30}Íris liberados.{0,20}/i)?.[0],
 );
 conferir("o card do News aparece", /novare news/i.test(corpo));

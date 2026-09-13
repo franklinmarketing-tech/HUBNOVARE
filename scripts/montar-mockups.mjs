@@ -41,8 +41,8 @@ const logo = png("logo-novare-branca.png");
 const TELA = {
   home: png("telas/home-desktop.png", MAT),
   homeCel: png("telas/home-celular.png", MAT),
-  planejamento: png("telas/planejamento-desktop.png", MAT),
-  planejamentoCel: png("telas/planejamento-celular.png", MAT),
+  planejamento: png("telas/finplan-desktop.png", MAT),
+  planejamentoCel: png("telas/finplan-celular.png", MAT),
   iris: png("telas/iris-desktop.png", MAT),
   irisCel: png("telas/iris-celular.png", MAT),
   aplicativos: png("telas/aplicativos-desktop.png", MAT),

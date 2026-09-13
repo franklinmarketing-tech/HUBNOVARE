@@ -35,8 +35,8 @@ const socios = jpg("novare-site/socios-novare-alta.jpg");
 const T = {
   iris: png("telas/iris-desktop.png", MAT),
   irisCel: png("telas/iris-celular.png", MAT),
-  plan: png("telas/planejamento-desktop.png", MAT),
-  planCel: png("telas/planejamento-celular.png", MAT),
+  plan: png("telas/finplan-desktop.png", MAT),
+  planCel: png("telas/finplan-celular.png", MAT),
   diagnostico: png("telas/app-diagnostico.png", MAT),
   plano: png("telas/app-plano.png", MAT),
   mes: png("telas/app-mes.png", MAT),

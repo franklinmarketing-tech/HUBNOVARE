@@ -2,7 +2,11 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Check, Lock, MessageCircle, ShieldCheck, Sparkles, X } from "lucide-react";
-import { PLANO_INCLUI, PLANO_OFERTA } from "@/lib/planejamento/oferta";
+import {
+  PLANO_INCLUI,
+  PLANO_NOME_CURTO,
+  PLANO_OFERTA,
+} from "@/lib/planejamento/oferta";
 import {
   ASSINATURA_GARANTIA_FRASE,
   ASSINATURA_INCLUI,
@@ -46,10 +50,10 @@ export const ROTA_COMECAR = "/login?modo=criar&proximo=%2Fplanejamento%2Fapp";
 
 const CONTEXTOS = {
   plano: {
-    sobretitulo: "Planejamento Financeiro",
+    sobretitulo: PLANO_NOME_CURTO,
     itens: PLANO_INCLUI,
     brinde: "A Íris vai junto, de brinde",
-    mensagem: `Olá! Quero assinar o App Novare Planejamento Financeiro (${PLANO_OFERTA}) e tenho uma dúvida antes.`,
+    mensagem: `Olá! Quero assinar o ${PLANO_NOME_CURTO} (${PLANO_OFERTA}) e tenho uma dúvida antes.`,
   },
   workspace: {
     sobretitulo: ASSINATURA_NOME,

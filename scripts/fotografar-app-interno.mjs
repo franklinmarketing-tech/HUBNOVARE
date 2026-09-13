@@ -3,7 +3,7 @@
  *
  *   node scripts/fotografar-app-interno.mjs
  *
- * A conta usada é a de teste interna (`/planejamento/testar`), que cria
+ * A conta usada é a de teste interna (`/finplan/testar`), que cria
  * usuário e entra sozinha. Assim as artes mostram o app funcionando por
  * dentro, não só a página de vendas.
  *
@@ -30,12 +30,12 @@ const pagina = await navegador.newPage({
 console.log("entrando com a conta de teste...");
 // `domcontentloaded`, não `networkidle`: esta rota cria a conta e redireciona
 // sozinha, então a rede nunca fica ociosa antes da navegação acontecer.
-await pagina.goto(`${BASE}/planejamento/testar`, {
+await pagina.goto(`${BASE}/finplan/testar`, {
   waitUntil: "domcontentloaded",
   timeout: 60_000,
 });
-// A rota cria a conta e redireciona sozinha para /planejamento/app.
-await pagina.waitForURL(/\/planejamento\/app/, { timeout: 45_000 });
+// A rota cria a conta e redireciona sozinha para /finplan/app.
+await pagina.waitForURL(/\/finplan\/app/, { timeout: 45_000 });
 await pagina
   .getByRole("button", { name: /entendi/i })
   .click({ timeout: 3000 })

@@ -595,7 +595,7 @@ export default async function ProdutoPage({
                 </h2>
                 <p className="mt-2.5 text-sm leading-relaxed text-slate-600">
                   A assinatura de {ASSINATURA_PRECO_ROTULO}/mês libera o
-                  Planejamento Financeiro e a Íris — e dá desconto em qualquer
+                  FINPLAN e a Íris — e dá desconto em qualquer
                   formato de consultoria. Um único atendimento com desconto
                   costuma devolver mais do que o ano inteiro de assinatura.
                 </p>

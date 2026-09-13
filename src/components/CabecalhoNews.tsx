@@ -36,8 +36,8 @@ const ECOSSISTEMA = [
     icone: Sparkles,
   },
   {
-    href: "/planejamento",
-    nome: "Planejamento",
+    href: "/finplan",
+    nome: "FINPLAN",
     desc: "Retrato, diagnóstico e plano — em 10 minutos",
     icone: Sunrise,
   },

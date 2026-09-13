@@ -20,7 +20,7 @@ import { Bot, Calculator, LineChart, Newspaper, Target, Users } from "lucide-rea
 
 /** Posição de cada satélite, em % do quadro. Distribuídos na órbita. */
 const NOS = [
-  { icone: Target, nome: "Planejamento", x: 50, y: 6, tom: "accent" },
+  { icone: Target, nome: "FINPLAN", x: 50, y: 6, tom: "accent" },
   { icone: Bot, nome: "Íris", x: 90, y: 32, tom: "ciano" },
   { icone: Users, nome: "Consultoria", x: 78, y: 82, tom: "ciano" },
   { icone: Calculator, nome: "Ferramentas", x: 22, y: 82, tom: "ciano" },
@@ -36,7 +36,7 @@ export function EcossistemaConectado() {
       <div
         className="relative mx-auto hidden aspect-[4/3] w-full max-w-2xl sm:block"
         role="img"
-        aria-label="A assinatura liga o Planejamento, a Íris, a Consultoria, as Ferramentas e o News a um só centro."
+        aria-label="A assinatura liga o FINPLAN, a Íris, a Consultoria, as Ferramentas e o News a um só centro."
       >
         {/* As linhas ficam atrás dos cards, num SVG que ocupa o quadro. */}
         <svg

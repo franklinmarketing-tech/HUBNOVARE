@@ -26,7 +26,7 @@ import "./cinema.css";
  * ── O ARGUMENTO QUE ESTA PEÇA CARREGA ────────────────────────────────────
  * A landing vendia o app sozinho, e sozinho ele fica CARO: R$ 29,90 contra os
  * R$ 19,90 do concorrente mais direto, pelo mesmo tipo de produto. A verdade
- * da casa é outra — a mesma mensalidade abre o FINCASH, o Planejamento, a
+ * da casa é outra — a mesma mensalidade abre o FINCASH, o FINPLAN, a
  * Íris, as ferramentas e uma revisão trimestral escrita por um consultor. Isso
  * não se compara com app; se compara com consultoria. Hoje o argumento existia
  * só como item de lista dentro do cartão de preço, que é onde ninguém lê.
@@ -75,7 +75,7 @@ import "./cinema.css";
  * publicando número cravado que o catálogo desmentia.
  *
  *   • a revisão trimestral → `ASSINATURA_PILARES` (chave `revisao`)
- *   • FINCASH, Planejamento e Íris → `APPS`, por slug (nome, chamada e
+ *   • FINCASH, FINPLAN e Íris → `APPS`, por slug (nome, chamada e
  *     `pontosFortes`)
  *   • as contagens de ferramenta → `CONTAGEM`, nunca um literal
  *   • as promessas de cada nó → `ASSINATURA_INCLUI`, repartido por `minha()`
@@ -87,7 +87,7 @@ import "./cinema.css";
  * em vez de a peça continuar anunciando um pacote que mudou sem ela.
  *
  * ⚠️ O FINCASH NÃO ESTÁ EM `ASSINATURA_INCLUI`. Não é esquecimento: aquela
- * lista é escrita para quem chega pelo Planejamento, e lá o FINCASH é um dos
+ * lista é escrita para quem chega pelo FINPLAN, e lá o FINCASH é um dos
  * apps. Nesta página ele é O produto, então o nó dele é montado do catálogo
  * (`APPS`), que é onde o app tem nome, chamada e pontos fortes próprios.
  */
@@ -293,7 +293,7 @@ export default function Pacote({ className }: { className?: string }) {
       <TituloSecao
         sobre="O que a assinatura abre"
         titulo="Quem assina o FINCASH leva a casa inteira"
-        apoio="Não existe plano do FINCASH. Existe uma assinatura da Novare, e ela abre este app, o Planejamento Financeiro, a Íris, as ferramentas da casa e uma revisão trimestral escrita por um consultor. Pelo mesmo preço."
+        apoio="Não existe plano do FINCASH. Existe uma assinatura da Novare, e ela abre este app, o FINPLAN, a Íris, as ferramentas da casa e uma revisão trimestral escrita por um consultor. Pelo mesmo preço."
       />
 
       {/* ⚠️ SÃO DUAS CAIXAS ANINHADAS, E ISSO É OBRIGATÓRIO — a mesma regra da

@@ -27,7 +27,7 @@ const brl = (v: number) =>
    produto têm de dar o mesmo número. */
 
 /**
- * O lead-magnet do Planejamento Financeiro, no molde da calculadora "Reserva Ideal" do
+ * O lead-magnet do FINPLAN, no molde da calculadora "Reserva Ideal" do
  * Nord Liberta: a pessoa preenche, vê o próprio Marco Horizonte na hora e
  * deixa nome, WhatsApp e e-mail para receber o plano detalhado. O lead vai
  * para o comercial.
@@ -91,7 +91,7 @@ export function CalculadoraMarcoHorizonte() {
       email: dados.email,
       nome: dados.nome.trim(),
       telefone: dados.telefone,
-      origem: "/planejamento",
+      origem: "/finplan",
       tipo: "vida-plan",
       payload: { idade, idadeLivre, renda: r.rendaN, alvo: r.alvo, projecao: r.fv, pct: r.pct },
     });

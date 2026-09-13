@@ -26,7 +26,7 @@ export function RodapeNovare({
    *
    * O padrão é "ferramenta" porque é o caso da maioria das telas que montam
    * este rodapé (todo /ferramentas/*). Quem vende serviço — /consultoria,
-   * /planejamento, /assinar — passa "servico".
+   * /finplan, /assinar — passa "servico".
    */
   aviso = "ferramenta",
 }: { convite?: boolean; aviso?: "ferramenta" | "servico" } = {}) {
@@ -96,7 +96,7 @@ export function RodapeNovare({
               className="h-7 w-auto"
             />
             <p className="mt-4 text-[13px] leading-relaxed text-white/55">
-              Consultoria de investimentos independente. Planejamento
+              Consultoria de investimentos independente. FINPLAN
               financeiro, alocação e acompanhamento contínuo para os seus
               objetivos de vida.
             </p>

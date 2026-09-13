@@ -6,7 +6,7 @@
  * repetido aqui, senão este comentário envelhece calado, como já envelheceu
  * uma vez dizendo R$ 19,90). Não há plano básico nem avançado: o que existe
  * são dois PRAZOS de pagamento para o mesmo produto inteiro — FINCASH,
- * Planejamento, Íris e as ferramentas. Quem paga por ano paga menos por mês,
+ * FINPLAN, Íris e as ferramentas. Quem paga por ano paga menos por mês,
  * e é só isso que muda.
  *
  * ═══ O PRODUTO-ÂNCORA MUDOU (12/09/2026) ═══════════════════════════════════
@@ -15,7 +15,7 @@
  * revertendo: **o que se assina passou a ser o FINCASH**. Até esta data a casa
  * vendia "o Workspace" e o FINCASH era um app dentro dele; agora é o
  * contrário. Assina-se o app do mês, e junto vêm a Íris sem limite, o
- * Planejamento, as ferramentas exclusivas, a revisão trimestral escrita por um
+ * FINPLAN, as ferramentas exclusivas, a revisão trimestral escrita por um
  * consultor e a condição especial na consultoria.
  *
  * ⚠️ O QUE **NÃO** MUDOU — e é o que torna esta virada barata: o preço (os
@@ -23,7 +23,7 @@
  * ENTREGA. Ninguém passa a receber mais nem menos do que recebia ontem. Mudou
  * o NOME do que se compra e a ORDEM em que as coisas são apresentadas.
  *
- * POR QUE TROCAR A ÂNCORA: o Planejamento cobra uma trilha de perguntas antes
+ * POR QUE TROCAR A ÂNCORA: o FINPLAN cobra uma trilha de perguntas antes
  * de devolver qualquer coisa, e porta de entrada que exige esforço antes de
  * entregar valor é porta estreita. O FINCASH responde "posso gastar?" no
  * primeiro dia de uso. Quem entra pelo que resolve hoje é quem continua por
@@ -288,7 +288,7 @@ export const ASSINATURA_GARANTIA_FRASE = `Você tem ${ASSINATURA_GARANTIA_DIAS} 
  * ⚠️ O MOTOR DO TESTE CONTINUA LIGADO — e isso é deliberado, não esquecimento.
  *
  * `lib/trial.ts` grava `vidaplan_subscriptions` com `trial_until` no primeiro
- * acesso, e `FaixaTeste`/`CardPlanejamentoHome` mostram o relógio de quem
+ * acesso, e `FaixaTeste`/`CardFinplanHome` mostram o relógio de quem
  * está dentro desse prazo. Duas razões para não arrancar junto com o texto:
  *
  * 1. Tem gente em teste AGORA, com dias correndo. Desligar o motor no mesmo
@@ -528,7 +528,7 @@ export const ASSINATURA_PILARES = [
     resumo: "Seu Marco Horizonte: o número e o caminho até ele.",
     detalhe:
       "É o patrimônio que sustenta a renda que você quer, até os 90 anos. Não é a regra dos 4% americana — é a conta certa, com juro brasileiro e prazo definido. Você descobre o número, o prazo e quanto precisa guardar por mês.",
-    href: "/planejamento",
+    href: "/finplan",
   },
   {
     chave: "acompanhamento",
@@ -536,7 +536,7 @@ export const ASSINATURA_PILARES = [
     resumo: "Fecha o mês em 2 minutos e vê se avançou ou recuou.",
     detalhe:
       "É a diferença entre a planilha que você abandona em fevereiro e um plano que ainda está de pé em dezembro. Todo mês o app mostra a sua evolução em números, e o relatório em PDF é seu — leve para onde quiser, inclusive para outro consultor.",
-    href: "/planejamento",
+    href: "/finplan",
   },
 ] as const;
 
@@ -552,8 +552,8 @@ export const ASSINATURA_PILARES = [
  * ═══ O FINCASH ENTROU NA LISTA, EM SEGUNDO — E O SEGUNDO É A DECISÃO ═══════
  *
  * Ele não estava aqui, e a ausência tinha motivo escrito: esta lista foi
- * redigida para quem chegava pelo Planejamento, e quem chega pelo
- * Planejamento não compra um app de mês. Com a troca de âncora (ver o topo do
+ * redigida para quem chegava pelo FINPLAN, e quem chega pelo
+ * FINPLAN não compra um app de mês. Com a troca de âncora (ver o topo do
  * arquivo) esse motivo caducou — a lista agora é lida por quem chegou pelo
  * FINCASH, e um pacote que não menciona o produto que a pessoa veio comprar
  * parece pacote de outra coisa.
@@ -567,7 +567,7 @@ export const ASSINATURA_PILARES = [
  * tem pelo argumento que todo app de finanças faz.
  *
  * O que a âncora conquistou foi o topo do BLOCO DE SOFTWARE: o FINCASH passa
- * à frente da Íris e do Planejamento, que é onde a ordem diz "este é o
+ * à frente da Íris e do FINPLAN, que é onde a ordem diz "este é o
  * produto". A Íris perdeu essa posição sem perder força — ela segue logo
  * abaixo, e segue sendo o item que devolve dinheiro no primeiro uso.
  *
@@ -646,7 +646,7 @@ export const ASSINATURA_INCLUI = [
        • `consultoria.ts` perdeu o `DESCONTO_ASSINANTE`, o `ROTULO_DESCONTO`
          ("30% OFF") e o `precoComDesconto()`. Sobrou `ROTULO_DESCONTO_ASSINANTE`,
          que é texto, não conta;
-       • `/assinar`, `/planejamento`, `/consultoria/[slug]`, `CardConsultoria`
+       • `/assinar`, `/finplan`, `/consultoria/[slug]`, `CardConsultoria`
          e `ConviteDeSaida` passaram a dizer "condição de assinante";
        • `testar-nada-a-venda.mjs` INVERTEU a asserção: antes exigia "30% OFF"
          na `/assinar`, agora exige que percentual nenhum apareça lá.

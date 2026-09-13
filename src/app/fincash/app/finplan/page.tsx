@@ -44,17 +44,17 @@ import {
 } from "../pecas";
 
 /**
- * "Levar meu mês para o Planejamento" — a ponte, do lado de quem usa.
+ * "Levar meu mês para o FINPLAN" — a ponte, do lado de quem usa.
  *
  * A TELA INTEIRA EXISTE POR CAUSA DE UMA COLUNA: a do meio, onde o número que
- * está hoje no Planejamento aparece ao lado do número que o FINCASH mediu. Sem
+ * está hoje no FINPLAN aparece ao lado do número que o FINCASH mediu. Sem
  * ela, isto seria um botão de importar — e botão de importar, num app de
  * dinheiro, é o que troca em silêncio o número em cima do qual um consultor
  * escreveu a revisão trimestral que o cliente pagou.
  *
  * POR QUE A PONTE MORA AQUI, E NÃO NO PLANEJAMENTO
- * Porque a direção é única: o FINCASH tem o número medido, o Planejamento tem o
- * lembrado. Quem puxa é quem tem o dado bom. E nenhuma tela do Planejamento foi
+ * Porque a direção é única: o FINCASH tem o número medido, o FINPLAN tem o
+ * lembrado. Quem puxa é quem tem o dado bom. E nenhuma tela do FINPLAN foi
  * tocada neste trabalho — a gravação usa o caminho que já existe (as mesmas
  * tabelas, as mesmas colunas, a mesma RLS).
  *
@@ -70,7 +70,7 @@ import {
  *    da conta até alguém decidir o que fazer com ela.
  */
 
-export default function PontePlanejamentoPage() {
+export default function PonteFINPLANPage() {
   const hoje = refDoMes();
   const [ref, setRef] = useState(hoje);
   const [estado, setEstado] = useState<EstadoPonte | null>(null);
@@ -141,9 +141,9 @@ export default function PontePlanejamentoPage() {
 
   const cabecalho = (
     <CabecalhoTela
-      chapeu="FINCASH → Planejamento"
-      titulo="Levar meu mês para o Planejamento"
-      resumo="O FINCASH tem o número medido, lançamento a lançamento. O Planejamento tem o que você digitou de cabeça. Aqui você vê os dois lado a lado e escolhe, item a item, o que vale."
+      chapeu="FINCASH → FINPLAN"
+      titulo="Levar meu mês para o FINPLAN"
+      resumo="O FINCASH tem o número medido, lançamento a lançamento. O FINPLAN tem o que você digitou de cabeça. Aqui você vê os dois lado a lado e escolhe, item a item, o que vale."
       Icone={Send}
     />
   );
@@ -160,7 +160,7 @@ export default function PontePlanejamentoPage() {
     return (
       <AvisoSQL
         arquivo="supabase/fincash_ponte.sql"
-        oQue="A ponte com o Planejamento"
+        oQue="A ponte com o FINPLAN"
       />
     );
 
@@ -180,7 +180,7 @@ export default function PontePlanejamentoPage() {
       </div>
     );
 
-  /* Sem ficha de cliente: o FINCASH é por usuário, o Planejamento é por ficha,
+  /* Sem ficha de cliente: o FINCASH é por usuário, o FINPLAN é por ficha,
      e a ficha nasce do lado de lá. A ponte NÃO abre ficha por conta própria —
      ver a nota em `ponte-banco.ts`. Dizer o que falta e para onde ir vale mais
      que um botão que a RLS recusaria. */
@@ -190,16 +190,16 @@ export default function PontePlanejamentoPage() {
         {cabecalho}
         <Vazio
           Icone={FileQuestion}
-          titulo="Você ainda não tem uma ficha no Planejamento"
-          texto="O FINCASH funciona sozinho, com a sua conta. O Planejamento Financeiro trabalha sobre uma ficha de cliente — e a sua ainda não foi aberta. Sem ela não existe para onde levar estes números."
+          titulo="Você ainda não tem uma ficha no FINPLAN"
+          texto="O FINCASH funciona sozinho, com a sua conta. O FINPLAN trabalha sobre uma ficha de cliente — e a sua ainda não foi aberta. Sem ela não existe para onde levar estes números."
           passos={[
-            "Abra o Planejamento Financeiro e faça o primeiro acesso: é ele que cria a sua ficha.",
+            "Abra o FINPLAN e faça o primeiro acesso: é ele que cria a sua ficha.",
             "Se a sua conta é de equipe da Novare, não haverá ficha — contas administrativas não têm planejamento pessoal.",
             "Se já fez isso e continua aparecendo esta mensagem, fale com a Novare: a ficha pode ter sido aberta com outro e-mail.",
           ]}
           acao={
-            <BotaoAcao href="/planejamento/app" Icone={ArrowRight}>
-              Abrir o Planejamento
+            <BotaoAcao href="/finplan/app" Icone={ArrowRight}>
+              Abrir o FINPLAN
             </BotaoAcao>
           }
         />
@@ -283,7 +283,7 @@ export default function PontePlanejamentoPage() {
                   desabilitado={marcadas === 0 || enviando}
                   onClick={() => enviar(dados)}
                 >
-                  {enviando ? "Levando…" : "Levar para o Planejamento"}
+                  {enviando ? "Levando…" : "Levar para o FINPLAN"}
                 </BotaoAcao>
               </div>
             </Bloco>
@@ -369,7 +369,7 @@ function LinhaDiferenca({
           className="h-[18px] w-[18px] cursor-pointer rounded border-border accent-[hsl(16_80%_45%)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ciano-forte disabled:cursor-not-allowed disabled:opacity-40"
         />
         <span className="sr-only">
-          Levar {d.rotulo} para o Planejamento
+          Levar {d.rotulo} para o FINPLAN
           {d.situacao === "divergente"
             ? ` — atenção: isto substitui ${brlExato(d.valorAtual ?? 0)} por ${brlExato(d.valorFincash)}`
             : ""}
@@ -390,7 +390,7 @@ function LinhaDiferenca({
           substitui qual. */}
       <div className="flex shrink-0 items-center gap-2 text-right">
         <div className="min-w-[6.5rem]">
-          <p className="text-2xs text-muted-foreground">No Planejamento</p>
+          <p className="text-2xs text-muted-foreground">No FINPLAN</p>
           <p className="text-sm font-semibold tabular-nums text-muted-foreground">
             {d.valorAtual === null ? "—" : brlExato(d.valorAtual)}
           </p>
@@ -423,7 +423,7 @@ function SemCasa({
   return (
     <section className="mb-4">
       <h2 className="mb-2 font-display text-sm font-semibold text-primary">
-        O que não tem lugar no Planejamento
+        O que não tem lugar no FINPLAN
       </h2>
       <Bloco tom="gelo" elevacao="plano" className="p-4">
         <p className="mb-3 max-w-prose text-xs leading-relaxed text-muted-foreground">
@@ -496,7 +496,7 @@ function ResultadoDoEnvio({
         <span>
           <strong className="text-primary">{resultado.gravadas}</strong> linha(s)
           criada(s) e <strong className="text-primary">{resultado.atualizadas}</strong>{" "}
-          atualizada(s) no Planejamento.
+          atualizada(s) no FINPLAN.
         </span>
       </p>
       {resultado.loteId && (

@@ -1,4 +1,4 @@
-import { brlCurto } from "@/app/planejamento/app/pecas";
+import { brlCurto } from "@/app/finplan/app/pecas";
 
 /**
  * A camada de jogo da Evolução.

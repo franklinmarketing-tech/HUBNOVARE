@@ -108,7 +108,7 @@ export default function EvolucaoPage() {
             aqui. A partir do segundo, dá para ver a curva.
           </p>
           <Link
-            href="/planejamento/app/mes"
+            href="/finplan/app/mes"
             /* O botão responde ao toque: sobe no hover, afunda no clique.
                Sem isso ele parece uma etiqueta colada, não algo clicável. */
             className="mt-5 inline-block rounded-xl bg-accent-btn px-5 py-2.5 text-sm font-bold text-white shadow-[0_4px_14px_-6px_hsl(16_80%_45%_/_0.6)] transition-all duration-150 hover:-translate-y-0.5 hover:shadow-[0_8px_20px_-6px_hsl(16_80%_45%_/_0.7)] active:translate-y-0 active:scale-[0.98]"

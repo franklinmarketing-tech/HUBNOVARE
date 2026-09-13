@@ -60,7 +60,7 @@ conferir("sidebar tem as ferramentas mais usadas", /ferramentas mais usadas/i.te
 await p.hover("header button:has-text('Ecossistema')").catch(() => {});
 await p.waitForTimeout(400);
 const drop = await p.locator("header").first().innerText();
-conferir("dropdown lista Planejamento e Íris", /planejamento/i.test(drop) && /íris/i.test(drop));
+conferir("dropdown lista Planejamento e Íris", /finplan/i.test(drop) && /íris/i.test(drop));
 
 // Paginação: com 11 artigos e 6 por página, tem de existir página 2.
 conferir("tem paginação", /próxima|«|»/i.test(corpo) || (await p.locator("nav a").count()) > 0);

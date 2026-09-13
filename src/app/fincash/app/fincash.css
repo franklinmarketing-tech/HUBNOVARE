@@ -2,7 +2,7 @@
    FINCASH — profundidade e movimento.
 
    POR QUE ESTE ARQUIVO EXISTE, E POR QUE ELE NÃO É O globals.css
-   O `globals.css` serve o Hub inteiro: landing, Planejamento, painel do
+   O `globals.css` serve o Hub inteiro: landing, FINPLAN, painel do
    consultor. Tudo o que entra lá vira contrato de todo mundo. O que está aqui
    é vocabulário de UM app — a escada de sombras do FINCASH e as quatro
    animações que ele usa. Importado só pelo `layout.tsx` de /fincash/app, some

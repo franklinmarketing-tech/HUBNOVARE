@@ -97,14 +97,14 @@ async function abrir(rota, ancora = "h1") {
 
 /* ---------------------------------------------------------------- login */
 
-await p.goto(`${BASE}/login?proximo=%2Fplanejamento%2Fapp`, {
+await p.goto(`${BASE}/login?proximo=%2Ffinplan%2Fapp`, {
   waitUntil: "domcontentloaded",
 });
 await p.waitForSelector('input[type="email"]', { timeout: 20000 });
 await p.fill('input[type="email"]', EMAIL);
 await p.fill('input[type="password"]', SENHA);
 await p.click('button[type="submit"]');
-await p.waitForURL((u) => u.pathname.startsWith("/planejamento/app"), {
+await p.waitForURL((u) => u.pathname.startsWith("/finplan/app"), {
   timeout: 30000,
 });
 await p.waitForTimeout(2500);
@@ -120,19 +120,19 @@ await rolarAte(0, 1100);
 await p.waitForTimeout(700);
 
 // 2. Diagnóstico: para onde vai o dinheiro.
-await abrir("/planejamento/app/diagnostico");
+await abrir("/finplan/app/diagnostico");
 await p.waitForTimeout(2000);
 await rolarAte(400, 1500);
 await p.waitForTimeout(1600);
 
 // 3. Plano de ação.
-await abrir("/planejamento/app/plano");
+await abrir("/finplan/app/plano");
 await p.waitForTimeout(2600);
 await rolarAte(520, 1600);
 await p.waitForTimeout(1800);
 
 // 4. A trilha de preenchimento, para mostrar como os dados entram.
-await abrir("/planejamento/app/meus-dados");
+await abrir("/finplan/app/meus-dados");
 await p.waitForTimeout(1800);
 await rolarAte(280, 1200);
 await p.waitForTimeout(1500);

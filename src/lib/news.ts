@@ -79,7 +79,7 @@ export const ARTIGOS: Artigo[] = [
     ferramenta: {
       slug: "planejamento",
       nome: "Descobrir a minha taxa de poupança",
-      href: "/planejamento",
+      href: "/finplan",
     },
   },
   {
@@ -331,7 +331,7 @@ export const ARTIGOS: Artigo[] = [
     destaque: true,
     corpo: [
       "Planejamento financeiro sempre teve um gargalo: alguém precisava sentar com você, ouvir sua vida, montar a planilha e devolver o plano. Isso funciona, mas custa caro e depende da agenda de outra pessoa — por isso a maioria nunca chega a ter um plano de verdade.",
-      "O App Novare Planejamento Financeiro tira esse gargalo. Você preenche seu retrato financeiro numa trilha de oito blocos curtos — renda, despesas, dívidas, patrimônio, proteção, objetivos e o seu jeito com dinheiro — e leva uns dez minutos, com liberdade de parar no meio e voltar depois.",
+      "O FINPLAN, o app de planejamento financeiro da Novare, tira esse gargalo. Você preenche seu retrato financeiro numa trilha de oito blocos curtos — renda, despesas, dívidas, patrimônio, proteção, objetivos e o seu jeito com dinheiro — e leva uns dez minutos, com liberdade de parar no meio e voltar depois.",
       "Ao terminar, o diagnóstico sai na hora: quanto sobra por mês, quanto do que você ganha vai para dívida, sua reserva em meses de custo e uma nota de risco de A a E. Nada disso espera aprovação: é aritmética sobre os seus próprios números, calculada no seu navegador.",
       "Em seguida vem o Marco Horizonte — o patrimônio que sustenta para sempre a renda que você quer, calculado pela regra dos 4% com retorno real de 5% ao ano. Se a conta não fecha no ritmo atual, o app mostra as três alavancas que a fecham: guardar mais por mês, esperar mais alguns anos, ou buscar rentabilidade maior.",
       "O plano de ação nasce aplicado, sem ninguém precisar 'liberar': completar a reserva de emergência, atacar a dívida de maior juro primeiro, cortar na maior despesa, e o aporte mensal recomendado com a divisão por classe de ativo. Cada meta vem com valor e prazo.",
@@ -341,21 +341,21 @@ export const ARTIGOS: Artigo[] = [
     ferramenta: {
       slug: "planejamento",
       nome: "Montar meu plano",
-      href: "/planejamento",
+      href: "/finplan",
     },
   },
   {
     slug: "workspace-novare-uma-assinatura-tudo-liberado",
     titulo: "Workspace Novare: uma assinatura, tudo liberado",
     resumo:
-      "Sem plano básico e sem versão premium. Uma mensalidade só libera o Planejamento Financeiro, a Íris e as ferramentas — e ainda dá desconto na consultoria particular.",
+      "Sem plano básico e sem versão premium. Uma mensalidade só libera o FINCASH, o FINPLAN, a Íris e as ferramentas — e ainda dá desconto na consultoria particular.",
     categoria: "ia",
     data: "2026-08-24",
     tempoLeituraMin: 4,
     capa: "/news/workspace-novare-uma-assinatura-tudo-liberado.webp",
     corpo: [
       "Quase todo serviço financeiro on-line usa o mesmo truque: três planos lado a lado, o do meio destacado, e o recurso de que você precisa sempre no mais caro. O Workspace Novare não tem degrau nenhum. É uma assinatura só, e ela libera tudo.",
-      "O que entra: o Planejamento Financeiro completo, com retrato, diagnóstico, plano de ação, acompanhamento mensal e relatório em PDF. A Íris, a IA que lê seu extrato e acha assinatura esquecida, tarifa e juro escondido. E todas as calculadoras e simuladores da casa.",
+      "O que entra: o FINPLAN completo, com retrato, diagnóstico, plano de ação, acompanhamento mensal e relatório em PDF. A Íris, a IA que lê seu extrato e acha assinatura esquecida, tarifa e juro escondido. E todas as calculadoras e simuladores da casa.",
       "O que não entra, dito na cara: a consultoria particular. Ela é analisada caso a caso e cobrada à parte, porque escopo de gente não cabe numa tabela. O que a assinatura dá é desconto em qualquer formato que você contratar — e é aí que a conta costuma virar, porque um único atendimento com desconto devolve mais do que o ano inteiro de assinatura.",
       "Boa parte do Workspace, aliás, continua aberta a quem não assina: as calculadoras, o Novare News e os indicadores ao vivo do Banco Central seguem gratuitos, sem login. A assinatura é para quem quer o plano de verdade — salvo na conta, revisado e acompanhado.",
       "E o risco de experimentar é zero, mas por outro caminho: são sete dias de garantia incondicional. Você assina, usa tudo, e se não fizer sentido pede o dinheiro de volta — a devolução é automática, feita pela plataforma de pagamento, e ninguém pergunta o motivo.",

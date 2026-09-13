@@ -34,7 +34,7 @@ import { SEM_AVISOS, type AvisosDoMenu } from "./avisos";
 /**
  * O menu do FINCASH.
  *
- * NÃO é a trilha do Planejamento. Lá a barra mostra uma sequência com
+ * NÃO é a trilha do FINPLAN. Lá a barra mostra uma sequência com
  * progresso e tique, porque a pessoa percorre as seis etapas uma vez. Aqui são
  * telas que ela visita todo dia, em qualquer ordem, e nenhuma se "conclui" —
  * barra de progresso aqui seria mentira.
@@ -67,7 +67,7 @@ import { SEM_AVISOS, type AvisosDoMenu } from "./avisos";
  * O terceiro grupo saiu de dentro do segundo porque nove itens seguidos sob um
  * rótulo só voltavam a ser o que o rótulo tinha vindo resolver: uma coluna
  * uniforme. A régua continua sendo frequência — diário, eventual, raro —, e o
- * corte cai onde ela muda de natureza: WhatsApp, a ponte do Planejamento, os
+ * corte cai onde ela muda de natureza: WhatsApp, a ponte do FINPLAN, os
  * dados e as categorias são CANOS E AJUSTES, coisas que se configuram uma vez
  * e depois só se visita quando algo precisa mudar. No celular a divisão
  * continua fazendo o trabalho original — lá o espaço segue sendo o problema —,
@@ -178,12 +178,12 @@ const TELAS: Tela[] = [
     secao: "canos",
   },
   {
-    /* A ponte para o Planejamento. Fica perto do fim porque não é gesto
+    /* A ponte para o FINPLAN. Fica perto do fim porque não é gesto
        diário: leva-se um mês fechado de cada vez, e o mês fecha uma vez por
        mês. Mas é o item que liga os dois apps da casa, então não pode ficar
        escondido atrás de "Mais" no celular sem rótulo próprio. */
-    href: "/fincash/app/planejamento",
-    rotulo: "Levar ao Planejamento",
+    href: "/fincash/app/finplan",
+    rotulo: "Levar ao FINPLAN",
     curto: "Planejar",
     Icone: ArrowRightLeft,
     secao: "canos",

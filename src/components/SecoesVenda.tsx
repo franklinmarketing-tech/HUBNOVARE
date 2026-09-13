@@ -141,7 +141,7 @@ export function Etapa({
    * pronta com acabamento, o traço fino é o desperdício.
    *
    * O `icone` continua obrigatório e vira o fallback: quem já usa esta peça
-   * (a landing /assinar, a /planejamento) não muda em nada.
+   * (a landing /assinar, a /finplan) não muda em nada.
    */
   emblema?: string;
   tom?: Tom;

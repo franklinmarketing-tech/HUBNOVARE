@@ -218,7 +218,7 @@ export default function PainelPage() {
                     : "Veja no plano quais alavancas fecham a sua conta."}
             </p>
             <div className="mt-4">
-              <BotaoPrincipal href="/planejamento/app/plano">
+              <BotaoPrincipal href="/finplan/app/plano">
                 Ver meu plano
                 <ArrowRight className="h-4 w-4" />
               </BotaoPrincipal>
@@ -230,7 +230,7 @@ export default function PainelPage() {
       <p className="text-center text-[11px] text-slate-500">
         Mudou alguma coisa?{" "}
         <Link
-          href="/planejamento/app/meus-dados"
+          href="/finplan/app/meus-dados"
           className="font-semibold text-accent-strong underline-offset-2 hover:underline"
         >
           Atualize seus dados

@@ -6,11 +6,11 @@ import { LogOut, Wallet } from "lucide-react";
 import { getPerfil } from "@/lib/perfil";
 import { CascaFincash } from "./CascaFincash";
 import { carregarAvisosDoMenu } from "./avisos-servidor";
-import { sair } from "@/app/planejamento/app/actions";
+import { sair } from "@/app/finplan/app/actions";
 
 /* A folha de tokens e animações DESTE app.
    Importada aqui e não no `globals.css` de propósito: o `globals` serve o Hub
-   inteiro (landing, Planejamento, painel do consultor) e tudo o que entra lá
+   inteiro (landing, FINPLAN, painel do consultor) e tudo o que entra lá
    vira contrato de todo mundo. O que é vocabulário de um produto só morre
    junto com ele. */
 import "./fincash.css";
@@ -36,7 +36,7 @@ export const metadata: Metadata = {
  * cima a marca, a conta e a saída moram no trilho — repetir tudo em duas
  * molduras seria mobília dobrada ocupando altura de conteúdo.
  *
- * O QUE MUDA em relação à trilha do Planejamento: lá a navegação é uma
+ * O QUE MUDA em relação à trilha do FINPLAN: lá a navegação é uma
  * SEQUÊNCIA (seis etapas percorridas uma vez), aqui é um MENU (telas visitadas
  * todo dia, em qualquer ordem). Por isso a daqui não tem progresso nem tique —
  * nada aqui se "conclui".

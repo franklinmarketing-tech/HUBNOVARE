@@ -121,8 +121,8 @@ export default async function PerfilPage() {
           </h2>
           <p className="mt-1.5 text-sm text-muted-foreground">
             {assinante
-              ? "Você tem acesso ao Planejamento Financeiro, à Íris e ao desconto nas consultorias."
-              : "As ferramentas são todas livres. O Planejamento e a Íris fazem parte do Workspace."}
+              ? "Você tem acesso ao FINCASH, ao FINPLAN, à Íris e ao desconto nas consultorias."
+              : "As ferramentas são todas livres. O FINCASH, o FINPLAN e a Íris fazem parte do Workspace."}
           </p>
           {!assinante && (
             <Link

@@ -57,7 +57,7 @@ export async function getPerfil(): Promise<Perfil | null> {
 }
 
 /**
- * A pessoa já preencheu a trilha do Planejamento?
+ * A pessoa já preencheu a trilha do FINPLAN?
  *
  * A home precisava disto para parar de tratar igual quem respondeu as oito
  * perguntas inteiras e quem nunca abriu o app: os dois viam o mesmo convite,

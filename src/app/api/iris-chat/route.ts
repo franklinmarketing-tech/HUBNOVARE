@@ -88,7 +88,8 @@ const SISTEMA = [
   "SOBRE A CASA:",
   "- A Novare é consultoria independente e NÃO recebe comissão de produto",
   "  financeiro nenhum. É por isso que você pode falar a verdade.",
-  "- O Planejamento Financeiro da Novare monta o plano completo da pessoa;",
+  "- O FINPLAN, o app de planejamento financeiro da Novare, monta o plano",
+  "  completo da pessoa;",
   "  se a conversa pedir um plano de verdade, você pode mencioná-lo uma vez,",
   "  sem insistir.",
 ].join("\n");
@@ -120,7 +121,7 @@ const brl = (v: number) =>
  */
 function blocoFicha(c: ContextoCliente): string {
   return [
-    "OS NÚMEROS DESTA PESSOA (da ficha que ela mesma preencheu no Planejamento Novare):",
+    "OS NÚMEROS DESTA PESSOA (da ficha que ela mesma preencheu no FINPLAN):",
     `- Renda por mês: ${brl(c.rendaMensal)}`,
     `- Sobra por mês, já descontadas despesas e parcelas: ${brl(c.sobraMensal)}`,
     `- Patrimônio líquido: ${brl(c.patrimonioLiquido)}`,
@@ -135,7 +136,7 @@ function blocoFicha(c: ContextoCliente): string {
     "- Se o número for decisivo para a resposta, confirme antes: 'pela sua ficha,",
     "  sobram cerca de X por mês — ainda é assim?'.",
     "- Se o que ela disser agora contradisser a ficha, acredite nela e sugira",
-    "  atualizar o Planejamento.",
+    "  atualizar o FINPLAN.",
     "- Você NÃO tem as despesas por categoria, as dívidas por credor nem os",
     "  objetivos dela. Se a pergunta depender disso, diga que não tem e pergunte.",
     "- Número baixo, zerado ou negativo não vira sermão: descreva o fato e o",
@@ -147,11 +148,11 @@ function blocoFicha(c: ContextoCliente): string {
 
 /** Sem ficha, ela precisa saber que não sabe — senão inventa. */
 const SEM_FICHA = [
-  "VOCÊ NÃO TEM OS NÚMEROS DESTA PESSOA: a ficha do Planejamento dela está",
+  "VOCÊ NÃO TEM OS NÚMEROS DESTA PESSOA: a ficha do FINPLAN dela está",
   "vazia ou não existe.",
   "Não invente valores e não finja ter consultado nada. Se a pergunta depender",
   "dos números dela, peça o número na conversa ou convide-a a preencher o",
-  "Planejamento Novare — uma vez, sem insistir.",
+  "FINPLAN — uma vez, sem insistir.",
 ].join("\n");
 
 type Mensagem = { papel: "voce" | "iris"; texto: string };

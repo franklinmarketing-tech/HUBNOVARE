@@ -6,7 +6,7 @@ import { BotaoAssinarPlano } from "@/components/BotaoAssinarPlano";
 import { ASSINATURA_GARANTIA, ASSINATURA_PRECO_ROTULO } from "@/lib/assinatura";
 
 /**
- * A porta das três ações pagas do Planejamento: gerar plano, fechar o mês e
+ * A porta das três ações pagas do FINPLAN: gerar plano, fechar o mês e
  * baixar o relatório.
  *
  * LER nunca é bloqueado — os números da pessoa continuam na tela mesmo com o

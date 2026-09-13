@@ -536,7 +536,7 @@ export default function MeusDadosPage() {
       // Storage indisponível: não há rascunho para limpar.
     }
     setSalvando(false);
-    router.push("/planejamento/app/diagnostico");
+    router.push("/finplan/app/diagnostico");
   }
 
   /* ---------------------------------------------------------------------- */

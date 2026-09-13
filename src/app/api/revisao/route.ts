@@ -100,7 +100,7 @@ export async function POST(req: Request) {
       usuario_id: cliente.user_id,
       titulo: "Sua revisão do consultor chegou",
       texto: `Um consultor da Novare leu o seu plano e escreveu a revisão de ${periodo}.`,
-      href: "/planejamento/app",
+      href: "/finplan/app",
       tipo: "novidade",
     });
     if (erroSino) porQueNao = "o sino falhou";

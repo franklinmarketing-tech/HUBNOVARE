@@ -85,7 +85,7 @@ export type NovareApp = {
   pontosFortes?: string[];
   /**
    * O app tem o próprio teste grátis e o próprio bloqueio de ações pagas por
-   * dentro (FaixaTeste + AcaoAssinante — hoje só o Planejamento). Para estes,
+   * dentro (FaixaTeste + AcaoAssinante — hoje só o FINPLAN). Para estes,
    * `podeAbrir` libera qualquer pessoa LOGADA: duplicar a régua "só quem é
    * pro" aqui empurrava todo mundo em teste para a página de venda em vez do
    * produto que ela já tem direito de usar.
@@ -132,9 +132,9 @@ export const APPS: NovareApp[] = [
    * 12/09/2026. Não reordene sem ler `lib/assinatura.ts`, que registra a
    * troca por extenso: **o que se assina passou a ser o FINCASH**. Até essa
    * data a casa vendia "o Workspace" e este app era um item dentro dele;
-   * agora é o contrário, e o Planejamento é o que vem junto.
+   * agora é o contrário, e o FINPLAN é o que vem junto.
    *
-   * POR QUE ELE E NÃO O PLANEJAMENTO: o Planejamento cobra uma trilha de oito
+   * POR QUE ELE E NÃO O PLANEJAMENTO: o FINPLAN cobra uma trilha de oito
    * blocos antes de devolver qualquer coisa, e porta de entrada que exige
    * esforço antes de entregar valor é porta estreita. O FINCASH responde
    * "posso gastar?" no primeiro dia.
@@ -202,12 +202,12 @@ export const APPS: NovareApp[] = [
    * vem junto com o FINCASH, pela mesma cobrança.
    *
    * A divisão de trabalho entre os dois, que é o que justifica os dois
-   * existirem: o FINCASH responde "posso gastar hoje", o Planejamento responde
+   * existirem: o FINCASH responde "posso gastar hoje", o FINPLAN responde
    * "onde eu quero chegar". Um é o mês, o outro é o mapa.
    */
   {
     slug: "planejamento",
-    nome: "Planejamento Financeiro",
+    nome: "FINPLAN",
     /* ⚠️ "PLANO FINANCEIRO COMPLETO", E NÃO "PLANO COMPLETO". A palavra do
        meio não é enfeite: sem ela a frase é literalmente "plano completo", que
        é o nome que uma escada de planos dá ao degrau de cima — e o guardião
@@ -225,7 +225,7 @@ export const APPS: NovareApp[] = [
       "Marco Horizonte: seus objetivos viram um número só",
       "Fecha o mês sozinho e mostra a sua evolução",
     ],
-    href: "/planejamento",
+    href: "/finplan",
     roles: TODOS,
     plano: "pago",
     status: "ativo",
@@ -247,7 +247,7 @@ export const APPS: NovareApp[] = [
     ],
     href: "/iris",
     roles: TODOS,
-    // Liberada junto com o Planejamento Financeiro enquanto é construída.
+    // Liberada junto com o FINPLAN enquanto é construída.
     plano: "gratis",
     // Era `beta`. O selo aparecia no card e no banner da home, em cima do
     // produto que a casa vende como diferencial — e rótulo de beta sobre o
@@ -667,7 +667,7 @@ export const CONTAGEM = {
         a.href.includes("/ferramentas/"),
     ).length;
   },
-  /** Aplicativos com login e estado próprio: Planejamento, Organizador e Íris. */
+  /** Aplicativos com login e estado próprio: FINPLAN, Organizador e Íris. */
   get aplicativos() {
     return APPS.filter(
       (a) =>

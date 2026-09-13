@@ -93,7 +93,7 @@ export function BannerDemo({
           autoPlay={perto && !reduzido}
           preload="none"
           controls={reduzido}
-          aria-label="Gravação do App Novare Planejamento Financeiro em uso"
+          aria-label="Gravação do FINPLAN em uso"
           className="h-full w-full object-cover"
         >
           {carregar && <source src={mp4} type="video/mp4" />}

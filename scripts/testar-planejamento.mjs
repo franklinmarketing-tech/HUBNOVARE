@@ -49,13 +49,13 @@ const p = await navegador.newPage({ viewport: { width: 1280, height: 1000 } });
 /* -------------------------------------------------------------------------- */
 
 const TRANCADAS = [
-  "/planejamento/app",
-  "/planejamento/app/meus-dados",
-  "/planejamento/app/diagnostico",
-  "/planejamento/app/plano",
-  "/planejamento/app/mes",
-  "/planejamento/app/evolucao",
-  "/planejamento/app/relatorio",
+  "/finplan/app",
+  "/finplan/app/meus-dados",
+  "/finplan/app/diagnostico",
+  "/finplan/app/plano",
+  "/finplan/app/mes",
+  "/finplan/app/evolucao",
+  "/finplan/app/relatorio",
 ];
 
 for (const rota of TRANCADAS) {
@@ -81,7 +81,7 @@ for (const antiga of ["/vidaplan", "/vida-plan", "/vidaplan/app/painel"]) {
   const resposta = await p.goto(BASE + antiga, { waitUntil: "domcontentloaded" });
   conferir(
     `${antiga} redireciona para a landing nova`,
-    new URL(p.url()).pathname === "/planejamento",
+    new URL(p.url()).pathname === "/finplan",
     p.url(),
   );
   conferir(`${antiga} responde 200 no destino`, resposta?.status() === 200, String(resposta?.status()));
@@ -105,7 +105,7 @@ async function abrir(rota) {
   return p.locator("body").innerText();
 }
 
-const lp = await abrir("/planejamento");
+const lp = await abrir("/finplan");
 
 conferir("a LP não chama mais o produto de Vida Plan", !/vida plan/i.test(lp));
 conferir("a LP anuncia a garantia de 7 dias", /7 dias de garantia/i.test(lp));
@@ -126,10 +126,10 @@ conferir(
   "a LP mantém a premissa de 5% real",
   /5%/.test(lp) && /inflação/i.test(lp),
 );
-conferir("a LP é pública (não redirecionou para login)", new URL(p.url()).pathname === "/planejamento");
+conferir("a LP é pública (não redirecionou para login)", new URL(p.url()).pathname === "/finplan");
 
 const titulo = await p.title();
-conferir("o título da aba fala de planejamento", /planejamento/i.test(titulo), titulo);
+conferir("o título da aba fala de planejamento", /finplan/i.test(titulo), titulo);
 
 /* -------------------------------------------------------------------------- */
 /* 4. Nenhuma tela pública pede consultor para funcionar                      */
@@ -147,7 +147,7 @@ const TRAVAS = [
   /aguardando liberação/i,
 ];
 
-for (const rota of ["/", "/planejamento"]) {
+for (const rota of ["/", "/finplan"]) {
   const texto = await abrir(rota);
   for (const trava of TRAVAS) {
     const achou = texto.match(trava);
@@ -161,7 +161,7 @@ for (const rota of ["/", "/planejamento"]) {
 
 await abrir("/");
 
-const cartao = p.locator('a[href="/planejamento"]').first();
+const cartao = p.locator('a[href="/finplan"]').first();
 conferir("a home tem o card do produto", (await cartao.count()) > 0);
 
 if ((await cartao.count()) > 0) {

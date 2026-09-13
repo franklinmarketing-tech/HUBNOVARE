@@ -23,7 +23,7 @@ mkdirSync(DESTINO, { recursive: true });
 
 const TELAS = [
   { caminho: "/", nome: "home" },
-  { caminho: "/planejamento", nome: "planejamento" },
+  { caminho: "/finplan", nome: "planejamento" },
   { caminho: "/iris", nome: "iris" },
   { caminho: "/aplicativos", nome: "aplicativos" },
   { caminho: "/assinar", nome: "assinar" },

@@ -144,14 +144,14 @@ const VIRADA = [
 
 /** O caminho, em quatro passos curtos: o medo real é o do trabalho.
  *
- * ⚠️ A ESCADA COMEÇA PELO FINCASH, e antes começava pelo Planejamento
+ * ⚠️ A ESCADA COMEÇA PELO FINCASH, e antes começava pelo FINPLAN
  * ("Responda 8 perguntas" → "Receba seu plano"). Não é ordem estética: era a
  * escada da âncora velha, e ela pedia dez minutos de formulário antes de
  * devolver a primeira resposta. Com o FINCASH na frente, o primeiro retorno é
  * o número que a pessoa veio buscar — quanto ainda dá para gastar —, e o
  * plano de dez anos aparece depois, quando ela já tem motivo para voltar.
  *
- * O Planejamento não sumiu da venda: ele está no pacote, na lista da caixa de
+ * O FINPLAN não sumiu da venda: ele está no pacote, na lista da caixa de
  * oferta e na seção do ecossistema. O que ele perdeu foi o lugar de PRIMEIRO
  * ESFORÇO exigido de quem acabou de pagar.
  */
@@ -206,7 +206,7 @@ const PACOTE = [
   },
   {
     emblema: "/icones-3d/icon-vault-3d.png",
-    nome: "Planejamento Financeiro completo",
+    nome: "O FINPLAN inteiro",
     texto:
       "Diagnóstico, nota de saúde financeira, plano de ação com valor e prazo, e relatório em PDF que é seu.",
   },
@@ -298,7 +298,10 @@ const INCLUI = [
      último lugar onde a pessoa lê o que está levando antes de clicar, e ela
      não mencionava o produto do título da página. */
   "O FINCASH inteiro, o app do seu mês",
-  "Planejamento Financeiro completo",
+  /* O irmão do FINCASH, e a frase diz o papel de cada um: o FINCASH é o
+     app do mês, o FINPLAN é o plano do ano. Sem essa metade a lista anuncia
+     dois nomes parecidos sem explicar por que são dois. */
+  "O FINPLAN inteiro, o plano do seu ano",
   /* ⚠️ "SEM LIMITE", e não "a IA que lê seu extrato": a Íris é ABERTA a
      qualquer um, com teto de leituras (ver `plano` dela em `apps.ts`). Numa
      lista do que a assinatura entrega, o nome sozinho vende o que a pessoa já
@@ -386,7 +389,7 @@ const porDia = ASSINATURA_PRECO_DIA_ANUAL_ROTULO;
                   em "Leve a casa inteira." logo abaixo — no celular, duas
                   linhas seguidas com a mesma frase. O selo existe para ADIANTAR
                   o que a headline não cabe dizer: quais são as outras coisas. */}
-              Planejamento, IA e ferramentas vêm junto
+              FINPLAN, IA e ferramentas vêm junto
             </span>
 
             {/* A headline ocupa a dobra inteira: em tráfego pago, quem chega
@@ -416,7 +419,7 @@ const porDia = ASSINATURA_PRECO_DIA_ANUAL_ROTULO;
 
             <p className="cine mx-auto mt-7 max-w-2xl text-lg leading-relaxed text-white/80 sm:text-xl">
               O app que mostra quanto ainda dá para gastar até o fim do mês. E
-              junto: a Íris sem limite de leituras, o Planejamento Financeiro,{" "}
+              junto: a Íris sem limite de leituras, o FINPLAN,{" "}
               {CONTAGEM.calculadoras} calculadoras e condição de assinante na
               consultoria. Por {ASSINATURA_PRECO_ANUAL_MENSAL_ROTULO} por
               mês no plano anual — ou {ASSINATURA_PRECO_ROTULO}/mês, sem

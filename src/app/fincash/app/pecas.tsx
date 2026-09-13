@@ -8,7 +8,7 @@ import { ChevronLeft, ChevronRight, Sparkles, type LucideIcon } from "lucide-rea
  * As peças do FINCASH.
  *
  * POR QUE UM ARQUIVO PRÓPRIO, E NÃO AS PEÇAS DO PLANEJAMENTO
- * As duas casas partilham a marca, não o problema. A trilha do Planejamento é
+ * As duas casas partilham a marca, não o problema. A trilha do FINPLAN é
  * percorrida uma vez e pode se dar ao luxo do emblema 3D e do halo; o
  * FINCASH é aberto todo dia, muitas vezes em pé, no celular, para resolver
  * uma pergunta só ("posso gastar?"). Aqui o que vale é DENSIDADE: caber mais
@@ -77,11 +77,11 @@ import { ChevronLeft, ChevronRight, Sparkles, type LucideIcon } from "lucide-rea
  * caiu num fundo escuro.
  */
 
-/* `brl` nasceu no Planejamento e continua morando lá: dinheiro se formata do
+/* `brl` nasceu no FINPLAN e continua morando lá: dinheiro se formata do
    mesmo jeito nos dois produtos, e duas cópias da mesma função é como uma
    delas ganha centavo e a outra não. Reexportado para as telas daqui
    importarem tudo de um endereço só. */
-export { brl } from "@/app/planejamento/app/pecas";
+export { brl } from "@/app/finplan/app/pecas";
 
 /**
  * Dinheiro COM centavos.

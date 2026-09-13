@@ -23,7 +23,7 @@ export type Etapa = {
 export const ETAPAS: Etapa[] = [
   {
     slug: "meus-dados",
-    href: "/planejamento/app/meus-dados",
+    href: "/finplan/app/meus-dados",
     numero: 1,
     titulo: "Meus dados",
     resumo: "Quanto entra, quanto sai, o que você tem e o que deve.",
@@ -32,7 +32,7 @@ export const ETAPAS: Etapa[] = [
   },
   {
     slug: "diagnostico",
-    href: "/planejamento/app/diagnostico",
+    href: "/finplan/app/diagnostico",
     numero: 2,
     titulo: "Diagnóstico",
     resumo: "O retrato de hoje, em números — calculado na hora.",
@@ -41,7 +41,7 @@ export const ETAPAS: Etapa[] = [
   },
   {
     slug: "plano",
-    href: "/planejamento/app/plano",
+    href: "/finplan/app/plano",
     numero: 3,
     titulo: "Meu plano",
     resumo: "O que fazer primeiro, com valor e prazo.",
@@ -50,7 +50,7 @@ export const ETAPAS: Etapa[] = [
   },
   {
     slug: "mes",
-    href: "/planejamento/app/mes",
+    href: "/finplan/app/mes",
     numero: 4,
     titulo: "Meu mês",
     resumo: "Como foi o mês e o que mudou desde o último.",
@@ -59,7 +59,7 @@ export const ETAPAS: Etapa[] = [
   },
   {
     slug: "evolucao",
-    href: "/planejamento/app/evolucao",
+    href: "/finplan/app/evolucao",
     numero: 5,
     titulo: "Minha evolução",
     resumo: "A linha do tempo do seu patrimônio.",
@@ -68,7 +68,7 @@ export const ETAPAS: Etapa[] = [
   },
   {
     slug: "relatorio",
-    href: "/planejamento/app/relatorio",
+    href: "/finplan/app/relatorio",
     numero: 6,
     titulo: "Meu relatório",
     resumo: "Tudo reunido num PDF que é seu.",

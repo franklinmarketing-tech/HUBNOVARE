@@ -241,7 +241,7 @@ export function PrecisaPreencher({
       texto={texto}
       figura="/icones-3d/etapa-dados.png"
       acao={{
-        href: "/planejamento/app/meus-dados",
+        href: "/finplan/app/meus-dados",
         rotulo: "Preencher meus dados",
       }}
       previa={previa}
@@ -401,7 +401,7 @@ export function SessaoExpirada() {
         Nada foi perdido: é só entrar de novo que você volta para onde estava.
       </p>
       <a
-        href="/login?proximo=%2Fplanejamento%2Fapp"
+        href="/login?proximo=%2Ffinplan%2Fapp"
         className="mt-6 inline-flex items-center justify-center rounded-xl bg-primary px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-primary-soft"
       >
         Entrar de novo

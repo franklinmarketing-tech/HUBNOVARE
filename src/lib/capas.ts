@@ -8,7 +8,7 @@
  */
 
 /**
- * Capa dos produtos da casa: Planejamento Financeiro, Íris e as consultorias.
+ * Capa dos produtos da casa: FINPLAN, Íris e as consultorias.
  *
  * Só eles têm foto, e de propósito — são o que a Novare vende. As
  * ferramentas gratuitas ficam no tile de gradiente, o que mantém a
@@ -52,7 +52,7 @@ export const CAPAS: Record<string, string> = {
    * O Organizador Financeiro NÃO tem foto — e a ausência é decisão, não
    * esquecimento.
    *
-   * Ele é produto pago da casa e teria direito a arte como o Planejamento e a
+   * Ele é produto pago da casa e teria direito a arte como o FINPLAN e a
    * Íris, mas as duas únicas capas livres do acervo mentiriam sobre ele:
    * `card-openfinance` mostra bancos conectados por fios, que é exatamente o
    * que este app NÃO faz (a landing vende justamente o contrário — nada para
@@ -118,7 +118,7 @@ export const EMBLEMAS: Record<string, string> = {
   // Vida financeira
   // O calendário: o Organizador é o app do MÊS — é o mês que abre, fecha e
   // recomeça nele. O mesmo emblema já ilustra o fechamento mensal na trilha
-  // do Planejamento, e a repetição aqui é proposital: é a mesma ideia.
+  // do FINPLAN, e a repetição aqui é proposital: é a mesma ideia.
   fincash: "/icones-3d/etapa-mes.png",
   "orcamento-inteligente": "/icones-3d/icon-financas.png",
   "reserva-emergencia": "/icones-3d/goal-reserva.png",

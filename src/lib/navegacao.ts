@@ -37,7 +37,7 @@ export type AppLeve = {
    * arrancá-las da área a que pertencem — quem filtra "Investimentos"
    * continua encontrando o Raio-X da Carteira lá dentro.
    *
-   * "app" é produto com porta própria (FINCASH, Planejamento); "ferramenta"
+   * "app" é produto com porta própria (FINCASH, FINPLAN); "ferramenta"
    * é calculadora exclusiva. A distinção não é decorativa: os dois têm cards
    * diferentes, e o app precisa parecer produto, não item de lista.
    */

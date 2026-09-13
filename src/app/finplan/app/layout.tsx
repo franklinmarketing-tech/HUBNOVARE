@@ -18,7 +18,7 @@ export const metadata: Metadata = {
 };
 
 /**
- * A casca do App Novare Planejamento Financeiro.
+ * A casca do FINPLAN (antes "App Novare Planejamento Financeiro").
  *
  * É o primeiro layout compartilhado da área logada do Workspace — até aqui cada
  * página montava o próprio cabeçalho. O desenho segue o do `/hub` (mesma altura,
@@ -32,7 +32,7 @@ export default async function LayoutPlanejamento({
   const perfil = await getPerfil();
 
   // O middleware já barra quem não tem sessão; isto é a segunda tranca.
-  if (!perfil) redirect("/login?proximo=/planejamento/app");
+  if (!perfil) redirect("/login?proximo=/finplan/app");
 
   return (
     <div className="aurora-clara min-h-dvh">
@@ -50,7 +50,7 @@ export default async function LayoutPlanejamento({
           </Link>
 
           <span className="hidden text-2xs font-semibold text-muted-foreground sm:block">
-            Planejamento Financeiro
+            FINPLAN
           </span>
 
           <div className="ml-auto hidden text-right sm:block">

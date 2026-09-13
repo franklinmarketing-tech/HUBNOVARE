@@ -59,7 +59,7 @@ export function DisclaimerFerramenta({
 }
 
 /**
- * Para `/consultoria/*`, `/planejamento` e `/assinar`.
+ * Para `/consultoria/*`, `/finplan` e `/assinar`.
  *
  * O ponto que este aviso precisa cobrir: é serviço com profissional do
  * outro lado, e o que se contrata é o acompanhamento — não a promessa de

@@ -11,7 +11,7 @@ const PROTEGIDAS = [
   "/hub",
   "/admin",
   "/perfil",
-  "/planejamento/app",
+  "/finplan/app",
   "/fincash/app",
 ];
 

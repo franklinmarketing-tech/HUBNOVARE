@@ -27,8 +27,8 @@ normalmente.
 |---|---|
 | Entrar | https://novare-workspace.vercel.app/login |
 | Home / Hub | https://novare-workspace.vercel.app |
-| **Planejamento Financeiro (o app)** | https://novare-workspace.vercel.app/planejamento/app |
-| Página de vendas do Planejamento | https://novare-workspace.vercel.app/planejamento |
+| **FINPLAN (o app)** | https://novare-workspace.vercel.app/finplan/app |
+| Página de vendas do FINPLAN | https://novare-workspace.vercel.app/finplan |
 | Meu dia (painel do cliente) | https://novare-workspace.vercel.app/meu-dia |
 | Íris (IA) | https://novare-workspace.vercel.app/iris |
 | Assinar (landing) | https://novare-workspace.vercel.app/assinar |
@@ -40,7 +40,7 @@ normalmente.
 ## 3. ROTEIRO DE TESTE (10 minutos)
 
 1. Entrar com a conta acima
-2. Ir em `/planejamento/app` → **Meus dados**
+2. Ir em `/finplan/app` → **Meus dados**
 3. Preencher a trilha: renda, despesas, dívidas, patrimônio, objetivos
    e o bloco **novo** "Sua aposentadoria"
 4. Ver o **Diagnóstico** (nota A–E)

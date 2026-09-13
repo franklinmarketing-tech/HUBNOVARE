@@ -87,8 +87,8 @@ conferir("Esc fecha o modal", (await p.locator("[role='dialog']").count()) === 0
 
 // Clicar no corpo do card (longe da lâmpada) navega para o app.
 await card.click({ position: { x: 40, y: 30 } });
-await p.waitForURL((u) => u.pathname.startsWith("/planejamento"), { timeout: 15000 }).catch(() => {});
-conferir("clicar no card abre o app", p.url().includes("/planejamento"), p.url());
+await p.waitForURL((u) => u.pathname.startsWith("/finplan"), { timeout: 15000 }).catch(() => {});
+conferir("clicar no card abre o app", p.url().includes("/finplan"), p.url());
 
 conferir("sem erro de página", erros.length === 0, erros.slice(0, 2).join(" | "));
 

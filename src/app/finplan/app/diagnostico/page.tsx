@@ -206,7 +206,7 @@ export default function DiagnosticoPage() {
               ninguém.
             </p>
             <div className="mt-4">
-              <BotaoPrincipal href="/planejamento/app/plano">
+              <BotaoPrincipal href="/finplan/app/plano">
                 Ver o que fazer agora
                 <ArrowRight className="h-4 w-4" />
               </BotaoPrincipal>

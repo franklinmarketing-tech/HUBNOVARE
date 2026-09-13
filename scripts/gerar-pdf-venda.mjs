@@ -70,7 +70,7 @@ console.log("fotografando as telas...");
    recorte termina numa fronteira visual da tela (fim de uma seção, fim de
    uma fileira de cards) em vez de cortar um elemento ao meio. */
 const telaHome = await fotografar("/", { clip: { x: 0, y: 0, width: 1440, height: 810 } });
-const telaPlanejamento = await fotografar("/planejamento", {
+const telaPlanejamento = await fotografar("/finplan", {
   clip: { x: 0, y: 0, width: 1440, height: 900 },
 });
 const telaIris = await fotografar("/iris", { clip: { x: 0, y: 0, width: 1440, height: 1000 } });
@@ -241,7 +241,7 @@ const html = `<!doctype html>
   <div class="intro">
     <p>Casa própria, faculdade dos filhos, parar de depender do salário: cada objetivo tem um preço. O app soma todos eles num único alvo de patrimônio — o seu <strong>Marco Horizonte</strong> — e mostra a que distância você está dele hoje, com o caminho até lá.</p>
   </div>
-  ${janela(telaPlanejamento, `${DOMINIO}/planejamento`)}
+  ${janela(telaPlanejamento, `${DOMINIO}/finplan`)}
   <div class="beneficios">
     <div class="beneficio"><span class="num">01</span><h4>Meus dados</h4><p>Oito perguntas em português simples sobre quanto entra e quanto sai. Nada de planilha.</p></div>
     <div class="beneficio"><span class="num">02</span><h4>Diagnóstico</h4><p>O retrato de hoje, em números — calculado na hora, com o que você respondeu.</p></div>

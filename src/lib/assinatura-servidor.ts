@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
  * Em que ponto da assinatura a pessoa está — lido no SERVIDOR.
  *
  * Existe porque `lib/trial.ts` é `"use client"` e a home é server component:
- * ela sabia apenas `assinante` (sim/não) e por isso o card do Planejamento
+ * ela sabia apenas `assinante` (sim/não) e por isso o card do FINPLAN
  * anunciava "7 dias grátis, depois R$ 19,90/mês" para TODO mundo — inclusive
  * para quem já pagava, na mesma tela em que outro bloco dizia que a
  * assinatura estava ativa. Vender o produto para quem já comprou é o tipo de

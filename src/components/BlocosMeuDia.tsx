@@ -13,7 +13,7 @@ import {
   Users,
 } from "lucide-react";
 import { CATEGORIAS_DESPESA } from "@/lib/planejamento/catalogos";
-import type { DadosPlanejamento } from "@/app/planejamento/app/usePlanejamento";
+import type { DadosPlanejamento } from "@/app/finplan/app/usePlanejamento";
 
 /**
  * Os blocos da vida do cliente no /meu-dia.
@@ -225,7 +225,7 @@ export function MeusObjetivos({
       <div className="flex items-center justify-between gap-3">
         <Rotulo icone={Flag} texto="Meus objetivos" />
         <Link
-          href="/planejamento/app/meus-dados"
+          href="/finplan/app/meus-dados"
           className="inline-flex items-center gap-1 text-[11px] font-semibold text-accent-strong hover:underline"
         >
           <Plus className="h-3 w-3" />

@@ -18,7 +18,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/novare-news",
     // As iscas de captação: são as páginas feitas para trazer gente de busca,
     // então ficar de fora do sitemap anulava o próprio motivo delas existirem.
-    "/planejamento",
+    "/finplan",
     // A landing do Organizador entra pela mesma razão: ela não cai no filtro
     // de `/ferramentas/` logo abaixo (é app com porta própria) e, fora daqui,
     // a única página de venda dele seria invisível para a busca.

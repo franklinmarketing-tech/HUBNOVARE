@@ -19,7 +19,7 @@
  * 2. **A ponte é puxada.** Não há assinatura, intervalo nem gancho. Nada aqui
  *    roda sem alguém apertar um botão.
  *
- * 3. **Nada do Planejamento é apagado.** ⚠️ Esta camada **não usa**
+ * 3. **Nada do FINPLAN é apagado.** ⚠️ Esta camada **não usa**
  *    `salvarSecao()` de `@/lib/planejamento/cliente`, e essa é a decisão mais
  *    importante do arquivo: aquela função SUBSTITUI a seção inteira — grava as
  *    novas e apaga todas as antigas do mês. Usada aqui, uma ponte que levasse
@@ -99,8 +99,8 @@ export type EstadoPonte =
    * Existe usuário do FINCASH, não existe ficha de cliente.
    *
    * ACONTECE DE VERDADE e é o caso mais provável do produto: o FINCASH é por
-   * `user_id` e não exige ficha nenhuma; o Planejamento é por `client_id`, e a
-   * linha de `clients` nasce do outro lado (onboarding do Planejamento, ou a
+   * `user_id` e não exige ficha nenhuma; o FINPLAN é por `client_id`, e a
+   * linha de `clients` nasce do outro lado (onboarding do FINPLAN, ou a
    * Novare abrindo a ficha). Não há, em lugar nenhum do app, criação
    * automática de `clients` — conferido.
    *
@@ -108,7 +108,7 @@ export type EstadoPonte =
    * de INSERT para o próprio dono neste repositório (o insert simplesmente
    * seria recusado, e um botão que sempre falha é pior que nenhum botão), e
    * uma ficha é o começo de um relacionamento comercial — quem a abre é o
-   * fluxo do Planejamento, não um botão escondido dentro de outro app.
+   * fluxo do FINPLAN, não um botão escondido dentro de outro app.
    */
   | { tipo: "sem-ficha" }
   /** Alguma tabela do FINCASH ainda não existe neste banco. Reconhecido por
@@ -138,14 +138,14 @@ export async function carregarPonte(ref: string): Promise<EstadoPonte> {
       carregarRetrato(estado.clientId, refParaMonthRef(ref)),
     ]);
 
-    /* Retrato ilegível NÃO segue. Se a leitura do Planejamento falhou, as
+    /* Retrato ilegível NÃO segue. Se a leitura do FINPLAN falhou, as
        listas voltam vazias — e vazio, aqui, seria lido como "não tem nada lá",
        que é justamente a permissão para gravar por cima de tudo. */
     if (retrato.falhou) {
       return {
         tipo: "erro",
         mensagem:
-          "Não consegui ler o que já está no Planejamento. Sem isso eu não mostro o lado a lado — e sem o lado a lado eu não gravo nada.",
+          "Não consegui ler o que já está no FINPLAN. Sem isso eu não mostro o lado a lado — e sem o lado a lado eu não gravo nada.",
       };
     }
 
@@ -323,7 +323,7 @@ export async function aplicar(
       } else if (d.idAtual) {
         /* UPDATE, e não delete+insert: a linha continua sendo a mesma, com o
            mesmo id — e qualquer coisa que aponte para ela do lado do
-           Planejamento continua apontando. Além disso é o que torna a reversão
+           FINPLAN continua apontando. Além disso é o que torna a reversão
            possível sem recriar linha nenhuma. */
         const { error } = await supabase
           .from(secao.secao)
@@ -348,14 +348,14 @@ export async function aplicar(
   if (diario.length > 0) {
     const { error } = await supabase.from("fin_ponte_envios").insert(diario);
     if (error) {
-      /* O dado do Planejamento está gravado; o que falhou foi o diário. Dizer
+      /* O dado do FINPLAN está gravado; o que falhou foi o diário. Dizer
          isso em voz alta é obrigatório: sem o diário, o "desfazer" não existe
          para este lote, e a pessoa precisa saber disso ANTES de sair da tela. */
       return {
         gravadas,
         atualizadas,
         loteId: null,
-        erro: "Levei os dados para o Planejamento, mas não consegui registrar o envio — o botão de desfazer não vai funcionar para este lote. Confira em Meus Dados.",
+        erro: "Levei os dados para o FINPLAN, mas não consegui registrar o envio — o botão de desfazer não vai funcionar para este lote. Confira em Meus Dados.",
       };
     }
   }
@@ -464,7 +464,7 @@ export async function historicoDaPonte(mesRef?: string): Promise<EnvioRegistrado
  *
  * Linha ATUALIZADA volta ao valor anterior; linha INSERIDA pela ponte é
  * removida. A remoção é a única exclusão que este código faz em tabela do
- * Planejamento, e ela é estreita de propósito: só linhas que a própria ponte
+ * FINPLAN, e ela é estreita de propósito: só linhas que a própria ponte
  * criou, só as deste lote, só por pedido explícito. Dado que a pessoa digitou
  * nunca passa por aqui.
  */

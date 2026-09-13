@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { LifeBuoy, Check, Loader2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-import { brl } from "@/app/planejamento/app/pecas";
+import { brl } from "@/app/finplan/app/pecas";
 
 /**
  * "Chama alguém para olhar isso."

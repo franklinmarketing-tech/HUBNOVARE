@@ -756,7 +756,7 @@ export default function MesPage() {
     }
 
     setFechando(false);
-    router.push("/planejamento/app/evolucao");
+    router.push("/finplan/app/evolucao");
   }, [r, clientId, mes, metas, valores, router, fechando, jaFechado]);
 
   if (r.fase === "carregando") return <Carregando />;
@@ -1157,7 +1157,7 @@ export default function MesPage() {
           <p className="mt-3 text-2xs text-slate-500">
             Contraiu uma dívida nova?{" "}
             <Link
-              href="/planejamento/app/meus-dados"
+              href="/finplan/app/meus-dados"
               className="font-semibold text-accent-strong underline-offset-2 hover:underline"
             >
               Cadastre em Meus dados

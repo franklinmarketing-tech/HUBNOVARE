@@ -24,13 +24,15 @@ import { CONTAGEM } from "@/lib/apps";
  * uma ferramenta exclusiva entrar no catálogo, a oferta passa a mentir para
  * menos, e quem confere é quem está pagando.
  *
- * ⚠️ FINPLAN É O NOME NOVO DO PLANEJAMENTO FINANCEIRO, e em 13/09/2026 ele
- * vale AQUI e só aqui. O resto do Hub — a rota `/planejamento`, o catálogo em
- * `lib/apps.ts`, a home, a `/assinar` e os textos da própria casa — continua
- * dizendo "Planejamento Financeiro". Por isso o nome antigo vem como subtítulo
- * do bloco: quem já conhece o produto precisa reconhecê-lo, e quem chega agora
- * aprende o nome novo. Trocar o nome no site inteiro mexe em rota, SEO e
- * catálogo, e isso é trabalho com pedido próprio.
+ * ⚠️ FINPLAN É O NOME DO PRODUTO NA CASA INTEIRA desde 13/09/2026 — a rota
+ * (`/finplan`, com 308 vindo de `/planejamento`), o catálogo em `lib/apps.ts`,
+ * a home, a `/assinar` e o e-mail de boas-vindas. Este quadro foi o primeiro
+ * lugar a dizer o nome novo e deixou de ser a exceção.
+ *
+ * O subtítulo "Antes Planejamento Financeiro" FICA, e não é sobra: quem já
+ * assina comprou um produto com o outro nome, e o quadro da oferta é onde ele
+ * confere se está pagando duas vezes pela mesma coisa. Sai do ar quando o
+ * nome antigo deixar de ser o que o cliente antigo reconhece.
  */
 
 type Bloco = {
@@ -94,14 +96,27 @@ export default function QuadroOferta({
   ];
 
 
+  /* ⚠️ `grid-cols-2` DECLARADO NO CELULAR, e os quatro produtos de software
+     dividem as duas colunas. Empilhados um por linha, os cinco blocos custavam
+     1.323px a 390px — mais de uma tela e meia só para a lista do que a
+     assinatura abre, logo acima dos dois cartões de preço, que repetiam a mesma
+     coisa em seguida.
+
+     A declaração é obrigatória: em CSS Grid a coluna implícita nasce `auto` e
+     não encolhe abaixo do conteúdo, que é como um card desta página já nasceu
+     com 537px num viewport de 390.
+
+     O bloco do consultor continua em LARGURA INTEIRA (`col-span-2`) em toda
+     largura: ele é o único item que não é software e é o que a hierarquia da
+     oferta existe para dizer primeiro. */
   return (
-    <div className="grid gap-4 lg:grid-cols-6">
+    <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-6">
       {BLOCOS.map((b, i) => (
         <div
           key={b.nome}
-          className={`fin-carta fin-oferta relative flex flex-col overflow-hidden rounded-3xl p-6 ${
+          className={`fin-carta fin-oferta relative flex flex-col overflow-hidden rounded-3xl p-4 sm:p-6 ${
             b.destaque
-              ? "fin-oferta-destaque bg-primary text-white lg:col-span-2 lg:row-span-2"
+              ? "fin-oferta-destaque col-span-2 bg-primary text-white lg:col-span-2 lg:row-span-2"
               : "bg-card ring-1 ring-primary/10"
           } ${
             /* Os dois primeiros produtos ficam lado a lado do destaque; os dois
@@ -113,14 +128,14 @@ export default function QuadroOferta({
           <Emblema nome={b.emblema} tamanho={b.destaque ? 56 : 44} />
 
           <p
-            className={`mt-4 text-2xs font-semibold uppercase tracking-[0.14em] ${
+            className={`mt-3 text-2xs font-semibold uppercase tracking-[0.14em] sm:mt-4 ${
               b.destaque ? "text-white/60" : "text-accent-strong"
             }`}
           >
             {b.subtitulo}
           </p>
           <h3
-            className={`mt-1 font-display text-xl font-extrabold tracking-tight ${
+            className={`mt-1 font-display text-lg font-extrabold tracking-tight sm:text-xl ${
               b.destaque ? "text-white" : "text-primary"
             }`}
           >
@@ -134,7 +149,7 @@ export default function QuadroOferta({
             {b.promessa}
           </p>
 
-          <ul className="mt-4 grid gap-2">
+          <ul className="mt-3 grid gap-2 sm:mt-4">
             {b.itens.map((t) => (
               <li
                 key={t}

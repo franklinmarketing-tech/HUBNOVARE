@@ -64,7 +64,7 @@ for (const tela of TELAS) {
   // O que precisa caber numa tela só, nomeado em vez de contado: contar cards
   // deixa o teste refém de qualquer card novo, e foi assim que ele apodreceu.
   for (const [oque, seletor] of [
-    ["o card do produto pago", 'a[href="/planejamento"]'],
+    ["o card do produto pago", 'a[href="/finplan"]'],
     ["as quatro áreas de ferramenta", 'a[href^="/aplicativos?area"]'],
     ["o card do Novare News", 'a[href="/novare-news"]'],
   ]) {

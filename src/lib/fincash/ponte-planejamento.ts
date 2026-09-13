@@ -1,5 +1,5 @@
 /**
- * A PONTE — o FINCASH virando retrato do Planejamento Financeiro.
+ * A PONTE — o FINCASH virando retrato do FINPLAN.
  *
  * POR QUE ELA EXISTE
  * Os dois apps guardam a mesma informação em lugares diferentes: `debts` ×
@@ -8,9 +8,9 @@
  * meses, os números divergem. Num app de dinheiro, dois números para a mesma
  * coisa encerra a conversa — o cliente para de acreditar nos dois.
  *
- * A DIREÇÃO É ÚNICA E NÃO SE DISCUTE: **FINCASH alimenta o Planejamento,
+ * A DIREÇÃO É ÚNICA E NÃO SE DISCUTE: **FINCASH alimenta o FINPLAN,
  * nunca o contrário.** O FINCASH tem o número MEDIDO (lançamento a lançamento,
- * extrato importado); o Planejamento tem o número LEMBRADO (o que a pessoa
+ * extrato importado); o FINPLAN tem o número LEMBRADO (o que a pessoa
  * digitou uma vez, de cabeça). Medido ganha de lembrado; lembrado sobrescrever
  * medido seria apagar o trabalho de um mês inteiro com uma estimativa.
  *
@@ -24,7 +24,7 @@
  *
  * A TRAVA QUE VALE MAIS QUE A FUNCIONALIDADE
  * Nada aqui marca uma linha divergente para ir sozinha. `escolhaPadrao()`
- * devolve `false` para tudo que já tem valor no Planejamento — o consultor
+ * devolve `false` para tudo que já tem valor no FINPLAN — o consultor
  * escreve a revisão trimestral (o produto pago da casa) em cima desses
  * números, e trocá-los em silêncio é o pior defeito possível neste código.
  * Novo entra marcado; divergente espera a pessoa olhar os dois lados.
@@ -41,7 +41,7 @@ import type { ClasseInvestimento, Investimento } from "./investimentos";
  *
  * As categorias dos dois mundos não são as mesmas e nunca foram: o FINCASH
  * nasceu para classificar EXTRATO ("Mercado", "Restaurante", "Compras"), o
- * Planejamento para classificar ORÇAMENTO ("alimentacao", "moradia"). Quem
+ * FINPLAN para classificar ORÇAMENTO ("alimentacao", "moradia"). Quem
  * casa os dois é este objeto, que traduz o nome NORMALIZADO da categoria do
  * FINCASH no slug que `expenses.category` aceita.
  *
@@ -51,7 +51,7 @@ import type { ClasseInvestimento, Investimento } from "./investimentos";
  * `semCasa`, com nome e valor, para a pessoa decidir na tela.
  *
  * DUAS AUSÊNCIAS SÃO DELIBERADAS e estão em `SEM_DESTINO`:
- *   • **Investimento** não é despesa no Planejamento: lá ele é APORTE, e entra
+ *   • **Investimento** não é despesa no FINPLAN: lá ele é APORTE, e entra
  *     em `assets`. Contado como despesa, ele afundaria a sobra mensal e o
  *     plano recomendaria cortar justamente o que deve crescer.
  *   • **Dívidas** já viaja por `fin_dividas` → `debts.monthly_payment`. Se
@@ -101,9 +101,9 @@ const MAPA_DESPESA: Record<string, string> = {
 /** As categorias do FINCASH que, de propósito, não viram despesa. Ver o mapa. */
 const SEM_DESTINO: Record<string, string> = {
   investimento:
-    "No Planejamento, aporte não é despesa — ele entra no patrimônio. Somado aqui, ele afundaria a sua sobra do mês.",
+    "No FINPLAN, aporte não é despesa — ele entra no patrimônio. Somado aqui, ele afundaria a sua sobra do mês.",
   investimentos:
-    "No Planejamento, aporte não é despesa — ele entra no patrimônio. Somado aqui, ele afundaria a sua sobra do mês.",
+    "No FINPLAN, aporte não é despesa — ele entra no patrimônio. Somado aqui, ele afundaria a sua sobra do mês.",
   dividas:
     "As parcelas já vão pelas suas dívidas. Se fossem também como despesa, cada parcela contaria duas vezes.",
   divida:
@@ -135,7 +135,7 @@ export function chaveCategoria(nome: string): string {
     .replace(/^_+|_+$/g, "");
 }
 
-/** Os slugs válidos de `expenses.category`, do catálogo do Planejamento. */
+/** Os slugs válidos de `expenses.category`, do catálogo do FINPLAN. */
 const SLUGS_VALIDOS = new Set(CATEGORIAS_DESPESA.map((c) => c.valor));
 
 export type Casamento =
@@ -146,7 +146,7 @@ export type Casamento =
   | { tipo: "sem-casa" };
 
 /**
- * Onde uma categoria do FINCASH cai no Planejamento.
+ * Onde uma categoria do FINCASH cai no FINPLAN.
  *
  * Três caminhos, nesta ordem: a recusa explícita vem ANTES do mapa (uma
  * categoria chamada "Investimento" nunca pode virar despesa, nem que alguém
@@ -192,7 +192,7 @@ export type RendaDoFincash = {
   stability: "media";
 };
 
-/** O que o FINCASH tem e o Planejamento não sabe onde pôr. */
+/** O que o FINCASH tem e o FINPLAN não sabe onde pôr. */
 export type CategoriaSemCasa = {
   nome: string;
   total: number;
@@ -213,15 +213,15 @@ export type RetratoDoFincash = {
 export type OpcoesRetrato = {
   /**
    * Contar só o que já aconteceu (`pago = true`) ou o mês inteiro como ele vai
-   * fechar. O padrão é **realizado**: a ponte leva para o Planejamento o
+   * fechar. O padrão é **realizado**: a ponte leva para o FINPLAN o
    * número MEDIDO, que é a razão de ela existir. Previsto é estimativa, e
-   * estimativa o Planejamento já sabe fazer sozinho.
+   * estimativa o FINPLAN já sabe fazer sozinho.
    */
   incluirPrevisto?: boolean;
 };
 
 /**
- * O mês do FINCASH virando o retrato que o Planejamento espera.
+ * O mês do FINCASH virando o retrato que o FINPLAN espera.
  *
  * AGREGA POR CATEGORIA PAI, e não por subcategoria: `expenses` tem uma linha
  * por categoria e ponto. Lançamento com subcategoria soma na pai — que é
@@ -476,7 +476,7 @@ export function patrimonioParaPlanejamento(
 // ══════════════════════════════════════════════════════════ Comparação ═════
 
 export type Situacao =
-  /** O Planejamento não tem nada com esta chave. */
+  /** O FINPLAN não tem nada com esta chave. */
   | "novo"
   /** Tem, e com o mesmo valor. Nada a fazer — a linha aparece para provar que
       a ponte olhou, não para ser marcada. */
@@ -491,11 +491,11 @@ export type Diferenca = {
   /** O texto que a tela mostra na coluna da esquerda. */
   rotulo: string;
   situacao: Situacao;
-  /** O que está hoje no Planejamento. Nulo quando é linha nova. */
+  /** O que está hoje no FINPLAN. Nulo quando é linha nova. */
   valorAtual: number | null;
   /** O que o FINCASH mediu. */
   valorFincash: number;
-  /** O `id` da linha do Planejamento, quando ela já existe. É o que permite
+  /** O `id` da linha do FINPLAN, quando ela já existe. É o que permite
       ATUALIZAR em vez de duplicar — e o que a reversão guarda para voltar. */
   idAtual: string | null;
   /** Detalhe livre para a tela (as origens da agregação, o tipo da dívida). */

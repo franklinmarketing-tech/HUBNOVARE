@@ -57,7 +57,7 @@ export default async function AcompanhamentoPage() {
 
   /* QUEM TEM RETRATO. O comentario acima prometia este filtro e o codigo nao
      fazia: a fila listava os 45 clientes do banco, e 10 em cada 12 eram
-     `visitante.teste.*` — contas descartaveis que a rota /planejamento/testar
+     `visitante.teste.*` — contas descartaveis que a rota /finplan/testar
      cria a cada visita. O consultor abriria uma a uma para descobrir que
      estao vazias.
      `income` e o teste certo: e a primeira coisa que a trilha grava, e sem

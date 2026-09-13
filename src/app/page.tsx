@@ -9,6 +9,7 @@ import { PaletaComandos } from "@/components/PaletaComandos";
 import { BarraMercado } from "@/components/BarraMercado";
 import { CardPortal } from "@/components/CardPortal";
 import { CardFincashHome } from "@/components/CardFincashHome";
+import { CardFinplanHome } from "@/components/CardFinplanHome";
 import { BannerEbooks } from "@/components/BannerEbooks";
 import { BannerNews } from "@/components/BannerNews";
 import { FerramentasHome } from "@/components/FerramentasHome";
@@ -60,7 +61,7 @@ export default async function Home() {
   const assinatura = await estadoDaAssinatura();
   // "cliente"/"free" continua o padrão para visitante anônimo; logado=!!perfil
   // é o que diferencia um cliente em teste de um visitante sem conta — sem
-  // isso o Planejamento aparecia bloqueado até para quem já tinha acesso.
+  // isso o FINPLAN aparecia bloqueado até para quem já tinha acesso.
   const apps = appsParaBusca(perfil?.role ?? "cliente", perfil?.plano ?? "free", !!perfil);
   const areas = portais("cliente");
   const assinante =
@@ -165,20 +166,35 @@ export default async function Home() {
               A Íris continua com porta na home, na faixa logo abaixo das
               ferramentas, e no trilho lateral. */}
 
-          {/* As quatro vitrines: o PRO laranja abre, três áreas navy seguem.
+          {/* As cinco vitrines: OS DOIS PRODUTOS em laranja abrem, três áreas
+              navy seguem.
 
               ⚠️ O PRIMEIRO É O FINCASH desde 12/09/2026 — decisão do dono, o
               produto-âncora da casa (o porquê está em `CardFincashHome` e em
-              `lib/assinatura.ts`). Até essa data era o Planejamento, que
-              continua inteiro e agora se apresenta como o que vem junto.
+              `lib/assinatura.ts`).
 
-              ⚠️ E A ORDEM DESTA FILEIRA NÃO SAI DO CATÁLOGO: o âncora é
-              montado aqui, à mão, e só as três áreas vêm de `portais()`. Quem
-              quiser trocar o primeiro card mexe NESTE arquivo — reordenar
-              `lib/apps.ts` não move nada aqui. */}
-          <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            {/* O card PRO é o único com borda girando: ele é a oferta da
-                casa, e o efeito perde a graça se estiver em tudo. */}
+              ⚠️ O SEGUNDO É O FINPLAN, E ELE VOLTOU EM 13/09/2026. Quando o
+              âncora trocou, o card do produto antigo saiu daqui e nada entrou
+              no lugar: a home ficou com ZERO links para ele — produto pago,
+              com landing própria e vaga no sitemap, sem porta na página mais
+              visitada do site. Os dois são IRMÃOS, não módulos um do outro
+              (o FINCASH mede o mês, o FINPLAN planeja o ano), e duas portas
+              é o que diz isso sem precisar de legenda.
+
+              ⚠️ SÓ O CARD DO FINCASH FALA EM PREÇO, e essa é a condição para
+              os dois conviverem: dois valores na mesma dobra leem como dois
+              planos, e a casa tem UMA assinatura (o que
+              `scripts/testar-nada-a-venda.mjs` guarda). O card do FINPLAN diz
+              "vem na mesma assinatura" — direito, não cobrança.
+
+              ⚠️ E A ORDEM DESTA FILEIRA NÃO SAI DO CATÁLOGO: os dois produtos
+              são montados aqui, à mão, e só as três áreas vêm de `portais()`.
+              Quem quiser trocar o primeiro card mexe NESTE arquivo —
+              reordenar `lib/apps.ts` não move nada aqui. */}
+          <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+            {/* O âncora é o único com borda girando: ele é a oferta da casa, e
+                o efeito perde a graça se estiver em tudo — inclusive no card
+                do irmão, que é produto e não oferta. */}
             <div className="cine" style={{ transitionDelay: "120ms" }}>
               <div className="inclina borda-girando rounded-2xl">
                 {/* O destino e o texto do rodapé saem da `assinatura`: quem
@@ -187,13 +203,18 @@ export default async function Home() {
                 <CardFincashHome assinatura={assinatura} />
               </div>
             </div>
+            <div className="cine" style={{ transitionDelay: "160ms" }}>
+              <div className="inclina h-full">
+                <CardFinplanHome assinatura={assinatura} />
+              </div>
+            </div>
             {areas
               .filter((area) => area.chave !== "trabalho")
               .map((area, i) => (
                 <div
                   key={area.chave}
                   className="cine"
-                  style={{ transitionDelay: `${170 + i * 70}ms` }}
+                  style={{ transitionDelay: `${210 + i * 70}ms` }}
                 >
                   <div className="inclina h-full">
                     <CardPortal portal={area} />
@@ -287,7 +308,7 @@ function SegundaParte({
 }: {
   assinante: boolean;
   primeiroNome?: string;
-  /** Já respondeu a trilha do Planejamento — muda o convite, não o acesso. */
+  /** Já respondeu a trilha do FINPLAN — muda o convite, não o acesso. */
   temFicha: boolean;
 }) {
   return (
@@ -363,7 +384,7 @@ function ConvitePainelHome({ temFicha }: { temFicha: boolean }) {
             que já é dele. Esconder isso seria cobrar pelo que já entregamos. */}
         {temFicha && (
           <Link
-            href="/planejamento/app/diagnostico"
+            href="/finplan/app/diagnostico"
             className="text-xs font-semibold text-white/70 underline-offset-4 hover:text-white hover:underline"
           >
             Rever meu diagnóstico
@@ -385,9 +406,9 @@ function ConviteWorkspace({ assinante }: { assinante: boolean }) {
   /**
    * Quem assina não vê nada aqui.
    *
-   * Havia um banner verde "Seu Workspace está ativo · Planejamento, Íris e
+   * Havia um banner verde "Seu Workspace está ativo · FINPLAN, Íris e
    * todas as ferramentas liberadas", com botão para abrir o plano. Era a
-   * mesma informação que o card do Planejamento, na mesma tela, já dá — e
+   * mesma informação que o card do FINPLAN, na mesma tela, já dá — e
    * ocupava a largura inteira para repeti-la. Quem já pagou não precisa de
    * um aviso de que pagou; precisa do produto, que está logo acima.
    */

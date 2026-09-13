@@ -33,7 +33,7 @@ const ROTAS = [
   "/profissionais/advogados", "/profissionais/dentistas",
   "/consultoria", "/assinar", "/iris", "/novare-news",
   "/ferramentas/raio-x-previdencia", "/ferramentas/salario-liquido",
-  "/planejamento", "/fincash", "/exame-saude-financeira",
+  "/finplan", "/fincash", "/exame-saude-financeira",
   // A tela que recebe quem clicou em assinar antes de a oferta da Hotmart
   // existir. Mostra preço, então precisa ser vigiada como as outras que
   // vendem — e some sozinha (307 para /assinar) quando os dois links forem
@@ -43,12 +43,12 @@ const ROTAS = [
 
 /**
  * Onde a oferta PODE aparecer: a home (card do produto), as landings dos dois
- * produtos pagos (Planejamento e Organizador) e a landing da assinatura. Em
+ * produtos pagos (FINPLAN e FINCASH) e a landing da assinatura. Em
  * qualquer outra rota, preço continua proibido.
  */
 const ROTAS_COM_OFERTA = new Set([
   "/",
-  "/planejamento",
+  "/finplan",
   "/fincash",
   "/assinar",
   "/assinar/em-breve",

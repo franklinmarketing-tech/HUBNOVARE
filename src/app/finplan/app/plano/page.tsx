@@ -455,7 +455,7 @@ export default function PlanoPage() {
       </section>
 
       <div className="mt-6 text-center">
-        <BotaoPrincipal href="/planejamento/app/mes">
+        <BotaoPrincipal href="/finplan/app/mes">
           Lançar o meu mês
           <ArrowRight className="h-4 w-4" />
         </BotaoPrincipal>

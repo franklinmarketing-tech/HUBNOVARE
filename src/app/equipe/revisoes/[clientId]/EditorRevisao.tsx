@@ -14,7 +14,7 @@ import {
 import { calcularDiagnostico } from "@/lib/planejamento/diagnostico";
 import { computeActionPlan } from "@/lib/planejamento/actionplan";
 import { rotuloMes } from "@/lib/planejamento/catalogos";
-import { brl, pct } from "@/app/planejamento/app/pecas";
+import { brl, pct } from "@/app/finplan/app/pecas";
 import { rotuloTrimestre } from "@/lib/planejamento/trimestre";
 
 type Estado =

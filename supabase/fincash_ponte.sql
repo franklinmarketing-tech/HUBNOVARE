@@ -1,9 +1,18 @@
 -- ============================================================================
--- FINCASH → Planejamento Financeiro: o diário da ponte
+-- FINCASH → FINPLAN: o diário da ponte
 -- ----------------------------------------------------------------------------
 -- Rodar UMA vez no SQL Editor do Supabase. Idempotente.
--- ⚠️ NÃO foi rodado ainda. Até rodar, a tela /fincash/app/planejamento mostra
---    "falta rodar o SQL" em vez de meio funcionar.
+--
+-- ✅ JÁ RODOU EM PRODUÇÃO, em 12/09/2026. Conferido pela API REST: a tabela
+--    `fin_ponte_envios` responde `[]` para o papel anônimo, que é a resposta de
+--    tabela QUE EXISTE com a RLS fechando — tabela inexistente devolveria o
+--    erro `PGRST205`. Não precisa rodar de novo; rodar de novo também não
+--    quebra nada, porque o arquivo é idempotente.
+--
+--    ⚠️ ESTE CABEÇALHO JÁ MENTIU. Ele dizia "NÃO foi rodado ainda" um dia
+--    depois de ter rodado, e um agente leu isso como verdade e reabriu a
+--    dúvida. Comentário que afirma estado de produção envelhece sozinho:
+--    quem rodar qualquer SQL daqui, atualize a linha no mesmo dia.
 --
 -- POR QUE UMA TABELA NOVA, E NÃO UMA COLUNA NAS TABELAS DO PLANEJAMENTO
 -- A marca de origem poderia ser uma coluna `origem text` em income, expenses,

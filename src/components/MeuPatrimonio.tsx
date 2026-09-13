@@ -4,7 +4,7 @@ import Link from "next/link";
 import { ArrowRight, Plus } from "lucide-react";
 import { TIPOS_PATRIMONIO } from "@/lib/planejamento/catalogos";
 import { NumeroContado } from "@/components/NumeroContado";
-import type { DadosPlanejamento } from "@/app/planejamento/app/usePlanejamento";
+import type { DadosPlanejamento } from "@/app/finplan/app/usePlanejamento";
 
 /**
  * "O que é meu" — o bloco que faz o Workspace parecer da pessoa.
@@ -72,7 +72,7 @@ export function MeuPatrimonio({ dados }: { dados: DadosPlanejamento }) {
         </div>
 
         <Link
-          href="/planejamento/app/meus-dados"
+          href="/finplan/app/meus-dados"
           className="group inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-primary px-3.5 py-2 text-xs font-semibold text-white transition-colors hover:bg-primary-soft"
         >
           <Plus className="h-3.5 w-3.5" />
@@ -129,7 +129,7 @@ export function MeuPatrimonio({ dados }: { dados: DadosPlanejamento }) {
 
       {bens.length > 6 && (
         <Link
-          href="/planejamento/app/meus-dados"
+          href="/finplan/app/meus-dados"
           className="group mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-accent-strong"
         >
           Ver os {bens.length} itens
@@ -182,11 +182,11 @@ export function MeuRetrato({ dados }: { dados: DadosPlanejamento }) {
   const { retrato } = dados;
 
   const linhas = [
-    { rotulo: "Rendas", n: retrato.rendas.length, href: "/planejamento/app/meus-dados" },
-    { rotulo: "Despesas", n: retrato.despesas.length, href: "/planejamento/app/meus-dados" },
-    { rotulo: "Bens", n: retrato.patrimonio.length, href: "/planejamento/app/meus-dados" },
-    { rotulo: "Dívidas", n: retrato.dividas.length, href: "/planejamento/app/meus-dados" },
-    { rotulo: "Seguros", n: retrato.seguros.length, href: "/planejamento/app/meus-dados" },
+    { rotulo: "Rendas", n: retrato.rendas.length, href: "/finplan/app/meus-dados" },
+    { rotulo: "Despesas", n: retrato.despesas.length, href: "/finplan/app/meus-dados" },
+    { rotulo: "Bens", n: retrato.patrimonio.length, href: "/finplan/app/meus-dados" },
+    { rotulo: "Dívidas", n: retrato.dividas.length, href: "/finplan/app/meus-dados" },
+    { rotulo: "Seguros", n: retrato.seguros.length, href: "/finplan/app/meus-dados" },
   ];
 
   // Dívida e seguro zerados são uma resposta legítima ("não tenho"), então

@@ -19,7 +19,12 @@ const BASE = process.env.BASE ?? "http://localhost:3000";
  * A lista sai do próprio catálogo: ferramenta nova entra na varredura
  * sozinha. Lista escrita à mão envelhece calada — foi o que aconteceu.
  */
-const FIXAS = ["/", "/aplicativos", "/assinar", "/iris", "/consultoria", "/login"];
+// ⚠️ AS DUAS LANDINGS DE PRODUTO ENTRAM À MÃO: elas não casam com o filtro
+// de `/ferramentas/` logo abaixo (são apps com porta própria) e ficavam de
+// fora da varredura. `/finplan` é o endereço novo — `/planejamento` responde
+// 308 para cá e NÃO deve ser varrido: redirect não é 200 e acusaria problema
+// onde só há mudança de nome.
+const FIXAS = ["/", "/aplicativos", "/assinar", "/iris", "/consultoria", "/login", "/finplan", "/fincash"];
 
 const arquivo = readFileSync(
   new URL("../src/lib/apps.ts", import.meta.url),

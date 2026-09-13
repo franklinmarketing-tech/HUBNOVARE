@@ -46,8 +46,8 @@ conferir("Esc fecha", (await p.locator("[role='dialog']").count()) === 0);
 /* ------------------------------------- o clique no card continua direto */
 const planejamento = p.locator("a.glass-card", { hasText: "Planejamento" }).first();
 await planejamento.click({ position: { x: 40, y: 30 } });
-await p.waitForURL((u) => u.pathname.startsWith("/planejamento"), { timeout: 15000 }).catch(() => {});
-conferir("clicar no card abre o app direto", p.url().includes("/planejamento"), p.url());
+await p.waitForURL((u) => u.pathname.startsWith("/finplan"), { timeout: 15000 }).catch(() => {});
+conferir("clicar no card abre o app direto", p.url().includes("/finplan"), p.url());
 
 conferir("sem erros de página", erros.length === 0, erros.slice(0, 2).join(" | "));
 

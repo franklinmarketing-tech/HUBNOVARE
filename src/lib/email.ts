@@ -33,7 +33,7 @@ function corpoHtml(nome: string) {
         ${primeiroNome}, seu Workspace já está pronto.
       </h1>
       <p style="font-size:15px;line-height:1.6;color:#3c4a5c;margin:0 0 24px;">
-        A partir de agora você tem acesso ao Planejamento Financeiro PRO, à Íris
+        A partir de agora você tem acesso ao FINCASH, ao FINPLAN, à Íris
         (a IA que lê seu extrato) e a todas as ferramentas da Novare — sem
         precisar esperar ninguém liberar nada.
       </p>
@@ -121,7 +121,7 @@ export async function enviarAvisoDeRevisao(params: {
         está travando e qual é o próximo movimento.
       </p>
       <div style="text-align:center;margin:0 0 28px;">
-        <a href="${SITE}/planejamento/app"
+        <a href="${SITE}/finplan/app"
            style="display:inline-block;background:#e8703a;color:#ffffff;text-decoration:none;
                   font-weight:700;font-size:15px;padding:14px 28px;border-radius:10px;">
           Ler a minha revisão

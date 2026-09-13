@@ -8,7 +8,7 @@ import { semearDemonstracao } from "@/lib/fincash/demo";
 /**
  * Entrada de demonstração do FINCASH — SEM link nenhum apontando para cá.
  *
- * É a mesma peça que o Planejamento já tem em `/planejamento/testar`, e é
+ * É a mesma peça que o FINPLAN já tem em `/finplan/testar`, e é
  * cópia deliberada: o padrão da casa para "entrar sem cadastro" já existe,
  * já foi pensado, e inventar um segundo jeito seria criar uma segunda
  * superfície de ataque para manter.

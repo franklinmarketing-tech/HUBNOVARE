@@ -47,7 +47,7 @@ export function Recentes({ apps }: { apps: AppLeve[] }) {
           nomes eram longos ("Raio-X da Previdência"), e a segunda fileira
           empurrava a home inteira para baixo — numa tela que é medida para
           caber na dobra. Aqui a lista rola de lado em vez de quebrar, do
-          mesmo jeito que a trilha de etapas do Planejamento faz.
+          mesmo jeito que a trilha de etapas do FINPLAN faz.
       
           A barra de rolagem fica escondida: o corte suave do último item já
           diz que há mais coisa, e barra horizontal no meio da home suja. */}

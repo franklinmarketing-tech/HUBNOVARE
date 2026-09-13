@@ -55,7 +55,7 @@ const SECOES = [
       },
       {
         rotulo: "Planejamento Financeiro",
-        caminho: "/planejamento",
+        caminho: "/finplan",
         desc: "A landing do produto principal, com a calculadora do Marco Horizonte.",
       },
       {
@@ -81,13 +81,13 @@ const SECOES = [
     titulo: "O app (precisa de login)",
     nota: "A trilha completa do cliente. Entre com a conta da página ao lado para percorrer.",
     links: [
-      { rotulo: "Abrir o app", caminho: "/planejamento/app", destaque: true },
-      { rotulo: "1 · Meus dados", caminho: "/planejamento/app/meus-dados", desc: "A trilha de 8 blocos." },
-      { rotulo: "2 · Diagnóstico", caminho: "/planejamento/app/diagnostico" },
-      { rotulo: "3 · Meu plano", caminho: "/planejamento/app/plano" },
-      { rotulo: "4 · Meu mês", caminho: "/planejamento/app/mes" },
-      { rotulo: "5 · Minha evolução", caminho: "/planejamento/app/evolucao" },
-      { rotulo: "6 · Meu relatório", caminho: "/planejamento/app/relatorio", desc: "Sai em PDF pelo navegador." },
+      { rotulo: "Abrir o app", caminho: "/finplan/app", destaque: true },
+      { rotulo: "1 · Meus dados", caminho: "/finplan/app/meus-dados", desc: "A trilha de 8 blocos." },
+      { rotulo: "2 · Diagnóstico", caminho: "/finplan/app/diagnostico" },
+      { rotulo: "3 · Meu plano", caminho: "/finplan/app/plano" },
+      { rotulo: "4 · Meu mês", caminho: "/finplan/app/mes" },
+      { rotulo: "5 · Minha evolução", caminho: "/finplan/app/evolucao" },
+      { rotulo: "6 · Meu relatório", caminho: "/finplan/app/relatorio", desc: "Sai em PDF pelo navegador." },
     ],
   },
   {

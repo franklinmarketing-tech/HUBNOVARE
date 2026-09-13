@@ -16,7 +16,7 @@ const nextConfig: NextConfig = {
 
   /**
    * O App Novare Planejamento Financeiro passou a ser construído aqui dentro,
-   * em `/planejamento`. Antes o Workspace apenas reescrevia `/vidaplan` para o
+   * em `/finplan`. Antes o Workspace apenas reescrevia `/vidaplan` para o
    * SPA publicado pelo Lovable — junto com `/assets/*`, `/icons/*` e
    * `/~flock.js`, que o SPA referenciava a partir da raiz.
    *
@@ -27,9 +27,32 @@ const nextConfig: NextConfig = {
    */
   async redirects() {
     return [
-      { source: "/vidaplan", destination: "/planejamento", permanent: true },
-      { source: "/vidaplan/:caminho*", destination: "/planejamento", permanent: true },
-      { source: "/vida-plan", destination: "/planejamento", permanent: true },
+      /* ── O PRODUTO GANHOU NOME PRÓPRIO: FINPLAN (13/09/2026) ────────────
+         A rota `/planejamento` foi renomeada para `/finplan`, e estes dois
+         redirects são o que torna a renomeação segura. Sem eles quebram, de
+         uma vez: os links dos e-mails já enviados (`lib/email.ts` mandava
+         para `/planejamento/app`), o que o Google já indexou (a rota estava
+         no sitemap desde sempre) e qualquer marcador salvo por cliente.
+
+         ⚠️ SÃO DOIS, E O SEGUNDO NÃO COBRE O PRIMEIRO: `:caminho*` casa o que
+         vem DEPOIS da barra, então `/planejamento` puro passaria batido e
+         cairia em 404 — que é justamente o endereço mais divulgado.
+
+         ⚠️ O CURINGA PRESERVA O CAMINHO INTEIRO, de propósito. Mandar tudo
+         para a raiz do produto (o que os redirects do `/vidaplan` fazem logo
+         abaixo, porque lá o SPA antigo não tinha rota equivalente) jogaria
+         quem clicou em "abrir meu mês" na porta da frente. Aqui existe rota
+         equivalente para cada uma: `/planejamento/app/mes` → `/finplan/app/mes`. */
+      { source: "/planejamento", destination: "/finplan", permanent: true },
+      {
+        source: "/planejamento/:caminho*",
+        destination: "/finplan/:caminho*",
+        permanent: true,
+      },
+
+      { source: "/vidaplan", destination: "/finplan", permanent: true },
+      { source: "/vidaplan/:caminho*", destination: "/finplan", permanent: true },
+      { source: "/vida-plan", destination: "/finplan", permanent: true },
       // A página existia só para descrever uma ideia sem preço e mandar a
       // pessoa falar com a Novare — e o próprio botão dela já apontava
       // para /consultoria. Cortamos o meio de campo.

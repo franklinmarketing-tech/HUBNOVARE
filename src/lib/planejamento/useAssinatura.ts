@@ -56,7 +56,7 @@ export type EstadoAssinatura =
        *
        * `liberado` sozinho não distingue "não deu para saber" (que libera,
        * de propósito) de "não tem conta" — e os dois chegavam como
-       * `assinatura: null`. Para as três ações do Planejamento isso não
+       * `assinatura: null`. Para as três ações do FINPLAN isso não
        * importa: quem está lá dentro já entrou. Para uma ferramenta que é
        * inteira paga, importa muito — sem esta distinção, a porta abria
        * para todo visitante anônimo.

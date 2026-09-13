@@ -50,7 +50,7 @@ export function FerramentaAssinante({
   // O `logado` é o que impede a porta de escancarar: `liberado` sozinho é
   // `true` para visitante anônimo, porque `garantirTeste` devolve `null`
   // sem sessão e a regra da casa é tratar "não sei" como liberado. Correto
-  // para as ações do Planejamento — quem está lá dentro já entrou —, errado
+  // para as ações do FINPLAN — quem está lá dentro já entrou —, errado
   // aqui, onde a página inteira é o produto pago.
   if (estado.logado && estado.liberado) return <>{children}</>;
 
