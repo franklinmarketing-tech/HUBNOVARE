@@ -740,7 +740,15 @@ export const CONTAGEM = {
  * Os três números saem de `CONTAGEM`. Nenhum se escreve à mão: o arquivo
  * inteiro existe porque cinco telas já anunciaram cinco totais diferentes.
  */
+/* ⚠️ ESTA FRASE CONTAVA FERRAMENTA EXCLUSIVA, e em 13/09/2026 passou a
+   imprimir "e 0 ferramentas que só abrem assinando" na /aplicativos — foi a
+   última sobra da remoção das oito pagas, e escapou de quatro conferências
+   porque o número está no meio de uma soma de strings, não num JSX que se lê
+   passando o olho. Só apareceu buscando o literal "0 ferramentas" na PÁGINA
+   SERVIDA.
+
+   Lição para a próxima contagem que for a zero: procure o número no HTML de
+   produção, não no código. */
 export const INTRO_ASSINATURA =
-  `${CONTAGEM.aplicativos} aplicativos com login e ${CONTAGEM.exclusivasAssinante} ferramentas ` +
-  `que só abrem assinando. As outras ${CONTAGEM.ferramentas} são abertas a qualquer um, ` +
-  `e continuam sendo.`;
+  `${CONTAGEM.aplicativos} aplicativos com login, e as ${CONTAGEM.ferramentas} ` +
+  `ferramentas da casa abertas a qualquer um — e elas continuam assim.`;
