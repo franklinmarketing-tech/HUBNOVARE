@@ -434,11 +434,20 @@ export const APPS: NovareApp[] = [
    * caro (fora do foco de construir patrimônio), FGTS (o app da Caixa dá o
    * número certo), Assistente Financeiro (canibaliza a Íris).
    */
-  app("organizacao", "controle-gastos", "Controle de Gastos", "Para onde vai o seu dinheiro", "/ferramentas/gastos", "Copilot Money", { plano: "pago" }),
-  app("organizacao", "organizador-assinaturas", "Organizador de Assinaturas", "Cace as cobranças esquecidas", "/ferramentas/assinaturas", "Rocket Money", { plano: "pago" }),
-  app("organizacao", "calendario-financeiro", "Calendário de Contas", "Nenhum vencimento esquecido", "/ferramentas/calendario", "Rocket Money", { plano: "pago" }),
-  app("organizacao", "alertas-vencimento", "Alertas de Vencimento", "O que vence nos próximos 30 dias", "/ferramentas/alertas", "Rocket Money", { plano: "pago" }),
-  app("organizacao", "central-financeira", "Central Financeira", "Sua vida financeira num painel só", "/ferramentas/central", "Monarch Money", { plano: "pago" }),
+  /* ⚠️ CINCO FERRAMENTAS SAÍRAM DAQUI EM 13/09/2026, a pedido do dono:
+     Controle de Gastos, Organizador de Assinaturas, Calendário de Contas,
+     Alertas de Vencimento e Central Financeira ("não usamos elas").
+
+     E o motivo de fundo vale ficar escrito, porque a tentação de recriá-las
+     volta: as cinco DUPLICAVAM o FINCASH. Painel, contas fixas, orçamento e
+     alerta de vencimento são telas do produto-âncora — uma "Central
+     Financeira" avulsa no catálogo competia com ele e dividia a atenção de
+     quem chegava para assinar.
+
+     ⚠️ ISSO DERRUBOU `CONTAGEM.exclusivasAssinante` DE 8 PARA 3, e a /assinar
+     imprime esse número. Não é perda: o 8 estava inflado por ferramentas que
+     repetiam o produto principal. Se alguém quiser o número maior de volta,
+     que seja com ferramenta que o FINCASH NÃO faz. */
   app("ia", "scanner-extratos", "Scanner de Extratos", "Cole o extrato e ele categoriza tudo", "/ferramentas/scanner-extratos", "Copilot Money", { plano: "pago" }),
   app("investimentos", "dashboard-patrimonial", "Dashboard Patrimonial", "Tudo o que você tem, num painel", "/ferramentas/dashboard-patrimonial", "Monarch Money", { plano: "pago" }),
   app("investimentos", "raio-x-carteira", "Raio-X da Carteira", "Concentração e risco expostos", "/ferramentas/raio-x", "Morningstar X-Ray", { plano: "pago" }),

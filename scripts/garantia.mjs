@@ -96,13 +96,8 @@ for (const rota of CALCULADORAS) {
 
 const PAGINAS_CRUD = [
   "/ferramentas/orcamento",
-  "/ferramentas/gastos",
-  "/ferramentas/calendario",
-  "/ferramentas/assinaturas",
   "/ferramentas/patrimonio",
   "/ferramentas/seguros",
-  "/ferramentas/alertas",
-  "/ferramentas/central",
   "/ferramentas/scanner-extratos",
 ];
 

@@ -310,20 +310,35 @@ export default function ScannerExtratosPage() {
           <section className="mt-6 rounded-2xl border border-slate-200 bg-white p-5 flex items-start gap-3">
             <CheckCircle2 className="h-5 w-5 text-success shrink-0 mt-0.5" />
             <div>
+              {/* ⚠️ ESTE BLOCO APONTAVA PARA O CONTROLE DE GASTOS, que saiu do
+                  catálogo em 13/09/2026 — e a dependência era real, não só um
+                  link: o `useArmazenado("gastos")` daqui grava na MESMA chave
+                  que aquela ferramenta lia. Sem ela, a importação passou a
+                  gravar num lugar que ninguém abre.
+
+                  O destino honesto é o FINCASH, que importa extrato de
+                  verdade (OFX, com deduplicação por identificador do banco) e
+                  guarda no banco, não no navegador. Por isso o texto deixou de
+                  prometer que "já aparece no resumo do mês": aqui a leitura é
+                  local e a pessoa precisa levar o resultado para o app.
+
+                  ⚠️ A CHAVE "gastos" FICOU SEM LEITOR. Se um dia alguém
+                  reaproveitar este scanner, ou ele passa a escrever direto no
+                  FINCASH, ou o botão de importar sai. */}
               <p className="text-sm font-semibold text-slate-700">
                 {importados}{" "}
-                {importados === 1 ? "gasto importado" : "gastos importados"}{" "}
-                para o Controle de Gastos
+                {importados === 1 ? "gasto lido" : "gastos lidos"} e
+                categorizados
               </p>
               <p className="text-xs text-slate-500 mt-0.5">
-                Eles já aparecem no resumo do mês, junto com o que você lança à
-                mão.
+                A leitura acontece no seu navegador. Para que eles entrem no seu
+                mês, importe o extrato direto no FINCASH.
               </p>
               <Link
-                href="/ferramentas/gastos"
+                href="/fincash"
                 className="mt-2 inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:underline"
               >
-                Abrir o Controle de Gastos
+                Conhecer o FINCASH
                 <ArrowRight className="h-4 w-4" />
               </Link>
             </div>
