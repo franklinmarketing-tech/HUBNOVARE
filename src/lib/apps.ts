@@ -448,9 +448,21 @@ export const APPS: NovareApp[] = [
      imprime esse número. Não é perda: o 8 estava inflado por ferramentas que
      repetiam o produto principal. Se alguém quiser o número maior de volta,
      que seja com ferramenta que o FINCASH NÃO faz. */
-  app("ia", "scanner-extratos", "Scanner de Extratos", "Cole o extrato e ele categoriza tudo", "/ferramentas/scanner-extratos", "Copilot Money", { plano: "pago" }),
-  app("investimentos", "dashboard-patrimonial", "Dashboard Patrimonial", "Tudo o que você tem, num painel", "/ferramentas/dashboard-patrimonial", "Monarch Money", { plano: "pago" }),
-  app("investimentos", "raio-x-carteira", "Raio-X da Carteira", "Concentração e risco expostos", "/ferramentas/raio-x", "Morningstar X-Ray", { plano: "pago" }),
+  /* ⚠️ E MAIS TRÊS SAÍRAM NO MESMO DIA: Scanner de Extratos, Dashboard
+     Patrimonial e Raio-X da Carteira. Com elas, `CONTAGEM.exclusivasAssinante`
+     foi a ZERO — não existe mais ferramenta que só assinante abre.
+
+     ISSO NÃO É UM BURACO NA OFERTA, é uma simplificação dela. O argumento
+     deixou de ser "N ferramentas exclusivas" (uma contagem que ninguém
+     confere e que estava inflada por ferramentas repetindo o produto) e
+     passou a ser o que a casa realmente entrega: FINCASH, FINPLAN, Íris sem
+     limite, a revisão trimestral de um consultor e as calculadoras — que
+     seguem ABERTAS a qualquer um, e continuam sendo.
+
+     ⚠️ POR ISSO A LINHA "{EXCLUSIVAS} ferramentas exclusivas de assinante"
+     SAIU de `ASSINATURA_INCLUI`. Se alguém recriar ferramenta paga, a linha
+     volta junto — mas enquanto o número for zero, imprimir "0 ferramentas
+     exclusivas" é pior do que não dizer nada. */
 
   // ============================================================ INTERNO
   {

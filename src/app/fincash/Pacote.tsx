@@ -232,10 +232,15 @@ const NOS: No[] = [
   {
     chave: "ferramentas",
     nome: "As ferramentas da casa",
-    /* Os dois números saem de `CONTAGEM`, que conta o catálogo. Dizer só o
-       total seria inflar: boa parte delas abre sem assinar, e quem descobre
-       isso depois de pagar não descobre sozinho — conta para os outros. */
-    chamada: `${CONTAGEM.exclusivasAssinante} só abrem assinando. As outras ${CONTAGEM.ferramentas} são abertas a qualquer um, e continuam sendo.`,
+    /* ⚠️ ESTA LINHA DIZIA "N só abrem assinando, as outras M são abertas".
+       O N foi a ZERO em 13/09/2026: as oito ferramentas pagas saíram do
+       catálogo por duplicarem o FINCASH, e hoje NENHUMA é exclusiva.
+
+       A honestidade que a frase antiga defendia continua de pé, só que ao
+       contrário: antes era não inflar dizendo que tudo era exclusivo; agora é
+       não fingir exclusividade que não existe. O número sai de `CONTAGEM`, e
+       o texto diz que elas são abertas — que é o que a pessoa vai encontrar. */
+    chamada: `${CONTAGEM.ferramentas} calculadoras da casa, abertas a qualquer um — e elas continuam assim.`,
     Icone: Layers,
     minha: contem("ferramentas exclusivas", "calculadoras"),
   },

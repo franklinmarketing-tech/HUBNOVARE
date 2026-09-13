@@ -308,7 +308,10 @@ const INCLUI = [
      tem de graça — e a conta chega no dia em que ela descobre. O que se compra
      aqui é o teto saindo, que é o que `ASSINATURA_INCLUI` também diz. */
   "Íris sem limite: leia quantos extratos quiser",
-  `${CONTAGEM.exclusivasAssinante} ferramentas exclusivas de assinante`,
+  /* ⚠️ SAIU "N ferramentas exclusivas de assinante": o N foi a zero quando as
+     oito pagas deixaram o catálogo (duplicavam o FINCASH). Sobrou a linha das
+     calculadoras, que é a verdadeira — elas são abertas e a assinatura não as
+     tranca. Se voltar ferramenta paga, a linha volta com ela. */
   "Todas as calculadoras da casa",
   ROTULO_DESCONTO_ASSINANTE + " na consultoria particular",
   "Cancele quando quiser, sem multa",

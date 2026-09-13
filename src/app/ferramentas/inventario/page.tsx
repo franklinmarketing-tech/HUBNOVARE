@@ -317,17 +317,25 @@ export default function InventarioPage() {
           )}
         </section>
 
-        {/* Próximo passo */}
+        {/* ⚠️ ESTE BLOCO MANDAVA PARA O DASHBOARD PATRIMONIAL, que saiu do
+            catálogo em 13/09/2026 — e ele dizia "que lê exatamente estes
+            itens", ou seja, era ponte de dado e não sugestão solta.
+
+            O destino honesto é o FINCASH: a tela de Investimentos dele soma
+            patrimônio de verdade, com o que a pessoa cadastra, e guarda no
+            banco em vez do navegador. O texto deixou de prometer leitura
+            automática, porque essa leitura não existe entre as duas peças. */}
         <section className="mt-6 rounded-xl bg-slate-50 p-3">
           <p className="text-xs text-slate-500">
-            Com o inventário feito, veja tudo somado no{" "}
+            Com o inventário feito, o passo seguinte é acompanhar esse
+            patrimônio mês a mês no{" "}
             <Link
-              href="/ferramentas/dashboard-patrimonial"
+              href="/fincash"
               className="font-semibold text-primary underline underline-offset-2"
             >
-              Dashboard Patrimonial
+              FINCASH
             </Link>
-            , que lê exatamente estes itens.
+            .
           </p>
         </section>
 

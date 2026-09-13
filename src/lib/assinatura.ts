@@ -626,11 +626,25 @@ export const ASSINATURA_INCLUI = [
   "Plano de ação com valor e prazo: o que fazer primeiro, segundo, terceiro",
   "Fechamento mensal em 2 minutos, com a sua evolução em números",
   "Relatório em PDF que é seu — leve para onde quiser, inclusive para outro consultor",
-  /* O número sai de `CONTAGEM.exclusivasAssinante` na página, não daqui:
-     este arquivo é fonte pura e importar o catálogo criaria acoplamento —
-     mas cravar "8" à mão é o erro que a auditoria dos contadores já pegou
-     uma vez. O marcador é substituído em `/assinar`. */
-  "{EXCLUSIVAS} ferramentas exclusivas de assinante: seus gastos, contas e assinaturas conversando entre si",
+  /* ⚠️ AQUI HAVIA "{EXCLUSIVAS} ferramentas exclusivas de assinante: seus
+     gastos, contas e assinaturas conversando entre si". A linha SAIU em
+     13/09/2026, e por dois motivos que se somam.
+
+     O primeiro é aritmético: as oito ferramentas pagas deixaram o catálogo
+     (duplicavam o FINCASH), `CONTAGEM.exclusivasAssinante` foi a ZERO, e a
+     linha passaria a prometer "0 ferramentas exclusivas". Número zero numa
+     lista do que se leva é pior que silêncio.
+
+     O segundo é mais sério: a própria frase descrevia o que as ferramentas
+     apagadas faziam — "gastos, contas e assinaturas conversando entre si".
+     Isso hoje é o FINCASH, e já está na linha dele, acima. Manter esta seria
+     vender duas vezes a mesma entrega.
+
+     ⚠️ O MARCADOR `{EXCLUSIVAS}` CONTINUA SENDO SUBSTITUÍDO em `/assinar`,
+     `Pacote.tsx`, `page.tsx` do FINCASH e `ModalAssinarPlano` — o `replace`
+     sobre uma lista que não tem o marcador é inofensivo, então nada quebra.
+     Se um dia voltar ferramenta que só assinante abre, a linha volta com ela,
+     e o mecanismo já está de pé. */
   "Todas as calculadoras da casa, com as tabelas oficiais de 2026",
   /* ⚠️ SEM PERCENTUAL, E A AUSÊNCIA DO NÚMERO É A INFORMAÇÃO.
 

@@ -57,10 +57,14 @@ export default async function AplicativosPage() {
               passou a incluir 8 que só abrem pagando — e "pronta para usar"
               é exatamente o que elas NÃO estão para quem chega de busca. */}
           <p className="mt-2.5 max-w-xl text-muted-foreground">
-            {CONTAGEM.ferramentas} ferramentas prontas para usar,{" "}
-            {CONTAGEM.exclusivasAssinante} exclusivas de assinante e{" "}
-            {CONTAGEM.consultorias} formatos de consultoria. Filtre por área ou
-            busque com ⌘K.
+            {/* ⚠️ AQUI DIZIA "N exclusivas de assinante", e o N foi a ZERO em
+                13/09/2026, quando as oito ferramentas pagas saíram do catálogo
+                por duplicarem o FINCASH. "0 exclusivas" é pior que silêncio.
+                A frase passou a dizer o que é verdade hoje: as ferramentas
+                são abertas, e o que se assina são os produtos. */}
+            {CONTAGEM.ferramentas} ferramentas prontas para usar, todas
+            abertas, e {CONTAGEM.consultorias} formatos de consultoria. Filtre
+            por área ou busque com ⌘K.
           </p>
 
           <div className="mt-7">

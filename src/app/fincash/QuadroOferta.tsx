@@ -90,7 +90,9 @@ export default function QuadroOferta({
       emblema: "cartao",
       nome: "As ferramentas",
       subtitulo: "Da casa inteira",
-      promessa: `${CONTAGEM.exclusivasAssinante} só abrem assinando.`,
+      /* ⚠️ Dizia "N só abrem assinando"; N virou zero quando as ferramentas
+         pagas saíram do catálogo. Ver a nota em `Pacote.tsx`. */
+      promessa: `${CONTAGEM.ferramentas} calculadoras, abertas a qualquer um.`,
       itens: ["Calculadoras com as tabelas de 2026"],
     },
   ];

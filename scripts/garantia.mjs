@@ -98,7 +98,6 @@ const PAGINAS_CRUD = [
   "/ferramentas/orcamento",
   "/ferramentas/patrimonio",
   "/ferramentas/seguros",
-  "/ferramentas/scanner-extratos",
 ];
 
 console.log("--- Nível A: páginas de uso diário carregam sem erro ---");
