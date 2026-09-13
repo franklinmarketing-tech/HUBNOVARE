@@ -1,0 +1,138 @@
+/*
+ * A CONVERSA QUE ACONTECE — as animações da seção do assistente.
+ *
+ * ── POR QUE ANIMAÇÃO E NÃO VÍDEO ──────────────────────────────────────────
+ * O pedido foi "um vídeo usando o WhatsApp". Vídeo real é impossível hoje: a
+ * linha oficial não está ligada e o assistente não responde, então não existe
+ * uso para filmar. Gravar uma encenação e chamá-la de vídeo do produto seria
+ * a única mentira que esta página se proíbe.
+ *
+ * O que entrou faz o mesmo trabalho e melhor: os balões entram em sequência,
+ * com o "digitando" entre a pergunta e a resposta. Pesa zero byte de mídia
+ * (um webm de 20s custa megabytes), fica nítido em qualquer densidade de tela,
+ * o texto é texto de verdade — leitor de tela lê, Google indexa, tradutor
+ * traduz — e não precisa ser regravado quando um número mudar.
+ *
+ * ── POR QUE `animation-timeline: view()` E NÃO DELAY NO CARREGAMENTO ───────
+ * A seção mora no meio de uma página de quinze telas. Animação disparada no
+ * load termina muito antes de a pessoa chegar lá: ela encontraria a conversa
+ * parada, e o efeito existiria só para quem abrisse o link já rolado. Com a
+ * timeline de view, a sequência roda quando a seção entra na tela, que é
+ * quando alguém está olhando.
+ *
+ * ⚠️ O ESTADO BASE É VISÍVEL, e isso não é detalhe de estilo. Quem não tem
+ * `animation-timeline` (Safari e Firefox, hoje) vê a conversa inteira, parada
+ * e completa. A animação é acréscimo para quem pode tê-la, nunca a condição
+ * para o conteúdo existir. Se um dia alguém inverter isso e começar com
+ * `opacity: 0` no estado base, a seção fica em branco em metade dos
+ * navegadores do mundo.
+ */
+
+.balao {
+  opacity: 1;
+}
+
+.digitando {
+  opacity: 1;
+}
+
+.ponto {
+  animation: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    /* ⚠️ AS FAIXAS TERMINAM DENTRO DE `entry`, E NAO EM `cover`.
+       Medido em 13/09/2026: com os fins em `cover 66%` e `cover 72%`, rolar a
+       secao inteira e passar dela deixava os tres ultimos baloes em 0.79, 0.54
+       e 0.32 de opacidade. A conversa ficava desbotada justamente no fim, que
+       e onde mora a frase mais importante da peca (a recusa de gravar valor
+       por extenso). `entry` fecha quando o elemento acabou de entrar na tela:
+       quando a pessoa esta olhando, ja esta tudo em 1. */
+    /* A conversa começa fechada e abre conforme a seção sobe na tela.
+       `both` é o que segura o estado final: sem ele o balão volta a sumir
+       quando a timeline passa do fim. */
+    .balao {
+      opacity: 0;
+      animation: chega-balao linear both;
+      animation-timeline: view();
+      animation-range: entry 5% entry 35%;
+    }
+
+    /* Os atrasos viram FAIXAS diferentes da mesma rolagem, e não segundos:
+       numa timeline de scroll quem manda é a posição, não o relógio. Cada
+       mensagem abre um pouco depois da anterior, do mesmo jeito que uma
+       conversa chega. */
+    .b2 {
+      animation-range: entry 14% entry 44%;
+    }
+    .b3 {
+      animation-range: entry 23% entry 53%;
+    }
+    .b4 {
+      animation-range: entry 32% entry 62%;
+    }
+    .b5 {
+      animation-range: entry 41% entry 71%;
+    }
+    .b6 {
+      animation-range: entry 50% entry 80%;
+    }
+
+    .digitando {
+      opacity: 0;
+      animation: chega-balao linear both;
+      animation-timeline: view();
+      animation-range: entry 60% entry 90%;
+    }
+
+    /* Os três pontinhos do "digitando". Amplitude pequena e escalonada: é o
+       único movimento em laço da peça, e ele existe porque é o que faz a
+       conversa parecer em andamento em vez de impressa. */
+    .ponto {
+      animation: pisca-ponto 1.4s ease-in-out infinite;
+    }
+    .ponto:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+    .ponto:nth-child(3) {
+      animation-delay: 0.4s;
+    }
+  }
+}
+
+@keyframes chega-balao {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes pisca-ponto {
+  0%,
+  100% {
+    opacity: 0.3;
+    transform: translateY(0);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(-2px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .balao,
+  .digitando {
+    opacity: 1;
+    animation: none;
+    transform: none;
+  }
+  .ponto {
+    animation: none;
+    opacity: 0.6;
+  }
+}

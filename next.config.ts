@@ -43,6 +43,101 @@ const nextConfig: NextConfig = {
         destination: "/consultoria/diagnostico",
         permanent: true,
       },
+
+      /* ── AS TRÊS FERRAMENTAS APOSENTADAS EM 13/09/2026 ──────────────────
+         Elas estavam no ar sem estar no catálogo nem no sitemap, e saíram
+         por decisão do dono depois da auditoria das 41 rotas órfãs. O
+         redirect existe porque endereço já publicado não deixa de existir
+         quando o arquivo some: quem tiver o link salvo, ou quem chegar por
+         um print antigo, cai na ferramenta equivalente em vez de num 404.
+
+         ⚠️ `/ferramentas/open-finance` É O CASO SÉRIO, e o destino não é
+         acidental. A página prometia "conexão automática pelo Open Finance"
+         e atribuía à Íris um recurso que ela não tem — enquanto a landing do
+         FINCASH vende NÃO ter Open Finance como escolha, e `api/iris/route.ts`
+         diz por extenso que o extrato é colado pela pessoa. Ela ia para o
+         FINCASH porque é lá que a promessa verdadeira está escrita. */
+      {
+        source: "/ferramentas/open-finance",
+        destination: "/fincash",
+        permanent: true,
+      },
+      /* Sobrepunha o Inventário Digital, que faz o mesmo e ainda alimenta o
+         Dashboard Patrimonial. */
+      {
+        source: "/ferramentas/documentos",
+        destination: "/ferramentas/inventario",
+        permanent: true,
+      },
+      /* Repetia as contas do Raio-X de Previdência, que o catálogo já vende. */
+      {
+        source: "/ferramentas/previdencia",
+        destination: "/ferramentas/raio-x-previdencia",
+        permanent: true,
+      },
+
+      /* ── AS 32 FERRAMENTAS APOSENTADAS EM 13/09/2026 ────────────────────
+         A auditoria das 41 rotas órfãs (existiam no ar, fora do catálogo e
+         fora do sitemap) terminou com decisão do dono: limpar o Workspace.
+         Saíram as que duplicavam o FINCASH, o FINPLAN ou a Íris, e as que
+         repetiam uma conta que outra ferramenta já fazia melhor.
+
+         ⚠️ CADA UMA GANHA DESTINO PENSADO, e nenhuma cai em /aplicativos por
+         preguiça: quem salvou "a calculadora de cartões" quer o lugar onde
+         cartões são resolvidos hoje, que é o FINCASH. Mandar tudo para o
+         catálogo transformaria 32 links salvos em 32 buscas manuais.
+
+         ⚠️ QUATRO NÃO SAÍRAM, e a trava do script foi quem impediu:
+         `patrimonio`, `patrimonio-imobiliario`, `inventario` e `seguros`
+         gravam as chaves que o Dashboard Patrimonial, a Central e o FINPLAN
+         (`planejamento/app/meus-dados`, `montarPlano.ts`) LEEM. Apagá-las
+         deixaria produto pago mostrando zero. `rebalanceador` ficou pelo
+         mesmo motivo. */
+      ...Object.entries({
+        // Duplicavam módulos do FINCASH: cartões, metas, fluxo do mês.
+        cartoes: "/fincash",
+        metas: "/fincash",
+        "fluxo-pessoal": "/fincash",
+        "fluxo-familiar": "/fincash",
+        // Era a Íris com outra casca: chamava a mesma rota de API.
+        consultor: "/iris",
+        // O Simulador de Financiamento já faz SAC, Price e capacidade.
+        "sac-price": "/ferramentas/financiamento?tipo=casa",
+        capacidade: "/ferramentas/financiamento?tipo=casa",
+        "potencial-compra": "/ferramentas/financiamento?tipo=casa",
+        emprestimos: "/ferramentas/financiamento?tipo=carro",
+        entrada: "/ferramentas/financiamento?tipo=casa",
+        "custos-compra": "/ferramentas/financiamento?tipo=casa",
+        "comparador-bancos": "/ferramentas/financiamento?tipo=casa",
+        "comprar-ou-alugar": "/ferramentas/financiamento?tipo=casa",
+        "home-equity": "/ferramentas/financiamento?tipo=casa",
+        // Contas de dívida: a Amortização e o Financiamento respondem.
+        quitacao: "/ferramentas/amortizacao",
+        cet: "/ferramentas/amortizacao",
+        "pix-parcelado": "/ferramentas/amortizacao",
+        renegociacao: "/ferramentas/amortizacao",
+        portabilidade: "/ferramentas/amortizacao",
+        consignado: "/ferramentas/amortizacao",
+        consorcio: "/ferramentas/amortizacao",
+        // Patrimônio e investimento: o Dashboard e o Raio-X ficaram.
+        aportes: "/ferramentas/juros-compostos",
+        dividendos: "/ferramentas/dashboard-patrimonial",
+        radar: "/ferramentas/reserva",
+        "rentabilidade-aluguel": "/ferramentas/patrimonio-imobiliario",
+        valorizacao: "/ferramentas/patrimonio-imobiliario",
+        sucessorio: "/ferramentas/inventario",
+        // Trabalho e impostos: o que ficou no catálogo.
+        ir: "/ferramentas/salario-liquido",
+        fgts: "/ferramentas/rescisao",
+        tributario: "/ferramentas/raio-x-previdencia",
+        // Sem equivalente direto: vão para o catálogo.
+        score: "/aplicativos",
+        "leitor-contratos": "/aplicativos",
+      }).map(([de, para]) => ({
+        source: `/ferramentas/${de}`,
+        destination: para,
+        permanent: true,
+      })),
     ];
   },
 

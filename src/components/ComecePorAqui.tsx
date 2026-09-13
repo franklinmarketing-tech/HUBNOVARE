@@ -14,7 +14,7 @@ const PASSOS = [
     externo: true,
   },
   { numero: "2", rotulo: "Orçamento Mensal", href: "/ferramentas/orcamento", externo: false },
-  { numero: "3", rotulo: "Calculadora de Aportes", href: "/ferramentas/aportes", externo: false },
+  { numero: "3", rotulo: "Reserva de Emergência", href: "/ferramentas/reserva", externo: false },
 ];
 
 export function ComecePorAqui() {

@@ -39,6 +39,13 @@ async function abrir(rota) {
   await pagina.waitForTimeout(400);
 }
 
+/* ⚠️ DEZ ROTAS SAÍRAM DESTE GUARDIÃO EM 13/09/2026, junto com as páginas.
+   A limpeza do Workspace removeu 35 ferramentas órfãs (duplicavam o FINCASH,
+   o FINPLAN ou a Íris, ou repetiam conta que outra já fazia). Guardião que
+   aponta para rota apagada falha para sempre e ensina a equipe a ignorar a
+   saída vermelha — que é como um guardião morre. Cada endereço antigo hoje
+   responde por redirect permanente em `next.config.ts`. */
+
 /* ============================== NÍVEL A ============================== */
 
 const CALCULADORAS = [
@@ -46,14 +53,7 @@ const CALCULADORAS = [
   "/ferramentas/financiamento?tipo=casa",
   "/ferramentas/financiamento?tipo=carro",
   "/ferramentas/financiamento?tipo=terreno",
-  "/ferramentas/consorcio",
-  "/ferramentas/aportes",
   "/ferramentas/tesouro-direto",
-  "/ferramentas/emprestimos",
-  "/ferramentas/cet",
-  "/ferramentas/radar",
-  "/ferramentas/tributario",
-  "/ferramentas/score",
 ];
 
 console.log("--- Nível A: calculadoras reagem ao digitar ---");
@@ -99,14 +99,11 @@ const PAGINAS_CRUD = [
   "/ferramentas/gastos",
   "/ferramentas/calendario",
   "/ferramentas/assinaturas",
-  "/ferramentas/cartoes",
   "/ferramentas/patrimonio",
   "/ferramentas/seguros",
   "/ferramentas/alertas",
   "/ferramentas/central",
   "/ferramentas/scanner-extratos",
-  "/ferramentas/leitor-contratos",
-  "/ferramentas/ir",
 ];
 
 console.log("--- Nível A: páginas de uso diário carregam sem erro ---");
@@ -123,83 +120,33 @@ console.log("--- Nível B: valores exatos ---");
 // IR: renda 120.000 sem deduções = 22.248 (tabela anual ano-base 2025).
 // O campo usa a máscara de dinheiro estilo caixa: os dígitos entram como
 // CENTAVOS, então R$ 120.000,00 se digita como "12000000".
-await abrir("/ferramentas/ir");
-{
-  const campos = pagina.locator('main input[placeholder="0,00"]');
-  await campos.first().fill("12000000");
-  await pagina.waitForTimeout(500);
-  conferir(
-    "IR anual de 120 mil = 22.248",
-    (await pagina.evaluate(() => document.body.innerText)).includes("22.248"),
-    "true",
-  );
-}
 
 // PGBL: renda 120.000 + aporte 14.400 = economia 3.960
-await abrir("/ferramentas/tributario");
-{
-  await pagina.locator('main input[placeholder="120.000,00"]').fill("120000");
-  await pagina.locator('main input[placeholder="14.400,00"]').fill("14400");
-  await pagina.waitForTimeout(500);
-  conferir(
-    "PGBL economiza 3.960",
-    (await pagina.evaluate(() => document.body.innerText)).includes("3.960"),
-    "true",
-  );
-}
 
 // Leitor de contratos: acha cláusula de multa
-await abrir("/ferramentas/leitor-contratos");
-{
-  await pagina
-    .locator("main textarea")
-    .fill(
-      "Cláusula 9. Em caso de rescisão antecipada será cobrada multa de 30% sobre o saldo, com renovação automática por igual período.",
-    );
-  await pagina.waitForTimeout(600);
-  const texto = await pagina.evaluate(() => document.body.innerText.toLowerCase());
-  conferir(
-    "leitor acha multa + renovação",
-    texto.includes("multa") && texto.includes("renova"),
-    "true",
-  );
-}
 
 // Scanner de extratos: parse + total
-await abrir("/ferramentas/scanner-extratos");
-{
-  await pagina
-    .locator("main textarea")
-    .fill("06/08/2026;Uber viagem;-24,90\n06/08/2026;Mercado Pão;-135,10");
-  // O parse roda no clique, de propósito (ação explícita do usuário).
-  await pagina.getByRole("button", { name: /escanear extrato/i }).click();
-  await pagina.waitForTimeout(700);
-  const texto = await pagina.evaluate(() => document.body.innerText);
-  conferir(
-    "extrato soma 160,00 detectados",
-    texto.includes("160,00"),
-    "true",
-  );
-}
+/* ⚠️ O TESTE DO SCANNER DE EXTRATOS SAIU DAQUI, e não por causa da limpeza.
+   Ele falhava desde antes: a ferramenta passou a ser EXCLUSIVA DE ASSINANTE e
+   este guardião roda deslogado, então a página responde 200 com o paywall e
+   sem o `textarea` que o teste preenchia. Verificado em 13/09/2026 restaurando
+   a versão anterior do repositório com `git stash`: falhava igual.
 
-// Assinaturas: sugestão Netflix → custo anual 538,80
-await abrir("/ferramentas/assinaturas");
-{
-  await pagina.evaluate(() => localStorage.removeItem("novare:assinaturas"));
-  await pagina.reload({ waitUntil: "networkidle" });
-  await pagina.waitForTimeout(500);
-  await pagina.getByRole("button", { name: /netflix/i }).first().click();
-  await pagina.waitForTimeout(200);
-  await pagina.getByRole("button", { name: /adicionar assinatura/i }).click();
-  await pagina.waitForTimeout(500);
-  const texto = await pagina.evaluate(() => document.body.innerText);
-  conferir(
-    "Netflix 44,90 vira 538,80/ano",
-    texto.includes("538,80"),
-    "true",
-  );
-  await pagina.evaluate(() => localStorage.removeItem("novare:assinaturas"));
-}
+   Ele derrubava o script inteiro com um timeout de 30s, e tudo abaixo dele
+   deixava de rodar — um teste quebrado escondendo os que funcionam.
+
+   Para voltar, o guardião precisa de uma sessão de assinante (o padrão de
+   `fotografar-fincash.mjs`, que entra por `/fincash/testar`). */
+
+
+/* ⚠️ O TESTE DO ORGANIZADOR DE ASSINATURAS SAIU PELO MESMO MOTIVO DO SCANNER:
+   a ferramenta é EXCLUSIVA DE ASSINANTE e este guardião roda deslogado. A
+   página responde 200 com o paywall, e o botão de sugestão ("Netflix") que o
+   teste clicava não existe para quem não assina. Verificado em 13/09/2026
+   abrindo a rota: o corpo começa em "EXCLUSIVA DE ASSINANTE".
+
+   Ele também derrubava o script com timeout de 30s, escondendo tudo abaixo. */
+
 
 // Patrimônio: ativo 500.000 + dívida 200.000 = líquido 300.000
 await abrir("/ferramentas/patrimonio");

@@ -19,3 +19,7 @@ next-env.d.ts
 
 # Cache do CLI do Supabase — versão baixada, não é código do projeto.
 supabase/.temp
+
+# Rascunhos, backups e capturas das sessões de trabalho. Nunca versionado:
+# guarda cópia de arquivos removidos e imagens de megabytes.
+scripts/tmp/

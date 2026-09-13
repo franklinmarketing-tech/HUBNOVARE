@@ -391,3 +391,174 @@
     transform: rotate(-118deg);
   }
 }
+
+/* ------------------------------------------------- 6. fin-revela ----------
+   A ENTRADA DAS SEÇÕES, presa à rolagem e sem uma linha de JavaScript.
+
+   Cada filho direto da seção sobe e aparece conforme ENTRA na tela. O atraso
+   entre um e outro não é programado: cada elemento tem a própria posição, logo
+   a própria timeline, e o escalonamento sai de graça na ordem em que eles
+   estão no documento.
+
+   ⚠️ O ESTADO BASE É VISÍVEL. Quem não tem `animation-timeline` (Safari e
+   Firefox, hoje) vê a página inteira, parada e completa. Inverter isso e
+   começar em `opacity: 0` deixaria metade dos navegadores com seções em branco
+   — o tipo de erro que só aparece na máquina de outra pessoa.
+
+   ⚠️ NÃO PONHA ESTA CLASSE NA SEÇÃO DA `<SequenciaProduto />`. Aquela é presa
+   pelo ScrollTrigger (`pin: true`), e animar os filhos de um elemento fixado
+   por outra biblioteca é como ter dois motoristas no mesmo volante. */
+.fin-revela > * {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .fin-revela > * {
+      opacity: 0;
+      animation: fin-revela-sobe linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 44%;
+    }
+  }
+}
+
+@keyframes fin-revela-sobe {
+  from {
+    opacity: 0;
+    transform: translateY(22px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ------------------------------------------------- 7. fin-carta -----------
+   O CARTÃO QUE RESPONDE AO PONTEIRO.
+
+   Quatro pixels para cima e uma sombra TINTADA DE NAVY, nunca preta: sombra
+   preta sobre fundo claro suja a cor e faz a peça parecer recortada e colada.
+   A sombra pega o matiz do fundo da casa e o cartão parece levantar da página.
+
+   `@media (hover: hover)` porque em tela de toque não existe hover: sem a
+   guarda, o celular aplica o estado no primeiro toque e o cartão fica preso
+   levantado até a pessoa tocar em outro lugar. */
+.fin-carta {
+  transition:
+    transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .fin-carta:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 18px 40px -20px hsl(215 50% 23% / 0.45);
+  }
+}
+
+/* ------------------------------------------------- 8. fin-flutua ----------
+   A RESPIRAÇÃO DOS EMBLEMAS 3D.
+
+   Seis pixels em sete segundos, a mesma amplitude dos balões do assistente e
+   pelo mesmo motivo: o emblema tem de parecer pousado na página, não animado.
+   Passando disso o olho lê "banner" e para de ler o título ao lado, que é o
+   que a seção existe para dizer.
+
+   Os atrasos alternados evitam que dois emblemas visíveis ao mesmo tempo
+   subam em sincronia, que é o que transformaria movimento em pulsação. */
+@media (prefers-reduced-motion: no-preference) {
+  .fin-flutua {
+    animation: fin-flutua-sobe 7s ease-in-out infinite;
+  }
+  .fin-flutua:nth-of-type(even) {
+    animation-delay: -2.6s;
+  }
+}
+
+@keyframes fin-flutua-sobe {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+/* ------------------------------------------------- 9. fin-oferta ----------
+   O QUADRO DA OFERTA, com o efeito que separa o que se compra do resto.
+
+   O FIO DE LUZ NO TOPO (`::before`) é 1px de laranja que nasce transparente
+   nas pontas. Ele custa nada, não anima, e faz o bloco parecer uma peça
+   iluminada em vez de um retângulo com borda. É o mesmo recurso do cartão de
+   plano em destaque da `/assinar`, e é de propósito: as duas telas de compra
+   da casa acendem igual.
+
+   ⚠️ O BRILHO DO DESTAQUE É `radial-gradient` EM `::after`, ATRÁS do conteúdo,
+   e não `box-shadow` colorido. Sombra colorida sob um bloco navy suja o fundo
+   claro da seção ao redor; o brilho por dentro fica contido pelo `overflow`
+   do próprio cartão. */
+.fin-oferta::before {
+  content: "";
+  position: absolute;
+  inset-inline: 12%;
+  top: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    hsl(16 85% 55% / 0.55),
+    transparent
+  );
+}
+
+.fin-oferta-destaque::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background: radial-gradient(
+    22rem 14rem at 82% -8%,
+    hsl(16 85% 55% / 0.28),
+    transparent 68%
+  );
+  pointer-events: none;
+}
+
+/* No ponteiro, o anel acende em laranja em vez de crescer: aumentar a borda
+   empurra o conteúdo um pixel e o texto "pula" no hover. */
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .fin-oferta:not(.fin-oferta-destaque):hover {
+    --tw-ring-color: hsl(16 80% 55% / 0.45);
+  }
+}
+
+/* ------------------------------------------------ 10. fin-numeros ---------
+   A FAIXA DE NÚMEROS, com a luz da referência que o dono trouxe.
+
+   Duas camadas e nada mais: um brilho laranja no alto à direita e uma grade
+   fina que some nas bordas. É o que dá o ar de peça iluminada sem acender a
+   página inteira — e as duas ficam em `::before`/`::after` com `z-index: -1`,
+   contidas pelo `overflow` do bloco, para não vazar sobre a seção clara. */
+.fin-numeros::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background:
+    radial-gradient(26rem 16rem at 88% -20%, hsl(16 85% 55% / 0.32), transparent 64%),
+    radial-gradient(22rem 14rem at 6% 120%, hsl(215 60% 45% / 0.28), transparent 62%);
+}
+
+.fin-numeros::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background-image:
+    linear-gradient(hsl(0 0% 100% / 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, hsl(0 0% 100% / 0.05) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: radial-gradient(70% 60% at 50% 40%, #000, transparent 78%);
+}

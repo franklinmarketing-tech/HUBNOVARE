@@ -320,14 +320,14 @@ export default function InventarioPage() {
         {/* Próximo passo */}
         <section className="mt-6 rounded-xl bg-slate-50 p-3">
           <p className="text-xs text-slate-500">
-            Com o inventário feito, marque o item correspondente no{" "}
+            Com o inventário feito, veja tudo somado no{" "}
             <Link
-              href="/ferramentas/sucessorio"
+              href="/ferramentas/dashboard-patrimonial"
               className="font-semibold text-primary underline underline-offset-2"
             >
-              Planejamento Sucessório
+              Dashboard Patrimonial
             </Link>
-            .
+            , que lê exatamente estes itens.
           </p>
         </section>
 

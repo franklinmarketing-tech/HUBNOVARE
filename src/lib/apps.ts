@@ -496,9 +496,22 @@ export const APPS: NovareApp[] = [
  * volta para `APPS` e conferir o ícone em `icones.ts`.
  */
 /*
- * Linhas guardadas na íntegra: religar uma ferramenta é recortar a sua
- * linha daqui, colar no `APPS` acima e conferir o ícone em `icones.ts`.
- * As páginas continuam todas no disco, em src/app/ferramentas/.
+ * ⚠️ ESTA INSTRUÇÃO ENVELHECEU EM 13/09/2026, E RELIGAR DEIXOU DE SER
+ * RECORTAR UMA LINHA. As páginas NÃO continuam todas no disco: 35 rotas de
+ * ferramenta foram removidas naquele dia, por decisão do dono, depois da
+ * auditoria das 41 órfãs (existiam no ar, fora do catálogo e fora do
+ * sitemap). Saíram as que duplicavam o FINCASH, o FINPLAN ou a Íris, e as
+ * que repetiam conta que outra ferramenta já fazia melhor.
+ *
+ * Religar uma delas hoje é: restaurar a pasta (há cópia no backup da
+ * limpeza, e o git guarda tudo), remover o redirect correspondente em
+ * `next.config.ts`, colar a linha no `APPS` e conferir o ícone.
+ *
+ * As linhas abaixo ficam porque o MOTIVO de cada corte continua valendo, e
+ * é ele que impede a ferramenta de voltar por esquecimento. Quem for
+ * religar, leia o motivo primeiro.
+ *
+ * Linhas guardadas na íntegra:
  *
  * app("organizacao", "pix-parcelado", "Pix Parcelado", "A taxa que o app não mostra", "/ferramentas/pix-parcelado", "Serasa"),
  *   motivo: fora do foco: o Workspace é sobre construir patrimônio, não sobre crédito caro
@@ -535,10 +548,10 @@ export const APPS: NovareApp[] = [
  * app("patrimonio", "dashboard-patrimonial", "Dashboard Patrimonial", "Tudo o que você tem, num painel", "/ferramentas/dashboard-patrimonial", "Monarch Money"),
  * app("patrimonio", "planejamento-tributario", "Planejamento Tributário", "Pague só o imposto devido", "/ferramentas/tributario", "TurboTax"),
  * app("patrimonio", "organizador-seguros", "Organizador de Seguros", "Coberturas sem sobreposição", "/ferramentas/seguros", "Policygenius"),
- * app("patrimonio", "organizador-previdenciario", "Organizador Previdenciário", "INSS e privada no mesmo lugar", "/ferramentas/previdencia", "Empower"),
+ * app("patrimonio", "organizador-previdenciario", ...) — ⚠️ REMOVIDA em 13/09/2026: repetia as contas do Raio-X de Previdência, que o catálogo já vende. `/ferramentas/previdencia` agora redireciona para lá (ver next.config.ts).
  * app("patrimonio", "inventario-digital", "Inventário Digital", "Contas e acessos documentados", "/ferramentas/inventario", "Everplans"),
  * app("patrimonio", "planejamento-sucessorio", "Planejamento Sucessório", "Proteja quem fica", "/ferramentas/sucessorio", "Trust & Will"),
- * app("patrimonio", "central-documentos", "Central de Documentos", "Contratos e apólices à mão", "/ferramentas/documentos", "Dropbox"),
+ * app("patrimonio", "central-documentos", ...) — ⚠️ REMOVIDA em 13/09/2026: sobrepunha o Inventário Digital, que faz o mesmo e ainda alimenta o Dashboard Patrimonial. `/ferramentas/documentos` redireciona para o Inventário.
  * app("patrimonio", "radar-financeiro", "Radar Financeiro", "O dinheiro parado que rende pouco", "/ferramentas/radar", "Copilot Money"),
  * app("organizacao", "diagnostico-financeiro", "Diagnóstico Financeiro", "Sua nota de 0 a 100", `${NOVAREAPP}/ferramentas/score-de-saude-financeira`, "Monarch Money", { externo: true }),
  * app("organizacao", "fluxo-caixa-pessoal", "Fluxo de Caixa Pessoal", "Entradas e saídas do mês", "/ferramentas/fluxo-pessoal", "Quicken Simplifi"),

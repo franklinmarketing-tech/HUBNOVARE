@@ -425,13 +425,12 @@ export default function ReajusteAluguelPage() {
             </h3>
             <p className="text-xs text-slate-500 mt-1.5">
               Se o reajuste anual começou a pesar, compare o aluguel corrigido
-              com a parcela de um financiamento em{" "}
+              com a parcela de um financiamento no{" "}
               <Link
-                href="/ferramentas/comprar-ou-alugar"
+                href="/ferramentas/financiamento?tipo=casa"
                 className="text-accent-strong font-medium underline underline-offset-2"
               >
-                comprar ou alugar
-              </Link>
+                Simulador de Financiamento</Link>
               .
             </p>
           </div>
