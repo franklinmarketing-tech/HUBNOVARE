@@ -34,6 +34,7 @@ import { RevelarAoRolar } from "@/components/RevelarAoRolar";
 import { Chapeu, tomPor } from "@/components/SecoesVenda";
 import {
   ASSINATURA_ANUAL_ECONOMIA_ROTULO,
+  ASSINATURA_ANUAL_DESCONTO_ROTULO,
   ASSINATURA_GARANTIA,
   ASSINATURA_GARANTIA_DIAS,
   ASSINATURA_GARANTIA_FRASE,
@@ -582,6 +583,71 @@ const porDia = ASSINATURA_PRECO_DIA_ANUAL_ROTULO;
               })}
             </ul>
 
+            {/* ⚠️ OS OUTROS DOIS PRODUTOS, EM TELA REAL — 14/09/2026.
+
+                O dono olhou a pagina e disse: "faltou imagens do app que leva
+                na pagina, do Workspace, do Iris — nao esta divulgando os
+                produtos". Ele tinha razao e o buraco era grande: a pagina
+                LISTAVA cinco entregas e MOSTRAVA uma. A cena do notebook, logo
+                acima, cobre o FINCASH; estes dois cobrem o resto do que tem
+                tela propria.
+
+                ⚠️ SAO CAPTURAS REAIS, tiradas da producao no mesmo dia — o
+                Workspace com a conta de teste logada (por isso aparece o
+                ecossistema com os cards, que e exatamente o que a assinatura
+                abre) e a Iris na tela de conversa. Nao sao arte de card nem
+                mockup: `public/cards/card-iris.webp` existe e e ILUSTRACAO,
+                serve noutro lugar e nao serve aqui.
+
+                ⚠️ O FINPLAN FICOU DE FORA DESTA FILEIRA, e e uma divida
+                anotada, nao um esquecimento: a conta de `/finplan/testar`
+                nasce VAZIA — so o FINCASH tem semeador (`lib/fincash/demo.ts`).
+                A unica captura do FINPLAN com dado de verdade e o poster do
+                video antigo, e nela o cabecalho ainda diz "Planejamento
+                Financeiro", nome que morreu em 13/09. Mostrar tela vazia
+                venderia mal; mostrar o nome velho venderia errado. O conserto
+                certo e dar ao FINPLAN um semeador como o do FINCASH — ai esta
+                fileira vira de tres. */}
+            <ul className="revelar-escada mt-6 grid gap-4 sm:grid-cols-2">
+              {[
+                {
+                  src: "/produtos/workspace.webp",
+                  titulo: "O Workspace",
+                  legenda: "Todos os apps da casa num lugar só, com o seu login",
+                  alt: "A home do Novare Workspace com a conta aberta: o card do FINCASH com o FINPLAN incluso, as áreas de Consultoria, Vida Financeira e Investimentos, e as faixas da Íris e do Novare News",
+                },
+                {
+                  src: "/produtos/iris.webp",
+                  titulo: "A Íris",
+                  legenda: "Cole o extrato e ela diz para onde o dinheiro foi",
+                  alt: "A tela da Íris: a promessa de que ela enxerga o dinheiro que some e a conversa aberta, com a apresentação dela dizendo que não indica produto nem corretora",
+                },
+              ].map(({ src, titulo, legenda, alt }, i) => (
+                <li
+                  key={src}
+                  className="cine"
+                  style={{ transitionDelay: `${i * 90}ms` }}
+                >
+                  <div className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04]">
+                    <Image
+                      src={src}
+                      alt={alt}
+                      width={1600}
+                      height={900}
+                      sizes="(max-width: 640px) 92vw, 34rem"
+                      className="block w-full"
+                    />
+                  </div>
+                  <p className="mt-3 text-center text-sm font-semibold text-white">
+                    {titulo}
+                  </p>
+                  <p className="text-center text-2xs leading-snug text-white/55">
+                    {legenda}
+                  </p>
+                </li>
+              ))}
+            </ul>
+
             {/* ⚠️ AS TRÊS TELAS DE CELULAR SAÍRAM DAQUI no mesmo dia em que
                 entraram (14/09/2026), e não por arrependimento: a cena da mesa
                 logo acima passou a fazer o trabalho delas, melhor. Elas
@@ -741,64 +807,151 @@ const porDia = ASSINATURA_PRECO_DIA_ANUAL_ROTULO;
                   vende menos por acidente. O total anual está logo abaixo,
                   inteiro: esconder a cobrança de uma vez seria a pegadinha
                   que esta casa não pratica. */}
-              <div className="mt-6 grid gap-3 sm:grid-cols-2">
-                {ASSINATURA_PLANOS.map((p) => (
-                  <div
-                    key={p.chave}
-                    className={`rounded-2xl border p-5 text-center ${
-                      p.destaque
-                        ? "border-accent-claro/60 bg-white/[0.12]"
-                        : "border-white/15 bg-white/[0.04]"
-                    }`}
+              {/* ⚠️ O SELETOR MENSAL/ANUAL — 14/09/2026, pedido do dono a
+                  partir de uma referencia de landing fintech: "o seletor de
+                  compra mensal e anual, melhore os cards".
+
+                  ERAM DOIS CARTOES LADO A LADO, e o comentario antigo
+                  explicava bem por que o anual ficava em destaque. O problema
+                  que sobrava: sao DOIS PRAZOS DO MESMO PRODUTO, e dois cartoes
+                  lado a lado dizem "dois planos". O seletor resolve na
+                  gramatica certa — um produto, duas formas de pagar — e e o
+                  padrao que qualquer pessoa ja viu em SaaS.
+
+                  ⚠️ E ELE NAO USA UMA LINHA DE JAVASCRIPT. Sao dois `<input
+                  type="radio">` escondidos (`sr-only`, mas focaveis e
+                  operaveis pelo teclado) e a troca acontece por `peer-checked`
+                  do Tailwind. Esta pagina nao manda JS de aplicacao, e um
+                  seletor de preco nao e motivo para passar a mandar.
+
+                  ⚠️ OS RADIOS PRECISAM VIR ANTES dos rotulos e dos paineis:
+                  `peer-checked/x:` so alcanca IRMAO POSTERIOR. Mover um deles
+                  para baixo quebra o seletor em silencio — ele simplesmente
+                  para de trocar, sem erro nenhum no console. */}
+              <div role="radiogroup" aria-label="Como prefere pagar" className="mt-8">
+                <input
+                  type="radio"
+                  name="prazo"
+                  id="prazo-anual"
+                  defaultChecked
+                  className="peer/anual sr-only"
+                />
+                <input
+                  type="radio"
+                  name="prazo"
+                  id="prazo-mensal"
+                  className="peer/mensal sr-only"
+                />
+
+                {/* O interruptor. O anual vem marcado por padrao porque e o
+                    que a casa recomenda — e o rotulo dele carrega a economia,
+                    que e o argumento. */}
+                {/* ⚠️ O DESTAQUE DA ABA ATIVA VEM DO CONTÊINER, e não de
+                    classes nos rótulos — e isso é obrigatório, não estilo.
+
+                    `peer-checked/x:` do Tailwind compila para o combinador de
+                    IRMÃO (`~`), que só enxerga elemento no MESMO nível do
+                    input. Os rótulos vivem dentro desta pílula, um nível
+                    abaixo, então `peer-checked/anual:bg-white` posto neles
+                    nunca dispara: o seletor troca o preço (os cartões SÃO
+                    irmãos dos inputs) e as duas abas ficam iguais, como se
+                    nada estivesse selecionado.
+
+                    A saída é marcar o CONTÊINER — que é irmão — e alcançar o
+                    rótulo por dentro, com seletor de filho. */}
+                <div
+                  className={[
+                    "mx-auto flex w-fit items-center gap-1 rounded-full border border-white/15 bg-white/[0.06] p-1",
+                    "peer-checked/anual:[&>label:first-of-type]:bg-white",
+                    "peer-checked/anual:[&>label:first-of-type]:text-primary",
+                    "peer-checked/mensal:[&>label:last-of-type]:bg-white",
+                    "peer-checked/mensal:[&>label:last-of-type]:text-primary",
+                  ].join(" ")}
+                >
+                  <label
+                    htmlFor="prazo-anual"
+                    className="cursor-pointer rounded-full px-5 py-2 text-sm font-semibold text-white/65 transition-colors"
                   >
-                    <div className="flex items-center justify-center gap-2">
-                      <p className="text-2xs font-semibold uppercase tracking-wider text-white/60">
-                        {p.nome}
-                      </p>
-                      {p.selo && (
-                        <span className="rounded-md bg-accent-btn px-2 py-0.5 text-[0.625rem] font-bold uppercase tracking-wide text-white">
-                          {p.selo}
+                    Anual
+                    <span className="ml-1.5 text-2xs font-bold text-accent-strong">
+                      −{ASSINATURA_ANUAL_DESCONTO_ROTULO}
+                    </span>
+                  </label>
+                  <label
+                    htmlFor="prazo-mensal"
+                    className="cursor-pointer rounded-full px-5 py-2 text-sm font-semibold text-white/65 transition-colors"
+                  >
+                    Mensal
+                  </label>
+                </div>
+
+                {/* UM cartao por prazo, e so um aparece. O conteudo e o mesmo
+                    de antes — preco, detalhe, botao — em corpo maior, porque
+                    agora ele nao divide a largura com um vizinho. */}
+                {ASSINATURA_PLANOS.map((plano) => {
+                  const anual = plano.chave === "anual";
+                  return (
+                    <div
+                      key={plano.chave}
+                      className={`mx-auto mt-7 hidden max-w-md rounded-3xl border p-7 text-center sm:p-8 ${
+                        anual
+                          ? "border-accent-claro/50 bg-white/[0.10] peer-checked/anual:block"
+                          : "border-white/15 bg-white/[0.05] peer-checked/mensal:block"
+                      }`}
+                    >
+                      <div className="flex items-center justify-center gap-2">
+                        <p className="text-2xs font-semibold uppercase tracking-wider text-white/60">
+                          {plano.nome}
+                        </p>
+                        {plano.selo && (
+                          <span className="rounded-md bg-accent-btn px-2 py-0.5 text-[0.625rem] font-bold uppercase tracking-wide text-white">
+                            {plano.selo}
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="mt-4 flex items-end justify-center gap-1.5">
+                        {/* ⚠️ Branco solido, sem `.preco-lustro`: aquela classe
+                            pinta o texto com o navy da marca e so passa o
+                            laranja durante a varredura — sobre o palco escuro
+                            o preco ficava navy sobre navy, invisivel
+                            justamente no numero que a pagina existe para
+                            mostrar. */}
+                        <span className="font-display text-[3.25rem] font-extrabold leading-none tabular-nums text-white sm:text-6xl">
+                          {plano.valorRotulo}
                         </span>
+                        <span className="pb-2 text-lg font-semibold text-white/60">
+                          {plano.periodo}
+                        </span>
+                      </div>
+
+                      <p className="mt-3 text-sm leading-relaxed text-white/65">
+                        {plano.detalhe}
+                      </p>
+
+                      {anual && (
+                        <p className="mt-1.5 text-sm text-white/50">
+                          Sai por {porDia} por dia — menos que um café.
+                        </p>
                       )}
-                    </div>
 
-                    <div className="mt-3 flex items-end justify-center gap-1.5">
-                      {/* Sem `.preco-lustro` aqui, e é correção de bug, não
-                          gosto: o gradiente daquela classe pinta o texto com
-                          `--color-primary` (o navy da marca) e só passa o
-                          laranja por cima durante a varredura. Sobre o palco
-                          escuro, o preço ficava navy sobre navy na maior
-                          parte do ciclo — invisível justamente no número que
-                          a página inteira existe para mostrar. Branco sólido
-                          resolve sem tocar no CSS global. */}
-                      <span className="font-display text-[2.75rem] font-extrabold leading-none tabular-nums text-white sm:text-5xl">
-                        {p.valorRotulo}
-                      </span>
-                      <span className="pb-1.5 text-base font-semibold text-white/60">
-                        {p.periodo}
-                      </span>
-                    </div>
+                      <div className="mt-6">
+                        <BotaoAssinarPlano
+                          contexto="workspace"
+                          direto
+                          plano={plano.chave}
+                          variante={anual ? "principal" : "clara"}
+                          rotulo={`Assinar ${plano.nome.toLowerCase()}`}
+                        />
+                      </div>
 
-                    <p className="mt-2 text-xs leading-relaxed text-white/60">
-                      {p.detalhe}
-                    </p>
-
-                    <div className="mt-4">
-                      <BotaoAssinarPlano
-                        contexto="workspace"
-                        direto
-                        plano={p.chave}
-                        variante={p.destaque ? "principal" : "clara"}
-                        rotulo={`Assinar ${p.nome.toLowerCase()}`}
-                      />
+                      <p className="mt-4 text-2xs text-white/45">
+                        {ASSINATURA_GARANTIA} · cancele quando quiser
+                      </p>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
-
-              <p className="mt-4 text-center text-sm text-white/60">
-                No anual sai por {porDia} por dia — menos que um café.
-              </p>
 
               <ul className="mx-auto mt-8 grid max-w-xl gap-2.5 border-t border-white/15 pt-7 sm:grid-cols-2">
                 {INCLUI.map((item) => (
