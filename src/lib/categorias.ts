@@ -39,7 +39,12 @@ const CONFIG: Record<
   { curto: string; descricao: string; capa: string; h: number; s: number }
 > = {
   ia: {
-    curto: "IA e Consultoria",
+    /* ⚠️ ERA "IA e Consultoria" até 14/09/2026. O dono pediu para tirar o
+       "IA": a área tem cinco produtos de CONSULTORIA (gente atendendo) e a
+       Íris, que já tem porta própria na faixa de banners logo abaixo — o
+       rótulo prometia "IA" para quem clicasse achar só formulário de
+       consultoria, que é decepção de expectativa no primeiro clique. */
+    curto: "Consultoria",
     descricao: "Onde seu dinheiro some",
     capa: "/cards/card-novare.webp",
     h: 188,

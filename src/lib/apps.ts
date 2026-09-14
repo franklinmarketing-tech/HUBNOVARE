@@ -599,7 +599,10 @@ export const APPS: NovareApp[] = [
  */
 
 export const FAMILIAS: Record<Familia, string> = {
-  ia: "IA e Consultoria",
+  // ⚠️ Era "IA e Consultoria" até 14/09/2026 — mesmo ajuste do `curto` em
+  // `categorias.ts`. Este valor aparece nos chips de filtro de /novare-news
+  // e /aplicativos, então tinha o mesmo problema em dois lugares a mais.
+  ia: "Consultoria",
   organizacao: "Vida Financeira",
   trabalho: "Trabalho e Salário",
   investimentos: "Investimentos",

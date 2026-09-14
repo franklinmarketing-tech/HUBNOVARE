@@ -17,6 +17,8 @@ import {
   TrendingUp,
   MessageCircle,
   Wallet,
+  Wrench,
+  Users,
   X,
 } from "lucide-react";
 import { Cabecalho } from "@/components/Cabecalho";
@@ -27,12 +29,9 @@ import { BarraAssinarFixa } from "@/components/BarraAssinarFixa";
 import { TituloCine } from "@/components/TituloCine";
 import { FundoCena } from "@/components/FundoCena";
 import { CenaParallax } from "@/components/CenaParallax";
-import { BannerDemo } from "@/components/BannerDemo";
 import { CenaFoto } from "@/components/CenaFoto";
-import { Icone3D } from "@/components/Icone3D";
-import { EcossistemaConectado } from "@/components/EcossistemaConectado";
 import { RevelarAoRolar } from "@/components/RevelarAoRolar";
-import { Chapeu, Etapa, Pilar, tomPor } from "@/components/SecoesVenda";
+import { Chapeu, tomPor } from "@/components/SecoesVenda";
 import {
   ASSINATURA_ANUAL_ECONOMIA_ROTULO,
   ASSINATURA_GARANTIA,
@@ -45,8 +44,7 @@ import {
   ASSINATURA_PRECO_DIA_ANUAL_ROTULO,
   ASSINATURA_PRECO_ROTULO,
 } from "@/lib/assinatura";
-import { APPS, CONTAGEM } from "@/lib/apps";
-import { iconeDe } from "@/lib/icones";
+import { CONTAGEM } from "@/lib/apps";
 import { ROTULO_DESCONTO_ASSINANTE } from "@/lib/consultoria";
 import { falarNoWhatsApp } from "@/lib/contato";
 
@@ -122,73 +120,33 @@ const SINTOMAS = [
   },
 ];
 
-/** O antes e o depois, frase contra frase. */
-const VIRADA = [
-  {
-    antes: "Você olha o extrato e não entende para onde foi.",
-    depois: "A Íris lê o extrato e aponta cada tarifa, juro e assinatura.",
-  },
-  {
-    antes: "Seus objetivos são um desejo vago, sem prazo.",
-    depois: "Cada objetivo vira um valor por mês e uma data.",
-  },
-  {
-    antes: "Fechar o mês é uma planilha que você abandona.",
-    depois: "O app fecha o mês e mostra sua evolução sozinho.",
-  },
-  {
-    antes: "Quem te orienta ganha comissão do que te vende.",
-    depois: "Consultoria com condição de assinante e comissão zero.",
-  },
-];
 
-/** O caminho, em quatro passos curtos: o medo real é o do trabalho.
+
+/**
+ * O pacote, item a item.
  *
- * ⚠️ A ESCADA COMEÇA PELO FINCASH, e antes começava pelo FINPLAN
- * ("Responda 8 perguntas" → "Receba seu plano"). Não é ordem estética: era a
- * escada da âncora velha, e ela pedia dez minutos de formulário antes de
- * devolver a primeira resposta. Com o FINCASH na frente, o primeiro retorno é
- * o número que a pessoa veio buscar — quanto ainda dá para gastar —, e o
- * plano de dez anos aparece depois, quando ela já tem motivo para voltar.
+ * ⚠️ OS EMBLEMAS 3D SAÍRAM EM 14/09/2026. Eram PNGs de `/public/icones-3d`
+ * (pergaminho, cérebro, chave inglesa, bonecos) no estilo dos emojis 3D da
+ * Apple, e o dono resumiu o efeito ao ver a seção: "parece um pdf de apostila
+ * com emojis, não tá profissional".
  *
- * O FINPLAN não sumiu da venda: ele está no pacote, na lista da caixa de
- * oferta e na seção do ecossistema. O que ele perdeu foi o lugar de PRIMEIRO
- * ESFORÇO exigido de quem acabou de pagar.
+ * Ele tinha razão, e o defeito não era o desenho isolado: era a soma de seis
+ * emojis coloridos, cada um de uma família visual, empilhados em coluna num
+ * fundo branco. Emoji como ícone de produto é justamente o que separa uma
+ * página de venda de um material impresso — e a casa já tinha essa regra em
+ * todo o resto do site, onde ícone é traço (`lucide`) dentro de uma pastilha
+ * de cor.
+ *
+ * ⚠️ NÃO DEVOLVA OS PNGs. Os arquivos continuam em `/public/icones-3d` porque
+ * outras telas do app os usam em contexto diferente (blocos da trilha do
+ * FINPLAN, onde são ilustração e não ícone de lista).
  */
-const PASSOS = [
-  {
-    icone: CreditCard,
-    titulo: "Assine em 1 minuto",
-    texto: `Pagamento pela Hotmart e ${ASSINATURA_GARANTIA_DIAS} dias para desistir e ser devolvido.`,
-  },
-  {
-    icone: Wallet,
-    titulo: "Lance o mês no FINCASH",
-    texto:
-      "Contas fixas e cartões entram uma vez só. O mês seguinte já abre preenchido.",
-  },
-  {
-    icone: Target,
-    titulo: "Veja quanto ainda sobra",
-    texto:
-      "O painel conta o que ainda vai sair até o dia 30, não só o que já saiu.",
-  },
-  {
-    icone: Bot,
-    titulo: "Cole seu extrato na Íris",
-    texto: "Ela mostra as tarifas, juros e assinaturas que somem com seu dinheiro.",
-  },
-];
-
-/** O pacote, item a item. Os emblemas 3D vinham do app e estavam parados em
-    /public/icones-3d: arte já produzida, com acabamento que ícone de traço
-    não dá. `wrench-3d` e `users-3d` nunca tinham sido usados. */
 const PACOTE = [
   {
     /* Primeiro do pacote porque é o único item que não é software. Os três
        de baixo um chatbot imita; este exige uma consultoria registrada do
        outro lado. */
-    emblema: "/icones-3d/parecer-3d.png",
+    Icone: ClipboardList,
     nome: "Revisão trimestral com um consultor",
     texto:
       "A cada três meses alguém da Novare lê o seu plano e escreve o que mudou, o que está travando e o próximo passo. A primeira vem no primeiro mês.",
@@ -199,68 +157,37 @@ const PACOTE = [
        humano fica no topo porque é o único que a concorrência não copia; o
        FINCASH lidera o que é tela. Ele faltava nesta lista inteira, o que
        deixava a página vendendo tudo menos o que a pessoa veio comprar. */
-    emblema: "/icones-3d/dashboard-3d.png",
+    Icone: Wallet,
     nome: "O FINCASH inteiro",
     texto:
       "Contas, lançamentos, cartões, dívidas e metas num lugar só — e no topo o número que muda comportamento: quanto ainda dá para gastar até o fim do mês.",
   },
   {
-    emblema: "/icones-3d/icon-vault-3d.png",
+    Icone: Target,
     nome: "O FINPLAN inteiro",
     texto:
       "Diagnóstico, nota de saúde financeira, plano de ação com valor e prazo, e relatório em PDF que é seu.",
   },
   {
-    emblema: "/icones-3d/icon-perfil.png",
+    Icone: Bot,
     nome: "Íris, a IA que lê seu extrato",
     texto:
       "Cole o extrato do banco e ela acha assinatura esquecida, tarifa repetida e juro escondido.",
   },
   {
-    emblema: "/icones-3d/wrench-3d.png",
+    Icone: Wrench,
     nome: "Todas as ferramentas liberadas",
     texto:
       `As ${CONTAGEM.calculadoras} calculadoras e simuladores da casa, das trabalhistas às de investimento.`,
   },
   {
-    emblema: "/icones-3d/users-3d.png",
+    Icone: Users,
     nome: ROTULO_DESCONTO_ASSINANTE + " na consultoria particular",
     texto:
       "Consultor de verdade do outro lado, sem comissão de banco. Válido enquanto a assinatura estiver ativa.",
   },
 ];
 
-/** Por que confiar. SÓ o que a casa comprova. */
-const CONFIANCA = [
-  {
-    destaque: "Nord",
-    titulo: "Parceria com a Nord Research",
-    texto:
-      "A consultoria de investimentos une o método da Novare à análise independente da Nord.",
-  },
-  {
-    // Aqui havia "CFP®, consultores certificados" — e a casa ainda não tem a
-    // certificação. Num bloco cujo próprio título é "só o que a casa
-    // comprova", alegar credencial que não se tem é o tipo de detalhe que
-    // derruba a confiança inteira quando alguém confere.
-    destaque: "Consultor",
-    titulo: "Gente estuda o seu caso",
-    texto:
-      "Do outro lado da mesa tem uma pessoa lendo os seus números, não um robô devolvendo média de mercado.",
-  },
-  {
-    destaque: "0%",
-    titulo: "Nenhuma comissão",
-    texto:
-      "A Novare não recebe de banco, corretora ou seguradora. É você quem paga, então é para você que a gente trabalha.",
-  },
-  {
-    destaque: "LGPD",
-    titulo: "Seu extrato não sai do navegador",
-    texto:
-      "Nada aqui se conecta à sua conta. Você cola o extrato e a leitura acontece no seu dispositivo.",
-  },
-];
 
 /** Os números que a casa pode provar. Nada aqui é estimativa de marketing. */
 const NUMEROS = [
@@ -329,14 +256,6 @@ export default function AssinarPage() {
  * monta sozinha e passa a crescer junto com o catálogo, em vez de virar mais
  * uma lista à mão que diverge (foi o que aconteceu com a lista de inclusos).
  */
-const EXCLUSIVAS = APPS.filter(
-  (a) =>
-    a.familia &&
-    a.status !== "em-breve" &&
-    a.plano === "pago" &&
-    a.href.includes("/ferramentas/"),
-);
-
 /* O "por dia" vem pronto de `assinatura.ts`. Era `brl(ASSINATURA_PRECO / 30)`
    aqui: uma tela de venda fazendo conta de preço, que é o começo de duas
    verdades sobre a mesma cobrança. */
@@ -455,14 +374,22 @@ const porDia = ASSINATURA_PRECO_DIA_ANUAL_ROTULO;
                     direita. O fade transforma o corte seco em "continua além
                     da moldura", que é o que a janela já sugere. */}
                 <div className="relative">
-                  {/* A home oficial de verdade, não um mockup — captura real
-                      da tela em produção, tratada em upscale (Magnific) para
-                      ficar nítida na moldura grande. */}
+                  {/* ⚠️ ERA A HOME DO WORKSPACE (`/demo/poster-home-oficial.jpg`),
+                      e o dono apontou o problema em 14/09/2026: "a página
+                      assinar falta o FINCASH". A headline dizia "Assine o
+                      FINCASH" e a única imagem grande da dobra mostrava um
+                      catálogo de aplicativos — a promessa e a prova falavam de
+                      coisas diferentes.
+
+                      Agora é o painel do FINCASH, captura real da conta de
+                      demonstração: o número da sobra, o medidor de renda
+                      comprometida e as contas em atraso. É o que a headline
+                      promete, na mesma dobra. */}
                   <Image
-                    src="/demo/poster-home-oficial.jpg"
-                    alt="A home do Novare Workspace, com o ecossistema de ferramentas, IA e consultoria"
-                    width={2280}
-                    height={1283}
+                    src="/fincash/telas/painel-desktop.webp"
+                    alt="O painel do FINCASH: a sobra do mês em destaque, o medidor de quanto da renda já está comprometida e o aviso de contas em atraso"
+                    width={2880}
+                    height={1800}
                     priority
                     className="block w-full"
                   />
@@ -527,236 +454,162 @@ const porDia = ASSINATURA_PRECO_DIA_ANUAL_ROTULO;
           </div>
         </section>
 
-        {/* ========================================================= 2. A DOR */}
-        <section className="bg-background">
-          <div className="mx-auto max-w-4xl px-5 py-16 text-center sm:py-20">
-            <p className="cine text-2xs font-semibold uppercase tracking-[0.18em] text-accent-strong">
-              Se você se reconhecer aqui
-            </p>
-            <h2 className="cine mx-auto mt-3 max-w-3xl font-display text-3xl font-semibold leading-[1.1] tracking-tight text-primary sm:text-[2.8rem]">
-              O problema quase nunca é o quanto você ganha.{" "}
-              <span className="text-accent-strong">É não enxergar.</span>
-            </h2>
-            <p className="cine mx-auto mt-4 max-w-xl text-base leading-relaxed text-muted-foreground">
-              <span className="font-semibold text-foreground">
-                Ninguém organiza o que não consegue ver.
-              </span>{" "}
-              É por isso que a planilha morre no segundo mês: ela cobra trabalho
-              e não devolve resposta.
-            </p>
+        {/* ⚠️ QUATRO SEÇÕES SAÍRAM DAQUI EM 14/09/2026 — a dor, a virada, o
+            "como funciona" em 4 passos e o ecossistema desenhado.
 
-            <ul className="revelar-escada mt-10 grid gap-3 text-left sm:grid-cols-2">
-              {SINTOMAS.map(({ icone: Icone, texto }) => (
-                <li
-                  key={texto}
-                  className="flex items-start gap-3 rounded-2xl border border-border bg-card p-4 shadow-subtle"
-                >
-                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-accent-tint text-accent-strong">
-                    <Icone className="h-4 w-4" strokeWidth={1.75} />
-                  </span>
-                  <p className="text-sm leading-relaxed text-foreground">{texto}</p>
-                </li>
-              ))}
-            </ul>
+            NÃO foi corte de texto: foi corte de DUPLICATA. Esta página e a
+            /fincash tinham virado duas landings completas vendendo a MESMA
+            assinatura, com as mesmas seções em palavras diferentes. Duas
+            páginas para uma oferta é onde a divergência nasce, e ela já tinha
+            nascido duas vezes: a caixa de oferta sumiu só da /fincash, e o
+            "0 ferramentas" existiu só aqui.
 
-            {/* Fecha o último vão acima de duas telas. Quem se reconheceu na
-                lista acima é exatamente quem quer sair dela. */}
-            <div className="cine mt-9 flex justify-center">
-              <BotaoAssinarPlano
-                contexto="workspace"
-                direto
-                rotulo={`Assinar o ${ASSINATURA_NOME}`}
-              />
-            </div>
-          </div>
-        </section>
+            A DIVISÃO DE TRABALHO, agora explícita:
+              /fincash — a VENDA. Conta a história inteira, é onde caem
+                         anúncio e busca orgânica.
+              /assinar — o CAIXA. Para quem já decidiu: o que vem, quanto
+                         custa, a garantia e o botão.
 
-        {/* ===================================================== 3. A VIRADA */}
-        <section className="relative overflow-hidden text-white" style={NAVY}>
-          <FundoCena src="/cenas/cena-luz.webp" opacidade={0.6} />
-
-          <div className="relative mx-auto max-w-4xl px-5 py-16 sm:py-20">
-            <div className="cine text-center">
-              <h2 className="font-display text-3xl font-semibold leading-[1.1] tracking-tight sm:text-[2.6rem]">
-                De onde você está para onde dá para chegar
-              </h2>
-            </div>
-
-            <ul className="revelar-escada mt-10 space-y-3">
-              {VIRADA.map(({ antes, depois }) => (
-                <li
-                  key={antes}
-                  className="grid items-stretch gap-3 sm:grid-cols-2"
-                >
-                  <div className="flex items-start gap-3 rounded-2xl border border-white/10 bg-white/[0.04] p-4">
-                    <X className="mt-0.5 h-4 w-4 shrink-0 text-white/35" />
-                    <p className="text-sm leading-relaxed text-white/55 line-through decoration-white/25">
-                      {antes}
-                    </p>
-                  </div>
-                  <div className="flex items-start gap-3 rounded-2xl border border-ciano/25 bg-ciano/10 p-4">
-                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-ciano-claro" />
-                    <p className="text-sm font-medium leading-relaxed text-white">
-                      {depois}
-                    </p>
-                  </div>
-                </li>
-              ))}
-            </ul>
-
-            <div className="revelar mt-10 flex justify-center">
-              <BotaoAssinarPlano
-                contexto="workspace"
-                variante="clara"
-                direto
-                rotulo={`Assinar o ${ASSINATURA_NOME}`}
-              />
-            </div>
-          </div>
-        </section>
-
-        {/* =============================================== 4. COMO FUNCIONA */}
-        <section id="como-funciona" className="scroll-mt-16 bg-gelo">
-          <div className="mx-auto max-w-5xl px-5 py-16 sm:py-20">
-            <div className="cine text-center">
-              <p className="text-2xs font-semibold uppercase tracking-[0.18em] text-accent-strong">
-                Do zero ao mês sob controle
-              </p>
-              <h2 className="mt-3 font-display text-3xl font-semibold leading-[1.1] tracking-tight text-primary sm:text-[2.6rem]">
-                Quatro passos, menos de 15 minutos
-              </h2>
-              <p className="mx-auto mt-4 max-w-xl text-base text-muted-foreground">
-                Sem instalar nada, sem conectar seu banco e sem precisar
-                entender de investimento.
-              </p>
-            </div>
-
-            <ol className="revelar-escada mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-              {PASSOS.map(({ icone, titulo, texto }, i) => (
-                <Etapa
-                  key={titulo}
-                  numero={i + 1}
-                  total={PASSOS.length}
-                  titulo={titulo}
-                  texto={texto}
-                  icone={icone}
-                />
-              ))}
-            </ol>
-          </div>
-        </section>
-
-        {/* ======================================== 4B. O ECOSSISTEMA, DESENHADO
-
-            A página afirmava "hub" o tempo todo sem nunca mostrar o que isso
-            quer dizer. Layout dividido: o argumento à esquerda, o desenho à
-            direita, como o diagrama de produto que serviu de referência. */}
-        <section className="relative overflow-hidden text-white" style={NAVY}>
-          <FundoCena src="/cenas/cena-luz.webp" opacidade={0.55} espelhada />
-
-          <div className="relative mx-auto grid max-w-5xl items-center gap-10 px-5 py-16 sm:py-20 lg:grid-cols-2">
-            <div className="cine">
-              <h2 className="font-display text-3xl font-semibold leading-[1.1] tracking-tight sm:text-[2.6rem]">
-                Uma só superfície para
-                <br />
-                <span className="text-accent-claro">a sua vida financeira.</span>
-              </h2>
-              <p className="mt-5 max-w-md text-base leading-relaxed text-white/70">
-                Plano, IA, calculadoras, consultoria e conteúdo deixam de ser
-                cinco lugares diferentes.{" "}
-                <span className="font-semibold text-white">
-                  Tudo lê os mesmos números
-                </span>
-                , então o que você responde uma vez vale em todos.
-              </p>
-
-              {/* Lista numerada com o trilho ligando os itens. */}
-              <ol className="mt-8 space-y-4">
-                {[
-                  "Você preenche uma vez",
-                  "Todo o Workspace entende",
-                  "As decisões saem prontas",
-                ].map((item, i) => (
-                  <li key={item} className="relative flex items-center gap-4 pl-1">
-                    <span className="font-display text-xl font-extrabold tabular-nums text-ciano-claro">
-                      {String(i + 1).padStart(2, "0")}
-                    </span>
-                    <span className="relative flex h-2 w-2 shrink-0">
-                      <span className="h-2 w-2 rounded-full bg-ciano" />
-                      {i < 2 && (
-                        <span
-                          aria-hidden
-                          className="absolute left-1/2 top-2 h-8 w-px -translate-x-1/2 bg-ciano/25"
-                        />
-                      )}
-                    </span>
-                    <span className="text-sm font-medium text-white/85">{item}</span>
-                  </li>
-                ))}
-              </ol>
-
-              <div className="cine mt-9">
-                <BotaoAssinarPlano
-                  contexto="workspace"
-                  variante="clara"
-                  direto
-                  rotulo={`Assinar o ${ASSINATURA_NOME}`}
-                />
-              </div>
-            </div>
-
-            <div className="cine" style={{ transitionDelay: "140ms" }}>
-              <EcossistemaConectado />
-            </div>
-          </div>
-        </section>
+            ⚠️ ELA NÃO PODE VIRAR LANDING DE NOVO. Quem for acrescentar aqui
+            uma seção de dor, de método ou de autoridade está reconstruindo a
+            /fincash — o lugar dessa seção é lá. Esta página existe para quem
+            chegou pelo cadeado de um app, pelo perfil ou pela barra lateral
+            (24 links internos apontam para cá) e só quer pagar. */}
 
         {/* ============================================ 5. O QUE VOCÊ RECEBE */}
-        <section className="bg-background">
-          <div className="mx-auto max-w-4xl px-5 py-16 sm:py-20">
-            <div className="cine text-center">
-              <h2 className="font-display text-3xl font-semibold leading-[1.1] tracking-tight text-primary sm:text-[2.6rem]">
+        {/* ⚠️ ESTA SEÇÃO ERA UMA LISTA VERTICAL EM FUNDO BRANCO, e foi
+            refeita em 14/09/2026 com o veredito do dono na mão: "parece um pdf
+            de apostila com emojis, não tá profissional".
+
+            Eram seis cards brancos empilhados, cada um com um emoji 3D de 64px
+            à esquerda — seis blocos iguais em coluna, que é o desenho de um
+            MATERIAL IMPRESSO, não o de uma página de venda. Numa lista assim o
+            olho lê linha a linha e cansa no terceiro item; numa grade ele
+            varre o conjunto e entende o tamanho do pacote de uma vez, que é
+            justamente o argumento aqui ("tudo isto por um preço só").
+
+            O QUE MUDOU, e cada item tem motivo:
+              • grade de 3 colunas no lugar da pilha — o pacote se lê como
+                conjunto, e a seção encurtou de seis alturas de card para duas;
+              • fundo NAVY — a referência que o dono trouxe é escura, e há um
+                ganho concreto: as três capturas do FINCASH logo abaixo são
+                telas claras, e sobre o escuro elas saltam como o notebook
+                salta na referência. Em fundo branco, print branco some;
+              • ícone de TRAÇO em pastilha de vidro, no lugar do emoji 3D —
+                é o que o resto do site já fazia.
+
+            ⚠️ O `border-t` NÃO É ENFEITE: a dobra do herói também é escura, e
+            sem uma aresta acesa as duas viravam um bloco só de 3.000px. */}
+        <section
+          className="relative overflow-hidden border-t border-white/10 text-white"
+          style={NAVY}
+        >
+          <FundoCena src="/cenas/cena-luz.webp" opacidade={0.4} espelhada />
+
+          <div className="relative mx-auto max-w-6xl px-5 py-16 sm:py-20">
+            <div className="cine mx-auto max-w-2xl text-center">
+              <Chapeu>Tudo numa assinatura só</Chapeu>
+              <h2 className="mt-3 font-display text-3xl font-semibold leading-[1.1] tracking-tight sm:text-[2.6rem]">
                 O que você recebe hoje
               </h2>
-              <p className="mx-auto mt-4 max-w-xl text-base text-muted-foreground">
-                Tudo numa assinatura só. Nenhum recurso fica de fora, nada é
-                vendido à parte.
+              <p className="mt-4 text-base leading-relaxed text-white/70">
+                Nenhum recurso fica de fora, nada é vendido à parte.
               </p>
             </div>
 
-            <ul className="revelar-escada mt-10 space-y-3">
-              {PACOTE.map(({ emblema, nome, texto }, i) => {
+            {/* ⚠️ A CENA DA MESA — 14/09/2026, a pedido do dono, que mandou
+                uma referência de landing e disse: "deixe parecido com essa
+                imagem, mas formatado para FINCASH".
+
+                A imagem é MONTADA, e a montagem importa: o ambiente (mesa,
+                notebook, xícara, luz de escritório à noite) foi gerado por IA
+                na paleta da casa — navy com luz laranja, nunca o azul da
+                referência, que é a marca de outra empresa. Já a TELA dentro do
+                notebook é captura REAL do FINCASH, composta por cima em cima
+                do pixel, não desenhada.
+
+                ⚠️ É A PROJEÇÃO, E NÃO O PAINEL, de propósito: o painel já é a
+                imagem grande do herói, três dobras acima. A mesma captura duas
+                vezes na mesma página é o tipo de coisa que quem está decidindo
+                pagar repara — e a projeção conta a outra metade da história
+                (o ano, não o mês).
+
+                Se um dia a tela do app mudar de cara, esta imagem envelhece
+                sozinha e em silêncio: o arquivo é `public/cenas/cena-mesa-fincash.webp`
+                e a receita está no `git log` desta linha. */}
+            <figure className="cine mt-12">
+              <Image
+                src="/cenas/cena-mesa-fincash.webp"
+                alt="Um notebook sobre a mesa com a tela de Projeção do FINCASH aberta: o saldo dos próximos doze meses e o gráfico de saldo mês a mês"
+                width={1920}
+                height={1080}
+                sizes="(max-width: 1024px) 100vw, 72rem"
+                className="block w-full rounded-2xl"
+              />
+            </figure>
+
+            <ul className="revelar-escada mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {PACOTE.map(({ Icone, nome, texto }, i) => {
                 const ciano = tomPor(i) === "ciano";
                 return (
                   <li
                     key={nome}
-                    className="glass-card flex items-start gap-4 rounded-2xl border border-border bg-card p-5 shadow-subtle transition-all hover:-translate-y-0.5 hover:shadow-card"
+                    className="group/card flex h-full flex-col rounded-2xl border border-white/10 bg-white/[0.045] p-6 transition-all hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/[0.07]"
                   >
-                    <Icone3D
-                      src={emblema}
-                      tamanho={64}
-                      tom={ciano ? "ciano" : "accent"}
-                    />
-                    <div className="min-w-0">
-                      <h3 className="font-display text-lg font-bold leading-snug text-primary">
-                        {nome}
-                      </h3>
-                      <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-                        {texto}
-                      </p>
-                    </div>
-                    <Check className="ml-auto mt-1 hidden h-5 w-5 shrink-0 text-success sm:block" />
+                    {/* A pastilha alterna entre o laranja da casa e o ciano
+                        pelo `tomPor` — o mesmo alternador que os outros blocos
+                        da página usam, para a grade não virar seis pastilhas
+                        idênticas. Sobre navy, os dois tons claros são os que
+                        têm contraste: os fortes somem no fundo. */}
+                    <span
+                      aria-hidden
+                      className={`flex h-12 w-12 items-center justify-center rounded-xl ring-1 ring-inset ${
+                        ciano
+                          ? "bg-ciano/15 text-ciano-claro ring-ciano-claro/25"
+                          : "bg-accent/15 text-accent-claro ring-accent-claro/25"
+                      }`}
+                    >
+                      <Icone className="h-6 w-6" strokeWidth={1.75} />
+                    </span>
+                    <h3 className="mt-5 font-display text-base font-bold leading-snug">
+                      {nome}
+                    </h3>
+                    <p className="mt-2 text-sm leading-relaxed text-white/65">
+                      {texto}
+                    </p>
                   </li>
                 );
               })}
             </ul>
 
-            {/* O app rodando, em vídeo. O arquivo foi recortado: os 2,2s de
-                tela de login que abriam a gravação saíram, e a faixa do
-                aviso de cookies foi cortada do quadro. */}
-            <div className="cortina mt-10 overflow-hidden rounded-3xl">
-              <BannerDemo legenda="O app de verdade, sem retoque. Os números do exemplo são fictícios; os seus entram quando você criar sua conta." />
-            </div>
+            {/* ⚠️ AS TRÊS TELAS DE CELULAR SAÍRAM DAQUI no mesmo dia em que
+                entraram (14/09/2026), e não por arrependimento: a cena da mesa
+                logo acima passou a fazer o trabalho delas, melhor. Elas
+                mostravam Painel, Cartões e Projeção em três prints pequenos;
+                a cena mostra a Projeção em tamanho de leitura, dentro de um
+                contexto que diz "isto é um produto de verdade" sem precisar de
+                legenda.
+
+                Duas fileiras de captura na mesma seção, uma embaixo da outra,
+                é o acúmulo que a página acabou de perder ao encolher de 11
+                seções para 5. As telas continuam inteiras na /fincash, que é
+                onde alguém vai para ver o app por dentro. */}
+
+            {/* ⚠️ O VÍDEO `BannerDemo` SAIU DAQUI EM 14/09/2026, e não por
+                enxugamento: o arquivo está DESATUALIZADO em dois níveis.
+
+                `public/demo/app-em-uso.mp4` é de 02/09 — onze dias antes da
+                renomeação. Nos quadros gravados o cabeçalho do app ainda diz
+                "Planejamento Financeiro", o nome que deixou de existir em
+                13/09. E ele grava o FINPLAN, não o FINCASH: numa página cuja
+                headline é "Assine o FINCASH", o único vídeo mostrava o outro
+                produto, com o nome velho.
+
+                ⚠️ NÃO BASTA TROCAR A LEGENDA — o nome errado está DENTRO dos
+                pixels. Devolver o vídeo exige regravar com a conta de
+                demonstração (há molde em `scripts/gravar-demo.mjs`). Enquanto
+                isso, o produto aparece aqui em captura: o painel no herói e as
+                três telas logo acima, todas do FINCASH e todas atuais. */}
 
             {/* ⚠️ A PONTE PARA A /fincash, E ELA SÓ EXISTE NUM SENTIDO DE
                 PROPÓSITO.
@@ -776,182 +629,80 @@ const porDia = ASSINATURA_PRECO_DIA_ANUAL_ROTULO;
                 quiser. Um botão de peso igual ao de assinar mandaria a pessoa
                 para fora da página de venda no meio da dobra que mais
                 converte. */}
-            <p className="cine mt-8 text-center text-sm text-muted-foreground">
+            {/* ⚠️ Cores de fundo claro trocadas pelas do escuro junto com a
+                seção: `text-muted-foreground` e `accent-strong` são do tema
+                claro e ficam ilegíveis sobre navy. O `accent-claro` é o par
+                correto — é o que o resto da página usa nos blocos escuros. */}
+            <p className="cine mt-10 text-center text-sm text-white/60">
               Quer ver o FINCASH por dentro antes?{" "}
               <Link
                 href="/fincash"
-                className="font-semibold text-accent-strong underline-offset-4 hover:underline"
+                className="font-semibold text-accent-claro underline-offset-4 hover:underline"
               >
                 Conheça o app do seu mês
                 <ArrowRight className="ml-1 inline h-3.5 w-3.5 align-[-0.15em]" />
               </Link>
             </p>
+
+            {/* A BARRA QUE FECHA O BLOCO — preço à esquerda, botão à direita,
+                como na referência. Ela absorveu a faixa de CTA que era uma
+                seção solta logo abaixo: o argumento ("tudo isso por X") e a
+                ação pertencem ao mesmo bloco que acabou de listar o "tudo
+                isso".
+
+                ⚠️ O PREÇO SAI DE `assinatura.ts`, nunca digitado — é a regra
+                da casa inteira, e aqui ela vale duas vezes: esta é a página do
+                caixa, e um valor diferente do cartão de preço logo abaixo
+                seria a casa cobrando dois preços na mesma rolagem. */}
+            <div className="cine mt-12 flex flex-wrap items-center justify-center gap-x-8 gap-y-5 rounded-2xl border border-white/10 bg-white/[0.05] px-6 py-6 sm:justify-between sm:px-8">
+              <p className="text-sm leading-relaxed text-white/70">
+                Tudo isso por{" "}
+                <span className="font-bold text-white">
+                  {ASSINATURA_PRECO_ANUAL_MENSAL_ROTULO}/mês
+                </span>{" "}
+                no plano anual, com {ASSINATURA_GARANTIA}.
+              </p>
+              <BotaoAssinarPlano
+                contexto="workspace"
+                direto
+                rotulo={`Assinar o ${ASSINATURA_NOME}`}
+              />
+            </div>
           </div>
         </section>
 
-        {/* ===================== 5C. AS EXCLUSIVAS DE QUEM ASSINA ==== */}
-        {/* Vinha logo depois do "o que você recebe", que fala do pacote em
-            quatro blocos grandes. Aqui é o detalhe: o que exatamente entra
-            junto, com nome. */}
-        <section className="bg-gelo">
-          <div className="mx-auto max-w-5xl px-5 py-16 sm:py-20">
-            <div className="mx-auto max-w-2xl text-center">
-              <Chapeu>Exclusivas de quem assina</Chapeu>
-              <h2 className="mt-3 font-display text-3xl font-semibold leading-[1.1] tracking-tight text-primary sm:text-[2.6rem]">
-                {EXCLUSIVAS.length} ferramentas que só abrem com a assinatura
-              </h2>
-              <p className="mt-4 text-base leading-relaxed text-muted-foreground">
-                As {CONTAGEM.ferramentas} calculadoras gratuitas resolvem uma
-                conta de cada vez. Estas guardam os seus dados e conversam
-                entre si: o que você lança numa aparece na outra.
-              </p>
-            </div>
+        {/* ⚠️ A SEÇÃO "EXCLUSIVAS DE QUEM ASSINA" FOI REMOVIDA EM 14/09/2026,
+            e não por escolha de layout: ela tinha ficado VAZIA.
 
-            <ul className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              {EXCLUSIVAS.map((f, i) => {
-                const Icone = iconeDe(f.slug);
-                const t = tomPor(i);
-                return (
-                  <li
-                    key={f.slug}
-                    className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-[0_1px_2px_hsl(215_40%_20%_/_0.03),0_8px_24px_-16px_hsl(215_40%_20%_/_0.18)]"
-                  >
-                    <span
-                      aria-hidden
-                      className={`flex h-11 w-11 items-center justify-center rounded-2xl ${
-                        t === "ciano"
-                          ? "bg-ciano-tint text-ciano-forte"
-                          : "bg-accent-tint text-accent-strong"
-                      }`}
-                    >
-                      <Icone className="h-5 w-5" strokeWidth={1.75} />
-                    </span>
-                    <h3 className="mt-4 font-display text-base font-semibold text-primary">
-                      {f.nome}
-                    </h3>
-                    <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-                      {f.chamada}
-                    </p>
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-        </section>
+            Ela listava `APPS.filter(plano === "pago" && href inclui
+            /ferramentas/)` — as oito ferramentas pagas que saíram do catálogo
+            em 13/09 por duplicarem o FINCASH. Com o filtro devolvendo zero, a
+            página publicou um título dizendo "0 ferramentas que só abrem com
+            a assinatura" sobre uma grade sem nenhum card.
 
-        {/* Faixa de CTA no meio do maior vão da página. Medido: eram 2853px
-          (3,2 telas) entre um botão e o próximo, e quem se convence aqui não
-          deveria ter de rolar duas telas para achar onde clicar. */}
-      <section className="bg-background">
-        <div className="mx-auto flex max-w-4xl flex-wrap items-center justify-center gap-x-6 gap-y-4 px-5 pb-4">
-          <p className="cine text-sm text-muted-foreground">
-            Tudo isso por{" "}
-            <span className="font-bold text-primary">
-              {ASSINATURA_PRECO_ANUAL_MENSAL_ROTULO}/mês
-            </span>{" "}
-            no plano anual, com {ASSINATURA_GARANTIA}.
-          </p>
-          <div className="cine">
-            <BotaoAssinarPlano
-              contexto="workspace"
-              direto
-              rotulo={`Assinar o ${ASSINATURA_NOME}`}
-            />
-          </div>
-        </div>
-      </section>
+            ⚠️ E ISSO PASSOU POR QUATRO CONFERÊNCIAS, inclusive uma minha que
+            varreu a produção atrás do literal "0 ferramentas". O motivo é uma
+            armadilha que vale guardar: `{EXCLUSIVAS.length} ferramentas` sai
+            no HTML do servidor como `0<!-- --> ferramentas` — o React separa
+            valor interpolado de texto adjacente com um comentário. Buscar a
+            frase inteira no HTML NUNCA acha. Só apareceu lendo o
+            `textContent` do DOM com Playwright.
 
-      {/* ================================================ 6. A AUTORIDADE */}
-        <section className="bg-gelo">
-          <div className="mx-auto max-w-5xl px-5 py-16 sm:py-20">
-            <div className="cine text-center">
-              <p className="text-2xs font-semibold uppercase tracking-[0.18em] text-accent-strong">
-                Por que confiar
-              </p>
-              <h2 className="mt-3 font-display text-3xl font-semibold leading-[1.1] tracking-tight text-primary sm:text-[2.6rem]">
-                Com quem você está falando
-              </h2>
-              <p className="mx-auto mt-4 max-w-xl text-base text-muted-foreground">
-                {/* Dizia "O Workspace é a ferramenta que ela abriu": era a
-                    frase que apresentava o Workspace como O produto. Ele
-                    continua na frase — mas como o LUGAR onde o app mora, que é
-                    o papel que ele passou a ter. */}
-                A Novare é consultoria de investimentos. O FINCASH é a
-                ferramenta que ela abriu para todo mundo, dentro do Workspace
-                onde os apps da casa conversam entre si.
-              </p>
-            </div>
+            Se um dia voltar ferramenta que só assinante abre, a seção volta
+            com ela — o `git log` deste arquivo tem o desenho pronto. */}
 
-            <div className="revelar-escada mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-              {CONFIANCA.map(({ destaque, titulo, texto }, i) => (
-                <Pilar
-                  key={titulo}
-                  destaque={destaque}
-                  titulo={titulo}
-                  texto={texto}
-                  tom={tomPor(i)}
-                />
-              ))}
-            </div>
+        {/* ⚠️ A FAIXA DE CTA QUE MORAVA AQUI VIROU A BARRA DENTRO DA SEÇÃO
+            ACIMA. Ela era uma `<section>` solta entre dois blocos, e o motivo
+            de existir (encurtar os 2.853px que separavam um botão do próximo)
+            continua valendo — só que agora ela fecha o bloco do pacote em vez
+            de flutuar entre dois, que é o desenho da referência que o dono
+            trouxe: cena, cards e, no pé, a barra com o preço e o botão. */}
 
-            {/* A foto dos sócios finalmente cabe aqui.
-            
-                O arquivo era uma miniatura de vídeo de 236x235 px com o botão
-                de play gravado em cima — e por isso esta seção vinha sem foto
-                nenhuma: borrada, ela tirava a credibilidade que deveria dar.
-                Agora está em 944 px, ampliada por upscaler de PRECISÃO (o
-                modo criativo inventa feições, e são rostos de pessoas reais)
-                e com o play retocado fora.
-            
-                O arquivo tem NOME NOVO de propósito: o otimizador de imagem
-                do Next indexa o cache pelo caminho, então sobrescrever o
-                original continuaria servindo a miniatura antiga por dias. */}
-            <div className="cine mt-10 flex flex-col items-center gap-7 sm:flex-row sm:items-center sm:gap-9">
-              <div className="relative aspect-square w-40 shrink-0 overflow-hidden rounded-3xl shadow-card ring-1 ring-primary/10 sm:w-48">
-                <Image
-                  src="/marca/novare-site/socios-novare-alta.jpg"
-                  alt="Os sócios da Novare Consultoria de Investimentos"
-                  fill
-                  sizes="(max-width: 640px) 160px, 192px"
-                  className="object-cover"
-                />
-              </div>
-
-              <div className="text-center sm:text-left">
-                <h3 className="font-display text-xl font-bold leading-snug text-primary sm:text-2xl">
-                  Tem gente de verdade atrás disso.
-                </h3>
-                <p className="mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground">
-                  A Novare não é um app que apareceu do nada. É uma consultoria
-                  de investimentos que resolveu abrir as próprias ferramentas
-                  para quem não tem patrimônio para contratar uma.
-                </p>
-              </div>
-            </div>
-
-            {/* O modelo de negócio como argumento: é o que separa a Novare
-                de quem ganha comissão pelo que indica. */}
-            <div className="revelar mt-10 grid overflow-hidden rounded-3xl border border-border sm:grid-cols-2">
-              <div className="bg-card p-6 sm:p-7">
-                <p className="text-2xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  O banco
-                </p>
-                <p className="mt-2 font-display text-lg font-semibold leading-snug text-foreground">
-                  Ganha quando você paga tarifa e compra o que ele indica.
-                </p>
-              </div>
-              <div className="bg-primary p-6 text-white sm:p-7">
-                <p className="text-2xs font-semibold uppercase tracking-wider text-ciano-claro">
-                  A Novare
-                </p>
-                <p className="mt-2 font-display text-lg font-semibold leading-snug">
-                  Ganha quando você se organiza. Comissão de banco ou corretora:
-                  zero.
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
+        {/* ⚠️ A SEÇÃO "COM QUEM VOCÊ ESTÁ FALANDO" (4 pilares de confiança)
+            saiu na mesma passagem, e pelo mesmo motivo: a prova de quem é a
+            casa mora na /fincash, na seção dos sócios, com foto e a parceria
+            atribuída. Aqui a confiança continua presente onde ela pesa numa
+            página de pagamento — a faixa do herói, com a Nord e os selos. */}
 
         {/* ===================================================== 7. A OFERTA */}
         <section className="relative overflow-hidden text-white" style={PALCO}>

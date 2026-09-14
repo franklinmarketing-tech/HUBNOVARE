@@ -8,11 +8,9 @@ import { TopoApp } from "@/components/TopoApp";
 import { PaletaComandos } from "@/components/PaletaComandos";
 import { BarraMercado } from "@/components/BarraMercado";
 import { CardPortal } from "@/components/CardPortal";
-import { CardFincashHome } from "@/components/CardFincashHome";
-import { CardFinplanHome } from "@/components/CardFinplanHome";
+import { CardFincashFinplanHome } from "@/components/CardFincashFinplanHome";
 import { BannerEbooks } from "@/components/BannerEbooks";
 import { BannerNews } from "@/components/BannerNews";
-import { FerramentasHome } from "@/components/FerramentasHome";
 import { BannerIris } from "@/components/BannerIris";
 import { PainelMeuDia } from "@/components/PainelMeuDia";
 import { Rodape } from "@/components/Rodape";
@@ -166,46 +164,32 @@ export default async function Home() {
               A Íris continua com porta na home, na faixa logo abaixo das
               ferramentas, e no trilho lateral. */}
 
-          {/* As cinco vitrines: OS DOIS PRODUTOS em laranja abrem, três áreas
+          {/* As quatro vitrines: UM CARD DE PRODUTO em laranja, três áreas
               navy seguem.
 
-              ⚠️ O PRIMEIRO É O FINCASH desde 12/09/2026 — decisão do dono, o
-              produto-âncora da casa (o porquê está em `CardFincashHome` e em
-              `lib/assinatura.ts`).
+              ⚠️ ERAM CINCO ATÉ 14/09/2026 — FINCASH e FINPLAN em cards
+              separados (12 e 13/09). O dono pediu para virar um só: "FINCASH
+              e FINPLAN vira um só card". Fazia sentido além do visual — uma
+              assinatura, um preço, dois produtos que já se apresentavam como
+              irmãos (o FINCASH mede o mês, o FINPLAN planeja o ano). O porquê
+              da fusão, com os dois destinos preservados, está inteiro em
+              `CardFincashFinplanHome` — inclusive por que ela NÃO é a volta
+              do card antigo que deixou o FINPLAN sem porta na home.
 
-              ⚠️ O SEGUNDO É O FINPLAN, E ELE VOLTOU EM 13/09/2026. Quando o
-              âncora trocou, o card do produto antigo saiu daqui e nada entrou
-              no lugar: a home ficou com ZERO links para ele — produto pago,
-              com landing própria e vaga no sitemap, sem porta na página mais
-              visitada do site. Os dois são IRMÃOS, não módulos um do outro
-              (o FINCASH mede o mês, o FINPLAN planeja o ano), e duas portas
-              é o que diz isso sem precisar de legenda.
-
-              ⚠️ SÓ O CARD DO FINCASH FALA EM PREÇO, e essa é a condição para
-              os dois conviverem: dois valores na mesma dobra leem como dois
-              planos, e a casa tem UMA assinatura (o que
-              `scripts/testar-nada-a-venda.mjs` guarda). O card do FINPLAN diz
-              "vem na mesma assinatura" — direito, não cobrança.
-
-              ⚠️ E A ORDEM DESTA FILEIRA NÃO SAI DO CATÁLOGO: os dois produtos
-              são montados aqui, à mão, e só as três áreas vêm de `portais()`.
-              Quem quiser trocar o primeiro card mexe NESTE arquivo —
-              reordenar `lib/apps.ts` não move nada aqui. */}
-          <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-            {/* O âncora é o único com borda girando: ele é a oferta da casa, e
-                o efeito perde a graça se estiver em tudo — inclusive no card
-                do irmão, que é produto e não oferta. */}
+              ⚠️ E A ORDEM DESTA FILEIRA NÃO SAI DO CATÁLOGO: o card de
+              produto é montado aqui, à mão, e só as três áreas vêm de
+              `portais()`. Quem quiser mexer nele edita ESTE arquivo (ou o
+              componente) — reordenar `lib/apps.ts` não move nada aqui. */}
+          {/* 4 itens, não 5: `lg:grid-cols-4` sozinho já fecha a fileira sem
+              degrau intermediário. O `xl` de antes existia para acomodar
+              CINCO cards sem apertar (4 numa tela média empurrava o quinto
+              para baixo) — com 4 cards, `lg` já é largura de sobra. */}
+          <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <div className="cine" style={{ transitionDelay: "120ms" }}>
               <div className="inclina borda-girando rounded-2xl">
-                {/* O destino e o texto do rodapé saem da `assinatura`: quem
-                    já paga entra no app sem passar pela venda, e não vê
-                    preço nenhum. */}
-                <CardFincashHome assinatura={assinatura} />
-              </div>
-            </div>
-            <div className="cine" style={{ transitionDelay: "160ms" }}>
-              <div className="inclina h-full">
-                <CardFinplanHome assinatura={assinatura} />
+                {/* O destino e o preço saem da `assinatura`: quem já paga
+                    entra direto no app, e não vê preço nenhum. */}
+                <CardFincashFinplanHome assinatura={assinatura} />
               </div>
             </div>
             {areas
@@ -214,7 +198,7 @@ export default async function Home() {
                 <div
                   key={area.chave}
                   className="cine"
-                  style={{ transitionDelay: `${210 + i * 70}ms` }}
+                  style={{ transitionDelay: `${170 + i * 70}ms` }}
                 >
                   <div className="inclina h-full">
                     <CardPortal portal={area} />
@@ -229,7 +213,15 @@ export default async function Home() {
               continua pronto e o histórico continua sendo gravado a cada
               visita — religar é uma linha, se um dia a home tiver folga. */}
 
-          <FerramentasHome />
+          {/* ⚠️ A FILEIRA DE 6 CALCULADORAS (`FerramentasHome`) SAIU DAQUI em
+              14/09/2026 — pedido do dono: "está muito poluído". A home tinha
+              vitrine + 6 pílulas de calculadora + 3 faixas de banner + o
+              convite de assinatura, tudo antes da segunda parte — muita
+              coisa competindo por atenção na mesma rolagem, e as calculadoras
+              já têm porta própria em /aplicativos e na busca (⌘K).
+              O componente (`components/FerramentasHome.tsx`) não foi apagado
+              porque guarda a lógica de favoritar/fixar atalho, que pode
+              voltar a servir outra tela — religar aqui é uma linha. */}
 
           {/* Três faixas finas: a Íris (o diferencial da casa), a estante e
               o canal de conteúdo. O News tinha porta na home, perdeu numa
