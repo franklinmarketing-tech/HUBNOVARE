@@ -298,6 +298,11 @@ export default async function Home() {
             }))}
             totalEdicoes={artigosOrdenados().length}
             ultimaEdicao={artigosOrdenados()[0]?.titulo}
+            ultimaEdicaoHref={
+              artigosOrdenados()[0]
+                ? `/novare-news/${artigosOrdenados()[0].slug}`
+                : undefined
+            }
           />
         </div>
 

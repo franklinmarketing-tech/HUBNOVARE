@@ -4,6 +4,7 @@ import { useState } from "react";
 import { usePathname } from "next/navigation";
 import { ArrowRight, Check, Mail, ShieldCheck, Sparkles } from "lucide-react";
 import { salvarLead } from "@/lib/leads";
+import { ConfirmacaoNews } from "@/components/ConfirmacaoNews";
 
 /**
  * A INSCRIÇÃO NO NOVARE NEWS.
@@ -78,6 +79,7 @@ export function InscreverNews({
   assuntos = [],
   totalEdicoes,
   ultimaEdicao,
+  ultimaEdicaoHref,
   className = "",
 }: {
   titulo?: string;
@@ -88,6 +90,8 @@ export function InscreverNews({
   totalEdicoes?: number;
   /** O título da última publicada, como amostra do que vem. */
   ultimaEdicao?: string;
+  /** O link dela, para o CTA do pop-up de confirmação. */
+  ultimaEdicaoHref?: string;
   className?: string;
 }) {
   const pathname = usePathname();
@@ -96,6 +100,11 @@ export function InscreverNews({
   const [enviado, setEnviado] = useState(false);
   const [tocado, setTocado] = useState(false);
   const [focado, setFocado] = useState(false);
+  /* ⚠️ SEPARADO DE `enviado` de propósito: o pop-up fecha, a confirmação
+     na seção FICA. Se os dois compartilhassem um estado, fechar o modal
+     devolveria o formulário vazio e a pessoa acharia que a inscrição não
+     valeu. */
+  const [modal, setModal] = useState(false);
 
   const ok = emailValido(email);
   const erro = tocado && email.length > 0 && !ok;
@@ -118,6 +127,7 @@ export function InscreverNews({
        confirmação até o banco responder faria a pessoa esperar por uma
        gravação que, se falhar, ela não pode resolver de jeito nenhum. */
     setEnviado(true);
+    setModal(true);
     salvarLead({
       email: email.trim(),
       origem: pathname,
@@ -301,6 +311,20 @@ export function InscreverNews({
           )}
         </ul>
       </div>
+
+      {/* O pop-up DEPOIS do sim — ver a nota longa em `ConfirmacaoNews`.
+          É onde os CTAs vivem: o instante em que a pessoa acabou de
+          concordar é o único da visita em que ela está comprovadamente
+          disposta, e era justamente onde a página não pedia mais nada. */}
+      {modal && (
+        <ConfirmacaoNews
+          email={email.trim()}
+          assuntos={nomesEscolhidos}
+          ultimaEdicao={ultimaEdicao}
+          ultimaEdicaoHref={ultimaEdicaoHref}
+          aoFechar={() => setModal(false)}
+        />
+      )}
     </section>
   );
 }

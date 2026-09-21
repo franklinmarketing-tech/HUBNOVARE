@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { Newspaper, Search } from "lucide-react";
+import { Newspaper, Search, Mail, ArrowRight} from "lucide-react";
 import { MenuAreas } from "@/components/MenuAreas";
 import { MenuConta } from "@/components/MenuConta";
 import { SinoNotificacoes } from "@/components/SinoNotificacoes";
@@ -73,6 +73,22 @@ export function TopoApp({
             sumiam no tablet e no celular, onde a maior parte da audiência
             de rede social está. */}
         <RedesSociais className="flex shrink-0" tamanho="h-4 w-4 sm:h-[18px] sm:w-[18px]" />
+
+        {/* ⚠️ O "INSCREVA-SE" TAMBÉM AQUI, pedido do dono: o Novare News
+            tinha esse botão no topo e o Workspace não, embora a seção de
+            inscrição já vivesse na home.
+
+            Aponta para `/#inscrever` e não para `#inscrever`: este topo
+            aparece em /aplicativos e /meu-dia, onde a seção não existe — a
+            âncora sozinha não faria nada nessas telas. Com a barra, o
+            navegador vai para a home e rola até lá. */}
+        <a
+          href="/#inscrever"
+          className="hidden shrink-0 items-center gap-1.5 rounded-xl border border-slate-200 px-3 py-2 text-2xs font-semibold text-muted-foreground transition-colors hover:border-primary/30 hover:text-primary md:flex"
+        >
+          <Mail className="h-3.5 w-3.5" />
+          Inscreva-se
+        </a>
 
         {/* Selo de parceria oficial com a Nord Investimentos.
             Só a partir de 2xl: entre 1280 e 1536 ele disputava espaço com o

@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
-import { ArrowRight, ChevronLeft, ChevronRight, Clock } from "lucide-react";
+import { ArrowRight, ChevronLeft, ChevronRight, Clock, Mail } from "lucide-react";
 import { CabecalhoNews } from "@/components/CabecalhoNews";
 import { UltimosVideos } from "@/components/UltimosVideos";
 import { SigaInstagram } from "@/components/SigaInstagram";
@@ -181,6 +181,9 @@ export default async function NovareNewsPage({
             }))}
             totalEdicoes={todos.length}
             ultimaEdicao={todos[0]?.titulo}
+            ultimaEdicaoHref={
+              todos[0] ? `/novare-news/${todos[0].slug}` : undefined
+            }
           />
         </div>
       </main>
@@ -344,6 +347,28 @@ function SidebarNews() {
 
   return (
     <aside className="min-w-0 space-y-6">
+      {/* ⚠️ CTA NA SIDEBAR, ACIMA DA LISTA — o dono pediu mais chamadas no
+          News. Ele NÃO repete o formulário: dois campos de e-mail na mesma
+          tela competem entre si e dividem o clique. Este é um atalho para a
+          seção de verdade, lá embaixo. */}
+      <a
+        href="#inscrever"
+        className="flex items-center gap-3 rounded-2xl border border-accent/30 bg-accent-tint/50 p-4 transition-colors hover:border-accent/50 hover:bg-accent-tint"
+      >
+        <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-white text-accent-strong shadow-subtle">
+          <Mail className="h-4 w-4" />
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="block text-xs font-bold text-primary">
+            Receba por e-mail
+          </span>
+          <span className="block text-2xs text-muted-foreground">
+            Grátis, e você escolhe os assuntos
+          </span>
+        </span>
+        <ArrowRight className="h-4 w-4 shrink-0 text-accent-strong" />
+      </a>
+
       <div className="rounded-2xl border border-border bg-card p-5 shadow-subtle">
         <h2 className="font-display text-2xs font-semibold uppercase tracking-[0.16em] text-primary">
           Últimas publicações
