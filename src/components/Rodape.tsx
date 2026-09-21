@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Code2 } from "lucide-react";
 import { InstagramLogo, YoutubeLogo, LinkedinLogo } from "@/components/LogosSociais";
+import { CARTEIRA_PONTUAL_LP } from "@/lib/consultoria";
 
 const ANO = new Date().getFullYear();
 
@@ -57,17 +58,20 @@ export function Rodape() {
           >
             Sua profissão
           </Link>
-          /* ⚠️ O RÓTULO É "Serviços"; A ROTA CONTINUA /consultoria.
-             A área virou "Serviços" em 21/09 (ver `FAMILIAS.ia`), mas o
-             caminho não mudou junto: /consultoria já está em links, no
-             sitemap e indexado. Renomear URL por causa de rótulo troca SEO
-             por cosmética. */
-          <Link
-            href="/consultoria"
+          {/* ⚠️ SAI DO HUB, DE PROPÓSITO. O dono pediu em 21/09 que
+              "Serviços" levasse DIRETO à página de venda da Carteira
+              Pontual, sem passar pela /consultoria: hoje a casa vende um
+              serviço só, e uma página intermediária com um item é um
+              clique cobrado à toa. A /consultoria continua de pé para SEO
+              e para o conteúdo do serviço. */}
+          <a
+            href={CARTEIRA_PONTUAL_LP}
+            target="_blank"
+            rel="noopener noreferrer"
             className="text-[11px] font-medium text-slate-500 transition-colors hover:text-primary"
           >
             Serviços
-          </Link>
+          </a>
           <Link
             href="/assinar"
             className="text-[11px] font-medium text-slate-500 transition-colors hover:text-primary"

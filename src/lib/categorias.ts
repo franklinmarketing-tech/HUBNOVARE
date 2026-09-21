@@ -1,4 +1,5 @@
 import { APPS, FAMILIAS, ORDEM_FAMILIAS, type Familia, type Role } from "@/lib/apps";
+import { CARTEIRA_PONTUAL_LP } from "@/lib/consultoria";
 
 /**
  * As áreas do ecossistema como PORTAIS de entrada.
@@ -24,6 +25,18 @@ export type Portal = {
   rotuloTotal: string;
   /** Slugs dos três apps que aparecem como ícones flutuantes. */
   destaques: string[];
+  /**
+   * Para onde o cartão leva. Normalmente a própria área na /aplicativos.
+   *
+   * Existe como campo porque uma área pode ter UM destino óbvio: quando ela
+   * vende um serviço só, obrigar a passar por uma página de listagem com um
+   * item é cobrar um clique por nada.
+   */
+  destino: string;
+  /** true quando `destino` sai do Hub — o cartão abre em aba nova. */
+  destinoExterno: boolean;
+  /** O selo do canto do cartão ("Grátis", "Sob consulta"...). */
+  selo: string;
   /** Lista completa, revelada no painel que abre ao passar o mouse. */
   itens: Array<{
     slug: string;
@@ -31,6 +44,8 @@ export type Portal = {
     chamada: string;
     href: string;
     aberto: boolean;
+    /** true quando o item sai do Hub — o menu abre em aba nova. */
+    externo: boolean;
   }>;
 };
 
@@ -54,6 +69,20 @@ const CONFIG: Record<
      * Vazio = comportamento antigo, os dois primeiros abertos da área.
      */
     foco?: string;
+    /**
+     * O selo no canto do cartão. Vazio = "Grátis".
+     *
+     * ⚠️ O SELO ERA FIXO EM "Grátis" NO COMPONENTE, e passou a mentir no
+     * instante em que uma área ganhou destino de VENDA: o cartão de Serviços
+     * anunciava grátis e abria uma consultoria cujo preço é sob consulta.
+     * Prometer de menos e entregar de mais é o erro certo; este era o
+     * contrário, e é o que faz a pessoa desconfiar do resto da página.
+     */
+    selo?: string;
+    /** Destino próprio do cartão. Vazio = a área na /aplicativos. */
+    destino?: string;
+    /** true quando `destino` sai do Hub. */
+    destinoExterno?: boolean;
   }
 > = {
   ia: {
@@ -74,6 +103,20 @@ const CONFIG: Record<
        `consultoria.ts`). Com o foco aqui, é o ícone dela que estampa o
        cartão de Serviços na home. */
     foco: "consultoria-revisao-carteira",
+    /* ⚠️ ESTE CARTÃO NÃO LEVA PARA DENTRO DO HUB (21/09/2026).
+
+       Desde que a casa passou a vender um serviço só, o caminho antigo
+       (cartão → /aplicativos?area=ia → item → site da Novare) tinha três
+       cliques para chegar onde o visitante quer, e a página do meio
+       mostrava uma lista de um item. O dono pediu o clique direto.
+
+       A Íris e o FINPLAN, que também moram nesta área, não perdem porta:
+       a Íris tem banner próprio logo abaixo na home e o FINPLAN tem o
+       cartão grande de assinatura. ⚠️ Se um terceiro produto entrar aqui,
+       reveja esta linha — ele nasceria sem entrada na home. */
+    selo: "Sob consulta",
+    destino: CARTEIRA_PONTUAL_LP,
+    destinoExterno: true,
     capa: "/cards/card-novare.webp",
     h: 188,
     s: 62,
@@ -129,6 +172,11 @@ export function portais(role: Role): Portal[] {
     return {
       chave: familia,
       titulo: FAMILIAS[familia],
+      /* O padrão continua sendo a área na /aplicativos; o espalhamento
+         abaixo sobrescreve quando a área declara destino próprio. */
+      destino: `/aplicativos?area=${familia}`,
+      destinoExterno: false,
+      selo: "Grátis",
       ...CONFIG[familia],
       total: abertos.length,
       /**
@@ -165,6 +213,12 @@ export function portais(role: Role): Portal[] {
         chamada: a.chamada,
         href: a.href,
         aberto: a.status !== "em-breve" && a.plano !== "pago",
+        /* ⚠️ SEM ISTO O MENU MANDAVA PARA FORA NA MESMA ABA. O item já
+           carregava um href de outro domínio (a Carteira Pontual aponta
+           para a página de venda da Novare), mas o `Portal` não repassava
+           o campo — então o menu não tinha como saber, e o visitante saía
+           do Hub sem volta e sem rel=noopener. */
+        externo: a.externo === true,
       })),
     };
   }).filter((p) => p.total > 0);

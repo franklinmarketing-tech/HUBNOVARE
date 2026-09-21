@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Logo } from "@/components/Logo";
 import { getIndicadores, juroReal } from "@/lib/mercado";
+import { RedesSociais } from "@/components/RedesSociais";
 
 /**
  * Header padrão das telas da Novare: branco translúcido, sticky, 64px,
@@ -20,6 +21,16 @@ export async function Cabecalho({ direita }: { direita?: React.ReactNode }) {
           <Logo />
         </Link>
 
+        {/* ⚠️ ESTE TOPO NÃO TINHA REDE SOCIAL NENHUMA, e ele cobre
+            /consultoria, /assinar/em-breve e as telas de admin. O dono
+            pediu as redes em todos os topos.
+
+            Fica ao lado do indicador de juros, não no lugar dele: `direita`
+            é a prop pela qual cada página manda o próprio conteúdo, e
+            ocupá-la aqui tiraria esse controle de quem chama. */}
+        <div className="ml-auto flex items-center gap-4">
+          <RedesSociais className="flex" tamanho="h-4 w-4" />
+
         {direita ?? (
           real !== null && (
             <span className="hidden items-center gap-1.5 text-xs font-medium text-muted-foreground sm:flex">
@@ -37,6 +48,7 @@ export async function Cabecalho({ direita }: { direita?: React.ReactNode }) {
             </span>
           )
         )}
+        </div>
       </div>
     </header>
   );

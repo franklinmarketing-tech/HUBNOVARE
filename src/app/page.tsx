@@ -14,6 +14,7 @@ import { BannerNews } from "@/components/BannerNews";
 import { BannerIris } from "@/components/BannerIris";
 import { PainelMeuDia } from "@/components/PainelMeuDia";
 import { Rodape } from "@/components/Rodape";
+import { InscreverNews } from "@/components/InscreverNews";
 import { RevelarAoRolar } from "@/components/RevelarAoRolar";
 import { portais } from "@/lib/categorias";
 import { appsParaBusca } from "@/lib/navegacao";
@@ -274,6 +275,20 @@ export default async function Home() {
             temFicha={temFicha}
           />
         )}
+
+        {/* A INSCRIÇÃO NO NEWS TAMBÉM AQUI, pedido do dono.
+
+            Vale para os dois públicos da home, por motivos opostos: o
+            visitante que ainda não assina deixa um e-mail sem precisar
+            decidir nada, e quem já assina descobre que existe um conteúdo
+            semanal que ele não sabia que tinha direito.
+
+            Fica DEPOIS do painel e antes do rodapé: acima disso a home tem
+            uma ordem pensada (vitrine na dobra, painel em seguida), e
+            enfiar captação no meio empurraria o produto para baixo. */}
+        <div className="mx-auto w-full max-w-6xl px-4 pb-4 pt-10 sm:pt-14">
+          <InscreverNews />
+        </div>
 
         <Rodape />
       </div>

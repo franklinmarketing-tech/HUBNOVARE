@@ -156,7 +156,18 @@ export function generateStaticParams() {
 }
 
 /**
- * Só os cinco slugs acima existem. Qualquer outro é 404 de verdade.
+ * Só o slug acima existe. Qualquer outro é 404 de verdade.
+ *
+ * ⚠️ ERAM CINCO ATÉ 21/09/2026. Quatro serviços saíram do catálogo a pedido
+ * do dono (ver a nota em `consultoria.ts`), e com eles as rotas
+ * /consultoria/diagnostico, /investimentos, /plano-vida e
+ * /consultoria-financeira. Elas respondiam 200 e podem estar indexadas ou
+ * em anúncio: se aparecer queda de tráfego, o remédio é um redirect 308 em
+ * `next.config.ts` apontando para a página oficial da Carteira Pontual.
+ *
+ * ⚠️ EM `next dev` ESSAS ROTAS AINDA RESPONDEM 200 — o servidor de
+ * desenvolvimento ignora `dynamicParams` e renderiza sob demanda. Só o build
+ * de produção aplica a lista fechada. Conferir 404 em dev dá falso negativo.
  *
  * Sem esta linha o Next assume `dynamicParams: true` e tenta renderizar
  * slug desconhecido sob demanda — e nesse caminho o `notFound()` lá embaixo

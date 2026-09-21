@@ -6,6 +6,7 @@ import { CabecalhoNews } from "@/components/CabecalhoNews";
 import { UltimosVideos } from "@/components/UltimosVideos";
 import { SigaInstagram } from "@/components/SigaInstagram";
 import { RodapeNovare } from "@/components/RodapeNovare";
+import { InscreverNews } from "@/components/InscreverNews";
 import { artigosOrdenados, type Artigo } from "@/lib/news";
 import { FAMILIAS, ORDEM_FAMILIAS, type Familia } from "@/lib/apps";
 import { CONTAGEM } from "@/lib/apps";
@@ -161,6 +162,16 @@ export default async function NovareNewsPage({
           </div>
 
           <SidebarNews />
+        </div>
+
+        {/* A INSCRIÇÃO FICA NO FIM DA LISTA, e não em pop-up.
+
+            É aqui que a pessoa acabou de percorrer as chamadas e já sabe se
+            o assunto serve para ela — pedir o e-mail antes disso é pedir
+            sem ter entregue nada. É também como a Nord faz (seção inline no
+            corpo da página, nunca modal), que foi a referência pedida. */}
+        <div className="mx-auto mt-16 max-w-6xl px-4 sm:mt-20">
+          <InscreverNews />
         </div>
       </main>
 

@@ -5,6 +5,7 @@ import { Code2, Globe, Mail, MessageCircle, Phone } from "lucide-react";
 import { InstagramLogo, YoutubeLogo, LinkedinLogo } from "@/components/LogosSociais";
 import { APPS } from "@/lib/apps";
 import { DisclaimerFerramenta, DisclaimerServico } from "@/components/Disclaimers";
+import { CARTEIRA_PONTUAL_LP } from "@/lib/consultoria";
 
 const ANO = new Date().getFullYear();
 
@@ -168,12 +169,15 @@ export function RodapeNovare({
                 </Link>
               </li>
               <li>
-                <Link
-                  href="/consultoria"
+                {/* Sai do Hub — ver a nota em `Rodape.tsx`. */}
+                <a
+                  href={CARTEIRA_PONTUAL_LP}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="text-[13px] text-white/60 transition-colors hover:text-white"
                 >
                   Serviços
-                </Link>
+                </a>
               </li>
               <li>
                 <Link

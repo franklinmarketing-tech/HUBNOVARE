@@ -105,6 +105,11 @@ export function MenuAreas({ portais }: { portais: Portal[] }) {
                         key={item.slug}
                         href={item.href}
                         onClick={() => setAberta(null)}
+                        /* Item que sai do Hub abre em aba nova, com
+                           rel=noopener — o mesmo tratamento que o catálogo
+                           e a paleta ⌘K já davam aos links de saída. */
+                        target={item.externo ? "_blank" : undefined}
+                        rel={item.externo ? "noopener noreferrer" : undefined}
                         className="group/i flex items-center gap-3 px-4 py-2.5 transition-colors hover:bg-slate-50"
                       >
                         <span

@@ -127,174 +127,39 @@ export type Consultoria = {
    */
   faq?: { pergunta: string; resposta: string }[];
 };
+/**
+ * ⚠️ HOJE A CASA VENDE UM SERVIÇO SÓ — decisão do dono, 21/09/2026.
+ *
+ * Este array tinha CINCO entradas: Diagnóstico Gratuito, Consultoria de
+ * Investimentos, Plano Vida, Consultoria Financeira e esta. As quatro
+ * primeiras foram REMOVIDAS a pedido dele, para a Novare focar a oferta na
+ * Carteira Pontual, que é a única com página de venda própria no ar.
+ *
+ * ⚠️ O CONTEÚDO DELAS NÃO SE PERDEU: está no histórico do git, no commit
+ * anterior a este (2bc7e8c). Eram textos, FAQ e escopo escritos um a um —
+ * se a oferta voltar a ter cinco frentes, recuperar é
+ * `git show 2bc7e8c:src/lib/consultoria.ts`, não reescrever do zero.
+ *
+ * ⚠️ AS ROTAS DAS QUATRO PASSARAM A DAR 404. /consultoria/diagnostico e as
+ * outras três eram geradas por `generateStaticParams` a partir daqui; sem a
+ * entrada, a rota deixa de existir. Se alguma estiver em anúncio ou indexada,
+ * o caminho é um redirect em `next.config.ts` apontando para a página oficial
+ * — o arquivo já tem redirects 308 para casos assim.
+ */
+/**
+ * A página de venda oficial da Carteira Pontual, no site da Novare.
+ *
+ * Mora aqui, exportada, porque é o MESMO endereço em quatro lugares: o
+ * catálogo (`apps.ts`), o menu do topo, os dois rodapés e o botão da página
+ * do serviço. URL repetida à mão em cinco arquivos é URL que muda em quatro.
+ *
+ * Sem UTM aqui de propósito: quem monta o parâmetro é `buildTrackingUrl`,
+ * logo abaixo, para cada origem poder se identificar.
+ */
+export const CARTEIRA_PONTUAL_LP =
+  "https://diagnostico.novareapp.com.br/carteira-pontual";
 
 export const CONSULTORIAS: Consultoria[] = [
-  {
-    slug: "diagnostico",
-    numero: 5,
-    nome: "Diagnóstico Gratuito",
-    subtitulo: "Porta de entrada principal",
-    chamada: "Entenda onde você está de verdade",
-    descricao:
-      "Uma sessão personalizada para abrir os números: renda, gastos, dívidas, reserva e investimentos. Você sai sabendo exatamente qual é o seu ponto de partida, sem custo algum.",
-    duracao: "1 encontro de 60-90 min",
-    paraQuem: "Quem quer entender sua saúde financeira antes de contratar qualquer serviço.",
-    entrega: [
-      "Raio-X completo das suas finanças",
-      "Score de saúde financeira comentado",
-      "Lista de prioridades para os próximos 90 dias",
-      "Sessão 100% gratuita com consultor credenciado",
-    ],
-    precoCheio: 0,
-    icone: "ClipboardCheck",
-    faq: [
-      {
-        pergunta: "É gratuito mesmo? Onde está a pegadinha?",
-        resposta:
-          "Não há. A sessão é gratuita porque é assim que a Novare mostra como trabalha — e porque metade das pessoas sai de lá sem precisar contratar nada, só com a lista de prioridades. Quem precisar de acompanhamento vai saber, e aí conversamos.",
-      },
-      {
-        pergunta: "Vou sair de lá tendo que comprar alguma coisa?",
-        resposta:
-          "Não. A Novare não recebe comissão de banco, corretora ou seguradora, então não existe produto para empurrar. Se o próximo passo for algo que a gente faz, dizemos o preço; se for algo que você resolve sozinho, dizemos isso também.",
-      },
-      {
-        pergunta: "O que preciso ter em mãos?",
-        resposta:
-          "Uma ideia de quanto entra e quanto sai por mês, e o saldo das dívidas se houver. Não precisa de extrato nem de planilha pronta — a conversa organiza isso. Se quiser adiantar, o Exame de Saúde Financeira do site leva 1 minuto.",
-      },
-      {
-        pergunta: "Quanto tempo leva para conseguir um horário?",
-        resposta:
-          "Depende da agenda da semana. Você manda mensagem, a gente responde com os horários livres e você escolhe.",
-      },
-    ],
-    destaque: true,
-    isIsca: true,
-  },
-  {
-    slug: "investimentos",
-    numero: 1,
-    nome: "Consultoria de Investimentos",
-    subtitulo: "Em parceria com a Nord Research",
-    chamada: "Estratégia sob medida com quem é referência de mercado",
-    descricao:
-      "Gestão e acompanhamento contínuo dos seus investimentos através da união entre a expertise da Novare e a análise independente da Nord.",
-    duracao: "Acompanhamento Contínuo",
-    paraQuem: "Investidores que buscam rentabilidade consistente sem conflito de interesses.",
-    entrega: [
-      "Alocação completa de ativos guiada por especialistas",
-      "Análise conjunta de carteira Novare + Nord",
-      "Reuniões periódicas de alinhamento e rebalanceamento",
-      "Canal direto para tirar dúvidas sobre o mercado",
-    ],
-    precoCheio: 0,
-    icone: "Handshake",
-    faq: [
-      {
-        pergunta: "O que a Nord entra fazendo?",
-        resposta:
-          "A análise independente de ativos. A Novare monta a estratégia a partir do seu caso — objetivos, prazo, tolerância a risco — e usa a pesquisa da Nord como uma das fontes. As duas casas cobram do cliente, nenhuma do emissor.",
-      },
-      {
-        pergunta: "Existe patrimônio mínimo?",
-        resposta:
-          "Não há corte fixo. O que existe é uma conversa honesta: abaixo de um certo valor, o custo da consultoria pesa mais do que o ganho de alocação, e a gente diz isso em vez de contratar.",
-      },
-    ],
-    destaque: true,
-    coBranding: {
-      parceiro: "Nord Research",
-      badge: "Novare + Nord",
-      descricao: "Análise independente e equipe conjunta de sócios e consultores",
-    },
-  },
-  {
-    slug: "plano-vida",
-    numero: 2,
-    nome: "Plano Vida (Consultor)",
-    subtitulo: "Inspiração e método Nord Liberta",
-    chamada: "Do sonho ao número, com método e data",
-    descricao:
-      "Construímos juntos o seu Marco Horizonte: quanto você precisa acumular, em quanto tempo e com qual aporte mensal para viver a vida que você quer com total tranquilidade.",
-    duracao: "3 encontros dedicados + plano escrito",
-    paraQuem: "Quem tem objetivos claros e quer um plano estruturado passo a passo até a independência.",
-    entrega: [
-      "Marco Horizonte e metas de vida calculadas",
-      "Projeção ano a ano de patrimônio e renda passiva",
-      "Plano de aportes estruturado",
-      "Acompanhamento por um consultor da Novare",
-    ],
-    precoCheio: 0,
-    icone: "Sunrise",
-    faq: [
-      {
-        pergunta: "Isso é diferente do app de planejamento?",
-        resposta:
-          "Sim. O app calcula o seu Marco Horizonte a partir do que você preenche, e faz isso bem. Aqui um consultor senta com você para questionar as premissas: se a renda desejada faz sentido, se o prazo é realista, o que acontece se o cenário virar.",
-      },
-      {
-        pergunta: "E se meus planos mudarem no meio do caminho?",
-        resposta:
-          "Mudam mesmo — filho, mudança de carreira, separação, herança. O plano escrito não é uma camisa de força: é o ponto de partida a que você volta quando algo muda, para recalcular em vez de recomeçar.",
-      },
-      {
-        pergunta: "Preciso ter patrimônio para fazer o Plano Vida?",
-        resposta:
-          "Não. Quem tem pouco acumulado é justamente quem mais ganha em acertar o rumo cedo — o custo de errar dez anos de aporte é maior do que qualquer honorário.",
-      },
-      {
-        pergunta: "Quanto tempo até eu ter o plano na mão?",
-        resposta:
-          "São três encontros. O plano escrito chega depois do último, e nele estão o número, o prazo e o aporte mensal para chegar lá.",
-      },
-    ],
-  },
-  {
-    slug: "consultoria-financeira",
-    numero: 3,
-    nome: "Consultoria Financeira",
-    subtitulo: "Contratação direta Novare",
-    chamada: "Organize sua vida financeira e zere dívidas",
-    descricao:
-      "Planejamento financeiro completo para quem precisa organizar fluxo de caixa, renegociar passivos e criar capacidade de poupança mensal.",
-    duracao: "Ciclo de 3 a 6 meses",
-    paraQuem: "Quem precisa destravar as finanças pessoais ou empresariais e voltar a poupar.",
-    entrega: [
-      "Auditoria de gastos e orçamento mensal",
-      "Estratégia de quitação de dívidas com menor juro",
-      "Formação de reserva de emergência acelerada",
-      "Opção de contratação direta e autônoma",
-    ],
-    precoCheio: 0,
-    icone: "Wallet",
-    faq: [
-      {
-        pergunta: "Vocês vão mandar eu cortar tudo o que eu gosto?",
-        resposta:
-          "Não. Corte generalizado não se sustenta por dois meses — a pessoa desiste e volta a gastar. O trabalho é achar o que sai da sua conta sem você perceber, e isso quase sempre é mais do que qualquer corte de lazer.",
-      },
-      {
-        pergunta: "Estou endividado. Vocês atendem quem está no vermelho?",
-        resposta:
-          "Sim, e é um dos casos em que a consultoria mais rende: ordenar as dívidas por custo real e renegociar na ordem certa costuma economizar mais do que o honorário.",
-      },
-      {
-        pergunta: "Vocês negociam com o banco por mim?",
-        resposta:
-          "Não. A gente monta a estratégia — qual dívida atacar primeiro, qual proposta aceitar, qual recusar e por quê — e você negocia. Quem assina o contrato precisa ser você.",
-      },
-      {
-        pergunta: "Quanto tempo até eu ver resultado?",
-        resposta:
-          "O plano sai no primeiro mês. O resultado no bolso depende de quanto sobra para redirecionar — em geral o primeiro efeito aparece já no segundo mês, quando o dinheiro que vazava passa a ter destino.",
-      },
-    ],
-    checkoutConfig: {
-      suportaSplit: true,
-      gatewaySugerido: "pendente",
-    },
-  },
   {
     slug: "revisao-carteira",
     numero: 4,
@@ -330,7 +195,7 @@ export const CONSULTORIAS: Consultoria[] = [
        regra ficou sendo: só preenche quando a página existir de verdade.
        Esta existe (HTTP 200, conferido). O link sai com UTM por
        `buildTrackingUrl`, como todo link de saída da casa. */
-    lpOficial: "https://diagnostico.novareapp.com.br/carteira-pontual",
+    lpOficial: CARTEIRA_PONTUAL_LP,
     faq: [
       {
         pergunta: "Vou descobrir que fiz besteira?",
@@ -388,15 +253,19 @@ export const CAPA_PRODUTO: Record<string, string> = {
 };
 
 /** A isca gratuita do Workspace ligada ao produto, quando existe. */
-export const ISCA_PRODUTO: Record<string, { href: string; rotulo: string; chamada: string }> = {
-  diagnostico: {
-    href: "/exame-saude-financeira",
-    rotulo: "Fazer o Exame de Saúde (0–100)",
-    chamada: "Antes da conversa, descubra sua nota em 1 minuto — de graça.",
-  },
-  "plano-vida": {
-    href: "/finplan",
-    rotulo: "Montar meu plano grátis",
-    chamada: "Calcule agora o seu Marco Horizonte: o número que te dá liberdade.",
-  },
-};
+/**
+ * ⚠️ ESTE MAPA FICOU VAZIO em 21/09/2026, e isso é correto.
+ *
+ * Ele guardava a isca de cada serviço — a ferramenta grátis que se oferece
+ * ANTES da conversa. Tinha duas: o Exame de Saúde para o "diagnostico" e o
+ * FINPLAN para o "plano-vida". Os dois serviços saíram do catálogo, então as
+ * duas entradas viraram chaves que nada mais consulta.
+ *
+ * O mapa segue aqui, vazio e tipado, porque a página do serviço lê dele sem
+ * saber se há entrada: chave ausente = nenhuma isca renderiza. Apagar o mapa
+ * obrigaria a mexer na página para ganhar nada.
+ *
+ * A Carteira Pontual não ganhou isca: a página oficial dela já É a isca, com
+ * CTA própria. Duas iscas competindo dividem o clique.
+ */
+export const ISCA_PRODUTO: Record<string, { href: string; rotulo: string; chamada: string }> = {};

@@ -1,3 +1,5 @@
+import { CARTEIRA_PONTUAL_LP } from "@/lib/consultoria";
+
 /**
  * Catálogo do Novare Workspace: os aplicativos da casa, as ferramentas e as
  * consultorias, em quatro áreas.
@@ -258,67 +260,44 @@ export const APPS: NovareApp[] = [
     _benchmarkInterno: "Cleo AI",
   },
 
-  // ======================================= SERVIÇOS (5 TRABALHOS OFICIAIS)
-  // Os cinco trabalhos que a Novare executa (Briefing 2026).
+  // ============================================ SERVIÇOS (UM TRABALHO SÓ)
   //
-  // ⚠️ A ORDEM AQUI NÃO ESCOLHE O DESTAQUE DO CARD. Quem escolhe é o campo
-  // `foco` em `categorias.ts` — ver o comentário lá. Reordenar esta lista
-  // mexe na /aplicativos e NÃO muda a capa do card da home.
-  app("ia", "consultoria-diagnostico", "Diagnóstico Gratuito", "Entenda onde você está de verdade", "/consultoria/diagnostico", "Novare Direct", {
-    tipo: "servico",
-    descricao:
-      "Uma sessão personalizada para abrir os números: renda, gastos, dívidas, reserva e investimentos. Você sai sabendo exatamente seu ponto de partida.",
-    pontosFortes: [
-      "1 encontro dedicado de 60-90 minutos",
-      "Raio-X completo das suas finanças",
-      "Score de saúde financeira comentado",
-      "Primeira análise 100% gratuita",
-    ],
-  }),
-  app("ia", "consultoria-investimentos", "Consultoria de Investimentos", "Em parceria com a Nord Research", "/consultoria/investimentos", "Novare + Nord", {
-    tipo: "servico",
-    descricao:
-      "Acompanhamento e alocação contínua de carteira unindo a inteligência da Novare com a análise independente da Nord Research.",
-    pontosFortes: [
-      "Parceria estratégica Novare + Nord",
-      "Alocação e rebalanceamento contínuo",
-      "Equipe de sócios e consultores credenciados",
-      "Sem comissões ocultas de corretoras",
-    ],
-  }),
-  app("ia", "consultoria-plano-vida", "Plano Vida (Consultor)", "Do sonho ao número, com método", "/consultoria/plano-vida", "Nord Liberta", {
-    tipo: "servico",
-    descricao:
-      "Construímos juntos o seu Marco Horizonte: quanto você precisa acumular, em quanto tempo e com qual aporte para viver com tranquilidade.",
-    pontosFortes: [
-      "3 encontros dedicados + plano escrito",
-      "Marco Horizonte calculado com você",
-      "Projeção ano a ano até a independência",
-      "Consultor dedicado",
-    ],
-  }),
-  app("ia", "consultoria-financeira", "Consultoria Financeira", "Organize suas contas e zere dívidas", "/consultoria/consultoria-financeira", "Novare Direct", {
-    tipo: "servico",
-    descricao:
-      "Planejamento financeiro completo para quem precisa organizar fluxo de caixa, renegociar passivos e voltar a poupar mensalmente.",
-    pontosFortes: [
-      "Auditoria de gastos e orçamento mensal",
-      "Estratégia de quitação de dívidas",
-      "Formação de reserva acelerada",
-      "Opção de contratação direta",
-    ],
-  }),
-  app("ia", "consultoria-revisao-carteira", "Carteira Pontual", "Seu dinheiro pode estar parado no lugar errado", "/consultoria/revisao-carteira", "Novare Direct", {
-    tipo: "servico",
-    descricao:
-      "Analisamos produto por produto da sua carteira e mostramos o custo real e o que rende menos do que deveria.",
-    pontosFortes: [
-      "2 encontros com relatório técnico",
-      "Custo real e taxas ocultas reveladas",
-      "Comparação contra benchmarks e alternativas isentas",
-      "Carteira sugerida pronta para execução",
-    ],
-  }),
+  // ⚠️ ERAM CINCO ENTRADAS AQUI. O dono decidiu em 21/09/2026 que a casa
+  // vende UM serviço por enquanto, e as outras quatro (Diagnóstico Gratuito,
+  // Consultoria de Investimentos, Plano Vida e Consultoria Financeira) saíram
+  // junto com as entradas delas em `consultoria.ts` — a nota longa está lá.
+  // Recuperar é `git show 2bc7e8c`, não reescrever.
+  //
+  // ⚠️ E ESTE É O ÚNICO SERVIÇO QUE SAI DO HUB. O `href` aponta para a página
+  // de venda da Novare, não para /consultoria/revisao-carteira: o dono pediu
+  // que o clique levasse DIRETO ao site, sem escala. Com `externo: true` o
+  // catálogo já abre em nova aba com rel=noopener, mostra o selo de link de
+  // saída e tira o item do casamento de rota do ⌘K — tudo isso já existia
+  // para os simuladores que moram no novareapp.
+  //
+  // ⚠️ A PÁGINA INTERNA CONTINUA DE PÉ em /consultoria/revisao-carteira, agora
+  // sem link apontando para ela. Não é lixo: é ela que responde pelo SEO do
+  // Hub e guarda FAQ e escopo. Se a oferta mudar, basta trocar este href.
+  app(
+    "ia",
+    "consultoria-revisao-carteira",
+    "Carteira Pontual",
+    "Seu dinheiro pode estar parado no lugar errado",
+    CARTEIRA_PONTUAL_LP,
+    "Novare Direct",
+    {
+      tipo: "servico",
+      externo: true,
+      descricao:
+        "Analisamos produto por produto da sua carteira e mostramos o custo real e o que rende menos do que deveria.",
+      pontosFortes: [
+        "2 encontros com relatório técnico",
+        "Custo real e taxas ocultas reveladas",
+        "Comparação contra benchmarks e alternativas isentas",
+        "Carteira sugerida pronta para execução",
+      ],
+    },
+  ),
 
   // ══════════════════════════════════════ AS FERRAMENTAS, POR PROBLEMA
   //

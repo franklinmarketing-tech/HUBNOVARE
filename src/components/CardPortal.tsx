@@ -23,12 +23,18 @@ import type { Portal } from "@/lib/categorias";
  * quatro continuam parecendo da mesma casa.
  */
 export function CardPortal({ portal }: { portal: Portal }) {
-  const href = `/aplicativos?area=${portal.chave}`;
+  /* O destino vem do portal, não é montado aqui: uma área que vende um
+     serviço só aponta direto para a página dele, em vez de cobrar um clique
+     numa listagem de um item (ver `destino` em `categorias.ts`). */
+  const href = portal.destino;
+  const externo = portal.destinoExterno;
   const IconePrincipal = iconeDe(portal.destaques[0] ?? portal.chave);
 
   return (
     <Link
       href={href}
+      target={externo ? "_blank" : undefined}
+      rel={externo ? "noopener noreferrer" : undefined}
       className="group flex h-full flex-col overflow-hidden rounded-2xl bg-white shadow-card ring-1 ring-primary/5 transition-all hover:-translate-y-0.5 hover:shadow-card-hover"
     >
       {/* O palco: a foto da área sob o véu da cor dela. */}
@@ -72,8 +78,11 @@ export function CardPortal({ portal }: { portal: Portal }) {
               "radial-gradient(16rem 9rem at 50% -20%, hsl(208 75% 62% / 0.25), transparent 65%)",
           }}
         />
+        {/* O selo vem da área — ver a nota em `categorias.ts`. Escrito à
+            mão aqui, ele anunciava "Grátis" também no cartão que abre uma
+            consultoria paga. */}
         <span className="absolute right-3 top-3 text-2xs font-semibold uppercase tracking-wider text-white/55">
-          Grátis
+          {portal.selo}
         </span>
         <span className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-white/[0.10] ring-1 ring-white/[0.14]">
           <IconePrincipal className="h-5 w-5" strokeWidth={1.75} />

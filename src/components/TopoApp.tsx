@@ -3,12 +3,12 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Newspaper, Search } from "lucide-react";
-import { InstagramLogo, YoutubeLogo, LinkedinLogo } from "@/components/LogosSociais";
 import { MenuAreas } from "@/components/MenuAreas";
 import { MenuConta } from "@/components/MenuConta";
 import { SinoNotificacoes } from "@/components/SinoNotificacoes";
 import type { Portal } from "@/lib/categorias";
 import type { Notificacao } from "@/lib/notificacoes";
+import { RedesSociais } from "@/components/RedesSociais";
 
 /**
  * Topo do aplicativo: saudação à esquerda, o menu das áreas no centro e o
@@ -65,37 +65,14 @@ export function TopoApp({
             barra cuja função é navegar por dentro: quem entrou para ver o
             próprio plano não está ali para abrir o Instagram. O lugar delas
             é o rodapé do site público, onde continuam. */}
-        {!logado && (
-        <div className="hidden shrink-0 items-center gap-2.5 lg:flex">
-          <a
-            href="https://www.instagram.com/novare.invest"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Novare no Instagram"
-            className="-m-1.5 p-1.5 opacity-80 transition-opacity hover:opacity-100"
-          >
-            <InstagramLogo className="h-[18px] w-[18px]" />
-          </a>
-          <a
-            href="https://www.youtube.com/channel/UCtfpNaHW_Jx7T7U91lXpJhQ"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Novare no YouTube"
-            className="-m-1.5 p-1.5 opacity-80 transition-opacity hover:opacity-100"
-          >
-            <YoutubeLogo className="h-[18px] w-[18px]" />
-          </a>
-          <a
-            href="https://www.linkedin.com/in/novare-consultoria-de-investimentos-ab0808386/"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Novare no LinkedIn"
-            className="-m-1.5 p-1.5 opacity-80 transition-opacity hover:opacity-100"
-          >
-            <LinkedinLogo className="h-[18px] w-[18px]" />
-          </a>
-        </div>
-        )}
+        {/* ⚠️ ERA SÓ PARA DESLOGADO, e o dono pediu em TODAS as telas.
+
+            A condição `!logado` escondia as redes exatamente de quem já é
+            cliente — que é quem tem mais motivo para seguir a casa. O
+            breakpoint também subiu de `lg` para `sm`: em `lg` os ícones
+            sumiam no tablet e no celular, onde a maior parte da audiência
+            de rede social está. */}
+        <RedesSociais className="flex shrink-0" tamanho="h-4 w-4 sm:h-[18px] sm:w-[18px]" />
 
         {/* Selo de parceria oficial com a Nord Investimentos.
             Só a partir de 2xl: entre 1280 e 1536 ele disputava espaço com o

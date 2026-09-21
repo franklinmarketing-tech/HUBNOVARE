@@ -14,7 +14,12 @@ export type LeadTipo =
   // quente que a casa capta: a pessoa clicou em COMPRAR e esbarrou numa porta
   // fechada. Etiqueta própria para essa lista ser a primeira a ser avisada no
   // dia em que o checkout abrir.
-  | "lista-espera";
+  | "lista-espera"
+  // Quis receber o Novare News por e-mail. O lead mais FRIO da lista, e de
+  // propósito: pede só o e-mail, sem telefone, porque cada campo a mais
+  // derruba a conversão de quem ainda está só lendo. Vira quente depois, na
+  // régua de conteúdo — não na hora do cadastro.
+  | "newsletter";
 
 /**
  * Grava um lead captado numa isca (calculadora ou landing page) na tabela

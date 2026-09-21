@@ -10,12 +10,13 @@ import {
   Bot,
   ChevronDown,
   LayoutGrid,
-  MessageCircle,
   Sparkles,
   Sunrise,
-  Users,
+  Users, Mail,
 } from "lucide-react";
-import { InstagramLogo, YoutubeLogo } from "@/components/LogosSociais";
+import {  YoutubeLogo } from "@/components/LogosSociais";
+import { CARTEIRA_PONTUAL_LP } from "@/lib/consultoria";
+import { RedesSociais } from "@/components/RedesSociais";
 
 /**
  * Cabeçalho próprio do Novare News, no molde dos grandes portais de
@@ -48,10 +49,12 @@ const ECOSSISTEMA = [
     icone: Bot,
   },
   {
-    href: "/consultoria",
-    // Rótulo novo, rota igual — ver a nota em `Rodape.tsx`.
+    // ⚠️ Sai do Hub para a página de venda da Carteira Pontual — ver a
+    //    nota em `Rodape.tsx`. `externo` faz abrir em aba nova.
+    href: CARTEIRA_PONTUAL_LP,
+    externo: true,
     nome: "Serviços",
-    desc: "Primeira análise grátis",
+    desc: "Sua carteira lida por quem não vende produto",
     icone: Users,
   },
   {
@@ -62,14 +65,6 @@ const ECOSSISTEMA = [
   },
 ];
 
-const SOCIAIS = [
-  { nome: "Instagram", href: "https://www.instagram.com/novare.invest", Icone: InstagramLogo },
-  {
-    nome: "YouTube",
-    href: "https://www.youtube.com/channel/UCtfpNaHW_Jx7T7U91lXpJhQ",
-    Icone: YoutubeLogo,
-  },
-];
 
 export function CabecalhoNews() {
   const [aberto, setAberto] = useState(false);
@@ -174,42 +169,41 @@ export function CabecalhoNews() {
           >
             Ferramentas
           </Link>
-          <Link
-            href="/consultoria"
+          <a
+            href={CARTEIRA_PONTUAL_LP}
+            target="_blank"
+            rel="noopener noreferrer"
             className="flex h-10 items-center rounded-xl px-3 text-2xs font-semibold uppercase tracking-[0.12em] text-muted-foreground transition-colors hover:bg-muted hover:text-primary"
           >
             Serviços
-          </Link>
+          </a>
         </nav>
 
         <div className="ml-auto flex items-center gap-3">
           {/* Sociais como texto: esta versão do lucide não traz ícone de
               marca, e desenhar logo alheio à mão é pedir para errar. */}
-          <div className="hidden items-center gap-1.5 xl:flex">
-            {SOCIAIS.map((s) => (
-              <a
-                key={s.nome}
-                href={s.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={`Novare no ${s.nome}`}
-                title={s.nome}
-                className="flex h-8 w-8 items-center justify-center rounded-full border border-border text-muted-foreground transition-colors hover:border-primary/30 hover:text-primary"
-              >
-                <s.Icone className="h-3.5 w-3.5" />
-              </a>
-            ))}
+          <div className="flex items-center gap-1.5">
+            {/* Vinha de um `SOCIAIS` local que tinha só Instagram e
+                YouTube — o LinkedIn, posto nos rodapés em agosto, nunca
+                chegou aqui. Com a lista única isso não volta a acontecer. */}
+            <RedesSociais tamanho="h-3.5 w-3.5" className="flex" />
           </div>
 
+          {/* ⚠️ ESTE BOTÃO NÃO INSCREVIA NINGUÉM até 21/09/2026.
+
+              Ele abria o WhatsApp com a frase "Quero receber o Novare News
+              no WhatsApp" — ou seja, mandava a pessoa para fora do site,
+              para um aplicativo de mensagem, e a casa não ficava com
+              e-mail nenhum. Quem não quisesse conversar por WhatsApp
+              simplesmente não tinha como se inscrever.
+
+              Agora ele leva à seção de inscrição no fim da página, que pede
+              só o e-mail e grava em `hub_leads`. */}
           <a
-            // Falar COM a Novare: precisa de destinatário — por isso o
-            // ajudante do lib de contato, não um wa.me escrito à mão.
-            href={falarNoWhatsApp("Quero receber o Novare News no WhatsApp.")}
-            target="_blank"
-            rel="noopener noreferrer"
+            href="#inscrever"
             className="hidden items-center gap-1.5 rounded-xl border border-border px-3 py-2 text-2xs font-semibold text-muted-foreground transition-colors hover:border-primary/30 hover:text-primary md:flex"
           >
-            <MessageCircle className="h-3.5 w-3.5" />
+            <Mail className="h-3.5 w-3.5" />
             Inscreva-se
           </a>
 
@@ -266,6 +260,29 @@ function LinkEco({
   onClick?: () => void;
   children: React.ReactNode;
 }) {
+  /* ⚠️ ITEM QUE SAI DO HUB PRECISA DE ÂNCORA, NÃO DE `Link`.
+
+     O `Link` do Next serve navegação interna: para outro domínio ele até
+     funciona, mas sem `target`/`rel` o visitante sai do Hub na mesma aba e
+     sem `noopener`. Desde 21/09 há um item externo nesta lista — os
+     Serviços apontam direto para a página de venda da Carteira Pontual —,
+     e sem este ramo o campo `externo` seria enfeite no objeto. */
+  const externo = "externo" in item && item.externo === true;
+
+  if (externo) {
+    return (
+      <a
+        href={item.href}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={className}
+        onClick={onClick}
+      >
+        {children}
+      </a>
+    );
+  }
+
   return (
     <Link href={item.href} className={className} onClick={onClick}>
       {children}
