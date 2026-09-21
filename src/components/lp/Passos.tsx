@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 
 import { ETAPAS } from "@/lib/hub-lp";
-import { ROTULO_DESCONTO } from "@/lib/lp-precos";
+import { ROTULO_DESCONTO_SELO } from "@/lib/lp-precos";
 import {
   MaqueteConsultoria,
   MaqueteContasFixas,
@@ -42,7 +42,7 @@ const MAQUETES = [
   <MaqueteContasFixas key="fixas" />,
   <MaqueteLancamento key="lancamento" />,
   <MaqueteFinCash key="painel" />,
-  <MaqueteConsultoria key="consultor" desconto={ROTULO_DESCONTO} />,
+  <MaqueteConsultoria key="consultor" desconto={ROTULO_DESCONTO_SELO} />,
 ];
 
 /** As barras claras que ficam atrás do cartão no painel colorido. */

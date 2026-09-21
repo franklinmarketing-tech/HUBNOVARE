@@ -360,7 +360,7 @@ export function MaqueteConsultoria({ desconto }: { desconto: string }) {
           <p className="text-[0.8125rem] font-medium tracking-[-0.015em] text-white/80">
             Para quem assina o Workspace
           </p>
-          <p className="nv-numero whitespace-nowrap shrink-0 text-[1.25rem] text-[#6dc6e6]">
+          <p className="shrink-0 text-[0.9375rem] font-semibold tracking-[-0.015em] text-[#6dc6e6]">
             {desconto}
           </p>
         </div>

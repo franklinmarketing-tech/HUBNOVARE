@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 
 import { MODULOS } from "@/lib/hub-lp";
-import { ROTULO_DESCONTO } from "@/lib/lp-precos";
+import { ROTULO_DESCONTO_SELO } from "@/lib/lp-precos";
 import {
   MaqueteConsultoria,
   MaqueteFerramentas,
@@ -37,7 +37,7 @@ const MAQUETES: Record<string, React.ReactNode> = {
   finplan: <MaquetePlano />,
   iris: <MaqueteIris />,
   ferramentas: <MaqueteFerramentas />,
-  consultor: <MaqueteConsultoria desconto={ROTULO_DESCONTO} />,
+  consultor: <MaqueteConsultoria desconto={ROTULO_DESCONTO_SELO} />,
 };
 
 const TOM_ICONE: Record<string, string> = {

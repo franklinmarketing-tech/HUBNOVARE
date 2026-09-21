@@ -74,8 +74,7 @@ export function Fecho() {
 
         <p className="revelar mt-6 text-[1.1875rem] tracking-[-0.012em] text-[#5b6d81]">
           A partir de {ASSINATURA_PRECO_ROTULO}/mês no anual ·{" "}
-          {ASSINATURA_GARANTIA_DIAS} dias de garantia · {ROTULO_DESCONTO} na
-          consultoria
+          {ASSINATURA_GARANTIA_DIAS} dias de garantia · {ROTULO_DESCONTO}
         </p>
       </div>
 

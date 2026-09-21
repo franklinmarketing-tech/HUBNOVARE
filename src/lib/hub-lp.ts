@@ -741,7 +741,7 @@ export const INCLUI_GRUPOS = [
     resumo: "A única linha que não é software",
     itens: [
       "Revisão do seu plano a cada 3 meses, escrita por gente",
-      `${ROTULO_DESCONTO} na consultoria particular, em qualquer formato`,
+      `${ROTULO_DESCONTO} particular, em qualquer formato`,
       "Consultores CFP®, sem comissão de banco ou corretora",
     ],
   },
