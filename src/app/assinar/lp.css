@@ -1,0 +1,951 @@
+/* ==========================================================================
+   LANDING DE VENDA DO WORKSPACE NOVARE — `/assinar`
+   --------------------------------------------------------------------------
+   Tudo aqui vive dentro de `.lp-novare`. O Hub inteiro continua em
+   Inter/Sora com os tokens de `globals.css`: esta folha não vaza.
+
+   ┌── TIPOGRAFIA ─────────────────────────────────────────────────────────┐
+   │ TÍTULOS   TWK Everett Medium (500).                                    │
+   │ TEXTO     Satoshi, nunca abaixo de 19px.                               │
+   └────────────────────────────────────────────────────────────────────────┘
+
+   A TWK Everett é licenciada (Weltkern) e vive em `/public/fonts`, servida
+   pelo próprio site — não existe CDN público para ela. Os .otf originais
+   foram convertidos para woff2 (de ~250KB para ~85KB cada).
+
+   A Satoshi vem da Fontshare (gratuita para web) e é carregada no `<head>`
+   pela própria página.
+
+   ┌── SUPERFÍCIE ─────────────────────────────────────────────────────────┐
+   │ O fundo da página NÃO é branco: é um creme quente (#FBFAF7).           │
+   │ Cada seção é um PAINEL de cantos muito arredondados (40px) que         │
+   │ descansa sobre esse creme. Branco, creme e navy se alternam; o branco  │
+   │ é o papel do conteúdo, o navy é a pausa dramática.                     │
+   └────────────────────────────────────────────────────────────────────────┘
+
+   A paleta é a da marca Novare: navy #0B1626, ciano #2596BE, laranja em
+   dose homeopática. As referências são royal blue puro — copiar a cor
+   delas seria trocar a marca pela referência.
+   ========================================================================== */
+
+@font-face {
+  font-family: "TWK Everett";
+  src: url("/fonts/TWKEverett-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "TWK Everett";
+  src: url("/fonts/TWKEverett-Medium.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "TWK Everett";
+  src: url("/fonts/TWKEverett-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+.lp-novare {
+  /* ---------------------------------------------------------- tipografia */
+  --nv-titulo:
+    "TWK Everett", "TWK Everett Medium", "General Sans", ui-sans-serif,
+    system-ui, -apple-system, "Segoe UI", sans-serif;
+  --nv-texto:
+    "Satoshi", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  /* --------------------------------------------------------------- tinta */
+  --nv-tinta: #0a1521; /* títulos: quase preto, com um resto de azul */
+  --nv-tinta-2: #46586e; /* corpo — 7:1 sobre creme */
+  --nv-tinta-3: #5b6d81; /* apoio — 5:1 sobre creme, o piso do legível */
+
+  /* ---------------------------------------------------------- superfície */
+  --nv-creme: #fbfaf7;
+  --nv-creme-2: #f4f1ea;
+  --nv-papel: #ffffff;
+  --nv-gelo: #f2f6fa;
+  --nv-borda: #e8e4dc;
+  --nv-borda-fria: #e3eaf2;
+
+  /* ---------------------------------------------------------------- navy */
+  --nv-navy: #0b1626;
+  --nv-navy-2: #152a44;
+  --nv-navy-3: #1d3a58;
+
+  /* --------------------------------------------------------------- ciano */
+  --nv-ciano: #2596be;
+  --nv-ciano-forte: #17789c; /* texto ciano sobre claro */
+  --nv-ciano-claro: #6dc6e6; /* texto ciano sobre navy */
+  --nv-ciano-tint: #eaf6fb;
+
+  --nv-laranja: #c9491a;
+  --nv-laranja-claro: #f08a5f;
+  --nv-laranja-tint: #fdf0e9;
+
+  --nv-verde: #1f7a4d;
+  --nv-verde-tint: #e6f6ec;
+
+  /* --------------------------------------------------------------- forma */
+  --nv-raio-painel: 40px;
+  --nv-raio-g: 28px;
+  --nv-raio: 20px;
+  --nv-raio-p: 14px;
+
+  font-family: var(--nv-texto);
+  font-size: 19px; /* o piso pedido: nenhuma descrição abaixo disso */
+  line-height: 1.6;
+  letter-spacing: -0.014em;
+  color: var(--nv-tinta-2);
+  background: var(--nv-creme);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ==========================================================================
+   AS DUAS CAMADAS DESTA FOLHA — e por que elas existem
+   --------------------------------------------------------------------------
+   `@layer base` guarda só o reset de heading. Ele precisa PERDER para tudo:
+   para as classes .nv-* daqui e para qualquer `text-[…]` escrito no JSX.
+
+   `@layer components` guarda o resto. A ordem do Tailwind é
+   theme → base → components → utilities, então:
+
+     • .nv-d1 vence `.lp-novare h1` do reset (components > base);
+     • `hidden`, `text-white/70` e `bg-…` do JSX vencem as classes daqui.
+
+   A segunda metade não é preciosismo: sem ela `.nv-btn` — que declara
+   `display: inline-flex` — ganha do `hidden` do Tailwind e o CTA de desktop
+   aparece dentro da cápsula de navegação do celular.
+   ========================================================================== */
+
+@layer base {
+  .lp-novare h1,
+  .lp-novare h2,
+  .lp-novare h3,
+  .lp-novare h4 {
+    font-size: inherit;
+    line-height: inherit;
+    font-weight: inherit;
+    letter-spacing: inherit;
+    color: inherit;
+  }
+}
+
+@layer components {
+  .lp-novare :focus-visible {
+    outline: 2px solid var(--nv-ciano);
+    outline-offset: 3px;
+    border-radius: 8px;
+  }
+
+  /* ======================================================== 1. ESTRUTURA */
+
+  /* A régua da página. Uma só, para nenhuma seção escolher a sua e a
+     margem esquerda dançar a cada rolagem — o olho percebe isso muito
+     antes de conseguir nomear. */
+  .nv-caixa {
+    width: 100%;
+    max-width: 1240px;
+    margin-inline: auto;
+    padding-inline: 20px;
+  }
+
+  .nv-caixa-larga {
+    width: 100%;
+    max-width: 1440px;
+    margin-inline: auto;
+    padding-inline: 20px;
+  }
+
+  @media (min-width: 768px) {
+    .nv-caixa,
+    .nv-caixa-larga {
+      padding-inline: 40px;
+    }
+  }
+
+  /* O PAINEL — a peça estrutural da página inteira.
+
+     Cada seção é um retângulo de cantos muito arredondados apoiado sobre o
+     creme, com uma folga lateral. É o gesto que Shotbase e Calendly usam
+     para transformar uma página em uma PILHA de superfícies em vez de uma
+     tira contínua de conteúdo. Sem a folga lateral o efeito morre: o painel
+     precisa mostrar o fundo dos dois lados. */
+  .nv-painel {
+    position: relative;
+    margin-inline: 10px;
+    border-radius: var(--nv-raio-painel);
+    overflow: hidden;
+  }
+
+  @media (min-width: 768px) {
+    .nv-painel {
+      margin-inline: 16px;
+    }
+  }
+
+  .nv-painel-papel {
+    background: var(--nv-papel);
+  }
+
+  .nv-painel-creme {
+    background: #f4f2ed;
+  }
+
+  .nv-painel-gelo {
+    background: linear-gradient(180deg, #f6f9fc 0%, #eef4f9 100%);
+  }
+
+  .nv-painel-navy {
+    background:
+      radial-gradient(56rem 32rem at 80% -10%, rgba(37, 150, 190, 0.26), transparent 62%),
+      radial-gradient(44rem 28rem at 4% 110%, rgba(201, 73, 26, 0.12), transparent 60%),
+      linear-gradient(158deg, #152a44 0%, #0b1626 100%);
+    color: #fff;
+  }
+
+  /* Região que rola na horizontal quando não cabe. A barra some, mas o
+     teclado alcança (ver `tabIndex` nos componentes). */
+  .nv-rolagem-x {
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .nv-rolagem-x::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* ======================================================= 2. TIPOGRAFIA */
+
+  /* Todos os títulos usam a Everett em 500 — o peso pedido — com tracking
+     negativo. Em corpo grande o tracking apertado é a diferença entre
+     "página de banco" e "peça de design"; em corpo pequeno ele some, e por
+     isso a escala abaixo afrouxa conforme o tamanho cai. */
+
+  .nv-d1 {
+    font-family: var(--nv-titulo);
+    font-weight: 500;
+    font-size: clamp(2.6rem, 1.5rem + 4.4vw, 4.9rem);
+    line-height: 0.98;
+    letter-spacing: -0.042em;
+    color: var(--nv-tinta);
+  }
+
+  .nv-d2 {
+    font-family: var(--nv-titulo);
+    font-weight: 500;
+    font-size: clamp(2.1rem, 1.35rem + 3.1vw, 3.6rem);
+    line-height: 1.03;
+    letter-spacing: -0.038em;
+    color: var(--nv-tinta);
+  }
+
+  .nv-h3 {
+    font-family: var(--nv-titulo);
+    font-weight: 500;
+    font-size: clamp(1.5rem, 1.2rem + 1.2vw, 2rem);
+    line-height: 1.12;
+    letter-spacing: -0.032em;
+    color: var(--nv-tinta);
+  }
+
+  .nv-h4 {
+    font-family: var(--nv-titulo);
+    font-weight: 500;
+    font-size: 1.25rem;
+    line-height: 1.22;
+    letter-spacing: -0.026em;
+    color: var(--nv-tinta);
+  }
+
+  /* ---- texto ---- */
+
+  /* O lead do herói e das aberturas de seção. */
+  .nv-lead {
+    font-family: var(--nv-texto);
+    font-size: clamp(1.1875rem, 1.1rem + 0.42vw, 1.4375rem);
+    line-height: 1.55;
+    letter-spacing: -0.012em;
+    font-weight: 400;
+    color: var(--nv-tinta-2);
+  }
+
+  /* O corpo de dentro dos cartões. 17px é o PISO — nunca menos. */
+  .nv-corpo {
+    font-family: var(--nv-texto);
+    font-size: 1.0625rem; /* 17px */
+    line-height: 1.62;
+    letter-spacing: -0.008em;
+    font-weight: 400;
+    color: var(--nv-tinta-2);
+  }
+
+  /* Chapéu de seção: caixa alta, miúdo, com tracking POSITIVO. É a única
+     tipografia da página que ABRE o espacejamento — texto pequeno apertado
+     vira mancha cinza. Rótulo, não descrição: fora da regra dos 17px. */
+  .nv-chapeu {
+    font-family: var(--nv-texto);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    line-height: 1;
+  }
+
+  /* Números grandes (preço, estatística, numeração de etapa). A Everett
+     com tracking bem fechado é o que faz um número parecer um objeto. */
+  .nv-numero {
+    font-family: var(--nv-titulo);
+    font-weight: 500;
+    letter-spacing: -0.055em;
+    line-height: 0.9;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ---- o traço sob a frase ---- */
+
+  /* O sublinhado à mão que Visor usa na última palavra da headline. É um
+     gradiente de fundo, não um `text-decoration`: assim ele tem espessura
+     própria, fica abaixo da linha de base e não é cortado pelas descidas
+     do "q" e do "ç". */
+  .nv-traco {
+    position: relative;
+    background-image: linear-gradient(
+      90deg,
+      var(--nv-ciano) 0%,
+      var(--nv-ciano-claro) 100%
+    );
+    background-repeat: no-repeat;
+    background-position: 0 100%;
+    background-size: 100% 0.09em;
+    padding-bottom: 0.1em;
+  }
+
+  .nv-painel-navy .nv-traco {
+    background-image: linear-gradient(90deg, var(--nv-ciano-claro) 0%, #a5e0f5 100%);
+  }
+
+  /* ========================================================= 3. PASTILHAS */
+
+  /* A cápsula de rótulo. Três vestidos: o cinza neutro do Shotbase (o
+     "capítulo"), o ciano da marca e o de cima de navy. */
+  .nv-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    flex: none;
+    padding: 9px 16px;
+    border-radius: 999px;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    line-height: 1;
+  }
+
+  .nv-pill-capitulo {
+    background: rgba(10, 21, 33, 0.05);
+    color: var(--nv-tinta-2);
+  }
+
+  .nv-pill-ciano {
+    background: var(--nv-ciano-tint);
+    color: var(--nv-ciano-forte);
+    border: 1px solid rgba(37, 150, 190, 0.28);
+  }
+
+  .nv-pill-escura {
+    background: rgba(255, 255, 255, 0.09);
+    color: #cfe6f2;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    backdrop-filter: blur(6px);
+  }
+
+  .nv-ponto {
+    width: 6px;
+    height: 6px;
+    border-radius: 999px;
+    background: currentColor;
+    flex: none;
+  }
+
+  /* ============================================================ 4. BOTÕES */
+
+  .nv-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-height: 56px;
+    padding: 0 28px;
+    border-radius: 999px;
+    font-family: var(--nv-texto);
+    font-size: 1.0625rem;
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    white-space: nowrap;
+    transition:
+      transform 220ms cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 220ms ease,
+      background-color 200ms ease,
+      color 200ms ease,
+      border-color 200ms ease;
+  }
+
+  .nv-btn:hover {
+    transform: translateY(-2px);
+  }
+  .nv-btn:active {
+    transform: translateY(0);
+  }
+
+  .nv-btn-p {
+    min-height: 46px;
+    padding: 0 20px;
+    font-size: 0.9375rem;
+  }
+
+  /* Primário sobre claro. */
+  .nv-btn-navy {
+    background: var(--nv-navy);
+    color: #fff;
+    box-shadow: 0 14px 32px -16px rgba(11, 22, 38, 0.8);
+  }
+  .nv-btn-navy:hover {
+    background: var(--nv-navy-3);
+    box-shadow: 0 22px 44px -18px rgba(11, 22, 38, 0.75);
+  }
+
+  /* Primário sobre navy. */
+  .nv-btn-branco {
+    background: #fff;
+    color: var(--nv-navy);
+    box-shadow: 0 16px 36px -18px rgba(0, 0, 0, 0.7);
+  }
+  .nv-btn-branco:hover {
+    background: #eaf3f8;
+  }
+
+  .nv-btn-ciano {
+    background: var(--nv-ciano);
+    color: #fff;
+    box-shadow: 0 16px 34px -16px rgba(37, 150, 190, 0.85);
+  }
+  .nv-btn-ciano:hover {
+    background: var(--nv-ciano-forte);
+  }
+
+  /* Secundário sobre claro: contorno fino, nunca cinza-em-cinza. */
+  .nv-btn-linha {
+    background: #fff;
+    color: var(--nv-navy);
+    border: 1px solid var(--nv-borda-fria);
+    box-shadow: 0 2px 8px -4px rgba(11, 22, 38, 0.14);
+  }
+  .nv-btn-linha:hover {
+    border-color: var(--nv-ciano);
+    color: var(--nv-ciano-forte);
+  }
+
+  /* Secundário sobre navy. */
+  .nv-btn-fantasma {
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    backdrop-filter: blur(8px);
+  }
+  .nv-btn-fantasma:hover {
+    background: rgba(255, 255, 255, 0.16);
+  }
+
+  /* O link com seta que sublinha ao passar o mouse (Calendly). */
+  .nv-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1.0625rem;
+    font-weight: 600;
+    letter-spacing: -0.012em;
+    color: var(--nv-tinta);
+    padding-bottom: 6px;
+    border-bottom: 1.5px solid var(--nv-tinta);
+    transition: color 200ms ease, border-color 200ms ease, gap 200ms ease;
+  }
+  .nv-link:hover {
+    color: var(--nv-ciano-forte);
+    border-color: var(--nv-ciano);
+    gap: 12px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .lp-novare .nv-btn:hover {
+      transform: none;
+    }
+    .lp-novare .nv-link:hover {
+      gap: 8px;
+    }
+  }
+
+  /* ========================================================== 5. TEXTURAS */
+
+  /* Grade fina que some nas bordas: profundidade sem imagem e sem peso. */
+  .nv-grade {
+    position: relative;
+    isolation: isolate;
+  }
+  .nv-grade::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+    background-size: 68px 68px;
+    mask-image: radial-gradient(82% 68% at 50% 38%, #000 28%, transparent 100%);
+  }
+
+  /* O papel milimetrado claro — o fundo dos cartões de produto do Shotbase. */
+  .nv-milimetrado {
+    background-image:
+      linear-gradient(rgba(10, 21, 33, 0.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(10, 21, 33, 0.035) 1px, transparent 1px);
+    background-size: 26px 26px;
+  }
+
+  /* As quatro auroras dos módulos (Calendly). Cada módulo tem a sua, e é a
+     troca de cor entre elas que faz a pilha parecer um produto com partes
+     distintas em vez de quatro seções iguais. */
+  .nv-aurora-1 {
+    background:
+      radial-gradient(60% 70% at 12% 20%, #cfe8f5 0%, transparent 60%),
+      radial-gradient(55% 65% at 88% 15%, #bcd9f2 0%, transparent 62%),
+      radial-gradient(70% 80% at 70% 95%, #e6f2f8 0%, transparent 65%),
+      linear-gradient(135deg, #dbecf7 0%, #cbe2f2 100%);
+  }
+  .nv-aurora-2 {
+    background:
+      radial-gradient(60% 70% at 18% 82%, #d6efe6 0%, transparent 60%),
+      radial-gradient(55% 65% at 85% 18%, #cfe6f6 0%, transparent 62%),
+      radial-gradient(70% 80% at 50% 50%, #e8f5f0 0%, transparent 70%),
+      linear-gradient(140deg, #d9efe9 0%, #c9e4f1 100%);
+  }
+  .nv-aurora-3 {
+    background:
+      radial-gradient(60% 70% at 10% 25%, #f5e3d6 0%, transparent 58%),
+      radial-gradient(60% 70% at 90% 80%, #dde7f4 0%, transparent 62%),
+      linear-gradient(135deg, #f2e6db 0%, #d9e5f2 100%);
+  }
+  .nv-aurora-virada {
+    background:
+      radial-gradient(70% 60% at 8% 10%, #2f6fb5 0%, transparent 62%),
+      radial-gradient(60% 55% at 92% 22%, #7b6fc4 0%, transparent 60%),
+      radial-gradient(75% 70% at 78% 92%, #f0d9c6 0%, transparent 62%),
+      radial-gradient(70% 65% at 18% 96%, #e9dcc9 0%, transparent 60%),
+      linear-gradient(140deg, #1f4f86 0%, #5a63ae 46%, #e9d7c4 100%);
+    color: #fff;
+  }
+
+  .nv-aurora-4 {
+    background:
+      radial-gradient(60% 70% at 15% 15%, #e0dcf3 0%, transparent 60%),
+      radial-gradient(60% 70% at 88% 85%, #cfe6f4 0%, transparent 62%),
+      linear-gradient(140deg, #e3def2 0%, #cee4f3 100%);
+  }
+
+  /* O texto do painel de dor reflui quando a largura muda — e ver as
+     palavras se reacomodando durante a animação é horrível. Ele entra
+     DEPOIS que a largura já assentou: enquanto o painel abre, o bloco está
+     invisível, e a requebra acontece onde ninguém vê. */
+  .nv-dor-texto {
+    animation: nv-aparece 260ms ease-out 300ms backwards;
+  }
+
+  @keyframes nv-aparece {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .lp-novare .nv-dor-texto {
+      animation: none;
+    }
+  }
+
+  /* ============================================ 5b. O PAINEL QUE CRESCE */
+
+  /* O módulo entra estreito e abre até a largura da página conforme sobe na
+     tela — o gesto do Calendly. É animação ligada à ROLAGEM, não ao tempo:
+     `animation-timeline: view()` roda no compositor do navegador, sem um
+     único listener de scroll em JavaScript.
+
+     Quem não tem suporte (Safari, Firefox) simplesmente vê o painel já
+     aberto, que é o estado final. Quem pediu menos movimento, idem.
+
+     O envelope é que anima, não o painel: o painel é `sticky`, e animar
+     margem nele brigaria com o empilhamento. */
+  .nv-cresce {
+    padding-inline: 0;
+  }
+
+  @media (min-width: 1024px) and (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      .nv-cresce {
+        animation: nv-crescer linear both;
+        animation-timeline: view();
+        animation-range: entry 0% entry 90%;
+      }
+    }
+  }
+
+  @keyframes nv-crescer {
+    from {
+      padding-inline: 7%;
+    }
+    to {
+      padding-inline: 0;
+    }
+  }
+
+  /* ====================================================== 6. O LETREIRO */
+
+  .nv-letreiro {
+    display: flex;
+    width: max-content;
+    animation: nv-anda 52s linear infinite;
+  }
+
+  @keyframes nv-anda {
+    from {
+      transform: translate3d(0, 0, 0);
+    }
+    to {
+      transform: translate3d(-50%, 0, 0);
+    }
+  }
+
+  /* ==================================================== 7. O TRILHO SNAP */
+
+  /* A margem de entrada vem de uma variável porque precisa ser escrita DUAS
+     vezes: em `padding-left`, que empurra o primeiro cartão para a coluna
+     do texto, e em `scroll-padding-left`, que move o início do snapport.
+
+     Sem a segunda, o `scroll-snap-type: x mandatory` rola o trilho sozinho
+     para encostar o primeiro cartão na borda — e a margem some no
+     carregamento, sem nenhum erro no console. */
+  .nv-trilho {
+    display: flex;
+    gap: 20px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    padding-bottom: 6px;
+    padding-left: var(--nv-margem, 0px);
+    padding-right: var(--nv-margem, 0px);
+    scroll-padding-left: var(--nv-margem, 0px);
+  }
+  .nv-trilho::-webkit-scrollbar {
+    display: none;
+  }
+  .nv-trilho > * {
+    scroll-snap-align: center;
+    flex: none;
+  }
+
+  /* ================================================== 8. CARTÕES SOLTOS */
+
+  /* O cartão "polaroid" pregado do herói (Visor). A rotação vem de uma
+     variável para cada cartão ter a sua sem uma classe por ângulo. */
+  .nv-fixado {
+    position: absolute;
+    transform: rotate(var(--nv-giro, 0deg));
+    border-radius: 18px;
+    background: #fff;
+    padding: 10px 10px 8px;
+    box-shadow:
+      0 1px 2px rgba(10, 21, 33, 0.08),
+      0 18px 40px -22px rgba(10, 21, 33, 0.45);
+    transition: transform 420ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .nv-fixado:hover {
+    transform: rotate(var(--nv-giro, 0deg)) translateY(-6px) scale(1.03);
+  }
+
+  /* As polaroides nascem amontoadas no meio, atrás do cartão da Íris, e são
+     atiradas para os seus lugares quando a vitrine entra na tela.
+
+     O disparo vem do `data-estourou` que o `Palco` escreve (JS), e não de
+     `animation-timeline: view()`: a linha do tempo de rolagem só existe em
+     Chrome e Edge, e deixaria Safari e Firefox — metade do tráfego de
+     celular — sem animação nenhuma.
+
+     `backwards` (e não `both`) é o detalhe que devolve o `:hover` acima: com
+     `both` o elemento ficaria preso no último quadro para sempre. */
+  .nv-palco[data-estourou="nao"] .nv-fixado {
+    opacity: 0;
+  }
+
+  .nv-palco[data-estourou="sim"] .nv-fixado {
+    animation: nv-estoura 820ms cubic-bezier(0.16, 1, 0.3, 1) backwards;
+    animation-delay: var(--nv-atraso, 0ms);
+  }
+
+  @keyframes nv-estoura {
+    from {
+      transform: translate(var(--nv-dx, 0), var(--nv-dy, 0)) rotate(0deg)
+        scale(0.45);
+      opacity: 0;
+    }
+    55% {
+      opacity: 1;
+    }
+    to {
+      transform: translate(0, 0) rotate(var(--nv-giro, 0deg)) scale(1);
+      opacity: 1;
+    }
+  }
+
+  /* ------------------------------------------------- a troca dos passos -- */
+
+  /* O bloco de texto e o cartão do painel entram subindo. São dois tempos
+     de propósito: o texto primeiro, o painel logo atrás — a diferença é o
+     que faz a troca parecer coreografada em vez de um corte seco. */
+  .nv-troca {
+    animation: nv-troca-entra 480ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .nv-troca-painel {
+    animation: nv-troca-painel 620ms cubic-bezier(0.22, 1, 0.36, 1) 60ms both;
+  }
+
+  @keyframes nv-troca-entra {
+    from {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @keyframes nv-troca-painel {
+    from {
+      opacity: 0;
+      transform: translateY(26px) scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  .nv-troca-fade {
+    animation: nv-troca-fade 520ms ease-out both;
+  }
+
+  @keyframes nv-troca-fade {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes nv-desliza-esq {
+    from {
+      opacity: 0;
+      transform: translateX(36px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @keyframes nv-desliza-dir {
+    from {
+      opacity: 0;
+      transform: translateX(-36px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  /* A seta que avisa que a seção pede rolagem. */
+  .nv-role {
+    animation: nv-role-desce 1.6s ease-in-out infinite;
+  }
+
+  @keyframes nv-role-desce {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(5px);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .lp-novare .nv-troca,
+    .lp-novare .nv-troca-painel,
+    .lp-novare .nv-troca-fade,
+    .lp-novare .nv-role,
+    .lp-novare [style*="nv-desliza"] {
+      animation: none !important;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .lp-novare .nv-fixado,
+    .lp-novare .nv-fixado:hover {
+      transition: none;
+      transform: rotate(var(--nv-giro, 0deg));
+    }
+    .lp-novare .nv-letreiro {
+      animation: none;
+    }
+    .lp-novare .nv-trilho {
+      scroll-behavior: auto;
+    }
+  }
+
+  /* ===================================================== 9. A MOLDURA UI */
+
+  /* A janela de aplicativo usada nas maquetes. Barra de título com os três
+     pontos, conteúdo por baixo. Existe como classe porque aparece em cinco
+     lugares e precisa ser a MESMA janela nos cinco. */
+  .nv-janela {
+    border-radius: 18px;
+    overflow: hidden;
+    background: #fff;
+    border: 1px solid rgba(10, 21, 33, 0.07);
+    box-shadow:
+      0 2px 4px rgba(10, 21, 33, 0.05),
+      0 30px 70px -34px rgba(10, 21, 33, 0.5);
+  }
+
+  .nv-janela-barra {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    height: 36px;
+    padding-inline: 14px;
+    background: #f5f7fa;
+    border-bottom: 1px solid rgba(10, 21, 33, 0.06);
+  }
+
+  .nv-janela-ponto {
+    width: 9px;
+    height: 9px;
+    border-radius: 999px;
+    background: #d5dce4;
+  }
+
+  /* ================================================ 10. A BARRA DE AÇÃO */
+
+  .nv-barra-fixa {
+    transform: translateY(130%);
+    transition: transform 380ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .nv-barra-fixa[data-visivel="sim"] {
+    transform: translateY(0);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .lp-novare .nv-barra-fixa {
+      transition: none;
+    }
+  }
+
+  /* ================================================== 11. O ACORDEÃO FAQ */
+
+  /* A resposta abre por `grid-template-rows: 0fr → 1fr`. É a única técnica
+     que anima ALTURA AUTOMÁTICA sem medir nada em JavaScript — e sem o
+     `max-height` chutado que ou corta o texto longo ou faz a resposta curta
+     abrir com meio segundo de vazio. */
+  .nv-resposta {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 380ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .nv-resposta[data-aberta="sim"] {
+    grid-template-rows: 1fr;
+  }
+  .nv-resposta > div {
+    overflow: hidden;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .lp-novare .nv-resposta {
+      transition: none;
+    }
+  }
+
+  /* ================================================== 12. A TRILHA DE PASSOS */
+
+  /* A régua vertical do bloco de passos (Shotbase). O passo ativo acende o
+     próprio pedaço da régua; os outros ficam pontilhados. */
+  .nv-passo {
+    position: relative;
+    padding-left: 28px;
+  }
+  .nv-passo::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    border-radius: 999px;
+    background: repeating-linear-gradient(
+      180deg,
+      var(--nv-borda-fria) 0 6px,
+      transparent 6px 12px
+    );
+    transition: background 400ms ease;
+  }
+  .nv-passo[data-ativo="sim"]::before {
+    background: var(--nv-ciano);
+  }
+}
+
+/* ==========================================================================
+   O BOTÃO DE ASSINAR, VESTIDO PARA ESTA PÁGINA
+   --------------------------------------------------------------------------
+   `BotaoAssinarPlano` é o botão de conversão do Hub inteiro e não aceita
+   classe de fora — de propósito: é ele que garante que todo CTA de
+   assinatura do site vá para o mesmo lugar, com o mesmo rótulo. Mas ele
+   nasce `rounded-xl` e aqui convive com cápsulas.
+
+   Estas regras o acertam SÓ dentro de `.lp-novare`, e ficam FORA de
+   qualquer `@layer` de propósito: regra sem camada vence qualquer camada,
+   e é a única forma de passar por cima do Tailwind sem espalhar
+   `!important` pelo arquivo.
+   ========================================================================== */
+.lp-novare .cta-varredura {
+  border-radius: 999px;
+  min-height: 56px;
+  padding-inline: 28px;
+  font-family: var(--nv-texto);
+  font-size: 1.0625rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
