@@ -27,6 +27,7 @@ import { Comparativo } from "@/components/lp/Comparativo";
 import { Preco } from "@/components/lp/Preco";
 import { Duvidas } from "@/components/lp/Duvidas";
 import { MaqueteFinCash, MaqueteMarco } from "@/components/lp/maquetes";
+import { TelaWorkspace } from "@/components/lp/Telas";
 
 import {
   ASSINATURA_GARANTIA_DIAS,
@@ -36,6 +37,7 @@ import {
   DIMENSOES,
   FATOS,
   FIN_CASH,
+  FIN_PLAN,
   MANIFESTO,
   MECANISMOS,
   MODULOS,
@@ -326,6 +328,46 @@ export default function AssinarPage() {
           </div>
 
           <Modulos />
+        </section>
+
+        {/* ═══════════════════════ 7b. O WORKSPACE, EM TELA REAL ═══════ */}
+        {/*
+            ONDE A PÁGINA FINALMENTE MOSTRA O PRODUTO.
+
+            Até aqui a landing inteira argumentava com ilustração: maquetes
+            desenhadas em CSS, fotos dos sócios, logos. Nenhuma tela do app
+            de verdade aparecia em lugar nenhum — quem chegava via a
+            promessa, nunca o produto.
+
+            A seção vem DEPOIS dos módulos de propósito: o leitor acabou de
+            conhecer as cinco peças uma a uma, e esta é a única imagem em
+            que elas aparecem juntas, no lugar onde de fato vão estar. É a
+            resposta visual para 'onde é que isso tudo mora'.
+
+            ⚠️ Não leva CTA. Ela fica entre o catálogo (7) e o mecanismo
+            (8), duas seções que explicam; um botão aqui interromperia a
+            explicação no meio para pedir a compra, e o preço já tem a
+            seção 13 inteira para isso.
+        */}
+        <section className="nv-painel nv-painel-gelo mt-4 py-20 sm:py-28">
+          <div className="nv-caixa text-center">
+            <span className="revelar nv-pill nv-pill-ciano nv-chapeu">
+              Por dentro da assinatura
+            </span>
+            <h2 className="revelar nv-d2 mx-auto mt-7 max-w-[20ch]">
+              Tudo isso abre na mesma tela
+            </h2>
+            <p className="revelar nv-lead mx-auto mt-6 max-w-2xl">
+              Uma assinatura, um login. O {FIN_CASH} e o {FIN_PLAN} juntos no
+              primeiro card, a Íris ao lado e as {N_FERRAMENTAS} ferramentas
+              separadas por assunto — nada para instalar, nada para
+              configurar.
+            </p>
+          </div>
+
+          <div className="nv-caixa-larga revelar mt-14 sm:mt-16">
+            <TelaWorkspace />
+          </div>
         </section>
 
         {/* ══════════════════════════════════════ 8. O MECANISMO ════════ */}

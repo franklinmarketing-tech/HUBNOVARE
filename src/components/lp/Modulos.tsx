@@ -18,6 +18,7 @@ import {
   MaqueteIris,
   MaquetePlano,
 } from "@/components/lp/maquetes";
+import { TelaFinCashCelular } from "@/components/lp/Telas";
 
 /**
  * ┌── OS TRÊS MAPAS ABAIXO SÃO INDEXADOS POR `MODULOS[].chave` ───────────┐
@@ -33,7 +34,14 @@ import {
 const ICONES: Record<string, LucideIcon> = { Wallet, Target, Bot, Wrench, Users };
 
 const MAQUETES: Record<string, React.ReactNode> = {
-  fincash: <MaqueteFinCash />,
+  /* ⚠️ O FINCASH é o ÚNICO módulo que mostra tela real em vez de maquete.
+     É o produto âncora — o que a página passou seis seções explicando — e
+     a captura diz em pixels o que o texto ao lado promete em palavras. Os
+     outros quatro seguem desenhados: se todos virassem captura, a seção
+     viraria um álbum de telas e o ritmo do zigue-zague se perderia.
+     `MaqueteFinCash` continua importada porque o HERÓI e o MECANISMO ainda
+     a usam — ela não ficou órfã. */
+  fincash: <TelaFinCashCelular />,
   finplan: <MaquetePlano />,
   iris: <MaqueteIris />,
   ferramentas: <MaqueteFerramentas />,
