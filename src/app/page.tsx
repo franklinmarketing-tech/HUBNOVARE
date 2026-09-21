@@ -17,6 +17,8 @@ import { Rodape } from "@/components/Rodape";
 import { InscreverNews } from "@/components/InscreverNews";
 import { RevelarAoRolar } from "@/components/RevelarAoRolar";
 import { portais } from "@/lib/categorias";
+import { artigosOrdenados } from "@/lib/news";
+import { FAMILIAS, ORDEM_FAMILIAS } from "@/lib/apps";
 import { appsParaBusca } from "@/lib/navegacao";
 import { getPerfil, temFichaPreenchida } from "@/lib/perfil";
 import { getNotificacoes } from "@/lib/notificacoes";
@@ -287,7 +289,16 @@ export default async function Home() {
             uma ordem pensada (vitrine na dobra, painel em seguida), e
             enfiar captação no meio empurraria o produto para baixo. */}
         <div className="mx-auto w-full max-w-6xl px-4 pb-4 pt-10 sm:pt-14">
-          <InscreverNews />
+          {/* Mesmos dados reais da página do News: assuntos das categorias,
+              contagem e a última publicada. */}
+          <InscreverNews
+            assuntos={ORDEM_FAMILIAS.map((f) => ({
+              chave: f,
+              rotulo: FAMILIAS[f],
+            }))}
+            totalEdicoes={artigosOrdenados().length}
+            ultimaEdicao={artigosOrdenados()[0]?.titulo}
+          />
         </div>
 
         <Rodape />

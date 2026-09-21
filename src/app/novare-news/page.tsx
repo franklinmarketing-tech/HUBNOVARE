@@ -171,7 +171,17 @@ export default async function NovareNewsPage({
             sem ter entregue nada. É também como a Nord faz (seção inline no
             corpo da página, nunca modal), que foi a referência pedida. */}
         <div className="mx-auto mt-16 max-w-6xl px-4 sm:mt-20">
-          <InscreverNews />
+          {/* Os assuntos, a contagem e a amostra saem dos artigos de
+              verdade — nada escrito à mão. Lista vazia ou zero artigos e a
+              seção simplesmente não mostra essas partes. */}
+          <InscreverNews
+            assuntos={ORDEM_FAMILIAS.map((f) => ({
+              chave: f,
+              rotulo: FAMILIAS[f],
+            }))}
+            totalEdicoes={todos.length}
+            ultimaEdicao={todos[0]?.titulo}
+          />
         </div>
       </main>
 
