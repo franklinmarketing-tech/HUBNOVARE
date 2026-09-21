@@ -172,7 +172,7 @@ export function RodapeNovare({
                   href="/consultoria"
                   className="text-[13px] text-white/60 transition-colors hover:text-white"
                 >
-                  Consultoria
+                  Serviços
                 </Link>
               </li>
               <li>

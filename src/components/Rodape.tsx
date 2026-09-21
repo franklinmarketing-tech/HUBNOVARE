@@ -57,11 +57,16 @@ export function Rodape() {
           >
             Sua profissão
           </Link>
+          /* ⚠️ O RÓTULO É "Serviços"; A ROTA CONTINUA /consultoria.
+             A área virou "Serviços" em 21/09 (ver `FAMILIAS.ia`), mas o
+             caminho não mudou junto: /consultoria já está em links, no
+             sitemap e indexado. Renomear URL por causa de rótulo troca SEO
+             por cosmética. */
           <Link
             href="/consultoria"
             className="text-[11px] font-medium text-slate-500 transition-colors hover:text-primary"
           >
-            Consultoria
+            Serviços
           </Link>
           <Link
             href="/assinar"

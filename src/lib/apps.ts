@@ -258,8 +258,12 @@ export const APPS: NovareApp[] = [
     _benchmarkInterno: "Cleo AI",
   },
 
-  // ============================== IA E CONSULTORIA (5 PRODUTOS OFICIAIS)
-  // Os cinco produtos e formatos de consultoria da Novare (Briefing 2026).
+  // ======================================= SERVIÇOS (5 TRABALHOS OFICIAIS)
+  // Os cinco trabalhos que a Novare executa (Briefing 2026).
+  //
+  // ⚠️ A ORDEM AQUI NÃO ESCOLHE O DESTAQUE DO CARD. Quem escolhe é o campo
+  // `foco` em `categorias.ts` — ver o comentário lá. Reordenar esta lista
+  // mexe na /aplicativos e NÃO muda a capa do card da home.
   app("ia", "consultoria-diagnostico", "Diagnóstico Gratuito", "Entenda onde você está de verdade", "/consultoria/diagnostico", "Novare Direct", {
     tipo: "servico",
     descricao:
@@ -304,7 +308,7 @@ export const APPS: NovareApp[] = [
       "Opção de contratação direta",
     ],
   }),
-  app("ia", "consultoria-revisao-carteira", "Revisão e Montagem de Carteira", "Seu dinheiro está no lugar certo?", "/consultoria/revisao-carteira", "Novare Direct", {
+  app("ia", "consultoria-revisao-carteira", "Carteira Pontual", "Seu dinheiro pode estar parado no lugar errado", "/consultoria/revisao-carteira", "Novare Direct", {
     tipo: "servico",
     descricao:
       "Analisamos produto por produto da sua carteira e mostramos o custo real e o que rende menos do que deveria.",
@@ -599,10 +603,16 @@ export const APPS: NovareApp[] = [
  */
 
 export const FAMILIAS: Record<Familia, string> = {
-  // ⚠️ Era "IA e Consultoria" até 14/09/2026 — mesmo ajuste do `curto` em
-  // `categorias.ts`. Este valor aparece nos chips de filtro de /novare-news
-  // e /aplicativos, então tinha o mesmo problema em dois lugares a mais.
-  ia: "Consultoria",
+  // ⚠️ DOIS RENOMES, NÃO UM. Era "IA e Consultoria" até 14/09/2026, quando
+  // o dono tirou o "IA" (o rótulo prometia IA e entregava formulário de
+  // consultoria). Em 21/09 virou "Serviços", por pedido dele: a área reúne
+  // cinco trabalhos que a Novare EXECUTA — gente analisando, escrevendo e
+  // sentando com o cliente —, e "Consultoria" nomeava só um formato deles.
+  //
+  // Este valor aparece nos chips de filtro de /novare-news e /aplicativos,
+  // e o `curto` de `categorias.ts` precisa dizer a mesma coisa. Mudar um e
+  // esquecer o outro foi exatamente o defeito da primeira vez.
+  ia: "Serviços",
   organizacao: "Vida Financeira",
   trabalho: "Trabalho e Salário",
   investimentos: "Investimentos",

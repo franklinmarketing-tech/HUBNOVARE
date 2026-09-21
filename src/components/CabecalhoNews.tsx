@@ -49,7 +49,8 @@ const ECOSSISTEMA = [
   },
   {
     href: "/consultoria",
-    nome: "Consultoria",
+    // Rótulo novo, rota igual — ver a nota em `Rodape.tsx`.
+    nome: "Serviços",
     desc: "Primeira análise grátis",
     icone: Users,
   },
@@ -177,7 +178,7 @@ export function CabecalhoNews() {
             href="/consultoria"
             className="flex h-10 items-center rounded-xl px-3 text-2xs font-semibold uppercase tracking-[0.12em] text-muted-foreground transition-colors hover:bg-muted hover:text-primary"
           >
-            Consultoria
+            Serviços
           </Link>
         </nav>
 

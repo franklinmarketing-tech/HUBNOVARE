@@ -36,16 +36,44 @@ export type Portal = {
 
 const CONFIG: Record<
   Familia,
-  { curto: string; descricao: string; capa: string; h: number; s: number }
+  {
+    curto: string;
+    descricao: string;
+    capa: string;
+    h: number;
+    s: number;
+    /**
+     * O slug que a área quer em PRIMEIRO lugar nos destaques.
+     *
+     * Existe porque "destacar" neste card não é força de expressão: o
+     * `destaques[0]` vira o ÍCONE PRINCIPAL do cartão (ver `CardPortal`),
+     * ou seja, o rosto da área na home. Sem este campo, o rosto era um
+     * efeito colateral da ordem do array em `apps.ts` — quem reordenasse o
+     * catálogo por outro motivo trocaria a capa da home sem perceber.
+     *
+     * Vazio = comportamento antigo, os dois primeiros abertos da área.
+     */
+    foco?: string;
+  }
 > = {
   ia: {
-    /* ⚠️ ERA "IA e Consultoria" até 14/09/2026. O dono pediu para tirar o
-       "IA": a área tem cinco produtos de CONSULTORIA (gente atendendo) e a
-       Íris, que já tem porta própria na faixa de banners logo abaixo — o
-       rótulo prometia "IA" para quem clicasse achar só formulário de
-       consultoria, que é decepção de expectativa no primeiro clique. */
-    curto: "Consultoria",
+    /* ⚠️ ESTE RÓTULO JÁ MUDOU DUAS VEZES, E POR MOTIVOS DIFERENTES.
+
+       Era "IA e Consultoria" até 14/09/2026, quando o dono tirou o "IA":
+       prometia IA e entregava formulário de consultoria, que é decepção de
+       expectativa no primeiro clique.
+
+       Virou "Serviços" em 21/09, também por pedido dele. "Consultoria"
+       nomeava só UM dos cinco trabalhos da área; "Serviços" cabe nos cinco
+       sem prometer formato nenhum. ⚠️ O `FAMILIAS.ia` de `apps.ts` precisa
+       dizer a mesma coisa — os dois alimentam telas diferentes. */
+    curto: "Serviços",
     descricao: "Onde seu dinheiro some",
+    /* A Carteira Pontual é o trabalho que a casa está empurrando agora, e
+       tem página de venda própria no site da Novare (ver `lpOficial` em
+       `consultoria.ts`). Com o foco aqui, é o ícone dela que estampa o
+       cartão de Serviços na home. */
+    foco: "consultoria-revisao-carteira",
     capa: "/cards/card-novare.webp",
     h: 188,
     s: 62,
@@ -117,8 +145,20 @@ export function portais(role: Role): Portal[] {
       /* Dois, não três: o terceiro ícone só poluía a capa do card.
          Saem dos ABERTOS pelo mesmo motivo do total — o ícone é a cara de um
          cartão que se anuncia grátis, e a cara não pode ser a de um produto
-         pago. */
-      destaques: abertos.slice(0, 2).map((a) => a.slug),
+         pago.
+
+         ⚠️ O `foco` FURA A FILA, mas só se o item estiver entre os abertos:
+         um slug com erro de digitação, ou apontando para um produto pago,
+         não quebra nada nem some com o card — apenas não fura a fila, e os
+         dois primeiros continuam valendo. */
+      destaques: (() => {
+        const slugs = abertos.map((a) => a.slug);
+        const foco = CONFIG[familia].foco;
+        const fila = foco && slugs.includes(foco)
+          ? [foco, ...slugs.filter((s) => s !== foco)]
+          : slugs;
+        return fila.slice(0, 2);
+      })(),
       itens: daArea.map((a) => ({
         slug: a.slug,
         nome: a.nome,

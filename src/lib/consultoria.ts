@@ -298,9 +298,20 @@ export const CONSULTORIAS: Consultoria[] = [
   {
     slug: "revisao-carteira",
     numero: 4,
-    nome: "Revisão e Montagem de Carteira Pontual",
+    /* ⚠️ O NOME SEGUE A PÁGINA OFICIAL, NÃO O CONTRÁRIO. A Novare publicou
+       este trabalho em diagnostico.novareapp.com.br/carteira-pontual, onde
+       ele se chama "Carteira Pontual" (a página inteira se apresenta como
+       "Diagnóstico de Carteira"). Aqui ele era "Revisão e Montagem de
+       Carteira Pontual" — mesmo serviço, terceiro nome. Cliente que viu o
+       anúncio e chega no Hub precisa reconhecer o que contratou.
+
+       ⚠️ O `slug` NÃO acompanhou o renome, de propósito: ele é a URL
+       (/consultoria/revisao-carteira) e já está em links, no catálogo de
+       `apps.ts` e nos mapas de `capas.ts`. Trocar o slug por causa do nome
+       quebraria tudo isso para ganhar cosmética. */
+    nome: "Carteira Pontual",
     subtitulo: "Análise pontual sem comissão",
-    chamada: "Seu dinheiro está rendendo o que deveria?",
+    chamada: "Seu dinheiro pode estar parado no lugar errado",
     descricao:
       "Analisamos tudo o que você tem investido atualmente (bancos, corretoras e fundos) e mostramos com transparência os custos ocultos e onde você está perdendo rentabilidade.",
     duracao: "2 encontros com relatório completo",
@@ -313,6 +324,13 @@ export const CONSULTORIAS: Consultoria[] = [
     ],
     precoCheio: 0,
     icone: "Scale",
+    /* A página de venda oficial, publicada pela Novare. O campo existia
+       vazio desde 23/08 — foi criado junto com a descoberta de que os cinco
+       `lpUrl` antigos apontavam para 404 em novareinvestimentos.com.br, e a
+       regra ficou sendo: só preenche quando a página existir de verdade.
+       Esta existe (HTTP 200, conferido). O link sai com UTM por
+       `buildTrackingUrl`, como todo link de saída da casa. */
+    lpOficial: "https://diagnostico.novareapp.com.br/carteira-pontual",
     faq: [
       {
         pergunta: "Vou descobrir que fiz besteira?",

@@ -94,10 +94,24 @@ const ICONES: Record<string, LucideIcon> = {
   // Trabalho e salário
   "assistente-ia": Bot,
 
+  // ⚠️ TRÊS DESTAS CHAVES NÃO EXISTIAM NO CATÁLOGO (corrigido em 21/09).
+  //
+  // O mapa dizia "consultoria-carteira", "consultoria-plano-de-vida" e
+  // "consultoria-acompanhamento". Os slugs reais em `apps.ts` são
+  // "consultoria-revisao-carteira", "consultoria-plano-vida" e — este nem
+  // existe mais — o acompanhamento, que virou "consultoria-financeira" e
+  // "consultoria-investimentos".
+  //
+  // Chave que não casa não quebra nada: `iconeDe` cai no `LayoutGrid`,
+  // um ícone de grade genérico. Por isso passou despercebido — até a
+  // Carteira Pontual virar o FOCO do card de Serviços, e o rosto da área
+  // na home ser justamente esse genérico. Escrever o ícone certo sob um
+  // slug errado é pior que não escrever: parece resolvido.
   "consultoria-diagnostico": ClipboardCheck,
-  "consultoria-plano-de-vida": Goal,
-  "consultoria-carteira": Scale,
-  "consultoria-acompanhamento": Handshake,
+  "consultoria-investimentos": LineChart,
+  "consultoria-plano-vida": Goal,
+  "consultoria-financeira": Handshake,
+  "consultoria-revisao-carteira": Scale,
 
   "salario-liquido": Wallet,
   "rescisao": FileText,
