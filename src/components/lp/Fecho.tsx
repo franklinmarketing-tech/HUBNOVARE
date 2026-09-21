@@ -45,6 +45,20 @@ export function Fecho() {
   return (
     <>
       <div className="nv-caixa relative text-center">
+        {/* A MARCA NO ÚLTIMO PEDIDO.
+
+            O dono achou a landing pobre de Novare, e o fecho era o ponto
+            mais gritante: a página inteira argumenta, chega na hora de
+            pedir a assinatura e quem assina não aparece. Aqui o logo não é
+            enfeite — é a assinatura embaixo da proposta. */}
+        <Image
+          src="/lp/novare-logo.png"
+          alt="Novare"
+          width={700}
+          height={200}
+          className="revelar mx-auto mb-7 h-7 w-auto opacity-90"
+        />
+
         <p className="revelar nv-chapeu text-[#17789c]">{FECHO.chapeu}</p>
 
         <h2 className="revelar nv-d1 mx-auto mt-7 max-w-[16ch] text-balance">

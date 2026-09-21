@@ -10,6 +10,7 @@ import {
   ASSINATURA_PRECO_ROTULO,
 } from "@/lib/lp-precos";
 import { N_FERRAMENTAS } from "@/lib/hub-lp";
+import { RedesSociais } from "@/components/RedesSociais";
 
 /**
  * O RODAPÉ.
@@ -113,6 +114,23 @@ export function Rodape() {
                   height={40}
                   className="mt-7 h-4 w-auto opacity-55"
                 />
+
+                {/* ⚠️ A LANDING NÃO TINHA REDE SOCIAL NENHUMA — nem aqui, nem
+                    em lugar algum dela. Quem chega por anúncio e quer conferir
+                    a casa antes de pagar não tinha por onde: a página pede o
+                    cartão e não mostra onde a Novare fala todo dia.
+
+                    ⚠️ ELAS FICAM NO RODAPÉ PORQUE ESTA PÁGINA NÃO TEM TOPO. O
+                    `NavLP`, que seria a barra com logo e links, existe no
+                    repositório mas nunca foi plugado — a /assinar começa
+                    direto no herói. Se um dia ela ganhar barra fixa, as redes
+                    devem subir para lá também. */}
+                <div className="mt-8">
+                  <p className="text-[0.9375rem] tracking-[-0.012em] text-white/45">
+                    A Novare todo dia
+                  </p>
+                  <RedesSociais className="mt-3 flex gap-4" tamanho="h-5 w-5" />
+                </div>
               </div>
 
               <div className="grid gap-10 sm:grid-cols-3 md:gap-14">

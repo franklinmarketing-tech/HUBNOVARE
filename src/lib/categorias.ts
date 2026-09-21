@@ -114,9 +114,27 @@ const CONFIG: Record<
        a Íris tem banner próprio logo abaixo na home e o FINPLAN tem o
        cartão grande de assinatura. ⚠️ Se um terceiro produto entrar aqui,
        reveja esta linha — ele nasceria sem entrada na home. */
-    selo: "Sob consulta",
-    destino: CARTEIRA_PONTUAL_LP,
-    destinoExterno: true,
+    /* ⚠️ SEM SELO NESTA ÁREA, e é decisão, não esquecimento.
+
+       As outras três dizem "Grátis" porque só têm ferramenta aberta. Esta
+       mistura a Íris (grátis) com a Carteira Pontual (sob consulta):
+       "Grátis" promete o que a consultoria não é, e "Sob consulta" cobra
+       pelo que a Íris não cobra. Qualquer palavra aqui mente para metade
+       do conteúdo, então o canto fica vazio. */
+    selo: "",
+    /* ⚠️ APONTAVA PARA FORA, E ISSO TIROU A PORTA DA PRÓPRIA ÁREA.
+
+       Por algumas horas em 21/09 este cartão pulava direto para a página
+       de venda, para dar o "clique direto" que o dono pediu. O efeito
+       colateral só apareceu depois: sem ele, NENHUM link da home levava a
+       /aplicativos?area=ia — a página onde mora o card da Carteira
+       Pontual, e com ela a Íris e o FINPLAN ficaram sem entrada pela área.
+
+       O clique direto continua existindo onde o dono pediu: no CARD DA
+       CARTEIRA PONTUAL, no menu do topo e nos rodapés. O cartão da área
+       volta a ser porta de área. */
+    destino: "/aplicativos?area=ia",
+    destinoExterno: false,
     capa: "/cards/card-novare.webp",
     h: 188,
     s: 62,

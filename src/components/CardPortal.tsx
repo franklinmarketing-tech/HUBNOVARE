@@ -79,11 +79,14 @@ export function CardPortal({ portal }: { portal: Portal }) {
           }}
         />
         {/* O selo vem da área — ver a nota em `categorias.ts`. Escrito à
-            mão aqui, ele anunciava "Grátis" também no cartão que abre uma
-            consultoria paga. */}
-        <span className="absolute right-3 top-3 text-2xs font-semibold uppercase tracking-wider text-white/55">
-          {portal.selo}
-        </span>
+            mão aqui, ele anunciava "Grátis" também na área que vende
+            consultoria. Vazio não renderiza: um selo em branco deixaria o
+            espaço reservado e o canto do cartão torto. */}
+        {portal.selo && (
+          <span className="absolute right-3 top-3 text-2xs font-semibold uppercase tracking-wider text-white/55">
+            {portal.selo}
+          </span>
+        )}
         <span className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-white/[0.10] ring-1 ring-white/[0.14]">
           <IconePrincipal className="h-5 w-5" strokeWidth={1.75} />
         </span>

@@ -1,3 +1,4 @@
+import Image from "next/image";
 import {
   Bot,
   Check,
@@ -167,6 +168,16 @@ function Plano({
 export function Preco() {
   return (
     <div className="mx-auto max-w-[68rem]">
+      {/* A marca em cima dos cartões de preço: é onde a pessoa decide
+          pagar, e onde ela mais precisa lembrar para QUEM está pagando. */}
+      <Image
+        src="/lp/novare-logo.png"
+        alt="Novare"
+        width={700}
+        height={200}
+        className="mx-auto mb-8 h-6 w-auto opacity-80"
+      />
+
       {/* ------------------------------------------------- a linha do topo */}
       <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-3 sm:justify-between">
         {/* Não repete o lead da seção (que já diz "sem taxa, sem fidelidade"):

@@ -41,6 +41,22 @@ type Filtro = { chave: string; rotulo: string; total: number };
  * moldura escura da marca, e duas receitas de azul lado a lado leem como
  * descuido.
  */
+
+/**
+ * O domínio de um link externo, para o card poder dizer para onde leva.
+ *
+ * Tira o `www.` porque ele não informa nada e come espaço num rótulo de
+ * 10px. Se a URL não for absoluta, devolve vazio e o rótulo some — melhor
+ * nenhum aviso do que um aviso errado.
+ */
+function dominioDe(href: string): string {
+  try {
+    return new URL(href).hostname.replace(/^www./, "");
+  } catch {
+    return "";
+  }
+}
+
 function CardWorkspace({ app }: { app: AppLeve }) {
   const Icone = iconeDe(app.slug);
 
@@ -163,9 +179,13 @@ function CardApp({ app }: { app: AppLeve }) {
               esperando ficar no Hub e caía noutro site, sem a barra lateral
               nem a busca. A seta diagonal do canto está em TODOS os cards,
               então não serve de aviso — este rótulo serve. */}
+          {/* ⚠️ O DOMÍNIO ERA ESCRITO À MÃO ("novareapp.com.br") e passou a
+              mentir quando a Carteira Pontual entrou no catálogo: ela abre
+              em diagnostico.novareapp.com.br, e o card anunciava o domínio
+              errado. Agora sai do próprio href. */}
           {app.externo && !app.emBreve && (
             <p className="mt-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-400">
-              Abre em novareapp.com.br
+              Abre em {dominioDe(app.href)}
             </p>
           )}
         </div>
