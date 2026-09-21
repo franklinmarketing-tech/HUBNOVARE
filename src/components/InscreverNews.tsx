@@ -2,61 +2,66 @@
 
 import { useState } from "react";
 import { usePathname } from "next/navigation";
-import { ArrowRight, Check, Mail, ShieldCheck, Sparkles } from "lucide-react";
+import { ArrowRight, Check, ShieldCheck, Sparkles } from "lucide-react";
 import { salvarLead } from "@/lib/leads";
+import { Logo } from "@/components/Logo";
 import { ConfirmacaoNews } from "@/components/ConfirmacaoNews";
 
 /**
  * A INSCRIÇÃO NO NOVARE NEWS.
  *
- * ═══ POR QUE NÃO É POP-UP ═════════════════════════════════════════════════
+ * ═══ POR QUE NÃO É POP-UP (PARA CAPTAR) ══════════════════════════════════
  *
- * O dono perguntou se isto precisava ser um pop-up e mandou a Nord como
- * referência ("a Nord faz isso muito bem"). Fui olhar: a Nord NÃO usa
- * pop-up. A captação dela é uma seção inline, com UM campo, repetida no
- * corpo da página em vez de interromper a leitura.
+ * O dono perguntou se isto precisava ser pop-up e mandou a Nord como
+ * referência. Fui olhar: a Nord NÃO usa pop-up para captar. A captação dela
+ * é uma seção inline, com UM campo, no corpo da página.
  *
- * Faz sentido além do gosto: quem chega no News está lendo. Um modal que
- * cobre o artigo no terceiro parágrafo compra o e-mail de alguns e custa a
- * visita de muitos, e o Chrome penaliza interstitial em celular.
+ * Quem chega no News está lendo. Um modal que cobre o artigo compra o e-mail
+ * de alguns e custa a visita de muitos, e o Chrome penaliza interstitial em
+ * celular. O pop-up desta casa é outro: `ConfirmacaoNews`, que aparece
+ * DEPOIS do sim — ver a nota longa lá.
  *
- * ═══ A SEGUNDA RODADA: "PRECISA TER MAIS VIDA E INTERAÇÃO" ═══════════════
+ * ═══ A TERCEIRA RODADA: "ARTE POLUÍDA, DUAS CORES, CADÊ A LOGO" ══════════
  *
- * A primeira versão era um campo e um botão: correta e morta. O dono pediu
- * vida e interação com o cliente. O que entrou NÃO é animação de enfeite —
- * é interação com consequência:
+ * A versão anterior era um retângulo NAVY CHAPADO com um botão laranja — o
+ * dono mediu bem: duas cores brigando num bloco só, e a marca em lugar
+ * nenhum. Três coisas mudaram:
  *
- * 1. OS ASSUNTOS SÃO ESCOLHÍVEIS, e a escolha viaja no lead
- *    (`payload.assuntos`). Quem marca "Investimentos" está dizendo o que
- *    quer ler, e isso é a diferença entre uma lista de e-mails e uma lista
- *    segmentada. São as categorias REAIS dos artigos, vindas de `FAMILIAS` —
- *    não uma lista inventada que depois não corresponde ao que se publica.
+ * 1. O FUNDO FICOU CLARO. Um bloco escuro de largura inteira no meio de uma
+ *    página clara grita mais alto que o conteúdo em volta; em cartão claro a
+ *    seção convida em vez de interromper, e o navy pode voltar a ser o que
+ *    ele é na identidade da casa: a cor do TEXTO, não do fundo.
  *
- * 2. A PROVA VEM DE DADO REAL: a contagem de edições e o título da última
- *    saem de `artigosOrdenados()`, passados por quem renderiza. Dizer "já
- *    são N edições" com N escrito à mão é número que envelhece mentindo — a
- *    casa inteira evita isso (ver `CONTAGEM` em `apps.ts`).
+ * 2. A LOGO OFICIAL ENTROU no lugar do ícone de envelope genérico. Era um
+ *    desenho do lucide que qualquer newsletter do mundo usa, ocupando o
+ *    lugar mais nobre do bloco. Agora quem assina tem nome e rosto.
  *
- * 3. O RESTO É RESPOSTA AO TOQUE: o campo acende ao receber foco, o botão só
- *    ganha cor quando o e-mail está válido (o formulário conversa enquanto a
- *    pessoa digita, em vez de reprovar depois do clique) e a confirmação
- *    devolve o que ela escolheu.
+ * 3. A PALETA APARECE INTEIRA, EM DOSE BAIXA: o fio superior passeia por
+ *    `primary` → `accent` → `success`, os chips usam `primary-light`, o
+ *    aviso usa `warning`, a confirmação usa `success`. ⚠️ O LARANJA CHEIO
+ *    ficou só no botão — é o único lugar da seção onde se clica, e cor forte
+ *    repetida deixa de indicar ação para virar papel de parede.
  *
- * ⚠️ TUDO O QUE SE MEXE ESTÁ SOB `motion-safe:`. Quem pediu menos movimento
- * no sistema recebe a mesma seção, parada — e ela continua inteira, porque
- * nenhuma informação depende do movimento para existir.
+ * ═══ A INTERAÇÃO, QUE É O QUE IMPORTA ════════════════════════════════════
  *
- * ═══ UM CAMPO OBRIGATÓRIO, E SÓ ══════════════════════════════════════════
+ * • OS ASSUNTOS SÃO ESCOLHÍVEIS e a escolha viaja no lead
+ *   (`payload.assuntos`): a diferença entre uma lista de e-mails e uma lista
+ *   segmentada. São as categorias REAIS dos artigos, vindas de `FAMILIAS`.
+ *   Opcionais de propósito — quem não marca nada recebe tudo.
+ * • A CONTAGEM E A AMOSTRA saem de `artigosOrdenados()`. Número de conteúdo
+ *   escrito à mão é número que envelhece mentindo (ver `CONTAGEM`, em
+ *   `apps.ts`).
+ * • O BOTÃO SÓ GANHA COR quando o e-mail é válido: o formulário conversa
+ *   enquanto a pessoa digita, em vez de deixá-la clicar para só então
+ *   reprovar.
  *
- * ⚠️ O `CapturaLead` desta casa pede NOME, TELEFONE e E-MAIL e abre o
- * WhatsApp no fim. Está certo para quem quer FALAR com um consultor. Aqui a
- * pessoa quer LER: pedir telefone para mandar um texto semanal é cobrar caro
- * por algo barato. Os assuntos são opcionais de propósito — quem não marcar
- * nada se inscreve igual e recebe tudo.
+ * ⚠️ TUDO O QUE SE MEXE ESTÁ SOB `motion-safe:`, e nenhuma informação
+ * depende do movimento para existir.
  *
- * ⚠️ E O BOTÃO "INSCREVA-SE" DO CABEÇALHO NÃO INSCREVIA NINGUÉM: era um link
- * que abria o WhatsApp com uma frase pronta. Quem clicasse saía do site para
- * um aplicativo de mensagem sem nunca ter deixado um e-mail.
+ * ⚠️ UM CAMPO OBRIGATÓRIO, E SÓ. O `CapturaLead` desta casa pede nome,
+ * telefone e e-mail e abre o WhatsApp — está certo para quem quer FALAR com
+ * um consultor. Aqui a pessoa quer LER: pedir telefone para mandar um texto
+ * semanal é cobrar caro por algo barato.
  */
 
 const SELOS = ["100% gratuita", "Cancele quando quiser", "Sem spam"];
@@ -64,8 +69,7 @@ const SELOS = ["100% gratuita", "Cancele quando quiser", "Sem spam"];
 /**
  * Validação frouxa de propósito: exige algo@algo.algo e nada mais. Regex
  * severa reprova endereço válido (subdomínio, `+tag`), e reprovar cliente de
- * verdade para pegar erro de digitação é mau negócio — quem erra o e-mail
- * simplesmente não recebe, e isso o banco já mostra.
+ * verdade para pegar erro de digitação é mau negócio.
  */
 function emailValido(v: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.trim());
@@ -75,7 +79,7 @@ export type AssuntoNews = { chave: string; rotulo: string };
 
 export function InscreverNews({
   titulo = "O Novare News no seu e-mail",
-  subtitulo = "Dinheiro explicado sem letra miúda: salário, dívida, imposto e investimento, com a ferramenta que resolve no fim de cada texto.",
+  subtitulo = "Dinheiro explicado sem letra miúda — e a ferramenta que resolve, no fim de cada texto.",
   assuntos = [],
   totalEdicoes,
   ultimaEdicao,
@@ -100,10 +104,9 @@ export function InscreverNews({
   const [enviado, setEnviado] = useState(false);
   const [tocado, setTocado] = useState(false);
   const [focado, setFocado] = useState(false);
-  /* ⚠️ SEPARADO DE `enviado` de propósito: o pop-up fecha, a confirmação
-     na seção FICA. Se os dois compartilhassem um estado, fechar o modal
-     devolveria o formulário vazio e a pessoa acharia que a inscrição não
-     valeu. */
+  /* ⚠️ SEPARADO DE `enviado` de propósito: o pop-up fecha, a confirmação na
+     seção FICA. Com um estado só, fechar o modal devolveria o formulário
+     vazio e a pessoa acharia que a inscrição não valeu. */
   const [modal, setModal] = useState(false);
 
   const ok = emailValido(email);
@@ -144,178 +147,183 @@ export function InscreverNews({
     <section
       id="inscrever"
       aria-labelledby="inscrever-news-titulo"
-      className={`relative overflow-hidden rounded-2xl bg-primary px-6 py-10 text-white sm:px-10 sm:py-12 ${className}`}
+      className={`relative overflow-hidden rounded-2xl border border-border bg-card shadow-card ${className}`}
     >
-      {/* O brilho que respira. É a única coisa puramente decorativa aqui, e
-          por isso a primeira a sumir em prefers-reduced-motion. */}
+      {/* O fio da paleta. É a marca aparecendo sem ocupar área: as três cores
+          da casa numa faixa de 3px, em vez de um fundo inteiro de uma só. */}
       <span
         aria-hidden
-        className="pointer-events-none absolute -top-24 left-1/2 h-64 w-[36rem] -translate-x-1/2 rounded-full opacity-60 blur-3xl motion-safe:animate-pulse"
+        className="block h-[3px] w-full"
         style={{
           background:
-            "radial-gradient(closest-side, hsl(16 80% 55% / 0.45), transparent)",
+            "linear-gradient(90deg, var(--color-primary) 0%, var(--color-accent) 55%, var(--color-success) 100%)",
         }}
       />
 
-      <div className="relative mx-auto flex max-w-3xl flex-col items-center text-center">
-        <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/10 ring-1 ring-white/15">
-          <Mail className="h-5 w-5" strokeWidth={1.75} />
-        </span>
+      <div className="relative px-6 py-9 sm:px-10 sm:py-11">
+        {/* Um respiro de cor atrás do conteúdo, quase imperceptível — o que
+            separa "card branco" de "card sem graça". */}
+        <span
+          aria-hidden
+          className="pointer-events-none absolute -top-28 left-1/2 h-56 w-[34rem] -translate-x-1/2 rounded-full opacity-[0.07] blur-3xl"
+          style={{ background: "var(--color-accent)" }}
+        />
 
-        <h2
-          id="inscrever-news-titulo"
-          className="mt-4 font-display text-xl font-bold tracking-tight sm:text-2xl"
-        >
-          {titulo}
-        </h2>
-        <p className="mt-2 max-w-xl text-sm leading-relaxed text-white/70">
-          {subtitulo}
-        </p>
+        <div className="relative mx-auto flex max-w-2xl flex-col items-center text-center">
+          {/* A MARCA no lugar onde antes havia um envelope genérico. */}
+          <Logo altura={26} />
 
-        {/* A amostra do que já existe: prova que a lista tem conteúdo, e não é
-            a promessa de uma newsletter que nunca sai. */}
-        {ultimaEdicao && !enviado && (
-          <p className="mt-5 flex max-w-xl items-start gap-2 rounded-xl bg-white/[0.07] px-4 py-3 text-left text-xs text-white/75">
-            <Sparkles className="mt-0.5 h-3.5 w-3.5 shrink-0 text-warning-claro" />
-            <span>
-              <span className="font-semibold text-white/90">
-                A última que saiu:
-              </span>{" "}
-              {ultimaEdicao}
-            </span>
+          <h2
+            id="inscrever-news-titulo"
+            className="mt-5 font-display text-xl font-bold tracking-tight text-primary sm:text-2xl"
+          >
+            {titulo}
+          </h2>
+          <p className="mt-2 max-w-lg text-sm leading-relaxed text-muted-foreground">
+            {subtitulo}
           </p>
-        )}
 
-        {enviado ? (
-          <div role="status" className="mt-7 w-full max-w-lg">
-            <p className="flex items-center justify-center gap-2 rounded-xl bg-white/10 px-4 py-3.5 text-sm font-semibold">
-              <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-success">
-                <Check className="h-3.5 w-3.5" strokeWidth={3} />
+          {/* A amostra do que já existe: prova que a lista tem conteúdo, e
+              não é a promessa de uma newsletter que nunca sai. */}
+          {ultimaEdicao && !enviado && (
+            <p className="mt-5 flex max-w-lg items-start gap-2 rounded-xl bg-primary-light px-4 py-2.5 text-left text-xs text-primary">
+              <Sparkles className="mt-0.5 h-3.5 w-3.5 shrink-0 text-accent-strong" />
+              <span>
+                <span className="font-semibold">A última que saiu:</span>{" "}
+                <span className="text-muted-foreground">{ultimaEdicao}</span>
               </span>
-              Pronto! Vai para {email.trim()}.
             </p>
-            <p className="mt-3 text-xs text-white/65">
-              {nomesEscolhidos.length
-                ? `Você vai receber ${nomesEscolhidos.join(", ")} — e pode mudar quando quiser, é só responder o e-mail.`
-                : "Você vai receber todos os assuntos. Para afinar, responda a primeira edição dizendo o que interessa."}
-            </p>
-          </div>
-        ) : (
-          <>
-            {/* ─────────────────────────── a escolha dos assuntos ───── */}
-            {assuntos.length > 0 && (
-              <fieldset className="mt-7 w-full">
-                <legend className="mb-3 w-full text-xs text-white/55">
-                  O que você quer receber?{" "}
-                  <span className="text-white/35">(opcional)</span>
-                </legend>
-                <div className="flex flex-wrap justify-center gap-2">
-                  {assuntos.map((a) => {
-                    const ativo = escolhidos.includes(a.chave);
-                    return (
-                      <button
-                        key={a.chave}
-                        type="button"
-                        onClick={() => alternar(a.chave)}
-                        aria-pressed={ativo}
-                        className={`flex items-center gap-1.5 rounded-full border px-3.5 py-2 text-xs font-semibold transition-all motion-safe:active:scale-95 ${
-                          ativo
-                            ? "border-white/70 bg-white text-primary"
-                            : "border-white/20 bg-white/[0.06] text-white/75 hover:border-white/40 hover:bg-white/10"
-                        }`}
-                      >
-                        {ativo && <Check className="h-3 w-3" strokeWidth={3} />}
-                        {a.rotulo}
-                      </button>
-                    );
-                  })}
-                </div>
-              </fieldset>
-            )}
-
-            <form
-              onSubmit={enviar}
-              noValidate
-              className="mt-5 flex w-full max-w-lg flex-col gap-2 sm:flex-row"
-            >
-              <span className="flex-1">
-                <label htmlFor="inscrever-news-email" className="sr-only">
-                  Seu melhor e-mail
-                </label>
-                <input
-                  id="inscrever-news-email"
-                  type="email"
-                  inputMode="email"
-                  autoComplete="email"
-                  placeholder="Seu melhor e-mail"
-                  value={email}
-                  onChange={(ev) => setEmail(ev.target.value)}
-                  onFocus={() => setFocado(true)}
-                  onBlur={() => {
-                    setFocado(false);
-                    setTocado(true);
-                  }}
-                  aria-invalid={erro || undefined}
-                  aria-describedby={erro ? "inscrever-news-erro" : undefined}
-                  className={`h-12 w-full rounded-xl border bg-white/[0.07] px-4 text-sm text-white transition-all placeholder:text-white/40 focus:outline-none ${
-                    erro
-                      ? "border-warning-claro"
-                      : focado
-                        ? "border-white/50 bg-white/[0.12] ring-2 ring-white/20"
-                        : "border-white/15"
-                  }`}
-                />
-              </span>
-
-              {/* O botão só ganha cor quando o e-mail serve: o formulário
-                  conversa enquanto a pessoa digita, em vez de deixá-la clicar
-                  para só então reprovar. */}
-              <button
-                type="submit"
-                className={`flex h-12 shrink-0 items-center justify-center gap-2 rounded-xl px-6 text-sm font-bold transition-all motion-safe:active:scale-95 ${
-                  ok
-                    ? "bg-accent-btn text-accent-foreground hover:bg-accent-strong"
-                    : "bg-white/15 text-white/60"
-                }`}
-              >
-                Quero receber
-                <ArrowRight className="h-4 w-4" />
-              </button>
-            </form>
-
-            {erro && (
-              <p
-                id="inscrever-news-erro"
-                className="mt-2 text-xs font-medium text-warning-claro"
-              >
-                Confira o e-mail: falta o @ ou o final (.com, .com.br).
-              </p>
-            )}
-          </>
-        )}
-
-        <ul className="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
-          {SELOS.map((s) => (
-            <li
-              key={s}
-              className="flex items-center gap-1.5 text-2xs text-white/60"
-            >
-              <ShieldCheck className="h-3.5 w-3.5 shrink-0" strokeWidth={2} />
-              {s}
-            </li>
-          ))}
-          {typeof totalEdicoes === "number" && totalEdicoes > 0 && (
-            <li className="text-2xs text-white/45">
-              {totalEdicoes} edições publicadas
-            </li>
           )}
-        </ul>
+
+          {enviado ? (
+            <div role="status" className="mt-7 w-full max-w-lg">
+              <p className="flex items-center justify-center gap-2.5 rounded-xl bg-success/10 px-4 py-3.5 text-sm font-semibold text-success-strong">
+                <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-success text-white">
+                  <Check className="h-3.5 w-3.5" strokeWidth={3} />
+                </span>
+                Pronto! Vai para {email.trim()}.
+              </p>
+              <p className="mt-3 text-xs text-muted-foreground">
+                {nomesEscolhidos.length
+                  ? `Você vai receber ${nomesEscolhidos.join(", ")} — e pode mudar quando quiser, é só responder o e-mail.`
+                  : "Você vai receber todos os assuntos. Para afinar, responda a primeira edição dizendo o que interessa."}
+              </p>
+            </div>
+          ) : (
+            <>
+              {/* ─────────────────────────── a escolha dos assuntos ───── */}
+              {assuntos.length > 0 && (
+                <fieldset className="mt-6 w-full">
+                  <legend className="mb-2.5 w-full text-2xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    O que você quer receber?
+                  </legend>
+                  <div className="flex flex-wrap justify-center gap-2">
+                    {assuntos.map((a) => {
+                      const ativo = escolhidos.includes(a.chave);
+                      return (
+                        <button
+                          key={a.chave}
+                          type="button"
+                          onClick={() => alternar(a.chave)}
+                          aria-pressed={ativo}
+                          className={`flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-xs font-semibold transition-all motion-safe:active:scale-95 ${
+                            ativo
+                              ? "border-primary bg-primary text-primary-foreground"
+                              : "border-border bg-muted/40 text-muted-foreground hover:border-primary/30 hover:text-primary"
+                          }`}
+                        >
+                          {ativo && <Check className="h-3 w-3" strokeWidth={3} />}
+                          {a.rotulo}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </fieldset>
+              )}
+
+              <form
+                onSubmit={enviar}
+                noValidate
+                className="mt-5 flex w-full max-w-lg flex-col gap-2 sm:flex-row"
+              >
+                <span className="flex-1">
+                  <label htmlFor="inscrever-news-email" className="sr-only">
+                    Seu melhor e-mail
+                  </label>
+                  <input
+                    id="inscrever-news-email"
+                    type="email"
+                    inputMode="email"
+                    autoComplete="email"
+                    placeholder="Seu melhor e-mail"
+                    value={email}
+                    onChange={(ev) => setEmail(ev.target.value)}
+                    onFocus={() => setFocado(true)}
+                    onBlur={() => {
+                      setFocado(false);
+                      setTocado(true);
+                    }}
+                    aria-invalid={erro || undefined}
+                    aria-describedby={erro ? "inscrever-news-erro" : undefined}
+                    className={`h-12 w-full rounded-xl border bg-white px-4 text-sm text-foreground transition-all placeholder:text-muted-foreground/70 focus:outline-none ${
+                      erro
+                        ? "border-warning"
+                        : focado
+                          ? "border-primary/50 ring-2 ring-primary/15"
+                          : "border-border"
+                    }`}
+                  />
+                </span>
+
+                {/* ⚠️ O ÚNICO LARANJA CHEIO DA SEÇÃO, e só quando o e-mail
+                    serve. Cor de ação repetida deixa de indicar ação. */}
+                <button
+                  type="submit"
+                  className={`flex h-12 shrink-0 items-center justify-center gap-2 rounded-xl px-6 text-sm font-bold transition-all motion-safe:active:scale-95 ${
+                    ok
+                      ? "bg-accent-btn text-accent-foreground hover:bg-accent-strong"
+                      : "bg-muted text-muted-foreground"
+                  }`}
+                >
+                  Quero receber
+                  <ArrowRight className="h-4 w-4" />
+                </button>
+              </form>
+
+              {erro && (
+                <p
+                  id="inscrever-news-erro"
+                  className="mt-2 text-xs font-medium text-accent-strong"
+                >
+                  Confira o e-mail: falta o @ ou o final (.com, .com.br).
+                </p>
+              )}
+            </>
+          )}
+
+          <ul className="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
+            {SELOS.map((s) => (
+              <li
+                key={s}
+                className="flex items-center gap-1.5 text-2xs text-muted-foreground"
+              >
+                <ShieldCheck
+                  className="h-3.5 w-3.5 shrink-0 text-success"
+                  strokeWidth={2}
+                />
+                {s}
+              </li>
+            ))}
+            {typeof totalEdicoes === "number" && totalEdicoes > 0 && (
+              <li className="text-2xs text-muted-foreground/70">
+                {totalEdicoes} edições publicadas
+              </li>
+            )}
+          </ul>
+        </div>
       </div>
 
-      {/* O pop-up DEPOIS do sim — ver a nota longa em `ConfirmacaoNews`.
-          É onde os CTAs vivem: o instante em que a pessoa acabou de
-          concordar é o único da visita em que ela está comprovadamente
-          disposta, e era justamente onde a página não pedia mais nada. */}
+      {/* O pop-up DEPOIS do sim — ver a nota em `ConfirmacaoNews`. */}
       {modal && (
         <ConfirmacaoNews
           email={email.trim()}
