@@ -13,6 +13,42 @@
 
 import type { Familia } from "@/lib/apps";
 
+/**
+ * Os blocos que um artigo pode ter além do parágrafo.
+ *
+ * Deliberadamente POUCOS. Cada tipo aqui é uma decisão de layout que o autor
+ * não precisa tomar de novo a cada texto — e cada tipo a mais é uma forma a
+ * mais de dois artigos da mesma casa não se parecerem.
+ *
+ * ⚠️ NÃO EXISTE BLOCO DE HTML LIVRE, de propósito. Ele resolveria qualquer
+ * caso futuro e destruiria a consistência: em três meses metade do acervo
+ * teria estilo próprio, e o dia de mudar a tipografia viraria uma caçada.
+ */
+export type BlocoArtigo =
+  /** Subtítulo de seção. Vira <h2> e entra no sumário do artigo. */
+  | { tipo: "titulo"; texto: string }
+  /** Lista de itens. `ordenada` troca os marcadores por números. */
+  | { tipo: "lista"; itens: string[]; ordenada?: boolean }
+  /** A frase que o artigo quer que fique. Uma por texto, no máximo duas. */
+  | { tipo: "destaque"; texto: string }
+  /**
+   * Um gráfico ou tabela desenhado em SVG, no corpo do texto.
+   *
+   * ⚠️ É SVG INLINE, NÃO IMAGEM. Gráfico exportado como PNG fica borrado no
+   * retina, pesa dez vezes mais, não acompanha o tema e some do print quando
+   * a imagem não carrega. E, principalmente: número em PNG não pode ser
+   * conferido nem corrigido — vira captura de uma conta que ninguém mais
+   * consegue refazer.
+   */
+  | { tipo: "grafico"; nome: string; legenda?: string }
+  /** Tabela simples. Rola na horizontal no celular em vez de encolher. */
+  | {
+      tipo: "tabela";
+      cabecalho: string[];
+      linhas: string[][];
+      legenda?: string;
+    };
+
 export type Artigo = {
   slug: string;
   titulo: string;
@@ -31,13 +67,232 @@ export type Artigo = {
    */
   capa: string;
   destaque?: boolean;
-  /** Parágrafos do corpo. Cada string vira um <p>. */
-  corpo: string[];
+  /**
+   * O corpo do artigo.
+   *
+   * ⚠️ STRING CONTINUA SENDO PARÁGRAFO, e isso não é detalhe: os 24 artigos
+   * escritos antes de 23/09/2026 usam `string[]` puro, e nenhum deles
+   * precisou ser tocado quando os blocos entraram. Formato novo que obriga a
+   * reescrever o acervo é formato que não se adota.
+   *
+   * Os blocos existem porque o corpo só tinha parágrafo: um texto de nove
+   * minutos virava vinte e dois parágrafos seguidos, sem subtítulo para
+   * respirar, sem lista para enumerar e sem gráfico para mostrar a conta. Na
+   * prática isso limitava o que a casa conseguia publicar — matéria curta
+   * passava, análise longa não.
+   */
+  corpo: (string | BlocoArtigo)[];
   /** A ferramenta que resolve o que o artigo acabou de explicar. */
   ferramenta: { slug: string; nome: string; href: string; externo?: boolean };
 };
 
 export const ARTIGOS: Artigo[] = [
+  /* ══════════════════════════════════════════════════════════════════════
+     ⚠️ OS TRÊS ARTIGOS ABAIXO SÃO ORIGINAIS DA NOVARE (23/09/2026).
+
+     O dono mandou três textos da Nord Investimentos como REFERÊNCIA de
+     estrutura e profundidade — e é isso que eles são aqui: referência. O
+     tema é o mesmo, a estrutura em seções com gráfico é a mesma ideia, e o
+     texto foi escrito do zero, com exemplos próprios e a voz da casa.
+
+     Copiar teria sido mais rápido e é exatamente o que não se faz: são
+     textos assinados por analistas da Nord (Ronaldo Lee, Guilherme Abreu),
+     publicados no site deles.
+
+     ⚠️ SÃO OS PRIMEIROS A USAR BLOCOS (subtítulo, lista, gráfico, tabela).
+     Os 24 anteriores seguem em `string[]` puro e não foram tocados.
+     ══════════════════════════════════════════════════════════════════════ */
+  {
+    slug: "conflito-de-interesse-quem-confere-quem-cuida-do-seu-dinheiro",
+    titulo: "Conflito de interesse: quem confere quem cuida do seu dinheiro?",
+    resumo:
+      "Não é sobre caráter, é sobre arranjo. Quando quem monta a carteira é o mesmo que a revisa, o custo não aparece no dia — aparece somado, anos depois.",
+    categoria: "investimentos",
+    data: "2026-09-23",
+    tempoLeituraMin: 8,
+    capa: "/news/conflito-de-interesse-quem-confere-quem-cuida-do-seu-dinheiro.webp",
+    destaque: true,
+    corpo: [
+      "Existe uma pergunta que quase ninguém faz ao profissional que cuida do seu dinheiro, e ela não é sobre rentabilidade: quem confere o trabalho dele?",
+      "Na maioria das estruturas patrimoniais brasileiras, a resposta honesta é ninguém. O assessor que montou a carteira é o mesmo que a revisa uma vez por ano. O contador que confere a holding foi indicado pelo advogado que a estruturou. O gerente que sugere o produto é remunerado pela instituição que o fabrica.",
+      "Nada disso pressupõe má-fé. É o ponto central deste texto, e vale dizer logo: a esmagadora maioria desses profissionais é honesta e competente. O problema não está no caráter de quem ocupa a cadeira — está no desenho da mesa.",
+      { tipo: "destaque", texto: "Problema de arranjo não se resolve com boa intenção. Se resolve com regra escrita antes." },
+      { tipo: "titulo", texto: "A pergunta certa não é se existe conflito" },
+      "Quando olhamos uma estrutura patrimonial, a pergunta nunca é se existe conflito de interesse. Existe sempre. A pergunta é qual e de que tamanho.",
+      "Todo modelo de remuneração cria um incentivo, e todo incentivo puxa a decisão para algum lado:",
+      {
+        tipo: "lista",
+        itens: [
+          "Quem ganha comissão por produto tem incentivo a recomendar o produto que paga mais, não o que serve melhor.",
+          "Quem ganha por movimentação tem incentivo a movimentar mais do que o necessário.",
+          "Quem ganha para manter uma estrutura tem incentivo a não sugerir que ela seja simplificada.",
+          "Quem cobra percentual sobre o patrimônio financeiro — inclusive nós — tem incentivo contra tudo o que reduz esse número: quitar uma dívida, comprar um imóvel, capitalizar a empresa.",
+        ],
+      },
+      "Repare que a última linha é a nossa. Está aqui de propósito: um texto sobre conflito de interesse que esconde o próprio conflito não vale a leitura. O modelo da Novare reduz os conflitos de produto e de giro, porque não recebemos comissão de banco, corretora ou seguradora. Não os zera — e dizer que zera seria justamente o tipo de frase que este artigo existe para desmontar.",
+      { tipo: "titulo", texto: "Onde o conflito mora, por tipo de profissional" },
+      "A tabela abaixo é um mapa de incentivos, não um veredito sobre pessoas. Um profissional com incentivo desalinhado pode fazer um trabalho excelente; um com incentivo alinhado pode fazer um trabalho ruim. O que o mapa mostra é onde é preciso olhar com mais atenção.",
+      {
+        tipo: "tabela",
+        cabecalho: ["Quem", "Conflito de produto", "Conflito de remuneração", "Quem o fiscaliza"],
+        linhas: [
+          ["Gerente de banco", "Alto — vende o que a casa fabrica", "Alto — metas por produto", "A própria instituição"],
+          ["Assessor comissionado", "Alto — recebe por distribuição", "Alto — varia por operação", "A corretora que o remunera"],
+          ["Corretor de seguros", "Alto — comissão embutida", "Alto — percentual do prêmio", "A seguradora"],
+          ["Advogado patrimonial", "Médio", "Médio — monta e mantém", "Ninguém, em geral"],
+          ["Contador", "Baixo", "Médio — vive da estrutura", "Ninguém, em geral"],
+          ["Consultoria sem comissão", "Baixo", "Médio — fee sobre patrimônio", "Ninguém, salvo se você contratar"],
+        ],
+        legenda:
+          "Grau de conflito por eixo, incluindo o nosso. Nenhuma linha está zerada — inclusive a última.",
+      },
+      { tipo: "titulo", texto: "O custo não aparece no dia. Aparece somado." },
+      "É isso que torna o assunto difícil: conflito de interesse raramente produz um prejuízo visível numa terça-feira. Ele produz meio ponto percentual a mais de taxa, um produto que rende um pouco menos, uma concentração que ninguém escolheu de propósito.",
+      "Um ponto percentual ao ano parece pequeno. Sobre vinte anos, não é.",
+      { tipo: "grafico", nome: "custo-que-soma", legenda: "Exemplo aritmético: R$ 500 mil a 8% ao ano, com e sem 1% de custo adicional. Não é projeção de rentabilidade." },
+      "A diferença de R$ 329 mil no fim não veio de um erro. Veio de uma taxa que ninguém questionou, ano após ano, porque quem poderia questioná-la era quem a recebia.",
+      { tipo: "titulo", texto: "Três regras práticas para a sua estrutura" },
+      {
+        tipo: "lista",
+        ordenada: true,
+        itens: [
+          "Separe quem faz de quem confere. Ao menos uma opinião por ano deve vir de alguém que não foi escolhido por quem será avaliado. Não precisa ser auditoria: precisa ser alguém sem interesse no resultado, com acesso à informação inteira e liberdade para discordar.",
+          "Escreva a regra do impedimento antes. O que acontece quando quem decide é parte interessada? Ele se afasta sozinho? Quem pode apontar o conflito sem virar inimigo da família? Regra feita durante o conflito vira negociação.",
+          "Não espere o acidente. Uma vez por ano, abra a pasta inteira de propósito: todas as estruturas, quanto custa manter cada uma, todos os custos da carteira e todas as remunerações envolvidas — inclusive as que não chegam como boleto.",
+        ],
+      },
+      { tipo: "titulo", texto: "As quatro perguntas que revelam o arranjo" },
+      "Se você fizer só uma coisa depois de ler isto, faça estas quatro perguntas a quem cuida do seu patrimônio. As respostas — e a reação a elas — dizem mais do que qualquer apresentação:",
+      {
+        tipo: "lista",
+        itens: [
+          "Como exatamente você é remunerado pelo trabalho que faz para mim?",
+          "Quais alternativas foram consideradas antes desta recomendação, e por que esta ganhou?",
+          "Quais são os três principais riscos do que você está sugerindo?",
+          "Quem enxerga o meu patrimônio inteiro, e não só o pedaço que está com você?",
+        ],
+      },
+      "Um profissional que responde as quatro sem rodeios merece mais confiança, não menos. O desconforto com a pergunta costuma ser a própria resposta.",
+    ],
+    ferramenta: {
+      slug: "consultoria-revisao-carteira",
+      nome: "Pedir uma análise independente da carteira",
+      href: "https://diagnostico.novareapp.com.br/carteira-pontual",
+      externo: true,
+    },
+  },
+  {
+    slug: "quanto-do-seu-patrimonio-esta-no-brasil",
+    titulo: "Quanto do seu patrimônio está no Brasil?",
+    resumo:
+      "Provavelmente mais do que o aplicativo mostra. A carteira diz 20% em dólar; o patrimônio inteiro, contando empresa e imóveis, pode dizer 7%.",
+    categoria: "investimentos",
+    data: "2026-09-22",
+    tempoLeituraMin: 6,
+    capa: "/news/quanto-do-seu-patrimonio-esta-no-brasil.webp",
+    corpo: [
+      "Toda vez que o país entra num ciclo de incerteza — eleição, mudança de regra tributária, ruído institucional —, a mesma pergunta chega: “quanto eu deveria ter fora do Brasil?”",
+      "A pergunta é boa. O problema é o denominador que quase todo mundo usa para respondê-la.",
+      { tipo: "titulo", texto: "O denominador errado faz a conta parecer melhor" },
+      "Quando alguém diz que tem 20% em dólar, quase sempre está falando da carteira de investimentos — o número que aparece no aplicativo da corretora. Só que a carteira raramente é o patrimônio.",
+      "Pense num caso comum: um empresário com R$ 3 milhões na carteira, R$ 3 milhões entre a casa e uma sala comercial, e uma empresa que valeria por volta de R$ 2 milhões numa venda. Patrimônio de R$ 8 milhões, dos quais R$ 600 mil estão em ativos internacionais.",
+      { tipo: "grafico", nome: "patrimonio-vs-carteira", legenda: "O mesmo valor em dólar, medido contra a carteira e contra o patrimônio inteiro." },
+      "São os mesmos R$ 600 mil nos dois casos. Contra a carteira, eles são 20% e parecem uma proteção razoável. Contra o patrimônio inteiro, são 7,5%.",
+      { tipo: "destaque", texto: "A pergunta não é “e se der ruim”. É “quanto de mim dá ruim junto?”" },
+      { tipo: "titulo", texto: "O problema não é o número. É a correlação." },
+      "Se fosse só uma questão de percentual, bastaria comprar mais dólar. O que torna a conta mais séria é que os pedaços esquecidos não são independentes entre si.",
+      {
+        tipo: "lista",
+        itens: [
+          "A empresa fatura em real e depende do consumo brasileiro.",
+          "Os imóveis são precificados em real e sofrem com juro alto.",
+          "A renda — pró-labore, dividendos, aluguel — vem toda em real.",
+          "E boa parte da carteira, mesmo a “diversificada”, está em ativos brasileiros.",
+        ],
+      },
+      "Num cenário ruim para o país, esses quatro pedaços pioram ao mesmo tempo. Não é um risco diversificado em quatro lugares: é o mesmo risco, contado quatro vezes.",
+      { tipo: "titulo", texto: "Fazer a conta pelo denominador certo muda a dose" },
+      "Quando o objetivo passa a ser um percentual do patrimônio, e não da carteira, a matemática muda de tamanho. Para levar aqueles 7,5% até 15% do patrimônio, não basta ajustar um pouco a carteira — seria preciso que perto de 40% dela estivesse em ativos internacionais.",
+      "Isso assusta quem olha só a carteira, e faz sentido para quem olha o conjunto. É a mesma dose, medida no copo certo.",
+      "Vale dizer o que isto não é: não é recomendação de comprar dólar, nem previsão sobre o Brasil. É um convite a refazer uma conta com o denominador correto antes de decidir qualquer coisa.",
+      { tipo: "titulo", texto: "Como calcular a sua exposição de verdade" },
+      {
+        tipo: "lista",
+        ordenada: true,
+        itens: [
+          "Some tudo: carteira, imóveis, participação em empresas, previdência, e o que estiver em nome da holding.",
+          "Marque cada item pela moeda e pelo país do risco — não pelo lugar onde está custodiado. Ação de empresa brasileira negociada lá fora continua sendo risco Brasil.",
+          "Divida o que é internacional de verdade pelo total. Esse é o seu número.",
+          "Só então decida se ele está onde deveria, considerando prazo, objetivo e de onde vem a sua renda.",
+        ],
+      },
+      "Quase todo mundo que faz essa conta pela primeira vez se surpreende. Não porque estava errado — mas porque estava medindo um pedaço e achando que era o todo.",
+    ],
+    ferramenta: {
+      slug: "consultoria-revisao-carteira",
+      nome: "Ver a análise de carteira da Novare",
+      href: "https://diagnostico.novareapp.com.br/carteira-pontual",
+      externo: true,
+    },
+  },
+  {
+    slug: "imposto-sobre-dividendos-o-que-muda-na-sua-conta",
+    titulo: "Imposto sobre dividendos: o que muda na sua conta",
+    resumo:
+      "O fim da isenção não pune quem distribui lucro. Pune quem decide sem entender a mecânica — e as saídas mais vendidas costumam ser as que mais custam.",
+    categoria: "investimentos",
+    data: "2026-09-21",
+    tempoLeituraMin: 7,
+    capa: "/news/imposto-sobre-dividendos-o-que-muda-na-sua-conta.webp",
+    corpo: [
+      "Por quase três décadas, dividendo no Brasil chegava líquido na conta do sócio. Isso acabou, e a mudança reorganizou decisões que estavam no piloto automático desde os anos 1990.",
+      "O que se vê desde então é uma corrida por soluções — e boa parte delas custa mais do que o imposto que promete evitar.",
+      { tipo: "titulo", texto: "A mecânica, em duas camadas" },
+      "A regra nova tem duas peças que funcionam juntas, e confundi-las é a origem de quase todo erro que aparece nas conversas:",
+      {
+        tipo: "lista",
+        itens: [
+          "Uma retenção na fonte, aplicada sobre distribuições mensais acima de um teto, ao mesmo sócio.",
+          "Um imposto mínimo anual sobre a pessoa física, que só começa a morder a partir de determinada renda e sobe em rampa até um teto.",
+        ],
+      },
+      "A segunda peça é a que mais gente entende errado. A alíquota não pula de zero para o máximo: ela sobe gradualmente entre dois pontos de renda anual.",
+      { tipo: "grafico", nome: "aliquota-dividendos", legenda: "A alíquota do imposto mínimo sobe em rampa entre as duas faixas — não em degrau." },
+      "Isso muda a conclusão prática: não existe um abismo para se evitar a todo custo logo depois do limite. Existe uma inclinação, e ela pode ser administrada ao longo do ano.",
+      { tipo: "titulo", texto: "O que costuma não funcionar" },
+      "Quatro saídas viraram lugar-comum desde a mudança. Todas têm apelo imediato e problema no médio prazo:",
+      {
+        tipo: "lista",
+        itens: [
+          "Represar lucro na holding para não pagar a retenção. O dinheiro fica preso numa estrutura que normalmente rende menos do que renderia na mão do sócio — e a diferença de rentabilidade costuma superar o imposto adiado.",
+          "Pulverizar CNPJs para diluir a base. Multiplica contabilidade, obrigação acessória e risco, e a economia raramente paga o custo somado.",
+          "Concentrar toda a distribuição em dezembro. Piora o fluxo de caixa do ano inteiro e não resolve a conta anual.",
+          "Migrar tudo para isentos no automático. A vantagem relativa dos isentos mudou com a regra nova: o que empatava antes pode não empatar agora.",
+        ],
+      },
+      { tipo: "destaque", texto: "O erro mais caro não é pagar o imposto. É deixar que ele passe a comandar decisões que existiam por outro motivo." },
+      { tipo: "titulo", texto: "O que tende a funcionar" },
+      {
+        tipo: "lista",
+        ordenada: true,
+        itens: [
+          "Planejar a titularidade. A variável mais poderosa é quem recebe, porque as faixas são por pessoa. Isso se resolve com desenho societário e sucessório, não com manobra de última hora.",
+          "Distribuir quando existe um objetivo maior do lado de fora — quitar dívida cara, capitalizar outro negócio, executar um plano sucessório — e tratar o imposto como custo de execução, não como veto.",
+          "Recalibrar a carteira considerando a nova comparação entre tributado e isento, em vez de repetir a régua antiga.",
+        ],
+      },
+      { tipo: "titulo", texto: "A pergunta que organiza tudo" },
+      "Antes de qualquer estrutura, vale responder uma coisa: o que esse dinheiro precisa fazer nos próximos cinco anos? Se a resposta for “ficar parado rendendo pouco dentro de uma holding para adiar imposto”, a conta provavelmente não fecha.",
+      "Planejamento tributário que funciona começa pelo objetivo do patrimônio e ajusta o imposto no caminho. O que começa pelo imposto costuma chegar num arranjo caro, complexo e difícil de desmontar depois.",
+    ],
+    ferramenta: {
+      slug: "consultoria-revisao-carteira",
+      nome: "Conversar sobre a sua estrutura",
+      href: "https://diagnostico.novareapp.com.br/carteira-pontual",
+      externo: true,
+    },
+  },
+
   {
     slug: "parceria-novare-nord-research-que-nao-vende-produto",
     titulo: "Novare e Nord: research que não vende produto",

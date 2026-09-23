@@ -16,6 +16,7 @@ import {
 } from "@/lib/news";
 import { FAMILIAS } from "@/lib/apps";
 import { urlAbsoluta } from "@/lib/site";
+import { CorpoArtigo } from "@/components/CorpoArtigo";
 
 export function generateStaticParams() {
   return ARTIGOS.map((a) => ({ slug: a.slug }));
@@ -161,17 +162,13 @@ export default async function ArtigoPage({
           </figure>
 
           {/* Coluna de leitura estreita de propósito: linha curta cansa
-              menos o olho do que a largura cheia do container. */}
-          <div className="mx-auto mt-10 max-w-2xl space-y-6">
-            {artigo.corpo.map((paragrafo, i) => (
-              <p
-                key={i}
-                className="text-pretty text-lg leading-[1.8] text-foreground/85"
-              >
-                {paragrafo}
-              </p>
-            ))}
-          </div>
+              menos o olho do que a largura cheia do container.
+
+              O corpo saiu daqui para `CorpoArtigo` em 23/09/2026, quando o
+              artigo deixou de ser só parágrafo e passou a aceitar subtítulo,
+              lista, gráfico e tabela. String continua virando <p>, então os
+              24 textos anteriores não mudaram em nada. */}
+          <CorpoArtigo corpo={artigo.corpo} />
 
           <div className="mx-auto mt-10 flex max-w-2xl flex-wrap items-center justify-between gap-3 border-t border-border pt-5">
             <p className="text-2xs text-muted-foreground">
