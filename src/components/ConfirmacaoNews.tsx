@@ -2,7 +2,14 @@
 
 import { useEffect, useRef } from "react";
 import Link from "next/link";
-import { ArrowRight, Check, Mail, Sparkles, X } from "lucide-react";
+import { ArrowRight, Check, Mail, Scale, Sparkles, Wallet, X } from "lucide-react";
+
+import {
+  ASSINATURA_GARANTIA_DIAS,
+  ASSINATURA_PRECO_ANUAL_MENSAL_ROTULO,
+} from "@/lib/assinatura";
+import { CARTEIRA_PONTUAL_LP } from "@/lib/consultoria";
+import { doCatalogo } from "@/components/CardProdutoHome";
 
 /**
  * O POP-UP DE CONFIRMAÇÃO DA INSCRIÇÃO.
@@ -19,11 +26,15 @@ import { ArrowRight, Check, Mail, Sparkles, X } from "lucide-react";
  * comprovadamente disposta — e era exatamente o instante em que a página
  * não pedia mais nada.
  *
- * ⚠️ POR ISSO ELE CARREGA OS CTAs. O dono pediu mais chamadas no News, e
- * espalhar botão pela página cansa; aqui eles chegam quando a pessoa já
- * disse sim uma vez. São dois, nunca mais: ler a última edição (barato, é o
- * que ela acabou de assinar) e conhecer o Workspace (a oferta da casa). Três
- * opções viram indecisão e ninguém clica em nenhuma.
+ * ⚠️ POR ISSO ELE CARREGA AS OFERTAS. O dono pediu mais chamadas no News, e
+ * espalhar botão pela página cansa; aqui elas chegam quando a pessoa já
+ * disse sim uma vez.
+ *
+ * São DUAS, e são as duas coisas que a Novare vende hoje: o FINCASH (entrada
+ * barata, mensal) e a Carteira Pontual (serviço pontual, para quem já tem
+ * patrimônio montado). Falam com bolsos diferentes de propósito. Uma terceira
+ * viraria indecisão — foi por isso que a última edição do News desceu de
+ * botão para link de texto.
  *
  * ═══ O QUE UM MODAL PRECISA TER PARA NÃO SER UMA ARMADILHA ═══════════════
  *
@@ -45,6 +56,9 @@ import { ArrowRight, Check, Mail, Sparkles, X } from "lucide-react";
  * dedo que rola o celular move a página atrás do modal — o defeito mais
  * comum de modal em telefone.
  */
+/** O produto sai do catálogo, para nome e chamada não divergirem dele. */
+const FINCASH = doCatalogo("fincash");
+
 export function ConfirmacaoNews({
   email,
   assuntos,
@@ -160,38 +174,80 @@ export function ConfirmacaoNews({
               : "Você vai receber todos os assuntos. Para afinar, responda a primeira edição dizendo o que interessa."}
           </p>
 
-          {/* ─────────────────────────────────── os dois CTAs ───── */}
-          <div className="mt-6 space-y-2.5">
-            {ultimaEdicaoHref && ultimaEdicao && (
-              <Link
-                href={ultimaEdicaoHref}
-                onClick={aoFechar}
-                className="flex items-center gap-3 rounded-xl border border-border p-3 text-left transition-colors hover:border-primary/30 hover:bg-muted/60"
-              >
-                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-accent-tint text-accent-strong">
-                  <Sparkles className="h-4 w-4" />
-                </span>
-                <span className="min-w-0 flex-1">
-                  <span className="block text-2xs font-semibold uppercase tracking-wider text-muted-foreground">
-                    Comece por aqui
-                  </span>
-                  <span className="line-clamp-2 text-xs font-semibold text-primary">
-                    {ultimaEdicao}
-                  </span>
-                </span>
-                <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground" />
-              </Link>
-            )}
+          {/* ═══ O QUE A CASA VENDE, NO MOMENTO EM QUE ELA PODE OFERECER ═══
 
+              ⚠️ ANTES AQUI DIZIA "Conhecer o Workspace", E ISSO NÃO VENDE
+              NADA. "Workspace" é o nome da casca, não de um produto: quem
+              acabou de deixar o e-mail não sabe o que é, não sabe quanto
+              custa e não tem motivo para clicar. O dono corrigiu — o produto
+              é o FINCASH, que tem nome, preço e página própria.
+
+              São DUAS ofertas porque são as duas coisas que a Novare vende
+              hoje, e elas falam com bolsos diferentes: o app, que é entrada
+              barata e mensal; e a análise de carteira, que é serviço pontual
+              para quem já tem patrimônio montado. Uma terceira viraria
+              indecisão — e a leitura do último texto, que era CTA, virou
+              link de texto lá embaixo por isso. */}
+          <div className="mt-6 space-y-2.5">
             <Link
-              href="/assinar"
+              href="/fincash"
               onClick={aoFechar}
-              className="flex w-full items-center justify-center gap-2 rounded-xl bg-accent-btn px-4 py-3 text-sm font-bold text-accent-foreground transition-colors hover:bg-accent-strong"
+              className="flex w-full items-center gap-3 rounded-xl bg-accent-btn p-3.5 text-left text-accent-foreground transition-colors hover:bg-accent-strong"
             >
-              Conhecer o Workspace
-              <ArrowRight className="h-4 w-4" />
+              <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-white/15">
+                <Wallet className="h-5 w-5" strokeWidth={1.9} />
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="block text-sm font-bold leading-tight">
+                  Conhecer o {FINCASH.nome}
+                </span>
+                <span className="block text-2xs leading-snug opacity-90">
+                  {FINCASH.chamada} · {ASSINATURA_PRECO_ANUAL_MENSAL_ROTULO}/mês
+                  no anual
+                </span>
+              </span>
+              <ArrowRight className="h-4 w-4 shrink-0" />
             </Link>
+
+            <a
+              href={CARTEIRA_PONTUAL_LP}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={aoFechar}
+              className="flex w-full items-center gap-3 rounded-xl border border-border p-3.5 text-left transition-colors hover:border-primary/30 hover:bg-muted/60"
+            >
+              <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-primary-light text-primary">
+                <Scale className="h-5 w-5" strokeWidth={1.9} />
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="block text-sm font-bold leading-tight text-primary">
+                  Carteira Pontual
+                </span>
+                <span className="block text-2xs leading-snug text-muted-foreground">
+                  Sua carteira lida por quem não vende produto
+                </span>
+              </span>
+              <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground" />
+            </a>
           </div>
+
+          <p className="mt-3 text-2xs text-muted-foreground">
+            {ASSINATURA_GARANTIA_DIAS} dias de garantia · cancele quando quiser
+          </p>
+
+          {/* A última edição desceu de CTA para link de texto: ela é leitura,
+              e disputar espaço visual com as duas ofertas só dividia o
+              clique de quem acabou de dizer sim. */}
+          {ultimaEdicaoHref && ultimaEdicao && (
+            <Link
+              href={ultimaEdicaoHref}
+              onClick={aoFechar}
+              className="mt-4 flex items-center justify-center gap-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-primary"
+            >
+              <Sparkles className="h-3.5 w-3.5 shrink-0 text-accent-strong" />
+              <span className="line-clamp-1">Ler: {ultimaEdicao}</span>
+            </Link>
+          )}
 
           <button
             type="button"
