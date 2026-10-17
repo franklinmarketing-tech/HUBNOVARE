@@ -63,7 +63,7 @@ const brl = (v: number) =>
 /**
  * Como uma consultoria da Novare acontece, do primeiro contato à entrega.
  *
- * É o mesmo processo para os cinco formatos — o que muda entre eles é a
+ * É o mesmo processo para qualquer serviço da casa — o que muda é a
  * profundidade da análise e o que sai no relatório, não o rito. Descrever o
  * caminho tira a maior objeção de quem nunca contratou consultoria: o medo de
  * não saber no que está entrando.
@@ -527,7 +527,7 @@ export default async function ProdutoPage({
           <TituloSecao
             sobre="Como acontece"
             titulo="Do primeiro contato à devolutiva"
-            apoio="O mesmo rito nos cinco formatos. O que muda é a profundidade da análise, não o caminho."
+            apoio="O mesmo rito do primeiro contato à devolutiva. O que muda é a profundidade da análise, não o caminho."
           />
           <ol className="revelar-escada mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {COMO_ACONTECE.map((etapa, i) => (

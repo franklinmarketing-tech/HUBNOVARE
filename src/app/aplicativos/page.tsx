@@ -63,8 +63,12 @@ export default async function AplicativosPage() {
                 A frase passou a dizer o que é verdade hoje: as ferramentas
                 são abertas, e o que se assina são os produtos. */}
             {CONTAGEM.ferramentas} ferramentas prontas para usar, todas
-            abertas, e {CONTAGEM.consultorias} formatos de consultoria. Filtre
-            por área ou busque com ⌘K.
+            abertas, e {CONTAGEM.consultorias}{" "}
+            {/* ⚠️ Concordância de verdade: a página dizia "1 formatos" desde
+                que sobrou um serviço só. O número vem de CONTAGEM, então o
+                plural tem de vir do número, não escrito à mão. */}
+            {CONTAGEM.consultorias === 1 ? "serviço" : "serviços"} de
+            consultoria. Filtre por área ou busque com ⌘K.
           </p>
 
           <div className="mt-7">

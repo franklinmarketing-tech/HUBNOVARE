@@ -410,7 +410,7 @@ export function IrisExtrato() {
               </ol>
 
               <Link
-                href="/consultoria#diagnostico"
+                href="/consultoria/revisao-carteira"
                 className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-accent-strong hover:underline"
               >
                 Quero um consultor olhando isso comigo

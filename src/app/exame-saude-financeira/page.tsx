@@ -107,17 +107,17 @@ export default function ExameSaudePage() {
           <div className="space-y-2">
             <h2 className="font-display text-xl font-bold sm:text-2xl">Quer subir a sua nota?</h2>
             <p className="max-w-lg text-sm text-white/75">
-              No Diagnóstico Gratuito, um especialista da Novare monta com você o plano pra melhorar
-              cada pilar — sem compromisso e sem comissão.
+              Na primeira análise, que é grátis, um especialista da Novare olha o que você já tem e
+              aponta o que mudar em cada pilar — sem compromisso e sem comissão.
             </p>
           </div>
           <div className="mt-5 flex shrink-0 flex-col gap-2.5 sm:mt-0">
             <Link
-              href="/consultoria#diagnostico"
+              href="/consultoria/revisao-carteira"
               className="inline-flex items-center justify-center gap-2 rounded-xl bg-accent-btn px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-accent-strong"
             >
               <Sparkles className="h-4 w-4" />
-              Agendar Diagnóstico Grátis
+              Primeira análise grátis
             </Link>
             <a
               href={falarNoWhatsApp("Olá! Fiz o Exame de Saúde Financeira e quero falar com um especialista.")}

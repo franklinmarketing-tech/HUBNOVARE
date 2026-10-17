@@ -745,8 +745,8 @@ export const ARTIGOS: Artigo[] = [
     ],
     ferramenta: {
       slug: "consultoria-diagnostico",
-      nome: "Diagnóstico Financeiro",
-      href: "/consultoria#diagnostico",
+      nome: "Carteira Pontual",
+      href: "/consultoria/revisao-carteira",
     },
   },
   {

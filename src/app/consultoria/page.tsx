@@ -14,14 +14,20 @@ import {
 import { getPerfil } from "@/lib/perfil";
 
 export const metadata: Metadata = {
-  title: "Produtos e Consultoria Particular",
+  title: "Serviços da Novare",
   description:
-    "Conheça os 5 produtos e formatos de consultoria da Novare, do Diagnóstico Gratuito à Consultoria de Investimentos em parceria com a Nord Research.",
+    "A Carteira Pontual da Novare: uma análise do que você já tem, sem comissão e sem vender produto nenhum.",
   alternates: { canonical: "/consultoria" },
 };
 
 /**
- * A vitrine dos cinco formatos de consultoria.
+ * A vitrine dos serviços da casa — hoje, um só.
+ *
+ * ⚠️ ERAM CINCO ATÉ 21/09/2026, e o texto desta tela não acompanhou a
+ * remoção: o hero continuou anunciando "cinco formatos" e mandando o
+ * visitante "começar pelo Diagnóstico Gratuito", que tinha acabado de ser
+ * apagado. Build, typecheck e os quatro guardiões passavam — nenhum deles
+ * lê promessa escrita à mão. Se um serviço voltar, o texto volta com ele.
  *
  * Antes, cada produto vinha inteiro nesta página — descrição, entrega,
  * formato, preço e FAQ, tudo empilhado cinco vezes seguidas. A landing
@@ -60,14 +66,14 @@ export default async function ConsultoriaPage() {
             Soluções completas para cada momento da sua vida financeira.
           </h1>
           <p className="mt-3 max-w-2xl text-base text-muted-foreground">
-            Cinco formatos desenhados para dar clareza, proteção e
-            rentabilidade ao seu patrimônio. Comece pelo{" "}
-            <strong className="text-foreground">Diagnóstico Gratuito</strong>{" "}
-            ou acesse a solução ideal para os seus objetivos.
+            Hoje a casa tem um serviço, e ele é direto ao ponto: a{" "}
+            <strong className="text-foreground">Carteira Pontual</strong> olha
+            o que você já tem e diz, por escrito, o que está no lugar errado —
+            sem comissão e sem vender produto nenhum.
           </p>
         </section>
 
-        {/* --------------------------------------------------- os 5 cartões */}
+        {/* ------------------------------------------------------ os cartões */}
         <section className="mt-10 grid gap-6 sm:grid-cols-2">
           {CONSULTORIAS.map((item) => (
             <Link
@@ -206,9 +212,8 @@ export default async function ConsultoriaPage() {
             </h3>
             <p className="text-sm leading-relaxed text-slate-600">
               A Novare é uma consultoria independente, sem comissão de
-              corretora. Nosso sócio e os consultores conduzem cada
-              atendimento pessoalmente — do Diagnóstico Gratuito à
-              Consultoria de Investimentos em parceria com a Nord.
+              corretora. Nosso sócio conduz cada atendimento pessoalmente, da
+              primeira análise à devolutiva por escrito.
             </p>
           </div>
         </section>
