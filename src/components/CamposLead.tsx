@@ -3,19 +3,26 @@
 import { useId, useState } from "react";
 
 /**
- * O formulário de contato — WhatsApp obrigatório, o resto opcional.
+ * O formulário de contato — nome e e-mail obrigatórios, WhatsApp opcional.
  *
- * Antes eram três campos obrigatórios: nome, WhatsApp e e-mail. A lógica
- * fazia sentido do lado de dentro (com os três, o comercial abre a conversa
- * pelo nome e não depende de o e-mail ser lido), mas do lado de fora eram
- * três barreiras entre a pessoa e o botão — logo depois de ela ter
- * preenchido uma calculadora inteira. Formulário longo em troca de um
- * relatório gratuito é onde o lead desiste.
+ * ═══ A REGRA JÁ MUDOU DUAS VEZES, E O MOTIVO IMPORTA ══════════════════════
  *
- * Agora só o WhatsApp trava o envio, porque é o único dado sem o qual o
- * comercial não consegue trabalhar. Nome e e-mail continuam sendo pedidos —
- * numa segunda linha, marcados como opcionais — e quem quiser preencher
- * preenche. Quem não quiser, envia mesmo assim.
+ * Começou com os três obrigatórios. Virou "só WhatsApp" para encurtar o
+ * formulário — mas `/api/lead` sempre rejeitou lead sem e-mail, então quem
+ * não abrisse os campos opcionais tinha o cadastro **descartado em silêncio**
+ * enquanto a tela dizia "Recebemos!". Foi assim que um sócio preencheu a
+ * ferramenta de orçamento e nunca recebeu nada.
+ *
+ * Hoje (17/10/2026) a regra é a do dono: **nome e e-mail obrigatórios,
+ * WhatsApp opcional**. O e-mail é o canal que a casa controla — é ele que
+ * permite cumprir o que a tela promete, e o aviso à equipe sai por ele. O
+ * WhatsApp depende de a pessoa apertar enviar numa aba que o navegador pode
+ * até bloquear, então não serve de barreira para ninguém.
+ *
+ * ⚠️ NÃO EXIGIR NOME EM `/api/lead`. A rota é a porta de várias telas, e a
+ * inscrição do Novare News e a lista de espera do `/assinar` mandam **só
+ * e-mail**. Endurecer lá derrubaria as duas em silêncio — o mesmo defeito,
+ * com outro nome. A exigência do nome é desta tela.
  */
 
 /** Máscara de telefone brasileiro: (19) 98861-0799 */
@@ -34,36 +41,27 @@ export const nomeValido = (v: string) => v.trim().length >= 2;
 export type DadosLead = { nome: string; telefone: string; email: string };
 
 /**
- * Dá para enviar?
+ * O que ainda falta para poder enviar — ou `null` quando está tudo certo.
  *
- * Só o WhatsApp. Nome e e-mail, quando preenchidos, precisam estar certos —
- * senão o comercial recebe "asdf" e um e-mail sem arroba —, mas em branco
- * não impedem nada.
+ * ⚠️ EXISTE PORQUE BOTÃO APAGADO NÃO EXPLICA NADA. As cinco telas que usam
+ * este formulário apenas fazem `disabled={!leadCompleto(dados)}`, e o
+ * resultado é alguém olhando um botão morto sem saber o que fazer — que foi
+ * exatamente o que aconteceu quando o e-mail virou obrigatório mas o rótulo
+ * ainda dizia "(opcional)".
  */
-/**
- * ⚠️ O E-MAIL VIROU OBRIGATÓRIO EM 17/10/2026, e a razão é um defeito real.
- *
- * Até aqui só o telefone era exigido, e nome e e-mail ficavam escondidos
- * atrás de "Quer receber por e-mail também?". Só que `/api/lead` REJEITA com
- * 400 todo lead sem e-mail — ou seja, quem não abrisse os opcionais tinha o
- * cadastro descartado em silêncio, vendo "Recebemos!" na tela.
- *
- * Eram duas regras contraditórias no mesmo fluxo. Exigir o e-mail aqui
- * resolve a contradição do lado certo: é ele que permite cumprir o que a
- * tela promete ("enviamos o próximo passo"), e agora o e-mail de confirmação
- * existe de verdade.
- */
-export const leadCompleto = (d: DadosLead) =>
-  telefoneValido(d.telefone) &&
-  emailValido(d.email) &&
-  (d.nome.trim() === "" || nomeValido(d.nome));
+export function faltaNoLead(d: DadosLead): string | null {
+  if (!nomeValido(d.nome)) return "Falta o seu nome.";
+  if (!emailValido(d.email)) return "Falta um e-mail válido.";
+  /* O WhatsApp é opcional, mas meio número preenchido é engano, não escolha. */
+  if (d.telefone.trim() !== "" && !telefoneValido(d.telefone))
+    return "O WhatsApp está incompleto — apague o campo ou termine o número.";
+  return null;
+}
 
-/**
- * A saudação da mensagem de WhatsApp, com ou sem nome.
- *
- * Com nome vazio, `Olá! Aqui é ${nome}.` virava "Olá! Aqui é ." — e é
- * exatamente o que aconteceria agora que o nome é opcional.
- */
+/** Dá para enviar? Nome e e-mail certos; telefone só se foi preenchido. */
+export const leadCompleto = (d: DadosLead) => faltaNoLead(d) === null;
+
+/** A saudação da mensagem de WhatsApp, com ou sem nome. */
 export const saudacaoLead = (nome: string) =>
   nomeValido(nome) ? `Olá! Aqui é ${nome.trim()}.` : "Olá!";
 
@@ -86,29 +84,63 @@ export function CamposLead({
   compacto?: boolean;
 }) {
   const id = useId();
-  /* ⚠️ NASCEM ABERTOS AGORA. Antes a tela mostrava só o telefone e escondia
-     nome e e-mail atrás de um botão — mas o e-mail é obrigatório desde
-     17/10 (ver `leadCompleto`), e campo obrigatório escondido atrás de um
-     link é a receita de um formulário que não envia e ninguém entende por
-     quê. O `useState` ficou para o caso de alguém querer recolher de novo. */
-  const [abertos, setAbertos] = useState(true);
+  /* O aviso do que falta só aparece depois que a pessoa saiu de algum campo:
+     dizer "falta o seu nome" num formulário que ela ainda nem tocou é
+     repreender quem não fez nada. */
+  const [tocado, setTocado] = useState(false);
+  const falta = faltaNoLead(dados);
 
   const campo =
     "h-11 w-full rounded-xl border border-border bg-white px-3.5 text-[0.9375rem] outline-none transition-colors focus:border-accent focus:ring-4 focus:ring-accent/12";
   const rotulo = "mb-1 block text-2xs font-semibold text-muted-foreground";
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-3" onBlur={() => setTocado(true)}>
+      {/* Os obrigatórios vêm primeiro: é o caminho mínimo até o botão. */}
+      <div className={compacto ? "space-y-3" : "grid gap-3 sm:grid-cols-2"}>
+        <div>
+          <label htmlFor={`${id}-nome`} className={rotulo}>
+            Seu nome <span className="text-accent-strong">*</span>
+          </label>
+          <input
+            id={`${id}-nome`}
+            type="text"
+            autoComplete="name"
+            required
+            value={dados.nome}
+            onChange={(e) => aoMudar({ ...dados, nome: e.target.value })}
+            placeholder="Como podemos te chamar"
+            className={campo}
+          />
+        </div>
+
+        <div>
+          <label htmlFor={`${id}-email`} className={rotulo}>
+            E-mail <span className="text-accent-strong">*</span>
+          </label>
+          <input
+            id={`${id}-email`}
+            type="email"
+            inputMode="email"
+            autoComplete="email"
+            required
+            value={dados.email}
+            onChange={(e) => aoMudar({ ...dados, email: e.target.value })}
+            placeholder="seu@email.com"
+            className={campo}
+          />
+        </div>
+      </div>
+
       <div>
         <label htmlFor={`${id}-tel`} className={rotulo}>
-          WhatsApp
+          WhatsApp <span className="font-normal">(opcional)</span>
         </label>
         <input
           id={`${id}-tel`}
           type="tel"
           inputMode="numeric"
           autoComplete="tel"
-          required
           value={dados.telefone}
           onChange={(e) =>
             aoMudar({ ...dados, telefone: formatarTelefone(e.target.value) })
@@ -118,47 +150,10 @@ export function CamposLead({
         />
       </div>
 
-      {abertos ? (
-        <div className={compacto ? "space-y-3" : "grid gap-3 sm:grid-cols-2"}>
-          <div>
-            <label htmlFor={`${id}-nome`} className={rotulo}>
-              Seu nome <span className="font-normal">(opcional)</span>
-            </label>
-            <input
-              id={`${id}-nome`}
-              type="text"
-              autoComplete="name"
-              value={dados.nome}
-              onChange={(e) => aoMudar({ ...dados, nome: e.target.value })}
-              placeholder="Como podemos te chamar"
-              className={campo}
-            />
-          </div>
-
-          <div>
-            <label htmlFor={`${id}-email`} className={rotulo}>
-              E-mail <span className="font-normal">(opcional)</span>
-            </label>
-            <input
-              id={`${id}-email`}
-              type="email"
-              inputMode="email"
-              autoComplete="email"
-              value={dados.email}
-              onChange={(e) => aoMudar({ ...dados, email: e.target.value })}
-              placeholder="seu@email.com"
-              className={campo}
-            />
-          </div>
-        </div>
-      ) : (
-        <button
-          type="button"
-          onClick={() => setAbertos(true)}
-          className="text-2xs font-semibold text-accent-strong underline-offset-2 hover:underline"
-        >
-          Quer receber por e-mail também? Adicionar nome e e-mail
-        </button>
+      {tocado && falta && (
+        <p className="text-2xs font-medium text-accent-strong" role="status">
+          {falta}
+        </p>
       )}
     </div>
   );

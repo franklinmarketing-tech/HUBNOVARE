@@ -58,10 +58,10 @@ import { ConfirmacaoNews } from "@/components/ConfirmacaoNews";
  * ⚠️ TUDO O QUE SE MEXE ESTÁ SOB `motion-safe:`, e nenhuma informação
  * depende do movimento para existir.
  *
- * ⚠️ UM CAMPO OBRIGATÓRIO, E SÓ. O `CapturaLead` desta casa pede nome,
- * telefone e e-mail e abre o WhatsApp — está certo para quem quer FALAR com
- * um consultor. Aqui a pessoa quer LER: pedir telefone para mandar um texto
- * semanal é cobrar caro por algo barato.
+ * ⚠️ UM CAMPO OBRIGATÓRIO, E SÓ. O `CapturaLead` desta casa exige nome e
+ * e-mail (e oferece o WhatsApp) — está certo para quem quer FALAR com um
+ * consultor. Aqui a pessoa quer LER: pedir nome para mandar um texto semanal
+ * é cobrar caro por algo barato.
  */
 
 const SELOS = ["100% gratuita", "Cancele quando quiser", "Sem spam"];
