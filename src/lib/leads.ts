@@ -29,6 +29,14 @@ export type LeadTipo =
  * A tabela precisa existir (rode `supabase/hub_leads.sql`). A policy permite
  * INSERT anônimo; a leitura fica só para admin/equipe.
  */
+/** O que a tela precisa saber para escolher a frase que vai mostrar. */
+export type ResultadoLead = {
+  /** A linha entrou em `hub_leads`. */
+  gravado: boolean;
+  /** A confirmação chegou a ser enviada para o e-mail da pessoa. */
+  emailEnviado: boolean;
+};
+
 export async function salvarLead(input: {
   email: string;
   origem?: string;
@@ -36,7 +44,7 @@ export async function salvarLead(input: {
   nome?: string | null;
   telefone?: string | null;
   payload?: Record<string, unknown>;
-}): Promise<void> {
+}): Promise<ResultadoLead> {
   try {
     /* Passa por /api/lead em vez de falar direto com o Supabase.
      *
@@ -57,10 +65,21 @@ export async function salvarLead(input: {
         payload: input.payload ?? null,
       }),
     });
-    // Não trava a tela, mas deixa rastro no console — senão um funil furado
-    // passa despercebido.
-    if (!r.ok) console.warn("[leads] não gravou o lead: HTTP", r.status);
+    if (!r.ok) {
+      console.warn("[leads] não gravou o lead: HTTP", r.status);
+      return { gravado: false, emailEnviado: false };
+    }
+    /* ⚠️ O RETORNO DEIXOU DE SER `void` em 17/10/2026. Antes esta função não
+       tinha como contar nada ao chamador, e a tela comemorava "Recebemos!"
+       mesmo em 400, 429 ou banco fora do ar — o lead sumia e ninguém via.
+       Agora a rota devolve o que aconteceu e a tela escolhe a frase. */
+    const corpo = (await r.json().catch(() => ({}))) as Partial<ResultadoLead>;
+    return {
+      gravado: corpo.gravado !== false,
+      emailEnviado: corpo.emailEnviado === true,
+    };
   } catch (e) {
     console.warn("[leads] erro inesperado ao gravar lead:", e);
+    return { gravado: false, emailEnviado: false };
   }
 }

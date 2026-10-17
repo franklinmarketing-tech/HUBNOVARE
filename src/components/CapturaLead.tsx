@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { usePathname } from "next/navigation";
-import { ArrowRight, Check, FileText, Lock } from "lucide-react";
+import { ArrowRight, Check, FileText, Lock, MessageCircle, Loader2, AlertCircle} from "lucide-react";
 import { falarNoWhatsApp } from "@/lib/contato";
 import { salvarLead, type LeadTipo } from "@/lib/leads";
 import {
@@ -35,12 +35,33 @@ export function CapturaLead({
   const pathname = usePathname();
   const [dados, setDados] = useState<DadosLead>({ nome: "", telefone: "", email: "" });
   const [enviado, setEnviado] = useState(false);
+  const [enviando, setEnviando] = useState(false);
+  const [falhou, setFalhou] = useState(false);
+  const [emailSaiu, setEmailSaiu] = useState(false);
   const ok = leadCompleto(dados);
 
-  const enviar = () => {
-    if (!ok) return;
-    setEnviado(true);
-    salvarLead({
+  /**
+   * ⚠️ ANTES ESTA FUNÇÃO MENTIA, DE TRÊS JEITOS AO MESMO TEMPO.
+   *
+   * 1. `setEnviado(true)` era a PRIMEIRA linha: a tela comemorava antes
+   *    de qualquer I/O. HTTP 400, 429, banco fora do ar — tudo mostrava
+   *    "Recebemos!". Agora o estado só muda depois da resposta.
+   * 2. `salvarLead` ia sem `await`: a Promise era descartada e nem o
+   *    console sabia se o lead tinha existido.
+   * 3. O WhatsApp abria SOZINHO, sempre. O dono pediu que fosse escolha do
+   *    cliente — e abrir aba por conta própria é o que faz o navegador
+   *    marcar o site como pop-up.
+   *
+   * ⚠️ O `window.open` SAIU DAQUI DE PROPÓSITO. Com um `await` antes dele,
+   * o navegador perde o gesto do usuário e bloqueia a aba. Agora o WhatsApp
+   * é um botão próprio na tela de sucesso: clique do usuário, aba liberada.
+   */
+  const enviar = async () => {
+    if (!ok || enviando) return;
+    setEnviando(true);
+    setFalhou(false);
+
+    const r = await salvarLead({
       email: dados.email,
       nome: dados.nome.trim(),
       telefone: dados.telefone,
@@ -48,24 +69,33 @@ export function CapturaLead({
       tipo,
       payload: produto ? { produto } : undefined,
     });
+
+    setEnviando(false);
+    if (!r.gravado) {
+      setFalhou(true);
+      return;
+    }
+    setEmailSaiu(r.emailEnviado);
+    setEnviado(true);
+
     try {
       localStorage.setItem(
         "novare:lead",
         JSON.stringify({ ...dados, origem: pathname, produto, ts: Date.now() }),
       );
     } catch {}
-    window.open(
-      falarNoWhatsApp(
-        `${saudacaoLead(dados.nome)}\n` +
-          (produto
-            ? `Quero saber mais sobre o serviço da Novare (${produto}).`
-            : "Usei as ferramentas da Novare e quero receber o relatório completo com um especialista.") +
-          `\nWhatsApp: ${dados.telefone}${linhaEmailLead(dados.email)}`,
-      ),
-      "_blank",
-      "noopener,noreferrer",
-    );
   };
+
+  /** O link do WhatsApp — agora só quando a pessoa escolher. */
+  const zap = falarNoWhatsApp(
+    `${saudacaoLead(dados.nome)}
+` +
+      (produto
+        ? `Quero saber mais sobre o serviço da Novare (${produto}).`
+        : "Usei as ferramentas da Novare e quero receber o relatório completo com um especialista.") +
+      `
+WhatsApp: ${dados.telefone}${linhaEmailLead(dados.email)}`,
+  );
 
   return (
     <section className="mx-auto max-w-3xl px-4 pb-4 print:hidden">
@@ -81,13 +111,33 @@ export function CapturaLead({
         </div>
 
         {enviado ? (
-          <p className="mt-5 flex items-center gap-2 rounded-xl bg-success/10 px-4 py-3 text-sm font-bold text-success-strong">
-            <Check className="h-4 w-4 shrink-0" />
-            {primeiroNomeLead(dados.nome)
-              ? `Recebemos, ${primeiroNomeLead(dados.nome)}!`
-              : "Recebemos!"}{" "}
-            Abrimos o WhatsApp — é só enviar.
-          </p>
+          <div className="mt-5">
+            {/* ⚠️ A FRASE DEPENDE DO QUE REALMENTE ACONTECEU. Antes ela
+                dizia "Abrimos o WhatsApp" sempre — inclusive quando nada
+                tinha sido gravado e nenhuma aba tinha aberto. */}
+            <p className="flex items-center gap-2 rounded-xl bg-success/10 px-4 py-3 text-sm font-bold text-success-strong">
+              <Check className="h-4 w-4 shrink-0" />
+              {primeiroNomeLead(dados.nome)
+                ? `Recebemos, ${primeiroNomeLead(dados.nome)}!`
+                : "Recebemos!"}{" "}
+              {emailSaiu
+                ? `Enviamos a confirmação para ${dados.email}.`
+                : "Um especialista da Novare entra em contato."}
+            </p>
+
+            {/* O WhatsApp virou ESCOLHA. Como é clique do usuário, a aba
+                não é bloqueada como pop-up — que era o motivo de o
+                `window.open` precisar ser síncrono antes. */}
+            <a
+              href={zap}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-border bg-white px-5 py-3 text-sm font-bold text-primary transition-colors hover:border-primary/30 hover:bg-muted sm:w-auto"
+            >
+              <MessageCircle className="h-4 w-4 shrink-0 text-[#25D366]" />
+              Prefere falar agora? Chamar no WhatsApp
+            </a>
+          </div>
         ) : (
           <>
             <div className="mt-5">
@@ -96,12 +146,32 @@ export function CapturaLead({
 
             <button
               onClick={enviar}
-              disabled={!ok}
+              disabled={!ok || enviando}
               className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-accent-btn px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-accent-strong disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
             >
-              Quero receber
-              <ArrowRight className="h-4 w-4" />
+              {enviando ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Enviando…
+                </>
+              ) : (
+                <>
+                  Quero receber
+                  <ArrowRight className="h-4 w-4" />
+                </>
+              )}
             </button>
+
+            {/* ⚠️ O ERRO AGORA APARECE. Antes, falha de gravação era
+                invisível: a tela mostrava sucesso e o lead sumia. Quem
+                preencheu merece saber que precisa tentar de novo. */}
+            {falhou && (
+              <p className="mt-3 flex items-start gap-2 rounded-xl bg-destructive/10 px-4 py-3 text-sm font-medium text-destructive">
+                <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+                Não conseguimos registrar agora. Tente de novo em instantes —
+                ou fale direto no WhatsApp pelo rodapé.
+              </p>
+            )}
 
             <p className="mt-2.5 flex items-center gap-1.5 text-2xs text-muted-foreground">
               <Lock className="h-3 w-3 shrink-0" />

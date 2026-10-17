@@ -40,10 +40,23 @@ export type DadosLead = { nome: string; telefone: string; email: string };
  * senão o comercial recebe "asdf" e um e-mail sem arroba —, mas em branco
  * não impedem nada.
  */
+/**
+ * ⚠️ O E-MAIL VIROU OBRIGATÓRIO EM 17/10/2026, e a razão é um defeito real.
+ *
+ * Até aqui só o telefone era exigido, e nome e e-mail ficavam escondidos
+ * atrás de "Quer receber por e-mail também?". Só que `/api/lead` REJEITA com
+ * 400 todo lead sem e-mail — ou seja, quem não abrisse os opcionais tinha o
+ * cadastro descartado em silêncio, vendo "Recebemos!" na tela.
+ *
+ * Eram duas regras contraditórias no mesmo fluxo. Exigir o e-mail aqui
+ * resolve a contradição do lado certo: é ele que permite cumprir o que a
+ * tela promete ("enviamos o próximo passo"), e agora o e-mail de confirmação
+ * existe de verdade.
+ */
 export const leadCompleto = (d: DadosLead) =>
   telefoneValido(d.telefone) &&
-  (d.nome.trim() === "" || nomeValido(d.nome)) &&
-  (d.email.trim() === "" || emailValido(d.email));
+  emailValido(d.email) &&
+  (d.nome.trim() === "" || nomeValido(d.nome));
 
 /**
  * A saudação da mensagem de WhatsApp, com ou sem nome.
@@ -73,12 +86,12 @@ export function CamposLead({
   compacto?: boolean;
 }) {
   const id = useId();
-  // Os opcionais começam fechados: a tela mostra UM campo, e quem quiser dar
-  // mais abre por conta. Se já vierem preenchidos (lead guardado de uma
-  // visita anterior), abre para a pessoa ver o que estamos enviando.
-  const [abertos, setAbertos] = useState(
-    () => dados.nome.trim() !== "" || dados.email.trim() !== "",
-  );
+  /* ⚠️ NASCEM ABERTOS AGORA. Antes a tela mostrava só o telefone e escondia
+     nome e e-mail atrás de um botão — mas o e-mail é obrigatório desde
+     17/10 (ver `leadCompleto`), e campo obrigatório escondido atrás de um
+     link é a receita de um formulário que não envia e ninguém entende por
+     quê. O `useState` ficou para o caso de alguém querer recolher de novo. */
+  const [abertos, setAbertos] = useState(true);
 
   const campo =
     "h-11 w-full rounded-xl border border-border bg-white px-3.5 text-[0.9375rem] outline-none transition-colors focus:border-accent focus:ring-4 focus:ring-accent/12";
