@@ -884,11 +884,20 @@ export const FECHO = {
 } as const;
 
 /**
- * As três telas do fecho, antes do rodapé.
+ * A tela do fecho, antes do rodapé.
  *
- * São pessoas de verdade da casa, não banco de imagem. Uma landing que
- * vende confiança financeira fechando com foto de catálogo é a definição de
- * sinal trocado.
+ * É gente de verdade da casa, não banco de imagem. Uma landing que vende
+ * confiança financeira fechando com foto de catálogo é a definição de sinal
+ * trocado.
+ *
+ * ⚠️ ERAM TRÊS CENAS até 17/10/2026 — Leonardo, a dupla, e o Jefferson. O
+ * Leonardo saiu da empresa, e com ele saíram duas das três imagens (a dele e
+ * a dos dois juntos). Sobrou uma, e em vez de preencher o grid com imagem de
+ * enfeite, o fecho passou a ser um retrato só, grande.
+ *
+ * O ganho não é só de honestidade: no desenho de três colunas o mobile
+ * escondia as laterais (`hidden sm:block`), então o celular via UMA cena de
+ * qualquer jeito. Agora vê a mesma coisa que o desktop.
  */
 export const FECHO_CENAS: ReadonlyArray<{
   imagem: string;
@@ -896,20 +905,10 @@ export const FECHO_CENAS: ReadonlyArray<{
   fita?: readonly [string, string];
 }> = [
   {
-    imagem: "/lp/recorte-leonardo-v2.png",
-    fundo:
-      "radial-gradient(70% 60% at 20% 90%, #f5d98c 0%, transparent 60%), radial-gradient(60% 60% at 85% 20%, #9fd3f2 0%, transparent 60%), linear-gradient(160deg,#cfe3f5 0%,#e8dcef 48%,#f6c9d3 100%)",
-  },
-  {
-    imagem: "/lp/recorte-hero-socios.png",
-    fundo:
-      "radial-gradient(60% 55% at 15% 25%, #b9b0f0 0%, transparent 60%), radial-gradient(55% 55% at 85% 30%, #ffd1c2 0%, transparent 60%), radial-gradient(70% 60% at 50% 100%, #bfe6c9 0%, transparent 60%), linear-gradient(160deg,#cfe3f5 0%,#efd7ea 50%,#c4e6f2 100%)",
-    fita: ["Mês", "Fechado"],
-  },
-  {
     imagem: "/lp/recorte-jefferson-v2.png",
     fundo:
       "radial-gradient(60% 60% at 80% 15%, #8fd0f0 0%, transparent 60%), radial-gradient(60% 60% at 20% 95%, #2f8fb0 0%, transparent 60%), linear-gradient(160deg,#a9d6ee 0%,#5aa8d6 55%,#1f6f9c 100%)",
+    fita: ["Mês", "Fechado"],
   },
 ];
 

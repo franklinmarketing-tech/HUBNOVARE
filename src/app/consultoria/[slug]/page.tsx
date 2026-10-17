@@ -562,7 +562,7 @@ export default async function ProdutoPage({
               mercado
             </h2>
             <p className="mt-3 max-w-md text-sm leading-relaxed text-white/75">
-              A Novare é uma consultoria de investimentos com sócios, endereço
+              A Novare é uma consultoria de investimentos com nome, endereço
               e responsabilidade — que resolveu colocar o próprio método num
               software. Do outro lado da mesa tem uma pessoa lendo os seus
               números.
@@ -583,7 +583,7 @@ export default async function ProdutoPage({
           <div className="relative hidden w-2/5 shrink-0 sm:block">
             <Image
               src="/marca/novare-site/socios-novare-alta.jpg"
-              alt="Sócios e consultores da Novare"
+              alt="Jefferson Freitas, sócio da Novare"
               fill
               sizes="340px"
               className="object-cover"

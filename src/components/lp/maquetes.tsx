@@ -313,28 +313,23 @@ export function MaqueteConsultoria({ desconto }: { desconto: string }) {
 
       <div className="p-5 sm:p-6">
         <div className="flex items-center gap-3">
-          <div className="flex -space-x-3">
-            {["/lp/socio-leonardo.webp", "/lp/socio-jefferson.webp"].map((f) => (
-              <span
-                key={f}
-                className="relative h-11 w-11 overflow-hidden rounded-full border-2 border-white bg-[#e9eef4]"
-              >
-                <Image
-                  src={f}
-                  alt=""
-                  fill
-                  sizes="44px"
-                  className="object-cover object-[center_18%]"
-                />
-              </span>
-            ))}
-          </div>
+          {/* Um avatar, não mais o par sobreposto — ver a nota em
+              `HeroVitrine`. */}
+          <span className="relative h-11 w-11 shrink-0 overflow-hidden rounded-full border-2 border-white bg-[#e9eef4]">
+            <Image
+              src="/lp/socio-jefferson.webp"
+              alt=""
+              fill
+              sizes="44px"
+              className="object-cover object-[center_18%]"
+            />
+          </span>
           <div>
             <p className="text-[0.875rem] font-semibold tracking-[-0.02em] text-[#0a1521]">
-              Leonardo e Jefferson Freitas
+              Jefferson Freitas
             </p>
             <p className="text-[0.8125rem] font-medium text-[#5b6d81]">
-              Sócios · Novare
+              Sócio · Novare
             </p>
           </div>
         </div>

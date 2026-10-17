@@ -92,26 +92,26 @@ export function Fecho() {
         </p>
       </div>
 
-      {/* --------------------------------------------------- as três telas */}
+      {/* ------------------------------------------------------- a cena */}
+      {/* ⚠️ ERAM TRÊS, EM GRADE DE 1fr/1.25fr/1fr — Leonardo, a dupla e o
+          Jefferson. Com a saída do Leonardo sobrou uma, e preencher a grade
+          com imagem de enfeite seria pior do que assumir o retrato único.
+
+          O `max-w-md` existe por isso: sem ele, uma cena só esticaria na
+          largura inteira do container largo e viraria um painel, não um
+          retrato. E o mobile não perde nada — na grade de três ele já
+          escondia as laterais. */}
       <div className="nv-caixa-larga relative mt-1">
-        <ul className="revelar-escada grid items-end gap-6 sm:grid-cols-[1fr_1.25fr_1fr] sm:gap-8 lg:gap-12">
-          {FECHO_CENAS.map((c, i) => {
-            const meio = i === 1;
-            const alturaTela = meio ? "h-[16rem]" : "h-[17rem]";
-            const alturaPessoa = meio ? "h-[21rem]" : "h-[20.5rem]";
+        <ul className="revelar-escada mx-auto grid max-w-md items-end">
+          {FECHO_CENAS.map((c) => {
             return (
-              <li
-                key={c.imagem}
-                // No celular as três telas empilhadas davam mil pixels de foto
-                // antes do rodapé; fica só a do meio, que é a que tem a fita.
-                className={`relative ${alturaPessoa} ${meio ? "" : "hidden sm:block"}`}
-              >
+              <li key={c.imagem} className="relative h-[21rem]">
                 {/* a tela */}
                 <div
-                  className={`absolute inset-x-0 bottom-0 overflow-hidden rounded-[24px] ${alturaTela}`}
+                  className="absolute inset-x-0 bottom-0 h-[16rem] overflow-hidden rounded-[24px]"
                   style={{ background: c.fundo }}
                 >
-                  <Barras quantidade={meio ? 46 : 34} altura={meio ? 150 : 120} />
+                  <Barras quantidade={46} altura={150} />
                 </div>
 
                 {/* a pessoa, livre em cima e recortada só embaixo */}
@@ -120,8 +120,8 @@ export function Fecho() {
                     src={c.imagem}
                     alt=""
                     fill
-                    sizes="(max-width: 640px) 90vw, 30vw"
-                    className={`object-contain object-bottom ${meio ? "scale-[1.15] origin-bottom" : ""}`}
+                    sizes="(max-width: 640px) 90vw, 28rem"
+                    className="origin-bottom scale-[1.15] object-contain object-bottom"
                   />
                 </div>
 

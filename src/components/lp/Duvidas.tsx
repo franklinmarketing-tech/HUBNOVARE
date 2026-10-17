@@ -89,13 +89,17 @@ export function Duvidas() {
           rel="noopener noreferrer"
           className="group mt-14 block w-full max-w-sm overflow-hidden rounded-[24px] border border-[#e8e4dc] bg-white shadow-[0_18px_44px_-26px_rgba(10,21,33,0.4)] transition-transform hover:-translate-y-0.5 lg:sticky lg:bottom-8 lg:mt-auto"
         >
-          <span className="relative block aspect-[16/9] w-full overflow-hidden bg-[#e9eef4]">
+          {/* ⚠️ O RECORTE MUDOU COM A FOTO. Em 16/9 cabiam dois bustos lado
+              a lado; a foto nova é um retrato, e 16/9 nela corta a cabeça ou
+              deixa só mesa. Em 4/3, com o foco um pouco mais alto, o rosto
+              fica inteiro e o enquadramento continua largo. */}
+          <span className="relative block aspect-[4/3] w-full overflow-hidden bg-[#e9eef4]">
             <Image
               src="/lp/hero-socios.webp"
-              alt="Leonardo e Jefferson Freitas, sócios da Novare"
+              alt="Jefferson Freitas, sócio da Novare"
               fill
               sizes="384px"
-              className="object-cover object-[center_35%]"
+              className="object-cover object-[center_25%]"
             />
           </span>
 
@@ -108,7 +112,7 @@ export function Duvidas() {
                 Clique aqui e fale conosco
               </span>
               <span className="mt-0.5 block text-[1.1875rem] leading-snug tracking-[-0.012em] text-[#5b6d81]">
-                Leonardo e Jefferson, pelo WhatsApp
+                Jefferson Freitas, pelo WhatsApp
               </span>
             </span>
           </span>

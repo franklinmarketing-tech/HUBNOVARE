@@ -13,8 +13,8 @@
  * (não pode ter número — o destinatário é escolhido por quem compartilha).
  */
 export const CONTATO = {
-  telefone: "(19) 98340-2827",
-  whatsapp: "5519983402827",
+  telefone: "(19) 98861-0799",
+  whatsapp: "5519988610799",
   email: "contato@novareapp.com.br",
   site: "novareapp.com.br",
 } as const;

@@ -70,11 +70,13 @@ export function RodapeNovare({
             </a>
           </div>
 
-          {/* Foto real dos sócios/consultores da Novare, mesclada no navy. */}
+          {/* Foto real do sócio da Novare, mesclada no navy. ⚠️ Era a dupla
+              até 17/10/2026; o arquivo continua com o mesmo nome para não
+              quebrar os 12 lugares que o referenciam. */}
           <div className="relative hidden w-2/5 shrink-0 sm:block">
             <Image
               src="/marca/novare-site/socios-novare-alta.jpg"
-              alt="Sócios e consultores da Novare"
+              alt="Jefferson Freitas, sócio da Novare"
               fill
               sizes="340px"
               className="object-cover"

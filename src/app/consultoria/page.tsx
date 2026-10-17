@@ -132,7 +132,7 @@ export default async function ConsultoriaPage() {
           <FormularioCupom />
         </div>
 
-        {/* ----------------------------- quem cuida — foto real dos sócios */}
+        {/* ------------------------------ quem cuida — foto real do sócio */}
         {/* ─── COMO A CASA TRABALHA ───
             Três emblemas 3D com o que separa a Novare de um app: gente do
             outro lado, nenhuma comissão e o método por escrito. A vitrine
@@ -194,7 +194,7 @@ export default async function ConsultoriaPage() {
           <div className="relative aspect-[5/4] w-full overflow-hidden rounded-2xl sm:w-64 sm:shrink-0">
             <Image
               src="/marca/novare-site/socios-novare-alta.jpg"
-              alt="Sócios e consultores da Novare"
+              alt="Jefferson Freitas, sócio da Novare"
               fill
               sizes="(max-width: 640px) 100vw, 256px"
               className="object-cover"
@@ -206,7 +206,7 @@ export default async function ConsultoriaPage() {
             </h3>
             <p className="text-sm leading-relaxed text-slate-600">
               A Novare é uma consultoria independente, sem comissão de
-              corretora. Nossos sócios e consultores conduzem cada
+              corretora. Nosso sócio e os consultores conduzem cada
               atendimento pessoalmente — do Diagnóstico Gratuito à
               Consultoria de Investimentos em parceria com a Nord.
             </p>

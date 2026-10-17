@@ -67,21 +67,18 @@ export function HeroVitrine() {
         {/* ------------------------------------------------- a confiança -- */}
         <div className="flex justify-center">
           <span className="inline-flex items-center gap-3 rounded-full border border-[#e8e4dc] bg-white/80 py-2 pl-2 pr-5 backdrop-blur-sm">
-            <span className="flex -space-x-2.5">
-              {["/lp/socio-leonardo.webp", "/lp/socio-jefferson.webp"].map((f) => (
-                <span
-                  key={f}
-                  className="relative h-8 w-8 overflow-hidden rounded-full border-2 border-white bg-[#e9eef4]"
-                >
-                  <Image
-                    src={f}
-                    alt=""
-                    fill
-                    sizes="32px"
-                    className="object-cover object-[center_18%]"
-                  />
-                </span>
-              ))}
+            {/* ⚠️ ERAM DOIS AVATARES SOBREPOSTOS (-space-x-2.5). Com a saída
+                do Leonardo sobrou um, e sobreposição de um elemento só é
+                código que não faz nada — por isso o wrapper de flex saiu
+                junto, em vez de ficar segurando um filho só. */}
+            <span className="relative h-8 w-8 shrink-0 overflow-hidden rounded-full border-2 border-white bg-[#e9eef4]">
+              <Image
+                src="/lp/socio-jefferson.webp"
+                alt=""
+                fill
+                sizes="32px"
+                className="object-cover object-[center_18%]"
+              />
             </span>
             <span className="text-[0.9375rem] font-medium tracking-[-0.012em] text-[#46586e]">
               {HEROI.selo}
