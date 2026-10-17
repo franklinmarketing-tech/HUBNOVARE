@@ -4,6 +4,7 @@ import { LuzDoCursor } from "@/components/LuzDoCursor";
 import { InclinaAoCursor } from "@/components/InclinaAoCursor";
 import { FitaProgresso } from "@/components/FitaProgresso";
 import { BannerConsentimento } from "@/components/BannerConsentimento";
+import { RastroDeUso } from "@/components/RastroDeUso";
 import { ConviteDeSaida } from "@/components/ConviteDeSaida";
 import { SITE_URL } from "@/lib/site";
 import "./globals.css";
@@ -123,6 +124,10 @@ export default function RootLayout({
         <InclinaAoCursor />
         <FitaProgresso />
         <BannerConsentimento />
+        {/* Mede o uso a partir da rota — ver a nota longa no componente.
+            Fica aqui para que tela nova seja medida sozinha, sem ninguem
+            precisar lembrar de instrumentar. */}
+        <RastroDeUso />
         <ConviteDeSaida />
       </body>
     </html>

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { Mail, Phone, Users } from "lucide-react";
+import { Mail, Phone, Users, Download } from "lucide-react";
 import { Cabecalho } from "@/components/Cabecalho";
 import { createClient } from "@/lib/supabase/server";
 import { getPerfil } from "@/lib/perfil";
@@ -42,19 +42,17 @@ function resumo(l: Lead): string {
   return l.origem ?? "—";
 }
 
-export default async function AdminLeadsPage() {
-  const perfil = await getPerfil();
-  if (!perfil) redirect("/login?proximo=/admin/leads");
-
-  /* Quem não é da equipe recebe 404, não "acesso restrito".
-   *
-   * A tela antes respondia 200 com um cartão de aviso: os dados ficavam
-   * protegidos, mas a resposta confirmava que a rota existe e que há uma
-   * área de administração ali. Um 404 não conta nada a quem está sondando.
-   *
-   * A verificação continua no servidor e o papel continua vindo do banco
-   * (`hub_profiles`, via getPerfil) — nunca de estado do cliente. */
-  if (perfil.role !== "admin" && perfil.role !== "equipe") notFound();
+export default async function AdminLeadsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string; tipo?: string }>;
+}) {
+  const { q, tipo: tipoFiltro } = await searchParams;
+  const busca = (q ?? "").trim().toLowerCase();
+  /* ⚠️ A GUARDA DE PAPEL SAIU DAQUI em 17/10/2026 — passou para o
+     `layout.tsx` desta pasta, que protege TODA tela sob /admin, inclusive
+     as que ainda não existem. Estava copiada em três arquivos, e três
+     cópias da mesma regra é a receita de uma tela nova nascer sem ela. */
 
   const supabase = await createClient();
   const { data } = await supabase
@@ -62,21 +60,30 @@ export default async function AdminLeadsPage() {
     .select("id, email, nome, telefone, origem, tipo, payload, criado_em")
     .order("criado_em", { ascending: false })
     .limit(500);
-  const leads = (data as Lead[]) ?? [];
+  const todos = (data as Lead[]) ?? [];
+
+  /* ⚠️ O FILTRO É EM MEMÓRIA, sobre os 500 que vieram — não no banco. Com
+     a base atual é instantâneo e evita uma consulta por tecla. Se passar
+     de alguns milhares, o lugar certo é o `.ilike()` do PostgREST, e aí a
+     paginação deixa de ser opcional. */
+  const leads = todos.filter((l) => {
+    if (tipoFiltro && l.tipo !== tipoFiltro) return false;
+    if (!busca) return true;
+    return [l.email, l.nome, l.telefone, l.origem]
+      .filter(Boolean)
+      .some((v) => String(v).toLowerCase().includes(busca));
+  });
+
+  const contagem =
+    leads.length === todos.length
+      ? `${leads.length} leads`
+      : `${leads.length} de ${todos.length} leads`;
+  const exportar = `/api/leads/csv?q=${encodeURIComponent(busca)}&tipo=${encodeURIComponent(tipoFiltro ?? '')}`;
 
   const porTipo = (t: string) => leads.filter((l) => l.tipo === t).length;
 
   return (
-    <div className="min-h-dvh">
-      <Cabecalho
-        direita={
-          <Link href="/" className="text-xs font-medium text-muted-foreground hover:text-primary">
-            Voltar ao Workspace
-          </Link>
-        }
-      />
-
-      <main className="mx-auto max-w-5xl px-4 pb-16 pt-10 sm:px-6">
+    <>
             <div className="flex flex-wrap items-end justify-between gap-4">
               <div>
                 <h1 className="font-display text-2xl font-bold text-primary">Leads captados</h1>
@@ -97,6 +104,43 @@ export default async function AdminLeadsPage() {
                 ))}
               </div>
             </div>
+
+            {/* BUSCA E EXPORT — a tela despejava 500 leads crus, sem jeito
+                de achar um. Form GET, sem JavaScript: o estado fica na URL
+                e o link pode ser mandado para a equipe já filtrado. */}
+            <form className="mt-6 flex flex-wrap items-center gap-2">
+              <input
+                type="search"
+                name="q"
+                defaultValue={q ?? ""}
+                placeholder="Buscar por e-mail, nome, telefone ou origem"
+                className="h-10 min-w-[16rem] flex-1 rounded-xl border border-border bg-white px-3.5 text-sm outline-none transition-colors focus:border-accent focus:ring-4 focus:ring-accent/12"
+              />
+              {tipoFiltro && <input type="hidden" name="tipo" value={tipoFiltro} />}
+              <button
+                type="submit"
+                className="h-10 rounded-xl bg-primary px-4 text-sm font-semibold text-white transition-colors hover:bg-primary-soft"
+              >
+                Buscar
+              </button>
+              {(busca || tipoFiltro) && (
+                <Link
+                  href="/admin/leads"
+                  className="h-10 rounded-xl border border-border px-4 text-sm font-semibold leading-10 text-muted-foreground transition-colors hover:bg-muted"
+                >
+                  Limpar
+                </Link>
+              )}
+              <a
+                href={exportar}
+                className="flex h-10 items-center gap-2 rounded-xl border border-border px-4 text-sm font-semibold text-primary transition-colors hover:bg-muted"
+              >
+                <Download className="h-4 w-4" />
+                Baixar CSV
+              </a>
+            </form>
+
+            <p className="mt-3 text-xs text-muted-foreground">{contagem}</p>
 
             {leads.length === 0 ? (
               <div className="mt-8 rounded-3xl border border-dashed border-slate-300 bg-white p-10 text-center">
@@ -165,7 +209,6 @@ export default async function AdminLeadsPage() {
                 </table>
               </div>
             )}
-      </main>
-    </div>
+    </>
   );
 }
