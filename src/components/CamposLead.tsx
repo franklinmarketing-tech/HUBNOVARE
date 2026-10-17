@@ -18,7 +18,7 @@ import { useId, useState } from "react";
  * preenche. Quem não quiser, envia mesmo assim.
  */
 
-/** Máscara de telefone brasileiro: (19) 98340-2827 */
+/** Máscara de telefone brasileiro: (19) 98861-0799 */
 export function formatarTelefone(bruto: string): string {
   const d = bruto.replace(/\D/g, "").slice(0, 11);
   if (d.length <= 2) return d;
