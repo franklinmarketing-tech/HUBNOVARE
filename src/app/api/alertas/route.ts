@@ -59,7 +59,18 @@ export const maxDuration = 60;
 
 const URL_SUPABASE = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
 const CHAVE_SERVICO = process.env.SUPABASE_SERVICE_ROLE_KEY ?? "";
-const SEGREDO = process.env.CRON_SEGREDO ?? "";
+/**
+ * ⚠️ `.trim()` NOS DOIS LADOS, E NÃO É ZELO EXCESSIVO.
+ *
+ * Isto custou três deploys para ser descoberto: o valor colado no painel da
+ * Vercel tinha 41 caracteres e o enviado, 40 — um espaço invisível no fim,
+ * que entra sozinho ao copiar de um chat ou de um editor. A comparação
+ * falhava, a resposta era 404 muda, e nada no mundo indicava a causa.
+ *
+ * Segredo é feito para ser copiado e colado por gente. Quem compara tem de
+ * tolerar o que o copiar-e-colar acrescenta.
+ */
+const SEGREDO = (process.env.CRON_SEGREDO ?? "").trim();
 
 type Linha = ConfigAlertas & { usuario_id: string };
 
@@ -68,13 +79,34 @@ export async function GET(requisicao: Request) {
      O cron da Vercel manda `Authorization: Bearer <CRON_SECRET>`; aceitamos
      também `?chave=` para dar para disparar à mão num teste. */
   const url = new URL(requisicao.url);
-  const veio =
+  const veio = (
     requisicao.headers.get("authorization")?.replace(/^Bearer /, "") ??
     url.searchParams.get("chave") ??
-    "";
+    ""
+  ).trim();
 
   if (!SEGREDO || veio !== SEGREDO) {
-    /* 404 e não 401: um 401 confirma que existe uma rotina aqui. */
+    /**
+     * ⚠️ A RESPOSTA É MUDA, MAS O LOG NÃO PODE SER.
+     *
+     * Para quem chama, 404 — um 401 confirmaria que existe uma rotina aqui.
+     * Mas um 404 silencioso também esconde de QUEM CUIDA DISSO a diferença
+     * entre "a variável não chegou no deploy" e "o valor está diferente", e
+     * essas duas têm conserto oposto. Custou duas rodadas de chute descobrir
+     * isso na mão.
+     *
+     * O log sai no painel da Vercel, que é privado, e NUNCA imprime os
+     * valores — só se existem e o tamanho. Tamanho igual com valores
+     * diferentes é quase sempre espaço no fim de um deles, que é o engano
+     * mais comum ao colar.
+     */
+    console.warn(
+      "[alertas] recusado. " +
+        `CRON_SEGREDO configurado: ${SEGREDO ? "sim" : "NÃO"}` +
+        (SEGREDO ? ` (${SEGREDO.length} caracteres)` : "") +
+        `; recebido: ${veio ? `${veio.length} caracteres` : "nada"}` +
+        `; origem: ${requisicao.headers.get("authorization") ? "header" : url.searchParams.get("chave") ? "query" : "nenhuma"}`,
+    );
     return new NextResponse(null, { status: 404 });
   }
 
