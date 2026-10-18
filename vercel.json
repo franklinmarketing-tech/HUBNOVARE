@@ -1,23 +1,17 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "functions": {
-    "src/app/api/iris/route.ts": {
-      "maxDuration": 40
+    "src/app/api/whatsapp/alertas/route.ts": {
+      "maxDuration": 60
     },
-    "src/app/api/iris-duvida/route.ts": {
-      "maxDuration": 40
-    },
-    "src/app/api/dicas/route.ts": {
-      "maxDuration": 35
-    },
-    "src/app/api/preencher/route.ts": {
+    "src/app/api/whatsapp/webhook/route.ts": {
       "maxDuration": 30
-    },
-    "src/app/api/plano/route.ts": {
-      "maxDuration": 40
-    },
-    "src/app/api/iris-chat/route.ts": {
-      "maxDuration": 40
     }
-  }
+  },
+  "crons": [
+    {
+      "path": "/api/whatsapp/alertas",
+      "schedule": "0 11 * * *"
+    }
+  ]
 }

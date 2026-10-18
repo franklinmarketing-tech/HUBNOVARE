@@ -29,6 +29,7 @@ import {
   Vazio,
 } from "../pecas";
 import { Guia, Privacidade } from "./guia";
+import { Alertas } from "./Alertas";
 
 /**
  * Ligar o WhatsApp à conta do FINCASH.
@@ -461,6 +462,15 @@ export function TelaWhatsApp({
         salvando={salvandoPadrao}
         aoEscolher={escolherPadrao}
       />
+
+      {/* Os avisos vêm DEPOIS do que já existe, de propósito: a tela é
+          sobre ligar o número, e quem chega aqui está nesse passo. A
+          escolha do que receber é a segunda conversa — e ela aparece
+          mesmo com o número ainda desligado, para a pessoa já deixar
+          pronto. */}
+      <div className="mt-5">
+        <Alertas ligado={estado.vinculado} />
+      </div>
 
       <Guia exemploConta={contas[0]?.nome ?? null} />
       <Privacidade />
