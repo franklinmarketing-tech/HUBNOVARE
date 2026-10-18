@@ -16,10 +16,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/consultoria",
     "/iris",
     "/novare-news",
-    // As iscas de captação: são as páginas feitas para trazer gente de busca,
-    // então ficar de fora do sitemap anulava o próprio motivo delas existirem.
-    "/finplan",
-    // A landing do Organizador entra pela mesma razão: ela não cai no filtro
+    /* ⚠️ `/finplan` SAIU DAQUI EM 18/10/2026, junto com o produto. Ela
+       redireciona para o FINCASH, e rota que redireciona não pode ficar no
+       sitemap: o Google trata isso como erro de qualidade — pedimos que ele
+       indexe uma página e entregamos outra. */
+    // A landing do Organizador entra como isca de busca: ela não cai no filtro
     // de `/ferramentas/` logo abaixo (é app com porta própria) e, fora daqui,
     // a única página de venda dele seria invisível para a busca.
     "/fincash",
