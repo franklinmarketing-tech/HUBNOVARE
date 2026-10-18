@@ -25,9 +25,28 @@ import { useId, useState } from "react";
  * com outro nome. A exigência do nome é desta tela.
  */
 
+/**
+ * Tira o código do Brasil quando a pessoa digita o número completo.
+ *
+ * ⚠️ ISTO JÁ CORROMPEU LEAD DE VERDADE. Quem digitava "+55 19 98182-9686"
+ * tinha os 13 dígitos cortados em 11 pelo `slice`, e o resultado era
+ * "(55) 19981-8296": o 55 virava DDD, tudo andava uma casa e os dois
+ * últimos dígitos sumiam. O comercial ligava para um número que não
+ * existe — e o lead parecia perfeito na tabela, que é o pior tipo de erro.
+ *
+ * ⚠️ SÓ VALE PARA 12 OU 13 DÍGITOS. Número brasileiro com DDD tem 10
+ * (fixo) ou 11 (celular), então 12 e 13 começando com 55 só podem ser
+ * código do país + número. Com 11 dígitos o 55 é DDD de verdade — é o de
+ * Santa Maria, no Rio Grande do Sul —, e mexer ali quebraria quem mora lá.
+ */
+function semCodigoDoPais(digitos: string): string {
+  const temDDI =
+    (digitos.length === 12 || digitos.length === 13) && digitos.startsWith("55");
+  return temDDI ? digitos.slice(2) : digitos;
+}
 /** Máscara de telefone brasileiro: (19) 98861-0799 */
 export function formatarTelefone(bruto: string): string {
-  const d = bruto.replace(/\D/g, "").slice(0, 11);
+  const d = semCodigoDoPais(bruto.replace(/\D/g, "")).slice(0, 11);
   if (d.length <= 2) return d;
   if (d.length <= 6) return `(${d.slice(0, 2)}) ${d.slice(2)}`;
   if (d.length <= 10) return `(${d.slice(0, 2)}) ${d.slice(2, 6)}-${d.slice(6)}`;

@@ -73,6 +73,31 @@ conferir(
   `rótulo do WhatsApp diz opcional — "${textoTel}"`,
 );
 
+/* ─── A MÁSCARA NÃO PODE PERDER DÍGITO ─────────────────────────────────
+   ⚠️ Três leads reais foram gravados como "(55) 19981-8296" porque a
+   pessoa digitou o número com +55: o 55 virava DDD, tudo andava uma casa
+   e os dois últimos dígitos sumiam no corte de 11. O lead parecia
+   perfeito na tabela e o telefone não existia. */
+const MASCARA = [
+  ["+55 19 98182-9686", "(19) 98182-9686", "celular com +55"],
+  ["5519981829686", "(19) 98182-9686", "o mesmo, tudo colado"],
+  ["+55 19 3321-4455", "(19) 3321-4455", "fixo com +55"],
+  ["19981829686", "(19) 98182-9686", "celular sem DDI"],
+  /* O 55 com 11 dígitos é DDD de verdade — Santa Maria/RS. Tirar o código
+     do país ali quebraria quem mora lá. */
+  ["55998765432", "(55) 99876-5432", "DDD 55 de verdade (Santa Maria/RS)"],
+];
+
+for (const [digitado, esperado, o_que] of MASCARA) {
+  await tel.fill("");
+  await tel.fill(digitado);
+  const mostrado = await tel.inputValue();
+  conferir(
+    mostrado === esperado,
+    `máscara, ${o_que}: "${digitado}" → "${mostrado}" (esperado "${esperado}")`,
+  );
+}
+
 for (const c of casos) {
   await nome.fill(c.nome);
   await email.fill(c.email);
