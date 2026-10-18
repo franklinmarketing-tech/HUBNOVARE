@@ -72,7 +72,7 @@ export function CardFincashHome({
          argumento da casa não é o app: é que a mesma cobrança abre também o
          plano e a IA. Só nomes que existem e estão no ar — o assistente de
          WhatsApp fica de fora enquanto não estiver ligado. */
-      linhaExtra="Com o FINPLAN e a Íris inclusos"
+      linhaExtra="Com a Íris junto"
       rodape={
         assinatura.fase === "ativa" ? (
           /* Nenhum preço, nenhuma oferta: só a porta de entrada. */

@@ -412,14 +412,14 @@ function SidebarNews() {
           Sem cadastro
         </p>
         <h2 className="mt-1.5 font-display text-lg font-bold">
-          Monte o seu plano
+          Veja para onde vai o seu dinheiro
         </h2>
         <p className="mt-1.5 text-xs leading-relaxed text-white/75">
-          Entre agora numa conta de demonstração — sem e-mail, sem senha — e
-          veja o Marco Horizonte por dentro.
+          Cole o seu extrato e a Íris mostra assinatura esquecida, tarifa
+          repetida e juro escondido. Sem cadastro.
         </p>
         <a
-          href="/finplan"
+          href="/iris"
           className="mt-4 inline-flex items-center gap-1.5 rounded-xl bg-white px-4 py-2.5 text-xs font-semibold text-primary transition-colors hover:bg-white/90"
         >
           Ver por dentro
@@ -473,7 +473,7 @@ function BannerWorkspace() {
           Workspace Novare
         </p>
         <h3 className="mt-1.5 font-display text-lg font-bold leading-snug sm:text-xl">
-          Todas as ferramentas, o FINPLAN e a Íris num lugar só
+          Todas as ferramentas, a Íris num lugar só
         </h3>
         <p className="mt-1.5 text-sm leading-relaxed text-white/75">
           E desconto exclusivo nas consultorias — com a primeira análise grátis.

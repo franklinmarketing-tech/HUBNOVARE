@@ -33,14 +33,8 @@ const ECOSSISTEMA = [
   {
     href: "/assinar",
     nome: "Workspace",
-    desc: "Todos os produtos numa assinatura",
+    desc: "Tudo o que a Novare tem, de graça",
     icone: Sparkles,
-  },
-  {
-    href: "/finplan",
-    nome: "FINPLAN",
-    desc: "Retrato, diagnóstico e plano — em 10 minutos",
-    icone: Sunrise,
   },
   {
     href: "/iris",

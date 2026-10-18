@@ -26,7 +26,7 @@ import "./cinema.css";
  * ── O ARGUMENTO QUE ESTA PEÇA CARREGA ────────────────────────────────────
  * A landing vendia o app sozinho, e sozinho ele fica CARO: R$ 29,90 contra os
  * R$ 19,90 do concorrente mais direto, pelo mesmo tipo de produto. A verdade
- * da casa é outra — a mesma mensalidade abre o FINCASH, o FINPLAN, a
+ * da casa é outra — a mesma mensalidade abre o FINCASH, a
  * Íris, as ferramentas e uma revisão trimestral escrita por um consultor. Isso
  * não se compara com app; se compara com consultoria. Hoje o argumento existia
  * só como item de lista dentro do cartão de preço, que é onde ninguém lê.
@@ -298,7 +298,7 @@ export default function Pacote({ className }: { className?: string }) {
       <TituloSecao
         sobre="O que a assinatura abre"
         titulo="Quem assina o FINCASH leva a casa inteira"
-        apoio="Não existe plano do FINCASH. Existe uma assinatura da Novare, e ela abre este app, o FINPLAN, a Íris, as ferramentas da casa e uma revisão trimestral escrita por um consultor. Pelo mesmo preço."
+        apoio="Não existe plano do FINCASH, nem pago nem grátis: existe o FINCASH, e ele é de graça. Junto vêm a Íris, as ferramentas da casa e a revisão trimestral escrita por um consultor."
       />
 
       {/* ⚠️ SÃO DUAS CAIXAS ANINHADAS, E ISSO É OBRIGATÓRIO — a mesma regra da
@@ -347,7 +347,7 @@ export default function Pacote({ className }: { className?: string }) {
                   Tudo o que está aqui embaixo abre com ela.
                 </p>
                 <p className="mt-2 max-w-md text-sm leading-relaxed text-white/80">
-                  Sem taxa de entrada, sem fidelidade e sem comissão embutida em
+                  Sem cartão e sem comissão embutida em
                   produto nenhum.
                 </p>
               </div>

@@ -71,7 +71,7 @@ export function Duvidas() {
 
         <div className="mt-8">
           <a href="#preco" className="nv-btn nv-btn-navy">
-            Ver a assinatura
+            Ver o que tem aqui
             <ArrowRight className="h-4 w-4" />
           </a>
         </div>

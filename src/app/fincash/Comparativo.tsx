@@ -154,7 +154,7 @@ const LINHAS: Linha[] = [
     planilha: { v: "sim", nota: "De graça, para sempre." },
     fincash: {
       v: "nao",
-      nota: "Uma assinatura, a mesma que libera o FINPLAN e a Íris.",
+      nota: "Uma assinatura, a mesma que libera a Íris.",
     },
     decide: true,
   },

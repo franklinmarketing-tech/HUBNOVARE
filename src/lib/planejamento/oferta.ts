@@ -72,7 +72,7 @@ export const PLANO_INCLUI = [
   "Plano de ação com valor e prazo em cada meta",
   "Acompanhamento mês a mês, com relatório em PDF",
   "A Íris incluída, sem custo adicional",
-  "Cancele quando quiser, sem multa",
+  "Não pedimos cartão, sem multa",
 ];
 
 /** Para onde o botão de assinar leva quem já tem sessão. */

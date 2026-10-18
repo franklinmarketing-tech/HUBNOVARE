@@ -233,7 +233,7 @@ export function ModalAssinarPlano({
 
             <p className="mt-4 hidden items-center gap-1.5 text-2xs text-white/45 sm:flex">
               <Lock className="h-3 w-3" />
-              Cancele quando quiser. Seus dados seguem a LGPD.
+              Não pedimos cartão. Seus dados seguem a LGPD.
             </p>
           </div>
         </div>
@@ -291,7 +291,7 @@ export function ModalAssinarPlano({
                 aqui embaixo, onde sempre esteve. */}
             <p className="mt-3 flex items-center justify-center gap-1.5 text-2xs text-muted-foreground sm:hidden">
               <Lock className="h-3 w-3" />
-              Cancele quando quiser. Seus dados seguem a LGPD.
+              Não pedimos cartão. Seus dados seguem a LGPD.
             </p>
           </footer>
         </div>

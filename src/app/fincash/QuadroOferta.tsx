@@ -73,13 +73,6 @@ export default function QuadroOferta({
       ],
     },
     {
-      emblema: "projecao",
-      nome: "FINPLAN",
-      subtitulo: "Antes Planejamento Financeiro",
-      promessa: "Onde você precisa chegar, e quando.",
-      itens: ["Marco Horizonte com prazo", "Plano de ação e fechamento mensal"],
-    },
-    {
       emblema: "chat",
       nome: "Íris",
       subtitulo: "IA financeira",

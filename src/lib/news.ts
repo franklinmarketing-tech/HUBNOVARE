@@ -603,7 +603,7 @@ export const ARTIGOS: Artigo[] = [
     slug: "workspace-novare-uma-assinatura-tudo-liberado",
     titulo: "Workspace Novare: uma assinatura, tudo liberado",
     resumo:
-      "Sem plano básico e sem versão premium. Uma mensalidade só libera o FINCASH, o FINPLAN, a Íris e as ferramentas — e ainda dá desconto na consultoria particular.",
+      "Sem plano básico e sem versão premium. Uma mensalidade só libera o FINCASH, a Íris e as ferramentas — e ainda dá desconto na consultoria particular.",
     categoria: "ia",
     data: "2026-08-24",
     tempoLeituraMin: 4,

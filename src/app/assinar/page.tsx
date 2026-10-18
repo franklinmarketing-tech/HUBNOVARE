@@ -35,7 +35,6 @@ import {
   DIMENSOES,
   FATOS,
   FIN_CASH,
-  FIN_PLAN,
   MANIFESTO,
   MECANISMOS,
   MODULOS,
@@ -108,7 +107,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "/assinar" },
   openGraph: {
     title: "Quanto você pode gastar hoje sem estourar o mês?",
-    description: `O ${FIN_CASH}, o FinPlan, a Íris e as ${N_FERRAMENTAS} ferramentas da Novare. Tudo de graça, sem cartão e sem pegadinha.`,
+    description: `O ${FIN_CASH}, a Íris e as ${N_FERRAMENTAS} ferramentas da Novare. Tudo de graça, sem cartão e sem pegadinha.`,
     url: "/assinar",
     type: "website",
     locale: "pt_BR",
@@ -356,10 +355,9 @@ export default function AssinarPage() {
               Tudo isso abre na mesma tela
             </h2>
             <p className="revelar nv-lead mx-auto mt-6 max-w-2xl">
-              Uma assinatura, um login. O {FIN_CASH} e o {FIN_PLAN} juntos no
-              primeiro card, a Íris ao lado e as {N_FERRAMENTAS} ferramentas
-              separadas por assunto — nada para instalar, nada para
-              configurar.
+              Um cadastro só, e de graça. O {FIN_CASH} no primeiro card, a
+              Íris ao lado e as {N_FERRAMENTAS} ferramentas separadas por
+              assunto — nada para instalar, nada para configurar.
             </p>
           </div>
 
@@ -542,7 +540,7 @@ export default function AssinarPage() {
                 </span>
               </h2>
               <p className="nv-lead mx-auto mt-6 max-w-2xl">
-                Sem cartão, sem fidelidade e sem comissão embutida. A Novare
+                Sem cartão e sem comissão embutida. A Novare
                 vive da consultoria que faz com quem pede — as ferramentas
                 daqui são o nosso cartão de visita.
               </p>

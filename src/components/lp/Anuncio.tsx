@@ -29,8 +29,7 @@ export function Anuncio() {
     >
       <Sparkles className="hidden h-4 w-4 shrink-0 text-[#6dc6e6] sm:block" strokeWidth={1.9} />
       <p className="text-[0.9375rem] font-medium tracking-[-0.012em] text-white sm:text-[1.1875rem]">
-        A partir de {ASSINATURA_PRECO_ROTULO} por mês, com{" "}
-        {ASSINATURA_GARANTIA_DIAS} dias de garantia incondicional
+        Tudo de graça, sem cartão e sem pegadinha
       </p>
       <ArrowRight className="h-4 w-4 shrink-0 text-[#6dc6e6] transition-transform group-hover:translate-x-1" />
     </a>

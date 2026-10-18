@@ -168,7 +168,7 @@ export function NavLP() {
             onClick={() => setAberto(false)}
             className="nv-btn nv-btn-branco mt-auto w-full"
           >
-            Ver a assinatura
+            Ver o que tem aqui
             <ArrowRight className="h-4 w-4" />
           </a>
         </div>

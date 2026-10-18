@@ -64,7 +64,7 @@ import { ConfirmacaoNews } from "@/components/ConfirmacaoNews";
  * é cobrar caro por algo barato.
  */
 
-const SELOS = ["100% gratuita", "Cancele quando quiser", "Sem spam"];
+const SELOS = ["100% gratuita", "Não pedimos cartão", "Sem spam"];
 
 /**
  * Validação frouxa de propósito: exige algo@algo.algo e nada mais. Regex

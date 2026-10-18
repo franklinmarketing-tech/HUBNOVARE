@@ -67,7 +67,7 @@ export function BarraLP() {
           tabIndex={visivel ? 0 : -1}
           className="nv-btn nv-btn-branco !h-12 !min-h-0 flex-1 !text-[0.9375rem]"
         >
-          Ver a assinatura
+          Ver o que tem aqui
           <ArrowRight className="h-4 w-4" />
         </a>
       </div>

@@ -40,7 +40,7 @@ import {
  * uma que o superestima custa confiança.
  */
 const TITULO = "FINCASH";
-const DESCRICAO = `Saiba quanto ainda dá para gastar até o fim do mês, não só quanto você já gastou. Lançamentos, contas fixas, faturas de cartão, orçamento, dívidas com Price e SAC, metas, investimentos, importação do extrato em OFX e projeção de 12 meses em um lugar só, sem conectar banco. ${ASSINATURA_PRECO_ANUAL_MENSAL_ROTULO}/mês no plano anual ou ${ASSINATURA_PRECO_ROTULO}/mês sem compromisso, com o Workspace inteiro liberado e ${ASSINATURA_GARANTIA_DIAS} dias de garantia.`;
+const DESCRICAO = `Saiba quanto ainda dá para gastar até o fim do mês, não só quanto você já gastou. Lançamentos, contas fixas, faturas de cartão, orçamento, dívidas com Price e SAC, metas, investimentos, importação do extrato em OFX e projeção de 12 meses em um lugar só, sem conectar banco. De graça, sem cartão — é só criar a conta.`;
 
 /** O preview que o WhatsApp e o Google mostram. Curto, porque é cortado. */
 const OG_SUB =

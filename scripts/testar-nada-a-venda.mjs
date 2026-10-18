@@ -1,197 +1,157 @@
 /**
- * EXISTE UMA ASSINATURA SÓ, E UM PREÇO SÓ.
+ * NADA É VENDIDO NO HUB, E NADA COBRA NADA.
  *
- * A regra do negócio: o Hub é livre e sem login, e a única coisa que se compra
- * é o Workspace Novare — que libera o Planejamento Financeiro, a Íris e as
- * ferramentas, e dá desconto na consultoria. Este teste é o guarda-costas
- * dessa decisão: garante que nenhuma tela invente um segundo preço, um plano
- * superior ou um desconto que a casa não pratica.
+ * ═══ ESTE GUARDIÃO MUDOU DE LADO EM 18/10/2026 ═══════════════════════════
  *
- * ⚠️ NENHUM VALOR ESTÁ ESCRITO AQUI, de propósito. Os preços são importados de
- * `src/lib/assinatura.ts` — inclusive os DOIS "por mês" legítimos, já que o
- * plano anual mostra o próprio mensal equivalente. Guardião que precisa ser
- * atualizado à mão junto com o preço não guarda nada: da última vez ele passou
- * a reprovar a página certa.
+ * Ele existia para garantir que houvesse **um preço só**: importava os
+ * valores de `lib/assinatura.ts` e reprovava qualquer tela que inventasse um
+ * segundo preço, um plano superior ou um desconto que a casa não praticava.
  *
- * Cuidado ao ler as regras: valor em reais NÃO é preço. O resultado de uma
- * simulação (R$ 425.302 de patrimônio, R$ 4.200 de salário) tem de aparecer.
- * O que não pode é oferta indevida: "R$ 149/mês", "30% OFF", "assine agora"
- * fora das telas que vendem.
+ * O Hub deixou de ser vendido. Agora a regra é o contrário: **nenhuma tela
+ * pode cobrar coisa nenhuma**. Preço, plano, assinatura, garantia de
+ * reembolso e checkout não têm mais lugar em nenhum canto do site.
+ *
+ * ⚠️ POR QUE ESTE TESTE PRECISA EXISTIR: o preço já voltou sozinho uma vez
+ * neste projeto, num commit de outra sessão que "restaurou" um 30% OFF. Uma
+ * virada de modelo de negócio feita só com edição de texto desfaz-se no
+ * primeiro merge distraído. Isto é o que torna a decisão durável.
+ *
+ * ⚠️ LÊ O HTML INTEIRO, NÃO SÓ O TEXTO VISÍVEL — e essa é a lição mais cara
+ * desta virada. Depois de limpar todas as telas, a conferência visual dava
+ * tudo certo e o preço continuava em DOIS lugares que ninguém vê: a
+ * `description` do FINCASH (que é o que o Google mostra e o que aparece na
+ * prévia do WhatsApp) e uma linha truncada na home. Texto que a tela não
+ * mostra continua sendo lido por gente — só não por quem confere olhando.
+ *
+ * ⚠️ VALOR EM REAIS NÃO É PREÇO. Uma simulação devolvendo "R$ 425.302" de
+ * patrimônio ou "R$ 4.200" de salário tem de continuar aparecendo; é o
+ * trabalho das ferramentas. O que se caça aqui é COBRANÇA: um valor colado
+ * em "/mês", "por ano", "assine", "plano" e companhia.
+ *
+ * Roda com o servidor no ar:  node scripts/testar-nada-a-venda.mjs
  */
 import { chromium } from "playwright";
-import {
-  ASSINATURA_GARANTIA_DIAS,
-  ASSINATURA_PRECO_ANUAL_MENSAL_ROTULO,
-  ASSINATURA_PRECO_ANUAL_ROTULO,
-  ASSINATURA_PRECO_ROTULO,
-} from "../src/lib/assinatura.ts";
 
 const BASE = process.env.BASE ?? "http://localhost:3000";
+
 const ROTAS = [
-  "/", "/aplicativos", "/aplicativos?area=ia", "/profissionais",
-  "/profissionais/medicos", "/profissionais/engenheiros-e-arquitetos",
-  "/profissionais/advogados", "/profissionais/dentistas",
-  "/consultoria", "/assinar", "/iris", "/novare-news",
-  "/ferramentas/raio-x-previdencia", "/ferramentas/salario-liquido",
-  "/finplan", "/fincash", "/exame-saude-financeira",
-  // A tela que recebe quem clicou em assinar antes de a oferta da Hotmart
-  // existir. Mostra preço, então precisa ser vigiada como as outras que
-  // vendem — e some sozinha (307 para /assinar) quando os dois links forem
-  // cadastrados, sem quebrar este teste.
-  "/assinar/em-breve",
-];
-
-/**
- * Onde a oferta PODE aparecer: a home (card do produto), as landings dos dois
- * produtos pagos (FINPLAN e FINCASH) e a landing da assinatura. Em
- * qualquer outra rota, preço continua proibido.
- */
-const ROTAS_COM_OFERTA = new Set([
   "/",
-  "/finplan",
-  "/fincash",
+  "/aplicativos",
+  "/aplicativos?area=ia",
+  "/profissionais",
+  "/profissionais/medicos",
+  "/consultoria",
   "/assinar",
-  "/assinar/em-breve",
-]);
-
-/* Escapa um rótulo de preço para regex e tolera o espaço: o
-   `toLocaleString` do pt-BR separa "R$" do número com espaço NÃO-QUEBRÁVEL
-   (U+00A0), e a página pode renderizar um espaço comum. */
-const paraRegex = (rotulo) =>
-  rotulo
-    .replace(/[.*+?^${}()|[\]\\]/g, (c) => "\\" + c)
-    .replace(/\s/g, "\\s?");
-
-/**
- * Os "por mês" aprovados — SÃO DOIS desde que existe plano anual.
- *
- * O mensal avulso (R$ 29,90) e o mensal equivalente do anual (R$ 19,90) são
- * os dois valores que uma tela pode legitimamente escrever seguidos de "/mês".
- * Qualquer terceiro valor com essa forma é um segundo plano nascendo — que é
- * exatamente o que este arquivo existe para impedir.
- */
-const PRECO_APROVADO = new RegExp(
-  `(${[ASSINATURA_PRECO_ROTULO, ASSINATURA_PRECO_ANUAL_MENSAL_ROTULO]
-    .map(paraRegex)
-    .join("|")})`,
-);
-
-const PROIBIDOS = [
-  // A BARRA é o que separa preço de valor simulado: "R$ 19,90/mês" é oferta,
-  // "R$ 8.000 por mês" é a renda que o usuário digitou na calculadora.
-  { nome: "preço mensal", re: /R\$\s?[\d.,]+\s*\/\s*m(ê|e)s/i, podeTerOferta: true },
-  { nome: "valor do acompanhamento", re: /R\$\s?149/ },
-  // Qualquer preço mensal que não seja o aprovado é um segundo plano nascendo.
-  { nome: "plano superior inventado", re: /plano (premium|avan[çc]ado|completo|plus|gold)/i },
-  // ⚠️ ESTA REGRA FICOU MAIS DURA EM 12/09/2026, e de propósito.
-  // Antes ela abria exceção para "30% OFF", porque o desconto do assinante
-  // era um percentual fixo no código. O dono decidiu que a condição é
-  // combinada caso a caso no atendimento — então NENHUM percentual de
-  // desconto pode aparecer em tela pública, nem o antigo. Número publicado
-  // que o atendimento não honra vira discussão na hora do fechamento.
-  { nome: "percentual de desconto em tela pública", re: /\d{1,2}\s?% ?OFF/i },
-  { nome: "chamada para assinar", re: /assine j[áa]|assine agora|assinar agora|quero assinar|assinar por/i, podeTerOferta: true },
-  { nome: "chamada para comprar", re: /comprar agora|finalizar compra|adicionar ao carrinho|pagar agora/i },
-  /* A oferta virou GARANTIA de 7 dias: paga-se e devolve-se. Teste grátis e
-     "sem cartão" são a promessa CONTRÁRIA, e cada tela que sobreviver com o
-     texto velho vende uma coisa que o checkout não faz.
-
-     ⚠️ ESTA REGRA JÁ TEVE UMA EXCEÇÃO, e ela morreu com prazo cumprido:
-     /fincash ficava de fora enquanto a landing era refeita com o preço novo.
-     A landing entrou, a linha saiu e o próprio campo `exceto` foi embora do
-     laço — a regra passou a valer para o site inteiro, que é o único estado
-     em que um guardião de promessa guarda alguma coisa. Se uma rota reprovar
-     aqui, é a rota que está prometendo o que o checkout não faz. */
-  {
-    nome: "promessa de teste grátis (a oferta é garantia)",
-    re: /\d+\s*dias?\s*gr[áa]tis|sem cart[ãa]o|teste gr[áa]tis|sem cadastrar cart[ãa]o/i,
-  },
-  // A regra "promessa a assinante" foi REMOVIDA de propósito.
-  //
-  // Ela nasceu quando ASSINATURA_ATIVA era false: prometer benefício de
-  // assinante era prometer o que não existia. Hoje a assinatura existe, tem
-  // preço e tem checkout — dizer "quem assina leva a Íris" na página da Íris
-  // é informação verdadeira, não promessa vazia. Manter a regra obrigaria a
-  // liberar rota por rota até ela não significar mais nada.
-  //
-  // O que continua guardado é o essencial: PREÇO só onde se vende, e desconto
-  // só no valor que a casa pratica.
+  "/iris",
+  "/novare-news",
+  "/fincash",
+  "/exame-saude-financeira",
+  "/ferramentas/orcamento",
+  "/ferramentas/salario-liquido",
+  "/ferramentas/raio-x-previdencia",
+  "/login",
 ];
 
-const falhas = [];
-let oks = 0;
+/**
+ * ⚠️ `/consultoria` É A EXCEÇÃO, E É A ÚNICA.
+ *
+ * A consultoria continua sendo paga — é dela que a casa vive. O que ela não
+ * pode fazer é cobrar AQUI: a contratação acontece fora do Hub, na página da
+ * Novare. Por isso a rota pode falar de consultoria e de contratar, mas
+ * continua proibida de mostrar valor, plano ou checkout.
+ */
+const PODE_FALAR_EM_CONTRATAR = new Set(["/consultoria"]);
 
-const b = await chromium.launch();
-const p = await b.newPage({ viewport: { width: 1280, height: 1000 } });
+/** Cobrança: um valor grudado numa palavra de cobrança, nos dois sentidos. */
+const COBRANCA = [
+  /R\$\s?\d+[.,]\d{2}\s*\/?\s*(mês|mes|ano|anual|mensal)/i,
+  /(por|a partir de|apenas|só)\s+R\$\s?\d+[.,]\d{2}/i,
+  /\d+%\s*(OFF|de desconto)/i,
+  /\bR\$\s?\d+[.,]\d{2}\s*(à vista|no anual|no mensal)/i,
+];
+
+/**
+ * Palavras que denunciam que alguém devolveu a venda.
+ *
+ * ⚠️ "ASSINATURA" SOZINHA NÃO ENTRA, e isso não é frouxidão. A Íris encontra
+ * **assinatura esquecida** no extrato — Netflix, Spotify, academia — e essa é
+ * a palavra certa ali. Proibir o substantivo faria o guardião reprovar o
+ * texto mais útil do site. O que se caça é a assinatura COMO OFERTA, que
+ * sempre vem acompanhada: "ver a assinatura", "assinatura do FINCASH",
+ * "assinatura mensal".
+ */
+const PALAVRAS = [
+  /\bassine\b/i,
+  /\b(ver a|nossa|minha|sua) assinatura\b/i,
+  /\bassinatura (mensal|anual|do|da casa|completa)\b/i,
+  /\bassinante\b/i,
+  /\bplano (mensal|anual|premium|pro)\b/i,
+  /\bdias de garantia\b/i,
+  /\bgarantia incondicional\b/i,
+  /\bcheckout\b/i,
+  /\bhotmart\b/i,
+  /\bcancele quando quiser\b/i,
+  /\bfidelidade\b/i,
+  /\bFINPLAN\b/,
+  /\bFinPlan\b/,
+];
+
+const nav = await chromium.launch();
+const pagina = await (await nav.newContext()).newPage();
+
+let falhas = 0;
+const relatar = (rota, oque, trecho) => {
+  falhas++;
+  console.log(`FALHOU  ${rota}`);
+  console.log(`        ${oque}`);
+  if (trecho) console.log(`        …${trecho.trim()}…`);
+};
 
 for (const rota of ROTAS) {
-  await p.goto(BASE + rota, { waitUntil: "domcontentloaded" });
-  await p.waitForTimeout(1200);
-  const t = await p.locator("body").innerText();
+  const resposta = await pagina.goto(BASE + rota, { waitUntil: "domcontentloaded" });
+  if (!resposta || resposta.status() >= 400) {
+    relatar(rota, `respondeu ${resposta ? resposta.status() : "nada"}`);
+    continue;
+  }
+  await pagina.waitForTimeout(400);
 
-  /* ⚠️ NÃO EXISTE MAIS "PULAR ESTA ROTA", e a ausência é a regra: havia um
-     campo `exceto` que liberava uma rota de uma regra enquanto ela era
-     reescrita, e ele saiu junto com a última exceção (a landing do FINCASH,
-     que já está com o preço novo). Guardião com porta dos fundos é guardião
-     que um dia protege só as telas que ninguém ia quebrar mesmo. */
-  for (const { nome, re, podeTerOferta, so } of PROIBIDOS) {
-    const achou = t.match(re);
+  /* O HTML inteiro MENOS os <script>: inclui <title>, <meta> e o que está
+     truncado ou escondido por CSS — que é onde o preço se escondeu —, mas
+     não o payload do React.
+     ⚠️ O PAYLOAD PRECISA SAIR, e por um motivo que não é preguiça: ele
+     serializa o estado dos componentes, onde existem campos chamados
+     `assinatura` e `assinante` que são NOMES DE VARIÁVEL, não texto que
+     alguém lê. Reprovar por causa deles faria o guardião gritar sobre
+     código em vez de sobre a tela — e um guardião que dá alarme falso é um
+     guardião que alguém desliga. */
+  const html = (await pagina.content())
+    .replace(/<script[\s\S]*?<\/script>/gi, " ")
+    .replace(/\s+/g, " ");
 
-    // `so` marca o único valor que a casa pratica: encontrá-lo não é falha,
-    // em rota nenhuma. Qualquer OUTRO valor com a mesma forma é.
-    if (achou && so && so.test(achou[0].trim())) {
-      oks++;
-      continue;
+  for (const re of COBRANCA) {
+    const achou = html.match(re);
+    if (achou) {
+      const i = html.indexOf(achou[0]);
+      relatar(rota, `cobrança: "${achou[0]}"`, html.slice(Math.max(0, i - 70), i + 70));
     }
+  }
 
-    // Nas telas que vendem a oferta é legítima — desde que seja o preço
-    // aprovado. Um valor mensal diferente ali continua sendo falha.
-    if (achou && podeTerOferta && ROTAS_COM_OFERTA.has(rota)) {
-      if (nome !== "preço mensal" || PRECO_APROVADO.test(achou[0])) continue;
+  if (PODE_FALAR_EM_CONTRATAR.has(rota)) continue;
+
+  for (const re of PALAVRAS) {
+    const achou = html.match(re);
+    if (achou) {
+      const i = html.indexOf(achou[0]);
+      relatar(rota, `palavra de venda: "${achou[0]}"`, html.slice(Math.max(0, i - 70), i + 70));
     }
-    if (achou) falhas.push(`${rota}: ${nome} — "${achou[0]}"`);
-    else oks++;
   }
 }
 
-// E o contrário: a página de assinatura precisa dizer o preço e a promessa
-// central. Uma landing de venda sem preço visível é pior do que não existir.
-await p.goto(BASE + "/assinar", { waitUntil: "domcontentloaded" });
-await p.waitForSelector("h1", { timeout: 20000 });
-const tAssinar = await p.locator("body").innerText();
+await nav.close();
 
-for (const [nome, re] of [
-  ["mostra o preço mensal", new RegExp(paraRegex(ASSINATURA_PRECO_ROTULO))],
-  [
-    "mostra o preço do plano anual",
-    new RegExp(paraRegex(ASSINATURA_PRECO_ANUAL_ROTULO)),
-  ],
-  [
-    "mostra o mensal equivalente do anual",
-    new RegExp(paraRegex(ASSINATURA_PRECO_ANUAL_MENSAL_ROTULO)),
-  ],
-  // Substituiu "anuncia o teste grátis". A reversão de risco continua sendo
-  // obrigatória na landing — o que mudou foi QUAL é ela.
-  ["anuncia a garantia", new RegExp(`${ASSINATURA_GARANTIA_DIAS} dias de garantia`, "i")],
-  ["promete uma assinatura só", /uma assinatura/i],
-  ["explica o desconto na consultoria", /consultoria/i],
-]) {
-  if (re.test(tAssinar)) oks++;
-  else falhas.push(`/assinar: não ${nome}`);
-}
-
-// ⚠️ A ASSERÇÃO INVERTEU EM 12/09/2026. Antes ela EXIGIA "30% OFF" na
-// /assinar, porque o desconto era um percentual que a casa praticava sempre.
-// Agora a condição é combinada caso a caso, então o que se exige é o
-// contrário: que percentual nenhum apareça ali.
-if (!/\d{1,2}\s?% ?OFF/i.test(tAssinar)) oks++;
-else falhas.push("/assinar: anuncia percentual de desconto, e a condição é caso a caso");
-
-await b.close();
-console.log(`\n${oks} conferências passaram em ${ROTAS.length} rotas`);
-if (falhas.length) {
-  console.log(`${falhas.length} FALHARAM:`);
-  for (const f of falhas) console.log("  XX  " + f);
+console.log("");
+if (falhas) {
+  console.log(`${falhas} problema(s). O Hub é livre: nada aqui pode cobrar.`);
   process.exit(1);
 }
-console.log("nada à venda em lugar nenhum");
+console.log(`${ROTAS.length} rotas conferidas, no HTML inteiro: nada à venda em lugar nenhum.`);

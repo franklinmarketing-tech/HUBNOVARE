@@ -201,7 +201,7 @@ export function Preco() {
           plano="mensal"
           valor={ASSINATURA_PRECO_MENSAL}
           unidade="/mês"
-          cobranca="Cobrado todo mês. Cancele quando quiser."
+          cobranca="Cobrado todo mês. Não pedimos cartão."
           rotuloBotao="Assinar o mensal"
           nota="Sem compromisso de prazo: o mês que você paga é o mês que você usa, e no mês seguinte a decisão volta a ser sua."
         />

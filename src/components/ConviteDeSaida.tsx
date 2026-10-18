@@ -214,7 +214,7 @@ export function ConviteDeSaida() {
 
           <p className="mt-3 text-center text-2xs text-white/55">
             {ASSINATURA_PRECO_ANUAL_MENSAL_ROTULO}/mês no plano anual, ou{" "}
-            {ASSINATURA_PRECO_ROTULO}/mês avulso. Cancele quando quiser.
+            {ASSINATURA_PRECO_ROTULO}/mês avulso. Não pedimos cartão.
           </p>
 
           <button

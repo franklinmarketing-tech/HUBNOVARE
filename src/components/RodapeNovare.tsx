@@ -99,7 +99,7 @@ export function RodapeNovare({
               className="h-7 w-auto"
             />
             <p className="mt-4 text-[13px] leading-relaxed text-white/55">
-              Consultoria de investimentos independente. FINPLAN
+              Consultoria de investimentos independente. Planejamento
               financeiro, alocação e acompanhamento contínuo para os seus
               objetivos de vida.
             </p>

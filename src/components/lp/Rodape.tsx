@@ -103,7 +103,7 @@ export function Rodape() {
                   className="h-7 w-auto"
                 />
                 <p className="mt-6 text-[1.1875rem] leading-relaxed tracking-[-0.008em] text-white/70">
-                  O Fin Cash, o FinPlan, a Íris e as {N_FERRAMENTAS}{" "}
+                  O Fin Cash, a Íris e as {N_FERRAMENTAS}{" "}
                   ferramentas da casa, a partir de {ASSINATURA_PRECO_ROTULO} por
                   mês. Sem comissão de banco, corretora ou seguradora.
                 </p>

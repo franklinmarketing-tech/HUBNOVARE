@@ -36,7 +36,7 @@ const NUMEROS: { valor: string; rotulo: string; apoio: string }[] = [
   {
     valor: "0",
     rotulo: "comissão de banco",
-    apoio: "A única receita é a sua assinatura",
+    apoio: "A casa vive de consultoria, não de comissão",
   },
   {
     valor: "15",
@@ -49,9 +49,11 @@ const NUMEROS: { valor: string; rotulo: string; apoio: string }[] = [
     apoio: "Calculadoras com as tabelas de 2026",
   },
   {
-    valor: String(ASSINATURA_GARANTIA_DIAS),
-    rotulo: "dias de garantia",
-    apoio: "Não gostou, devolvemos o valor",
+    /* ⚠️ ERA "7 dias de garantia / Não gostou, devolvemos o valor". Não há
+       o que devolver desde 18/10/2026 — o FINCASH é gratuito. */
+    valor: "R$ 0",
+    rotulo: "para usar tudo",
+    apoio: "Sem cartão e sem plano escondido",
   },
 ];
 

@@ -179,11 +179,10 @@ export function Virada() {
       <div className="nv-caixa mt-14">
         <div className="flex flex-col items-center gap-6 rounded-[28px] border border-white/15 bg-[#0b1626]/70 px-7 py-9 text-center backdrop-blur-md sm:flex-row sm:justify-between sm:text-left">
           <p className="nv-h4 max-w-lg !text-white">
-            {ASSINATURA_GARANTIA_DIAS} dias de garantia incondicional. Não
-            gostou, devolvemos o valor.
+            Não tem pegadinha: é de graça e não pedimos cartão.
           </p>
           <a href="#preco" className="nv-btn nv-btn-branco shrink-0">
-            Ver a assinatura
+            Ver o que tem aqui
             <ArrowRight className="h-4 w-4" />
           </a>
         </div>

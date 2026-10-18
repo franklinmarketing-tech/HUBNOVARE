@@ -43,7 +43,7 @@ const O_QUE_FAZ = [
     icone: Sunrise,
     titulo: "Liga tudo ao seu plano",
     texto:
-      "O que você economiza não some: vai para o seu Marco Horizonte e vira patrimônio no seu FINPLAN.",
+      "O que você economiza não some: vai para o seu Marco Horizonte e vira patrimônio no seu plano.",
   },
   {
     icone: Link2Off,
@@ -291,12 +291,12 @@ export default async function IrisPage({
             incluída na assinatura
           </span>
           <h2 className="mt-3 font-display text-xl font-bold sm:text-2xl">
-            A Íris vem junto com o Workspace.
+            A Íris é de graça, como o resto.
           </h2>
           <p className="mt-2.5 max-w-xl text-sm leading-relaxed text-white/75">
-            Ela não é vendida à parte: quem assina o Workspace Novare leva a
-            Íris sem limite de leitura, junto com o FINPLAN completo e o
-            desconto na consultoria — tudo por uma assinatura só.
+            Ela não é vendida, nem à parte nem junto. Use quantas vezes
+            quiser, sem cadastro e sem limite — do mesmo jeito que as outras
+            ferramentas da casa.
           </p>
           <Link
             href="/assinar"

@@ -32,7 +32,7 @@ import { FIN_CASH } from "@/lib/hub-lp";
  * promessa, que é exatamente a linha que esta página não cruza.
  *
  * ⚠️ AS CAPTURAS ENVELHECEM. Elas mostram a interface do dia em que foram
- * tiradas: a do Workspace já traz o card unificado FINCASH + FINPLAN e o preço
+ * tiradas: a do Workspace já traz o card unificado FINCASH e o preço
  * do anual. Mudou a home ou mudou o preço em tela? Estas imagens passam a
  * mentir caladas — nenhum teste pega isso, porque para o site são só arquivos.
  * Refazer é abrir `/fincash/testar` e recapturar.
@@ -80,7 +80,7 @@ export function TelaWorkspace({ legenda = true }: { legenda?: boolean }) {
         </div>
         <Image
           src="/produtos/workspace.webp"
-          alt="A home do Novare Workspace: o card FINCASH + FINPLAN com o preço da assinatura, ao lado dos portais de Consultoria, Vida Financeira e Investimentos, mais a Íris, o Novare News e os eBooks."
+          alt="A home do Novare Workspace: o card FINCASH com o preço da assinatura, ao lado dos portais de Consultoria, Vida Financeira e Investimentos, mais a Íris, o Novare News e os eBooks."
           width={1600}
           height={800}
           sizes="(max-width: 1024px) 100vw, 1100px"

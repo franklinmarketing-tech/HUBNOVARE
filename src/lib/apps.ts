@@ -494,7 +494,7 @@ export const APPS: NovareApp[] = [
  * RECORTAR UMA LINHA. As páginas NÃO continuam todas no disco: 35 rotas de
  * ferramenta foram removidas naquele dia, por decisão do dono, depois da
  * auditoria das 41 órfãs (existiam no ar, fora do catálogo e fora do
- * sitemap). Saíram as que duplicavam o FINCASH, o FINPLAN ou a Íris, e as
+ * sitemap). Saíram as que duplicavam o FINCASH ou a Íris, e as
  * que repetiam conta que outra ferramenta já fazia melhor.
  *
  * Religar uma delas hoje é: restaurar a pasta (há cópia no backup da

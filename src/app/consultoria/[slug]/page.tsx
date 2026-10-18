@@ -615,7 +615,7 @@ export default async function ProdutoPage({
                 href="/assinar"
                 className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-accent-btn px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-accent-strong"
               >
-                Ver a assinatura
+                Ver o que tem aqui
                 <ArrowRight className="h-4 w-4" />
               </Link>
             </div>

@@ -85,9 +85,9 @@ export function Gratuito() {
         <p className="mt-5 flex items-start gap-2 text-xs leading-relaxed text-muted-foreground">
           <Lock className="mt-0.5 h-3.5 w-3.5 shrink-0" />
           <span>
-            Só o FINCASH e o FINPLAN pedem cadastro, porque é neles que você
-            lança o seu dinheiro — e esses lançamentos precisam ficar salvos em
-            algum lugar. O cadastro também é grátis, e não pedimos cartão.
+            Só o FINCASH pede cadastro, porque é nele que você lança o seu
+            dinheiro — e esses lançamentos precisam ficar salvos em algum
+            lugar. O cadastro também é grátis, e não pedimos cartão.
           </span>
         </p>
       </div>

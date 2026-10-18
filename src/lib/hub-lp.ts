@@ -325,18 +325,6 @@ export const MODULOS = [
     linkRotulo: `Conhecer o ${FIN_CASH}`,
   },
   {
-    chave: "finplan",
-    aurora: "nv-aurora-2",
-    etiqueta: FIN_PLAN,
-    selo: "Os anos",
-    icone: "Target",
-    titulo: "Onde você precisa chegar, e quando",
-    texto:
-      "Oito perguntas e o app devolve na hora: nota de saúde financeira, Marco Horizonte com prazo e plano de ação com valor por mês. O que o Fin Cash faz com setembro, o FinPlan faz com 2041.",
-    href: "/finplan",
-    linkRotulo: `Conhecer o ${FIN_PLAN}`,
-  },
-  {
     chave: "iris",
     aurora: "nv-aurora-3",
     etiqueta: "Íris",
@@ -662,13 +650,15 @@ export const COMPARATIVO_RODAPE =
 /* =========================================================== 13. A OFERTA */
 
 /** O que entra, e entra nos dois planos. */
+/* ⚠️ ERAM SEIS LINHAS, com o FINPLAN e a garantia de 7 dias. O FINPLAN
+   foi excluído em 18/10/2026 e a garantia saiu junto com a cobrança:
+   prometer reembolso a quem não pagou nada não quer dizer nada. */
 export const INCLUI = [
   `${FIN_CASH}: quanto ainda dá para gastar até o fim do mês`,
-  `${FIN_PLAN}: o seu plano com prazo, e o que fazer primeiro`,
-  "Íris: IA financeira ilimitada, sem comissão",
-  `As ${N_FERRAMENTAS} ferramentas da casa`,
+  "Íris: lê o seu extrato e mostra para onde o dinheiro foi",
+  `As ${N_FERRAMENTAS} ferramentas da casa, abertas`,
   "Um consultor revisando o seu plano a cada 3 meses",
-  `${ASSINATURA_GARANTIA_DIAS} dias de garantia e cancelamento sem multa`,
+  "Tudo de graça, sem cartão",
 ] as const;
 
 /**
@@ -789,14 +779,21 @@ export const ANCORA = {
   fecho: "Aqui é uma assinatura só, e ela cabe nos dois prazos acima.",
 } as const;
 
-/** A garantia, dita com o terceiro no meio. */
+/**
+ * ⚠️ ERA A GARANTIA DE REEMBOLSO (7 dias, devolvidos pela Hotmart).
+ *
+ * Virou outra coisa em 18/10/2026: não há reembolso porque não há
+ * pagamento. O bloco ficou porque o lugar dele na página é legítimo — é
+ * onde a pessoa procura a pegadinha —, e o que ela precisa ler ali agora é
+ * por que a casa dá isso de graça.
+ */
 export const GARANTIA = {
-  titulo: `Risco zero: ${ASSINATURA_GARANTIA_DIAS} dias de garantia incondicional`,
+  titulo: "Risco zero: é de graça mesmo",
   texto:
-    `Você tem ${ASSINATURA_GARANTIA_DIAS} dias para usar tudo. Se não for para ` +
-    `você, peça o reembolso e o valor volta integral, sem perguntar o motivo. ` +
-    `Quem devolve é a própria ${ASSINATURA_PROVEDOR}, automaticamente. Depois ` +
-    `disso, cancelar continua sendo um clique, e a cobrança para na hora.`,
+    "Não pedimos cartão em lugar nenhum, não existe plano pago escondido e " +
+    "não vendemos os seus dados. A Novare é uma consultoria: ganha quando " +
+    "alguém contrata uma consultoria, e isso parte de você, quando você " +
+    "quiser. As ferramentas daqui existem para você conhecer o nosso trabalho.",
 } as const;
 
 /** A economia do anual, dita em mensalidades, que é como a pessoa sente. */
@@ -828,8 +825,8 @@ export const DUVIDAS = [
     r: "O trabalho de verdade é no primeiro dia, quando você cadastra o que se repete. Depois, lançar um gasto leva segundos e a conferência é um número por semana. Não é relatório, é uma linha.",
   },
   {
-    p: `E se eu não gostar? Como funciona a garantia de ${ASSINATURA_GARANTIA_DIAS} dias?`,
-    r: `Você tem ${ASSINATURA_GARANTIA_DIAS} dias para usar tudo. Se não for para você, peça o reembolso e o valor volta integral, sem perguntar o motivo. Quem devolve é a própria ${ASSINATURA_PROVEDOR}, automaticamente.`,
+    p: "É de graça mesmo? Onde está a pegadinha?",
+    r: "É de graça mesmo. Não pedimos cartão, não existe plano pago escondido e não vendemos os seus dados. A Novare é uma consultoria: ganha dinheiro quando alguém contrata uma consultoria, e isso parte de você, se e quando você quiser. As ferramentas daqui existem para você conhecer o nosso trabalho.",
   },
   {
     p: "Tenho dívida. O app ajuda ou só mostra o rombo?",
@@ -840,16 +837,16 @@ export const DUVIDAS = [
     r: `O app do banco mostra o que já aconteceu e sugere produto. O ${FIN_CASH} soma o que ainda vai sair até o fim do mês, junta todos os cartões com os ciclos deles e não tem nada para te vender, porque a casa não recebe comissão de ninguém.`,
   },
   {
-    p: "Qual a diferença entre o mensal e o anual?",
-    r: `Nenhuma no produto: os dois liberam tudo. A diferença é o prazo e o preço. O anual sai por ${ASSINATURA_PRECO_ROTULO} por mês, cobrado uma vez, e economiza ${ASSINATURA_ECONOMIA_ROTULO} no ano.`,
+    p: "Por que preciso criar uma conta?",
+    r: "Só o FINCASH pede, e é porque ele guarda o que você lança: as contas, os cartões, o orçamento do mês. Sem conta não há onde salvar isso. As ferramentas e a Íris abrem sem cadastro nenhum.",
   },
   {
-    p: `Já assino o ${FIN_PLAN}. Preciso pagar de novo?`,
-    r: `Não. É uma assinatura só para a casa inteira: o ${FIN_CASH}, o ${FIN_PLAN}, a Íris, as ferramentas e a revisão trimestral entram no mesmo valor.`,
+    p: "Vocês vão passar a cobrar depois?",
+    r: "Não há plano nenhum engatilhado. Se um dia alguma coisa aqui passar a ser paga, será coisa nova e anunciada antes — o que já está aberto continua aberto, e o que você lançou continua seu.",
   },
   {
-    p: "Como faço para cancelar?",
-    r: "Num clique, e a cobrança para na hora. Não há fidelidade nem multa, e você não precisa falar com ninguém para isso.",
+    p: "E se eu quiser sair?",
+    r: "É só parar de usar — não há cobrança para interromper. Se quiser apagar a sua conta e os seus dados, peça pelo nosso contato que a gente apaga.",
   },
   {
     p: "Os meus dados ficam seguros?",
@@ -881,9 +878,8 @@ export const FECHO = {
   titulo1: "Comece pelo mês que já está correndo.",
   titulo2: "Ele ainda dá para salvar.",
   lead:
-    `Cadastre as contas, jogue o que se repete e veja quanto ainda dá para ` +
-    `gastar até o dia 30. A partir de ${ASSINATURA_PRECO_ROTULO}/mês no anual, ` +
-    `com ${ASSINATURA_GARANTIA_DIAS} dias de garantia incondicional.`,
+    "Cadastre as contas, jogue o que se repete e veja quanto ainda dá para " +
+    "gastar até o dia 30. De graça, sem cartão — é só criar a conta.",
 } as const;
 
 /**

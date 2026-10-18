@@ -429,7 +429,7 @@ export const ASSINATURA_PLANOS = [
     valorRotulo: ASSINATURA_PRECO_ROTULO,
     periodo: "/mês",
     /** A linha fina embaixo do número. */
-    detalhe: "Cobrado todo mês. Cancele quando quiser.",
+    detalhe: "Cobrado todo mês. Não pedimos cartão.",
     /** O que se paga de uma vez, quando difere do número grande. */
     cobranca: `${ASSINATURA_PRECO_ROTULO} por mês`,
     selo: null,
@@ -673,5 +673,5 @@ export const ASSINATURA_INCLUI = [
      referência. Desconto sem preço de referência não é informação, é adjetivo. */
   "Condição especial na consultoria particular da Novare, combinada no atendimento",
   `${ASSINATURA_GARANTIA_DIAS} dias de garantia: não gostou, devolvemos o valor`,
-  "Cancele quando quiser, sem multa nem fidelidade",
+  "Não pedimos cartão, sem multa nem fidelidade",
 ];
