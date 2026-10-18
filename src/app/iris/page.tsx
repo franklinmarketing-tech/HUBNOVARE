@@ -10,7 +10,6 @@ import {
   Sunrise,
 } from "lucide-react";
 import { Cabecalho } from "@/components/Cabecalho";
-import { ConversaIris } from "@/components/ConversaIris";
 import { RevelarAoRolar } from "@/components/RevelarAoRolar";
 import { CapturaLead } from "@/components/CapturaLead";
 import { FundoCena } from "@/components/FundoCena";
@@ -219,13 +218,14 @@ export default async function IrisPage({
       </section>
 
       <main className="mx-auto max-w-3xl px-4 pb-16 pt-10 sm:px-6">
-        {/* A CONVERSA — o que a pessoa espera de uma IA, logo de cara. */}
-        <section className="revelar">
-          <ConversaIris perguntaInicial={perguntaInicial} />
-        </section>
+        {/* ⚠️ AQUI FICAVA O CHAT (`<ConversaIris />`), que chamava o
+            gpt-4o-mini a cada pergunta. Saiu em 18/10/2026: a Íris deixou
+            de consumir IA para virar uma isca aberta da casa, sem custo por
+            uso e sem login.
 
-        {/* A leitura de extrato: o superpoder que nenhum chat genérico tem. */}
-        <section className="revelar mt-14">
+            O que ficou é o que sempre teve valor de verdade — a leitura do
+            extrato, que é aritmética feita no navegador de quem usa. */}
+        <section className="revelar mt-2">
           <h2 className="font-display text-xl font-bold text-primary">
             Ou deixe ela ler o seu extrato
           </h2>

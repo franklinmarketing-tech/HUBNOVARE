@@ -11,7 +11,6 @@ import {
   Linha,
   Resultado,
 } from "@/components/CascaFerramenta";
-import { PreenchimentoIA } from "@/components/PreenchimentoIA";
 import { PonteResultado } from "@/components/PonteResultado";
 
 const MOTIVOS: Array<{ chave: MotivoRescisao; nome: string; nota: string }> = [
@@ -143,16 +142,11 @@ export default function RescisaoPage() {
           />
         </div>
 
-        <PreenchimentoIA
-          contexto="Calculadora de rescisão CLT: precisa do último salário, tempo de empresa em meses, dias trabalhados no mês da saída e o saldo do FGTS."
-          exemplo="Ex.: fui demitido dia 15, ganhava 3.200 e trabalhei 3 anos lá. FGTS tem uns 9 mil"
-          campos={[
-            { nome: "salario", descricao: "salário", aplicar: setSalario },
-            { nome: "meses", descricao: "tempo de empresa", aplicar: setMeses },
-            { nome: "dias", descricao: "dias trabalhados", aplicar: setDias },
-            { nome: "saldoFgts", descricao: "saldo do FGTS", aplicar: setSaldoFgts },
-          ]}
-        />
+        {/* ⚠️ AQUI FICAVA O <PreenchimentoIA />, que lia um texto colado
+            ("ganho 4.200 e tenho 2 filhos") e preenchia os campos sozinho,
+            pelo gpt-4o-mini. Saiu em 18/10/2026, quando a casa zerou o
+            consumo de IA. Os campos acima continuam todos preenchíveis à
+            mão, que é como a ferramenta sempre funcionou por baixo. */}
 
         <label className="mt-4 flex items-center gap-2.5 cursor-pointer">
           <input

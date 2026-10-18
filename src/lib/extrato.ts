@@ -360,3 +360,139 @@ export function resumirExtrato(itens: ItemExtrato[]): ResumoExtrato {
     meses: new Set(itens.map((i) => i.data.slice(0, 7))).size,
   };
 }
+
+/* ═════════════════════════════════════════════════════ A LEITURA, SEM IA */
+
+export type AchadoExtrato = { titulo: string; texto: string; tipo: string };
+export type LeituraExtrato = {
+  veredito: string;
+  achados: AchadoExtrato[];
+  acoes: string[];
+};
+
+/**
+ * A LEITURA DO EXTRATO, ESCRITA DE ARITMÉTICA.
+ *
+ * ═══ POR QUE ISTO SUBSTITUIU A IA (18/10/2026) ═══════════════════════════
+ *
+ * Quem fazia este texto era o `gpt-4o-mini`, em `/api/iris`. Decisão do
+ * dono: a Íris deixa de consumir IA e vira mais uma isca aberta da casa.
+ *
+ * ⚠️ O QUE SE PERDE É MENOS DO QUE PARECE, e vale ser exato: a IA **nunca
+ * calculou nada**. Ela recebia o resumo já pronto — `resumirExtrato` roda no
+ * navegador — e só escrevia por cima. O que sai é a redação variada; o que
+ * fica é o número, que era o valor de verdade.
+ *
+ * ⚠️ E O QUE SE GANHA É GRANDE: resposta instantânea em vez de alguns
+ * segundos, sem teto de 6 por minuto e 30 por dia, sem exigir login, sem
+ * nenhum dado saindo do navegador — nem os totais — e custo zero.
+ *
+ * ⚠️ NENHUMA FRASE AQUI INVENTA NÚMERO. Cada uma é montada a partir de um
+ * campo do resumo, e os trechos que dependem de um achado só aparecem
+ * quando ele existe. Era justamente isso que a IA não garantia.
+ */
+export function lerExtratoSemIA(
+  resumo: ResumoExtrato,
+  moeda: (v: number) => string,
+): LeituraExtrato {
+  const { saidas, saldo, totalVazado, meses, porCategoria, recorrentes } = resumo;
+  const porMes = meses > 1 ? totalVazado / meses : totalVazado;
+
+  /* ── O VEREDITO ───────────────────────────────────────────────────────
+     A primeira frase responde à pergunta que fez a pessoa colar o
+     extrato: para onde foi o dinheiro. A segunda dá o tamanho do vazamento
+     quando ele existe — e cala quando não existe, em vez de inventar
+     preocupação. */
+  const vazouNoAno = porMes * 12;
+  const veredito =
+    totalVazado > 0
+      ? `Em ${meses === 1 ? "um mês" : `${meses} meses`}, ${moeda(totalVazado)} ` +
+        `saíram em tarifa, juro e encargo — dinheiro que não virou nada para você. ` +
+        `Nesse ritmo são ${moeda(vazouNoAno)} por ano.`
+      : saldo < 0
+        ? `Saiu mais do que entrou: ${moeda(Math.abs(saldo))} a menos no período. ` +
+          `Não achei tarifa nem juro escondido, então o aperto está no tamanho dos gastos.`
+        : `Não achei tarifa, juro nem encargo escondido neste extrato. ` +
+          `O que sai daqui está indo para gasto de verdade.`;
+
+  const achados: AchadoExtrato[] = [];
+
+  if (totalVazado > 0) {
+    achados.push({
+      tipo: "vazamento",
+      titulo: `${moeda(totalVazado)} em tarifa e juro`,
+      texto:
+        `É o que o banco cobrou sem te entregar nada. ` +
+        (meses > 1 ? `Dá ${moeda(porMes)} por mês. ` : "") +
+        `Tarifa de pacote e juro de cheque especial são os dois que mais aparecem — e os dois se resolvem conversando com o gerente ou trocando de conta.`,
+    });
+  }
+
+  /* As três maiores categorias de saída. */
+  const maiores = porCategoria.slice(0, 3);
+  if (maiores.length) {
+    const lista = maiores
+      .map((c) => `${c.categoria} (${moeda(c.total)})`)
+      .join(", ");
+    const topo = maiores[0];
+    const fatia = saidas > 0 ? Math.round((topo.total / saidas) * 100) : 0;
+    achados.push({
+      tipo: "categoria",
+      titulo: `Para onde foi o maior pedaço`,
+      texto:
+        `${lista}. ` +
+        (fatia >= 25
+          ? `Só ${topo.categoria} levou ${fatia}% de tudo o que saiu — é aí que uma mudança pequena faz diferença grande.`
+          : `Nenhuma categoria sozinha domina: o aperto, se houver, está espalhado.`),
+    });
+  }
+
+  /* Recorrentes: só vale falar quando se repetem de verdade. */
+  const repetidos = recorrentes.filter((r) => r.vezes > 1).slice(0, 4);
+  if (repetidos.length) {
+    const soma = repetidos.reduce((a, r) => a + r.valor, 0);
+    achados.push({
+      tipo: "recorrente",
+      titulo: `${repetidos.length} cobranças que se repetem`,
+      texto:
+        repetidos.map((r) => `${r.descricao} (${moeda(r.valor)})`).join(", ") +
+        `. Juntas dão ${moeda(soma)} por mês, ${moeda(soma * 12)} por ano. ` +
+        `Vale olhar uma por uma e perguntar se você usou cada uma no último mês.`,
+    });
+  }
+
+  achados.push({
+    tipo: "saldo",
+    titulo: saldo >= 0 ? "Sobrou no período" : "Faltou no período",
+    texto:
+      `Entrou ${moeda(resumo.entradas)} e saiu ${moeda(saidas)}: ` +
+      (saldo >= 0
+        ? `sobraram ${moeda(saldo)}. Esse é o dinheiro que dá para guardar sem apertar nada.`
+        : `faltaram ${moeda(Math.abs(saldo))}. Essa diferença saiu de algum lugar — reserva, limite ou cartão.`),
+  });
+
+  /* ── O QUE FAZER ─────────────────────────────────────────────────────
+     Ações concretas e na ordem do que dá mais resultado por esforço. */
+  const acoes: string[] = [];
+  if (totalVazado > 0)
+    acoes.push(
+      `Ligue para o seu banco e peça para rever as tarifas: ${moeda(totalVazado)} no período é argumento suficiente.`,
+    );
+  if (repetidos.length)
+    acoes.push(
+      `Cancele o que você não usou no último mês entre as ${repetidos.length} cobranças repetidas acima.`,
+    );
+  if (maiores.length)
+    acoes.push(
+      `Defina um teto para ${maiores[0].categoria} no mês que vem e acompanhe — é a categoria que mais pesa.`,
+    );
+  if (saldo < 0)
+    acoes.push(
+      `Antes de cortar, descubra de onde saiu a diferença de ${moeda(Math.abs(saldo))}: se foi do cartão, ela vira juro no mês seguinte.`,
+    );
+  acoes.push(
+    "Cole o extrato do mês que vem aqui de novo e compare: o que melhorou aparece na hora.",
+  );
+
+  return { veredito, achados, acoes };
+}

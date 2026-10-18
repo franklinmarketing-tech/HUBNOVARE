@@ -13,7 +13,12 @@ import {
 } from "lucide-react";
 import { ASSINATURA_NOME } from "@/lib/assinatura";
 import { brl } from "@/lib/calculos";
-import { lerExtrato, pareceOfx, resumirExtrato } from "@/lib/extrato";
+import {
+  lerExtrato,
+  lerExtratoSemIA,
+  pareceOfx,
+  resumirExtrato,
+} from "@/lib/extrato";
 import { RoboIris } from "@/components/RoboIris";
 
 type Achado = { titulo: string; texto: string; tipo: string };
@@ -106,6 +111,22 @@ export function IrisExtrato() {
   const itens = useMemo(() => (texto.trim() ? lerExtrato(texto) : []), [texto]);
   const resumo = useMemo(() => (itens.length ? resumirExtrato(itens) : null), [itens]);
 
+  /**
+   * ⚠️ NÃO CHAMA MAIS A IA, E NÃO SAI NADA DO NAVEGADOR.
+   *
+   * Até 18/10/2026 esta função mandava o resumo para /api/iris, onde o
+   * gpt-4o-mini escrevia a leitura. A IA nunca calculou nada — os números
+   * já vinham prontos de `resumirExtrato`, que roda aqui —, então o que
+   * saía dela era só a redação.
+   *
+   * Agora a redação é montada de aritmética, por `lerExtratoSemIA`. O que
+   * se ganha: resposta instantânea, sem teto de uso, sem login e sem um
+   * byte do seu extrato (nem os totais) saindo deste navegador.
+   *
+   * Continua `async` de propósito: o botão e os estados de "lendo" já são
+   * escritos em cima disso, e trocar a assinatura espalharia a mudança por
+   * toda a tela sem nenhum ganho.
+   */
   async function analisar() {
     if (!resumo) return;
     setEstado("lendo");
@@ -113,32 +134,14 @@ export function IrisExtrato() {
     setLeitura(null);
 
     try {
-      const r = await fetch("/api/iris", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ resumo }),
-      });
-
-      if (r.status === 429) {
-        setErro("Muitas análises seguidas. Espere um minuto.");
-        setEstado("parado");
-        return;
-      }
-      if (r.status === 503) {
-        setErro("A Íris está fora do ar agora. O resumo abaixo continua valendo.");
-        setEstado("parado");
-        return;
-      }
-      if (!r.ok) throw new Error("falhou");
-
-      setLeitura((await r.json()) as Leitura);
+      setLeitura(lerExtratoSemIA(resumo, brl));
       setEstado("pronto");
 
       const novo = usadas + 1;
       setUsadas(novo);
       window.localStorage.setItem(CHAVE_USO, String(novo));
     } catch {
-      setErro("Não consegui analisar agora. O resumo abaixo é calculado aqui e continua valendo.");
+      setErro("Não consegui ler esse extrato. Confira se os lançamentos vieram completos.");
       setEstado("parado");
     }
   }
@@ -277,27 +280,11 @@ export function IrisExtrato() {
               </div>
             )}
 
-            {acabouOGratis && !leitura ? (
-              <div className="mt-4 rounded-2xl border border-accent-soft bg-accent-tint p-5">
-                <p className="flex items-center gap-2 text-sm font-bold text-primary">
-                  <Lock className="h-4 w-4" aria-hidden="true" />
-                  Você já usou sua análise gratuita
-                </p>
-                <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">
-                  Os números acima continuam sendo calculados aqui, de graça e
-                  sem limite. A leitura da Íris — com os achados e o que fazer
-                  — faz parte da assinatura.
-                </p>
-                <Link
-                  href="/assinar"
-                  className="mt-4 inline-flex items-center gap-2 rounded-xl bg-accent-btn px-4 py-2.5 text-sm font-semibold text-accent-foreground transition-colors hover:bg-accent-strong"
-                >
-                  Assinar o {ASSINATURA_NOME}
-                  <ArrowRight className="h-4 w-4" aria-hidden="true" />
-                </Link>
-              </div>
-            ) : (
-              <>
+            {/* ⚠️ AQUI HAVIA UM BLOQUEIO POR USO ("você já usou sua análise
+                gratuita"), com botão de assinar. O limite já estava em
+                infinito e o bloco nunca aparecia — mas código de cobrança
+                esquecido numa tela é o que volta a funcionar sozinho num
+                ajuste distraído. Saiu em 18/10/2026. */}
                 <button
                   type="button"
                   onClick={() => void analisar()}
@@ -323,8 +310,6 @@ export function IrisExtrato() {
                 <p className="mt-2.5 text-center text-2xs text-muted-foreground">
                   Sobem só os totais acima — nunca o texto do extrato.
                 </p>
-              </>
-            )}
           </>
         )}
 

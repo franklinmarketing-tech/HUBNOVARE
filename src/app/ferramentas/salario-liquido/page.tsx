@@ -16,7 +16,6 @@ import {
   Linha,
   Resultado,
 } from "@/components/CascaFerramenta";
-import { PreenchimentoIA } from "@/components/PreenchimentoIA";
 import { PonteResultado } from "@/components/PonteResultado";
 
 export default function SalarioLiquidoPage() {
@@ -91,16 +90,11 @@ export default function SalarioLiquidoPage() {
           />
         </div>
 
-        <PreenchimentoIA
-          contexto="Calculadora de salário líquido CLT: precisa do salário bruto mensal, número de dependentes, pensão alimentícia e outros descontos do holerite."
-          exemplo="Ex.: ganho 4.200 de carteira, tenho 2 filhos e descontam 180 do plano de saúde"
-          campos={[
-            { nome: "bruto", descricao: "salário bruto", aplicar: setBruto },
-            { nome: "dependentes", descricao: "dependentes", aplicar: setDependentes },
-            { nome: "pensao", descricao: "pensão", aplicar: setPensao },
-            { nome: "outros", descricao: "outros descontos", aplicar: setOutros },
-          ]}
-        />
+        {/* ⚠️ AQUI FICAVA O <PreenchimentoIA />, que lia um texto colado
+            ("ganho 4.200 e tenho 2 filhos") e preenchia os campos sozinho,
+            pelo gpt-4o-mini. Saiu em 18/10/2026, quando a casa zerou o
+            consumo de IA. Os campos acima continuam todos preenchíveis à
+            mão, que é como a ferramenta sempre funcionou por baixo. */}
       </section>
 
       <Resultado

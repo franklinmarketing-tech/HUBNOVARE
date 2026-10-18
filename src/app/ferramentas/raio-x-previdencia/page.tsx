@@ -10,7 +10,6 @@ import {
   Linha,
   Resultado,
 } from "@/components/CascaFerramenta";
-import { IrisAjuda } from "@/components/IrisAjuda";
 import { PonteResultado } from "@/components/PonteResultado";
 import {
   auditarPrevidencia,
@@ -126,27 +125,11 @@ export default function RaioXPrevidencia() {
         </div>
       </section>
 
-      {/* A Íris preenche a partir do texto do extrato e explica os campos.
-          "Taxa de carregamento" é jargão de seguradora — sem alguém para
-          explicar, a pessoa fecha a aba. */}
-      <IrisAjuda
-        contexto="Raio-X da previdência privada: calcula quanto as taxas do plano (administração e carregamento) custam, em reais, até o resgate."
-        exemplo="Cole aqui o que diz o seu extrato, ou escreva do seu jeito: 'tenho 80 mil na previdência do banco, ponho 1500 por mês, taxa de administração 2,1% e carregamento 2%, quero resgatar em 20 anos'"
-        duvidasFrequentes={[
-          "Onde acho a taxa de carregamento?",
-          "O que é taxa de administração?",
-          "Qual rendimento devo colocar?",
-          "PGBL e VGBL são a mesma coisa?",
-        ]}
-        campos={[
-          { nome: "saldo", descricao: "saldo acumulado hoje no plano, em reais", aplicar: setSaldo },
-          { nome: "aporte", descricao: "aporte mensal, em reais", aplicar: setAporte },
-          { nome: "anos", descricao: "quantidade de ANOS (não meses) até começar a usar o dinheiro", aplicar: setAnos },
-          { nome: "rendimento", descricao: "rendimento anual esperado em %, antes das taxas", aplicar: setRendimento },
-          { nome: "taxaAdm", descricao: "taxa de administração anual em %", aplicar: setTaxaAdm },
-          { nome: "carregamento", descricao: "taxa de carregamento em % sobre cada aporte", aplicar: setCarregamento },
-        ]}
-      />
+      {/* ⚠️ AQUI FICAVA O <IrisAjuda />, que preenchia estes campos a partir
+          de um texto colado e explicava o jargão da seguradora. Dependia do
+          gpt-4o-mini e saiu em 18/10/2026, quando a Íris deixou de consumir
+          IA. Os campos continuam todos preenchíveis à mão, e a página
+          explica cada um logo acima. */}
 
       <Resultado
         rotulo={caro ? "As taxas vão levar" : "Seu plano está abaixo da régua"}
