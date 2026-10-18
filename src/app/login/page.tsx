@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
@@ -37,9 +37,11 @@ function FormularioLogin() {
    * navegador, onde o `code_verifier` do PKCE não existe. Dizer isso é a
    * diferença entre a pessoa pedir outro link e a pessoa desistir.
    */
+  const GASTO =
+    "Esse link já foi usado ou expirou. Peça outro abaixo e abra logo em seguida — pedir um link novo invalida o anterior, então vale sempre o último que chegou.";
+
   const MOTIVO: Record<string, string> = {
-    "link-gasto":
-      "Esse link já foi usado ou expirou. Peça outro abaixo — e abra o novo no mesmo navegador em que pediu.",
+    "link-gasto": GASTO,
     "sem-codigo": "O endereço veio incompleto. Peça um link novo abaixo.",
   };
   const erroDaVolta = MOTIVO[params.get("erro") ?? ""] ?? null;
@@ -48,6 +50,39 @@ function FormularioLogin() {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [erro, setErro] = useState<string | null>(erroDaVolta);
+
+  /**
+   * ⚠️ O SUPABASE MANDA O ERRO DEPOIS DO `#`, E ISSO NÃO CHEGA AO SERVIDOR.
+   *
+   * Quando o link falha, a volta vem como
+   * `#error=access_denied&error_code=otp_expired&...` — e o que está depois
+   * do `#` fica só no navegador. O `/auth/callback` roda no servidor, não
+   * enxerga nada disso, e concluía "veio sem código", mostrando "o endereço
+   * veio incompleto" para um link que na verdade tinha **expirado**. A
+   * mensagem mandava a pessoa olhar o endereço em vez de pedir outro link.
+   *
+   * Por isso o motivo real é lido aqui, no cliente, e tem prioridade sobre
+   * o que o servidor deduziu.
+   */
+  useEffect(() => {
+    const hash = window.location.hash.replace(/^#/, "");
+    if (!hash) return;
+
+    const vindo = new URLSearchParams(hash);
+    const codigo = vindo.get("error_code");
+    if (!codigo) return;
+
+    setErro(
+      codigo === "otp_expired" || codigo === "access_denied"
+        ? GASTO
+        : vindo.get("error_description")?.replace(/\+/g, " ") ??
+            "Não consegui validar esse link. Peça outro abaixo.",
+    );
+
+    /* Tira o `#...` da barra de endereço: ele não serve para mais nada e,
+       se a pessoa recarregar, o erro reaparece como se fosse novo. */
+    window.history.replaceState(null, "", window.location.pathname);
+  }, [GASTO]);
   const [aviso, setAviso] = useState<string | null>(null);
   const [enviando, setEnviando] = useState(false);
 
