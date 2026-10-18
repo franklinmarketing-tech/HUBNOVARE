@@ -28,10 +28,26 @@ function FormularioLogin() {
    */
   const modoInicial: Modo = params.get("modo") === "criar" ? "criar" : "entrar";
 
+  /**
+   * O que dizer quando a volta do link de e-mail falha.
+   *
+   * ⚠️ "LINK INVÁLIDO" SOZINHO NÃO AJUDA NINGUÉM. As duas causas reais são
+   * banais e têm solução — o link já foi aberto uma vez (é de uso único, e
+   * o Gmail chega a consumi-lo ao gerar a prévia) ou foi aberto em outro
+   * navegador, onde o `code_verifier` do PKCE não existe. Dizer isso é a
+   * diferença entre a pessoa pedir outro link e a pessoa desistir.
+   */
+  const MOTIVO: Record<string, string> = {
+    "link-gasto":
+      "Esse link já foi usado ou expirou. Peça outro abaixo — e abra o novo no mesmo navegador em que pediu.",
+    "sem-codigo": "O endereço veio incompleto. Peça um link novo abaixo.",
+  };
+  const erroDaVolta = MOTIVO[params.get("erro") ?? ""] ?? null;
+
   const [modo, setModo] = useState<Modo>(modoInicial);
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
-  const [erro, setErro] = useState<string | null>(null);
+  const [erro, setErro] = useState<string | null>(erroDaVolta);
   const [aviso, setAviso] = useState<string | null>(null);
   const [enviando, setEnviando] = useState(false);
 
@@ -49,10 +65,16 @@ function FormularioLogin() {
 
     const supabase = createClient();
 
-    // Recuperar senha: manda o link e fica na mesma tela.
+    /* Recuperar senha: manda o link e fica na mesma tela.
+     *
+     * ⚠️ O DESTINO ERA `/login` E ISSO NÃO LEVAVA A NADA. O link voltava
+     * para esta mesma tela com um `?code=` que ninguém trocava por sessão,
+     * então a pessoa clicava no e-mail e caía de novo no login, sem lugar
+     * para digitar a senha nova. Agora o link passa pelo `/auth/callback`,
+     * que abre a sessão, e termina em `/nova-senha`. */
     if (modo === "recuperar") {
       const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
-        redirectTo: `${window.location.origin}/login`,
+        redirectTo: `${window.location.origin}/auth/callback?proximo=/nova-senha`,
       });
       setEnviando(false);
       if (error) return setErro(error.message);
