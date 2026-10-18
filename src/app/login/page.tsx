@@ -70,11 +70,19 @@ function FormularioLogin() {
      * ⚠️ O DESTINO ERA `/login` E ISSO NÃO LEVAVA A NADA. O link voltava
      * para esta mesma tela com um `?code=` que ninguém trocava por sessão,
      * então a pessoa clicava no e-mail e caía de novo no login, sem lugar
-     * para digitar a senha nova. Agora o link passa pelo `/auth/callback`,
-     * que abre a sessão, e termina em `/nova-senha`. */
+     * para digitar a senha nova.
+     *
+     * ⚠️ E PRECISA SER `/reset-password`, NÃO `/auth/callback`. O e-mail é
+     * montado pela Edge Function `auth-email-hook`, que em recuperação
+     * DESCARTA qualquer destino que não contenha `/reset-password` e troca
+     * pelo domínio do app antigo. Apontar direto para o callback fazia o
+     * link sair para `novareapp.com.br`, onde o código não vale — a chave
+     * do PKCE fica no navegador sob este domínio. A rota
+     * `/reset-password` existe só para ter o nome que o e-mail aceita, e
+     * encaminha para o `/auth/callback`. Ver o comentário lá. */
     if (modo === "recuperar") {
       const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
-        redirectTo: `${window.location.origin}/auth/callback?proximo=/nova-senha`,
+        redirectTo: `${window.location.origin}/reset-password`,
       });
       setEnviando(false);
       if (error) return setErro(error.message);
