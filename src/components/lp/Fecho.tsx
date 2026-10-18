@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { Sparkles } from "lucide-react";
 
-import { BotaoAssinarPlano } from "@/components/BotaoAssinarPlano";
+import { BotaoComecar } from "@/components/BotaoComecar";
 import {
   ASSINATURA_GARANTIA_DIAS,
   ASSINATURA_PRECO_ROTULO,
@@ -77,13 +77,7 @@ export function Fecho() {
         </p>
 
         <div className="revelar mt-10 flex justify-center">
-          <BotaoAssinarPlano
-            contexto="workspace"
-            tamanho="grande"
-            destaque
-            direto
-            rotulo="Começar agora"
-          />
+          <BotaoComecar tamanho="grande" destaque rotulo="Começar agora" />
         </div>
 
         <p className="revelar mt-6 text-[1.1875rem] tracking-[-0.012em] text-[#5b6d81]">

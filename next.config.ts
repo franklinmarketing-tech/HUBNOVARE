@@ -70,6 +70,18 @@ const nextConfig: NextConfig = {
          funcionar sozinhos, sem ninguém precisar lembrar deles. */
       { source: "/finplan", destination: "/fincash", permanent: false },
       { source: "/finplan/:caminho*", destination: "/fincash", permanent: false },
+
+      /* ── A LISTA DE ESPERA DA ASSINATURA SAIU EM 18/10/2026 ─────────────
+         `/assinar/em-breve` mostrava os dois planos, o preço e a garantia
+         para quem clicasse em assinar antes de a oferta da Hotmart existir.
+         Não existe mais oferta nenhuma, então a página virou uma vitrine de
+         preço sem produto — e continuava pública e indexável, porque rota
+         sem link ainda responde.
+
+         O redirect fica porque o endereço já foi publicado: quem tiver o
+         link salvo, ou chegar por um resultado de busca antigo, cai na
+         página que explica que é de graça, em vez de num 404. */
+      { source: "/assinar/em-breve", destination: "/assinar", permanent: false },
       // A página existia só para descrever uma ideia sem preço e mandar a
       // pessoa falar com a Novare — e o próprio botão dela já apontava
       // para /consultoria. Cortamos o meio de campo.

@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { ArrowRight, ShieldCheck } from "lucide-react";
 
-import { BotaoAssinarPlano } from "@/components/BotaoAssinarPlano";
+import { BotaoComecar } from "@/components/BotaoComecar";
 import { MaqueteFinCash } from "@/components/lp/maquetes";
 import { Palco } from "@/components/lp/Palco";
 import { HEROI, OBJETIVOS_HEROI } from "@/lib/hub-lp";
@@ -110,13 +110,7 @@ export function HeroVitrine() {
 
         {/* ------------------------------------------------------ a ação --- */}
         <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
-          <BotaoAssinarPlano
-            contexto="workspace"
-            tamanho="grande"
-            destaque
-            direto
-            rotulo={HEROI.cta}
-          />
+          <BotaoComecar tamanho="grande" destaque rotulo={HEROI.cta} />
           <a href="#produto" className="nv-btn nv-btn-linha">
             {HEROI.ctaSecundario}
             <ArrowRight className="h-4 w-4" />

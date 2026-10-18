@@ -5,11 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ArrowRight, Check, Sparkles, X } from "lucide-react";
 import {
-  ASSINATURA_PRECO_ROTULO,
-  ASSINATURA_GARANTIA,
-  ASSINATURA_PRECO_ANUAL_MENSAL_ROTULO,
 } from "@/lib/assinatura";
-import { ROTULO_DESCONTO_ASSINANTE } from "@/lib/consultoria";
 
 /**
  * O convite que aparece quando a pessoa está indo embora.
@@ -170,31 +166,41 @@ export function ConviteDeSaida() {
         </button>
 
         <div className="relative min-h-0 flex-1 overflow-y-auto px-6 pb-6 pt-8 sm:px-7">
+          {/* ⚠️ ESTE POP-UP VENDIA, E NINGUÉM TINHA VISTO.
+              Até 18/10/2026 ele anunciava "R$ 19,90/mês no plano anual, ou
+              R$ 29,90/mês avulso" e os 7 dias de garantia — em TODAS as
+              páginas, porque mora no layout raiz.
+
+              Passou por toda a limpeza de preço sem ser notado, e o motivo
+              interessa: ele só existe na tela depois de um gesto (o cursor
+              saindo pela borda de cima). Conferência visual não vê, e o
+              guardião de "nada à venda" também não, porque lê a página
+              parada. Apareceu numa varredura de componentes órfãos. */}
           <span className="selo-pulsa inline-flex items-center gap-1.5 rounded-full bg-white/[0.12] px-3 py-1.5 text-2xs font-semibold uppercase tracking-wider">
             <Sparkles className="h-3.5 w-3.5 text-accent-claro" />
-{ASSINATURA_GARANTIA}
+            Tudo de graça
           </span>
 
           <h2
             id="titulo-convite-saida"
             className="mt-4 font-display text-2xl font-extrabold leading-tight tracking-tight sm:text-[1.75rem]"
           >
-            Antes de ir: seu plano
+            Antes de ir: é tudo
             <br />
-            <span className="text-accent-claro">leva dez minutos.</span>
+            <span className="text-accent-claro">de graça mesmo.</span>
           </h2>
 
           <p className="mt-3 text-sm leading-relaxed text-white/75">
-            Você preenche o retrato financeiro uma vez e o app devolve
-            diagnóstico, plano de ação e acompanhamento — sem esperar
-            ninguém liberar nada.
+            As ferramentas da Novare abrem sem cadastro e sem cartão. A gente
+            vive da consultoria que faz com quem procura — por isso não tem
+            nada aqui para te empurrar.
           </p>
 
           <ul className="mt-5 space-y-2">
             {[
-              "O FINPLAN inteiro, o plano do seu ano",
-              "A Íris, a IA que lê seu extrato",
-              `${ROTULO_DESCONTO_ASSINANTE} na consultoria particular`,
+              "15 ferramentas abertas, sem cadastro",
+              "A Íris lê o seu extrato e acha o que vaza",
+              "O FINCASH, para o mês que já está correndo",
             ].map((item) => (
               <li key={item} className="flex items-start gap-2.5 text-sm text-white/85">
                 <Check className="mt-0.5 h-4 w-4 shrink-0 text-accent-claro" />
@@ -204,17 +210,16 @@ export function ConviteDeSaida() {
           </ul>
 
           <Link
-            href="/assinar"
+            href="/aplicativos"
             onClick={fechar}
             className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-white px-5 py-3.5 text-sm font-bold text-primary transition-transform hover:-translate-y-0.5"
           >
-            Ver o que entra na assinatura
+            Ver as ferramentas
             <ArrowRight className="h-4 w-4" />
           </Link>
 
           <p className="mt-3 text-center text-2xs text-white/55">
-            {ASSINATURA_PRECO_ANUAL_MENSAL_ROTULO}/mês no plano anual, ou{" "}
-            {ASSINATURA_PRECO_ROTULO}/mês avulso. Não pedimos cartão.
+            Sem cartão, sem plano escondido e sem comissão de banco nenhum.
           </p>
 
           <button

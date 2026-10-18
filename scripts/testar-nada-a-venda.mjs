@@ -82,6 +82,13 @@ const COBRANCA = [
  */
 const PALAVRAS = [
   /\bassine\b/i,
+  /**
+   * ⚠️ "ASSINAR" SOZINHA NÃO ENTRA, e o caso que ensinou isso vale guardar:
+   * a calculadora de Rescisão se descreve como "Confira antes de assinar" —
+   * antes de assinar o acordo de demissão. É a palavra certa no lugar certo.
+   * O que se caça é assinar um PRODUTO nosso.
+   */
+  /\bassinar\s+(o\s+|a\s+)?(fincash|plano|workspace|novare|agora)\b/i,
   /\b(ver a|nossa|minha|sua) assinatura\b/i,
   /\bassinatura (mensal|anual|do|da casa|completa)\b/i,
   /\bassinante\b/i,
@@ -128,6 +135,31 @@ for (const rota of ROTAS) {
     .replace(/<script[\s\S]*?<\/script>/gi, " ")
     .replace(/\s+/g, " ");
 
+  /**
+   * O que uma PESSOA lê: o texto da página, mais título e metadados.
+   *
+   * ⚠️ ATRIBUTOS FICAM DE FORA, e isso não é afrouxar a régua. A rota
+   * `/assinar` foi mantida de propósito — o endereço já está em material
+   * divulgado, e trocá-lo quebraria esses links para não ganhar nada. Mas
+   * `href="/assinar"` fazia o guardião reprovar seis páginas por causa de
+   * um link cujo texto visível é "Workspace". Guardião que grita sobre o
+   * que ninguém lê é guardião que alguém desliga.
+   *
+   * O preço continua sendo caçado no HTML inteiro (ver `COBRANCA` abaixo),
+   * porque ele já se escondeu em `meta description` uma vez.
+   */
+  const titulo = (html.match(/<title[^>]*>([^<]*)<\/title>/i) ?? [])[1] ?? "";
+  /* URLs ficam de fora: `og:url` traz o próprio endereço da página, e numa
+     rota chamada `/assinar` isso bastava para reprovar a página inteira. */
+  const metas = [...html.matchAll(/<meta[^>]+content="([^"]*)"/gi)]
+    .map((m) => m[1])
+    .filter((c) => !/^https?:\/\//i.test(c))
+    .join(" ");
+  const lido = `${titulo} ${metas} ${html.replace(/<[^>]*>/g, " ")}`.replace(
+    /\s+/g,
+    " ",
+  );
+
   for (const re of COBRANCA) {
     const achou = html.match(re);
     if (achou) {
@@ -139,11 +171,32 @@ for (const rota of ROTAS) {
   if (PODE_FALAR_EM_CONTRATAR.has(rota)) continue;
 
   for (const re of PALAVRAS) {
-    const achou = html.match(re);
+    const achou = lido.match(re);
     if (achou) {
-      const i = html.indexOf(achou[0]);
-      relatar(rota, `palavra de venda: "${achou[0]}"`, html.slice(Math.max(0, i - 70), i + 70));
+      const i = lido.indexOf(achou[0]);
+      relatar(rota, `palavra de venda: "${achou[0]}"`, lido.slice(Math.max(0, i - 70), i + 70));
     }
+  }
+
+  /**
+   * ⚠️ PARA ONDE OS BOTÕES LEVAM, e não só o que eles dizem.
+   *
+   * Esta parte existe porque a primeira versão do guardião deixou passar o
+   * pior caso de todos: três botões escritos "Começar agora" na landing que
+   * iam para o checkout da Hotmart. O destino não era texto na página — era
+   * o resultado de uma função, resolvido no clique. Varredura de texto não
+   * via, olho humano não via, e este teste também não.
+   *
+   * Um link para gateway de pagamento num site que não cobra nada é o
+   * defeito mais caro possível aqui: a pessoa clica confiando e chega numa
+   * tela de compra.
+   */
+  const destinos = await pagina.$$eval("a[href]", (as) =>
+    as.map((a) => a.getAttribute("href") ?? ""),
+  );
+  const PAGAMENTO = /hotmart|pagar\.me|mercadopago|stripe|pagseguro|checkout|\/assinar\/em-breve/i;
+  for (const d of destinos) {
+    if (PAGAMENTO.test(d)) relatar(rota, `botão leva a pagamento: "${d}"`);
   }
 }
 

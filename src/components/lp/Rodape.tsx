@@ -3,7 +3,7 @@ import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 
 import { FundoBlueprint } from "@/components/lp/FundoBlueprint";
-import { BotaoAssinarPlano } from "@/components/BotaoAssinarPlano";
+import { BotaoComecar } from "@/components/BotaoComecar";
 import { CONTATO } from "@/lib/contato";
 import {
   ASSINATURA_NOME,
@@ -78,12 +78,7 @@ export function Rodape() {
               {ASSINATURA_PRECO_ROTULO} por mês
             </h2>
             <div className="mt-9 flex justify-center">
-              <BotaoAssinarPlano
-                contexto="workspace"
-                tamanho="grande"
-                direto
-                rotulo="Começar agora"
-              />
+              <BotaoComecar tamanho="grande" rotulo="Começar agora" />
             </div>
           </div>
 
