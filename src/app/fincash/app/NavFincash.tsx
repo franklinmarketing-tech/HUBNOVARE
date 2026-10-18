@@ -16,6 +16,7 @@ import {
   LineChart,
   ListPlus,
   LogOut,
+  Bell,
   MessageCircle,
   Tags,
   MoreHorizontal,
@@ -175,6 +176,12 @@ const TELAS: Tela[] = [
     href: "/fincash/app/whatsapp",
     rotulo: "WhatsApp",
     Icone: MessageCircle,
+    secao: "canos",
+  },
+  {
+    href: "/fincash/app/avisos",
+    rotulo: "Avisos",
+    Icone: Bell,
     secao: "canos",
   },
   {

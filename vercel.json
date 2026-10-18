@@ -1,7 +1,7 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "functions": {
-    "src/app/api/whatsapp/alertas/route.ts": {
+    "src/app/api/alertas/route.ts": {
       "maxDuration": 60
     },
     "src/app/api/whatsapp/webhook/route.ts": {
@@ -10,7 +10,7 @@
   },
   "crons": [
     {
-      "path": "/api/whatsapp/alertas",
+      "path": "/api/alertas",
       "schedule": "0 11 * * *"
     }
   ]

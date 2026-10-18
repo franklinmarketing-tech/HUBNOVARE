@@ -51,7 +51,7 @@ const DIAS = [
   { v: 6, r: "sábado" },
 ];
 
-export function Alertas({ ligado }: { ligado: boolean }) {
+export function Alertas({ ligado = true }: { ligado?: boolean }) {
   const [cfg, setCfg] = useState<ConfigAlertas | null>(null);
   const [semTabela, setSemTabela] = useState(false);
   const [salvando, setSalvando] = useState(false);
@@ -63,7 +63,7 @@ export function Alertas({ ligado }: { ligado: boolean }) {
     if (!sessao.user) return;
 
     const { data, error } = await supabase
-      .from("fin_whatsapp_alertas")
+      .from("fin_alertas")
       .select("*")
       .eq("usuario_id", sessao.user.id)
       .maybeSingle();
@@ -93,7 +93,7 @@ export function Alertas({ ligado }: { ligado: boolean }) {
     /* `upsert` e não `update`: a linha nasce no primeiro toque, e não no
        primeiro acesso à tela — quem abre e não mexe em nada não precisa
        ocupar espaço no banco. */
-    const { error } = await supabase.from("fin_whatsapp_alertas").upsert(
+    const { error } = await supabase.from("fin_alertas").upsert(
       {
         usuario_id: sessao.user.id,
         contas_ligado: novo.contas_ligado,
@@ -144,17 +144,10 @@ export function Alertas({ ligado }: { ligado: boolean }) {
           </span>
         ) : null}
       </div>
-      {!ligado && (
-        <p className="mb-4 rounded-xl bg-muted px-3.5 py-3 text-xs leading-relaxed text-muted-foreground">
-          Ligue o seu WhatsApp acima para começar a receber. Você pode escolher
-          os avisos desde já — eles só passam a sair depois que o número
-          estiver ligado.
-        </p>
-      )}
-
       <p className="mb-5 text-xs leading-relaxed text-muted-foreground">
-        Nada é enviado sem você ligar aqui. Cada aviso sai no máximo uma vez
-        por dia, e você desliga quando quiser.
+        Nada é enviado sem você ligar aqui. Os avisos chegam no sino, aqui
+        dentro, e no seu e-mail. Cada um sai no máximo uma vez por dia, e
+        você desliga quando quiser.
       </p>
 
       <div className="space-y-3">

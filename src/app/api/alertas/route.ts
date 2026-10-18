@@ -11,7 +11,10 @@ import {
   type ConfigAlertas,
 } from "@/lib/fincash/alertas";
 import { limitesDoMes, refDoMes, resumirMes } from "@/lib/fincash/modelo";
-import { enviarTexto, whatsappConfigurado } from "@/lib/fincash/whatsapp-envio";
+import {
+  enviarAlertaDoFincash,
+  TETO_DIARIO_DE_ALERTAS,
+} from "@/lib/email";
 
 /**
  * A ROTINA QUE MANDA OS ALERTAS. Roda uma vez por dia, pelo cron da Vercel.
@@ -28,10 +31,23 @@ import { enviarTexto, whatsappConfigurado } from "@/lib/fincash/whatsapp-envio";
  * só deixa cada um ver o que é seu. Sem `SUPABASE_SERVICE_ROLE_KEY` a rota
  * responde 503 e não finge que funcionou.
  *
+ * ⚠️ O CANAL MUDOU DE WHATSAPP PARA E-MAIL + SINO, e o motivo é preço. A
+ * Meta cobra R$ 0,035 por mensagem de utilidade e, desde 1º/10/2026, cobra
+ * também dentro da janela de 24h que antes era gratuita. Com o FINCASH de
+ * graça, seria custo por cliente sem receita atrás. Decisão do dono: no
+ * FINCASH, só o que não cobra nada.
+ *
+ * Nada do motor mudou: `lib/fincash/alertas.ts` decide O QUE avisar e nunca
+ * soube por onde sairia. Trocar o canal inteiro não custou uma linha de
+ * regra nem um dos 24 testes.
+ *
+ * ⚠️ O SINO É A BASE, O E-MAIL É O REFORÇO. O sino (`hub_notificacoes`) não
+ * tem teto e não custa nada; o e-mail tem 100/dia no plano gratuito da
+ * Resend. Quando o teto chega, o e-mail para e o sino continua — ninguém
+ * fica sem o aviso, e a conta não vira cobrança.
+ *
  * ⚠️ EXIGE SEGREDO NO CABEÇALHO. Sem isso, qualquer um que descobrisse o
- * endereço dispararia mensagens para a base inteira — e o estrago não seria
- * só o incômodo: WhatsApp não pedido derruba a reputação do número na Meta,
- * e a entrega de todo mundo junto.
+ * endereço dispararia avisos para a base inteira.
  *
  * ⚠️ UM ERRO EM UMA PESSOA NÃO PODE PARAR AS OUTRAS. Cada cliente é
  * processado no seu próprio try: um número inválido, uma tabela faltando ou
@@ -68,12 +84,6 @@ export async function GET(requisicao: Request) {
       { status: 503 },
     );
   }
-  if (!whatsappConfigurado()) {
-    return NextResponse.json(
-      { erro: "o canal de WhatsApp não está configurado" },
-      { status: 503 },
-    );
-  }
 
   const db = createClient(URL_SUPABASE, CHAVE_SERVICO, {
     auth: { persistSession: false },
@@ -81,7 +91,7 @@ export async function GET(requisicao: Request) {
 
   /* Só quem ligou alguma coisa. O índice parcial da tabela existe para isto. */
   const { data: configs, error } = await db
-    .from("fin_whatsapp_alertas")
+    .from("fin_alertas")
     .select("*")
     .or(
       "contas_ligado.eq.true,fatura_ligado.eq.true,orcamento_ligado.eq.true,resumo_ligado.eq.true",
@@ -98,20 +108,12 @@ export async function GET(requisicao: Request) {
 
   let enviados = 0;
   let pessoas = 0;
+  let emailsHoje = 0;
+  let naoCoubeNoEmail = 0;
   const problemas: string[] = [];
 
   for (const cfg of (configs ?? []) as Linha[]) {
     try {
-      /* O número da pessoa. Sem WhatsApp ligado, não há para onde mandar —
-         e isso é normal: a tela deixa configurar antes de ligar. */
-      const { data: conta } = await db
-        .from("fin_whatsapp_contas")
-        .select("telefone, ativo")
-        .eq("user_id", cfg.usuario_id)
-        .maybeSingle();
-
-      if (!conta?.telefone || conta.ativo === false) continue;
-
       const alertas: Alerta[] = [];
 
       if (cfg.contas_ligado || cfg.fatura_ligado) {
@@ -197,17 +199,56 @@ export async function GET(requisicao: Request) {
 
       if (!alertas.length) continue;
 
-      for (const alerta of alertas) {
-        await enviarTexto({ para: conta.telefone, texto: alerta.texto });
-        enviados++;
+      /* ── O SINO: sempre, e sem teto ──────────────────────────────────
+         Uma linha por alerta, porque cada uma leva a pessoa para a tela
+         certa do app. É o canal que nunca falha por limite. */
+      await db.from("hub_notificacoes").insert(
+        alertas.map((a) => ({
+          usuario_id: cfg.usuario_id,
+          titulo: tituloDe(a),
+          texto: a.texto,
+          href: DESTINO[a.tipo],
+          tipo: a.tipo === "orcamento" ? "alerta" : "aviso",
+        })),
+      );
 
-        /* Marca logo após enviar, e não no fim: se a próxima mensagem
-           falhar, a que já saiu não pode ser reenviada amanhã. */
-        await db
-          .from("fin_whatsapp_alertas")
-          .update({ [`ultimo_${alerta.tipo}`]: hojeIso })
-          .eq("usuario_id", cfg.usuario_id);
+      /* ── O E-MAIL: um só, com tudo, e só enquanto couber no gratuito ──
+         ⚠️ UM E-MAIL COM OS QUATRO AVISOS, NUNCA QUATRO E-MAILS. Quatro
+         mensagens no mesmo dia para a mesma pessoa é o caminho curto para
+         ela marcar a Novare como spam — e aí ela deixa de receber até o
+         que pediu. */
+      if (emailsHoje < TETO_DIARIO_DE_ALERTAS) {
+        const { data: perfil } = await db
+          .from("hub_profiles")
+          .select("nome")
+          .eq("id", cfg.usuario_id)
+          .maybeSingle();
+
+        const { data: usuario } = await db.auth.admin.getUserById(cfg.usuario_id);
+        const email = usuario?.user?.email;
+
+        if (email) {
+          await enviarAlertaDoFincash({
+            email,
+            nome: perfil?.nome ?? null,
+            blocos: alertas.map((a) => ({ titulo: tituloDe(a), texto: a.texto })),
+          });
+          emailsHoje++;
+        }
+      } else {
+        naoCoubeNoEmail++;
       }
+
+      enviados += alertas.length;
+
+      /* Marca cada tipo como avisado hoje. Depois da entrega, nunca antes:
+         marcar antes e falhar depois cala o aviso de verdade. */
+      const marcas: Record<string, string> = {};
+      for (const a of alertas) marcas[`ultimo_${a.tipo}`] = hojeIso;
+      await db
+        .from("fin_alertas")
+        .update(marcas)
+        .eq("usuario_id", cfg.usuario_id);
 
       pessoas++;
     } catch (e) {
@@ -223,7 +264,28 @@ export async function GET(requisicao: Request) {
     dia: hojeIso,
     configurados: configs?.length ?? 0,
     pessoas,
-    enviados,
+    avisos: enviados,
+    emails: emailsHoje,
+    /* Quem recebeu no sino mas não no e-mail por causa do teto gratuito. */
+    semEmail: naoCoubeNoEmail,
     problemas,
   });
 }
+
+/** O título curto de cada aviso, para o sino e para o assunto do e-mail. */
+function tituloDe(a: Alerta): string {
+  return {
+    contas: "Conta chegando",
+    fatura: "Fatura fechando",
+    orcamento: "Orçamento apertando",
+    resumo: "Quanto ainda dá para gastar",
+  }[a.tipo];
+}
+
+/** Para onde o clique no sino leva, em cada caso. */
+const DESTINO: Record<Alerta["tipo"], string> = {
+  contas: "/fincash/app/fixas",
+  fatura: "/fincash/app/faturas",
+  orcamento: "/fincash/app/orcamento",
+  resumo: "/fincash/app",
+};

@@ -1,20 +1,39 @@
 -- ═══════════════════════════════════════════════════════════════════════
--- ALERTAS DO FINCASH NO WHATSAPP
+-- AVISOS DO FINCASH
 --
--- O cliente liga o WhatsApp dele (isso já existe, em `fin_whatsapp_contas`)
--- e escolhe aqui o que quer receber. Nada é enviado por padrão: quem não
--- configurar não recebe nada.
+-- O cliente escolhe o que quer ser avisado. Os avisos chegam no sino do Hub
+-- (`hub_notificacoes`) e por e-mail.
 --
--- ⚠️ TUDO DESLIGADO AO NASCER, e isso não é cautela exagerada. Mensagem de
--- WhatsApp não pedida é a diferença entre uma ferramenta útil e um número
--- bloqueado — e número bloqueado derruba a entrega de TODO MUNDO, porque a
--- Meta pune o remetente, não o destinatário. Um cliente irritado custa a
--- entrega de todos os outros.
+-- ⚠️ ESTA TABELA NASCEU COMO `fin_whatsapp_alertas`, em 18/10/2026, e foi
+-- renomeada no mesmo dia. O canal ia ser WhatsApp até a conta de chegada: a
+-- Meta cobra R$ 0,035 por mensagem de utilidade e, desde 1º/10/2026, cobra
+-- também dentro da janela de 24h que antes era gratuita. Com o FINCASH
+-- gratuito, seria custo por cliente sem receita atrás.
 --
--- Rode uma vez no SQL Editor do projeto hjikeevfzfswqydduars.
+-- O bloco de renomeação abaixo existe para quem já rodou a primeira versão.
+-- Quem não rodou cai direto no `create table`.
+--
+-- ⚠️ TUDO DESLIGADO AO NASCER. Quem não configurar não recebe nada.
+--
+-- Rode no SQL Editor do projeto hjikeevfzfswqydduars.
 -- ═══════════════════════════════════════════════════════════════════════
 
-create table if not exists public.fin_whatsapp_alertas (
+/* ── PARA QUEM JÁ RODOU A PRIMEIRA VERSÃO ──────────────────────────────
+   Renomeia em vez de recriar: a tabela pode já ter escolhas de cliente
+   dentro, e recriar apagaria tudo sem avisar. */
+do $$
+begin
+  if exists (select 1 from pg_tables
+             where schemaname = 'public' and tablename = 'fin_whatsapp_alertas')
+     and not exists (select 1 from pg_tables
+                     where schemaname = 'public' and tablename = 'fin_alertas')
+  then
+    alter table public.fin_whatsapp_alertas rename to fin_alertas;
+    raise notice 'fin_whatsapp_alertas renomeada para fin_alertas';
+  end if;
+end $$;
+
+create table if not exists public.fin_alertas (
   usuario_id uuid primary key references auth.users (id) on delete cascade,
 
   -- ── CONTA A VENCER ──────────────────────────────────────────────────
@@ -36,15 +55,13 @@ create table if not exists public.fin_whatsapp_alertas (
 
   -- ── RESUMO "QUANTO AINDA DÁ PARA GASTAR" ────────────────────────────
   resumo_ligado      boolean not null default false,
-  -- 0 = domingo … 6 = sábado. O dia em que o resumo sai.
+  -- 0 = domingo … 6 = sábado.
   resumo_dia_semana  smallint not null default 1
                      check (resumo_dia_semana between 0 and 6),
 
-  /* ⚠️ A TRAVA CONTRA REPETIÇÃO, e ela é por tipo de alerta.
-     O verificador roda todo dia e olha a mesma janela de dias; sem isto,
-     uma conta que vence em 2 dias seria anunciada hoje, amanhã e depois.
-     Guardar a data do último envio de cada tipo é o que transforma "vence
-     em breve" em um aviso só. */
+  /* ⚠️ A TRAVA CONTRA REPETIÇÃO, por tipo de aviso.
+     A rotina roda todo dia e olha a mesma janela; sem isto, uma conta que
+     vence em 2 dias seria anunciada hoje, amanhã e depois. */
   ultimo_contas      date,
   ultimo_fatura      date,
   ultimo_orcamento   date,
@@ -54,37 +71,36 @@ create table if not exists public.fin_whatsapp_alertas (
   atualizado_em timestamptz not null default now()
 );
 
-comment on table public.fin_whatsapp_alertas is
-  'O que cada cliente escolheu receber no WhatsApp. Tudo desligado por padrão: quem não configurar não recebe nada.';
+comment on table public.fin_alertas is
+  'O que cada cliente escolheu ser avisado. Chega no sino do Hub e por e-mail. Tudo desligado por padrão.';
 
-alter table public.fin_whatsapp_alertas enable row level security;
+alter table public.fin_alertas enable row level security;
 
 /* ── QUEM VÊ E MEXE: só o dono da linha ──────────────────────────────── */
-drop policy if exists "alertas: o dono le" on public.fin_whatsapp_alertas;
+drop policy if exists "alertas: o dono le" on public.fin_alertas;
 create policy "alertas: o dono le"
-  on public.fin_whatsapp_alertas for select
+  on public.fin_alertas for select
   using (auth.uid() = usuario_id);
 
-drop policy if exists "alertas: o dono cria" on public.fin_whatsapp_alertas;
+drop policy if exists "alertas: o dono cria" on public.fin_alertas;
 create policy "alertas: o dono cria"
-  on public.fin_whatsapp_alertas for insert
+  on public.fin_alertas for insert
   with check (auth.uid() = usuario_id);
 
-drop policy if exists "alertas: o dono muda" on public.fin_whatsapp_alertas;
+drop policy if exists "alertas: o dono muda" on public.fin_alertas;
 create policy "alertas: o dono muda"
-  on public.fin_whatsapp_alertas for update
+  on public.fin_alertas for update
   using (auth.uid() = usuario_id)
   with check (auth.uid() = usuario_id);
 
-/* ⚠️ NÃO HÁ POLICY DE SELECT PARA O VERIFICADOR, de propósito.
-   Quem roda os alertas é uma rotina de servidor, com a chave de serviço,
-   que passa por cima da RLS. Abrir uma policy para "o sistema" exigiria
-   um papel que qualquer sessão poderia tentar assumir — e esta tabela diz
-   para que número cada pessoa recebe aviso. */
+/* ⚠️ NÃO HÁ POLICY PARA A ROTINA, de propósito: ela roda no servidor com a
+   chave de serviço, que passa por cima da RLS. Abrir uma policy para "o
+   sistema" exigiria um papel que qualquer sessão poderia tentar assumir. */
 
+drop index if exists public.idx_fin_alertas_ligados;
 create index if not exists idx_fin_alertas_ligados
-  on public.fin_whatsapp_alertas (usuario_id)
+  on public.fin_alertas (usuario_id)
   where contas_ligado or fatura_ligado or orcamento_ligado or resumo_ligado;
 
 comment on index public.idx_fin_alertas_ligados is
-  'O verificador só se interessa por quem ligou alguma coisa. O índice parcial evita varrer a base inteira todo dia.';
+  'A rotina só se interessa por quem ligou alguma coisa. O índice parcial evita varrer a base inteira todo dia.';
