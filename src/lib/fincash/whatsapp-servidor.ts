@@ -17,6 +17,7 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
 import type { Cartao, Categoria, Conta } from "@/lib/fincash/modelo";
+import { alertaDeContas, alertaDeFatura } from "@/lib/fincash/alertas";
 import {
   interpretar,
   extrairCodigo,
@@ -425,6 +426,28 @@ async function alertaDeOrcamento(
   return `Atenção: com este gasto você passou o orçamento de *${r.categoria_nome}* (${formatarBRL(limite)}). Já são ${formatarBRL(total)} no mês.`;
 }
 
+/**
+ * A configuração usada quando é o CLIENTE que pergunta.
+ *
+ * Tudo desligado e sem data de último envio: quem liga o campo é cada
+ * resposta, para o motor não recusar por "já avisei hoje" — regra que vale
+ * para a casa avisando, não para a pessoa perguntando.
+ */
+const SOB_DEMANDA = {
+  contas_ligado: false,
+  contas_dias_antes: 7,
+  fatura_ligado: false,
+  fatura_dias_antes: 10,
+  orcamento_ligado: false,
+  orcamento_limite: 80,
+  resumo_ligado: false,
+  resumo_dia_semana: 1,
+  ultimo_contas: null,
+  ultimo_fatura: null,
+  ultimo_orcamento: null,
+  ultimo_resumo: null,
+};
+
 async function responderConsulta(userId: string, c: Consulta): Promise<string> {
   const s = servico();
   const { inicio, fim } = limitesDoMes(c.ref);
@@ -436,6 +459,54 @@ async function responderConsulta(userId: string, c: Consulta): Promise<string> {
       .eq("user_id", userId);
     return respostaDeSaldo(
       (data ?? []).map((l) => ({ nome: l.nome as string, saldo: Number(l.saldo) })),
+    );
+  }
+
+  /* ── O QUE VENCE, E A FATURA ───────────────────────────────────────
+     ⚠️ A RESPOSTA É MONTADA PELO MESMO MOTOR DOS AVISOS
+     (`lib/fincash/alertas.ts`), e isso não é economia de código: é o que
+     garante que o cliente leia a MESMA frase quando pergunta e quando é
+     avisado. Dois textos para o mesmo fato acabam divergindo, e num app
+     de dinheiro divergência encerra a conversa.
+
+     ⚠️ SEM A TRAVA DE "JÁ AVISOU HOJE". Ela existe para a casa não
+     repetir o mesmo aviso dias seguidos; aqui foi a pessoa que perguntou,
+     e quem pergunta tem direito à resposta quantas vezes quiser. Por isso
+     as datas `ultimo_*` vão nulas e os campos entram ligados. */
+  if (c.escopo === "contas") {
+    const { data } = await s
+      .from("fin_recorrencias")
+      .select("descricao, valor, dia, tipo, ativa")
+      .eq("user_id", userId);
+
+    const alerta = alertaDeContas(
+      { ...SOB_DEMANDA, contas_ligado: true, contas_dias_antes: 7 },
+      (data ?? []).map((r) => ({ ...r, valor: Number(r.valor) })) as Parameters<typeof alertaDeContas>[1],
+      new Date(),
+    );
+
+    return (
+      alerta?.texto ??
+      "Não achei conta fixa vencendo nos próximos 7 dias. Você cadastra as que se repetem em Contas fixas, no app."
+    );
+  }
+
+  if (c.escopo === "fatura") {
+    const { data } = await s
+      .from("fin_cartoes")
+      .select("nome, dia_fechamento")
+      .eq("user_id", userId)
+      .eq("arquivado", false);
+
+    const alerta = alertaDeFatura(
+      { ...SOB_DEMANDA, fatura_ligado: true, fatura_dias_antes: 10 },
+      data ?? [],
+      new Date(),
+    );
+
+    return (
+      alerta?.texto ??
+      "Nenhum cartão seu fecha nos próximos 10 dias. Se faltar algum, cadastre em Cartões."
     );
   }
 

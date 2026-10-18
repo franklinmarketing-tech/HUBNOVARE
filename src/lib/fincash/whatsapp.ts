@@ -46,8 +46,17 @@ export type RascunhoLancamento = {
 };
 
 export type Consulta = {
-  /** "categoria" = quanto saiu numa categoria; "total" = quanto saiu no mês. */
-  escopo: "categoria" | "total" | "saldo" | "resumo";
+  /**
+   * "categoria" = quanto saiu numa categoria; "total" = quanto saiu no mês.
+   *
+   * ⚠️ "contas" E "fatura" ENTRARAM EM 18/10/2026 e existem por causa de
+   * preço. Os mesmos avisos saem sozinhos pelo sino e por e-mail, que não
+   * custam nada; pelo WhatsApp, uma mensagem que a CASA inicia custa
+   * R$ 0,035 na Meta. Mas quando é o CLIENTE que pergunta, a resposta entra
+   * nas 1.000 mensagens de serviço gratuitas do mês. Daí a regra: a casa
+   * não avisa pelo WhatsApp, a casa RESPONDE.
+   */
+  escopo: "categoria" | "total" | "saldo" | "resumo" | "contas" | "fatura";
   categoria_id: string | null;
   categoria_nome: string | null;
   /** "2026-09" */
@@ -461,10 +470,33 @@ const DESFAZER = /^(desfazer|desfaz|apagar|apaga|cancelar|cancela|errado|nao foi
 /** Palavras que dizem que o dinheiro ENTROU. O padrão é sempre despesa. */
 const RECEITA = /\b(recebi|receber|recebimento|salario|entrou|ganhei|rendeu|rendimento|vendi|venda|pagaram|caiu|deposito|depositei|reembolso|estorno)\b/;
 
-const CONSULTA = /\b(quanto|quanta|quantos|qual|quais|saldo|resumo|extrato|balanco|relatorio|sobrou|gastei|gastos)\b/;
-
-/** Perguntas que são consulta de verdade, e não relato de gasto. */
-const PERGUNTA_DE_CONSULTA = /\b(quanto|quanta|quantos|qual|quais|saldo|resumo|extrato|balanco|relatorio|sobrou)\b/;
+/**
+ * ⚠️ SÃO DUAS LISTAS, E A CONDIÇÃO EXIGE AS DUAS (ver `interpretar`):
+ * `CONSULTA` aqui e `PERGUNTA_DE_CONSULTA` logo abaixo. Acrescentar palavra
+ * em uma só não faz nada — foi exatamente o que aconteceu ao ligar os
+ * pedidos de conta e fatura, e o sintoma foi o assistente responder "não
+ * entendi" a "minha fatura".
+ *
+ * As palavras de cobrança entraram em 18/10/2026, com os pedidos pelo
+ * WhatsApp.
+ */
+const CONSULTA =
+  /\b(quanto|quanta|quantos|qual|quais|saldo|resumo|extrato|balanco|relatorio|sobrou|gastei|gastos|contas?|pagar|fatura|vencer|vencem|vencendo|fecha|fechamento)\b/;
+/**
+ * O que faz uma mensagem ser PERGUNTA e não lançamento.
+ *
+ * ⚠️ AS PALAVRAS DE COBRANÇA ENTRARAM EM 18/10/2026 ("conta", "pagar",
+ * "fatura", "vencer", "fecha"). Sem elas, "minha fatura" caía em
+ * indefinido e o assistente respondia "não entendi" a uma pergunta
+ * perfeitamente clara — foi o teste de frases reais que mostrou isso.
+ *
+ * ⚠️ "pagar" É AMBÍGUO E ISSO É TRATADO ADIANTE, não aqui: "paguei 50 no
+ * mercado" é lançamento, não pergunta. Quem separa os dois é a presença de
+ * valor na frase (ver `ehPergunta` logo abaixo) — por isso esta lista pode
+ * ser generosa sem transformar relato em consulta.
+ */
+const PERGUNTA_DE_CONSULTA =
+  /\b(quanto|quanta|quantos|qual|quais|saldo|resumo|extrato|balanco|relatorio|sobrou|contas?|pagar|fatura|vencer|vencendo|fecha|fechamento)\b/;
 
 /**
  * O código de 6 dígitos do vínculo.
@@ -529,6 +561,24 @@ function montarConsulta(t: string, ctx: ContextoInterpretacao): Consulta {
   if (/\bsaldo\b/.test(t)) {
     return { escopo: "saldo", categoria_id: null, categoria_nome: null, ref };
   }
+
+  /* ⚠️ ESTES DOIS VÊM ANTES DE "resumo", E A ORDEM É A REGRA: "quanto tenho
+     de conta para pagar" contém palavras que o resumo também aceita. O mais
+     específico tem de ganhar, senão a pessoa pede as contas e recebe o
+     balanço do mês. */
+  if (
+    /\bcontas?\b/.test(t) &&
+    /\b(pagar|vencer|vencendo|vencem|chegando|venc\w*)\b/.test(t)
+  ) {
+    return { escopo: "contas", categoria_id: null, categoria_nome: null, ref };
+  }
+  if (/\b(contas? a pagar|o que (eu )?(vou|tenho (que|para)) pagar)\b/.test(t)) {
+    return { escopo: "contas", categoria_id: null, categoria_nome: null, ref };
+  }
+  if (/\bfatura\b|\bcartao\b.*\bfecha\w*\b|\bfechamento\b/.test(t)) {
+    return { escopo: "fatura", categoria_id: null, categoria_nome: null, ref };
+  }
+
   if (/\bresumo\b|\bbalanco\b|\bextrato\b|\bsobrou\b|\bcomo estou\b/.test(t)) {
     return { escopo: "resumo", categoria_id: null, categoria_nome: null, ref };
   }
