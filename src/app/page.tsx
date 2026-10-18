@@ -132,15 +132,15 @@ export default async function Home() {
                   ? primeiroNome
                     ? `${saudacao}, ${primeiroNome}`
                     : `${saudacao}!`
-                  : "Ecossistema Novare"}
+                  : "Ferramentas de dinheiro, de graça"}
               </h1>
               {/* Não some mais em tela baixa: escondê-lo era parte da mesma
                   corrida por caber numa tela, e a página perdia a única
                   linha que diz o que a Novare faz. */}
               <p className="mt-1.5 text-sm text-muted-foreground">
                 {perfil
-                  ? "Seu ecossistema, pronto para hoje."
-                  : "Organizar, investir e decidir com clareza. Sem comissão."}
+                  ? "Tudo o que você usa, num lugar só."
+                  : "Calcule, organize e entenda o seu dinheiro. Sem pagar nada e sem ninguém te empurrar produto."}
               </p>
             </div>
             <BuscaDestaque />

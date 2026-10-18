@@ -13,7 +13,7 @@ import { getNotificacoes } from "@/lib/notificacoes";
 export const metadata: Metadata = {
   title: "Aplicativos",
   description:
-    "Todos os aplicativos financeiros da Novare: organização, investimentos, crédito, patrimônio e ferramentas inteligentes.",
+    "Todas as ferramentas de dinheiro da Novare, de graça: salário, rescisão, financiamento, reserva, investimento e mais. Sem cadastro e sem pegar o seu cartão.",
   alternates: { canonical: "/aplicativos" },
 };
 
@@ -44,7 +44,7 @@ export default async function AplicativosPage() {
 
         <main className="mx-auto max-w-6xl px-5 pb-16 pt-8">
           <h1 className="titulo-secao text-2xl sm:text-[2rem]">
-            Todos os aplicativos
+            Tudo o que a Novare tem
           </h1>
           {/* Dois números, não um. Antes esta linha somava tudo e chamava o
               conjunto de "ferramentas" — mas as consultorias entravam na
@@ -62,8 +62,8 @@ export default async function AplicativosPage() {
                 por duplicarem o FINCASH. "0 exclusivas" é pior que silêncio.
                 A frase passou a dizer o que é verdade hoje: as ferramentas
                 são abertas, e o que se assina são os produtos. */}
-            {CONTAGEM.ferramentas} ferramentas prontas para usar, todas
-            abertas, e {CONTAGEM.consultorias}{" "}
+            {CONTAGEM.ferramentas} ferramentas prontas para usar, de graça e
+            sem cadastro, e {CONTAGEM.consultorias}{" "}
             {/* ⚠️ Concordância de verdade: a página dizia "1 formatos" desde
                 que sobrou um serviço só. O número vem de CONTAGEM, então o
                 plural tem de vir do número, não escrito à mão. */}

@@ -161,7 +161,7 @@ export function IrisExtrato() {
         </h2>
         <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
           Arraste o arquivo do banco ou cole os lançamentos. Nada sai do seu
-          navegador enquanto você não pedir a leitura.
+          navegador — nem quando você pede a leitura. A conta é feita aqui.
         </p>
 
         {/* Zona de arraste: o caminho de quem exportou o arquivo do banco. */}
@@ -308,7 +308,7 @@ export function IrisExtrato() {
                   )}
                 </button>
                 <p className="mt-2.5 text-center text-2xs text-muted-foreground">
-                  Sobem só os totais acima — nunca o texto do extrato.
+                  Nada sobe para lugar nenhum. A conta é feita no seu aparelho.
                 </p>
           </>
         )}

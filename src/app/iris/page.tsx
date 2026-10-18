@@ -192,8 +192,8 @@ export default async function IrisPage({
           </h1>
 
           <p className="mt-5 max-w-xl text-base leading-relaxed text-white/80">
-            Converse com ela ou cole o extrato do seu banco: a Íris diz, em
-            português, para onde vai o seu dinheiro —{" "}
+            Cole o extrato do seu banco e ela diz, em português claro, para
+            onde está indo o seu dinheiro —{" "}
             <strong className="font-semibold text-white">
               assinatura esquecida, tarifa e juro escondido
             </strong>
@@ -227,11 +227,11 @@ export default async function IrisPage({
             extrato, que é aritmética feita no navegador de quem usa. */}
         <section className="revelar mt-2">
           <h2 className="font-display text-xl font-bold text-primary">
-            Ou deixe ela ler o seu extrato
+            Cole o seu extrato aqui
           </h2>
           <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground">
-            Aqui não tem conversa: tem aritmética. A Íris varre lançamento por
-            lançamento e mostra quanto vaza por mês — tudo no seu navegador.
+            Não é papo: é conta. Ela passa linha por linha e mostra quanto
+            está escorrendo por mês — tudo aqui dentro, no seu navegador.
           </p>
           <IrisExtrato />
         </section>

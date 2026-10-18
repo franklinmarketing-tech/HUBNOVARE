@@ -15,7 +15,7 @@ import { Bot } from "lucide-react";
  */
 
 const APRESENTACAO = [
-  "Oi! Eu sou a Íris, a inteligência financeira da Novare.",
+  "Oi! Eu sou a Íris. Cole o seu extrato que eu te mostro para onde o dinheiro foi.",
   "Meu trabalho é achar o dinheiro que some do seu bolso sem você perceber.",
   "Me mostre seu extrato: arraste o arquivo do banco aqui embaixo, ou cole a lista de lançamentos.",
   "Serve CSV ou OFX — é o que todo banco exporta. Se o seu extrato for PDF, copie o texto e cole.",
