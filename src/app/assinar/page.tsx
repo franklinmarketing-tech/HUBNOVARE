@@ -24,14 +24,12 @@ import { Virada } from "@/components/lp/Virada";
 import { Fecho } from "@/components/lp/Fecho";
 import { Rodape } from "@/components/lp/Rodape";
 import { Comparativo } from "@/components/lp/Comparativo";
-import { Preco } from "@/components/lp/Preco";
+import { Gratuito } from "@/components/lp/Gratuito";
 import { Duvidas } from "@/components/lp/Duvidas";
 import { MaqueteFinCash, MaqueteMarco } from "@/components/lp/maquetes";
 import { TelaWorkspace } from "@/components/lp/Telas";
 
 import {
-  ASSINATURA_GARANTIA_DIAS,
-  ASSINATURA_PRECO_ROTULO,
 } from "@/lib/lp-precos";
 import {
   DIMENSOES,
@@ -106,11 +104,11 @@ import "./lp.css";
 */
 export const metadata: Metadata = {
   title: `${FIN_CASH}: quanto você pode gastar hoje sem estourar o mês`,
-  description: `O saldo mostra o que você tem. O ${FIN_CASH} desconta o que ainda vai sair e mostra o que sobra — sem conectar banco. A partir de ${ASSINATURA_PRECO_ROTULO}/mês, com ${ASSINATURA_GARANTIA_DIAS} dias de garantia.`,
+  description: `O saldo mostra o que você tem. O ${FIN_CASH} desconta o que ainda vai sair e mostra o que sobra — sem conectar banco. De graça, sem cartão.`,
   alternates: { canonical: "/assinar" },
   openGraph: {
     title: "Quanto você pode gastar hoje sem estourar o mês?",
-    description: `O ${FIN_CASH}, o FinPlan, a Íris e as ${N_FERRAMENTAS} ferramentas da casa numa assinatura só, com um consultor revisando o seu plano a cada 3 meses. ${ASSINATURA_GARANTIA_DIAS} dias de garantia incondicional.`,
+    description: `O ${FIN_CASH}, o FinPlan, a Íris e as ${N_FERRAMENTAS} ferramentas da Novare. Tudo de graça, sem cartão e sem pegadinha.`,
     url: "/assinar",
     type: "website",
     locale: "pt_BR",
@@ -321,7 +319,7 @@ export default function AssinarPage() {
               Você não está comprando um app
             </h2>
             <p className="revelar nv-lead mx-auto mt-6 max-w-2xl">
-              São {MODULOS.length} coisas numa assinatura só, e a última não é
+              São {MODULOS.length} coisas, todas de graça, e a última não é
               software: é o método que a Novare usa na consultoria, aberto para
               quem nunca vai contratar uma.
             </p>
@@ -523,28 +521,34 @@ export default function AssinarPage() {
           </div>
         </section>
 
-        {/* ══════════════════════════════════════════ 13. O PREÇO ═══════ */}
+        {/* ═══════════════════════════════════════ 13. É DE GRAÇA ═══════
+
+            ⚠️ ERA A SEÇÃO DO PREÇO, com dois planos e garantia de 7 dias.
+            Saiu em 18/10/2026, quando o Hub deixou de ser vendido. Note que
+            a âncora `#preco` FICOU: ela está em links espalhados pelo site
+            e em material já divulgado, e trocá-la quebraria esses links sem
+            ganhar nada. O que mudou é o que a pessoa encontra ao chegar. */}
         <section
           id="preco"
           className="nv-painel nv-painel-creme mt-4 scroll-mt-28 overflow-visible py-20 sm:py-28"
         >
           <div className="nv-caixa">
             <div className="mb-14 text-center">
-              <span className="nv-pill nv-pill-ciano nv-chapeu">A assinatura</span>
+              <span className="nv-pill nv-pill-ciano nv-chapeu">Quanto custa</span>
               <h2 className="nv-d2 mx-auto mt-7 max-w-[19ch]">
-                Dois prazos.{" "}
+                Nada.{" "}
                 <span className="text-[#17789c]">
-                  O mesmo produto inteiro.
+                  É de graça mesmo.
                 </span>
               </h2>
               <p className="nv-lead mx-auto mt-6 max-w-2xl">
-                Sem taxa de entrada, sem fidelidade e sem comissão embutida.
-                Tudo liberado no primeiro dia, e {ASSINATURA_GARANTIA_DIAS} dias
-                para pedir o dinheiro de volta se não for para você.
+                Sem cartão, sem fidelidade e sem comissão embutida. A Novare
+                vive da consultoria que faz com quem pede — as ferramentas
+                daqui são o nosso cartão de visita.
               </p>
             </div>
 
-            <Preco />
+            <Gratuito />
           </div>
         </section>
 

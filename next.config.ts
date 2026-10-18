@@ -53,6 +53,23 @@ const nextConfig: NextConfig = {
       { source: "/vidaplan", destination: "/finplan", permanent: true },
       { source: "/vidaplan/:caminho*", destination: "/finplan", permanent: true },
       { source: "/vida-plan", destination: "/finplan", permanent: true },
+
+      /* ── O FINPLAN SAIU DE CENA EM 18/10/2026 ───────────────────────────
+         Decisão do dono: a casa passou a ter um app só, o FINCASH.
+
+         ⚠️ `permanent: false` (307), e isto não é descuido. Um 301 fica
+         gravado no navegador de quem visitou e no índice do Google, e
+         desfazê-lo depois exige esperar cada cache expirar — o que
+         transformaria uma decisão de produto em dívida técnica. O código do
+         FINPLAN e os dados dos clientes continuam inteiros; se ele voltar,
+         é só apagar estas duas linhas.
+
+         ⚠️ OS REDIRECTS DE `/planejamento` E `/vidaplan` ACIMA CONTINUAM
+         apontando para cá e passam a encadear até o FINCASH. Mantê-los
+         assim é de propósito: no dia em que o FINPLAN voltar, eles voltam a
+         funcionar sozinhos, sem ninguém precisar lembrar deles. */
+      { source: "/finplan", destination: "/fincash", permanent: false },
+      { source: "/finplan/:caminho*", destination: "/fincash", permanent: false },
       // A página existia só para descrever uma ideia sem preço e mandar a
       // pessoa falar com a Novare — e o próprio botão dela já apontava
       // para /consultoria. Cortamos o meio de campo.

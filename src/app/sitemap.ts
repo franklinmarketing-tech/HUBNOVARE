@@ -53,7 +53,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const ferramentas = APPS.filter(
     (a) =>
       !a.externo &&
-      a.plano === "gratis" &&
+      a.plano === "livre" &&
       a.status !== "em-breve" &&
       a.href.startsWith("/ferramentas/"),
   ).map((a) => ({

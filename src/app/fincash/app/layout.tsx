@@ -6,7 +6,7 @@ import { LogOut, Wallet } from "lucide-react";
 import { getPerfil } from "@/lib/perfil";
 import { CascaFincash } from "./CascaFincash";
 import { carregarAvisosDoMenu } from "./avisos-servidor";
-import { sair } from "@/app/finplan/app/actions";
+import { sair } from "@/lib/acoes-sessao";
 
 /* A folha de tokens e animações DESTE app.
    Importada aqui e não no `globals.css` de propósito: o `globals` serve o Hub

@@ -192,7 +192,7 @@ const TONS: Record<Familia | "workspace" | "interno", [number, number]> = {
 const FAMILIA_DE = new Map(
   APPS.map((a) => [
     a.slug,
-    (a.plano === "pago" && !a.familia
+    (a.plano === "conta" && !a.familia
       ? "workspace"
       : a.plano === "interno"
         ? "interno"

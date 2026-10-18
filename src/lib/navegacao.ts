@@ -71,11 +71,20 @@ function filtroDe(app: NovareApp): string {
  * card de preço reconstrói a confusão que a virada desfez.
  */
 export const FILTRO_ASSINATURA = "assinatura";
-const ROTULO_ASSINATURA = "Incluso na assinatura";
+const ROTULO_ASSINATURA = "Grátis, com cadastro";
 
-/** O que a assinatura abre, e em que forma. Ver `AppLeve.assinatura`. */
+/**
+ * O que pede cadastro, e em que forma. Ver `AppLeve.assinatura`.
+ *
+ * ⚠️ O NOME DO CAMPO (`assinatura`) FICOU, e é dívida consciente: ele é
+ * lido por `CatalogoFiltrado` em quatro pontos e renomeá-lo agora
+ * misturaria a mudança de regra com uma refatoração de componente. O que
+ * mudou foi o SIGNIFICADO — não existe assinatura no Hub desde 18/10/2026;
+ * o que existe é cadastro gratuito, exigido só por quem guarda dados da
+ * pessoa (FINCASH e FINPLAN).
+ */
 function assinaturaDe(app: NovareApp): "app" | "ferramenta" | null {
-  if (app.plano !== "pago") return null;
+  if (app.plano !== "conta") return null;
   return app.href.includes("/ferramentas/") ? "ferramenta" : "app";
 }
 
@@ -86,16 +95,22 @@ function rotuloDe(app: NovareApp): string {
 }
 
 /**
- * Para onde o card leva quem ainda não tem acesso.
+ * Para onde o card leva quem ainda não se cadastrou.
  *
- * Um app pago cujo `href` já É a própria página de venda continua indo para
- * ela: mandar para `/assinar` seria pior do que não linkar, porque essa página
- * anuncia que está tudo liberado — o visitante clica no produto pago e lê que
- * nada está à venda. Só cai em `/assinar` o que não tem vitrine própria.
+ * ⚠️ NÃO MANDA MAIS PARA `/assinar`. Não há o que assinar: o Hub é livre e
+ * os dois apps que pedem conta pedem por precisarem de um lugar para
+ * guardar os dados da pessoa, não por cobrança.
+ *
+ * Quem tem vitrine própria continua indo para ela — é lá que o produto se
+ * explica e convida a criar conta. O resto vai direto para o cadastro, já
+ * com o destino na mão, para a pessoa cair no app que queria em vez de na
+ * home depois de se cadastrar.
  */
 function destinoBloqueado(app: NovareApp): string {
-  const temVitrinePropria = app.plano === "pago" && !app.externo;
-  return temVitrinePropria ? app.href : `/assinar?app=${app.slug}`;
+  const temVitrinePropria = app.plano === "conta" && !app.externo;
+  return temVitrinePropria
+    ? app.href
+    : `/login?modo=criar&proximo=${encodeURIComponent(app.href)}`;
 }
 
 export function appsParaBusca(

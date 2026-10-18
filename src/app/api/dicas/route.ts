@@ -36,7 +36,7 @@ export type Dica = {
 const FERRAMENTAS = APPS.filter(
   (a) =>
     a.familia &&
-    a.plano === "gratis" &&
+    a.plano === "livre" &&
     a.status !== "em-breve" &&
     !a.externo &&
     a.href.startsWith("/ferramentas/"),

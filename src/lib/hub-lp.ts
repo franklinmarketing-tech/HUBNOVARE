@@ -98,7 +98,7 @@ export const HEROI = {
   reforco: "Sem conectar banco. Sem senha. Sem Open Finance.",
   cta: "Começar agora",
   ctaSecundario: "Ver o que vem junto",
-  microcopia: `A partir de ${ASSINATURA_PRECO_ROTULO}/mês no anual · ${ASSINATURA_GARANTIA_DIAS} dias de garantia incondicional`,
+  microcopia: "De graça · sem cartão · sem pegadinha",
 } as const;
 
 /**
@@ -124,8 +124,11 @@ export const FATOS = [
   { valor: "0", rotulo: "comissão de banco ou corretora" },
   { valor: String(N_FERRAMENTAS), rotulo: "ferramentas e calculadoras" },
   {
-    valor: `${ASSINATURA_GARANTIA_DIAS} dias`,
-    rotulo: "de garantia incondicional",
+    /* ⚠️ ERA "7 dias de garantia incondicional". Garantia é promessa de
+       devolver dinheiro, e não há dinheiro desde 18/10/2026 — manter o
+       número faria a página prometer reembolso do que ninguém pagou. */
+    valor: "R$ 0",
+    rotulo: "para usar tudo o que tem aqui",
   },
   { valor: "3 em 3", rotulo: "meses, um consultor escreve a sua revisão" },
 ] as const;
@@ -365,7 +368,7 @@ export const MODULOS = [
     icone: "Users",
     titulo: "E, de três em três meses, um humano lê o seu plano",
     texto:
-      "Um consultor da Novare abre o que você montou e escreve o que mudou, o que está travando e qual é o próximo movimento. É a única linha desta assinatura que não é software.",
+      "Um consultor da Novare abre o que você montou e escreve o que mudou, o que está travando e qual é o próximo movimento. É a única coisa aqui que não é software — e é onde a conversa com a gente começa.",
     href: "/consultoria",
     linkRotulo: "Ver as consultorias",
   },
@@ -450,7 +453,7 @@ export const ETAPAS = [
     numero: "01",
     titulo: "No primeiro dia, você cadastra o que se repete",
     texto:
-      "As contas com o saldo de hoje, o salário, o aluguel, a escola, o streaming. É o único trabalho de verdade desta assinatura, e ele não volta: feito uma vez, vale para todos os meses.",
+      "As contas com o saldo de hoje, o salário, o aluguel, a escola, o streaming. É o único trabalho de verdade aqui, e ele não volta: feito uma vez, vale para todos os meses.",
     icone: "Layers",
   },
   {
@@ -496,7 +499,7 @@ export const PROVA = [
     destaque: "0%",
     titulo: "Nenhuma comissão, de ninguém",
     texto:
-      "A Novare não recebe de banco, corretora ou seguradora. A única receita nesta relação é a sua assinatura.",
+      "A Novare não recebe de banco, corretora ou seguradora. As ferramentas são de graça; a casa vive da consultoria que faz com quem procura. Por isso ninguém aqui tem motivo para empurrar produto nenhum.",
   },
   {
     destaque: "LGPD",

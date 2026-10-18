@@ -31,12 +31,28 @@ export type Role = "admin" | "equipe" | "cliente";
 export type AppStatus = "ativo" | "beta" | "em-breve";
 
 /**
- * Camada comercial.
- * - `gratis`: aberto (isca / lead magnet).
- * - `pago`: exige assinatura do Workspace.
- * - `interno`: ferramenta da casa.
+ * O que é preciso para abrir.
+ *
+ * ═══ NÃO HÁ MAIS CAMADA COMERCIAL NO HUB (18/10/2026) ════════════════════
+ *
+ * O Hub inteiro passou a ser livre. Nada aqui é vendido: as ferramentas são
+ * iscas da Novare, e o que a casa cobra é consultoria humana, que acontece
+ * fora daqui.
+ *
+ * ⚠️ O VALOR SE CHAMAVA `pago` E PRECISOU SER RENOMEADO. Deixar um campo
+ * chamado "conta" que não cobra nada seria uma mentira silenciosa esperando
+ * para confundir quem mexer nisto daqui a seis meses — e pior, o tipo de
+ * coisa que faz alguém "restaurar" um preço achando que conserta um bug.
+ * Renomear força cada ponto de uso a ser revisto, que é justamente o que se
+ * quer numa virada dessas.
+ *
+ * - `livre`: abre para qualquer um, sem cadastro. É a maior parte do Hub.
+ * - `conta`: precisa de cadastro — **que é gratuito**. Só os apps que
+ *   guardam dados da pessoa (FINCASH e FINPLAN): sem conta, não há onde
+ *   salvar o que ela lançou.
+ * - `interno`: ferramenta da casa, para admin e equipe.
  */
-export type Plano = "gratis" | "pago" | "interno";
+export type Plano = "livre" | "conta" | "interno";
 
 export type PlanoCliente = "free" | "pro";
 
@@ -116,7 +132,7 @@ function app(
     href,
     _benchmarkInterno,
     roles: TODOS,
-    plano: "gratis",
+    plano: "livre",
     status: "ativo",
     familia,
     ...extra,
@@ -189,52 +205,26 @@ export const APPS: NovareApp[] = [
        quebrar (ver `lib/fincash/erros.ts`). Rodar as migrações de
        `supabase/` continua sendo tarefa do dono antes de anunciar. */
     roles: TODOS,
-    plano: "pago",
+    plano: "conta",
     status: "ativo",
     familia: "organizacao",
     _benchmarkInterno: "Meu Planner Financeiro",
     temTeste: true,
   },
   /**
-   * O SEGUNDO, e o lugar dele mudou de significado em 12/09/2026.
+   * ⚠️ O FINPLAN SAIU DO CATÁLOGO EM 18/10/2026, por decisão do dono:
+   * a casa passou a ter um app só, o FINCASH.
    *
-   * Ele era o âncora — o produto que a casa vendia e o primeiro card da home.
-   * Continua inteiro, continua sendo entregue e continua com landing própria;
-   * o que deixou de ser é o SUJEITO da frase "assine o ___". Hoje ele é o que
-   * vem junto com o FINCASH, pela mesma cobrança.
+   * ⚠️ O CÓDIGO E OS DADOS CONTINUAM INTEIROS — a pasta do app segue em
+   * src/app/finplan e as tabelas do banco não foram tocadas. Tirar a
+   * entrada daqui basta para ele sumir da navegação, da busca, do catálogo
+   * e do sitemap, porque todas essas telas derivam desta lista. As rotas
+   * do FINPLAN redirecionam para o FINCASH.
    *
-   * A divisão de trabalho entre os dois, que é o que justifica os dois
-   * existirem: o FINCASH responde "posso gastar hoje", o FINPLAN responde
-   * "onde eu quero chegar". Um é o mês, o outro é o mapa.
+   * Se ele voltar, é devolver esta entrada e apagar o redirecionamento.
+   * Apagar o app de verdade é decisão separada, e não foi tomada.
    */
-  {
-    slug: "planejamento",
-    nome: "FINPLAN",
-    /* ⚠️ "PLANO FINANCEIRO COMPLETO", E NÃO "PLANO COMPLETO". A palavra do
-       meio não é enfeite: sem ela a frase é literalmente "plano completo", que
-       é o nome que uma escada de planos dá ao degrau de cima — e o guardião
-       `scripts/testar-nada-a-venda.mjs` caça exatamente isso, com razão. A
-       colisão só apareceu quando o `<Pacote />` passou a imprimir esta chamada
-       na landing do FINCASH, ao lado de dois cartões de preço: ali "Seu plano
-       completo" se lê como plano de ASSINATURA, e não como o plano financeiro
-       da pessoa. A promessa não mudou, o sujeito dela ficou explícito. */
-    chamada: "Seu plano financeiro completo, sem depender de ninguém",
-    descricao:
-      "Você preenche seu retrato financeiro em 10 minutos e o app faz o resto: diagnóstico, Marco Horizonte, plano de ação com valor e prazo, e acompanhamento mês a mês com relatório em PDF.",
-    pontosFortes: [
-      "Trilha de 8 blocos curtos — dá para parar e voltar",
-      "Diagnóstico e plano prontos na hora, sem esperar consultor",
-      "Marco Horizonte: seus objetivos viram um número só",
-      "Fecha o mês sozinho e mostra a sua evolução",
-    ],
-    href: "/finplan",
-    roles: TODOS,
-    plano: "pago",
-    status: "ativo",
-    familia: "ia",
-    _benchmarkInterno: "Monarch Money",
-    temTeste: true,
-  },
+
   {
     slug: "iris",
     nome: "Íris",
@@ -250,7 +240,7 @@ export const APPS: NovareApp[] = [
     href: "/iris",
     roles: TODOS,
     // Liberada junto com o FINPLAN enquanto é construída.
-    plano: "gratis",
+    plano: "livre",
     // Era `beta`. O selo aparecia no card e no banner da home, em cima do
     // produto que a casa vende como diferencial — e rótulo de beta sobre o
     // diferencial diz "ainda não confie nisto". Continua sendo construída;
@@ -621,25 +611,38 @@ export function appsPorPerfil(role: Role): NovareApp[] {
  * O usuário pode ABRIR este app, ou só enxergá-lo bloqueado?
  * Regra: app pago exige plano `pro`. Admin e equipe abrem tudo.
  */
+/**
+ * Pode abrir?
+ *
+ * ⚠️ `plano` (o do CLIENTE: free/pro) NÃO ENTRA MAIS NESTA CONTA. Desde a
+ * virada de 18/10/2026 não há assinatura no Hub: ninguém é barrado por não
+ * pagar, porque não há o que pagar. O parâmetro continua na assinatura da
+ * função porque dezenas de telas o passam, e arrancá-lo daqui obrigaria a
+ * mexer em todas elas de uma vez — o que transformaria uma mudança de regra
+ * numa refatoração de risco. Ele é ignorado de propósito.
+ *
+ * Hoje só existem duas perguntas: a ferramenta é da casa, e a pessoa tem
+ * cadastro quando o app precisa guardar dados dela.
+ */
 export function podeAbrir(
   app: NovareApp,
   role: Role,
-  plano: PlanoCliente,
-  /** A pessoa tem sessão? Sem isso, um visitante anônimo e um cliente em
-   *  teste eram indistinguíveis aqui — os dois chegavam como "cliente/free". */
+  _plano: PlanoCliente,
+  /** A pessoa tem sessão? É o que separa um visitante de quem já se
+   *  cadastrou — e cadastro, hoje, é a única exigência que existe. */
   logado = false,
 ): boolean {
   if (app.status === "em-breve") return false;
   if (role === "admin" || role === "equipe") return true;
-  if (app.plano !== "pago") return true;
-  if (plano === "pro") return true;
-  // Apps com teste próprio já se protegem por dentro (o gate real é a
-  // FaixaTeste + AcaoAssinante, não esta lista de navegação).
-  return !!app.temTeste && logado;
+  if (app.plano === "interno") return false;
+  if (app.plano === "livre") return true;
+  /* Resta `conta`: grátis, mas precisa estar logado — não por venda, e sim
+     porque sem conta não há onde salvar o que a pessoa lançar. */
+  return logado;
 }
 
-export const APPS_PAGOS = APPS.filter((a) => a.plano === "pago" && !a.familia);
-export const FERRAMENTAS_GRATUITAS = APPS.filter((a) => a.plano === "gratis");
+export const APPS_PAGOS = APPS.filter((a) => a.plano === "conta" && !a.familia);
+export const FERRAMENTAS_GRATUITAS = APPS.filter((a) => a.plano === "livre");
 
 /**
  * Quantos de cada coisa, contados do catálogo — nunca escritos à mão.
@@ -666,7 +669,7 @@ export const CONTAGEM = {
       (a) =>
         a.familia &&
         a.status !== "em-breve" &&
-        a.plano === "gratis" &&
+        a.plano === "livre" &&
         a.href.includes("/ferramentas/"),
     ).length;
   },
@@ -676,7 +679,7 @@ export const CONTAGEM = {
       (a) =>
         a.familia &&
         a.status !== "em-breve" &&
-        a.plano === "pago" &&
+        a.plano === "conta" &&
         a.href.includes("/ferramentas/"),
     ).length;
   },

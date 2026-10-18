@@ -139,7 +139,7 @@ const REVISAO = doPilar("revisao");
  *
  * Se um dia ela virar `plano: "pago"`, a ressalva desaparece sozinha.
  */
-const IRIS_E_ABERTA = IRIS.plano === "gratis";
+const IRIS_E_ABERTA = IRIS.plano === "livre";
 
 /** Termos em minúscula; o item chega como veio de `ASSINATURA_INCLUI`. */
 const contem =

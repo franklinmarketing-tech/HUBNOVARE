@@ -186,7 +186,7 @@ export function portais(role: Role): Portal[] {
      * (`MenuAreas`) mostra os pagos com cadeado, e esconder deles o que a
      * assinatura abre seria esconder a oferta de quem está procurando.
      */
-    const abertos = daArea.filter((a) => a.plano !== "pago");
+    const abertos = daArea.filter((a) => a.plano !== "conta");
     return {
       chave: familia,
       titulo: FAMILIAS[familia],
@@ -230,7 +230,7 @@ export function portais(role: Role): Portal[] {
         nome: a.nome,
         chamada: a.chamada,
         href: a.href,
-        aberto: a.status !== "em-breve" && a.plano !== "pago",
+        aberto: a.status !== "em-breve" && a.plano !== "conta",
         /* ⚠️ SEM ISTO O MENU MANDAVA PARA FORA NA MESMA ABA. O item já
            carregava um href de outro domínio (a Carteira Pontual aponta
            para a página de venda da Novare), mas o `Portal` não repassava

@@ -5,8 +5,6 @@ import {
   doCatalogo,
 } from "@/components/CardProdutoHome";
 import {
-  ASSINATURA_PRECO_ANUAL_MENSAL_ROTULO,
-  ASSINATURA_PRECO_ROTULO,
 } from "@/lib/assinatura";
 import type { EstadoAssinatura } from "@/lib/assinatura-servidor";
 
@@ -98,11 +96,15 @@ export function CardFincashHome({
           </>
         ) : (
           <>
+            {/* ⚠️ ERA O PREÇO ("R$ 19,90/mês no anual, ou R$ 29,90/mês").
+                Saiu em 18/10/2026: o FINCASH passou a ser gratuito, e um
+                card que anuncia valor onde não há cobrança é a mentira mais
+                cara que uma home pode contar. */}
             <span className="text-sm font-bold text-accent-strong">
-              {ASSINATURA_PRECO_ANUAL_MENSAL_ROTULO}/mês
+              Grátis
             </span>
             <span className="flex items-center gap-1.5 text-2xs font-semibold text-muted-foreground">
-              no anual, ou {ASSINATURA_PRECO_ROTULO}/mês
+              é só criar a conta
               <SetaRodape />
             </span>
           </>

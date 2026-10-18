@@ -8,7 +8,7 @@ import { TopoApp } from "@/components/TopoApp";
 import { PaletaComandos } from "@/components/PaletaComandos";
 import { BarraMercado } from "@/components/BarraMercado";
 import { CardPortal } from "@/components/CardPortal";
-import { CardFincashFinplanHome } from "@/components/CardFincashFinplanHome";
+import { CardFincashHome } from "@/components/CardFincashHome";
 import { BannerEbooks } from "@/components/BannerEbooks";
 import { BannerNews } from "@/components/BannerNews";
 import { BannerIris } from "@/components/BannerIris";
@@ -192,7 +192,7 @@ export default async function Home() {
               <div className="inclina borda-girando rounded-2xl">
                 {/* O destino e o preço saem da `assinatura`: quem já paga
                     entra direto no app, e não vê preço nenhum. */}
-                <CardFincashFinplanHome assinatura={assinatura} />
+                <CardFincashHome assinatura={assinatura} />
               </div>
             </div>
             {areas

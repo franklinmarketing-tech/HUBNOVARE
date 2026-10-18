@@ -33,7 +33,7 @@ export function RodapeNovare({
 }: { convite?: boolean; aviso?: "ferramenta" | "servico" } = {}) {
   // As quatro primeiras do catálogo vivo: nunca aponta para rota podada.
   const ferramentas = APPS.filter(
-    (a) => a.familia && a.plano === "gratis" && a.status !== "em-breve",
+    (a) => a.familia && a.plano === "livre" && a.status !== "em-breve",
   ).slice(0, 4);
 
   const zap = `https://wa.me/${CONTATO.whatsapp}?text=${encodeURIComponent(
