@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import Image from "next/image";
 import { HelpCircle, X } from "lucide-react";
-import { ETAPAS } from "@/app/finplan/app/etapas";
+import { ETAPAS } from "@/lib/planejamento/etapas";
 
 const CHAVE = "novare:guia-trilha-visto";
 const EVENTO = "novare:abrir-guia";

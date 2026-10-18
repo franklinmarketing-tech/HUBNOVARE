@@ -81,7 +81,7 @@ import { ChevronLeft, ChevronRight, Sparkles, type LucideIcon } from "lucide-rea
    mesmo jeito nos dois produtos, e duas cópias da mesma função é como uma
    delas ganha centavo e a outra não. Reexportado para as telas daqui
    importarem tudo de um endereço só. */
-export { brl } from "@/app/finplan/app/pecas";
+export { brl } from "@/components/pecas-plano";
 
 /**
  * Dinheiro COM centavos.

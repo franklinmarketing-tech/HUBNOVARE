@@ -4,7 +4,7 @@ import Link from "next/link";
 import { ArrowRight, Plus } from "lucide-react";
 import { TIPOS_PATRIMONIO } from "@/lib/planejamento/catalogos";
 import { NumeroContado } from "@/components/NumeroContado";
-import type { DadosPlanejamento } from "@/app/finplan/app/usePlanejamento";
+import type { DadosPlanejamento } from "@/lib/planejamento/usePlanejamento";
 
 /**
  * "O que é meu" — o bloco que faz o Workspace parecer da pessoa.

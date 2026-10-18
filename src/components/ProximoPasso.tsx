@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { ArrowRight, CalendarCheck, CircleCheckBig } from "lucide-react";
-import { brl } from "@/app/finplan/app/pecas";
+import { brl } from "@/components/pecas-plano";
 import { rotuloMes, mesAtual } from "@/lib/planejamento/catalogos";
 import { nextMonthRef } from "@/lib/planejamento/mesSeguinte";
 

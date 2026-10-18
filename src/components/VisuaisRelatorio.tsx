@@ -1,4 +1,4 @@
-import { brl, brlCurto } from "@/app/finplan/app/pecas";
+import { brl, brlCurto } from "@/components/pecas-plano";
 
 /**
  * Os gráficos do relatório.

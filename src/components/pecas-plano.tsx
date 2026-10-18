@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Loader2 } from "lucide-react";
-import { ETAPAS } from "./etapas";
+import { ETAPAS } from "@/lib/planejamento/etapas";
 
 /** Dinheiro sem centavos — em plano de vida, centavo é ruído. */
 export const brl = (v: number) =>

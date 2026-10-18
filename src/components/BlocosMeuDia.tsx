@@ -13,7 +13,7 @@ import {
   Users,
 } from "lucide-react";
 import { CATEGORIAS_DESPESA } from "@/lib/planejamento/catalogos";
-import type { DadosPlanejamento } from "@/app/finplan/app/usePlanejamento";
+import type { DadosPlanejamento } from "@/lib/planejamento/usePlanejamento";
 
 /**
  * Os blocos da vida do cliente no /meu-dia.

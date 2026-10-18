@@ -11,7 +11,7 @@ import {
   TrendingUp,
   Wallet,
 } from "lucide-react";
-import { usePlanejamento } from "@/app/finplan/app/usePlanejamento";
+import { usePlanejamento } from "@/lib/planejamento/usePlanejamento";
 import { BarrasPatrimonio } from "@/components/BarrasPatrimonio";
 import { NumeroContado } from "@/components/NumeroContado";
 import { MeuPatrimonio, MeuRetrato } from "@/components/MeuPatrimonio";

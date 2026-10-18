@@ -8,7 +8,7 @@ import {
   ResponsiveContainer,
   Tooltip,
 } from "recharts";
-import { brl } from "@/app/finplan/app/pecas";
+import { brl } from "@/components/pecas-plano";
 
 /**
  * As roscas da Evolução: para onde o dinheiro vai e do que o patrimônio é
