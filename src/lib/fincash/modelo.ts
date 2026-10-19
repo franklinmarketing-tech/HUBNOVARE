@@ -557,22 +557,59 @@ export async function alternarPago(id: string, pago: boolean) {
  * simplesmente não funcionaria — o que é pior que o comportamento antigo. Some
  * junto com a última instalação sem o SQL.
  */
+/**
+ * ⚠️ PASSA POR RPC, E NÃO POR UPDATE DIRETO — e isto é uma correção, não
+ * estilo.
+ *
+ * O UPDATE direto estava QUEBRADO em todo banco com a lixeira instalada, e
+ * de um jeito mudo: a pessoa tocava na lixeira da linha, nada acontecia, e
+ * o erro morria no console do navegador.
+ *
+ * A causa está na própria policy da lixeira:
+ *
+ *     create policy "fincash: lixeira invisivel" on fin_lancamentos
+ *       as restrictive for select using (apagado_em is null);
+ *
+ * No PostgreSQL um UPDATE valida a linha RESULTANTE contra as policies, e
+ * apagar é justamente preencher `apagado_em` — então a linha resultante
+ * viola a policy que exige `apagado_em is null`, e o banco devolve
+ * `42501: new row violates row-level security policy`.
+ *
+ * O `fincash_lixeira.sql` previu esse efeito para LISTAR e RESTAURAR, e
+ * criou funções `security definer` para as duas. Mandar PARA a lixeira
+ * ficou de fora — que é exatamente a operação do botão.
+ * `supabase/fincash_corrige_apagar.sql` cria a função que faltava.
+ *
+ * O FALLBACK CONTINUA, e agora cobre dois casos: banco sem o aditivo da
+ * lixeira (a coluna não existe) e banco sem a função nova (quem não rodou
+ * a correção ainda). Nos dois, apagar volta a ser `delete` — pior que a
+ * lixeira, melhor que um botão que não faz nada.
+ */
 export async function apagarLancamento(id: string) {
   const supabase = createClient();
-  const { error } = await supabase
+
+  const { error } = await supabase.rpc("fin_lixeira_mandar", { p_id: id });
+  if (!error) return;
+
+  /* PGRST202 = função inexistente; 42883 = idem, pelo Postgres. */
+  const semFuncao =
+    error.code === "PGRST202" ||
+    error.code === "42883" ||
+    /fin_lixeira_mandar/i.test(error.message);
+
+  if (!semFuncao && !colunaDaLixeiraAusente(error)) throw error;
+
+  const { error: erroUpdate } = await supabase
     .from("fin_lancamentos")
     .update({ apagado_em: new Date().toISOString() })
     .eq("id", id);
+  if (!erroUpdate) return;
 
-  if (error && colunaDaLixeiraAusente(error)) {
-    const { error: erroDelete } = await supabase
-      .from("fin_lancamentos")
-      .delete()
-      .eq("id", id);
-    if (erroDelete) throw erroDelete;
-    return;
-  }
-  if (error) throw error;
+  const { error: erroDelete } = await supabase
+    .from("fin_lancamentos")
+    .delete()
+    .eq("id", id);
+  if (erroDelete) throw erroDelete;
 }
 
 // ── A lixeira ───────────────────────────────────────────────────────────────

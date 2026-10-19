@@ -205,8 +205,13 @@ export function CartaoDivida({
   const { divida: d, amortizacao: a } = r;
   const pct = Math.round(r.progressoQuitacao * 100);
 
+  /* ⚠️ O `min-w-0` do card abaixo NÃO É ENFEITE. Este card é item de um
+     `grid`, e item de grid tem `min-width: auto` por padrão: ele se recusa a
+     ficar menor que o próprio conteúdo. Sem essa classe o card ficava com
+     434px dentro de uma coluna de 350 no celular, e era ELE quem fazia a
+     página inteira de dívidas escorregar 64px para o lado. */
   return (
-    <div className="rounded-2xl bg-white p-4 shadow-[var(--fin-sombra-card)] sm:p-5">
+    <div className="min-w-0 rounded-2xl bg-white p-4 shadow-[var(--fin-sombra-card)] sm:p-5">
       <div className="flex items-start gap-3">
         <DiscoIcone Icone={iconeDaDivida(d.tipo)} cor={d.cor} />
         <div className="min-w-0 flex-1">

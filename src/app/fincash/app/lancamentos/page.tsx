@@ -109,6 +109,18 @@ function Lancamentos() {
   const [ref, setRef] = useState(hoje);
   const [dados, setDados] = useState<Mes | null>(null);
   const [erro, setErro] = useState<string | null>(null);
+  /**
+   * ⚠️ APAGAR FALHAVA EM SILÊNCIO ATÉ 19/10/2026. O `onClick` da lixeira
+   * chamava `apagarLancamento` sem try/catch, e o banco recusava com 42501
+   * (a policy da lixeira barrava o próprio UPDATE que apaga). A pessoa
+   * tocava, nada acontecia e o erro morria no console — onde cliente nenhum
+   * olha.
+   *
+   * ⚠️ NÃO USA O `erro` ACIMA de propósito: aquele troca a TELA INTEIRA por
+   * um aviso, e perder a lista por causa de uma linha que não apagou é pior
+   * do que o problema. Este é uma faixa, e a lista continua lá.
+   */
+  const [falhaAoApagar, setFalhaAoApagar] = useState<string | null>(null);
   // O painel manda `?novo=1` pelo botão "Lançar": a pessoa chega com o
   // formulário já aberto, em vez de ter de clicar de novo.
   const [abrindo, setAbrindo] = useState(params.get("novo") === "1");
@@ -245,6 +257,16 @@ function Lancamentos() {
         </Bloco>
       )}
 
+      {falhaAoApagar && (
+        <Bloco tom="gelo" elevacao="plano" className="mb-3 px-3.5 py-2.5">
+          <p role="alert" className="text-2xs leading-relaxed text-destructive">
+            Não consegui apagar <b className="font-semibold">{falhaAoApagar}</b>.
+            O lançamento continua aí. Se repetir, fale com a gente — é coisa
+            nossa, não sua.
+          </p>
+        </Bloco>
+      )}
+
       {dados.lancamentos.length === 0 ? (
         <Vazio
           Icone={ListPlus}
@@ -346,8 +368,13 @@ function Lancamentos() {
                               <button
                                 type="button"
                                 onClick={async () => {
-                                  await apagarLancamento(l.id);
-                                  carregar();
+                                  setFalhaAoApagar(null);
+                                  try {
+                                    await apagarLancamento(l.id);
+                                    carregar();
+                                  } catch {
+                                    setFalhaAoApagar(l.descricao);
+                                  }
                                 }}
                                 aria-label={`Apagar ${l.descricao}`}
                                 className="flex h-11 w-11 items-center justify-center rounded-xl text-muted-foreground/70 transition-colors hover:bg-destructive/10 hover:text-destructive"
@@ -589,10 +616,30 @@ function FormularioLancamento({
     return () => window.removeEventListener("keydown", sair);
   }, [aoFechar]);
 
+  /**
+   * O valor digitado, em número.
+   *
+   * ⚠️ FICA FORA DO `enviar` DE PROPÓSITO. Antes, quem lia o valor era o
+   * `enviar`, e quem decidia se o botão acendia olhava só se o campo estava
+   * VAZIO (`!valor`). As duas leituras discordavam no caso mais óbvio:
+   * digitando "0,00" o campo não está vazio, o botão acendia, o clique caía
+   * num `return` mudo e a tela não dizia nada — a pessoa só via o nada
+   * acontecer. Uma leitura só, usada nos dois lugares, não tem como divergir.
+   */
+  const valorNumerico = Number(valor.replace(/\./g, "").replace(",", ".")) || 0;
+
   async function enviar(e: React.FormEvent) {
     e.preventDefault();
-    const n = Number(valor.replace(/\./g, "").replace(",", "."));
-    if (!descricao.trim() || !n || n <= 0) return;
+    const n = valorNumerico;
+    if (!descricao.trim()) {
+      setErro("Escreva o que foi esse gasto — é por aí que você reconhece ele depois.");
+      return;
+    }
+    if (n <= 0) {
+      setErro("O valor precisa ser maior que zero.");
+      return;
+    }
+    setErro(null);
 
     setSalvando(true);
     try {
@@ -786,8 +833,10 @@ function FormularioLancamento({
           </p>
         )}
 
+        {/* `role="alert"`, e não `status`: este aviso diz que a gravação NÃO
+            aconteceu, e leitor de tela precisa interromper para contar isso. */}
         {erro && (
-          <p role="status" className="mt-3 text-2xs text-destructive">
+          <p role="alert" className="mt-3 text-2xs text-destructive">
             {erro}
           </p>
         )}
@@ -802,7 +851,7 @@ function FormularioLancamento({
           <BotaoAcao
             tipo="submit"
             larguraTotal
-            desabilitado={salvando || !descricao.trim() || !valor}
+            desabilitado={salvando || !descricao.trim() || valorNumerico <= 0}
           >
             {salvando ? "Salvando…" : "Lançar"}
           </BotaoAcao>

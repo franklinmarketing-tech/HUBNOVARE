@@ -45,7 +45,13 @@ export function TopoApp({
       <div className="flex h-[72px] items-center gap-4 px-5">
         {/* A logo oficial fica em TODAS as larguras: o monograma do trilho
             é um atalho de navegação, não substitui a marca. */}
-        <Link href="/" className="shrink-0" aria-label="Novare, início">
+        {/* min-h-11: o alvo seguia a altura da imagem (24px) dentro de um
+             cabeçalho de 72. */}
+        <Link
+          href="/"
+          className="inline-flex min-h-11 shrink-0 items-center"
+          aria-label="Novare, início"
+        >
           <Image
             src="/marca/logo-novare.png"
             alt="Novare"

@@ -490,7 +490,11 @@ export function Medidor({
           x="18"
           y="114"
           className={escuro ? "fill-white/50" : "fill-muted-foreground"}
-          style={{ fontSize: 9 }}
+          /* ⚠️ EM UNIDADES DO viewBox, não em pixels. O SVG tem 200 de largura
+             e é desenhado com ~184px no celular, então o número aqui é quase
+             o tamanho final na tela. Estava 9 — saía com 8px de verdade, que
+             é ilegível no aparelho. */
+          style={{ fontSize: 11 }}
         >
           0%
         </text>
@@ -499,7 +503,7 @@ export function Medidor({
           y="114"
           textAnchor="end"
           className={escuro ? "fill-white/50" : "fill-muted-foreground"}
-          style={{ fontSize: 9 }}
+          style={{ fontSize: 11 }}
         >
           100%
         </text>

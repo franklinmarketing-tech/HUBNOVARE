@@ -71,7 +71,13 @@ export default async function FincashLayout({
           pelo `CascaFincash`. */}
       <header className="nao-imprimir sticky top-0 z-20 border-b border-border/70 bg-white/80 backdrop-blur-md md:hidden">
         <div className="mx-auto flex h-16 max-w-5xl items-center gap-3 px-5">
-          <Link href="/" aria-label="Novare, início">
+          {/* O alvo tinha a altura exata da imagem, 26px. O cabeçalho já
+               tem 64 — a folga existia e não estava sendo usada. */}
+          <Link
+            href="/"
+            aria-label="Novare, início"
+            className="inline-flex min-h-11 items-center"
+          >
             <Image
               src="/marca/logo-novare.png"
               alt="Novare"

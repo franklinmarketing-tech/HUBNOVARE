@@ -71,7 +71,8 @@ export function BannerConsentimento() {
           <button
             type="button"
             onClick={aceitar}
-            className="shrink-0 rounded-xl bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground shadow-sm transition-colors hover:bg-primary-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent sm:w-auto"
+            /* min-h-11 = 44px: media 38, e é o botão que toda visita toca uma vez. */
+            className="min-h-11 shrink-0 rounded-xl bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground shadow-sm transition-colors hover:bg-primary-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent sm:w-auto"
           >
             Entendi
           </button>
