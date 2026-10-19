@@ -184,17 +184,15 @@ const TELAS: Tela[] = [
     Icone: Bell,
     secao: "canos",
   },
-  {
-    /* A ponte para o FINPLAN. Fica perto do fim porque não é gesto
-       diário: leva-se um mês fechado de cada vez, e o mês fecha uma vez por
-       mês. Mas é o item que liga os dois apps da casa, então não pode ficar
-       escondido atrás de "Mais" no celular sem rótulo próprio. */
-    href: "/fincash/app/finplan",
-    rotulo: "Levar ao FINPLAN",
-    curto: "Planejar",
-    Icone: ArrowRightLeft,
-    secao: "canos",
-  },
+  /* ⚠️ AQUI FICAVA "Levar ao FINPLAN", a ponte entre os dois apps. O FINPLAN
+     foi excluído em 18/10/2026 e a tela da ponte saiu junto, mas o item do
+     menu ficou — apontando para uma rota que não existe mais.
+
+     Só apareceu num teste pelo navegador, e vale entender por quê: um item
+     de menu quebrado não derruba página nenhuma, não gera erro de
+     JavaScript e não aparece em varredura de texto. O que se via era o
+     Next pedindo `/fincash/app/finplan` e levando 404 em TODAS as telas do
+     app, porque ele pré-carrega o destino de cada link do menu. */
   {
     /* Exportar e lixeira. Vem antes de Categorias porque "quero meus dados de
        volta" é pedido mais urgente que "quero renomear uma categoria" — e
