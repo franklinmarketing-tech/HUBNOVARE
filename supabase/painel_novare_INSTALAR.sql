@@ -97,10 +97,19 @@ as $$
     select distinct lower(btrim(email::text)) as e from auth.users
   ),
   /* Quem já lançou alguma coisa no FINCASH, e quando foi a última vez.
-     ⚠️ `created_at` do LANÇAMENTO, não a data que a pessoa digitou: ela
-     pode lançar hoje uma conta de três meses atrás, e isso é uso de hoje. */
+
+     ⚠️ `criado_em` É QUANDO A LINHA NASCEU, e não a coluna `data`, que é a
+     data que a pessoa digitou: ela pode lançar hoje uma conta de três meses
+     atrás, e isso é uso de HOJE.
+
+     ⚠️ E É `criado_em`, NÃO `created_at`. As tabelas desta casa são escritas
+     em português; só `auth.users`, que é do Supabase, usa inglês — por isso
+     as duas grafias convivem neste arquivo, cada uma na sua tabela. Supor o
+     nome em inglês numa tabela nossa devolve 42703 e derruba o arquivo
+     INTEIRO, porque o editor do Supabase roda tudo numa transação só.
+     `scripts/testar-colunas-sql.mjs` existe para pegar exatamente isto. */
   uso as (
-    select user_id, max(created_at) as ultimo
+    select user_id, max(criado_em) as ultimo
       from public.fin_lancamentos
      group by user_id
   )
