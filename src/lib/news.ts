@@ -84,9 +84,220 @@ export type Artigo = {
   corpo: (string | BlocoArtigo)[];
   /** A ferramenta que resolve o que o artigo acabou de explicar. */
   ferramenta: { slug: string; nome: string; href: string; externo?: boolean };
+  /**
+   * De onde vieram os NÚMEROS do texto, quando não são da casa.
+   *
+   * ⚠️ É UM CAMPO, E NÃO UM LINK NO MEIO DO CORPO, pelo mesmo motivo de não
+   * existir bloco de HTML livre: a fonte aparece sempre no mesmo lugar e do
+   * mesmo jeito, no fim da matéria. Nasceu (19/10/2026) com os quatro
+   * explicadores escritos a partir de dados publicados pela Nord, parceira
+   * técnica da Novare.
+   *
+   * ⚠️ O TEXTO É DA NOVARE; a fonte é de onde saíram os dados. Matéria de
+   * terceiro não se cola aqui — se escreve uma explicação própria, na
+   * linguagem da casa, e se credita de onde vieram os números. Copiar o
+   * texto alheio seria problema de direito autoral, e conteúdo duplicado o
+   * Google enterra.
+   */
+  fonte?: { nome: string; titulo: string; href: string; data: string };
 };
 
 export const ARTIGOS: Artigo[] = [
+  /* ══════════════════════════════════════════════════════════════════════
+     OS QUATRO EXPLICADORES DE 19/10/2026, a partir de dados da Nord.
+
+     ⚠️ O TEXTO É DA NOVARE. O Franklin pediu para "colocar as matérias da
+     Nord no Novare News"; colar o texto deles seria reproduzir conteúdo de
+     terceiro (direito autoral) e duplicado (o Google enterra). Então cada
+     uma virou uma explicação própria, na linguagem do Hub, com os números
+     creditados no campo `fonte`.
+
+     ⚠️ E VIRARAM EXPLICADOR, NÃO NOTÍCIA DO DIA. Três das quatro são
+     notícia quente lá ("payroll hoje", "PIB dos EUA"), e o News, por regra
+     escrita no topo deste arquivo, não promete atualidade que a casa não
+     mantém. O dado recente entra como EXEMPLO, datado — o texto continua
+     verdadeiro quando sair o próximo número.
+     ══════════════════════════════════════════════════════════════════════ */
+  {
+    slug: "cdi-ganhou-de-tudo-desde-2021-e-agora",
+    titulo: "O CDI ganhou de tudo desde 2021. Quer dizer que é o melhor investimento?",
+    resumo:
+      "Em cinco anos, nenhuma aplicação rendeu mais que o CDI. Nos seis anos antes disso, ele ficou em último. A virada não foi sorte: foi juro — e juro muda.",
+    categoria: "investimentos",
+    data: "2026-10-19",
+    tempoLeituraMin: 5,
+    capa: "/news/cdi-ganhou-de-tudo-desde-2021-e-agora.webp",
+    destaque: true,
+    corpo: [
+      "Quem deixou o dinheiro no CDI de 2021 para cá não tem do que reclamar. Entre julho de 2021 e agosto de 2026, ele rendeu mais que a bolsa brasileira, mais que os fundos multimercado, mais que os títulos prefixados, mais que a bolsa americana — e as ações de empresas menores, as small caps, ainda terminaram o período no prejuízo.",
+      "Daí muita gente tirou a conclusão: \"então é só deixar no CDI e esquecer\". O problema é que a história não começa em 2021.",
+      { tipo: "titulo", texto: "Antes de 2021, o CDI ficou em último" },
+      "Entre 2015 e meados de 2021, aconteceu exatamente o contrário: praticamente todas as classes de investimento renderam mais que o CDI, o dólar inclusive. O Ibovespa subiu quatro anos seguidos, de 2016 a 2019 — algo perto de 39%, 27%, 15% e 32%.",
+      {
+        tipo: "tabela",
+        cabecalho: ["Período", "Quem ganhou", "O que os juros fizeram"],
+        linhas: [
+          ["2015 a 2021", "Bolsa, dólar e quase tudo. O CDI ficou em último", "A Selic caiu até 2% (2020)"],
+          ["2021 a 2026", "O CDI, na frente de todas as classes", "A Selic subiu até 15%"],
+        ],
+        legenda: "A mesma aplicação, dois resultados opostos — e a diferença está na última coluna.",
+      },
+      { tipo: "titulo", texto: "O que virou o jogo: os juros" },
+      "O CDI anda junto com a Selic. Quando o governo arruma as contas — como na época do teto de gastos e das reformas trabalhista e da Previdência —, o risco do país cai, os juros caem, e bolsa, imóveis e títulos longos tendem a valorizar. Quando o risco nas contas públicas volta, os juros sobem, e o CDI passa a ganhar de quase tudo.",
+      { tipo: "destaque", texto: "O CDI não ganhou porque é o melhor investimento. Ganhou porque os juros ficaram altos. Se os juros mudarem, o vencedor muda junto." },
+      { tipo: "titulo", texto: "E daqui para a frente?" },
+      "Ninguém sabe se a virada começa agora. O que a história mostra é que esses ciclos costumam durar anos, e não um dia bom na bolsa — e que quem decide o rumo é o mesmo fator de sempre: como o governo vai cuidar das contas.",
+      {
+        tipo: "lista",
+        itens: [
+          "Não precisa mudar tudo de uma vez: ajustar aos poucos erra menos que apostar tudo num só movimento.",
+          "Ficar 100% no CDI esperando ter certeza raramente é a melhor escolha — a certeza só aparece quando o movimento já passou.",
+          "O jeito certo de dividir o dinheiro depende do seu prazo e do seu objetivo, não da manchete da semana.",
+        ],
+      },
+      "A pergunta que vale a pena não é \"o CDI é bom?\". É \"o meu dinheiro está dividido do jeito certo para o que eu quero fazer com ele?\".",
+    ],
+    ferramenta: {
+      slug: "consultoria-revisao-carteira",
+      nome: "Pedir uma análise independente da carteira",
+      href: "https://diagnostico.novareapp.com.br/carteira-pontual",
+      externo: true,
+    },
+    fonte: {
+      nome: "Nord Investimentos",
+      titulo: "CDI venceu todos os ativos desde 2021: o que esperar dos próximos cinco anos",
+      href: "https://www.nordinvestimentos.com.br/blog/cdi-venceu-todos-os-ativos-desde-2021-o-que-esperar/",
+      data: "2026-10-06",
+    },
+  },
+  {
+    slug: "payroll-o-emprego-americano-e-o-seu-dinheiro",
+    titulo: "Payroll: por que o emprego nos Estados Unidos mexe com o seu dinheiro",
+    resumo:
+      "Toda primeira sexta-feira do mês, os EUA contam quantos empregos criaram. Esse número ajuda a decidir os juros de lá — e chega no dólar e nos investimentos daqui.",
+    categoria: "investimentos",
+    data: "2026-10-19",
+    tempoLeituraMin: 4,
+    capa: "/news/payroll-o-emprego-americano-e-o-seu-dinheiro.webp",
+    corpo: [
+      "Payroll é o nome do relatório que mostra quantos empregos com carteira assinada foram criados nos Estados Unidos no mês. Ele sai na primeira sexta-feira de cada mês, às 10h30 de Brasília, e é feito pelo órgão de estatística do trabalho do governo americano, a partir de uma pesquisa com cerca de 119 mil empresas.",
+      "Não entram trabalhador rural, autônomo nem doméstico: é um retrato do emprego formal.",
+      { tipo: "titulo", texto: "Por que um número de lá importa aqui" },
+      "O banco central americano, o Fed, olha o payroll para decidir os juros. A lógica é simples: muito emprego e salário subindo forte fazem as pessoas gastarem mais; gastando mais, os preços sobem; para segurar a inflação, o Fed sobe os juros. Emprego fraco empurra no sentido contrário.",
+      "E juro americano mexe com o dólar e com o dinheiro que entra ou sai de países como o Brasil. É por isso que um dado de Washington aparece na sua bolsa e no seu dólar no mesmo dia, sem nenhuma notícia brasileira no meio.",
+      { tipo: "titulo", texto: "O que veio no último payroll" },
+      {
+        tipo: "tabela",
+        cabecalho: ["Indicador", "Resultado", "O mercado esperava"],
+        linhas: [
+          ["Vagas criadas", "29 mil", "90 mil"],
+          ["Taxa de desemprego", "4,2%", "4,1%"],
+          ["Salário por hora, no mês", "+0,1%", "+0,3%"],
+        ],
+        legenda: "Dados de setembro de 2026, divulgados em 2 de outubro.",
+      },
+      "Além de fraco, o número de agosto foi revisado para baixo, de 162 mil para 133 mil vagas. Saúde e educação, comércio e construção abriram vagas; o governo cortou.",
+      "Mesmo assim, desemprego de 4,2% ainda é considerado pleno emprego, e a inflação americana segue longe da meta de 2%. Por isso o Fed continua firme, e o mercado ainda vê chance de mais uma ou duas altas de juros nos próximos meses.",
+      { tipo: "destaque", texto: "Um dado de emprego lá fora não é motivo para mexer na sua carteira aqui dentro. Mas explica por que o dólar às vezes se mexe sem nenhuma notícia do Brasil." },
+    ],
+    ferramenta: {
+      slug: "rentabilidade-real",
+      nome: "Rentabilidade Real",
+      href: "/ferramentas/rentabilidade-real",
+    },
+    fonte: {
+      nome: "Nord Investimentos",
+      titulo: "Payroll mais fraco: EUA criam menos vagas, desemprego sobe e salários vêm fracos",
+      href: "https://www.nordinvestimentos.com.br/blog/payroll-eua-hoje/",
+      data: "2026-10-02",
+    },
+  },
+  {
+    slug: "producao-industrial-o-que-as-fabricas-dizem-sobre-os-juros",
+    titulo: "Produção industrial: o que as fábricas dizem sobre os juros no Brasil",
+    resumo:
+      "A indústria produziu menos em agosto, bem abaixo do esperado. Entender esse número ajuda a ler o que o Banco Central pode fazer com a Selic — e com o rendimento da sua renda fixa.",
+    categoria: "investimentos",
+    data: "2026-10-19",
+    tempoLeituraMin: 4,
+    capa: "/news/producao-industrial-o-que-as-fabricas-dizem-sobre-os-juros.webp",
+    corpo: [
+      "Todo mês o IBGE mede quanto a indústria brasileira produziu. É um dos termômetros mais rápidos da economia: fábrica produzindo mais significa mais emprego e mais dinheiro girando; produzindo menos, a economia está esfriando.",
+      { tipo: "titulo", texto: "O que aconteceu em agosto de 2026" },
+      {
+        tipo: "tabela",
+        cabecalho: ["Comparação", "Resultado", "O mercado esperava"],
+        linhas: [
+          ["Contra julho", "−0,6%", "+0,1%"],
+          ["Contra agosto de 2025", "−1,2%", "−0,2%"],
+          ["Acumulado no ano", "+0,8%", "—"],
+          ["Em 12 meses", "+0,6%", "—"],
+        ],
+        legenda: "Produção industrial de agosto de 2026.",
+      },
+      "A queda foi espalhada: 16 dos 25 ramos da indústria produziram menos que em julho. Fumo, remédios e mineração — puxada pelo minério de ferro — caíram. Quem segurou foi a comida: açúcar, soja, suco de laranja e carnes.",
+      "Dá para ver a mudança de ritmo no ano: a indústria cresceu 4,3% de janeiro a abril e perdeu 3,1% de maio a agosto. As máquinas e equipamentos, que mostram se as empresas estão investindo, são a única categoria no vermelho em 2026.",
+      { tipo: "titulo", texto: "E o que isso tem a ver com a Selic?" },
+      "Economia esfriando costuma significar menos pressão nos preços — e é isso que abre espaço para o Banco Central cortar juros. Em setembro, o Copom já baixou a Selic em 0,25 ponto, para 13,75%. Para a reunião seguinte, o mercado ficou dividido: um pouco mais da metade apostava em manter a taxa, o resto em novo corte.",
+      { tipo: "destaque", texto: "Selic caindo é boa notícia para quem tem dívida e para quem tem título prefixado. Para quem está todo no pós-fixado, é hora de entender o que muda." },
+      "Se o seu dinheiro está no CDB ou no Tesouro Selic, vale ler também o nosso explicador sobre o que acontece com a renda fixa quando os juros caem.",
+    ],
+    ferramenta: {
+      slug: "tesouro-direto",
+      nome: "Simulador Tesouro Direto",
+      href: "/ferramentas/tesouro-direto",
+    },
+    fonte: {
+      nome: "Nord Investimentos",
+      titulo: "Produção industrial cai 0,6% em agosto e devolve ganhos do início do ano",
+      href: "https://www.nordinvestimentos.com.br/blog/producao-industrial-brasil/",
+      data: "2026-10-02",
+    },
+  },
+  {
+    slug: "pib-dos-eua-por-que-a-maior-economia-mexe-com-o-seu-bolso",
+    titulo: "PIB dos EUA: por que a maior economia do mundo mexe com o seu bolso",
+    resumo:
+      "A economia americana cresceu mais do que se pensava no segundo trimestre. Quando os EUA aceleram, os juros de lá tendem a subir — e isso chega no dólar e nos investimentos daqui.",
+    categoria: "investimentos",
+    data: "2026-10-19",
+    tempoLeituraMin: 4,
+    capa: "/news/pib-dos-eua-por-que-a-maior-economia-mexe-com-o-seu-bolso.webp",
+    corpo: [
+      "PIB é a soma de tudo o que um país produz. O dos Estados Unidos é o maior do mundo, e o jeito como ele é divulgado engana quem não está acostumado: o número americano vem \"anualizado\". Ou seja, mostra quanto a economia cresceria num ano inteiro se mantivesse o ritmo daquele trimestre.",
+      { tipo: "titulo", texto: "O que veio no segundo trimestre de 2026" },
+      "Na terceira e última leitura, o crescimento foi de 2,2% anualizado — bem acima da leitura anterior, de 1,5%. O primeiro trimestre também foi revisado para cima, de 2,1% para 2,5%.",
+      {
+        tipo: "tabela",
+        cabecalho: ["Parte da economia", "Quanto puxou o crescimento"],
+        linhas: [
+          ["Consumo das famílias", "+2,5 pontos"],
+          ["Investimentos (estoques e data centers)", "+0,8 ponto"],
+          ["Exportações", "+0,6 ponto"],
+          ["Governo", "praticamente zero"],
+          ["Importações", "−1,6 ponto"],
+        ],
+        legenda: "Contribuição de cada parte para o crescimento de 2,2%. Importação entra subtraindo porque é produção feita fora do país.",
+      },
+      "O destaque foi o consumo: as famílias americanas seguem gastando. A demanda privada dentro do país cresceu 4,6%, contra 1,8% no trimestre anterior.",
+      { tipo: "titulo", texto: "Por que isso importa para quem investe no Brasil" },
+      "Economia forte com inflação ainda alta leva o Fed a manter os juros altos — o mercado vê boa chance de uma ou duas altas nos próximos meses. Juro alto nos EUA atrai dinheiro para lá, o que costuma fortalecer o dólar e pesar sobre países como o Brasil.",
+      { tipo: "destaque", texto: "Quem tem todo o patrimônio em reais sente esse movimento sem perceber. É uma das razões para pensar em ter uma parte do dinheiro fora do país." },
+      "Se quiser entender quanto do seu patrimônio faz sentido manter no Brasil, temos um explicador só sobre isso aqui no Novare News.",
+    ],
+    ferramenta: {
+      slug: "consultoria-revisao-carteira",
+      nome: "Pedir uma análise independente da carteira",
+      href: "https://diagnostico.novareapp.com.br/carteira-pontual",
+      externo: true,
+    },
+    fonte: {
+      nome: "Nord Investimentos",
+      titulo: "PIB dos EUA é revisado para 2,2% no 2º tri e reforça alta de juros",
+      href: "https://www.nordinvestimentos.com.br/blog/pib-dos-eua/",
+      data: "2026-09-30",
+    },
+  },
   /* ══════════════════════════════════════════════════════════════════════
      ⚠️ OS TRÊS ARTIGOS ABAIXO SÃO ORIGINAIS DA NOVARE (23/09/2026).
 

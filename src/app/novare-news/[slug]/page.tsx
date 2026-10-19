@@ -170,6 +170,24 @@ export default async function ArtigoPage({
               24 textos anteriores não mudaram em nada. */}
           <CorpoArtigo corpo={artigo.corpo} />
 
+          {/* A fonte dos números, quando não são da casa — sempre aqui, no
+              fim, e sempre clicável. Ver `fonte` em lib/news.ts. */}
+          {artigo.fonte && (
+            <p className="mx-auto mt-10 max-w-2xl rounded-xl bg-muted/50 px-4 py-3 text-xs leading-relaxed text-muted-foreground">
+              <span className="font-semibold text-foreground">Fonte dos dados:</span>{" "}
+              {artigo.fonte.nome},{" "}
+              <a
+                href={artigo.fonte.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-medium text-accent-strong underline-offset-2 hover:underline"
+              >
+                “{artigo.fonte.titulo}”
+              </a>{" "}
+              ({formatarData(artigo.fonte.data)}).
+            </p>
+          )}
+
           <div className="mx-auto mt-10 flex max-w-2xl flex-wrap items-center justify-between gap-3 border-t border-border pt-5">
             <p className="text-2xs text-muted-foreground">
               Publicado em {formatarData(artigo.data)}
