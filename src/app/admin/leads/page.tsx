@@ -5,7 +5,11 @@ import { AcoesLead } from "./AcoesLead";
 import { createClient } from "@/lib/supabase/server";
 import { getPerfil } from "@/lib/perfil";
 import { FaltaRodarSql, Hero, Numero, SeletorDePeriodo } from "../pecas";
-import { MarcarSituacao, SITUACOES } from "./MarcarSituacao";
+import { MarcarSituacao } from "./MarcarSituacao";
+/* ⚠️ De `./situacoes`, NUNCA de `./MarcarSituacao`: valor importado de
+   arquivo "use client" chega aqui no servidor como referência, e o `.map`
+   do filtro derrubava a tela. */
+import { SITUACOES } from "./situacoes";
 
 export const metadata = { title: "Leads captados" };
 

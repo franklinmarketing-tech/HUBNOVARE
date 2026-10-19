@@ -72,8 +72,14 @@ export default async function AdminClientesPage({
     );
   }
 
+  /* ⚠️ `email` PODE VIR NULO de `auth.users`: conta criada por telefone
+     ou como anônima não tem e-mail. Sem o `?? ""`, a primeira letra do
+     avatar (`c.email[0]`) estourava e derrubava a tela INTEIRA por causa
+     de uma pessoa — o mesmo tipo de defeito que tirou Leads do ar: o
+     compilador não vê, e só quebra com a tela aberta. */
   const todos = ((data as Cliente[]) ?? []).map((c) => ({
     ...c,
+    email: c.email ?? "",
     leads: Number(c.leads),
     mensagens: Number(c.mensagens),
   }));
@@ -207,7 +213,7 @@ export default async function AdminClientesPage({
                 >
                   <div className="flex items-start gap-3">
                     <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[linear-gradient(135deg,hsl(215_50%_30%),hsl(215_52%_20%))] text-sm font-bold text-white">
-                      {(c.nome?.trim()?.[0] ?? c.email[0]).toUpperCase()}
+                      {(c.nome?.trim()?.[0] ?? c.email[0] ?? "?").toUpperCase()}
                     </span>
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-1.5">

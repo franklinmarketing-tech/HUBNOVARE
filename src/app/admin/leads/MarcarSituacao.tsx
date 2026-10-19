@@ -4,12 +4,10 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 
-export const SITUACOES = [
-  { valor: "novo", rotulo: "Novo", cls: "bg-slate-100 text-slate-600" },
-  { valor: "falando", rotulo: "Falando", cls: "bg-amber-100 text-amber-700" },
-  { valor: "cliente", rotulo: "Virou cliente", cls: "bg-emerald-100 text-emerald-700" },
-  { valor: "sem_interesse", rotulo: "Sem interesse", cls: "bg-slate-100 text-slate-400" },
-] as const;
+/* ⚠️ A LISTA SAIU DAQUI para `./situacoes.ts`. Exportada deste arquivo
+   "use client", ela chegava ao servidor como referência opaca e derrubava a
+   tela de leads inteira. Ver o comentário de lá. */
+import { SITUACOES } from "./situacoes";
 
 /**
  * Marcar em que pé está a conversa com um lead.
