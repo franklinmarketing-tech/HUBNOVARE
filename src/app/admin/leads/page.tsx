@@ -126,7 +126,11 @@ export default async function AdminLeadsPage({
 
   return (
     <div className="space-y-6">
-      <Hero etiqueta="Painel da Novare" titulo="Leads captados">
+      <Hero
+        etiqueta="Painel da Novare"
+        titulo="Leads captados"
+        destaque={{ valor: quantos("novo"), rotulo: "esperando contato" }}
+      >
         Quem deixou contato nas ferramentas. Marque em que pé está cada conversa —
         fica registrado para toda a equipe, não na sua memória.
       </Hero>

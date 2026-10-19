@@ -89,7 +89,11 @@ export default async function PainelIscas({
 
   return (
     <div className="space-y-6">
-      <Hero etiqueta="Painel da Novare" titulo="As iscas">
+      <Hero
+        etiqueta="Painel da Novare"
+        titulo="As iscas"
+        destaque={{ valor: totalLeads, rotulo: "leads no periodo" }}
+      >
         As {iscas.length} ferramentas gratuitas que trazem gente para a Novare.
         O link de cada uma está pronto para copiar e divulgar.
       </Hero>

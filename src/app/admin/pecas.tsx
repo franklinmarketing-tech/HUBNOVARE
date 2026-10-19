@@ -13,49 +13,115 @@ import { ArrowDownRight, ArrowUpRight, Minus } from "lucide-react";
  */
 
 /* ═══ HERO ═══════════════════════════════════════════════════════════════
-   Navy institucional com duas luzes muito fracas nas quinas. Sem elas o
-   retângulo chapado parece caixa de aviso; com elas, parece superfície.
+   O cartão de abertura do painel.
 
-   ⚠️ `overflow-hidden` NÃO É ENFEITE: as luzes ficam em `-right-24` e
-   `-left-20`, fora da caixa. Sem o recorte, elas empurram a página inteira
+   ⚠️ A PRIMEIRA VERSÃO ERA UM RETÂNGULO NAVY CHAPADO com duas luzes muito
+   fracas. Funcionava e parecia caixa de aviso — e uma tela que abre com
+   "como vai a sua empresa" precisa ter o peso daquilo que está dizendo.
+   O que mudou, e cada coisa faz um trabalho:
+
+     • GRADIENTE DIAGONAL em vez de cor sólida: dá direção à luz, e o olho
+       lê superfície em vez de retângulo pintado.
+     • MALHA DE PONTOS muito fraca: textura é o que separa "superfície" de
+       "preenchimento". A 4% de opacidade ela não é vista — é sentida.
+     • LUZES MAIORES E MAIS QUENTES nas quinas, com o laranja da marca de
+       um lado e o azul-claro do outro: a paleta da casa aparecendo sem
+       precisar de nenhum elemento decorativo a mais.
+     • FILETE SUPERIOR em degradê, que é o detalhe que faz o bloco parecer
+       recortado com cuidado em vez de colado.
+     • DESTAQUE OPCIONAL à direita: o número que importa mora DENTRO do
+       hero, e não num cartão a três rolagens de distância.
+
+   ⚠️ `overflow-hidden` NÃO É ENFEITE: as luzes ficam fora da caixa, em
+   `-right-32` e `-left-24`. Sem o recorte, elas empurram a página inteira
    para o lado no celular — foi assim que a tela de dívidas do FINCASH
-   escorregou 64px. */
+   escorregou 64px.
+
+   ⚠️ TODO MOVIMENTO PASSA POR `prefers-reduced-motion` (via `.surgir`, do
+   `globals.css`). Painel de empresa é tela de trabalho diário: quem pediu
+   menos movimento ao sistema operacional pediu de verdade. */
 export function Hero({
   etiqueta,
   titulo,
   children,
   acao,
+  destaque,
 }: {
   etiqueta: string;
   titulo: string;
   children?: React.ReactNode;
   acao?: React.ReactNode;
+  /** O número que resume a tela. Fica grande, à direita. */
+  destaque?: { valor: string | number; rotulo: string };
 }) {
   return (
-    <section className="relative overflow-hidden rounded-3xl bg-primary px-6 py-7 text-white shadow-lg sm:px-8 sm:py-9">
+    <section
+      className="surgir relative overflow-hidden rounded-3xl px-6 py-8 text-white shadow-[0_18px_40px_-18px_hsl(215_50%_18%/0.55)] sm:px-9 sm:py-10"
+      style={{
+        background:
+          "linear-gradient(135deg, hsl(215 52% 26%) 0%, hsl(215 54% 20%) 48%, hsl(215 58% 15%) 100%)",
+      }}
+    >
+      {/* O filete de luz no topo — o detalhe que dá acabamento à borda. */}
       <span
         aria-hidden
-        className="pointer-events-none absolute -right-24 -top-28 h-72 w-72 rounded-full bg-[radial-gradient(circle,hsl(197_70%_55%/0.3),transparent_65%)]"
-      />
-      <span
-        aria-hidden
-        className="pointer-events-none absolute -bottom-32 -left-20 h-72 w-72 rounded-full bg-[radial-gradient(circle,hsl(16_85%_58%/0.22),transparent_65%)]"
+        className="pointer-events-none absolute inset-x-0 top-0 h-px bg-[linear-gradient(90deg,transparent,hsl(210_75%_72%/0.55),hsl(16_85%_65%/0.4),transparent)]"
       />
 
-      <div className="relative flex flex-wrap items-end justify-between gap-5">
-        <div className="min-w-0">
-          <p className="text-2xs font-semibold uppercase tracking-[0.18em] text-white/55">
+      {/* Textura: pontos a 4%. Não se vê, se sente. */}
+      <span
+        aria-hidden
+        className="pointer-events-none absolute inset-0 opacity-[0.045]"
+        style={{
+          backgroundImage: "radial-gradient(hsl(0 0% 100%) 1px, transparent 1px)",
+          backgroundSize: "18px 18px",
+        }}
+      />
+
+      {/* As duas luzes da marca. */}
+      <span
+        aria-hidden
+        className="pointer-events-none absolute -right-32 -top-36 h-[22rem] w-[22rem] rounded-full bg-[radial-gradient(circle,hsl(203_80%_60%/0.34),transparent_62%)] blur-[2px]"
+      />
+      <span
+        aria-hidden
+        className="pointer-events-none absolute -bottom-40 -left-24 h-[22rem] w-[22rem] rounded-full bg-[radial-gradient(circle,hsl(16_88%_58%/0.26),transparent_62%)] blur-[2px]"
+      />
+
+      <div className="relative flex flex-wrap items-end justify-between gap-x-8 gap-y-5">
+        <div className="min-w-0 flex-1">
+          <p className="flex items-center gap-2 text-2xs font-semibold uppercase tracking-[0.2em] text-white/55">
+            {/* Um ponto de luz antes da etiqueta: âncora o olho no começo
+                da linha, que é onde a leitura de uma tela densa começa. */}
+            <span
+              aria-hidden
+              className="h-1.5 w-1.5 rounded-full bg-[hsl(16_88%_62%)] shadow-[0_0_10px_hsl(16_88%_62%)]"
+            />
             {etiqueta}
           </p>
-          <h1 className="mt-1.5 font-display text-2xl font-bold leading-tight sm:text-3xl">
+
+          <h1 className="mt-2 font-display text-[1.7rem] font-bold leading-[1.15] tracking-tight sm:text-4xl">
             {titulo}
           </h1>
+
           {children && (
-            <div className="mt-2.5 max-w-prose text-sm leading-relaxed text-white/70">
+            <div className="mt-3 max-w-prose text-sm leading-relaxed text-white/65">
               {children}
             </div>
           )}
         </div>
+
+        {destaque && (
+          <div className="shrink-0 text-right">
+            <p className="font-display text-4xl font-bold leading-none tabular-nums sm:text-5xl">
+              {destaque.valor}
+            </p>
+            <p className="mt-1.5 text-2xs font-semibold uppercase tracking-wider text-white/50">
+              {destaque.rotulo}
+            </p>
+          </div>
+        )}
+
         {acao}
       </div>
     </section>
@@ -151,33 +217,56 @@ export function Numero({
         ? "text-destructive"
         : "text-foreground";
 
+  /* A listra de cor na borda esquerda: um sinal que se lê sem ler. */
+  const listra =
+    tom === "atencao"
+      ? "before:bg-destructive"
+      : tom === "destaque"
+        ? "before:bg-[linear-gradient(180deg,hsl(210_75%_62%),hsl(215_50%_23%))]"
+        : "before:bg-border";
+
   const miolo = (
     <>
       <div className="flex items-center gap-2">
         {Icone && (
-          <Icone className="h-4 w-4 shrink-0 text-muted-foreground" strokeWidth={1.9} />
+          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-primary/[0.07] text-primary transition-colors group-hover:bg-primary/[0.12]">
+            <Icone className="h-3.5 w-3.5" strokeWidth={2} />
+          </span>
         )}
         <p className="min-w-0 truncate text-2xs font-semibold uppercase tracking-wider text-muted-foreground">
           {rotulo}
         </p>
       </div>
 
-      <p className={`mt-2 font-display text-3xl font-bold tabular-nums ${corDoValor}`}>
+      {/* `tracking-tight` e `tabular-nums`: número grande com espaçamento
+          solto parece frouxo, e sem cifra tabular as colunas dançam quando
+          o valor muda de 9 para 10. */}
+      <p
+        className={`mt-2.5 font-display text-[2rem] font-bold leading-none tracking-tight tabular-nums ${corDoValor}`}
+      >
         {valor}
       </p>
 
-      <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5">
+      <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-0.5">
         {detalhe && <p className="text-2xs text-muted-foreground">{detalhe}</p>}
         {variacao != null && <Variacao pct={variacao} />}
       </div>
     </>
   );
 
+  /* ⚠️ A LISTRA É UM `::before`, e não uma borda: borda colorida de um lado
+     só obriga a compensar o padding do outro para o conteúdo não dançar
+     entre um cartão com listra e outro sem. */
   const classe =
-    "block rounded-2xl border border-border bg-white p-4 shadow-sm transition-colors";
+    "group relative block overflow-hidden rounded-2xl border border-border bg-white p-4 pl-5 shadow-sm transition-all duration-200 " +
+    "before:absolute before:inset-y-0 before:left-0 before:w-1 before:content-[''] " +
+    listra;
 
   return href ? (
-    <Link href={href} className={`${classe} hover:border-primary/40`}>
+    <Link
+      href={href}
+      className={`${classe} hover:-translate-y-0.5 hover:border-primary/35 hover:shadow-md motion-reduce:hover:translate-y-0`}
+    >
       {miolo}
     </Link>
   ) : (
@@ -261,21 +350,42 @@ export function BarrasPorDia({
       </div>
 
       {/* `items-end` para as barras crescerem de baixo para cima. A altura
-          mínima de 2px mantém visível o dia com valor 1. */}
-      <div className="mt-3 flex h-28 items-end gap-px" role="img" aria-label={`${rotulo} por dia: ${total} no período`}>
-        {dados.map((d) => (
+          mínima de 2px mantém visível o dia com valor 1.
+
+          ⚠️ A ALTURA É ANIMADA NA ENTRADA, com atraso escalonado por barra:
+          o gráfico se desenha da esquerda para a direita, que é o sentido
+          em que o tempo é lido. O atraso tem teto de 600ms — sem ele, um
+          período de 365 dias levaria meio minuto para terminar de aparecer. */}
+      <div
+        className="mt-3 flex h-28 items-end gap-px"
+        role="img"
+        aria-label={`${rotulo} por dia: ${total} no período`}
+      >
+        {dados.map((d, i) => (
           <div
             key={d.dia}
-            className="group relative flex-1"
-            style={{ height: `${Math.max(2, (d.valor / maximo) * 100)}%` }}
+            className="group relative flex-1 origin-bottom"
+            style={{
+              height: `${Math.max(2, (d.valor / maximo) * 100)}%`,
+              animation: "surgir 420ms cubic-bezier(0.2,0.7,0.3,1) both",
+              animationDelay: `${Math.min(600, i * (600 / Math.max(dados.length, 1)))}ms`,
+            }}
           >
             <div
-              className={`h-full w-full rounded-t transition-colors ${
-                d.valor > 0 ? "bg-primary/75 group-hover:bg-accent" : "bg-slate-100"
+              className={`h-full w-full rounded-t transition-colors duration-150 ${
+                d.valor > 0
+                  ? "bg-[linear-gradient(180deg,hsl(215_50%_34%),hsl(215_52%_24%))] group-hover:bg-[linear-gradient(180deg,hsl(16_84%_58%),hsl(16_82%_46%))]"
+                  : "bg-slate-100"
               }`}
             />
-            <span className="pointer-events-none absolute -top-7 left-1/2 z-10 hidden -translate-x-1/2 whitespace-nowrap rounded-lg bg-primary px-2 py-1 text-2xs font-semibold text-white group-hover:block">
+            {/* A etiqueta sobe junto com um triangulinho apontando a barra:
+                sem ele, o balão parece solto sobre o gráfico. */}
+            <span className="pointer-events-none absolute -top-8 left-1/2 z-10 hidden -translate-x-1/2 whitespace-nowrap rounded-lg bg-primary px-2 py-1 text-2xs font-semibold text-white shadow-md group-hover:block">
               {d.valor} · {formatarDia(d.dia)}
+              <span
+                aria-hidden
+                className="absolute -bottom-1 left-1/2 h-2 w-2 -translate-x-1/2 rotate-45 bg-primary"
+              />
             </span>
           </div>
         ))}

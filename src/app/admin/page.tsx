@@ -156,6 +156,12 @@ export default async function PainelSaude({
       <Hero
         etiqueta="Painel da Novare"
         titulo="Como vai a casa"
+        /* O número que resume tudo fica DENTRO do hero: quem abre o painel
+           quer saber "entrou gente?" antes de qualquer outra coisa. */
+        destaque={{
+          valor: s.leads,
+          rotulo: dias === 7 ? "leads em 7 dias" : `leads em ${dias} dias`,
+        }}
         acao={
           s.por_tratar > 0 ? (
             <Link
