@@ -118,6 +118,335 @@ export const ARTIGOS: Artigo[] = [
      mantém. O dado recente entra como EXEMPLO, datado — o texto continua
      verdadeiro quando sair o próximo número.
      ══════════════════════════════════════════════════════════════════════ */
+
+  /* ── A SEGUNDA LEVA, DA SEMANA DO 2º TURNO (19/10/2026) ──────────────────
+     Mesma regra da primeira: texto da Novare, números da Nord creditados.
+
+     ⚠️ QUATRO SÃO SOBRE A ELEIÇÃO, E NENHUMA TOMA LADO. O News explica como
+     a eleição mexe com o dinheiro; não diz em quem votar nem qual resultado
+     é "bom para o mercado". Uma matéria financeira que pende para um lado
+     perde a confiança de metade dos leitores.
+
+     ⚠️ "AÇÕES E ELEIÇÕES: O QUE COMPRAR EM CADA CENÁRIO" NÃO FOI REPRODUZIDA
+     como recomendação. A matéria da Nord indica ações específicas para cada
+     candidato vencer. Na voz da Novare isso seria (1) recomendação de ação,
+     que é atividade de analista credenciado na CVM, e (2) amarrar empresas a
+     candidatos. Virou um explicador de POR QUE algumas empresas reagem mais
+     que outras — dívida, juros, dividendos —, sem ticker e sem nome de
+     candidato. */
+  {
+    slug: "eleicao-e-bolsa-por-que-algumas-acoes-reagem-mais",
+    titulo: "Eleição e bolsa: por que algumas ações sobem (ou caem) muito mais que outras",
+    resumo:
+      "Na semana depois do 1º turno, houve ação que subiu perto de 75%. Não foi sorte: empresas endividadas reagem muito mais aos juros — e a eleição mexe justamente com os juros.",
+    categoria: "investimentos",
+    data: "2026-10-19",
+    tempoLeituraMin: 4,
+    capa: "/news/eleicao-e-bolsa-por-que-algumas-acoes-reagem-mais.webp",
+    corpo: [
+      "Na primeira semana depois do 1º turno, uma locadora de carros listada na bolsa subiu perto de 75%. Enquanto isso, outras empresas grandes e lucrativas mal saíram do lugar. Para quem olha de fora, parece loteria. Não é.",
+      { tipo: "titulo", texto: "O que a eleição muda de verdade: os juros" },
+      "O mercado não reage ao candidato em si; reage ao que ele imagina que vai acontecer com as contas do governo. Contas mais arrumadas fazem os juros caírem. Contas mais bagunçadas fazem os juros subirem. E juro é o que mais mexe com o preço das empresas.",
+      { tipo: "titulo", texto: "Quem reage mais, e por quê" },
+      {
+        tipo: "lista",
+        itens: [
+          "Empresas com muita dívida: pagam juros sobre o que devem. Quando a expectativa de juros cai, o alívio no caixa é enorme — e a ação pode disparar. Quando sobe, despencam na mesma velocidade.",
+          "Empresas que dependem de crédito para crescer, como construtoras e locadoras: o cliente delas também depende de juro baixo para financiar.",
+          "Empresas muito lucrativas e que pagam bons dividendos, como grandes bancos: oscilam menos, porque ganham dinheiro em quase qualquer cenário.",
+        ],
+      },
+      { tipo: "destaque", texto: "A ação que mais sobe quando a notícia é boa é, quase sempre, a que mais cai quando a notícia é ruim. É o mesmo movimento, nos dois sentidos." },
+      { tipo: "titulo", texto: "O que fazer com isso" },
+      "Tentar acertar o resultado da eleição E a reação do mercado é apostar duas vezes. O que a análise séria faz é olhar a empresa: quanto ela deve, quanto ela lucra e se o preço de hoje ainda tem margem de segurança. E dimensionar quanto da carteira vai para cada aposta conforme o risco que você aguenta.",
+    ],
+    ferramenta: {
+      slug: "consultoria-revisao-carteira",
+      nome: "Pedir uma análise independente da carteira",
+      href: "https://diagnostico.novareapp.com.br/carteira-pontual",
+      externo: true,
+    },
+    fonte: {
+      nome: "Nord Investimentos",
+      titulo: "Ações e eleições 2026: o que comprar em cada cenário do 2º turno",
+      href: "https://www.nordinvestimentos.com.br/blog/eleicoes-2026-acoes-segundo-turno-lula-flavio/",
+      data: "2026-10-19",
+    },
+  },
+  {
+    slug: "depois-do-primeiro-turno-renda-fixa-dolar-e-bolsa-americana",
+    titulo: "Depois do 1º turno: mexer ou não na renda fixa, no dólar e na bolsa americana?",
+    resumo:
+      "O dólar teve a maior queda diária em mais de oito anos e os juros longos despencaram. Parece hora de mudar tudo — e é justamente quando mais se erra.",
+    categoria: "investimentos",
+    data: "2026-10-19",
+    tempoLeituraMin: 5,
+    capa: "/news/depois-do-primeiro-turno-renda-fixa-dolar-e-bolsa-americana.webp",
+    corpo: [
+      "No dia seguinte ao 1º turno, o dólar caiu 4,12% e fechou em R$ 5 — a maior queda num só dia em mais de oito anos. Os juros futuros longos caíram cerca de 1 ponto. Dias depois, o dólar já voltava para perto de R$ 5,10. Quem olha esses números fica com vontade de fazer alguma coisa. A pergunta é: o quê?",
+      { tipo: "titulo", texto: "Renda fixa: o que já subiu e o que ainda protege" },
+      "Quando os juros caem, os títulos que você já tem se valorizam — é o que se chama de marcação a mercado. Mas o problema de fundo continua: a dívida do governo está perto de 83% do PIB, com projeções de chegar a 110% em dez anos. É por isso que o juro real de 10 anos segue em torno de 6,9%, bem acima da média de 5,7% desde 2014.",
+      "Nesse cenário, o título atrelado à inflação (IPCA+) tende a oscilar menos que o prefixado e protege o poder de compra se a inflação voltar a apertar.",
+      { tipo: "titulo", texto: "Bolsa americana: nem cara nem barata" },
+      "O S&P 500, índice das maiores empresas dos EUA, está sendo negociado a cerca de 19 vezes o lucro esperado — perto da média dos últimos dez anos. Tecnologia já pesa cerca de 40% do índice. Os juros americanos seguem altos, com o mercado vendo mais de 90% de chance de nova alta até janeiro.",
+      { tipo: "titulo", texto: "Dólar: a força do real depende dos juros" },
+      "O real tem se sustentado porque os juros aqui são muito altos. Com a Selic caindo, esse apoio diminui. Por isso o dólar na carteira não é aposta de curto prazo: é diversificação, para não depender só do Brasil.",
+      { tipo: "destaque", texto: "Para quem tem pouco dólar, o caminho é aumentar aos poucos. Para quem tem tudo em renda fixa, é revisar o tipo de título. Para ninguém, é mudar tudo antes do 2º turno." },
+      "O segundo turno é em 25 de outubro, e a volatilidade deve continuar alta até lá. Decisão grande tomada no susto costuma sair cara.",
+    ],
+    ferramenta: {
+      slug: "consultoria-revisao-carteira",
+      nome: "Pedir uma análise independente da carteira",
+      href: "https://diagnostico.novareapp.com.br/carteira-pontual",
+      externo: true,
+    },
+    fonte: {
+      nome: "Nord Investimentos",
+      titulo: "Vale manter renda fixa, Bolsa americana e dólar depois do 1º turno?",
+      href: "https://www.nordinvestimentos.com.br/blog/manter-renda-fixa-bolsa-americana-dolar-depois-do-primeiro-turno/",
+      data: "2026-10-18",
+    },
+  },
+  {
+    slug: "prefixado-ou-ipca-em-ano-de-eleicao",
+    titulo: "Prefixado ou IPCA+? O que muda na renda fixa em ano de eleição",
+    resumo:
+      "Alguns prefixados valorizaram cerca de 20% no rali depois do 1º turno. Bom para quem já tinha — mas a mesma conta que fez o preço subir pode fazê-lo cair.",
+    categoria: "investimentos",
+    data: "2026-10-19",
+    tempoLeituraMin: 5,
+    capa: "/news/prefixado-ou-ipca-em-ano-de-eleicao.webp",
+    corpo: [
+      "Antes da eleição, um prefixado com vencimento em 2032 chegou a pagar cerca de 15% ao ano. No primeiro pregão depois do 1º turno, a taxa caiu para perto de 12,7%. Quem tinha o título ganhou — alguns papéis valorizaram cerca de 20%.",
+      { tipo: "titulo", texto: "Por que o preço do título sobe quando a taxa cai" },
+      "Um prefixado comprado a 15% continua pagando 15% até o vencimento. Se os títulos novos passam a pagar 12,7%, o seu vale mais — porque paga mais que os outros. Na regra de bolso, cada 1 ponto de queda na taxa sobe o preço em cerca de 7%. É a marcação a mercado.",
+      { tipo: "destaque", texto: "A mesma conta funciona ao contrário: se as taxas voltarem a subir, o preço cai. Quem precisar vender antes do vencimento pode sair no prejuízo." },
+      { tipo: "titulo", texto: "E o IPCA+?" },
+      "O título atrelado à inflação também oscila no caminho, mas paga uma taxa fixa MAIS a inflação do período. Com a inflação embutida nos prefixados já em nível baixo — perto de 5% ao ano —, sobra menos espaço para o prefixado ganhar ainda mais do IPCA+.",
+      {
+        tipo: "tabela",
+        cabecalho: ["", "Prefixado", "IPCA+"],
+        linhas: [
+          ["O que você sabe na compra", "Quanto vai receber, em reais", "Quanto vai ganhar ACIMA da inflação"],
+          ["Se a inflação disparar", "Perde poder de compra", "Fica protegido"],
+          ["Se os juros caírem muito", "Ganha mais", "Ganha, mas menos"],
+        ],
+        legenda: "Os dois oscilam se você vender antes do vencimento. Levando até o fim, recebe o combinado.",
+      },
+      "Uma estratégia comum depois de um rali é realizar parte do ganho nos prefixados e passar parte para IPCA+. Mas a troca precisa considerar o vencimento, o imposto e para que serve aquele dinheiro — não só a manchete da semana.",
+    ],
+    ferramenta: {
+      slug: "tesouro-direto",
+      nome: "Simulador Tesouro Direto",
+      href: "/ferramentas/tesouro-direto",
+    },
+    fonte: {
+      nome: "Nord Investimentos",
+      titulo: "Renda fixa nas eleições: vale trocar prefixados por IPCA+?",
+      href: "https://www.nordinvestimentos.com.br/blog/renda-fixa-nas-eleicoes-prefixados-ipca/",
+      data: "2026-10-13",
+    },
+  },
+  {
+    slug: "voce-investe-ou-torce-politica-e-carteira",
+    titulo: "Você investe ou torce? Por que misturar política e carteira sai caro",
+    resumo:
+      "Estudos com ressonância magnética mostram que crença política mexe com as mesmas áreas do cérebro da identidade e da emoção. Por isso ela resiste a fatos — e por isso não deveria decidir onde vai o seu dinheiro.",
+    categoria: "investimentos",
+    data: "2026-10-19",
+    tempoLeituraMin: 4,
+    capa: "/news/voce-investe-ou-torce-politica-e-carteira.webp",
+    corpo: [
+      "Em ano de eleição, muita gente monta a carteira como monta a torcida: aposta no lado que quer ver ganhar. O problema é que torcida e investimento funcionam de jeitos opostos.",
+      { tipo: "titulo", texto: "O que acontece no cérebro" },
+      "Pesquisadores colocaram voluntários numa máquina de ressonância magnética e apresentaram argumentos contrários às crenças deles. Crenças comuns mudavam. As políticas quase não se moviam — e o cérebro acionava as áreas ligadas à identidade, à emoção e à sensação de ameaça.",
+      "Ou seja: quando a política vira parte de quem a pessoa é, o fato novo que contraria essa ideia é sentido quase como um ataque. É o contrário do que o investimento exige.",
+      { tipo: "destaque", texto: "Investir é mudar de posição quando os fatos mudam. Torcer é continuar acreditando quando eles mudam." },
+      { tipo: "titulo", texto: "O teste que separa os dois" },
+      "Pergunte a si mesmo: o que me faria mudar de ideia sobre este investimento? Se a resposta for um preço, um prazo ou um resultado da empresa, é análise. Se não houver resposta, é convicção falando mais alto.",
+      {
+        tipo: "lista",
+        itens: [
+          "Diversifique entre tipos de investimento, moedas e prazos, aceitando que ninguém sabe qual futuro vem.",
+          "Pergunte se a sua carteira aguenta QUALQUER resultado da eleição — e não só o que você espera.",
+          "Separe a sua opinião política das decisões sobre o seu patrimônio. A carteira não precisa acertar o vencedor.",
+        ],
+      },
+    ],
+    ferramenta: {
+      slug: "consultoria-revisao-carteira",
+      nome: "Pedir uma análise independente da carteira",
+      href: "https://diagnostico.novareapp.com.br/carteira-pontual",
+      externo: true,
+    },
+    fonte: {
+      nome: "Nord Investimentos",
+      titulo: "Política e investimentos: você decide como investidor ou como torcedor?",
+      href: "https://www.nordinvestimentos.com.br/blog/politica-e-investimentos-investidor-ou-torcedor/",
+      data: "2026-10-13",
+    },
+  },
+  {
+    slug: "copom-pode-parar-de-cortar-a-selic",
+    titulo: "A Selic pode parar de cair: o que a inflação de setembro mudou",
+    resumo:
+      "O IPCA de setembro veio acima do esperado, e o acumulado em 12 meses passou do teto da meta. Por trás do número, os serviços preocupam — e isso pode fazer o Copom pausar os cortes.",
+    categoria: "investimentos",
+    data: "2026-10-19",
+    tempoLeituraMin: 4,
+    capa: "/news/copom-pode-parar-de-cortar-a-selic.webp",
+    corpo: [
+      "A inflação oficial de setembro, o IPCA, subiu 0,82% no mês, acima dos 0,76% esperados. Em 12 meses, chegou a 4,58% — acima do teto da meta de inflação.",
+      "A primeira explicação foi a de sempre: conta de luz e gasolina. Mas o que mais preocupa está escondido no meio do índice.",
+      { tipo: "titulo", texto: "O que preocupa: os serviços" },
+      "Serviços — cabeleireiro, restaurante, aluguel, mensalidade — pesam quase um terço do IPCA e estão subindo cerca de 5% ao ano. Diferente da gasolina, que sobe e desce, preço de serviço costuma ficar onde chegou. E quando ele acelera, mostra que a inflação está entranhada.",
+      {
+        tipo: "tabela",
+        cabecalho: ["Medida", "Antes", "Agora (média anualizada de 3 meses)"],
+        linhas: [
+          ["Núcleos de inflação", "4,1%", "4,8%"],
+          ["Serviços subjacentes", "4,9%", "6,0%"],
+        ],
+        legenda: "Quando as medidas de \"inflação de fundo\" aceleram, o Banco Central perde espaço para cortar juros.",
+      },
+      { tipo: "titulo", texto: "Por que pausar agora" },
+      "A Selic está em 13,75%, depois de cinco cortes seguidos. Continuar cortando com a inflação de fundo acelerando arrisca ter de voltar atrás depois — e Banco Central que sobe juro logo depois de cortar perde credibilidade. Por isso cresce a leitura de que o Copom pode fazer uma pausa.",
+      { tipo: "destaque", texto: "Juros parando de cair é boa notícia para quem está no pós-fixado: o CDI continua rendendo bem por mais tempo." },
+      "Para quem pensava em apostar numa queda forte de juros com prefixados longos, a leitura é de cautela. Títulos atrelados à inflação seguem como a proteção mais direta se o IPCA continuar pressionado.",
+    ],
+    ferramenta: {
+      slug: "rentabilidade-real",
+      nome: "Rentabilidade Real",
+      href: "/ferramentas/rentabilidade-real",
+    },
+    fonte: {
+      nome: "Nord Investimentos",
+      titulo: "Copom pode pausar os cortes da Selic depois do IPCA de setembro?",
+      href: "https://www.nordinvestimentos.com.br/blog/copom-pode-pausar-cortes-selic-ipca-setembro/",
+      data: "2026-10-15",
+    },
+  },
+  {
+    slug: "relatorio-focus-o-que-o-mercado-espera",
+    titulo: "Relatório Focus: o que o mercado espera para a inflação, os juros e o PIB",
+    resumo:
+      "Toda segunda-feira o Banco Central pergunta a bancos, corretoras e consultorias o que esperam para a economia. A resposta é o Focus — e ela mostra para onde o mercado acha que os juros vão.",
+    categoria: "investimentos",
+    data: "2026-10-19",
+    tempoLeituraMin: 3,
+    capa: "/news/relatorio-focus-o-que-o-mercado-espera.webp",
+    corpo: [
+      "O Focus é um boletim que o Banco Central divulga toda segunda-feira. Ele reúne as projeções de bancos, corretoras e consultorias para inflação, juros, crescimento e dólar. Não é previsão do governo — é a média do que o mercado espera.",
+      "Ele serve como termômetro: quando as projeções mudam de uma semana para outra, mostram para que lado o mercado está ajustando as apostas.",
+      { tipo: "titulo", texto: "O que veio no Focus desta semana" },
+      {
+        tipo: "tabela",
+        cabecalho: ["", "2026", "2027"],
+        linhas: [
+          ["Inflação (IPCA)", "5,22% (estável)", "4,32% (era 4,30%)"],
+          ["Selic no fim do ano", "13,25% (estável)", "12,00% (estável)"],
+          ["Crescimento (PIB)", "1,83% (era 1,85%)", "1,32% (era 1,40%)"],
+        ],
+        legenda: "Boletim Focus de 19 de outubro de 2026.",
+      },
+      "Lido em conjunto: o mercado espera inflação ainda acima da meta neste ano, uma economia crescendo menos em 2027, e juros caindo devagar. Com a Selic hoje em 13,75%, a expectativa de terminar 2026 em 13,25% indica mais meio ponto de corte até dezembro.",
+      { tipo: "destaque", texto: "O Focus não diz o que vai acontecer. Diz o que o mercado acha que vai acontecer — e é com base nisso que os preços dos investimentos são formados hoje." },
+      "Por isso, quando a realidade sai diferente do Focus, os preços se mexem. Inflação acima do esperado, por exemplo, faz a aposta de juros mais baixos perder força.",
+    ],
+    ferramenta: {
+      slug: "rentabilidade-real",
+      nome: "Rentabilidade Real",
+      href: "/ferramentas/rentabilidade-real",
+    },
+    fonte: {
+      nome: "Nord Investimentos",
+      titulo: "Relatório Focus: inflação de 2026 fica em 5,22% e PIB de 2027 cai para 1,32%",
+      href: "https://www.nordinvestimentos.com.br/blog/relatorio-focus-projecoes-para-2026/",
+      data: "2026-10-19",
+    },
+  },
+  {
+    slug: "bolha-dos-mares-do-sul-o-erro-de-newton",
+    titulo: "Até Isaac Newton perdeu dinheiro numa bolha. O erro dele ainda é o nosso",
+    resumo:
+      "Em 1720, o maior cientista da época vendeu ações com lucro — e depois voltou a comprar no topo, com medo de ficar de fora. A lição vale ainda mais em ano de eleição.",
+    categoria: "investimentos",
+    data: "2026-10-19",
+    tempoLeituraMin: 4,
+    capa: "/news/bolha-dos-mares-do-sul-o-erro-de-newton.webp",
+    corpo: [
+      "Em 1720, a Companhia dos Mares do Sul, na Inglaterra, ganhou do governo o direito de trocar parte da dívida pública por ações da empresa. As ações dispararam. Entre os acionistas estava Isaac Newton.",
+      { tipo: "titulo", texto: "O acerto e o erro" },
+      "Em abril, Newton achou que o preço estava alto demais e vendeu, com um lucro de cerca de 20 mil libras. Foi a decisão certa.",
+      "Mas a ação continuou subindo. Em junho, vendo os conhecidos enriquecerem, ele vendeu quase todos os títulos do governo que tinha e voltou a comprar ações — perto do topo. E seguiu comprando enquanto o preço caía.",
+      "Em setembro, a bolha estourou. Em outubro, a ação valia menos de um quarto do pico. As estimativas apontam que o patrimônio de Newton caiu de pouco mais de 30 mil para cerca de 20 mil libras. Ele não quebrou, mas perdeu muito.",
+      { tipo: "destaque", texto: "Newton acertou ao vender e errou ao voltar. O que o derrubou não foi falta de inteligência: foi medo de ficar de fora." },
+      { tipo: "titulo", texto: "Os erros que se repetem" },
+      {
+        tipo: "lista",
+        itens: [
+          "Medo de ficar de fora: comprar porque todo mundo está ganhando, e não porque o investimento faz sentido.",
+          "Ancoragem: ficar preso a um preço do passado (\"já esteve em 50, vai voltar\").",
+          "Excesso de confiança: achar que dá para sair na hora certa.",
+          "Viés de confirmação: só ler o que concorda com o que você já pensa.",
+        ],
+      },
+      "Em ano de eleição, a tentação é a mesma: comprar no embalo da alta ou vender tudo antes do 2º turno. As duas exigem acertar duas coisas ao mesmo tempo — o resultado e a reação do mercado. No longo prazo, o preço de uma ação acompanha o resultado da empresa, não o da urna.",
+      "Ah, e a famosa frase \"consigo calcular o movimento dos astros, mas não a loucura das pessoas\"? Não há registro confiável de que Newton a tenha dito. Mas ela resume bem a história.",
+    ],
+    ferramenta: {
+      slug: "juros-compostos",
+      nome: "Juros Compostos",
+      href: "/ferramentas/juros-compostos",
+    },
+    fonte: {
+      nome: "Nord Investimentos",
+      titulo: "Bolha da South Sea: o erro de Newton que o investidor ainda repete",
+      href: "https://www.nordinvestimentos.com.br/blog/bolha-south-sea-erro-de-newton-investidor/",
+      data: "2026-10-17",
+    },
+  },
+  {
+    slug: "a-ia-vai-substituir-o-planejador-financeiro",
+    titulo: "A inteligência artificial vai substituir o planejador financeiro?",
+    resumo:
+      "Dois em cada três brasileiros já usam IA, mas só 17% para cuidar do dinheiro. A conta a máquina faz em segundos. O que ela não faz é o que mais faz diferença.",
+    categoria: "ia",
+    data: "2026-10-19",
+    tempoLeituraMin: 4,
+    capa: "/news/a-ia-vai-substituir-o-planejador-financeiro.webp",
+    corpo: [
+      "Uma pesquisa de 2026 com 2,3 mil brasileiros mostrou que 66% já usam assistentes de inteligência artificial. Mas só 17% os usam para organizar as finanças. A ferramenta está na mão de quase todo mundo — e quase ninguém a usa para o dinheiro.",
+      { tipo: "titulo", texto: "O que a IA faz muito bem" },
+      {
+        tipo: "lista",
+        itens: [
+          "Calcula em segundos quanto custa um sonho — a viagem, o carro, a aposentadoria.",
+          "Pesquisa preços e monta uma conta detalhada a partir de um pedido simples.",
+          "Organiza números que levariam horas numa planilha.",
+        ],
+      },
+      { tipo: "titulo", texto: "O que ela não faz" },
+      "Ela não pergunta, com calma, o que você quer da vida. Não provoca você a pensar no futuro — coisa que quase ninguém faz sozinho. E, principalmente, não cobra: não acompanha se você está seguindo o plano nem segura a onda quando aparece um imprevisto no meio do caminho.",
+      { tipo: "destaque", texto: "Fazer a conta é a parte fácil. Difícil é continuar poupando no décimo mês, quando a motivação já foi embora." },
+      { tipo: "titulo", texto: "O que a ciência diz sobre metas" },
+      "Sabe a história de que quem escreve as metas ganha dez vezes mais? Ela nunca foi comprovada. O que um estudo de verdade mostrou é outra coisa: depois de um mês, quem só pensava nas metas cumpriu 43% delas; quem mandava atualizações toda semana para um amigo chegou a 76%.",
+      "Ou seja: o que faz o plano andar é ter alguém acompanhando. A tecnologia deixa a parte dos números mais fácil — e justamente por isso a parte humana ganha ainda mais importância.",
+      "É o desenho que a Novare segue: ferramentas gratuitas para fazer a conta, e gente de verdade para olhar o seu caso quando a conta sozinha não basta.",
+    ],
+    ferramenta: {
+      slug: "fincash",
+      nome: "FINCASH",
+      href: "/fincash",
+    },
+    fonte: {
+      nome: "Nord Investimentos",
+      titulo: "A IA vai substituir o planejador financeiro?",
+      href: "https://www.nordinvestimentos.com.br/blog/ia-vai-substituir-planejador-financeiro/",
+      data: "2026-10-11",
+    },
+  },
+
   {
     slug: "cdi-ganhou-de-tudo-desde-2021-e-agora",
     titulo: "O CDI ganhou de tudo desde 2021. Quer dizer que é o melhor investimento?",

@@ -290,7 +290,8 @@ function ChamadaSecundaria({ artigo }: { artigo: Artigo }) {
           alt=""
           fill
           sizes="96px"
-          className="object-cover transition-transform duration-500 group-hover:scale-105"
+          // object-right: as capas novas trazem o título na esquerda; no quadrado, a arte é que aparece
+          className="object-cover object-right transition-transform duration-500 group-hover:scale-105"
         />
       </div>
       <div className="min-w-0">
