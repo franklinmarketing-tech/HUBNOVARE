@@ -82,10 +82,13 @@ select count(*) as ainda_sobrou
 -- O lead do Jefferson (jefferson.ariane1402@gmail.com) é REAL e não pode
 -- entrar nessa conta — foi o caso que descobriu o funil furado.
 -- ─────────────────────────────────────────────────────────────────────
-select id, nome, email, telefone, origem, created_at
+-- ⚠️ A COLUNA DE DATA AQUI É `criado_em`, e não `created_at`. A tabela é
+-- escrita em português (`nome`, `telefone`, `origem`, `criado_em`); supor o
+-- nome em inglês devolve 42703 e parece defeito do banco.
+select id, nome, email, telefone, origem, criado_em
   from public.hub_leads
  where email ilike '%teste%'
     or email ilike '%test@%'
     or email ilike 'demo.%'
     or nome  ilike 'zz %'
- order by created_at desc;
+ order by criado_em desc;
