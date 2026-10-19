@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { AssistenteFerramentas } from "@/components/AssistenteFerramentas";
 import { CapturaLead } from "@/components/CapturaLead";
+import { RegistrarVisita } from "@/components/RegistrarVisita";
 import { RodapeNovare } from "@/components/RodapeNovare";
 import { VoltarAoWorkspace } from "@/components/VoltarAoWorkspace";
 import { appsParaBusca } from "@/lib/navegacao";
@@ -31,6 +32,9 @@ export default async function LayoutFerramentas({
   return (
     <>
       {children}
+      {/* Fica aqui, com o rodapé e a captura, pelo mesmo motivo que eles:
+          ferramenta nova já nasce medida, sem ninguém lembrar de colar. */}
+      <RegistrarVisita />
       <CapturaLead />
       <VoltarAoWorkspace />
       <RodapeNovare />

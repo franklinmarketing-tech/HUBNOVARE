@@ -1,6 +1,6 @@
 import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
-import { BarChart3, Megaphone, Users, UserCircle2 } from "lucide-react";
+import { Activity, BarChart3, Magnet, Megaphone, Users, UserCircle2 } from "lucide-react";
 import { Cabecalho } from "@/components/Cabecalho";
 import { getPerfil } from "@/lib/perfil";
 
@@ -38,7 +38,11 @@ import { getPerfil } from "@/lib/perfil";
  */
 
 const ABAS = [
+  /* A saúde vem primeiro: é a pergunta que se faz ao abrir o painel
+     ("como vai a casa?"), e as outras telas respondem recortes dela. */
+  { href: "/admin", rotulo: "Saúde", Icone: Activity },
   { href: "/admin/leads", rotulo: "Leads", Icone: Users },
+  { href: "/admin/iscas", rotulo: "Iscas", Icone: Magnet },
   { href: "/admin/clientes", rotulo: "Clientes", Icone: UserCircle2 },
   { href: "/admin/uso", rotulo: "Uso", Icone: BarChart3 },
   { href: "/admin/avisos", rotulo: "Avisos", Icone: Megaphone },

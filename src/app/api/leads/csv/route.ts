@@ -30,7 +30,10 @@ export async function GET(req: Request) {
   const supabase = await createClient();
   const { data } = await supabase
     .from("hub_leads")
-    .select("email, nome, telefone, origem, tipo, criado_em")
+    /* A situação e a anotação entram no CSV: quem exporta a lista para
+       trabalhar fora precisa saber com quem já se falou, senão a planilha
+       nasce desatualizada em relação ao painel no mesmo instante. */
+    .select("email, nome, telefone, origem, tipo, criado_em, situacao, anotacao")
     .order("criado_em", { ascending: false })
     .limit(5000);
 
@@ -58,9 +61,9 @@ export async function GET(req: Request) {
   };
 
   const csv = [
-    ["email", "nome", "telefone", "origem", "tipo", "criado_em"].join(","),
+    ["email", "nome", "telefone", "origem", "tipo", "criado_em", "situacao", "anotacao"].join(","),
     ...linhas.map((l) =>
-      [l.email, l.nome, l.telefone, l.origem, l.tipo, l.criado_em]
+      [l.email, l.nome, l.telefone, l.origem, l.tipo, l.criado_em, l.situacao, l.anotacao]
         .map(esc)
         .join(","),
     ),

@@ -1,27 +1,42 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { Mail, Phone, Users, Download } from "lucide-react";
-import { Cabecalho } from "@/components/Cabecalho";
+import { CheckCircle2, Download, Mail, Phone, Users } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { getPerfil } from "@/lib/perfil";
+import { FaltaRodarSql, Hero, Numero, SeletorDePeriodo } from "../pecas";
+import { MarcarSituacao, SITUACOES } from "./MarcarSituacao";
 
 export const metadata = { title: "Leads captados" };
 
+/**
+ * OS LEADS, PARA TRABALHAR — não só para olhar.
+ *
+ * ⚠️ A TELA ANTERIOR ERA UMA VITRINE. Listava 500 e-mails em ordem de
+ * chegada, com busca, e nada mais: nenhuma marca de quem já tinha sido
+ * chamado, nenhum sinal de quem já virou conta no Hub. Na prática o
+ * acompanhamento acontecia por fora, numa planilha, e o painel não era
+ * usado.
+ *
+ * ⚠️ `virou_conta` É A COLUNA QUE MUDA A CONVERSA. Ela responde, antes de
+ * ligar, se a pessoa só deixou o e-mail ou se de fato entrou no Hub — e são
+ * dois telefonemas completamente diferentes. Sai de uma função
+ * `security definer`, porque o e-mail de quem se cadastrou mora em
+ * `auth.users`, fora do alcance do PostgREST.
+ */
+
 type Lead = {
   id: string;
-  email: string;
   nome: string | null;
+  email: string;
   telefone: string | null;
   origem: string | null;
   tipo: string | null;
   payload: Record<string, unknown> | null;
   criado_em: string;
-};
-
-/** Só os dígitos, para montar o link do WhatsApp. */
-const zapDe = (tel: string) => {
-  const d = tel.replace(/\D/g, "");
-  return d.length >= 10 ? `https://wa.me/55${d}` : null;
+  situacao: string;
+  anotacao: string | null;
+  tratado_em: string | null;
+  virou_conta: boolean;
 };
 
 const TIPO = {
@@ -31,6 +46,12 @@ const TIPO = {
   produto: { rotulo: "Produto", cls: "bg-indigo-100 text-indigo-700" },
   ferramenta: { rotulo: "Ferramenta", cls: "bg-slate-100 text-slate-600" },
 } as const;
+
+/** Só os dígitos, para montar o link do WhatsApp. */
+const zapDe = (tel: string) => {
+  const d = tel.replace(/\D/g, "");
+  return d.length >= 10 ? `https://wa.me/55${d}` : null;
+};
 
 function resumo(l: Lead): string {
   const p = l.payload ?? {};
@@ -45,170 +66,288 @@ function resumo(l: Lead): string {
 export default async function AdminLeadsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; tipo?: string }>;
+  searchParams: Promise<{ q?: string; tipo?: string; dias?: string; situacao?: string }>;
 }) {
-  const { q, tipo: tipoFiltro } = await searchParams;
+  const perfil = await getPerfil();
+  if (!perfil) redirect("/login?proximo=/admin/leads");
+  if (perfil.role !== "admin" && perfil.role !== "equipe") notFound();
+
+  const { q, tipo: tipoFiltro, dias: diasBruto, situacao: sitFiltro } = await searchParams;
   const busca = (q ?? "").trim().toLowerCase();
-  /* ⚠️ A GUARDA DE PAPEL SAIU DAQUI em 17/10/2026 — passou para o
-     `layout.tsx` desta pasta, que protege TODA tela sob /admin, inclusive
-     as que ainda não existem. Estava copiada em três arquivos, e três
-     cópias da mesma regra é a receita de uma tela nova nascer sem ela. */
+  const dias = [7, 30, 90, 365].includes(Number(diasBruto)) ? Number(diasBruto) : 90;
 
   const supabase = await createClient();
-  const { data } = await supabase
-    .from("hub_leads")
-    .select("id, email, nome, telefone, origem, tipo, payload, criado_em")
-    .order("criado_em", { ascending: false })
-    .limit(500);
+  const { data, error } = await supabase.rpc("hub_leads_painel", {
+    p_dias: dias,
+    p_limite: 500,
+  });
+
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <Hero etiqueta="Painel da Novare" titulo="Leads captados" />
+        <FaltaRodarSql erro={error.message} arquivo="painel_novare_INSTALAR.sql" />
+      </div>
+    );
+  }
+
   const todos = (data as Lead[]) ?? [];
 
-  /* ⚠️ O FILTRO É EM MEMÓRIA, sobre os 500 que vieram — não no banco. Com
-     a base atual é instantâneo e evita uma consulta por tecla. Se passar
-     de alguns milhares, o lugar certo é o `.ilike()` do PostgREST, e aí a
+  /* ⚠️ O FILTRO É EM MEMÓRIA, sobre os 500 que vieram — não no banco. Com a
+     base atual é instantâneo e evita uma consulta por tecla. Passando de
+     alguns milhares, o lugar certo é o `ilike` dentro da função, e aí a
      paginação deixa de ser opcional. */
   const leads = todos.filter((l) => {
     if (tipoFiltro && l.tipo !== tipoFiltro) return false;
+    if (sitFiltro && l.situacao !== sitFiltro) return false;
     if (!busca) return true;
     return [l.email, l.nome, l.telefone, l.origem]
       .filter(Boolean)
       .some((v) => String(v).toLowerCase().includes(busca));
   });
 
-  const contagem =
-    leads.length === todos.length
-      ? `${leads.length} leads`
-      : `${leads.length} de ${todos.length} leads`;
-  const exportar = `/api/leads/csv?q=${encodeURIComponent(busca)}&tipo=${encodeURIComponent(tipoFiltro ?? '')}`;
+  const quantos = (s: string) => todos.filter((l) => l.situacao === s).length;
+  const converteram = todos.filter((l) => l.virou_conta).length;
+  const taxa = todos.length > 0 ? Math.round((converteram / todos.length) * 100) : 0;
 
-  const porTipo = (t: string) => leads.filter((l) => l.tipo === t).length;
+  const paraUrl = (extra: Record<string, string | undefined>) => {
+    const p = new URLSearchParams();
+    p.set("dias", String(dias));
+    if (busca) p.set("q", busca);
+    if (tipoFiltro) p.set("tipo", tipoFiltro);
+    for (const [k, v] of Object.entries(extra)) {
+      if (v) p.set(k, v);
+      else p.delete(k);
+    }
+    return `/admin/leads?${p.toString()}`;
+  };
+
+  const exportar = `/api/leads/csv?q=${encodeURIComponent(busca)}&tipo=${encodeURIComponent(tipoFiltro ?? "")}`;
 
   return (
-    <>
-            <div className="flex flex-wrap items-end justify-between gap-4">
-              <div>
-                <h1 className="font-display text-2xl font-bold text-primary">Leads captados</h1>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  E-mails deixados nas calculadoras e landing pages do Hub.
-                </p>
-              </div>
-              <div className="flex gap-2.5 text-center">
-                {[
-                  { n: leads.length, r: "Total" },
-                  { n: porTipo("saude-financeira"), r: "Exame" },
-                  { n: porTipo("vida-plan"), r: "FINPLAN" },
-                ].map((c) => (
-                  <div key={c.r} className="rounded-2xl border border-slate-200 bg-white px-4 py-2 shadow-sm">
-                    <p className="font-display text-xl font-extrabold tabular-nums text-primary">{c.n}</p>
-                    <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{c.r}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
+    <div className="space-y-6">
+      <Hero etiqueta="Painel da Novare" titulo="Leads captados">
+        Quem deixou contato nas ferramentas. Marque em que pé está cada conversa —
+        fica registrado para toda a equipe, não na sua memória.
+      </Hero>
 
-            {/* BUSCA E EXPORT — a tela despejava 500 leads crus, sem jeito
-                de achar um. Form GET, sem JavaScript: o estado fica na URL
-                e o link pode ser mandado para a equipe já filtrado. */}
-            <form className="mt-6 flex flex-wrap items-center gap-2">
-              <input
-                type="search"
-                name="q"
-                defaultValue={q ?? ""}
-                placeholder="Buscar por e-mail, nome, telefone ou origem"
-                className="h-10 min-w-[16rem] flex-1 rounded-xl border border-border bg-white px-3.5 text-sm outline-none transition-colors focus:border-accent focus:ring-4 focus:ring-accent/12"
-              />
-              {tipoFiltro && <input type="hidden" name="tipo" value={tipoFiltro} />}
-              <button
-                type="submit"
-                className="h-10 rounded-xl bg-primary px-4 text-sm font-semibold text-white transition-colors hover:bg-primary-soft"
-              >
-                Buscar
-              </button>
-              {(busca || tipoFiltro) && (
-                <Link
-                  href="/admin/leads"
-                  className="h-10 rounded-xl border border-border px-4 text-sm font-semibold leading-10 text-muted-foreground transition-colors hover:bg-muted"
-                >
-                  Limpar
-                </Link>
-              )}
-              <a
-                href={exportar}
-                className="flex h-10 items-center gap-2 rounded-xl border border-border px-4 text-sm font-semibold text-primary transition-colors hover:bg-muted"
-              >
-                <Download className="h-4 w-4" />
-                Baixar CSV
-              </a>
-            </form>
+      {/* ⚠️ FILTROS NO TOPO, logo abaixo do hero. */}
+      <div className="flex flex-wrap items-center gap-3">
+        <SeletorDePeriodo
+          base="/admin/leads"
+          dias={dias}
+          extra={`${busca ? `&q=${encodeURIComponent(busca)}` : ""}${sitFiltro ? `&situacao=${sitFiltro}` : ""}`}
+        />
 
-            <p className="mt-3 text-xs text-muted-foreground">{contagem}</p>
+        <div
+          role="group"
+          aria-label="Situação"
+          className="flex flex-wrap items-center gap-1.5 rounded-2xl border border-border bg-white p-1.5 shadow-sm"
+        >
+          <Bolinha href={paraUrl({ situacao: undefined })} ativo={!sitFiltro} rotulo="Todos" />
+          {SITUACOES.map((s) => (
+            <Bolinha
+              key={s.valor}
+              href={paraUrl({ situacao: s.valor })}
+              ativo={sitFiltro === s.valor}
+              rotulo={`${s.rotulo} (${quantos(s.valor)})`}
+            />
+          ))}
+        </div>
+      </div>
 
-            {leads.length === 0 ? (
-              <div className="mt-8 rounded-3xl border border-dashed border-slate-300 bg-white p-10 text-center">
-                <Users className="mx-auto h-8 w-8 text-slate-300" />
-                <p className="mt-3 text-sm font-medium text-slate-500">Ainda não há leads captados.</p>
-                <p className="mt-1 text-xs text-slate-400">
-                  Assim que alguém deixar o e-mail numa calculadora, aparece aqui.
-                </p>
-              </div>
-            ) : (
-              <div className="mt-6 overflow-x-auto rounded-3xl border border-slate-200 bg-white shadow-sm">
-                <table className="w-full min-w-[640px] text-left text-sm">
-                  <thead>
-                    <tr className="border-b border-slate-100 text-[11px] uppercase tracking-wider text-muted-foreground">
-                      <th className="px-4 py-3 font-semibold">Quando</th>
-                      <th className="px-4 py-3 font-semibold">Contato</th>
-                      <th className="px-4 py-3 font-semibold">Origem</th>
-                      <th className="px-4 py-3 font-semibold">Resumo</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {leads.map((l) => {
-                      const t = TIPO[(l.tipo ?? "ferramenta") as keyof typeof TIPO] ?? TIPO.ferramenta;
-                      return (
-                        <tr key={l.id} className="border-b border-slate-50 last:border-0 hover:bg-slate-50/60">
-                          <td className="whitespace-nowrap px-4 py-3 text-xs text-muted-foreground">
-                            {new Date(l.criado_em).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit", timeZone: "America/Sao_Paulo" })}
-                          </td>
-                          <td className="px-4 py-3">
+      <div className="grid gap-3 sm:grid-cols-3">
+        <Numero rotulo="Leads no período" valor={todos.length} Icone={Users} tom="destaque" />
+        <Numero
+          rotulo="Já criaram conta"
+          valor={converteram}
+          Icone={CheckCircle2}
+          detalhe={`${taxa}% dos leads do período`}
+          tom="destaque"
+        />
+        <Numero
+          rotulo="Esperando contato"
+          valor={quantos("novo")}
+          detalhe="ainda marcados como novos"
+          tom={quantos("novo") > 0 ? "atencao" : "normal"}
+        />
+      </div>
+
+      {/* Form GET, sem JavaScript: o estado fica na URL e o link filtrado
+          pode ser mandado pronto para a equipe. */}
+      <form className="flex flex-wrap items-center gap-2">
+        <input type="hidden" name="dias" value={dias} />
+        {sitFiltro && <input type="hidden" name="situacao" value={sitFiltro} />}
+        <input
+          type="search"
+          name="q"
+          defaultValue={q ?? ""}
+          placeholder="Buscar por e-mail, nome, telefone ou ferramenta"
+          className="h-11 min-w-[16rem] flex-1 rounded-xl border border-border bg-white px-3.5 text-sm outline-none transition-colors focus:border-accent focus:ring-4 focus:ring-accent/12"
+        />
+        <button
+          type="submit"
+          className="h-11 rounded-xl bg-primary px-4 text-sm font-semibold text-white transition-colors hover:bg-primary-soft"
+        >
+          Buscar
+        </button>
+        {(busca || sitFiltro || tipoFiltro) && (
+          <Link
+            href="/admin/leads"
+            className="flex h-11 items-center rounded-xl border border-border px-4 text-sm font-semibold text-muted-foreground transition-colors hover:bg-muted"
+          >
+            Limpar
+          </Link>
+        )}
+        <a
+          href={exportar}
+          className="flex h-11 items-center gap-2 rounded-xl border border-border px-4 text-sm font-semibold text-primary transition-colors hover:bg-muted"
+        >
+          <Download className="h-4 w-4" />
+          CSV
+        </a>
+      </form>
+
+      {leads.length === 0 ? (
+        <div className="rounded-3xl border border-dashed border-border bg-white p-10 text-center">
+          <Users className="mx-auto h-8 w-8 text-slate-300" />
+          <p className="mt-3 text-sm font-semibold text-primary">
+            {todos.length === 0
+              ? "Ainda não há leads captados"
+              : "Nenhum lead com esse filtro"}
+          </p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            {todos.length === 0
+              ? "Assim que alguém deixar o e-mail numa ferramenta, aparece aqui."
+              : "Tente limpar a busca ou escolher outra situação."}
+          </p>
+        </div>
+      ) : (
+        <>
+          <p className="text-xs text-muted-foreground">
+            {leads.length === todos.length
+              ? `${leads.length} leads`
+              : `${leads.length} de ${todos.length} leads`}
+          </p>
+
+          <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-sm">
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[58rem] text-left text-sm">
+                <thead>
+                  <tr className="border-b border-border bg-slate-50/70 text-2xs uppercase tracking-wider text-muted-foreground">
+                    <th className="px-4 py-3 font-semibold">Quando</th>
+                    <th className="px-4 py-3 font-semibold">Contato</th>
+                    <th className="px-4 py-3 font-semibold">De onde veio</th>
+                    <th className="px-4 py-3 font-semibold">Em que pé está</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border/60">
+                  {leads.map((l) => {
+                    const t = TIPO[(l.tipo ?? "ferramenta") as keyof typeof TIPO] ?? TIPO.ferramenta;
+                    const zap = l.telefone ? zapDe(l.telefone) : null;
+                    return (
+                      <tr key={l.id} className="align-top hover:bg-slate-50/50">
+                        <td className="whitespace-nowrap px-4 py-3 text-2xs text-muted-foreground">
+                          {new Date(l.criado_em).toLocaleString("pt-BR", {
+                            day: "2-digit",
+                            month: "2-digit",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                            timeZone: "America/Sao_Paulo",
+                          })}
+                        </td>
+
+                        <td className="px-4 py-3">
+                          <div className="flex flex-wrap items-center gap-1.5">
                             {l.nome && (
-                              <p className="font-semibold text-foreground">{l.nome}</p>
+                              <span className="font-semibold text-foreground">{l.nome}</span>
                             )}
-                            <a
-                              href={`mailto:${l.email}`}
-                              className="flex items-center gap-1.5 text-xs font-medium text-primary hover:underline"
-                            >
-                              <Mail className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-                              {l.email}
-                            </a>
-                            {l.telefone &&
-                              (zapDe(l.telefone) ? (
-                                <a
-                                  href={zapDe(l.telefone)!}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="mt-0.5 flex items-center gap-1.5 text-xs font-medium text-success-strong hover:underline"
-                                >
-                                  <Phone className="h-3.5 w-3.5 shrink-0" />
-                                  {l.telefone}
-                                </a>
-                              ) : (
-                                <span className="mt-0.5 flex items-center gap-1.5 text-xs text-muted-foreground">
-                                  <Phone className="h-3.5 w-3.5 shrink-0" />
-                                  {l.telefone}
-                                </span>
-                              ))}
-                          </td>
-                          <td className="px-4 py-3">
-                            <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${t.cls}`}>{t.rotulo}</span>
-                          </td>
-                          <td className="px-4 py-3 text-xs text-slate-600">{resumo(l)}</td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            )}
-    </>
+                            {l.virou_conta && (
+                              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-2xs font-semibold text-emerald-700">
+                                <CheckCircle2 className="h-3 w-3" strokeWidth={2.4} />
+                                tem conta
+                              </span>
+                            )}
+                          </div>
+                          <a
+                            href={`mailto:${l.email}`}
+                            className="flex items-center gap-1.5 text-xs font-medium text-primary hover:underline"
+                          >
+                            <Mail className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                            {l.email}
+                          </a>
+                          {l.telefone &&
+                            (zap ? (
+                              <a
+                                href={zap}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="mt-0.5 flex items-center gap-1.5 text-xs font-medium text-success hover:underline"
+                              >
+                                <Phone className="h-3.5 w-3.5 shrink-0" />
+                                {l.telefone}
+                              </a>
+                            ) : (
+                              <span className="mt-0.5 flex items-center gap-1.5 text-xs text-muted-foreground">
+                                <Phone className="h-3.5 w-3.5 shrink-0" />
+                                {l.telefone}
+                              </span>
+                            ))}
+                        </td>
+
+                        <td className="px-4 py-3">
+                          <span className={`rounded-full px-2 py-0.5 text-2xs font-semibold ${t.cls}`}>
+                            {t.rotulo}
+                          </span>
+                          <p className="mt-1 text-2xs text-muted-foreground">{resumo(l)}</p>
+                        </td>
+
+                        <td className="px-4 py-3">
+                          <MarcarSituacao
+                            id={l.id}
+                            situacao={l.situacao}
+                            anotacao={l.anotacao}
+                          />
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+function Bolinha({
+  href,
+  ativo,
+  rotulo,
+}: {
+  href: string;
+  ativo: boolean;
+  rotulo: string;
+}) {
+  return (
+    <Link
+      href={href}
+      aria-current={ativo ? "true" : undefined}
+      className={`flex min-h-9 items-center gap-2 rounded-xl px-3 text-xs font-semibold transition-colors ${
+        ativo ? "bg-primary text-white" : "text-muted-foreground hover:bg-slate-100 hover:text-primary"
+      }`}
+    >
+      <span
+        aria-hidden
+        className={`flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full border-2 ${
+          ativo ? "border-white" : "border-slate-300"
+        }`}
+      >
+        {ativo && <span className="h-1.5 w-1.5 rounded-full bg-white" />}
+      </span>
+      {rotulo}
+    </Link>
   );
 }
