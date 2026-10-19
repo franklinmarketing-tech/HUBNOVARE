@@ -40,7 +40,12 @@ import {
  * uma que o superestima custa confiança.
  */
 const TITULO = "FINCASH";
-const DESCRICAO = `Saiba quanto ainda dá para gastar até o fim do mês, não só quanto você já gastou. Lançamentos, contas fixas, faturas de cartão, orçamento, dívidas com Price e SAC, metas, investimentos, importação do extrato em OFX e projeção de 12 meses em um lugar só, sem conectar banco. De graça, sem cartão — é só criar a conta.`;
+/* ⚠️ CABE EM 160 CARACTERES, que é onde o Google corta. A versão
+   anterior tinha 316 e listava catorze recursos — dois terços dela nunca
+   foram lidos por ninguém, e a parte cortada era justamente a que dizia
+   que é de graça. */
+const DESCRICAO =
+  "Saiba quanto ainda dá para gastar até o fim do mês, não só o que já gastou. Contas, cartões e orçamento num lugar só. De graça, sem conectar banco.";
 
 /** O preview que o WhatsApp e o Google mostram. Curto, porque é cortado. */
 const OG_SUB =

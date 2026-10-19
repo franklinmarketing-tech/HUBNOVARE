@@ -102,7 +102,9 @@ import "./lp.css";
    página é o desalinhamento mais caro que existe.
 */
 export const metadata: Metadata = {
-  title: `${FIN_CASH}: quanto você pode gastar hoje sem estourar o mês`,
+  /* ⚠️ CABE EM 60, que é onde o buscador corta. Tinha 76, e a parte que
+     sumia era o fim da pergunta — o título aparecia truncado no meio. */
+  title: `${FIN_CASH}: quanto dá para gastar hoje`,
   description: `O saldo mostra o que você tem. O ${FIN_CASH} desconta o que ainda vai sair e mostra o que sobra — sem conectar banco. De graça, sem cartão.`,
   alternates: { canonical: "/assinar" },
   openGraph: {

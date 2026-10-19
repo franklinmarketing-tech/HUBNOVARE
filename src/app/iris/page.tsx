@@ -21,7 +21,10 @@ import { getPerfil } from "@/lib/perfil";
 export const metadata: Metadata = {
   title: "Íris, sua IA financeira",
   description:
-    "Converse com a IA financeira da Novare e cole o extrato do seu banco: a Íris mostra para onde vai o seu dinheiro — assinatura esquecida, tarifa e juro escondido. Sem comissão, sem conectar conta.",
+    /* ⚠️ DIZIA "Converse com a IA financeira" — e o chat saiu em
+       18/10/2026. Era a promessa errada no lugar de maior alcance: é este
+       texto que aparece no Google e na prévia do WhatsApp. */
+    "Cole o extrato do seu banco e a Íris mostra para onde vai o seu dinheiro: tarifa, juro e assinatura esquecida. De graça e sem cadastro.",
   alternates: { canonical: "/iris" },
 };
 

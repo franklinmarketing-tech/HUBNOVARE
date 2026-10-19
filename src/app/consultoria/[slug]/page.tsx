@@ -187,8 +187,26 @@ export async function generateMetadata({
   const c = consultoriaPorSlug(slug);
   if (!c) return {};
   return {
-    title: `${c.nome} — ${c.chamada}`,
-    description: c.descricao,
+    /* ⚠️ A chamada inteira passava de 80 caracteres no título. Ela
+       continua na description, onde há espaço para ela. */
+    title: `${c.nome} · Novare`,
+    /**
+     * ⚠️ CORTADA EM 160, que é onde o buscador corta de qualquer jeito.
+     *
+     * `c.descricao` é escrita para a PÁGINA, onde há espaço para explicar o
+     * serviço inteiro — e passa de 160 caracteres. Aqui ela vira o texto do
+     * resultado de busca e da prévia do WhatsApp, onde o excedente não é
+     * lido por ninguém.
+     *
+     * O corte é na última palavra inteira, não no meio dela: descrição
+     * terminando em "rentabi…" parece página quebrada.
+     */
+    description: (() => {
+      const d = c.descricao;
+      if (d.length <= 160) return d;
+      const curto = d.slice(0, 157);
+      return `${curto.slice(0, curto.lastIndexOf(" "))}…`;
+    })(),
     alternates: { canonical: `/consultoria/${c.slug}` },
     openGraph: {
       title: `${c.nome} · Novare`,

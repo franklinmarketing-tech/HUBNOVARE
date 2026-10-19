@@ -13,7 +13,7 @@ import { PROFISSOES, fotoDe } from "@/lib/profissoes";
 export const metadata: Metadata = {
   title: "Planejamento financeiro por profissão",
   description:
-    "Médicos, engenheiros, advogados e dentistas: cada carreira tem uma forma própria de ganhar e de perder dinheiro. A Novare atende cada uma delas, sem comissão de produto.",
+    "Médico, engenheiro, advogado ou dentista: cada carreira ganha e perde dinheiro de um jeito. A Novare atende cada uma, sem comissão de produto.",
   alternates: { canonical: "/profissionais" },
   openGraph: {
     title: "Planejamento financeiro por profissão · Novare",
