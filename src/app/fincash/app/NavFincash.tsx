@@ -17,7 +17,6 @@ import {
   ListPlus,
   LogOut,
   Bell,
-  MessageCircle,
   Tags,
   MoreHorizontal,
   PiggyBank,
@@ -172,12 +171,24 @@ const TELAS: Tela[] = [
     Icone: LineChart,
     secao: "quando-precisa",
   },
-  {
-    href: "/fincash/app/whatsapp",
-    rotulo: "WhatsApp",
-    Icone: MessageCircle,
-    secao: "canos",
-  },
+  /* ⚠️ AQUI FICAVA "WhatsApp", e saiu do menu em 19/10/2026 por decisão do
+     dono: o FINCASH é gratuito, e um assistente de WhatsApp tem custo de
+     conta na Meta que um app sem receita não sustenta. O aviso quer dizer
+     o resto da história.
+
+     ⚠️ O CÓDIGO NÃO FOI APAGADO, e isso é de propósito. O assistente está
+     inteiro e testado — interpretador, vínculo por código, áudio, foto de
+     cupom, idempotência — e as tabelas já existem no banco. Apagar jogaria
+     fora trabalho pronto para economizar um item de menu. Voltar é
+     descomentar isto aqui e preencher as variáveis da Meta; o passo a passo
+     está em `docs/whatsapp.md` e `scripts/conferir-whatsapp.mjs` diz onde
+     parou.
+
+     ⚠️ A ROTA CONTINUA EXISTINDO e responde a quem digitar o endereço. Não
+     é descuido: ela só mostra o aviso honesto de que o assistente não está
+     no ar, e quebrar um endereço que alguém pode ter salvo é pior do que
+     deixá-lo explicar-se. O que saiu foi o CONVITE — nenhum cliente é mais
+     levado a uma promessa que a casa não cumpre hoje. */
   {
     href: "/fincash/app/avisos",
     rotulo: "Avisos",

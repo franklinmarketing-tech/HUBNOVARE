@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import type { Metadata } from "next";
 import { LogOut, Wallet } from "lucide-react";
 import { getPerfil } from "@/lib/perfil";
+import { InstalarApp } from "@/components/InstalarApp";
 import { CascaFincash } from "./CascaFincash";
 import { carregarAvisosDoMenu } from "./avisos-servidor";
 import { sair } from "@/lib/acoes-sessao";
@@ -126,6 +127,11 @@ export default async function FincashLayout({
       <CascaFincash nome={primeiroNome} avisos={avisos} sair={sair}>
         {children}
       </CascaFincash>
+
+      {/* O convite para pôr o app na tela inicial. Fica no layout, e não numa
+          tela, porque pode aparecer em qualquer uma — e some sozinho para
+          quem já instalou ou já dispensou. */}
+      <InstalarApp />
     </div>
   );
 }
