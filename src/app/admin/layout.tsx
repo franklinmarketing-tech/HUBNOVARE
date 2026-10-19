@@ -1,8 +1,7 @@
 import { notFound, redirect } from "next/navigation";
-import Link from "next/link";
-import { Activity, BarChart3, Magnet, Megaphone, Users, UserCircle2 } from "lucide-react";
-import { Cabecalho } from "@/components/Cabecalho";
+import { createClient } from "@/lib/supabase/server";
 import { getPerfil } from "@/lib/perfil";
+import { NavAdmin } from "./NavAdmin";
 
 /**
  * A CASCA DO PAINEL DA NOVARE.
@@ -37,21 +36,9 @@ import { getPerfil } from "@/lib/perfil";
  * regra é mais estrita que a daqui e precisa continuar onde está.
  */
 
-const ABAS = [
-  /* A saúde vem primeiro: é a pergunta que se faz ao abrir o painel
-     ("como vai a casa?"), e as outras telas respondem recortes dela. */
-  { href: "/admin", rotulo: "Saúde", Icone: Activity },
-  { href: "/admin/leads", rotulo: "Leads", Icone: Users },
-  { href: "/admin/iscas", rotulo: "Iscas", Icone: Magnet },
-  { href: "/admin/clientes", rotulo: "Clientes", Icone: UserCircle2 },
-  { href: "/admin/uso", rotulo: "Uso", Icone: BarChart3 },
-  { href: "/admin/avisos", rotulo: "Avisos", Icone: Megaphone },
-  /* ⚠️ Assinantes exige `admin` (equipe é barrada lá dentro). A aba aparece
-     para equipe e devolve 404 no clique — mostrar e negar é pior do que não
-     mostrar, então ela só entra na lista quando o papel é admin. Ver o
-     filtro em `Painel()`. */
-  { href: "/admin/assinantes", rotulo: "Assinantes", Icone: Users, soAdmin: true },
-] as const;
+/* ⚠️ AS ABAS MORAM EM `NavAdmin.tsx` desde 19/10/2026. Aqui ficavam
+   sete; saíram Assinantes (o Hub não cobra mais nada) e Uso (media o mesmo
+   que Iscas). O porquê de cada uma está lá. */
 
 export default async function AdminLayout({
   children,
@@ -62,45 +49,27 @@ export default async function AdminLayout({
   if (!perfil) redirect("/login?proximo=/admin");
   if (perfil.role !== "admin" && perfil.role !== "equipe") notFound();
 
-  const abas = ABAS.filter((a) => !("soAdmin" in a && a.soAdmin) || perfil.role === "admin");
+  /* O número da aba de Leads. Uma consulta a mais por tela, barata, e é o
+     que faz alguém entrar em Leads sem precisar lembrar de olhar. Sem o SQL
+     rodado, fica em zero — a aba não pode derrubar o painel. */
+  let leadsEsperando = 0;
+  try {
+    const supabase = await createClient();
+    const { data } = await supabase.rpc("hub_saude", { p_dias: 30 });
+    leadsEsperando = Number((data as { por_tratar?: number }[] | null)?.[0]?.por_tratar ?? 0);
+  } catch {
+    leadsEsperando = 0;
+  }
 
   return (
     <div className="min-h-dvh bg-background">
-      <Cabecalho
-        direita={
-          <Link
-            href="/"
-            className="text-xs font-semibold text-muted-foreground transition-colors hover:text-primary"
-          >
-            Voltar ao Workspace
-          </Link>
-        }
+      <NavAdmin
+        nome={perfil.nome}
+        email={perfil.email}
+        papel={perfil.role as "admin" | "equipe"}
+        leadsEsperando={leadsEsperando}
       />
-
-      <div className="border-b border-border bg-white">
-        <div className="mx-auto max-w-6xl px-4">
-          {/* Rola na horizontal no celular em vez de quebrar em duas linhas:
-              menu de admin quebrado empurra o conteúdo para baixo em toda
-              tela. */}
-          <nav
-            aria-label="Seções da administração"
-            className="-mb-px flex gap-1 overflow-x-auto"
-          >
-            {abas.map(({ href, rotulo, Icone }) => (
-              <Link
-                key={href}
-                href={href}
-                className="flex shrink-0 items-center gap-2 border-b-2 border-transparent px-4 py-3 text-sm font-semibold text-muted-foreground transition-colors hover:border-border hover:text-primary"
-              >
-                <Icone className="h-4 w-4" strokeWidth={1.9} />
-                {rotulo}
-              </Link>
-            ))}
-          </nav>
-        </div>
-      </div>
-
-      <main className="mx-auto max-w-6xl px-4 py-8">{children}</main>
+      <main className="mx-auto max-w-6xl px-4 py-7 sm:py-9">{children}</main>
     </div>
   );
 }

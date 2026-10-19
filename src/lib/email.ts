@@ -340,3 +340,82 @@ export async function enviarAlertaDoFincash(params: {
 
   if (error) throw new Error(error.message);
 }
+
+/**
+ * Escapa texto para dentro do HTML do e-mail.
+ *
+ * ⚠️ O TEXTO VEM DE QUEM ESCREVE NO PAINEL, e o nome do destinatário vem de
+ * formulário PÚBLICO. Sem escapar, um lead chamado `<img src=x onerror=…>`
+ * viraria código dentro do e-mail que a própria Novare manda — e cliente de
+ * e-mail que executa isso ainda existe.
+ */
+function escapar(s: string) {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+/**
+ * A MENSAGEM ESCRITA PELA EQUIPE NO PAINEL — responder lead, falar com
+ * cliente.
+ *
+ * ⚠️ O `reply_to` É O QUE FAZ ISTO SER UMA CONVERSA. O remetente é
+ * `suporte@`, que é o endereço verificado no Resend — mas se a resposta do
+ * cliente voltasse para lá, ela cairia numa caixa que ninguém lê, e o
+ * painel teria inventado um jeito novo de perder lead. Com `reply_to`, o
+ * "Responder" do cliente vai direto para a caixa da equipe.
+ *
+ * Ordem de preferência: `EMAIL_DA_EQUIPE` (a caixa da casa) e, na falta
+ * dela, o e-mail de quem escreveu — que pelo menos é alguém que existe.
+ *
+ * ⚠️ O TEXTO VAI COMO O SÓCIO ESCREVEU, só quebrado em parágrafos. Nada de
+ * "Prezado cliente" automático nem assinatura de robô: a mensagem é de uma
+ * pessoa para outra, e o que ela tem de valor é justamente não parecer
+ * disparo em massa.
+ */
+export async function enviarMensagemDaEquipe(params: {
+  para: string;
+  nome?: string | null;
+  assunto: string;
+  texto: string;
+  /** Quem escreveu, para a assinatura e como reserva do reply_to. */
+  autor: { nome?: string | null; email?: string | null };
+}) {
+  const { para, nome, assunto, texto, autor } = params;
+
+  const responderPara = EQUIPE || autor.email || undefined;
+
+  const corpo = texto
+    .trim()
+    .split(/\n{2,}/)
+    .map((bloco) =>
+      `<p style="font-size:15px;line-height:1.65;color:#3c4a5c;margin:0 0 18px;white-space:pre-line;">${escapar(bloco.trim())}</p>`,
+    )
+    .join("");
+
+  const assinatura = autor.nome?.trim()
+    ? `<p style="font-size:15px;line-height:1.6;color:#16314f;margin:8px 0 0;font-weight:700;">${escapar(autor.nome.trim())}</p>
+       <p style="font-size:13px;color:#6b7684;margin:2px 0 0;">Novare Consultoria de Investimentos</p>`
+    : "";
+
+  const { data, error } = await resend().emails.send({
+    from: REMETENTE,
+    to: para,
+    ...(responderPara ? { replyTo: responderPara } : {}),
+    subject: assunto.trim(),
+    html: layout({
+      chapeu: "Novare",
+      titulo: `${escapar(primeiroNome(nome))},`,
+      corpo: corpo + assinatura,
+      nota: "É só responder este e-mail para continuar a conversa.",
+    }),
+    /* A versão em texto puro: alguns provedores marcam como spam e-mail que
+       só tem HTML, e é ela que aparece na prévia da caixa de entrada. */
+    text: `${primeiroNome(nome)},\n\n${texto.trim()}\n\n${autor.nome?.trim() ?? ""}\nNovare Consultoria de Investimentos`,
+  });
+
+  if (error) throw new Error(error.message);
+  return data;
+}

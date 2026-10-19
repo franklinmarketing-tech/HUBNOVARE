@@ -92,7 +92,12 @@ export default async function PainelIscas({
       <Hero
         etiqueta="Painel da Novare"
         titulo="As iscas"
-        destaque={{ valor: totalLeads, rotulo: "leads no periodo" }}
+        destaque={{ valor: totalLeads, rotulo: "leads no período" }}
+        metricas={[
+          { valor: iscas.length, rotulo: "iscas no ar" },
+          { valor: totalVisitas, rotulo: "aberturas" },
+          { valor: comLead, rotulo: "captaram alguém" },
+        ]}
       >
         As {iscas.length} ferramentas gratuitas que trazem gente para a Novare.
         O link de cada uma está pronto para copiar e divulgar.

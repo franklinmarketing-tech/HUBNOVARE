@@ -2,13 +2,10 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import {
   ArrowRight,
-  Flame,
   LineChart,
-  MousePointerClick,
   UserCheck,
   UserPlus,
   Users,
-  Wallet,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { getPerfil } from "@/lib/perfil";
@@ -100,18 +97,21 @@ export default async function PainelSaude({
     );
   }
 
-  /* ⚠️ A CONVERSÃO É SOBRE A BASE INTEIRA, não sobre o período escolhido.
-     Quem deixou o e-mail em agosto e criou conta em outubro converteu — e
-     uma taxa que só olhasse 7 dias chamaria isso de fracasso. */
-  const conversao = s.leads > 0 || s.leads_convertidos > 0 ? s.leads_convertidos : 0;
-
+  /* ⚠️ OS CARTÕES SÓ DIZEM O QUE O HERO NÃO DIZ. Eram seis, e três
+     repetiam números que já estão na fileira de vidro do hero (contas que
+     usam o FINCASH, ativos na semana, leads que viraram conta). Número
+     repetido em dois lugares da mesma tela faz o olho procurar a
+     diferença que não existe. Ficaram:
+       • a COMPARAÇÃO com o período anterior — o hero mostra o número, o
+         cartão mostra se ele subiu ou desceu;
+       • quem SUMIU — o único número desta tela que pede ação. */
   const cartoes = [
     {
       rotulo: "Leads no período",
       valor: s.leads,
       Icone: UserPlus,
       variacao: variacaoPct(s.leads, s.leads_antes),
-      detalhe: `${s.leads_antes} antes`,
+      detalhe: `${s.leads_antes} no período anterior`,
       tom: "destaque" as const,
       href: `/admin/leads?dias=${dias}`,
     },
@@ -120,34 +120,17 @@ export default async function PainelSaude({
       valor: s.cadastros,
       Icone: UserCheck,
       variacao: variacaoPct(s.cadastros, s.cadastros_antes),
-      detalhe: `${s.cadastros_antes} antes`,
+      detalhe: `${s.cadastros_antes} no período anterior`,
       tom: "destaque" as const,
-    },
-    {
-      rotulo: "Leads que viraram conta",
-      valor: conversao,
-      Icone: MousePointerClick,
-      detalhe: "desde sempre, não só no período",
-      tom: "destaque" as const,
-    },
-    {
-      rotulo: "Usam o FINCASH",
-      valor: s.contas_fincash,
-      Icone: Wallet,
-      detalhe: "lançaram pelo menos uma vez",
-    },
-    {
-      rotulo: "Ativos nos 7 dias",
-      valor: s.ativos_7d,
-      Icone: Flame,
-      detalhe: "lançaram algo nesta semana",
+      href: "/admin/clientes",
     },
     {
       rotulo: "Sumidos há 30 dias",
       valor: s.sumidos_30d,
       Icone: Users,
-      detalhe: "já usaram e pararam",
+      detalhe: "usaram o FINCASH e pararam — vale um contato",
       tom: s.sumidos_30d > 0 ? ("atencao" as const) : ("normal" as const),
+      href: "/admin/clientes?filtro=sumidos",
     },
   ];
 
@@ -162,6 +145,12 @@ export default async function PainelSaude({
           valor: s.leads,
           rotulo: dias === 7 ? "leads em 7 dias" : `leads em ${dias} dias`,
         }}
+        metricas={[
+          { valor: s.cadastros, rotulo: "contas criadas" },
+          { valor: s.leads_convertidos, rotulo: "leads viraram conta" },
+          { valor: s.contas_fincash, rotulo: "usam o FINCASH" },
+          { valor: s.ativos_7d, rotulo: "ativos na semana" },
+        ]}
         acao={
           s.por_tratar > 0 ? (
             <Link

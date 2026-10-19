@@ -1,36 +1,21 @@
-import { notFound, redirect } from "next/navigation";
-import { getPerfil } from "@/lib/perfil";
-import { Cabecalho } from "@/components/Cabecalho";
-import { PainelAssinantes } from "./PainelAssinantes";
+import { redirect } from "next/navigation";
 
 /**
- * Quem paga, quem está testando, quem venceu.
+ * ⚠️ "ASSINANTES" DEIXOU DE EXISTIR em 19/10/2026.
  *
- * POR QUE ESTA TELA EXISTE
- * Até aqui, liberar quem pagou era um UPDATE escrito à mão no painel do
- * Supabase. A operação de cobrança da empresa dependia de alguém lembrar a
- * sintaxe, e não sobrava registro de quem liberou o quê. Isso não melhora
- * quando o checkout automático existir: reembolso, cortesia e conta de equipe
- * continuam sendo liberação manual para sempre.
+ * A tela falava de "pagante", "teste vencido", "+1 mês" e "+1 ano" — o
+ * vocabulário de uma assinatura que acabou quando o Hub virou gratuito. E
+ * tinha dois defeitos próprios: desenhava um SEGUNDO cabeçalho do site
+ * dentro do painel (dois logos empilhados, um com a fita de cotação) e não
+ * reconhecia o erro "função não encontrada" do PostgREST, então mostrava a
+ * mensagem crua em inglês em vez da instrução.
  *
- * SÓ ADMIN, e não `equipe`. A fila de revisões é trabalho de consultor; mexer
- * em acesso pago é mexer em dinheiro. Quem não é admin recebe 404, igual ao
- * resto do site para uma rota que não existe — a página não confirma que
- * existe uma administração aqui.
+ * O que ela tinha de útil — o e-mail de cada pessoa e o papel de acesso —
+ * está em Clientes, que agora também edita.
+ *
+ * O endereço continua respondendo, mas manda para lá: quem salvou o link
+ * cai no lugar certo em vez de num 404.
  */
-export const metadata = { title: "Assinantes · Novare" };
-
-export default async function AssinantesPage() {
-  const perfil = await getPerfil();
-  if (!perfil) redirect("/login?proximo=/admin/assinantes");
-  if (perfil.role !== "admin") notFound();
-
-  /* O `Cabecalho` é um server component assíncrono: ele tem de ser
-     renderizado AQUI, e não dentro do painel, que é "use client". */
-  return (
-    <>
-      <Cabecalho />
-      <PainelAssinantes />
-    </>
-  );
+export default function Assinantes() {
+  redirect("/admin/clientes");
 }

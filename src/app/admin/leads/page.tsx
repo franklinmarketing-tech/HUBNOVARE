@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { CheckCircle2, Download, Mail, Phone, Users } from "lucide-react";
+import { AcoesLead } from "./AcoesLead";
 import { createClient } from "@/lib/supabase/server";
 import { getPerfil } from "@/lib/perfil";
 import { FaltaRodarSql, Hero, Numero, SeletorDePeriodo } from "../pecas";
@@ -47,11 +48,11 @@ const TIPO = {
   ferramenta: { rotulo: "Ferramenta", cls: "bg-slate-100 text-slate-600" },
 } as const;
 
-/** Só os dígitos, para montar o link do WhatsApp. */
-const zapDe = (tel: string) => {
-  const d = tel.replace(/\D/g, "");
-  return d.length >= 10 ? `https://wa.me/55${d}` : null;
-};
+/* ⚠️ AQUI FICAVA `zapDe`, que punha "55" na frente de QUALQUER telefone.
+   Quem digitou "5519988610799" no formulário virava "555519…", e o link
+   abria conversa com ninguém. O link certo agora é `linkWhatsApp`, em
+   `../EscreverEmail.tsx`, que só põe o DDI quando falta — e já leva a
+   mensagem escrita. */
 
 function resumo(l: Lead): string {
   const p = l.payload ?? {};
@@ -130,6 +131,12 @@ export default async function AdminLeadsPage({
         etiqueta="Painel da Novare"
         titulo="Leads captados"
         destaque={{ valor: quantos("novo"), rotulo: "esperando contato" }}
+        metricas={[
+          { valor: todos.length, rotulo: "leads no período" },
+          { valor: quantos("falando"), rotulo: "em conversa" },
+          { valor: quantos("cliente"), rotulo: "viraram cliente" },
+          { valor: converteram, rotulo: "já têm conta" },
+        ]}
       >
         Quem deixou contato nas ferramentas. Marque em que pé está cada conversa —
         fica registrado para toda a equipe, não na sua memória.
@@ -236,19 +243,19 @@ export default async function AdminLeadsPage({
 
           <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-sm">
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[58rem] text-left text-sm">
+              <table className="w-full min-w-[64rem] text-left text-sm">
                 <thead>
                   <tr className="border-b border-border bg-slate-50/70 text-2xs uppercase tracking-wider text-muted-foreground">
                     <th className="px-4 py-3 font-semibold">Quando</th>
                     <th className="px-4 py-3 font-semibold">Contato</th>
                     <th className="px-4 py-3 font-semibold">De onde veio</th>
                     <th className="px-4 py-3 font-semibold">Em que pé está</th>
+                    <th className="px-4 py-3 font-semibold">Fazer</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border/60">
                   {leads.map((l) => {
                     const t = TIPO[(l.tipo ?? "ferramenta") as keyof typeof TIPO] ?? TIPO.ferramenta;
-                    const zap = l.telefone ? zapDe(l.telefone) : null;
                     return (
                       <tr key={l.id} className="align-top hover:bg-slate-50/50">
                         <td className="whitespace-nowrap px-4 py-3 text-2xs text-muted-foreground">
@@ -273,30 +280,20 @@ export default async function AdminLeadsPage({
                               </span>
                             )}
                           </div>
-                          <a
-                            href={`mailto:${l.email}`}
-                            className="flex items-center gap-1.5 text-xs font-medium text-primary hover:underline"
-                          >
+                          {/* Texto, e não `mailto:`: responder agora é o
+                              botão "Responder", que registra. O `mailto:`
+                              abria o programa de e-mail do computador e a
+                              mensagem não deixava rastro no painel. */}
+                          <p className="flex items-center gap-1.5 text-xs font-medium text-primary">
                             <Mail className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-                            {l.email}
-                          </a>
-                          {l.telefone &&
-                            (zap ? (
-                              <a
-                                href={zap}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="mt-0.5 flex items-center gap-1.5 text-xs font-medium text-success hover:underline"
-                              >
-                                <Phone className="h-3.5 w-3.5 shrink-0" />
-                                {l.telefone}
-                              </a>
-                            ) : (
-                              <span className="mt-0.5 flex items-center gap-1.5 text-xs text-muted-foreground">
-                                <Phone className="h-3.5 w-3.5 shrink-0" />
-                                {l.telefone}
-                              </span>
-                            ))}
+                            <span className="select-all">{l.email}</span>
+                          </p>
+                          {l.telefone && (
+                            <p className="mt-0.5 flex items-center gap-1.5 text-xs text-muted-foreground">
+                              <Phone className="h-3.5 w-3.5 shrink-0" />
+                              <span className="select-all">{l.telefone}</span>
+                            </p>
+                          )}
                         </td>
 
                         <td className="px-4 py-3">
@@ -311,6 +308,15 @@ export default async function AdminLeadsPage({
                             id={l.id}
                             situacao={l.situacao}
                             anotacao={l.anotacao}
+                          />
+                        </td>
+
+                        <td className="px-4 py-3">
+                          <AcoesLead
+                            id={l.id}
+                            nome={l.nome}
+                            email={l.email}
+                            telefone={l.telefone}
                           />
                         </td>
                       </tr>

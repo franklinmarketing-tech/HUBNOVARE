@@ -46,6 +46,7 @@ export function Hero({
   children,
   acao,
   destaque,
+  metricas,
 }: {
   etiqueta: string;
   titulo: string;
@@ -53,6 +54,8 @@ export function Hero({
   acao?: React.ReactNode;
   /** O número que resume a tela. Fica grande, à direita. */
   destaque?: { valor: string | number; rotulo: string };
+  /** Números de apoio, numa fileira de vidro na base do hero. */
+  metricas?: { valor: string | number; rotulo: string }[];
 }) {
   return (
     <section
@@ -78,18 +81,30 @@ export function Hero({
         }}
       />
 
-      {/* As duas luzes da marca. */}
+      {/* As duas luzes da marca, ANDANDO devagar.
+
+          ⚠️ O MOVIMENTO É LENTO DE PROPÓSITO (26s, ida e volta). Luz que se
+          mexe rápido puxa o olho para a decoração e para longe do número; a
+          26s ela não é vista se movendo, só é percebida como "viva". É a
+          mesma deriva da aurora da home (`aurora-deriva`, em globals.css),
+          para o painel e o site respirarem no mesmo ritmo.
+
+          Para quem pediu menos movimento ao sistema, ela fica parada. */}
       <span
         aria-hidden
-        className="pointer-events-none absolute -right-32 -top-36 h-[22rem] w-[22rem] rounded-full bg-[radial-gradient(circle,hsl(203_80%_60%/0.34),transparent_62%)] blur-[2px]"
-      />
-      <span
-        aria-hidden
-        className="pointer-events-none absolute -bottom-40 -left-24 h-[22rem] w-[22rem] rounded-full bg-[radial-gradient(circle,hsl(16_88%_58%/0.26),transparent_62%)] blur-[2px]"
-      />
+        className="pointer-events-none absolute inset-0 motion-safe:animate-[aurora-deriva_26s_ease-in-out_infinite_alternate]"
+      >
+        <span className="absolute -right-32 -top-36 h-[22rem] w-[22rem] rounded-full bg-[radial-gradient(circle,hsl(203_80%_60%/0.36),transparent_62%)] blur-[2px]" />
+        <span className="absolute -bottom-40 -left-24 h-[22rem] w-[22rem] rounded-full bg-[radial-gradient(circle,hsl(16_88%_58%/0.28),transparent_62%)] blur-[2px]" />
+        <span className="absolute -bottom-24 right-1/3 h-56 w-56 rounded-full bg-[radial-gradient(circle,hsl(190_70%_55%/0.14),transparent_65%)]" />
+      </span>
 
       <div className="relative flex flex-wrap items-end justify-between gap-x-8 gap-y-5">
-        <div className="min-w-0 flex-1">
+        {/* ⚠️ `basis-full` NO CELULAR: com `flex-1` sozinho (base 0), o texto
+            dividia a linha com o número de destaque e ficava espremido numa
+            coluna de 170px — "Como vai a / casa" em duas linhas. A prévia
+            fotografada em 390px mostrou. Do `md` para cima volta a dividir. */}
+        <div className="min-w-0 flex-1 basis-full md:basis-0">
           <p className="flex items-center gap-2 text-2xs font-semibold uppercase tracking-[0.2em] text-white/55">
             {/* Um ponto de luz antes da etiqueta: âncora o olho no começo
                 da linha, que é onde a leitura de uma tela densa começa. */}
@@ -112,7 +127,7 @@ export function Hero({
         </div>
 
         {destaque && (
-          <div className="shrink-0 text-right">
+          <div className="shrink-0 md:text-right">
             <p className="font-display text-4xl font-bold leading-none tabular-nums sm:text-5xl">
               {destaque.valor}
             </p>
@@ -124,6 +139,24 @@ export function Hero({
 
         {acao}
       </div>
+
+      {/* A FILEIRA DE VIDRO: os números de apoio moram dentro do hero, e
+          não em cartões a uma rolagem de distância. Vidro (fundo branco a 7%
+          com borda a 12%) em vez de cartão branco: sobre o navy, cartão
+          branco viraria buraco na superfície. */}
+      {metricas && metricas.length > 0 && (
+        <dl className="relative mt-6 grid grid-cols-2 gap-2 sm:grid-cols-4">
+          {metricas.map((m) => (
+            <div
+              key={m.rotulo}
+              className="rounded-2xl border border-white/[0.12] bg-white/[0.07] px-3.5 py-2.5 backdrop-blur-sm"
+            >
+              <dt className="text-2xs font-medium uppercase tracking-wider text-white/55">{m.rotulo}</dt>
+              <dd className="mt-0.5 font-display text-2xl font-bold leading-tight tabular-nums">{m.valor}</dd>
+            </div>
+          ))}
+        </dl>
+      )}
     </section>
   );
 }
@@ -156,8 +189,11 @@ export function SeletorDePeriodo({
     <div
       role="group"
       aria-label="Período"
-      className="flex flex-wrap items-center gap-1.5 rounded-2xl border border-border bg-white p-1.5 shadow-sm"
+      className="flex w-full items-center gap-1 rounded-2xl border border-border bg-white p-1.5 shadow-sm sm:w-auto sm:gap-1.5"
     >
+      {/* ⚠️ SEM `flex-wrap`, e cada opção `flex-1` no celular: com quebra,
+          "1 ano" caía sozinho numa segunda linha em 390px — um seletor de
+          quatro opções em duas fileiras parece dois controles diferentes. */}
       {PERIODOS.map((p) => {
         const ativo = p.dias === dias;
         return (
@@ -165,7 +201,7 @@ export function SeletorDePeriodo({
             key={p.dias}
             href={`${base}?dias=${p.dias}${extra}`}
             aria-current={ativo ? "true" : undefined}
-            className={`flex min-h-9 items-center gap-2 rounded-xl px-3.5 text-xs font-semibold transition-colors ${
+            className={`flex min-h-9 flex-1 items-center justify-center gap-1.5 rounded-xl px-2 text-xs font-semibold whitespace-nowrap transition-colors sm:flex-none sm:gap-2 sm:px-3.5 ${
               ativo
                 ? "bg-primary text-white"
                 : "text-muted-foreground hover:bg-slate-100 hover:text-primary"
