@@ -23,6 +23,9 @@ export const CONTATO = {
   site: "novareinvestimentos.com",
 } as const;
 
+/** O LinkedIn do Jefferson Freitas, fundador (20/10/2026). */
+export const LINKEDIN_JEFFERSON = "https://www.linkedin.com/in/jeffersonfreittas-sociofundadornovare/";
+
 /** Conversa com a Novare. Sempre com destinatário. */
 export function falarNoWhatsApp(mensagem: string): string {
   return `https://wa.me/${CONTATO.whatsapp}?text=${encodeURIComponent(mensagem)}`;

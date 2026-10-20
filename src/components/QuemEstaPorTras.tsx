@@ -1,7 +1,8 @@
 import Image from "next/image";
 import { ArrowUpRight, MessageCircle } from "lucide-react";
 
-import { falarNoWhatsApp } from "@/lib/contato";
+import { LINKEDIN_JEFFERSON, falarNoWhatsApp } from "@/lib/contato";
+import { LinkedinLogo } from "@/components/LogosSociais";
 
 /**
  * QUEM ESTÁ POR TRÁS: o rosto da Novare na home do Workspace.
@@ -71,6 +72,16 @@ export function QuemEstaPorTras() {
             <span className="btn-seta" aria-hidden>
               <ArrowUpRight className="h-4 w-4" />
             </span>
+          </a>
+          {/* O LinkedIn dele, ao lado do WhatsApp (pedido do dono, 20/10/2026). */}
+          <a
+            href={LINKEDIN_JEFFERSON}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="ml-2 mt-6 inline-flex min-h-11 items-center gap-2 rounded-full border border-white/25 px-5 text-sm font-semibold text-white transition-colors hover:bg-white/10"
+          >
+            <LinkedinLogo className="h-4 w-4" />
+            Ver o LinkedIn
           </a>
         </div>
       </div>

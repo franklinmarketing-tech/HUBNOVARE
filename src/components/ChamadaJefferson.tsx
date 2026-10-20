@@ -1,6 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, ArrowUpRight, BookOpen } from "lucide-react";
+import { LINKEDIN_JEFFERSON } from "@/lib/contato";
+import { LinkedinLogo } from "@/components/LogosSociais";
 
 
 /**
@@ -52,8 +54,19 @@ export function ChamadaJefferson() {
             </Link>
           </div>
 
-          <p className="mt-6 text-sm text-white/70">
-            <b className="font-semibold text-white">Jefferson Freitas</b> · Fundador Novare
+          <p className="mt-6 flex flex-wrap items-center gap-x-3 gap-y-2 text-sm text-white/70">
+            <span>
+              <b className="font-semibold text-white">Jefferson Freitas</b> · Fundador Novare
+            </span>
+            <a
+              href={LINKEDIN_JEFFERSON}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold text-white ring-1 ring-white/15 transition-colors hover:bg-white/20"
+            >
+              <LinkedinLogo className="h-3.5 w-3.5" />
+              LinkedIn
+            </a>
           </p>
         </div>
 
