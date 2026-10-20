@@ -18,7 +18,7 @@ export function BannerIris({ className = "" }: { className?: string }) {
   return (
     <Link
       href="/iris"
-      className={`glass-card group cine relative flex min-w-0 items-center gap-3 overflow-hidden rounded-2xl bg-gradient-to-r from-ciano-tint/80 via-white to-white p-3 shadow-card ring-1 ring-ciano/15 transition-all hover:-translate-y-0.5 hover:shadow-card-hover hover:ring-ciano/30 ${className}`}
+      className={`glass-card group cine relative flex min-w-0 items-center gap-3 overflow-hidden rounded-[1.25rem] bg-gradient-to-r from-ciano-tint/80 via-white to-white p-3 shadow-card ring-1 ring-ciano/15 transition-all hover:-translate-y-0.5 hover:shadow-card-hover hover:ring-ciano/30 ${className}`}
     >
       {/* O avatar dela é o holograma, redondo.
       

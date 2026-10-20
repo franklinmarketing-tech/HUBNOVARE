@@ -96,8 +96,8 @@ import { CONTAGEM } from "@/lib/apps";
 const PALCO_NAVY: React.CSSProperties = {
   background: [
     "radial-gradient(42rem 24rem at 84% -14%, hsl(16 85% 55% / 0.32), transparent 62%)",
-    "radial-gradient(34rem 22rem at 2% 106%, hsl(215 60% 40% / 0.30), transparent 60%)",
-    "linear-gradient(155deg, hsl(215 50% 17%) 0%, hsl(215 55% 10%) 100%)",
+    "radial-gradient(34rem 22rem at 2% 106%, hsl(199 80% 29% / 0.30), transparent 60%)",
+    "linear-gradient(155deg, hsl(199 70% 12%) 0%, hsl(202 80% 6%) 100%)",
   ].join(","),
 };
 
@@ -116,7 +116,7 @@ const PALCO_NAVY: React.CSSProperties = {
 const CARTAO_NAVY: React.CSSProperties = {
   background: [
     "radial-gradient(17rem 11rem at 88% -12%, hsl(16 85% 55% / 0.34), transparent 64%)",
-    "linear-gradient(155deg, hsl(215 50% 17%) 0%, hsl(215 55% 10%) 100%)",
+    "linear-gradient(155deg, hsl(199 70% 12%) 0%, hsl(202 80% 6%) 100%)",
   ].join(","),
 };
 
@@ -839,7 +839,7 @@ export default function FincashPage() {
                 FINCASH
               </div>
 
-              <h1 className="mt-4 font-display text-[1.9rem] font-extrabold leading-[1.08] tracking-tight sm:text-[2.7rem] lg:text-[3.1rem]">
+              <h1 className="mt-4 font-display text-[1.9rem] font-medium leading-[1.08] tracking-[-0.03em] sm:text-[2.7rem] lg:text-[3.1rem]">
                 Quanto você <span className="text-accent">realmente</span> pode
                 gastar este mês?
               </h1>
@@ -1148,7 +1148,7 @@ export default function FincashPage() {
               ))}
             </ol>
 
-            <p className="mt-10 rounded-3xl bg-primary p-6 text-sm leading-relaxed text-white sm:p-7">
+            <p className="mt-10 rounded-[1.75rem] bg-noite p-6 text-sm leading-relaxed text-white sm:p-7">
               <strong className="font-semibold">
                 E a cada três meses você não faz nada:
               </strong>{" "}
@@ -1175,7 +1175,7 @@ export default function FincashPage() {
                   Alertas do próprio app
                 </span>
 
-                <h2 className="mt-5 font-display text-[1.9rem] font-medium leading-[1.08] tracking-tight sm:text-[2.4rem] lg:text-[2.75rem]">
+                <h2 className="mt-5 font-display text-[1.9rem] font-medium leading-[1.08] tracking-[-0.03em] sm:text-[2.4rem] lg:text-[2.75rem]">
                   O app te avisa{" "}
                   <span className="font-semibold text-accent-claro">
                     antes do problema
@@ -1252,7 +1252,7 @@ export default function FincashPage() {
                 <div className="mt-4">
                   <Chapeu>Segurança</Chapeu>
                 </div>
-                <h2 className="mt-4 font-display text-[1.75rem] font-semibold leading-[1.12] tracking-tight text-primary sm:text-[2.2rem]">
+                <h2 className="mt-4 font-display text-[1.75rem] font-semibold leading-[1.12] tracking-[-0.03em] text-primary sm:text-[2.2rem]">
                   Seus dados continuam sob o seu controle
                 </h2>
                 <p className="mt-3 text-base leading-relaxed text-muted-foreground">
@@ -1292,7 +1292,7 @@ export default function FincashPage() {
             />
 
             <div className="mt-10 grid gap-4 sm:grid-cols-3">
-              <div className="rounded-3xl bg-primary p-6 text-white">
+              <div className="rounded-[1.75rem] bg-noite p-6 text-white">
                 <p className="text-2xs font-semibold uppercase tracking-[0.14em] text-white/60">
                   Não é software
                 </p>
@@ -1433,7 +1433,7 @@ A ordem é o método: quem registra antes de estruturar desiste no segundo mês.
           >
             <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <h2 className="max-w-md font-display text-2xl font-extrabold leading-tight sm:text-3xl">
+                <h2 className="max-w-md font-display text-2xl font-semibold leading-tight sm:text-3xl">
                   Comece pelo mês que já está correndo.
                 </h2>
                 <p className="mt-3 max-w-md text-sm leading-relaxed text-white/75">

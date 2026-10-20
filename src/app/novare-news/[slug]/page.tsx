@@ -117,7 +117,7 @@ export default async function ArtigoPage({
             {FAMILIAS[artigo.categoria]}
           </p>
 
-          <h1 className="mt-3 text-balance font-display text-3xl font-bold leading-[1.12] tracking-tight text-primary sm:text-4xl lg:text-[2.5rem] lg:leading-[1.08]">
+          <h1 className="mt-3 text-balance font-display text-3xl font-medium leading-[1.1] tracking-[-0.03em] text-primary sm:text-4xl lg:text-[2.75rem] lg:leading-[1.06]">
             {artigo.titulo}
           </h1>
 
@@ -150,7 +150,7 @@ export default async function ArtigoPage({
             </a>
           </div>
 
-          <figure className="relative mt-8 aspect-[16/9] overflow-hidden rounded-2xl border border-border bg-muted">
+          <figure className="relative mt-8 aspect-[16/9] overflow-hidden rounded-[1.5rem] border border-border bg-muted">
             <Image
               src={artigo.capa}
               alt=""
@@ -205,11 +205,11 @@ export default async function ArtigoPage({
 
           {/* A ponte entre o artigo e a ferramenta: é o motivo do canal
               existir, não um anúncio à parte. */}
-          <div className="mx-auto mt-10 max-w-2xl rounded-2xl bg-primary p-6 shadow-elevated sm:p-7">
+          <div className="mx-auto mt-10 max-w-2xl rounded-[1.75rem] bg-noite p-6 shadow-ciano sm:p-7">
             <p className="text-2xs font-semibold uppercase tracking-[0.16em] text-accent-claro">
               Coloque em prática
             </p>
-            <h2 className="mt-1.5 font-display text-xl font-bold text-white">
+            <h2 className="mt-1.5 font-display text-xl font-semibold text-white">
               {artigo.ferramenta.nome}
             </h2>
             <p className="mt-1.5 text-sm leading-relaxed text-white/75">
@@ -218,7 +218,7 @@ export default async function ArtigoPage({
             {artigo.ferramenta.externo ? (
               <a
                 href={artigo.ferramenta.href}
-                className="mt-5 inline-flex items-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-bold text-primary transition-colors hover:bg-white/90"
+                className="btn-cp mt-5"
               >
                 Abrir agora
                 <ArrowRight className="h-4 w-4" />
@@ -226,7 +226,7 @@ export default async function ArtigoPage({
             ) : (
               <Link
                 href={artigo.ferramenta.href}
-                className="mt-5 inline-flex items-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-bold text-primary transition-colors hover:bg-white/90"
+                className="btn-cp mt-5"
               >
                 Abrir agora
                 <ArrowRight className="h-4 w-4" />
@@ -261,12 +261,12 @@ export default async function ArtigoPage({
                 <Link
                   key={r.slug}
                   href={`/novare-news/${r.slug}`}
-                  className="group flex flex-col rounded-2xl border border-border bg-card p-5 shadow-subtle transition-all duration-300 hover:border-accent-soft hover:shadow-card-hover"
+                  className="group flex flex-col rounded-[1.5rem] border border-border bg-card p-5 shadow-subtle transition-all duration-300 hover:border-accent-soft hover:shadow-card-hover"
                 >
                   <span className="text-2xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
                     {FAMILIAS[r.categoria]}
                   </span>
-                  <h3 className="mt-2 font-display text-sm font-bold leading-snug tracking-tight text-primary underline-offset-4 group-hover:underline">
+                  <h3 className="mt-2 font-display text-sm font-semibold leading-snug tracking-[-0.025em] text-primary underline-offset-4 group-hover:underline">
                     {r.titulo}
                   </h3>
                   <p className="mt-3 text-2xs text-muted-foreground">
@@ -308,7 +308,7 @@ function ChamadaVizinha({
   return (
     <Link
       href={`/novare-news/${artigo.slug}`}
-      className={`group flex flex-col rounded-2xl border border-border bg-card p-5 shadow-subtle transition-all duration-300 hover:border-accent-soft hover:shadow-card-hover ${
+      className={`group flex flex-col rounded-[1.5rem] border border-border bg-card p-5 shadow-subtle transition-all duration-300 hover:border-accent-soft hover:shadow-card-hover ${
         proximo ? "sm:col-start-2 sm:items-end sm:text-right" : ""
       }`}
     >
@@ -317,7 +317,7 @@ function ChamadaVizinha({
         {proximo ? "Próximo artigo" : "Artigo anterior"}
         {proximo && <ArrowRight className="h-3 w-3" />}
       </span>
-      <span className="mt-2 font-display text-sm font-bold leading-snug tracking-tight text-primary underline-offset-4 group-hover:underline">
+      <span className="mt-2 font-display text-sm font-semibold leading-snug tracking-[-0.025em] text-primary underline-offset-4 group-hover:underline">
         {artigo.titulo}
       </span>
     </Link>

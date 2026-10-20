@@ -54,7 +54,7 @@ export default function SeguroDesempregoPage() {
         </>
       }
     >
-      <section className="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 sm:p-8">
+      <section className="bg-white rounded-[1.75rem] border border-slate-200/80 shadow-suave p-6 sm:p-8">
         <p className="text-xs font-semibold text-slate-600 mb-1.5">
           Seus três últimos salários
         </p>

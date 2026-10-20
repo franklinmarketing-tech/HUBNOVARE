@@ -47,7 +47,7 @@ export default function DecimoTerceiroPage() {
         </>
       }
     >
-      <section className="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 sm:p-8">
+      <section className="bg-white rounded-[1.75rem] border border-slate-200/80 shadow-suave p-6 sm:p-8">
         <div className="grid sm:grid-cols-3 gap-x-5 gap-y-4">
           <Campo
             label="Salário bruto"

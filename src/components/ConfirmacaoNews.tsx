@@ -158,7 +158,7 @@ export function ConfirmacaoNews({
 
           <h2
             id="confirmacao-news-titulo"
-            className="mt-5 font-display text-xl font-bold tracking-tight text-primary"
+            className="mt-5 font-display text-xl font-semibold tracking-[-0.03em] text-primary"
           >
             Inscrição confirmada!
           </h2>

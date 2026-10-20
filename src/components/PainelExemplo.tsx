@@ -88,7 +88,7 @@ export function PainelExemplo() {
           className="relative overflow-hidden rounded-2xl p-5 text-white"
           style={{
             background:
-              "linear-gradient(155deg, hsl(215 50% 23%) 0%, hsl(215 55% 15%) 100%)",
+              "linear-gradient(155deg, hsl(199 70% 17%) 0%, hsl(199 75% 11%) 100%)",
           }}
         >
           <div

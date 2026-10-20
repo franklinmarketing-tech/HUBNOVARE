@@ -91,7 +91,7 @@ export function Janela({
       >
         <div className="flex items-start gap-3 border-b border-border px-5 py-4 sm:px-6">
           <div className="min-w-0 flex-1">
-            <h2 className="truncate font-display text-lg font-bold text-primary">{titulo}</h2>
+            <h2 className="truncate font-display text-lg font-semibold text-primary">{titulo}</h2>
             {subtitulo && (
               <p className="mt-0.5 truncate text-xs text-muted-foreground">{subtitulo}</p>
             )}

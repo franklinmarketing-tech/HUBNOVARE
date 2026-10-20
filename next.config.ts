@@ -81,7 +81,15 @@ const nextConfig: NextConfig = {
          O redirect fica porque o endereço já foi publicado: quem tiver o
          link salvo, ou chegar por um resultado de busca antigo, cai na
          página que explica que é de graça, em vez de num 404. */
-      { source: "/assinar/em-breve", destination: "/assinar", permanent: false },
+      { source: "/assinar/em-breve", destination: "/fincash", permanent: false },
+      /* ── A /assinar VIRA O FINCASH EM 20/10/2026 ────────────────────────
+         Pedido do dono: "não existe essa de assinar". Tudo é gratuito, e a
+         página ainda se vendia como "Assine o FINCASH" (com a frase
+         "empurrar produto"). O endereço já foi divulgado, então ele continua
+         respondendo — só que leva à página do app gratuito.
+         ⚠️ 307, não 301, pelo mesmo motivo do FINPLAN acima: o código da
+         página continua em app/assinar; se um dia voltar, é apagar esta linha. */
+      { source: "/assinar", destination: "/fincash", permanent: false },
       // A página existia só para descrever uma ideia sem preço e mandar a
       // pessoa falar com a Novare — e o próprio botão dela já apontava
       // para /consultoria. Cortamos o meio de campo.

@@ -91,7 +91,7 @@ export function FormNovaSenha() {
       <button
         type="submit"
         disabled={salvando || pronto}
-        className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-accent-btn px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-accent-strong disabled:cursor-not-allowed disabled:opacity-50"
+        className="btn-cp w-full disabled:cursor-not-allowed disabled:opacity-50"
       >
         {salvando ? (
           <>

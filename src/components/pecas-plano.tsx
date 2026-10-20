@@ -75,7 +75,7 @@ export function TituloTela({
         <p className="text-2xs font-semibold uppercase tracking-wider text-accent-strong">
           Etapa {numero} de {ETAPAS.length}
         </p>
-        <h1 className="mt-1 font-display text-2xl font-bold tracking-tight text-primary sm:text-3xl">
+        <h1 className="mt-1 font-display text-2xl font-medium tracking-[-0.03em] text-primary sm:text-3xl">
           {titulo}
         </h1>
         <p className="mt-1.5 text-sm text-muted-foreground">{resumo}</p>
@@ -153,7 +153,7 @@ export function TelaVazia({
       {acao && (
         <Link
           href={acao.href}
-          className="mt-6 inline-block rounded-xl bg-accent-btn px-5 py-2.5 text-sm font-bold text-white shadow-[0_4px_14px_-6px_hsl(16_80%_45%_/_0.6)] transition-all duration-150 hover:-translate-y-0.5 hover:shadow-[0_8px_20px_-6px_hsl(16_80%_45%_/_0.7)] active:translate-y-0 active:scale-[0.98]"
+          className="btn-cp mt-6 inline-block hover:shadow-[0_8px_20px_-6px_hsl(16_80%_45%_/_0.7)] active:translate-y-0 active:scale-[0.98]"
         >
           {acao.rotulo}
         </Link>
@@ -376,7 +376,7 @@ export function BotaoPrincipal({
   return (
     <Link
       href={href}
-      className="inline-flex items-center gap-2 rounded-xl bg-accent-btn px-5 py-2.5 text-sm font-bold text-white shadow-[0_4px_14px_-6px_hsl(16_80%_45%_/_0.6)] transition-all duration-150 hover:-translate-y-0.5 hover:shadow-[0_8px_20px_-6px_hsl(16_80%_45%_/_0.7)] active:translate-y-0 active:scale-[0.98]"
+      className="btn-cp hover:shadow-[0_8px_20px_-6px_hsl(16_80%_45%_/_0.7)] active:translate-y-0 active:scale-[0.98]"
     >
       {children}
     </Link>
@@ -394,7 +394,7 @@ export function BotaoPrincipal({
 export function SessaoExpirada() {
   return (
     <div className="mx-auto max-w-md py-16 text-center">
-      <h1 className="font-display text-xl font-bold text-primary">
+      <h1 className="font-display text-xl font-medium text-primary">
         Sua sessão expirou
       </h1>
       <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
@@ -402,7 +402,7 @@ export function SessaoExpirada() {
       </p>
       <a
         href="/login?proximo=%2Ffinplan%2Fapp"
-        className="mt-6 inline-flex items-center justify-center rounded-xl bg-primary px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-primary-soft"
+        className="btn-petroleo mt-6"
       >
         Entrar de novo
       </a>
@@ -424,7 +424,7 @@ export function SessaoExpirada() {
 export function FalhouAoCarregar() {
   return (
     <div className="mx-auto max-w-md py-16 text-center">
-      <h1 className="font-display text-xl font-bold text-primary">
+      <h1 className="font-display text-xl font-medium text-primary">
         Não consegui carregar seus dados
       </h1>
       <p className="mt-2 text-sm leading-relaxed text-muted-foreground">

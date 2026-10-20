@@ -67,7 +67,7 @@ export function NavAdmin({
       className="sticky top-0 z-30 text-white shadow-[0_10px_30px_-18px_hsl(215_60%_10%/0.7)]"
       style={{
         background:
-          "linear-gradient(120deg, hsl(215 56% 17%) 0%, hsl(215 52% 22%) 55%, hsl(212 50% 25%) 100%)",
+          "linear-gradient(120deg, hsl(199 76% 12%) 0%, hsl(199 72% 16%) 55%, hsl(212 50% 25%) 100%)",
       }}
     >
       {/* O filete de luz na base da barra, nas duas cores da marca. É o que

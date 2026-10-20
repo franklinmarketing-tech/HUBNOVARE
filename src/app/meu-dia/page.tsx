@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { ArrowRight, Crown } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { BarraLateral } from "@/components/BarraLateral";
 import { BarraInferior } from "@/components/BarraInferior";
 import { TopoApp } from "@/components/TopoApp";
@@ -13,11 +13,6 @@ import { portais } from "@/lib/categorias";
 import { appsParaBusca } from "@/lib/navegacao";
 import { getPerfil } from "@/lib/perfil";
 import { getNotificacoes } from "@/lib/notificacoes";
-import {
-  ASSINATURA_GARANTIA,
-  ASSINATURA_NOME,
-  ASSINATURA_OFERTA_CURTA,
-} from "@/lib/assinatura";
 
 export const metadata: Metadata = {
   title: "Meu dia",
@@ -70,7 +65,7 @@ export default async function MeuDiaPage() {
     : undefined;
 
   return (
-    <div className="aurora-clara flex min-h-dvh flex-col bg-gradient-to-b from-creme via-creme to-creme-forte pb-14 md:pb-0">
+    <div className="aurora-clara flex min-h-dvh flex-col bg-background pb-14 md:pb-0">
       <RevelarAoRolar />
       <PaletaComandos apps={apps} />
       <BarraLateral />
@@ -111,34 +106,33 @@ export default async function MeuDiaPage() {
   );
 }
 
-/** Quem ainda não assina não vê painel vazio — vê o convite. */
+/**
+ * Logado sem painel: o caminho para ele nascer, não uma venda.
+ *
+ * ⚠️ ATÉ 20/10/2026 ERA "Este painel é do Workspace · Assinar o …", com preço
+ * e garantia, para quem já estava logado — numa casa em que tudo é gratuito.
+ * O dono: "não existe essa de assinar quando estou logado". O painel do mês
+ * nasce no FINCASH, que é grátis.
+ */
 function ConvitePainel() {
   return (
-    <section
-      className="cine palco-cta mt-6 overflow-hidden rounded-3xl p-8 text-white sm:p-10"
-      style={{
-        background:
-          "linear-gradient(140deg, hsl(216 54% 16%) 0%, hsl(219 58% 11%) 100%)",
-      }}
-    >
-      <Crown className="h-6 w-6 text-warning-claro" strokeWidth={1.75} />
-      <h2 className="mt-4 font-display text-2xl font-bold leading-tight sm:text-3xl">
-        Este painel é do Workspace
+    <section className="cine secao-noite mt-6 rounded-[1.75rem] p-8 sm:p-10">
+      <p className="chapeu chapeu-claro">Seu painel</p>
+      <h2 className="mt-3 font-display text-2xl font-medium leading-tight tracking-[-0.03em] sm:text-4xl">
+        Seu painel nasce no <span className="text-accent-claro">FINCASH</span>
       </h2>
-      <p className="mt-3 max-w-lg text-sm leading-relaxed text-white/70">
-        Sua nota de saúde financeira, o plano de vida, a reserva e as próximas
-        ações — calculados a partir dos seus números, atualizados a cada mês.
+      <p className="mt-3 max-w-lg text-sm leading-relaxed text-white/75">
+        Lance as contas do mês — é grátis — e os seus números aparecem aqui.
       </p>
-      <Link
-        href="/assinar"
-        className="group mt-7 inline-flex items-center gap-2 rounded-xl bg-warning-claro px-5 py-3 text-sm font-bold text-primary transition-colors hover:bg-warning"
-      >
-        Assinar o {ASSINATURA_NOME}
-        <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-      </Link>
-      <p className="mt-3 text-xs text-white/50">
-        {ASSINATURA_OFERTA_CURTA} · {ASSINATURA_GARANTIA}
-      </p>
+      <div className="mt-7 flex flex-wrap items-center gap-x-5 gap-y-3">
+        <Link href="/fincash/app" className="group btn-cp">
+          Abrir meu FINCASH
+          <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+        </Link>
+        <Link href="/exame-saude-financeira" className="text-sm font-semibold text-ciano-claro underline-offset-4 hover:underline">
+          Fazer o Exame de Saúde Financeira
+        </Link>
+      </div>
     </section>
   );
 }

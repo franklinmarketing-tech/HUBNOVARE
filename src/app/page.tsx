@@ -1,13 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight, ChevronDown } from "lucide-react";
+import { ArrowRight, ArrowUpRight, ChevronDown } from "lucide-react";
 import { BuscaDestaque } from "@/components/BuscaDestaque";
 import { BarraLateral } from "@/components/BarraLateral";
 import { BarraInferior } from "@/components/BarraInferior";
 import { TopoApp } from "@/components/TopoApp";
 import { PaletaComandos } from "@/components/PaletaComandos";
-import { ComecePorAqui } from "@/components/ComecePorAqui";
 import { QuemEstaPorTras } from "@/components/QuemEstaPorTras";
 import { MercadoEmPortugues } from "@/components/MercadoEmPortugues";
 import { ComoTrabalhamos } from "@/components/ComoTrabalhamos";
@@ -94,7 +93,10 @@ export default async function Home() {
     : undefined;
 
   return (
-    <div className="aurora-clara flex min-h-dvh flex-col bg-gradient-to-b from-creme via-creme to-creme-forte pb-14 md:pb-0">
+    // Fundo gelo, não creme (20/10/2026): é o `#F4F8FB` da página da Carteira
+    // Pontual, que o dono pediu como modelo. O creme deixava a home quente
+    // demais ao lado das seções noite.
+    <div className="aurora-clara flex min-h-dvh flex-col bg-background pb-14 md:pb-0">
       <RevelarAoRolar />
       <PaletaComandos apps={apps} />
       <BarraLateral />
@@ -134,30 +136,36 @@ export default async function Home() {
           {/* A FOTO DO TOPO (19/10/2026): alguém em casa, de manhã, tranquilo
               com as contas — o oposto de painel de banco. Gerada na Magnific,
               ilustrativa: não é cliente, e nenhum texto fala por ela. */}
-          <section className="cine grid items-center gap-6 lg:grid-cols-[1.05fr_0.95fr] lg:gap-10">
+          {/* O TOPO NO MOLDE DA CARTEIRA PONTUAL (20/10/2026): um painel
+              noite com as ondas prateadas por trás (`.secao-noite`), título
+              branco de peso médio e as três pílulas de vidro no pé — o mesmo
+              desenho do topo de diagnostico.novareapp.com.br/carteira-pontual. */}
+          <section className="cine secao-noite rounded-[1.75rem] px-5 pb-5 pt-8 sm:px-9 sm:pb-7 sm:pt-12">
+          <div className="grid items-center gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:gap-12">
             <div>
-              <h1 className="titulo-secao text-[1.75rem] leading-tight sm:text-4xl">
+              <p className="chapeu chapeu-claro">Novare Workspace</p>
+              <h1 className="mt-3 font-display text-[2rem] font-medium leading-[1.08] tracking-[-0.03em] text-white sm:text-5xl">
                 {/* Palavra por palavra (`.cine-palavra`, globals.css): a saudação
                     entra primeiro e a pergunta assenta logo depois. */}
                 {palavras(primeiroNome ? `${saudacao}, ${primeiroNome}!` : `${saudacao}!`, 0)}
-                <span className="text-accent-strong">
+                <span className="text-accent-claro">
                   {palavras("O que você quer resolver hoje?", 3)}
                 </span>
               </h1>
               {/* Não some mais em tela baixa: escondê-lo era parte da mesma
                   corrida por caber numa tela, e a página perdia a única
                   linha que diz o que a Novare faz. */}
-              <p className="mt-3 max-w-xl text-base leading-relaxed text-muted-foreground">
+              <p className="mt-4 max-w-xl text-base leading-relaxed text-white/75">
                 {perfil
                   ? "Tudo o que você usa, num lugar só — e a gente por perto se precisar."
-                  : "Ferramentas de graça para entender e organizar o seu dinheiro, feitas por gente da Novare. Gratuitas e independentes, para você decidir com clareza."}
+                  : "Ferramentas gratuitas e independentes para organizar o seu dinheiro."}
               </p>
-              <div className="mt-5 max-w-md">
+              <div className="mt-6 max-w-md">
                 <BuscaDestaque />
               </div>
             </div>
             <div className="relative">
-              <div className="relative aspect-[4/3] overflow-hidden rounded-[2rem] shadow-card">
+              <div className="relative aspect-[4/3] overflow-hidden rounded-[1.5rem] ring-1 ring-white/10">
                 <Image
                   src="/home/topo.webp"
                   alt="Mulher sorrindo em casa, com café e celular, organizando o mês"
@@ -191,11 +199,9 @@ export default async function Home() {
                   montada pelo banco — e o botão direto para a página oficial.
                   No celular o cartão desce para baixo da foto, sobrepondo só a
                   borda: em cima dela, cobriria a pessoa inteira. */}
-              <div style={{ transitionDelay: "650ms" }} className="cine relative mx-3 -mt-12 rounded-2xl bg-white/95 p-4 shadow-card-hover ring-1 ring-primary/5 backdrop-blur-sm sm:absolute sm:bottom-4 sm:left-4 sm:mx-0 sm:mt-0 sm:max-w-sm sm:p-5">
-                <p className="text-2xs font-semibold uppercase tracking-[0.14em] text-accent-strong">
-                  Carteira Pontual
-                </p>
-                <p className="mt-1.5 font-display text-lg font-bold leading-snug text-primary sm:text-xl">
+              <div style={{ transitionDelay: "650ms" }} className="cine relative mx-3 -mt-12 rounded-[1.25rem] bg-white/95 p-4 shadow-vidro ring-1 ring-white/40 backdrop-blur-md sm:absolute sm:bottom-4 sm:left-4 sm:mx-0 sm:mt-0 sm:max-w-sm sm:p-5">
+                <p className="chapeu">Carteira Pontual</p>
+                <p className="mt-2 font-display text-lg font-semibold leading-snug tracking-[-0.03em] text-primary sm:text-xl">
                   Seu dinheiro está parado no lugar errado?
                 </p>
                 <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
@@ -205,16 +211,37 @@ export default async function Home() {
                   href={buildTrackingUrl(CARTEIRA_PONTUAL_LP, "home-topo")}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group mt-3 inline-flex min-h-11 items-center gap-2 rounded-xl bg-accent px-4 text-sm font-semibold text-white transition-colors hover:bg-accent-strong"
+                  className="group mt-3.5 flex items-center gap-2"
                 >
-                  Quero analisar minha carteira
-                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                  <span className="btn-cp">Quero analisar minha carteira</span>
+                  <span className="btn-seta" aria-hidden>
+                    <ArrowUpRight className="h-4 w-4" />
+                  </span>
                 </a>
               </div>
             </div>
+          </div>
+
+          {/* As pílulas de vidro do pé do topo — as três promessas da casa,
+              no mesmo formato "Recomendação isenta · NÃO VENDEMOS PRODUTO". */}
+          <ul className="mt-8 flex flex-wrap gap-2.5" aria-label="O que a Novare garante">
+            {[
+              ["Tudo de graça", "sem cartão"],
+              ["Independente", "não vendemos produto"],
+              ["Feito por gente", "equipe Novare"],
+            ].map(([forte, fraco]) => (
+              <li key={forte} className="pilula-vidro">
+                <span className="text-sm font-semibold">{forte}</span>
+                <span className="text-[10px] font-medium uppercase tracking-[0.18em] text-white/75">{fraco}</span>
+              </li>
+            ))}
+          </ul>
           </section>
 
-          <ComecePorAqui />
+          {/* ⚠️ O "COMECE POR AQUI" (`ComecePorAqui`) SAIU DAQUI em 20/10/2026 —
+              pedido do dono: "home está muito poluída com textos". Quatro
+              cartões de frase + linha logo abaixo do topo eram texto demais
+              antes das vitrines. O componente continua pronto. */}
 
           {/* O painel de quem assina NÃO fica aqui.
 
@@ -454,13 +481,13 @@ function SegundaParte({
  */
 function ConvitePainelHome(_: { temFicha: boolean }) {
   return (
-    <div className="cine mt-5 grid overflow-hidden rounded-3xl border border-border bg-white shadow-card sm:grid-cols-[0.9fr_1.1fr]">
+    <div className="cine cartao-cp mt-5 grid sm:grid-cols-[0.9fr_1.1fr]">
       <div className="relative aspect-[16/10] sm:aspect-auto">
         <Image src="/home/fincash.webp" alt="" fill sizes="(max-width: 640px) 100vw, 40vw" className="object-cover" />
       </div>
       <div className="p-6 sm:p-8">
-        <h3 className="font-display text-2xl font-bold leading-tight text-primary">
-          Seu painel nasce no FINCASH
+        <h3 className="titulo-cp text-2xl sm:text-3xl">
+          Seu painel nasce no <span className="text-accent-strong">FINCASH</span>
         </h3>
         <p className="mt-3 max-w-lg text-sm leading-relaxed text-muted-foreground">
           Lance as contas do mês — é grátis — e acompanhe o saldo, os cartões, as
@@ -470,7 +497,7 @@ function ConvitePainelHome(_: { temFicha: boolean }) {
         <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-3">
           <Link
             href="/fincash/app"
-            className="group inline-flex min-h-11 items-center gap-2 rounded-xl bg-primary px-5 text-sm font-semibold text-white transition-colors hover:bg-primary-soft"
+            className="group btn-petroleo"
           >
             Abrir meu FINCASH
             <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />

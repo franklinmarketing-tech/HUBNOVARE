@@ -544,7 +544,7 @@ export function Simulacao({
           type="button"
           onClick={adicionar}
           disabled={!valido}
-          className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-accent-btn px-4 text-sm font-bold text-white transition-all hover:-translate-y-0.5 disabled:pointer-events-none disabled:opacity-50"
+          className="btn-cp disabled:pointer-events-none disabled:opacity-50"
         >
           <Plus className="h-4 w-4" strokeWidth={2.5} />
           Somar à simulação

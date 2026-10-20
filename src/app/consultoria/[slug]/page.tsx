@@ -34,7 +34,6 @@ import {
   CustoDaTaxa,
   EscopoDaAnalise,
 } from "@/components/VisuaisConsultoria";
-import { ASSINATURA_PRECO_ROTULO } from "@/lib/assinatura";
 import { CapturaLead } from "@/components/CapturaLead";
 import {
   CAPA_PRODUTO,
@@ -45,7 +44,6 @@ import {
   buildTrackingUrl,
   consultoriaPorSlug,
   temVideoReal,
-  ROTULO_DESCONTO_ASSINANTE,
 } from "@/lib/consultoria";
 import { falarNoWhatsApp } from "@/lib/contato";
 
@@ -128,7 +126,7 @@ const PERGUNTAS_CONSULTORIA = [
   {
     pergunta: "Quanto custa?",
     resposta:
-      "O investimento é definido depois da conversa inicial, porque depende do tamanho e da complexidade do seu caso — escopo de gente não cabe numa tabela. O que a gente garante é que o valor sai na conversa, antes de qualquer compromisso, e que assinante do Workspace entra com desconto.",
+      "O investimento é definido depois da conversa inicial, porque depende do tamanho e da complexidade do seu caso — escopo de gente não cabe numa tabela. O que a gente garante é que o valor sai na conversa, antes de qualquer compromisso.",
   },
   {
     pergunta: "Vocês ganham comissão do que recomendam?",
@@ -146,8 +144,8 @@ const PERGUNTAS_CONSULTORIA = [
       "Sim. O material que você envia é usado só para a análise, tratado conforme a LGPD e não é compartilhado com terceiros. Você pode pedir a exclusão a qualquer momento.",
   },
   {
-    pergunta: "E se eu já uso o app da Novare?",
-    resposta: `Melhor ainda: o consultor abre o seu planejamento já preenchido e a conversa começa do diagnóstico pronto, em vez do zero. Além disso, quem assina o app da Novare (${ASSINATURA_PRECO_ROTULO}/mês) tem desconto em qualquer formato de consultoria.`,
+    pergunta: "E se eu já uso o FINCASH?",
+    resposta: "Melhor ainda: leve os números que você já organizou no FINCASH. A conversa começa do retrato do seu mês, em vez do zero.",
   },
 ];
 
@@ -300,7 +298,7 @@ export default async function ProdutoPage({
                 <Icone className="h-6 w-6" />
               </span>
               <div>
-                <h1 className="font-display text-3xl font-bold leading-tight text-white sm:text-[2.5rem]">
+                <h1 className="font-display text-3xl font-medium leading-tight text-white sm:text-[2.5rem]">
                   {c.nome}
                 </h1>
                 <p className="mt-2 max-w-xl text-base text-white/80">{c.chamada}</p>
@@ -352,7 +350,7 @@ export default async function ProdutoPage({
 
         {/* ─── O QUE É ─── */}
         <section className="mt-10">
-          <h2 className="font-display text-xl font-bold text-primary">Como funciona</h2>
+          <h2 className="font-display text-xl font-semibold text-primary">Como funciona</h2>
           <p className="mt-3 max-w-3xl text-base leading-relaxed text-slate-700">
             {c.descricao}
           </p>
@@ -458,7 +456,7 @@ export default async function ProdutoPage({
             </div>
             <Link
               href={isca.href}
-              className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-accent-btn px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-accent-strong"
+              className="btn-cp shrink-0"
             >
               {isca.rotulo}
               <ArrowRight className="h-4 w-4" />
@@ -570,12 +568,12 @@ export default async function ProdutoPage({
             Fica depois de "Como acontece": a pessoa já entendeu o que vai
             receber e o rito; a pergunta que sobra é "quem vai fazer isso
             comigo?". */}
-        <section className="revelar mt-16 overflow-hidden rounded-3xl bg-primary text-white sm:flex sm:items-stretch">
+        <section className="revelar mt-16 overflow-hidden rounded-[1.75rem] bg-noite text-white sm:flex sm:items-stretch">
           <div className="p-7 sm:flex-1 sm:p-9">
             <p className="text-2xs font-semibold uppercase tracking-[0.14em] text-[hsl(205_95%_75%)]">
               Quem atende
             </p>
-            <h2 className="mt-3 max-w-md font-display text-2xl font-bold leading-tight sm:text-[1.75rem]">
+            <h2 className="mt-3 max-w-md font-display text-2xl font-semibold leading-tight sm:text-[1.75rem]">
               Gente que estuda o seu caso, não um robô devolvendo média de
               mercado
             </h2>
@@ -607,38 +605,14 @@ export default async function ProdutoPage({
               className="object-cover"
             />
             {/* O degradê costura a foto no navy — sem ele a emenda fica dura. */}
-            <div className="absolute inset-0 bg-gradient-to-r from-primary via-primary/40 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-r from-noite via-noite/40 to-transparent" />
           </div>
         </section>
 
-        {/* ─── DESCONTO DO ASSINANTE ─── */}
-        {!c.isIsca && (
-          <section className="revelar mt-16 overflow-hidden rounded-3xl border border-accent-soft bg-accent-tint p-6 sm:p-8">
-            <div className="flex flex-wrap items-center justify-between gap-5">
-              <div className="min-w-0 max-w-xl">
-                <p className="text-2xs font-semibold uppercase tracking-[0.14em] text-accent-strong">
-                  {ROTULO_DESCONTO_ASSINANTE}
-                </p>
-                <h2 className="mt-2 font-display text-2xl font-bold tracking-tight text-primary">
-                  Quem assina o Workspace paga menos aqui
-                </h2>
-                <p className="mt-2.5 text-sm leading-relaxed text-slate-600">
-                  A assinatura de {ASSINATURA_PRECO_ROTULO}/mês libera o
-                  FINPLAN e a Íris — e dá desconto em qualquer
-                  formato de consultoria. Um único atendimento com desconto
-                  costuma devolver mais do que o ano inteiro de assinatura.
-                </p>
-              </div>
-              <Link
-                href="/assinar"
-                className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-accent-btn px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-accent-strong"
-              >
-                Ver o que tem aqui
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-            </div>
-          </section>
-        )}
+        {/* ⚠️ O BLOCO "DESCONTO DO ASSINANTE" SAIU EM 20/10/2026. Ele dizia
+            "A assinatura de R$ 29,90/mês libera o FINPLAN e a Íris" — uma
+            assinatura que não existe mais, para um app que saiu do ar. Tudo
+            no Workspace é gratuito. */}
 
         {/* ─── PERGUNTAS ───
             As do PRODUTO primeiro, as gerais depois. Quem chegou nesta
@@ -655,7 +629,7 @@ export default async function ProdutoPage({
 
         {/* ─── OUTROS PRODUTOS ─── */}
         <section className="mt-14">
-          <h2 className="font-display text-xl font-bold text-primary">Outros formatos</h2>
+          <h2 className="font-display text-xl font-semibold text-primary">Outros formatos</h2>
           <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {outros.map((o) => {
               const OIcone = ICONE[o.slug] ?? ClipboardCheck;
@@ -679,9 +653,9 @@ export default async function ProdutoPage({
         </section>
 
         {/* ─── CTA FINAL ─── */}
-        <section className="mt-10 overflow-hidden rounded-3xl bg-primary p-7 text-white sm:flex sm:items-center sm:justify-between sm:gap-6 sm:p-9">
+        <section className="mt-10 overflow-hidden rounded-[1.75rem] bg-noite p-7 text-white sm:flex sm:items-center sm:justify-between sm:gap-6 sm:p-9">
           <div className="space-y-2">
-            <h2 className="font-display text-xl font-bold sm:text-2xl">
+            <h2 className="font-display text-xl font-semibold sm:text-2xl">
               Vamos conversar sobre o seu caso?
             </h2>
             <p className="max-w-lg text-sm text-white/75">
@@ -692,7 +666,7 @@ export default async function ProdutoPage({
             href={zap}
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-5 inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-accent-btn px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-accent-strong sm:mt-0"
+            className="btn-cp mt-5 shrink-0 sm:mt-0"
           >
             <ShieldCheck className="h-4 w-4" />
             Falar com a Novare

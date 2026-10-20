@@ -184,7 +184,7 @@ export function CalculadoraMarcoHorizonte() {
 
       {/* RESULTADO */}
       <div className="flex flex-col gap-4">
-        <div className="rounded-3xl bg-primary p-6 text-white shadow-lg">
+        <div className="rounded-[1.75rem] bg-noite p-6 text-white shadow-lg">
           <p className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-white/60">
             <Target className="h-3.5 w-3.5" /> Seu Marco Horizonte
           </p>
@@ -296,7 +296,7 @@ export function CalculadoraMarcoHorizonte() {
             <button
               onClick={enviar}
               disabled={!leadOk}
-              className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-accent-btn px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-accent-strong disabled:cursor-not-allowed disabled:opacity-50"
+              className="btn-cp mt-4 w-full disabled:cursor-not-allowed disabled:opacity-50"
             >
               Quero meu plano
               <ArrowRight className="h-4 w-4" />

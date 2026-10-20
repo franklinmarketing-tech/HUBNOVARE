@@ -847,7 +847,7 @@ export function NumeroHeroi({
   return (
     <section
       aria-label={rotulo}
-      className="relative overflow-hidden rounded-3xl bg-primary text-white shadow-[var(--fin-sombra-heroi)]"
+      className="relative overflow-hidden rounded-[1.75rem] bg-noite text-white shadow-[var(--fin-sombra-heroi)]"
     >
       {/* Duas luzes muito fracas nas quinas: sem elas o navy chapado parece
           um retângulo do Word. Ficam em `absolute` e sem eventos — não é
@@ -1660,7 +1660,7 @@ export function CabecalhoTela({
               {chapeu}
             </p>
           )}
-          <h1 className="mt-0.5 font-display text-xl font-semibold tracking-tight text-primary first-letter:uppercase">
+          <h1 className="mt-0.5 font-display text-xl font-medium tracking-[-0.03em] text-primary first-letter:uppercase">
             {titulo}
           </h1>
           {resumo && (
@@ -1725,7 +1725,7 @@ export function NavegadorMes({
           <ChevronLeft className="h-4 w-4" />
         </button>
 
-        <h1 className="min-w-[8.5rem] text-center font-display text-base font-semibold tracking-tight text-primary first-letter:uppercase sm:min-w-[9.5rem] sm:text-lg">
+        <h1 className="min-w-[8.5rem] text-center font-display text-base font-medium tracking-[-0.03em] text-primary first-letter:uppercase sm:min-w-[9.5rem] sm:text-lg">
           {nome}
         </h1>
 
@@ -2417,7 +2417,7 @@ export type Fatia = {
 const CORES_ROSCA = [
   "hsl(197 70% 38%)",
   "hsl(16 80% 52%)",
-  "hsl(215 50% 33%)",
+  "hsl(199 70% 24%)",
   "hsl(197 60% 62%)",
   "hsl(38 85% 55%)",
   "hsl(152 45% 42%)",

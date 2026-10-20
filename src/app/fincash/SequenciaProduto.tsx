@@ -169,7 +169,7 @@ export default function SequenciaProduto() {
           <p className="text-2xs font-semibold uppercase tracking-[0.18em] text-accent">
             O app, por dentro
           </p>
-          <h2 className="mt-3 max-w-2xl font-display text-[1.9rem] font-medium leading-[1.08] tracking-tight text-white sm:text-[2.4rem]">
+          <h2 className="mt-3 max-w-2xl font-display text-[1.9rem] font-medium leading-[1.08] tracking-[-0.03em] text-white sm:text-[2.4rem]">
             Role e percorra{" "}
             <span className="font-semibold text-accent-claro">
               quatro telas do FINCASH

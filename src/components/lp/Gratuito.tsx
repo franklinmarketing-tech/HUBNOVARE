@@ -41,7 +41,7 @@ export function Gratuito() {
           Sem pegadinha
         </p>
 
-        <h2 className="mt-3 font-display text-2xl font-bold leading-tight text-primary sm:text-3xl">
+        <h2 className="mt-3 font-display text-2xl font-semibold leading-tight text-primary sm:text-3xl">
           É tudo de graça. Pode usar à vontade.
         </h2>
 
@@ -67,7 +67,7 @@ export function Gratuito() {
         <div className="mt-8 flex flex-col gap-3 sm:flex-row">
           <Link
             href="/aplicativos"
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-accent-btn px-6 py-3.5 text-sm font-bold text-white transition-colors hover:bg-accent-strong"
+            className="btn-cp"
           >
             Ver as ferramentas
             <ArrowRight className="h-4 w-4" />

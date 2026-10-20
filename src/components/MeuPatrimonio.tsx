@@ -73,7 +73,7 @@ export function MeuPatrimonio({ dados }: { dados: DadosPlanejamento }) {
 
         <Link
           href="/finplan/app/meus-dados"
-          className="group inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-primary px-3.5 py-2 text-xs font-semibold text-white transition-colors hover:bg-primary-soft"
+          className="btn-petroleo group shrink-0"
         >
           <Plus className="h-3.5 w-3.5" />
           Adicionar um bem

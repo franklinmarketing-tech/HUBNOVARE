@@ -88,7 +88,7 @@ export function FormularioCupom() {
             />
             <button
               type="submit"
-              className="inline-flex items-center gap-1 rounded-xl bg-primary px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-primary-soft"
+              className="btn-petroleo"
             >
               Validar
               <ArrowRight className="h-3 w-3" />

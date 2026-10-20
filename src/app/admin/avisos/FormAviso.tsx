@@ -221,7 +221,7 @@ export function FormAviso({ pessoas }: { pessoas: Destinatario[] }) {
       <button
         type="submit"
         disabled={!pronto || enviando}
-        className="mt-5 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-accent-btn px-4 text-sm font-bold text-white transition-colors hover:bg-accent-strong disabled:cursor-not-allowed disabled:opacity-50"
+        className="btn-cp mt-5 w-full disabled:cursor-not-allowed disabled:opacity-50"
       >
         {enviando ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
         {enviando ? "Enviando…" : paraTodos ? "Enviar para todos" : "Enviar para esta pessoa"}

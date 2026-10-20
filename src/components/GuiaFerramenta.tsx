@@ -79,7 +79,7 @@ export function GuiaFerramenta() {
         <div
           role="dialog"
           aria-label="Como usar esta ferramenta"
-          className="fixed inset-x-3 bottom-36 z-50 mx-auto max-w-sm rounded-3xl border border-border bg-white p-5 shadow-2xl motion-safe:animate-[surgir_0.35s_ease-out] sm:inset-x-auto sm:left-5 print:hidden"
+          className="fixed inset-x-3 bottom-36 z-50 mx-auto max-w-sm rounded-[1.75rem] border border-border bg-white p-5 shadow-vidro motion-safe:animate-[surgir_0.35s_ease-out] sm:inset-x-auto sm:left-5 print:hidden"
         >
           <div className="flex items-start justify-between gap-3">
             <p className="font-display text-base font-bold text-primary">Como usar, em 3 passos</p>
@@ -112,7 +112,7 @@ export function GuiaFerramenta() {
           <button
             type="button"
             onClick={fechar}
-            className="mt-4 flex min-h-11 w-full items-center justify-center rounded-xl bg-primary text-sm font-semibold text-white hover:bg-primary-soft"
+            className="btn-petroleo mt-4 w-full"
           >
             Entendi, vamos lá
           </button>

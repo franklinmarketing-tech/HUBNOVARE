@@ -59,7 +59,7 @@ const NUMEROS: { valor: string; rotulo: string; apoio: string }[] = [
 
 export default function FaixaNumeros() {
   return (
-    <div className="fin-numeros relative isolate overflow-hidden rounded-3xl bg-primary px-6 py-9 sm:px-10 sm:py-11">
+    <div className="fin-numeros relative isolate overflow-hidden rounded-[1.75rem] bg-noite px-6 py-9 sm:px-10 sm:py-11">
       <dl className="relative grid gap-8 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
         {NUMEROS.map((n) => (
           <div key={n.rotulo} className="text-center lg:text-left">

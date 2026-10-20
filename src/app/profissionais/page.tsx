@@ -40,7 +40,7 @@ export default function Profissionais() {
         <p className="text-[11px] font-semibold uppercase tracking-wider text-accent-strong">
           Novare por profissão
         </p>
-        <h1 className="mt-2 max-w-3xl font-display text-3xl font-bold leading-tight text-primary sm:text-5xl">
+        <h1 className="mt-2 max-w-3xl font-display text-3xl font-medium leading-tight text-primary sm:text-5xl">
           Sua carreira tem uma forma própria de ganhar — e de perder — dinheiro
         </h1>
         <p className="mt-4 max-w-2xl text-base leading-relaxed text-slate-600">
@@ -73,7 +73,7 @@ export default function Profissionais() {
                   background: `linear-gradient(0deg, hsl(${p.matiz} 55% 12% / 0.9) 0%, hsl(${p.matiz} 50% 18% / 0.15) 70%)`,
                 }}
               />
-              <h2 className="absolute inset-x-0 bottom-0 px-6 pb-5 font-display text-2xl font-bold text-white">
+              <h2 className="absolute inset-x-0 bottom-0 px-6 pb-5 font-display text-2xl font-semibold text-white">
                 {p.nome}
               </h2>
             </div>
@@ -96,7 +96,7 @@ export default function Profissionais() {
             <p className="text-[11px] font-semibold uppercase tracking-wider text-accent">
               Vale para todas
             </p>
-            <h2 className="mt-2 font-display text-2xl font-bold">
+            <h2 className="mt-2 font-display text-2xl font-semibold">
               Comece pelo Raio-X da sua previdência
             </h2>
             <p className="mt-3 text-sm leading-relaxed text-white/70">
@@ -107,7 +107,7 @@ export default function Profissionais() {
           </div>
           <Link
             href="/ferramentas/raio-x-previdencia"
-            className="inline-flex items-center gap-2 rounded-xl bg-accent-btn px-5 py-3.5 text-sm font-bold text-accent-foreground transition-opacity hover:opacity-90"
+            className="btn-cp transition-opacity hover:opacity-90"
           >
             <ShieldAlert className="h-4 w-4" />
             Fazer o Raio-X grátis

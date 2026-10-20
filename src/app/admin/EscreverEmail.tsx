@@ -206,7 +206,7 @@ export function EscreverEmail({
           <button
             type="button"
             onClick={aoFechar}
-            className="mt-4 min-h-11 rounded-xl bg-primary px-5 text-sm font-semibold text-white transition-colors hover:bg-primary-soft"
+            className="btn-petroleo mt-4"
           >
             Fechar
           </button>
@@ -276,7 +276,7 @@ export function EscreverEmail({
             <button
               type="submit"
               disabled={!pronto || enviando}
-              className="flex min-h-11 items-center gap-2 rounded-xl bg-accent-btn px-5 text-sm font-semibold text-white shadow-sm transition-colors hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-45"
+              className="btn-cp hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-45"
             >
               {enviando ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
               {enviando ? "Enviando…" : "Enviar e-mail"}

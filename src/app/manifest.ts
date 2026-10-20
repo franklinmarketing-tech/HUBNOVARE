@@ -53,7 +53,7 @@ export default function manifest(): MetadataRoute.Manifest {
        o mesmo da home — assim a splash não pisca branco antes da página. */
     background_color: "#faf7f2",
     /* A cor da barra de status no Android. Navy institucional. */
-    theme_color: "#1d3658",
+    theme_color: "#0a3346",
     lang: "pt-BR",
     categories: ["finance", "productivity"],
     icons: [

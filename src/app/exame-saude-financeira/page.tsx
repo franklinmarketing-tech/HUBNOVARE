@@ -35,7 +35,7 @@ export default function ExameSaudePage() {
             <HeartPulse className="h-3.5 w-3.5" />
             Exame de Saúde Financeira
           </div>
-          <h1 className="max-w-2xl font-display text-3xl font-bold tracking-tight text-primary sm:text-[2.6rem] sm:leading-[1.1]">
+          <h1 className="max-w-2xl font-display text-3xl font-medium tracking-[-0.03em] text-primary sm:text-[2.6rem] sm:leading-[1.1]">
             De 0 a 100, como está a sua vida financeira?
           </h1>
           <p className="mt-3 max-w-2xl text-base text-muted-foreground">
@@ -51,7 +51,7 @@ export default function ExameSaudePage() {
 
         {/* O QUE A NOTA SIGNIFICA */}
         <section className="mt-12">
-          <h2 className="font-display text-xl font-bold text-primary">O que a sua nota diz</h2>
+          <h2 className="font-display text-xl font-semibold text-primary">O que a sua nota diz</h2>
           <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {[
               { faixa: "0–40", nome: "Crítica", cor: "border-rose-300 bg-rose-50 text-rose-700", txt: "O básico precisa ser reorganizado antes de investir." },
@@ -103,9 +103,9 @@ export default function ExameSaudePage() {
         </section>
 
         {/* CTA FINAL */}
-        <section className="mt-10 overflow-hidden rounded-3xl bg-primary p-7 text-white sm:flex sm:items-center sm:justify-between sm:gap-6 sm:p-9">
+        <section className="mt-10 overflow-hidden rounded-[1.75rem] bg-noite p-7 text-white sm:flex sm:items-center sm:justify-between sm:gap-6 sm:p-9">
           <div className="space-y-2">
-            <h2 className="font-display text-xl font-bold sm:text-2xl">Quer subir a sua nota?</h2>
+            <h2 className="font-display text-xl font-semibold sm:text-2xl">Quer subir a sua nota?</h2>
             <p className="max-w-lg text-sm text-white/75">
               O plano acima já mostra o caminho. Se quiser uma segunda opinião, um especialista da
               Novare olha o que você já tem com você — opcional, grátis e sem comissão.
@@ -114,7 +114,7 @@ export default function ExameSaudePage() {
           <div className="mt-5 flex shrink-0 flex-col gap-2.5 sm:mt-0">
             <Link
               href="/consultoria/revisao-carteira"
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-accent-btn px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-accent-strong"
+              className="btn-cp"
             >
               <Sparkles className="h-4 w-4" />
               Primeira análise grátis

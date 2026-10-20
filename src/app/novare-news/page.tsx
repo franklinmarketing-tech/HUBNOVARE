@@ -87,7 +87,7 @@ export default async function NovareNewsPage({
             Novare News
             <span aria-hidden className="h-px w-10 bg-accent-soft" />
           </p>
-          <h1 className="mt-4 text-balance font-display text-3xl font-bold leading-[1.1] tracking-tight text-primary sm:text-4xl">
+          <h1 className="mt-4 text-balance font-display text-3xl font-medium leading-[1.06] tracking-[-0.03em] text-primary sm:text-5xl">
             Dinheiro explicado, sem letra miúda
           </h1>
           <p className="mt-4 text-base leading-relaxed text-muted-foreground">
@@ -130,7 +130,7 @@ export default async function NovareNewsPage({
 
         <div className="mt-12 grid gap-12 lg:mt-16 lg:grid-cols-[minmax(0,1fr)_19rem] lg:gap-14">
           <div className="min-w-0">
-            <h2 className="flex flex-wrap items-baseline gap-x-3 gap-y-1 border-b border-border pb-3 font-display text-lg font-bold tracking-tight text-primary">
+            <h2 className="flex flex-wrap items-baseline gap-x-3 gap-y-1 border-b border-border pb-3 font-display text-lg font-semibold tracking-[-0.03em] text-primary">
               {rotuloLista}
               <span className="text-2xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
                 {listaBase.length} {listaBase.length === 1 ? "artigo" : "artigos"}
@@ -154,7 +154,7 @@ export default async function NovareNewsPage({
                 ))}
               </section>
             ) : (
-              <p className="mt-8 rounded-2xl border border-border bg-card p-10 text-center text-sm text-muted-foreground">
+              <p className="mt-8 rounded-[1.5rem] border border-border bg-card p-10 text-center text-sm text-muted-foreground">
                 Ainda não tem artigo nessa categoria. Volte em breve.
               </p>
             )}
@@ -245,7 +245,7 @@ function Manchete({ artigo }: { artigo: Artigo }) {
         href={`/novare-news/${artigo.slug}`}
         className="group grid gap-6 lg:grid-cols-[1.15fr_1fr] lg:items-center lg:gap-12"
       >
-        <div className="relative aspect-[16/10] overflow-hidden rounded-2xl border border-border bg-muted">
+        <div className="relative aspect-[16/10] overflow-hidden rounded-[1.5rem] border border-border bg-muted">
           <Image
             src={artigo.capa}
             alt=""
@@ -261,7 +261,7 @@ function Manchete({ artigo }: { artigo: Artigo }) {
             <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-accent" />
             {FAMILIAS[artigo.categoria]}
           </p>
-          <h2 className="mt-3 text-balance font-display text-2xl font-bold leading-[1.15] tracking-tight text-primary underline-offset-[6px] group-hover:underline sm:text-3xl lg:text-[2.25rem] lg:leading-[1.1]">
+          <h2 className="mt-3 text-balance font-display text-2xl font-medium leading-[1.12] tracking-[-0.03em] text-primary underline-offset-[6px] group-hover:underline sm:text-3xl lg:text-[2.25rem] lg:leading-[1.1]">
             {artigo.titulo}
           </h2>
           <p className="mt-4 text-base leading-relaxed text-muted-foreground">
@@ -298,7 +298,7 @@ function ChamadaSecundaria({ artigo }: { artigo: Artigo }) {
         <p className="text-2xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
           {FAMILIAS[artigo.categoria]}
         </p>
-        <h3 className="mt-1.5 font-display text-base font-bold leading-snug tracking-tight text-primary underline-offset-4 group-hover:underline">
+        <h3 className="mt-1.5 font-display text-base font-semibold leading-snug tracking-[-0.025em] text-primary underline-offset-4 group-hover:underline">
           {artigo.titulo}
         </h3>
         <p className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-2xs text-muted-foreground">
@@ -313,7 +313,7 @@ function CardArtigo({ artigo }: { artigo: Artigo }) {
   return (
     <Link
       href={`/novare-news/${artigo.slug}`}
-      className="group flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-subtle transition-all duration-300 hover:border-accent-soft hover:shadow-card-hover"
+      className="group flex h-full flex-col overflow-hidden rounded-[1.5rem] border border-border bg-card shadow-subtle transition-all duration-300 hover:border-accent-soft hover:shadow-card-hover"
     >
       <div className="relative aspect-[16/9] overflow-hidden bg-muted">
         <Image
@@ -329,7 +329,7 @@ function CardArtigo({ artigo }: { artigo: Artigo }) {
         <p className="text-2xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
           {FAMILIAS[artigo.categoria]}
         </p>
-        <h3 className="mt-2 font-display text-base font-bold leading-snug tracking-tight text-primary underline-offset-4 group-hover:underline">
+        <h3 className="mt-2 font-display text-base font-semibold leading-snug tracking-[-0.025em] text-primary underline-offset-4 group-hover:underline">
           {artigo.titulo}
         </h3>
         <p className="mt-2 line-clamp-2 flex-1 text-sm leading-relaxed text-muted-foreground">
@@ -354,7 +354,7 @@ function SidebarNews() {
           seção de verdade, lá embaixo. */}
       <a
         href="#inscrever"
-        className="flex items-center gap-3 rounded-2xl border border-accent/30 bg-accent-tint/50 p-4 transition-colors hover:border-accent/50 hover:bg-accent-tint"
+        className="flex items-center gap-3 rounded-[1.5rem] border border-accent/30 bg-accent-tint/50 p-4 transition-colors hover:border-accent/50 hover:bg-accent-tint"
       >
         <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-white text-accent-strong shadow-subtle">
           <Mail className="h-4 w-4" />
@@ -370,7 +370,7 @@ function SidebarNews() {
         <ArrowRight className="h-4 w-4 shrink-0 text-accent-strong" />
       </a>
 
-      <div className="rounded-2xl border border-border bg-card p-5 shadow-subtle">
+      <div className="rounded-[1.5rem] border border-border bg-card p-5 shadow-subtle">
         <h2 className="font-display text-2xs font-semibold uppercase tracking-[0.16em] text-primary">
           Últimas publicações
         </h2>
@@ -408,11 +408,11 @@ function SidebarNews() {
       <UltimosVideos />
       <SigaInstagram />
 
-      <div className="glass-card overflow-hidden rounded-2xl bg-primary p-5 text-white">
+      <div className="glass-card overflow-hidden rounded-[1.75rem] bg-noite p-5 text-white">
         <p className="text-2xs font-semibold uppercase tracking-[0.16em] text-accent-claro">
           Sem cadastro
         </p>
-        <h2 className="mt-1.5 font-display text-lg font-bold">
+        <h2 className="mt-1.5 font-display text-lg font-semibold">
           Veja para onde vai o seu dinheiro
         </h2>
         <p className="mt-1.5 text-xs leading-relaxed text-white/75">
@@ -421,14 +421,14 @@ function SidebarNews() {
         </p>
         <a
           href="/iris"
-          className="mt-4 inline-flex items-center gap-1.5 rounded-xl bg-white px-4 py-2.5 text-xs font-semibold text-primary transition-colors hover:bg-white/90"
+          className="mt-4 inline-flex items-center gap-1.5 btn-cp min-h-10 px-4 text-xs"
         >
           Ver por dentro
           <ArrowRight className="h-3.5 w-3.5" />
         </a>
       </div>
 
-      <div className="rounded-2xl border border-accent-soft bg-accent-tint p-5">
+      <div className="rounded-[1.5rem] border border-accent-soft bg-accent-tint p-5">
         <h2 className="font-display text-2xs font-semibold uppercase tracking-[0.16em] text-primary">
           Ferramentas mais usadas
         </h2>
@@ -468,7 +468,7 @@ function SidebarNews() {
  */
 function BannerWorkspace() {
   return (
-    <div className="glass-card flex flex-wrap items-center justify-between gap-5 rounded-2xl bg-primary p-6 text-white sm:p-7">
+    <div className="glass-card flex flex-wrap items-center justify-between gap-5 rounded-[1.75rem] bg-noite p-6 text-white shadow-ciano sm:p-7">
       <div className="min-w-0">
         <p className="text-2xs font-semibold uppercase tracking-[0.16em] text-accent-claro">
           Workspace Novare
@@ -477,12 +477,12 @@ function BannerWorkspace() {
           Todas as ferramentas, a Íris num lugar só
         </h3>
         <p className="mt-1.5 text-sm leading-relaxed text-white/75">
-          E desconto exclusivo nas consultorias — com a primeira análise grátis.
+          De graça, sem cartão e sem pegadinha.
         </p>
       </div>
       <Link
-        href="/assinar"
-        className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-bold text-primary transition-colors hover:bg-white/90"
+        href="/"
+        className="btn-cp shrink-0"
       >
         Conhecer o Workspace
         <ArrowRight className="h-4 w-4" />

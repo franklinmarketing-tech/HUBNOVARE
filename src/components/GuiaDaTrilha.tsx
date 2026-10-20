@@ -199,7 +199,7 @@ export function GuiaDaTrilha({ forcarAberto = false }: { forcarAberto?: boolean 
           <button
             type="button"
             onClick={fechar}
-            className="w-full rounded-xl bg-accent-btn px-5 py-3 text-sm font-bold text-white shadow-[0_4px_14px_-6px_hsl(16_80%_45%_/_0.6)] transition-all hover:-translate-y-0.5"
+            className="btn-cp w-full"
           >
             Entendi, quero começar
           </button>

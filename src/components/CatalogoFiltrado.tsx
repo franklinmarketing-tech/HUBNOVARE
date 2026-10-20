@@ -65,10 +65,10 @@ function CardWorkspace({ app }: { app: AppLeve }) {
       className="glass-card rounded-2xl p-5 text-white"
       style={{
         background:
-          "linear-gradient(160deg, hsl(216 44% 27%) 0%, hsl(218 50% 16%) 60%, hsl(220 55% 12%) 100%)",
+          "linear-gradient(160deg, hsl(199 64% 19%) 0%, hsl(199 70% 12%) 60%, hsl(202 80% 7%) 100%)",
         boxShadow: "inset 0 1px 0 hsl(210 60% 80% / 0.18)",
         "--brilho": "hsl(16 90% 60% / 0.3)",
-        "--eleva": "0 22px 48px -18px hsl(215 60% 12% / 0.75)",
+        "--eleva": "0 22px 48px -18px hsl(202 85% 7% / 0.75)",
       } as CSSProperties}
     >
       <div className="flex items-center gap-4">

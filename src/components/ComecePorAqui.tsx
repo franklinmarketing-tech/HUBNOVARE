@@ -55,21 +55,23 @@ const SITUACOES: {
 export function ComecePorAqui() {
   return (
     <section aria-labelledby="comece-titulo" className="cine" style={{ transitionDelay: "80ms" }}>
-      <h2 id="comece-titulo" className="text-sm font-semibold text-muted-foreground">
-        Comece por aqui
+      {/* Chapéu + título grande, como as seções da Carteira Pontual. */}
+      <p className="chapeu">Comece por aqui</p>
+      <h2 id="comece-titulo" className="titulo-cp mt-2 text-2xl sm:text-[2rem]">
+        Do que você precisa <span className="text-accent-strong">agora?</span>
       </h2>
-      <ul className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <ul className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {SITUACOES.map(({ icone: Icone, frase, linha, href }) => (
           <li key={href}>
             <Link
               href={href}
-              className="group flex h-full items-start gap-3 rounded-2xl border border-border bg-white p-4 shadow-card transition-all hover:-translate-y-0.5 hover:border-accent/30 hover:shadow-card-hover"
+              className="group cartao-cp flex h-full items-start gap-3 p-5 transition-all hover:-translate-y-0.5 hover:shadow-ciano"
             >
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-accent-tint text-accent-strong">
-                <Icone className="h-5 w-5" strokeWidth={1.9} />
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-ciano-tint text-ciano-forte">
+                <Icone className="h-5 w-5" strokeWidth={1.7} />
               </span>
               <span className="min-w-0 flex-1">
-                <span className="block font-display text-[15px] font-bold leading-snug text-primary">
+                <span className="block font-display text-[15px] font-semibold leading-snug text-primary">
                   {frase}
                 </span>
                 <span className="mt-1 block text-xs leading-relaxed text-muted-foreground">

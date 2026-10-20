@@ -16,7 +16,7 @@ const ATUALIZADO = "agosto de 2026";
 function Secao({ titulo, children }: { titulo: string; children: React.ReactNode }) {
   return (
     <section className="rounded-2xl border border-border bg-card p-6">
-      <h2 className="font-display text-base font-bold text-primary">{titulo}</h2>
+      <h2 className="font-display text-base font-semibold text-primary">{titulo}</h2>
       <div className="mt-2.5 space-y-2.5 text-sm leading-relaxed text-muted-foreground">
         {children}
       </div>
@@ -43,7 +43,7 @@ export default function TermosPage() {
           <FileText className="h-3.5 w-3.5" />
           Termos de Uso
         </div>
-        <h1 className="font-display text-3xl font-bold tracking-tight text-primary">
+        <h1 className="font-display text-3xl font-medium tracking-[-0.03em] text-primary">
           As regras deste espaço
         </h1>
         <p className="mt-3 text-base text-muted-foreground">

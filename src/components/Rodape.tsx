@@ -73,7 +73,7 @@ export function Rodape() {
             Serviços
           </a>
           <Link
-            href="/assinar"
+            href="/"
             className="text-[11px] font-medium text-slate-500 transition-colors hover:text-primary"
           >
             Workspace

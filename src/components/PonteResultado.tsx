@@ -43,12 +43,13 @@ export function PonteResultado({
 }) {
   return (
     <section className="mx-auto mt-6 max-w-3xl px-4 print:hidden">
-      <div className="overflow-hidden rounded-2xl bg-primary p-6 text-white sm:p-7">
+      {/* Noite com as ondas, como as seções escuras da Carteira Pontual. */}
+      <div className="secao-noite rounded-[1.75rem] p-6 sm:p-9">
         {/* O número primeiro, grande: é o que a pessoa veio buscar e o que
             dá peso à pergunta logo abaixo. Sem valor (ferramenta que não
             devolve um número único), a pergunta assume o lugar. */}
         {valor && (
-          <p className="font-display text-3xl font-extrabold tabular-nums sm:text-4xl">
+          <p className="font-display text-3xl font-medium tracking-[-0.04em] tabular-nums sm:text-[2.75rem]">
             {valor}
             {rotulo && (
               <span className="ml-2 align-middle text-sm font-semibold text-white/70">
@@ -59,7 +60,7 @@ export function PonteResultado({
         )}
 
         <p
-          className={`max-w-xl text-lg font-bold leading-snug ${valor ? "mt-2" : ""}`}
+          className={`max-w-xl font-display text-xl font-medium leading-snug tracking-[-0.03em] ${valor ? "mt-2" : ""}`}
         >
           {pergunta}
         </p>
@@ -72,7 +73,7 @@ export function PonteResultado({
 
         <Link
           href={href}
-          className="mt-5 inline-flex items-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-bold text-primary transition-transform hover:-translate-y-0.5"
+          className="btn-cp mt-6"
         >
           {acao}
           <ArrowRight className="h-4 w-4" />

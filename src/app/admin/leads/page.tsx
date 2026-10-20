@@ -202,7 +202,7 @@ export default async function AdminLeadsPage({
         />
         <button
           type="submit"
-          className="h-11 rounded-xl bg-primary px-4 text-sm font-semibold text-white transition-colors hover:bg-primary-soft"
+          className="btn-petroleo"
         >
           Buscar
         </button>

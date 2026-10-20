@@ -75,9 +75,9 @@ export function CardProdutoHome({
   return (
     <Link
       href={href}
-      className="group flex h-full flex-col overflow-hidden rounded-3xl bg-white shadow-card ring-1 ring-accent/25 transition-all hover:-translate-y-0.5 hover:shadow-card-hover"
+      className="group flex h-full flex-col overflow-hidden rounded-[1.75rem] bg-white shadow-suave ring-1 ring-accent/25 transition-all hover:-translate-y-0.5 hover:shadow-laranja"
     >
-      <span className="relative block aspect-[4/3] overflow-hidden border-t-4 border-accent">
+      <span className="relative block aspect-[4/3] overflow-hidden border-t-[3px] border-accent">
         <Image
           src={foto}
           alt=""
@@ -91,7 +91,7 @@ export function CardProdutoHome({
       </span>
 
       <span className="flex flex-1 flex-col px-5 pb-5 pt-4">
-        <span className="font-display text-lg font-bold text-primary">
+        <span className="font-display text-lg font-semibold tracking-[-0.03em] text-primary">
           {app.nome}
         </span>
         <span className="mt-1 text-sm leading-relaxed text-muted-foreground">

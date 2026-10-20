@@ -48,7 +48,7 @@ export default function EbooksPage() {
 
         {/* E o material da casa, que continua de download livre: é folheto
             institucional, não vale pedir contato por ele. */}
-        <h2 className="mt-14 font-display text-lg font-bold text-primary">
+        <h2 className="mt-14 font-display text-lg font-semibold text-primary">
           Sobre a Novare
         </h2>
         <p className="mt-1 text-sm text-muted-foreground">

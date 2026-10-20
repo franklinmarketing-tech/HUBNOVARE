@@ -6,6 +6,7 @@ import { CONTAGEM } from "@/lib/apps";
 import { falarNoWhatsApp } from "@/lib/contato";
 import { useEffect, useRef, useState } from "react";
 import {
+  ArrowLeft,
   ArrowRight,
   Bot,
   ChevronDown,
@@ -17,6 +18,7 @@ import {
 import {  YoutubeLogo } from "@/components/LogosSociais";
 import { CARTEIRA_PONTUAL_LP } from "@/lib/consultoria";
 import { RedesSociais } from "@/components/RedesSociais";
+import { createClient } from "@/lib/supabase/client";
 
 /**
  * Cabeçalho próprio do Novare News, no molde dos grandes portais de
@@ -31,7 +33,8 @@ import { RedesSociais } from "@/components/RedesSociais";
 
 const ECOSSISTEMA = [
   {
-    href: "/assinar",
+    // Era "/assinar" (página de venda) — tudo é gratuito, e o Workspace é a home.
+    href: "/",
     nome: "Workspace",
     desc: "Tudo o que a Novare tem, de graça",
     icone: Sparkles,
@@ -64,6 +67,17 @@ export function CabecalhoNews() {
   const [aberto, setAberto] = useState(false);
   const fechamento = useRef<ReturnType<typeof setTimeout> | null>(null);
   const raiz = useRef<HTMLElement>(null);
+  // Quem já está logado não recebe convite para "ter" o Workspace: recebe
+  // o caminho de volta (pedido do dono, 20/10/2026 — no News não havia
+  // como voltar). A sessão vem do cookie do navegador, sem ida ao servidor,
+  // e por isso as páginas do News continuam estáticas.
+  const [logado, setLogado] = useState(false);
+  useEffect(() => {
+    createClient()
+      .auth.getSession()
+      .then(({ data }) => setLogado(!!data.session))
+      .catch(() => {});
+  }, []);
 
   function agendarFechamento() {
     if (fechamento.current) clearTimeout(fechamento.current);
@@ -195,20 +209,28 @@ export function CabecalhoNews() {
               só o e-mail e grava em `hub_leads`. */}
           <a
             href="#inscrever"
-            className="hidden items-center gap-1.5 rounded-xl border border-border px-3 py-2 text-2xs font-semibold text-muted-foreground transition-colors hover:border-primary/30 hover:text-primary md:flex"
+            className="hidden items-center gap-1.5 rounded-full border border-border px-3.5 py-2 text-2xs font-semibold text-muted-foreground transition-colors hover:border-primary/30 hover:text-primary md:flex"
           >
             <Mail className="h-3.5 w-3.5" />
             Inscreva-se
           </a>
 
-          <Link
-            href="/assinar"
-            className="flex items-center gap-1.5 rounded-xl bg-accent-btn px-3.5 py-2 text-2xs font-semibold text-accent-foreground transition-colors hover:bg-accent-strong sm:px-4"
-          >
-            <span className="hidden sm:inline">Quero meu Workspace</span>
-            <span className="sm:hidden">Workspace</span>
-            <ArrowRight className="h-3.5 w-3.5" />
-          </Link>
+          {/* ⚠️ ERA "Quero meu Workspace" → /assinar para TODO MUNDO,
+              inclusive para quem já estava logado, e não havia outro jeito
+              de voltar à home. Agora: logado volta; visitante conhece. */}
+          {logado ? (
+            <Link href="/" className="btn-petroleo min-h-10 px-4 text-xs">
+              <ArrowLeft className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">Voltar ao Workspace</span>
+              <span className="sm:hidden">Workspace</span>
+            </Link>
+          ) : (
+            <Link href="/" className="btn-cp min-h-10 px-4 text-xs">
+              <span className="hidden sm:inline">Conhecer o Workspace</span>
+              <span className="sm:hidden">Workspace</span>
+              <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
+          )}
         </div>
       </div>
 
@@ -219,7 +241,7 @@ export function CabecalhoNews() {
         <div className="mx-auto max-w-6xl overflow-x-auto px-4">
           <div className="flex w-max items-center gap-1 py-2">
             {/* Sem o Workspace: o botão laranja dele está logo acima. */}
-            {ECOSSISTEMA.filter((item) => item.href !== "/assinar").map((item) => (
+            {ECOSSISTEMA.filter((item) => item.href !== "/").map((item) => (
               <LinkEco
                 key={item.nome}
                 item={item}

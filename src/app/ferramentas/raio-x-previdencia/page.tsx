@@ -75,7 +75,7 @@ export default function RaioXPrevidencia() {
       }
     >
       <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-[0_2px_12px_-8px_hsl(215_50%_23%_/_0.4)]">
-        <h2 className="font-display text-lg font-bold text-primary">
+        <h2 className="font-display text-lg font-semibold text-primary">
           Os dados do seu plano
         </h2>
         <p className="mt-1 text-sm text-slate-500">
@@ -158,7 +158,7 @@ export default function RaioXPrevidencia() {
       />
 
       <section className="mt-6 rounded-3xl border border-slate-200 bg-white p-6">
-        <h2 className="font-display text-lg font-bold text-primary">
+        <h2 className="font-display text-lg font-semibold text-primary">
           De onde sai esse número
         </h2>
         <div className="mt-4">

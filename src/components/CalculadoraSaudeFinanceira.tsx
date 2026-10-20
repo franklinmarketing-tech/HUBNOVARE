@@ -293,7 +293,7 @@ export function CalculadoraSaudeFinanceira() {
               <button
                 onClick={enviar}
                 disabled={!leadOk || enviando}
-                className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-accent-btn px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-accent-strong disabled:cursor-not-allowed disabled:opacity-50"
+                className="btn-cp mt-4 w-full disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {enviando ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
                 {enviando ? "Enviando…" : "Quero falar com um especialista"}

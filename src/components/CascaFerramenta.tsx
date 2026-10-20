@@ -49,7 +49,7 @@ export function CascaFerramenta({
             </Link>
             <Link
               href="/"
-              className="flex items-center gap-1.5 rounded-xl border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-600 transition-colors hover:border-primary/30 hover:text-primary"
+              className="flex items-center gap-1.5 rounded-full border border-slate-200 px-3.5 py-2 text-xs font-semibold text-slate-600 transition-colors hover:border-ciano/50 hover:text-primary"
             >
               <ArrowLeft className="h-3.5 w-3.5" />
               <span className="hidden sm:inline">Voltar ao Workspace</span>
@@ -93,11 +93,13 @@ export function CascaFerramenta({
       </header>
 
       <main className="max-w-3xl mx-auto px-4 pb-16">
+        {/* Abertura no desenho da Carteira Pontual (20/10/2026): selo em
+            pílula ciano, título grande de PESO MÉDIO com a letra junta. */}
         <section className="pt-12 pb-8">
-          <div className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 text-primary px-3 py-1 text-xs font-semibold mb-4">
+          <div className="inline-flex items-center gap-1.5 rounded-full bg-ciano-tint text-ciano-forte px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] mb-5">
             {selo}
           </div>
-          <h1 className="text-3xl sm:text-[2.6rem] leading-tight font-display font-bold text-primary">
+          <h1 className="text-[2rem] sm:text-[2.75rem] leading-[1.08] font-display font-medium tracking-[-0.03em] text-primary">
             {titulo}
           </h1>
           {/* slate-600, não 500: sobre o fundo azulado o 500 cai para 4,42:1
@@ -185,18 +187,21 @@ export function Resultado({
   tom?: "normal" | "alerta";
 }) {
   return (
-    <section className="mt-6 rounded-3xl bg-primary text-white p-7 text-center">
-      <p className="text-xs font-semibold uppercase tracking-wider text-white/60">
+    // O painel noite da Carteira Pontual: quase preto, com a luz ciano e
+    // laranja nas bordas (`.secao-noite.sem-ondas`) e o número em peso
+    // médio, grande — é o número que a pessoa veio buscar.
+    <section className="secao-noite sem-ondas mt-6 rounded-[1.75rem] p-7 text-center shadow-ciano sm:p-9">
+      <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-ciano-claro">
         {rotulo}
       </p>
       <p
-        className={`text-4xl sm:text-5xl font-black tabular-nums mt-2 ${
-          tom === "alerta" ? "text-amber-300" : ""
+        className={`text-4xl sm:text-[3.5rem] sm:leading-none font-medium tracking-[-0.04em] tabular-nums mt-3 ${
+          tom === "alerta" ? "text-warning-claro" : ""
         }`}
       >
         {valor}
       </p>
-      {nota && <p className="text-sm text-white/70 mt-3">{nota}</p>}
+      {nota && <p className="mx-auto max-w-lg text-sm text-white/75 mt-4">{nota}</p>}
     </section>
   );
 }

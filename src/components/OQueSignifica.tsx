@@ -20,7 +20,7 @@ export function OQueSignifica({
 }) {
   return (
     <section className="rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-7">
-      <h2 className="font-display text-lg font-bold text-primary">{titulo}</h2>
+      <h2 className="font-display text-lg font-semibold text-primary">{titulo}</h2>
 
       <div className="mt-4 divide-y divide-border">
         {itens.map((item) => (

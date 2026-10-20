@@ -62,7 +62,7 @@ export function Hero({
       className="surgir relative overflow-hidden rounded-3xl px-6 py-8 text-white shadow-[0_18px_40px_-18px_hsl(215_50%_18%/0.55)] sm:px-9 sm:py-10"
       style={{
         background:
-          "linear-gradient(135deg, hsl(215 52% 26%) 0%, hsl(215 54% 20%) 48%, hsl(215 58% 15%) 100%)",
+          "linear-gradient(135deg, hsl(199 72% 19%) 0%, hsl(199 74% 14%) 48%, hsl(199 78% 11%) 100%)",
       }}
     >
       {/* O filete de luz no topo — o detalhe que dá acabamento à borda. */}
@@ -115,7 +115,7 @@ export function Hero({
             {etiqueta}
           </p>
 
-          <h1 className="mt-2 font-display text-[1.7rem] font-bold leading-[1.15] tracking-tight sm:text-4xl">
+          <h1 className="mt-2 font-display text-[1.7rem] font-medium leading-[1.15] tracking-[-0.03em] sm:text-4xl">
             {titulo}
           </h1>
 

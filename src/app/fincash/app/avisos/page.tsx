@@ -22,7 +22,7 @@ export default function AvisosPage() {
   return (
     <div className="pb-20">
       <div className="mb-5">
-        <h1 className="font-display text-xl font-bold text-primary">
+        <h1 className="font-display text-xl font-medium text-primary">
           Avisos
         </h1>
         <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">

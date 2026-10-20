@@ -65,7 +65,7 @@ export function MenuAreas({ portais }: { portais: Portal[] }) {
               }}
               onClick={() => setAberta(ativa ? null : area.chave)}
               aria-expanded={ativa}
-              className={`flex h-10 items-center gap-1.5 rounded-xl px-3 text-[13px] font-bold uppercase tracking-wide transition-colors ${
+              className={`flex h-10 items-center gap-1.5 whitespace-nowrap rounded-full px-3 text-[12px] font-semibold uppercase tracking-[0.14em] transition-colors ${
                 ativa
                   ? "bg-slate-100 text-primary"
                   : "text-slate-600 hover:bg-slate-50 hover:text-primary"

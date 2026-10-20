@@ -36,7 +36,7 @@ export function FormularioPerfil(props: {
       >
         <div className="flex items-center gap-2">
           <User className="h-4 w-4 text-primary" />
-          <h2 className="font-display text-lg font-bold text-primary">
+          <h2 className="font-display text-lg font-semibold text-primary">
             Seus dados
           </h2>
         </div>
@@ -140,7 +140,7 @@ export function FormularioPerfil(props: {
       >
         <div className="flex items-center gap-2">
           <KeyRound className="h-4 w-4 text-primary" />
-          <h2 className="font-display text-lg font-bold text-primary">Senha</h2>
+          <h2 className="font-display text-lg font-semibold text-primary">Senha</h2>
         </div>
         <p className="mt-1 text-sm text-muted-foreground">
           Pelo menos 8 caracteres. Você continua conectado depois de trocar.
@@ -241,7 +241,7 @@ function Enviar({ children }: { children: React.ReactNode }) {
     <button
       type="submit"
       disabled={pending}
-      className="mt-5 inline-flex h-11 items-center gap-2 rounded-xl bg-primary px-5 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+      className="btn-petroleo mt-5 transition-opacity hover:opacity-90 disabled:opacity-50"
     >
       {pending && <Loader2 className="h-4 w-4 animate-spin" />}
       {children}

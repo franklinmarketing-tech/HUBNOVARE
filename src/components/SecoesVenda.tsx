@@ -99,7 +99,7 @@ export function TituloSecao({
       )}
       {/* Peso 600, não 800: o site oficial da casa usa títulos GRANDES e
           LEVES, e é o que dá o ar de publicação séria em vez de anúncio. */}
-      <h2 className="mt-2 font-display text-3xl font-semibold leading-[1.12] tracking-tight text-primary sm:text-[2.6rem]">
+      <h2 className="mt-2 font-display text-3xl font-semibold leading-[1.12] tracking-[-0.03em] text-primary sm:text-[2.6rem]">
         {titulo}
       </h2>
       {apoio && (

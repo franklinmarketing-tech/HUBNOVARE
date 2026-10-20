@@ -126,7 +126,7 @@ export function Alertas({ ligado = true }: { ligado?: boolean }) {
           título — e inventar props nele por causa de uma tela só espalharia
           a mudança por todas as outras que o usam. */}
       <div className="mb-4 flex items-center justify-between gap-3">
-        <h2 className="flex items-center gap-2 font-display text-base font-bold text-primary">
+        <h2 className="flex items-center gap-2 font-display text-base font-semibold text-primary">
           <Bell className="h-4 w-4 text-accent-strong" strokeWidth={2} />
           Alertas do FINCASH
         </h2>

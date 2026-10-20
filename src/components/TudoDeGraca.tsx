@@ -1,7 +1,7 @@
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 
-import { CONTAGEM } from "@/lib/apps";
+import { APPS, CONTAGEM } from "@/lib/apps";
 import { artigosOrdenados } from "@/lib/news";
 import { EBOOKS } from "@/lib/ebooks";
 import { NumeroQueConta } from "@/components/NumeroQueConta";
@@ -26,38 +26,49 @@ export function TudoDeGraca() {
     { n: EBOOKS.length, rotulo: "eBooks para baixar" },
   ];
 
+  // A fileira de nomes que corre no pé — a "Eficiência tributária ·
+  // Liquidez real · …" da Carteira Pontual, aqui com as ferramentas de
+  // verdade do catálogo (mesmo filtro do rodapé: só o que é livre e está no
+  // ar). Nenhum nome escrito à mão.
+  const nomes = APPS.filter(
+    (a) =>
+      a.familia &&
+      a.plano === "livre" &&
+      a.status !== "em-breve" &&
+      a.tipo !== "servico" &&
+      !a.externo &&
+      a.roles.includes("cliente"),
+  );
+
   return (
     <section
       aria-labelledby="tudo-titulo"
-      className="cine relative overflow-hidden rounded-[2rem] p-6 sm:p-10"
-      style={{
-        background:
-          "radial-gradient(40rem 20rem at 100% 0%, hsl(16 80% 55% / 0.16), transparent 60%), linear-gradient(135deg, hsl(36 60% 97%) 0%, hsl(24 70% 94%) 100%)",
-      }}
+      className="cine cartao-cp relative p-6 sm:p-10"
     >
-      <div className="grid gap-8 lg:grid-cols-[1fr_1.1fr] lg:items-center">
+      {/* As ondas claras (Magnific, sem texto) atrás de um véu branco: o
+          mesmo material das seções noite, na versão do dia. */}
+      <div aria-hidden className="absolute inset-0 -z-0 bg-[url(/marca/ondas-clara.webp)] bg-cover bg-center opacity-60" />
+      <div aria-hidden className="absolute inset-0 -z-0 bg-gradient-to-r from-white via-white/85 to-white/40" />
+
+      <div className="relative grid gap-8 lg:grid-cols-[1fr_1.1fr] lg:items-center">
         <div>
-          <h2 id="tudo-titulo" className="font-display text-3xl font-bold leading-tight text-primary sm:text-4xl">
+          <p className="chapeu">Tudo de graça</p>
+          <h2 id="tudo-titulo" className="titulo-cp mt-2 text-3xl sm:text-[2.75rem]">
             Tudo isso é seu,{" "}
             <span className="text-accent-strong">de graça.</span>
           </h2>
-          <p className="mt-3 max-w-md text-base leading-relaxed text-muted-foreground">
-            Feito pela Novare para você decidir melhor sobre o seu dinheiro —
-            sem cartão, sem pegadinha e com total independência.
-          </p>
-          <Link
-            href="/aplicativos"
-            className="group mt-6 inline-flex min-h-11 items-center gap-2 rounded-xl bg-primary px-5 text-sm font-semibold text-white transition-colors hover:bg-primary-soft"
-          >
-            Ver todas as ferramentas
-            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+          <Link href="/aplicativos" className="group mt-6 inline-flex items-center gap-2">
+            <span className="btn-petroleo">Ver todas as ferramentas</span>
+            <span className="btn-seta" aria-hidden>
+              <ArrowUpRight className="h-4 w-4" />
+            </span>
           </Link>
         </div>
 
         <ul className="grid grid-cols-2 gap-3">
-          {numeros.map(({ n, rotulo }) => (
-            <li key={rotulo} className="rounded-2xl bg-white/80 p-5 shadow-sm ring-1 ring-primary/5">
-              <span className="block font-display text-4xl font-bold tabular-nums text-accent-strong sm:text-5xl">
+          {numeros.map(({ n, rotulo }, i) => (
+            <li key={rotulo} className="rounded-[1.25rem] bg-white/90 p-5 shadow-suave ring-1 ring-primary/5 backdrop-blur-sm">
+              <span className={`block font-display text-4xl font-medium tracking-[-0.04em] tabular-nums sm:text-5xl ${i % 2 ? "text-accent-strong" : "text-ciano-forte"}`}>
                 <NumeroQueConta valor={n} />
               </span>
               <span className="mt-1 block text-sm leading-snug text-primary">
@@ -67,6 +78,27 @@ export function TudoDeGraca() {
           ))}
         </ul>
       </div>
+
+      {nomes.length > 0 && (
+        <div className="faixa-etiquetas relative mt-8">
+          <ul>
+            {/* Duas voltas da mesma lista: o laço anda metade da largura e
+                emenda sem salto. A segunda volta some para leitor de tela e
+                para quem pediu menos movimento (globals.css). */}
+            {[...nomes, ...nomes].map((a, i) => (
+              <li key={`${a.slug}-${i}`} aria-hidden={i >= nomes.length || undefined} data-dup={i >= nomes.length || undefined}>
+                <Link
+                  href={a.href}
+                  tabIndex={i >= nomes.length ? -1 : undefined}
+                  className="block whitespace-nowrap rounded-full border border-border bg-white px-4 py-2 text-xs font-medium text-primary transition-colors hover:border-ciano/50 hover:text-ciano-forte"
+                >
+                  {a.nome}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </section>
   );
 }

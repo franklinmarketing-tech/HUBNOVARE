@@ -117,13 +117,13 @@ WhatsApp: ${dados.telefone}${linhaEmailLead(dados.email)}`,
 
   return (
     <section className="mx-auto max-w-3xl px-4 pb-4 print:hidden">
-      <div className="rounded-3xl border border-accent-soft/60 bg-accent-tint p-6 sm:p-7">
+      <div className="cartao-cp cartao-fita-laranja p-6 sm:p-7">
         <div className="flex items-start gap-3">
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent-btn text-white">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-accent-tint text-accent-strong">
             <FileText className="h-5 w-5" />
           </span>
           <div>
-            <h3 className="font-display text-base font-bold text-primary">{titulo}</h3>
+            <h3 className="font-display text-lg font-semibold text-primary">{titulo}</h3>
             <p className="mt-0.5 text-xs text-muted-foreground">{subtitulo}</p>
           </div>
         </div>
@@ -150,7 +150,7 @@ WhatsApp: ${dados.telefone}${linhaEmailLead(dados.email)}`,
               href={zap}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-border bg-white px-5 py-3 text-sm font-bold text-primary transition-colors hover:border-primary/30 hover:bg-muted sm:w-auto"
+              className="btn-claro mt-3 w-full sm:w-auto"
             >
               <MessageCircle className="h-4 w-4 shrink-0 text-[#25D366]" />
               Prefere falar agora? Chamar no WhatsApp
@@ -165,7 +165,7 @@ WhatsApp: ${dados.telefone}${linhaEmailLead(dados.email)}`,
               <button
                 type="button"
                 onClick={() => window.print()}
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-accent-btn px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-accent-strong"
+                className="btn-cp"
               >
                 <Download className="h-4 w-4" />
                 Baixar meu resultado em PDF
@@ -173,7 +173,7 @@ WhatsApp: ${dados.telefone}${linhaEmailLead(dados.email)}`,
               <button
                 type="button"
                 onClick={() => setQuerEspecialista(true)}
-                className="inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-white px-5 py-3 text-sm font-bold text-primary transition-colors hover:border-primary/30 hover:bg-muted"
+                className="btn-claro"
               >
                 <UserRound className="h-4 w-4" />
                 Falar com um especialista
@@ -193,7 +193,7 @@ WhatsApp: ${dados.telefone}${linhaEmailLead(dados.email)}`,
             <button
               onClick={enviar}
               disabled={!ok || enviando}
-              className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-accent-btn px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-accent-strong disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+              className="btn-cp mt-4 w-full sm:w-auto"
             >
               {enviando ? (
                 <>

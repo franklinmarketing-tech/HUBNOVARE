@@ -63,7 +63,7 @@ export function MenuConta({
             {primeiroNome}
           </span>
           <span className="block text-[10px] text-muted-foreground">
-            {assinante ? "Workspace" : "Plano Free"}
+            {assinante ? "Workspace" : "Conta gratuita"}
           </span>
         </span>
         <ChevronDown
@@ -86,7 +86,7 @@ export function MenuConta({
               }`}
             >
               <Crown className="h-3 w-3" />
-              {assinante ? "Workspace ativo" : "Plano Free"}
+              {assinante ? "Workspace ativo" : "Conta gratuita"}
             </p>
           </div>
 
@@ -113,7 +113,7 @@ export function MenuConta({
 
             {!assinante && (
               <Link
-                href="/assinar"
+                href="/aplicativos"
                 onClick={fechar}
                 className="flex items-center gap-2.5 px-4 py-2.5 text-[13px] font-bold text-accent-strong transition-colors hover:bg-accent-tint"
               >

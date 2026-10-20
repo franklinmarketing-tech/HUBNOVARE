@@ -28,7 +28,7 @@ const ROTULO: Record<Grupo, string> = {
   futuro: "Futuro",
 };
 const COR: Record<Grupo | "sobra" | "excesso", string> = {
-  necessidades: "hsl(215 50% 30%)",
+  necessidades: "hsl(199 60% 24%)",
   estilo: "hsl(24 85% 55%)",
   futuro: "hsl(152 55% 41%)",
   sobra: "hsl(214 20% 86%)",
@@ -140,17 +140,17 @@ export function AnaliseOrcamento({
   return (
     <section data-analise className="mt-6 space-y-4 print:break-inside-avoid" aria-labelledby="analise-titulo">
       <div>
-        <p className="text-2xs font-semibold uppercase tracking-[0.14em] text-accent-strong">Análise completa</p>
-        <h2 id="analise-titulo" className="mt-1 font-display text-xl font-bold text-primary sm:text-2xl">
+        <p className="chapeu">Análise completa</p>
+        <h2 id="analise-titulo" className="titulo-cp mt-2 text-2xl sm:text-[2rem]">
           O que os seus números dizem
         </h2>
       </div>
 
       {/* 1. O veredito */}
-      <div className={`flex gap-3 rounded-2xl border p-4 sm:p-5 ${CorTom.caixa}`}>
+      <div className={`flex gap-3 rounded-[1.5rem] border p-5 sm:p-6 ${CorTom.caixa}`}>
         <span className="mt-0.5 shrink-0">{CorTom.icone}</span>
         <div>
-          <p className="font-display text-base font-bold text-slate-900">{veredito.titulo}</p>
+          <p className="font-display text-lg font-semibold text-slate-900">{veredito.titulo}</p>
           <p className="mt-1 text-sm leading-relaxed text-slate-600">{veredito.texto}</p>
         </div>
       </div>
@@ -168,7 +168,7 @@ export function AnaliseOrcamento({
 
       {/* 3. Os dois gráficos */}
       <div className="grid gap-4 lg:grid-cols-2">
-        <div className="rounded-2xl border border-slate-200 bg-white p-5">
+        <div className="min-w-0 rounded-[1.5rem] border border-slate-200/80 bg-white p-5 shadow-suave">
           <p className="text-sm font-semibold text-slate-700">Para onde vai a sua renda</p>
           <div className="relative mx-auto mt-2 h-56 w-full max-w-[16rem]">
             <ResponsiveContainer width="100%" height="100%">
@@ -181,7 +181,7 @@ export function AnaliseOrcamento({
               </PieChart>
             </ResponsiveContainer>
             <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-              <span className="font-display text-2xl font-bold tabular-nums text-primary">{pctTxt(comprometimento)}</span>
+              <span className="font-display text-2xl font-medium tracking-[-0.04em] tabular-nums text-primary">{pctTxt(comprometimento)}</span>
               <span className="text-2xs text-slate-500">da renda planejada</span>
             </div>
           </div>
@@ -198,7 +198,7 @@ export function AnaliseOrcamento({
           </ul>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white p-5">
+        <div className="min-w-0 rounded-[1.5rem] border border-slate-200/80 bg-white p-5 shadow-suave">
           <p className="text-sm font-semibold text-slate-700">Seu plano × a regra 50/30/20</p>
           <p className="mt-0.5 text-2xs text-slate-500">A barra é o seu plano; o traço escuro é o alvo.</p>
           <div className="mt-5 space-y-5">
@@ -230,12 +230,12 @@ export function AnaliseOrcamento({
 
       {/* 4. O que um consultor faria */}
       {recs.length > 0 && (
-        <div className="rounded-2xl border border-slate-200 bg-white p-5">
+        <div className="min-w-0 rounded-[1.5rem] border border-slate-200/80 bg-white p-5 shadow-suave">
           <p className="text-sm font-semibold text-slate-700">O que um consultor faria, na ordem</p>
           <ol className="mt-4 space-y-4">
             {recs.map((r, i) => (
               <li key={r.titulo} className="flex gap-3">
-                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-accent text-xs font-bold text-white">{i + 1}</span>
+                <span className="w-8 shrink-0 font-display text-xl font-normal leading-7 tracking-[-0.04em] text-ciano-forte tabular-nums">{String(i + 1).padStart(2, "0")}</span>
                 <div className="min-w-0">
                   <p className="text-sm font-bold text-slate-900">{r.titulo}</p>
                   <p className="mt-0.5 text-sm leading-relaxed text-slate-600">{r.texto}</p>
@@ -259,7 +259,7 @@ export function AnaliseOrcamento({
 
       {/* 5. As maiores despesas */}
       {top.length > 0 && (
-        <div className="rounded-2xl border border-slate-200 bg-white p-5">
+        <div className="min-w-0 rounded-[1.5rem] border border-slate-200/80 bg-white p-5 shadow-suave">
           <p className="text-sm font-semibold text-slate-700">Suas maiores despesas</p>
           <ul className="mt-4 space-y-3">
             {top.map((c) => (
@@ -289,9 +289,9 @@ export function AnaliseOrcamento({
 
 function Indicador({ rotulo, valor, nota, ruim }: { rotulo: string; valor: string; nota: string; ruim?: boolean }) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-4">
+    <div className="rounded-[1.25rem] border border-slate-200/80 bg-white p-4 shadow-suave">
       <p className="text-2xs font-semibold uppercase tracking-wider text-slate-500">{rotulo}</p>
-      <p className={`mt-1 font-display text-2xl font-bold tabular-nums ${ruim ? "text-destructive" : "text-primary"}`}>{valor}</p>
+      <p className={`mt-1.5 font-display text-[1.75rem] font-medium tracking-[-0.04em] tabular-nums ${ruim ? "text-destructive" : "text-primary"}`}>{valor}</p>
       <p className="mt-0.5 text-2xs text-slate-500">{nota}</p>
     </div>
   );

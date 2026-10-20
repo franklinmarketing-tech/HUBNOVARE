@@ -174,7 +174,7 @@ export default async function AdminClientesPage({
             placeholder="Buscar por nome, e-mail, telefone, cidade…"
             className="h-11 min-w-0 flex-1 rounded-xl border border-border bg-white px-3.5 text-sm outline-none transition-colors focus:border-accent focus:ring-4 focus:ring-accent/12"
           />
-          <button type="submit" className="h-11 rounded-xl bg-primary px-4 text-sm font-semibold text-white hover:bg-primary-soft">
+          <button type="submit" className="btn-petroleo">
             Buscar
           </button>
         </form>

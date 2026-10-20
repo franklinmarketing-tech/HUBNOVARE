@@ -20,7 +20,7 @@ export function BannerEbooks({ className = "" }: { className?: string }) {
   return (
     <Link
       href="/ebooks"
-      className={`glass-card group flex min-w-0 items-center gap-3 overflow-hidden rounded-2xl bg-gradient-to-r from-primary-light/80 via-white to-white p-3 shadow-card ring-1 ring-primary/10 transition-all hover:-translate-y-0.5 hover:shadow-card-hover hover:ring-primary/25 ${className}`}
+      className={`glass-card group flex min-w-0 items-center gap-3 overflow-hidden rounded-[1.25rem] bg-gradient-to-r from-primary-light/80 via-white to-white p-3 shadow-card ring-1 ring-primary/10 transition-all hover:-translate-y-0.5 hover:shadow-card-hover hover:ring-primary/25 ${className}`}
     >
       <span className="min-w-0 flex-1">
         <span className="block font-display text-sm font-bold text-primary">

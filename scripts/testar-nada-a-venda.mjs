@@ -41,6 +41,9 @@ const ROTAS = [
   "/profissionais",
   "/profissionais/medicos",
   "/consultoria",
+  // A página de cada consultoria: vendia a "assinatura de R$ 29,90" até
+  // 20/10/2026 e passava batido porque não estava nesta lista.
+  "/consultoria/revisao-carteira",
   "/assinar",
   "/iris",
   "/novare-news",
@@ -60,7 +63,7 @@ const ROTAS = [
  * Novare. Por isso a rota pode falar de consultoria e de contratar, mas
  * continua proibida de mostrar valor, plano ou checkout.
  */
-const PODE_FALAR_EM_CONTRATAR = new Set(["/consultoria"]);
+const PODE_FALAR_EM_CONTRATAR = new Set(["/consultoria", "/consultoria/revisao-carteira"]);
 
 /** Cobrança: um valor grudado numa palavra de cobrança, nos dois sentidos. */
 const COBRANCA = [

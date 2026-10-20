@@ -156,7 +156,7 @@ export function IrisExtrato() {
         <p className="text-2xs font-semibold uppercase tracking-[0.14em] text-accent-strong">
           Passo 1
         </p>
-        <h2 className="mt-1.5 font-display text-xl font-bold text-primary">
+        <h2 className="mt-1.5 font-display text-xl font-semibold text-primary">
           Seu extrato
         </h2>
         <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">

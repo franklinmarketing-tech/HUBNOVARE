@@ -663,7 +663,7 @@ function PassoAPasso({
                   href={linkWhatsApp}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-accent-btn px-4 py-2.5 text-xs font-bold text-white transition-transform hover:-translate-y-0.5"
+                  className="btn-cp"
                 >
                   <ExternalLink className="h-3.5 w-3.5" />
                   Abrir o WhatsApp

@@ -22,15 +22,24 @@
   --color-muted: hsl(220 14% 95%);
   --color-muted-foreground: hsl(220 9% 42%);
 
-  /* Este HSL É o `#1d3658` do site oficial (conferido: hsl(215 50% 23%)
-     converte exatamente nele). Circula por aí a versão "#1d3557", que é o
-     mesmo tom com o último dígito trocado — quem for "alinhar com o site"
-     não vai achar divergência nenhuma aqui. */
-  --color-primary: hsl(215 50% 23%);
+  /* PETRÓLEO — o `#0A3346` da página da Carteira Pontual
+     (diagnostico.novareapp.com.br/carteira-pontual), medido em 20/10/2026.
+     ⚠️ Até essa data era o marinho `#1d3658` (hsl(215 50% 23%)). O dono pediu
+     o Hub com a mesma cara da Carteira Pontual, e o petróleo é o que mais
+     muda a leitura: mais escuro e puxado para o ciano, conversa com o
+     `#2596BE` em vez de brigar com ele. Contraste sobre o fundo: ~13:1. */
+  --color-primary: hsl(199 75% 16%);
   --color-primary-foreground: hsl(0 0% 100%);
-  --color-primary-soft: hsl(215 45% 32%);
-  --color-primary-light: hsl(215 50% 96%);
-  --color-primary-bright: hsl(210 75% 62%);
+  --color-primary-soft: hsl(199 60% 24%);
+  --color-primary-light: hsl(199 50% 95%);
+  --color-primary-bright: hsl(197 75% 62%);
+
+  /* NOITE — o quase-preto `#00070B` das seções escuras da Carteira Pontual.
+     É o que dá o efeito de cinema: o ciano e o laranja acendem em cima dele
+     de um jeito que no petróleo não acendem. `noite-2` é o cartão sobre a
+     noite (um degrau acima, para separar sem borda pesada). */
+  --color-noite: hsl(203 100% 2%);
+  --color-noite-2: hsl(200 55% 7%);
 
   --color-accent: hsl(16 80% 55%);
   --color-accent-foreground: hsl(0 0% 100%);
@@ -131,6 +140,16 @@
     0 2px 6px -2px hsl(220 20% 12% / 0.05);
   --shadow-elevated: 0 12px 32px -12px hsl(220 20% 12% / 0.12),
     0 4px 12px -4px hsl(220 20% 12% / 0.05);
+
+  /* As três sombras COLORIDAS da Carteira Pontual (medidas na página).
+     A sombra tem a cor do que ela segura: botão laranja projeta laranja,
+     destaque ciano projeta ciano. É isso que dá o ar "aceso" sem brilho. */
+  --shadow-laranja: 0 8px 30px -10px hsl(16 80% 55% / 0.4);
+  --shadow-ciano: 0 16px 40px -16px hsl(197 68% 45% / 0.45);
+  --shadow-vidro: inset 0 1px 0 hsl(0 0% 100% / 0.6),
+    0 30px 60px -30px hsl(203 100% 2% / 0.18);
+  --shadow-suave: 0 1px 2px hsl(199 75% 16% / 0.04),
+    0 18px 40px -24px hsl(199 75% 16% / 0.16);
 }
 
 @layer base {
@@ -154,18 +173,32 @@
   }
 
   /* Headings com tracking negativo e escala fluida, como no app. */
+  /* -0.03em é o tracking de TODOS os títulos da Carteira Pontual (h1 a h3,
+     medido em 20/10/2026). Letra mais junta é o que dá o ar de editorial
+     sem precisar de negrito. */
   h1 {
     font-size: clamp(1.375rem, 1.2rem + 0.6vw, 1.625rem);
     line-height: 1.15;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.03em;
     font-weight: 600;
   }
 
   h2 {
     font-size: clamp(1.1875rem, 1.05rem + 0.45vw, 1.375rem);
     line-height: 1.2;
-    letter-spacing: -0.018em;
+    letter-spacing: -0.03em;
     font-weight: 600;
+  }
+
+  h3 {
+    letter-spacing: -0.02em;
+  }
+
+  /* Todo texto marcado como título (`font-display`, ~436 usos) ganha a letra
+     mais junta da Carteira Pontual de uma vez — sem caçar um por um. Fica na
+     camada base: um `tracking-*` escrito no elemento continua mandando. */
+  .font-display {
+    letter-spacing: -0.025em;
   }
 
   :focus-visible {
@@ -265,9 +298,214 @@
        deixava a interface "pesada" ao lado de um app leve, onde o título
        de tela é grande e de peso médio, e quem organiza a página é o
        ESPAÇO, não a tinta. */
-    font-weight: 600;
-    letter-spacing: -0.02em;
+    font-weight: 500;
+    letter-spacing: -0.03em;
     color: var(--color-primary);
+  }
+
+  /* ==================================================================
+     A LINGUAGEM DA CARTEIRA PONTUAL (20/10/2026)
+     Peças medidas em diagnostico.novareapp.com.br/carteira-pontual para o
+     Hub e as ferramentas terem a mesma cara da página oficial da casa.
+     ================================================================== */
+
+  /* Chapéu de seção: miúdo, maiúsculo, BEM espaçado (0,28em). */
+  .chapeu {
+    display: inline-block;
+    font-size: 0.6875rem;
+    line-height: 1rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.28em;
+    color: var(--color-accent-strong);
+  }
+  .chapeu-ciano { color: var(--color-ciano-forte); }
+  .chapeu-claro { color: var(--color-accent-claro); }
+
+  /* Título grande de peso médio — o h2 da página de referência. */
+  .titulo-cp {
+    font-family: var(--font-display);
+    font-weight: 500;
+    letter-spacing: -0.03em;
+    line-height: 1.08;
+    color: var(--color-primary);
+  }
+
+  /* Botão principal: pílula laranja em degradê, com sombra laranja.
+     O degradê vai do laranja de botão (texto branco passa na WCAG) ao
+     laranja claro — a ponta clara fica do lado oposto ao texto. */
+  .btn-cp {
+    display: inline-flex;
+    min-height: 2.75rem;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border-radius: 9999px;
+    padding: 0 1.375rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #fff;
+    background: linear-gradient(135deg, var(--color-accent-btn) 0%, hsl(16 82% 52%) 100%);
+    box-shadow: var(--shadow-laranja);
+    transition: transform 200ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 200ms ease, filter 200ms ease;
+  }
+  .btn-cp:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.05);
+    box-shadow: 0 12px 34px -10px hsl(16 80% 55% / 0.55);
+  }
+  .btn-cp:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  /* Secundário escuro: pílula petróleo (o "Falar no WhatsApp" da página). */
+  .btn-petroleo {
+    display: inline-flex;
+    min-height: 2.75rem;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border-radius: 9999px;
+    padding: 0 1.375rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #fff;
+    background: var(--color-primary);
+    box-shadow: 0 10px 28px -14px hsl(199 75% 16% / 0.6);
+    transition: transform 200ms cubic-bezier(0.22, 1, 0.36, 1), background-color 200ms ease;
+  }
+  .btn-petroleo:hover { transform: translateY(-1px); background: var(--color-primary-soft); }
+
+  /* Pílula clara — o secundário sobre fundo claro ou escuro. */
+  .btn-claro {
+    display: inline-flex;
+    min-height: 2.75rem;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border-radius: 9999px;
+    padding: 0 1.375rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-primary);
+    background: #fff;
+    border: 1px solid hsl(199 40% 88%);
+    transition: transform 200ms cubic-bezier(0.22, 1, 0.36, 1), border-color 200ms ease;
+  }
+  .btn-claro:hover { transform: translateY(-1px); border-color: hsl(197 68% 45% / 0.5); }
+
+  /* A bolinha laranja com a seta, que anda ao lado do botão principal. */
+  .btn-seta {
+    display: inline-flex;
+    height: 2.75rem;
+    width: 2.75rem;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    color: #fff;
+    background: linear-gradient(135deg, var(--color-accent-btn), hsl(16 82% 52%));
+    box-shadow: var(--shadow-laranja);
+    transition: transform 240ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .group:hover .btn-seta,
+  .btn-seta:hover { transform: rotate(45deg); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .btn-cp:hover, .btn-petroleo:hover, .btn-claro:hover { transform: none; }
+    .group:hover .btn-seta, .btn-seta:hover { transform: none; }
+  }
+
+  /* Cartão da Carteira Pontual: branco, canto de 28px, sombra suave tingida
+     de petróleo. `cartao-fita-*` põe a fita colorida no topo. */
+  .cartao-cp {
+    position: relative;
+    overflow: hidden;
+    border-radius: 1.75rem;
+    background: #fff;
+    border: 1px solid hsl(199 40% 92%);
+    box-shadow: var(--shadow-suave);
+  }
+  .cartao-fita-ciano,
+  .cartao-fita-laranja { border-top: 3px solid var(--color-ciano); }
+  .cartao-fita-laranja { border-top-color: var(--color-accent); }
+
+  /* Painel interno claro (o "cartão dentro do cartão" da página). */
+  .painel-gelo {
+    border-radius: 1.25rem;
+    background: hsl(207 47% 97%);
+  }
+
+  /* Número de etapa: grande, fino e ciano — "01, 02, 03". */
+  .numero-etapa {
+    font-family: var(--font-display);
+    font-size: 2.5rem;
+    line-height: 1;
+    font-weight: 400;
+    letter-spacing: -0.04em;
+    color: var(--color-ciano);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Pílula de vidro sobre foto ou fundo escuro. */
+  .pilula-vidro {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.625rem;
+    border-radius: 9999px;
+    padding: 0.625rem 1.125rem;
+    color: #fff;
+    background: linear-gradient(135deg, hsl(197 68% 45% / 0.55), hsl(197 68% 30% / 0.35));
+    border: 1px solid hsl(0 0% 100% / 0.18);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    box-shadow: inset 0 1px 0 hsl(0 0% 100% / 0.2);
+  }
+
+  /* SEÇÃO NOITE: o quase-preto da página, com as ondas prateadas (geradas
+     na Magnific, sem texto) por trás e uma vinheta para o texto ler. */
+  .secao-noite {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    color: #fff;
+    background-color: var(--color-noite);
+  }
+  .secao-noite::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background:
+      linear-gradient(90deg, hsl(203 100% 2% / 0.94) 0%, hsl(203 100% 2% / 0.72) 45%, hsl(203 100% 2% / 0.35) 100%),
+      var(--fundo-noite, url("/marca/ondas-noite.webp")) center / cover no-repeat;
+  }
+  /* Variante sem foto, só a luz ciano e laranja nas bordas. */
+  .secao-noite.sem-ondas::before {
+    background:
+      radial-gradient(40rem 22rem at 100% 0%, hsl(197 68% 45% / 0.18), transparent 60%),
+      radial-gradient(34rem 20rem at 0% 100%, hsl(16 80% 55% / 0.12), transparent 60%);
+  }
+
+  /* Faixa de etiquetas correndo (a fileira de "Eficiência tributária ·
+     Liquidez real · …" da página). A lista vem DUPLICADA no HTML para o
+     laço não ter emenda; quem pediu menos movimento vê a fileira parada. */
+  .faixa-etiquetas {
+    overflow: hidden;
+    mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  }
+  .faixa-etiquetas > ul {
+    display: flex;
+    width: max-content;
+    gap: 0.625rem;
+    animation: correr-etiquetas 40s linear infinite;
+  }
+  .faixa-etiquetas:hover > ul { animation-play-state: paused; }
+  @keyframes correr-etiquetas {
+    to { transform: translate3d(-50%, 0, 0); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .faixa-etiquetas > ul { animation: none; flex-wrap: wrap; width: auto; }
+    .faixa-etiquetas [data-dup] { display: none; }
   }
 
   /* O risco fica — é a assinatura laranja da Novare —, mas fino e sem
@@ -1119,4 +1357,11 @@
    definida: o menu e a barra de baixo saíam no PDF. */
 @media print {
   .nao-imprimir { display: none !important; }
+  /* Sem isto o navegador joga fora os FUNDOS na impressão, e o painel
+     escuro do resultado (texto branco) saía em branco sobre o papel branco
+     no "Baixar meu resultado em PDF". */
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
 }

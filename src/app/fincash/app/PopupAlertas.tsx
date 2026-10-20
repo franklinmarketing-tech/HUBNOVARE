@@ -108,7 +108,7 @@ export function PopupAlertas() {
             <Bell className="h-5 w-5" strokeWidth={2} />
           </span>
           <div className="min-w-0 flex-1">
-            <h2 id="popup-alertas-titulo" className="font-display text-base font-bold text-primary">
+            <h2 id="popup-alertas-titulo" className="font-display text-base font-semibold text-primary">
               {alertas.length === 1 ? "Um alerta para hoje" : `${alertas.length} alertas para hoje`}
             </h2>
             <p className="mt-0.5 text-xs text-muted-foreground">

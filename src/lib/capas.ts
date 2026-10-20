@@ -147,14 +147,14 @@ export function emblemaDe(slug: string): string | null {
  */
 export const CAPA_DESENHADA: Record<string, string> = {
   "juros-compostos":
-    "linear-gradient(135deg, hsl(215 55% 20%), hsl(200 60% 30%))",
+    "linear-gradient(135deg, hsl(199 75% 14%), hsl(200 60% 30%))",
   "financiamento-casa":
-    "linear-gradient(150deg, hsl(215 50% 23%), hsl(215 40% 38%))",
+    "linear-gradient(150deg, hsl(199 70% 17%), hsl(199 60% 27%))",
   "financiamento-carro":
-    "linear-gradient(120deg, hsl(215 55% 21%), hsl(16 45% 34%))",
+    "linear-gradient(120deg, hsl(199 75% 15%), hsl(16 45% 34%))",
   "financiamento-terreno":
-    "linear-gradient(160deg, hsl(215 50% 22%), hsl(152 35% 28%))",
-  consorcio: "linear-gradient(135deg, hsl(215 60% 18%), hsl(215 45% 33%))",
+    "linear-gradient(160deg, hsl(199 70% 16%), hsl(152 35% 28%))",
+  consorcio: "linear-gradient(135deg, hsl(199 80% 13%), hsl(199 65% 24%))",
   admin: "linear-gradient(135deg, hsl(220 15% 25%), hsl(220 12% 38%))",
 };
 
@@ -165,6 +165,6 @@ export function capaDe(slug: string): string | null {
 export function gradienteDe(slug: string): string {
   return (
     CAPA_DESENHADA[slug] ??
-    "linear-gradient(135deg, hsl(215 50% 23%), hsl(215 42% 34%))"
+    "linear-gradient(135deg, hsl(199 70% 17%), hsl(199 62% 24%))"
   );
 }

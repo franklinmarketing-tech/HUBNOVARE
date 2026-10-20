@@ -66,14 +66,14 @@ export function FundoCena({
         className="absolute inset-0"
         style={{
           background:
-            "linear-gradient(180deg, hsl(216 58% 11% / 0.72) 0%, hsl(216 58% 11% / 0.6) 40%, hsl(216 58% 11% / 0.42) 70%, hsl(216 58% 11% / 0.3) 100%)",
+            "linear-gradient(180deg, hsl(202 83% 7% / 0.72) 0%, hsl(202 83% 7% / 0.6) 40%, hsl(202 83% 7% / 0.42) 70%, hsl(202 83% 7% / 0.3) 100%)",
         }}
       />
       <span
         className="absolute inset-0"
         style={{
           background:
-            "radial-gradient(85% 60% at 50% 22%, hsl(216 58% 11% / 0.62) 0%, transparent 70%), radial-gradient(120% 100% at 50% 50%, transparent 55%, hsl(216 58% 11% / 0.5) 100%)",
+            "radial-gradient(85% 60% at 50% 22%, hsl(202 83% 7% / 0.62) 0%, transparent 70%), radial-gradient(120% 100% at 50% 50%, transparent 55%, hsl(202 83% 7% / 0.5) 100%)",
         }}
       />
       {fundir && (
@@ -81,7 +81,7 @@ export function FundoCena({
           className="absolute inset-x-0 bottom-0 h-32"
           style={{
             background:
-              "linear-gradient(180deg, transparent, hsl(216 58% 11% / 0.85))",
+              "linear-gradient(180deg, transparent, hsl(202 83% 7% / 0.85))",
           }}
         />
       )}

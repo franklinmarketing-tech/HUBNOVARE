@@ -169,7 +169,7 @@ export function InstalarApp() {
               <button
                 type="button"
                 onClick={instalar}
-                className="mt-2 flex min-h-9 items-center gap-1.5 rounded-xl bg-primary px-3.5 text-xs font-semibold text-white transition-colors hover:bg-primary-soft"
+                className="btn-petroleo mt-2"
               >
                 <Download className="h-3.5 w-3.5" strokeWidth={2.2} />
                 Instalar

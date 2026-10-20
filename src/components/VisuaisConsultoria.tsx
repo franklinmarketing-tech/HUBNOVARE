@@ -32,7 +32,7 @@ import {
  * destes, marcado como tal. Não no lugar deles.
  */
 
-const NAVY = "hsl(215 50% 23%)";
+const NAVY = "hsl(199 70% 17%)";
 const ACCENT = "hsl(16 80% 55%)";
 const CIANO = "hsl(197 70% 45%)";
 const SUCESSO = "hsl(152 55% 41%)";

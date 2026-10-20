@@ -189,7 +189,7 @@ export default async function PainelIscas({
 
       {foraDoCatalogo.length > 0 && (
         <section>
-          <h2 className="font-display text-sm font-bold text-primary">
+          <h2 className="font-display text-sm font-semibold text-primary">
             Outras páginas que captaram
           </h2>
           <p className="mt-0.5 text-xs text-muted-foreground">

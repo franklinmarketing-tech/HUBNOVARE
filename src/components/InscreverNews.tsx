@@ -169,7 +169,7 @@ export function InscreverNews({
         className={`flex flex-col gap-4 rounded-3xl border border-border bg-white p-5 shadow-card sm:p-6 lg:flex-row lg:items-center lg:justify-between lg:gap-8 ${className}`}
       >
         <div className="min-w-0">
-          <h2 id="inscrever-news-titulo" className="font-display text-lg font-bold text-primary">
+          <h2 id="inscrever-news-titulo" className="font-display text-lg font-semibold text-primary">
             {titulo}
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">
@@ -254,7 +254,7 @@ export function InscreverNews({
 
           <h2
             id="inscrever-news-titulo"
-            className="mt-5 font-display text-xl font-bold tracking-tight text-primary sm:text-2xl"
+            className="mt-5 font-display text-xl font-semibold tracking-[-0.03em] text-primary sm:text-2xl"
           >
             {titulo}
           </h2>

@@ -162,11 +162,11 @@ export default function OrcamentoPage() {
 
       <main className="max-w-3xl mx-auto px-4 pb-16">
         <section className="pt-12 pb-8">
-          <div className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 text-primary px-3 py-1 text-xs font-semibold mb-4">
+          <div className="inline-flex items-center gap-1.5 rounded-full bg-ciano-tint text-ciano-forte px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] mb-5">
             <PieChart className="h-3.5 w-3.5" />
             Grátis, fica só no seu navegador
           </div>
-          <h1 className="text-3xl sm:text-[2.6rem] leading-tight font-display font-bold text-primary">
+          <h1 className="text-[2rem] sm:text-[2.75rem] leading-[1.08] font-display font-medium tracking-[-0.03em] text-primary">
             Um plano claro para cada real do mês
           </h1>
           <p className="text-slate-500 mt-3 max-w-xl">
@@ -177,7 +177,7 @@ export default function OrcamentoPage() {
         </section>
 
         {/* Renda + sugestão 50/30/20 */}
-        <section className="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 sm:p-8">
+        <section className="bg-white rounded-[1.75rem] border border-slate-200/80 shadow-suave p-6 sm:p-8">
           <div className="max-w-xs">
             <label htmlFor={idCampo} className="block text-xs font-semibold text-slate-600 mb-1.5">
               Renda mensal líquida
@@ -223,7 +223,7 @@ export default function OrcamentoPage() {
         </section>
 
         {/* Categorias */}
-        <section className="mt-6 bg-white rounded-3xl border border-slate-200 shadow-sm p-6 sm:p-8">
+        <section className="mt-6 bg-white rounded-[1.75rem] border border-slate-200/80 shadow-suave p-6 sm:p-8">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-sm font-semibold text-slate-700">
               Categorias do orçamento
@@ -309,7 +309,7 @@ export default function OrcamentoPage() {
           <button
             type="button"
             onClick={adicionarCategoria}
-            className="mt-4 inline-flex items-center gap-2 rounded-xl bg-primary text-white px-4 h-11 text-sm font-semibold transition-opacity hover:opacity-90"
+            className="mt-4 inline-flex items-center gap-2 rounded-full bg-primary text-white px-5 h-11 text-sm font-semibold transition-opacity hover:opacity-90"
           >
             <Plus className="h-4 w-4" />
             Adicionar categoria
@@ -317,11 +317,11 @@ export default function OrcamentoPage() {
         </section>
 
         {/* Número-herói */}
-        <section className="mt-6 rounded-3xl bg-primary text-white p-7 text-center">
-          <p className="text-xs font-semibold uppercase tracking-wider text-white/60">
+        <section className="mt-6 secao-noite sem-ondas rounded-[1.75rem] p-7 sm:p-9 text-center shadow-ciano">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-ciano-claro">
             Total planejado no mês
           </p>
-          <p className="text-4xl sm:text-5xl font-black tabular-nums mt-2">
+          <p className="text-4xl sm:text-[3.5rem] sm:leading-none font-medium tracking-[-0.04em] tabular-nums mt-3">
             {brl(totais.total)}
           </p>
           <p className="text-sm text-white/70 mt-3">

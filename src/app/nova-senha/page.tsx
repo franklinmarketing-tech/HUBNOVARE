@@ -43,7 +43,7 @@ export default async function NovaSenhaPage() {
       </Link>
 
       <div className="w-full max-w-sm">
-        <h1 className="text-center font-display text-2xl font-bold text-primary">
+        <h1 className="text-center font-display text-2xl font-medium text-primary">
           Criar nova senha
         </h1>
         <p className="mt-2 text-center text-sm text-muted-foreground">

@@ -36,21 +36,21 @@
   /* Repouso. Duas camadas: um fio de contato (1px) que gruda o card no fundo
      e um borrão largo e MUITO transparente que dá o volume. Uma camada só
      sempre parece adesivo colado. */
-  --fin-sombra-card: 0 1px 2px hsl(215 40% 20% / 0.04),
-    0 10px 28px -22px hsl(215 40% 20% / 0.5);
+  --fin-sombra-card: 0 1px 2px hsl(199 60% 14% / 0.04),
+    0 10px 28px -22px hsl(199 60% 14% / 0.5);
 
   /* Hover/foco: o card sobe. A diferença tem de ser sentida sem ser vista —
      por isso muda o raio do borrão, não a opacidade. */
-  --fin-sombra-alta: 0 2px 4px hsl(215 40% 20% / 0.05),
-    0 20px 44px -24px hsl(215 40% 20% / 0.6);
+  --fin-sombra-alta: 0 2px 4px hsl(199 60% 14% / 0.05),
+    0 20px 44px -24px hsl(199 60% 14% / 0.6);
 
   /* O herói navy. Sombra na cor dele mesmo: um bloco escuro com sombra
      neutra por baixo parece recortado e colado. */
-  --fin-sombra-heroi: 0 2px 6px hsl(215 50% 23% / 0.2),
-    0 26px 56px -30px hsl(215 50% 23% / 0.75);
+  --fin-sombra-heroi: 0 2px 6px hsl(199 70% 17% / 0.2),
+    0 26px 56px -30px hsl(199 70% 17% / 0.75);
 
   /* Elemento flutuante (menu de organizar, popovers do app). */
-  --fin-sombra-flutua: 0 18px 40px -14px hsl(215 40% 20% / 0.35);
+  --fin-sombra-flutua: 0 18px 40px -14px hsl(199 60% 14% / 0.35);
 }
 
 /* --------------------------------------------------------------- entrada --
@@ -161,7 +161,7 @@
   background: conic-gradient(
     from 0deg,
     hsl(197 70% 52%),
-    hsl(215 55% 38%),
+    hsl(199 75% 27%),
     hsl(16 80% 56%),
     hsl(197 70% 52%)
   );

@@ -62,7 +62,7 @@ export default async function ConsultoriaPage() {
             <ShieldCheck className="h-3.5 w-3.5" />
             Consultoria Novare
           </div>
-          <h1 className="mt-4 max-w-2xl font-display text-3xl font-bold tracking-tight text-primary sm:text-4xl">
+          <h1 className="mt-4 max-w-2xl font-display text-3xl font-medium tracking-[-0.03em] text-primary sm:text-4xl">
             {/* Era "Soluções completas para cada momento" — e a linha de baixo
                 diz que a casa tem UM serviço (varredura de 20/10/2026). */}
             Uma análise isenta do seu dinheiro, feita por gente.
@@ -118,7 +118,7 @@ export default async function ConsultoriaPage() {
                       {item.subtitulo}
                     </p>
                   )}
-                  <h2 className="mt-1 font-display text-2xl font-bold text-white">
+                  <h2 className="mt-1 font-display text-2xl font-semibold text-white">
                     {item.nome}
                   </h2>
                 </div>

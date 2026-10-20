@@ -58,7 +58,7 @@ export function CorpoArtigo({ corpo }: { corpo: (string | BlocoArtigo)[] }) {
                 id={idDoTitulo(bloco.texto)}
                 /* `scroll-mt` porque o cabeçalho do News é fixo: sem isso o
                    link de âncora encosta o título embaixo da barra. */
-                className="mt-12 scroll-mt-24 font-display text-2xl font-bold leading-tight tracking-tight text-primary first:mt-0 sm:text-[1.75rem]"
+                className="mt-12 scroll-mt-24 font-display text-2xl font-semibold leading-tight tracking-[-0.03em] text-primary first:mt-0 sm:text-[1.75rem]"
               >
                 {bloco.texto}
               </h2>

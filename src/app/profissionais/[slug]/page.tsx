@@ -93,7 +93,7 @@ export default async function PaginaProfissao({
             Novare para {prof.nome.toLowerCase()}
           </Link>
 
-          <h1 className="max-w-3xl font-display text-4xl font-bold leading-[1.05] text-white sm:text-6xl">
+          <h1 className="max-w-3xl font-display text-4xl font-medium leading-[1.05] text-white sm:text-6xl">
             {prof.chamada}
           </h1>
           <p className="mt-5 max-w-xl text-base leading-relaxed text-white/75">
@@ -103,7 +103,7 @@ export default async function PaginaProfissao({
           <div className="mt-8 flex flex-wrap gap-3">
             <Link
               href="/ferramentas/raio-x-previdencia"
-              className="inline-flex items-center gap-2 rounded-xl bg-accent-btn px-6 py-4 text-sm font-bold text-accent-foreground shadow-[0_14px_34px_-14px_hsl(16_80%_45%_/_0.8)] transition-transform hover:scale-[1.02]"
+              className="btn-cp hover:scale-[1.02]"
             >
               <ShieldAlert className="h-4 w-4" />
               Fazer o Raio-X grátis
@@ -121,7 +121,7 @@ export default async function PaginaProfissao({
 
       {/* ========================================================= as dores */}
       <section className="mx-auto max-w-5xl px-5 py-16 sm:py-20">
-        <h2 className="max-w-2xl font-display text-2xl font-bold leading-tight text-primary sm:text-4xl">
+        <h2 className="max-w-2xl font-display text-2xl font-semibold leading-tight text-primary sm:text-4xl">
           O que trava o dinheiro de quem vive dessa carreira
         </h2>
 
@@ -160,7 +160,7 @@ export default async function PaginaProfissao({
             <p className="text-[11px] font-semibold uppercase tracking-wider text-accent-claro">
               Comece por aqui · grátis, sem cadastro
             </p>
-            <h2 className="mt-3 max-w-lg font-display text-2xl font-bold leading-tight sm:text-4xl">
+            <h2 className="mt-3 max-w-lg font-display text-2xl font-semibold leading-tight sm:text-4xl">
               Quanto a taxa da sua previdência vai levar?
             </h2>
             <p className="mt-4 max-w-md text-[15px] leading-relaxed text-white/70">
@@ -196,7 +196,7 @@ export default async function PaginaProfissao({
       <section className="mx-auto max-w-5xl px-5 py-16 sm:py-20">
         <div className="grid gap-10 sm:grid-cols-[1fr_1.1fr]">
           <div>
-            <h2 className="font-display text-2xl font-bold leading-tight text-primary sm:text-3xl">
+            <h2 className="font-display text-2xl font-semibold leading-tight text-primary sm:text-3xl">
               Quatro perguntas que ninguém te respondeu
             </h2>
             <p className="mt-4 text-[15px] leading-relaxed text-slate-600">
@@ -240,7 +240,7 @@ export default async function PaginaProfissao({
             <p className="text-[11px] font-semibold uppercase tracking-wider text-accent-strong">
               Depois da análise
             </p>
-            <h2 className="mt-2 font-display text-2xl font-bold text-primary">
+            <h2 className="mt-2 font-display text-2xl font-semibold text-primary">
               A Novare continua com você
             </h2>
             <p className="mt-2 text-[15px] leading-relaxed text-slate-600">
@@ -252,7 +252,7 @@ export default async function PaginaProfissao({
               página "em desenho" que só existia para apontar para cá. */}
           <Link
             href="/consultoria"
-            className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-primary px-5 py-3.5 text-sm font-bold text-white transition-opacity hover:opacity-90"
+            className="btn-petroleo shrink-0 transition-opacity hover:opacity-90"
           >
             Conhecer a consultoria
             <ArrowRight className="h-4 w-4" />

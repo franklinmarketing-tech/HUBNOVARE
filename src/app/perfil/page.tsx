@@ -71,12 +71,12 @@ export default async function PerfilPage() {
 
       <main className="mx-auto max-w-3xl px-4 pb-16">
         {/* Cartão de identidade */}
-        <section className="mt-8 flex flex-wrap items-center gap-5 rounded-3xl bg-primary p-6 sm:p-7">
+        <section className="mt-8 flex flex-wrap items-center gap-5 rounded-[1.75rem] bg-noite p-6 sm:p-7">
           <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-accent-btn text-2xl font-bold text-accent-foreground">
             {inicial}
           </span>
           <div className="min-w-0 flex-1">
-            <h1 className="truncate font-display text-2xl font-bold text-white">
+            <h1 className="truncate font-display text-2xl font-medium text-white">
               {perfil.nome || "Seu perfil"}
             </h1>
             <p className="truncate text-sm text-white/60">{perfil.email}</p>
@@ -116,7 +116,7 @@ export default async function PerfilPage() {
 
         {/* Plano */}
         <section className="mt-5 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-          <h2 className="font-display text-lg font-bold text-primary">
+          <h2 className="font-display text-lg font-semibold text-primary">
             Seu plano
           </h2>
           <p className="mt-1.5 text-sm text-muted-foreground">
@@ -126,10 +126,10 @@ export default async function PerfilPage() {
           </p>
           {!assinante && (
             <Link
-              href="/assinar"
-              className="mt-4 inline-flex items-center gap-2 rounded-xl bg-accent-btn px-4 py-2.5 text-sm font-semibold text-accent-foreground transition-colors hover:bg-accent-strong"
+              href="/aplicativos"
+              className="btn-cp mt-4"
             >
-              Conhecer o Workspace
+              Ver todas as ferramentas
             </Link>
           )}
         </section>

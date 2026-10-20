@@ -87,7 +87,7 @@ export function CenaFoto({
         className="absolute inset-0 -z-10"
         style={{
           background:
-            "linear-gradient(100deg, hsl(216 58% 9% / 0.94) 0%, hsl(216 58% 10% / 0.86) 45%, hsl(216 58% 12% / 0.72) 100%)",
+            "linear-gradient(100deg, hsl(202 83% 5% / 0.94) 0%, hsl(202 83% 6% / 0.86) 45%, hsl(202 83% 7% / 0.72) 100%)",
         }}
       />
 

@@ -52,7 +52,7 @@ export function MudouNoMes({
 
   return (
     <section className="rounded-2xl border border-border bg-white p-5">
-      <h2 className="font-display text-base font-bold text-primary">
+      <h2 className="font-display text-base font-semibold text-primary">
         O que mudou desde {mesAnterior}
       </h2>
       <p className="mt-0.5 text-xs text-muted-foreground">

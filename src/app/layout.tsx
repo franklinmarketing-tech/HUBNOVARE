@@ -57,7 +57,7 @@ const siteUrl = SITE_URL;
  *     acessibilidade de quem precisa aumentar o texto.
  */
 export const viewport: Viewport = {
-  themeColor: "#1d3658",
+  themeColor: "#0a3346",
   colorScheme: "light",
   width: "device-width",
   initialScale: 1,

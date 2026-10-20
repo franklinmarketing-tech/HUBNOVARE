@@ -153,7 +153,7 @@ export function ConviteDeSaida() {
         className="palco-vivo relative flex max-h-[92dvh] w-full max-w-[27rem] flex-col overflow-hidden rounded-t-3xl text-white shadow-elevated sm:rounded-3xl"
         style={{
           background:
-            "linear-gradient(157deg, hsl(215 52% 21%) 0%, hsl(216 58% 11%) 100%)",
+            "linear-gradient(157deg, hsl(199 72% 15%) 0%, hsl(202 83% 7%) 100%)",
         }}
       >
         <button
@@ -183,7 +183,7 @@ export function ConviteDeSaida() {
 
           <h2
             id="titulo-convite-saida"
-            className="mt-4 font-display text-2xl font-extrabold leading-tight tracking-tight sm:text-[1.75rem]"
+            className="mt-4 font-display text-2xl font-semibold leading-tight tracking-[-0.03em] sm:text-[1.75rem]"
           >
             Antes de ir: é tudo
             <br />

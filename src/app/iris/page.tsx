@@ -166,7 +166,7 @@ export default async function IrisPage({
         className="palco-vivo relative overflow-hidden text-white"
         style={{
           background:
-            "linear-gradient(157deg, hsl(215 52% 21%) 0%, hsl(216 58% 11%) 100%)",
+            "linear-gradient(157deg, hsl(199 72% 15%) 0%, hsl(202 83% 7%) 100%)",
         }}
       >
         {/* A página do produto de IA não tinha uma única imagem: só gradiente.
@@ -188,7 +188,7 @@ export default async function IrisPage({
             Íris · a IA financeira da Novare
           </span>
 
-          <h1 className="mt-5 max-w-2xl font-display text-4xl font-extrabold leading-[1.05] tracking-tight sm:text-5xl">
+          <h1 className="mt-5 max-w-2xl font-display text-4xl font-medium leading-[1.05] tracking-[-0.03em] sm:text-5xl">
             Ela enxerga o dinheiro
             <br />
             <span className="text-accent-claro">que some.</span>
@@ -229,7 +229,7 @@ export default async function IrisPage({
             O que ficou é o que sempre teve valor de verdade — a leitura do
             extrato, que é aritmética feita no navegador de quem usa. */}
         <section className="revelar mt-2">
-          <h2 className="font-display text-xl font-bold text-primary">
+          <h2 className="font-display text-xl font-semibold text-primary">
             Cole o seu extrato aqui
           </h2>
           <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground">
@@ -246,7 +246,7 @@ export default async function IrisPage({
 
         {/* POR QUE ELA É DIFERENTE */}
         <section className="mt-14">
-          <h2 className="font-display text-xl font-bold text-primary">
+          <h2 className="font-display text-xl font-semibold text-primary">
             Por que a Íris é diferente
           </h2>
           <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground">
@@ -289,11 +289,10 @@ export default async function IrisPage({
         </section>
 
         {/* BETA — único bloco escuro depois do resultado. */}
-        <section className="mt-14 rounded-3xl bg-primary p-7 text-white sm:p-9">
-          <span className="inline-block rounded bg-accent-btn px-2 py-0.5 text-2xs font-semibold uppercase tracking-wide text-white">
-            incluída na assinatura
-          </span>
-          <h2 className="mt-3 font-display text-xl font-bold sm:text-2xl">
+        {/* O selo dizia "incluída na assinatura" — e não há assinatura. */}
+        <section className="secao-noite mt-14 rounded-[1.75rem] p-7 sm:p-9">
+          <span className="chapeu chapeu-claro">Grátis, sem limite</span>
+          <h2 className="mt-3 font-display text-2xl font-medium tracking-[-0.03em] sm:text-3xl">
             A Íris é de graça, como o resto.
           </h2>
           <p className="mt-2.5 max-w-xl text-sm leading-relaxed text-white/75">
@@ -302,10 +301,10 @@ export default async function IrisPage({
             ferramentas da casa.
           </p>
           <Link
-            href="/assinar"
-            className="mt-6 inline-flex items-center gap-2 rounded-xl bg-accent-btn px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-accent-strong"
+            href="/aplicativos"
+            className="btn-cp mt-6"
           >
-            Ver o que entra na assinatura
+            Ver todas as ferramentas
             <ArrowRight className="h-4 w-4" aria-hidden="true" />
           </Link>
         </section>

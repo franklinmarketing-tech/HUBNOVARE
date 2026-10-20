@@ -112,7 +112,7 @@ export default function ParaQuem({ className }: { className?: string }) {
 
           Contraste medido sobre `bg-primary`: título branco 12,23:1, o
           complemento em `white/80` 8,43:1 e o ícone `accent-claro` 5,14:1. */}
-      <div className="fin-lustro mt-9 rounded-3xl bg-primary p-6 sm:p-8">
+      <div className="fin-lustro mt-9 rounded-[1.75rem] bg-noite p-6 sm:p-8">
         <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:gap-7">
           <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/10 text-accent-claro">
             <Icone className="h-5 w-5" strokeWidth={1.75} />

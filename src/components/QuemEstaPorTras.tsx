@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { MessageCircle } from "lucide-react";
+import { ArrowUpRight, MessageCircle } from "lucide-react";
 
 import { falarNoWhatsApp } from "@/lib/contato";
 
@@ -23,42 +23,56 @@ export function QuemEstaPorTras() {
   );
 
   return (
+    // Seção noite, como o "Quem está por trás da análise" da Carteira
+    // Pontual: foto em cartão escuro à esquerda, a fala dele à direita.
     <section
       aria-label="Quem está por trás da Novare"
-      className="cine overflow-hidden rounded-3xl border border-border bg-white shadow-card"
+      className="cine secao-noite rounded-[1.75rem]"
       style={{ transitionDelay: "120ms" }}
     >
-      <div className="flex flex-col gap-5 p-5 sm:flex-row sm:items-center sm:gap-7 sm:p-7">
-        <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-full ring-4 ring-accent-tint sm:h-28 sm:w-28">
-          <Image
-            src="/lp/socio-jefferson.webp"
-            alt="Jefferson Freitas, sócio da Novare"
-            fill
-            sizes="112px"
-            className="object-cover"
-          />
-        </div>
+      <div className="grid items-center gap-6 p-5 sm:grid-cols-[minmax(0,15rem)_1fr] sm:gap-10 sm:p-9">
+        <figure className="rounded-[1.5rem] bg-noite-2 p-2.5 ring-1 ring-white/10">
+          <div className="relative aspect-square overflow-hidden rounded-[1.1rem]">
+            <Image
+              src="/lp/socio-jefferson.webp"
+              alt="Jefferson Freitas, sócio da Novare"
+              fill
+              sizes="(max-width: 640px) 90vw, 240px"
+              className="object-cover"
+            />
+          </div>
+          <figcaption className="px-1 pb-1 pt-3 text-center">
+            <span className="block text-sm font-semibold text-white">Jefferson Freitas</span>
+            <span className="mt-0.5 block text-[10px] font-semibold uppercase tracking-[0.22em] text-ciano-claro">
+              Sócio · Novare Investimentos
+            </span>
+          </figcaption>
+        </figure>
 
-        <div className="min-w-0 flex-1">
-          <p className="font-display text-lg font-semibold leading-snug text-primary sm:text-xl">
+        <div className="min-w-0">
+          <p className="chapeu chapeu-claro">Quem está por trás</p>
+          <p className="mt-3 font-display text-xl font-medium leading-snug tracking-[-0.03em] text-white sm:text-[1.75rem] sm:leading-tight">
             “Oi, eu sou o Jefferson. Criamos estas ferramentas para você
-            entender o seu dinheiro com clareza e decidir com tranquilidade.
+            entender o seu dinheiro com <span className="text-ciano-claro">clareza</span> e
+            decidir com <span className="text-accent-claro">tranquilidade</span>.
             Ficou alguma dúvida? É só me chamar.”
           </p>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Jefferson Freitas · Sócio da Novare
-          </p>
-        </div>
 
-        <a
-          href={zap}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 self-start rounded-xl bg-primary px-5 text-sm font-semibold text-white transition-colors hover:bg-primary-soft sm:self-center"
-        >
-          <MessageCircle className="h-4 w-4" strokeWidth={2} />
-          Falar com a Novare
-        </a>
+          <a
+            href={zap}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group mt-6 inline-flex items-center gap-2"
+          >
+            <span className="btn-cp">
+              <MessageCircle className="h-4 w-4" strokeWidth={2} />
+              Falar com a Novare
+            </span>
+            <span className="btn-seta" aria-hidden>
+              <ArrowUpRight className="h-4 w-4" />
+            </span>
+          </a>
+        </div>
       </div>
     </section>
   );

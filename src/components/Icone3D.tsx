@@ -27,7 +27,7 @@ export function Icone3D({
     tom === "accent"
       ? "hsl(16 85% 55% / 0.45)"
       : tom === "neutro"
-        ? "hsl(215 50% 45% / 0.35)"
+        ? "hsl(199 70% 32% / 0.35)"
         : "hsl(197 80% 55% / 0.45)";
 
   return (

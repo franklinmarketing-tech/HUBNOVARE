@@ -233,7 +233,7 @@ function EditarLead({
           <button
             type="submit"
             disabled={salvando}
-            className="flex min-h-11 items-center gap-2 rounded-xl bg-primary px-5 text-sm font-semibold text-white hover:bg-primary-soft disabled:opacity-50"
+            className="btn-petroleo disabled:opacity-50"
           >
             {salvando && <Loader2 className="h-4 w-4 animate-spin" />}
             Salvar

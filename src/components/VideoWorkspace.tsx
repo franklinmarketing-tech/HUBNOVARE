@@ -35,7 +35,7 @@ export function VideoWorkspace({ legenda }: { legenda?: string }) {
         className="relative flex aspect-video flex-col items-center justify-center gap-3 text-white"
         style={{
           background:
-            "linear-gradient(160deg, hsl(216 46% 24%) 0%, hsl(219 55% 12%) 100%)",
+            "linear-gradient(160deg, hsl(199 66% 17%) 0%, hsl(202 80% 7%) 100%)",
         }}
       >
         <span

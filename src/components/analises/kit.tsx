@@ -26,7 +26,7 @@ import { ArrowRight, CircleAlert, CircleCheck, TriangleAlert } from "lucide-reac
  */
 
 export const CORES_ANALISE = {
-  navy: "hsl(215 50% 30%)",
+  navy: "hsl(199 60% 24%)", // petróleo da Carteira Pontual (era o marinho 215 50% 30%)
   laranja: "hsl(24 85% 55%)",
   verde: "hsl(152 55% 41%)",
   cinza: "hsl(214 20% 86%)",
@@ -46,8 +46,8 @@ export function CascaAnalise({
   return (
     <section data-analise className="mx-auto mt-6 max-w-3xl space-y-4 print:break-inside-avoid" aria-label={titulo}>
       <div>
-        <p className="text-2xs font-semibold uppercase tracking-[0.14em] text-accent-strong">Análise completa</p>
-        <h2 className="mt-1 font-display text-xl font-bold text-primary sm:text-2xl">{titulo}</h2>
+        <p className="chapeu">Análise completa</p>
+        <h2 className="titulo-cp mt-2 text-2xl sm:text-[2rem]">{titulo}</h2>
       </div>
       {children}
       <p className="text-2xs leading-relaxed text-slate-500">{aviso}</p>
@@ -59,8 +59,8 @@ export function CascaAnalise({
 export function AnaliseVazia({ texto }: { texto: string }) {
   return (
     <section data-analise className="mx-auto mt-6 max-w-3xl">
-      <div className="rounded-3xl border border-dashed border-slate-300 bg-white/60 p-6 text-center">
-        <p className="font-display text-base font-bold text-primary">A análise aparece aqui</p>
+      <div className="rounded-[1.75rem] border border-dashed border-slate-300 bg-white/60 p-6 text-center">
+        <p className="font-display text-base font-semibold text-primary">A análise aparece aqui</p>
         <p className="mt-1 text-sm text-slate-500">{texto}</p>
       </div>
     </section>
@@ -74,10 +74,10 @@ export function Veredito({ tom, titulo, texto }: { tom: "bom" | "atencao" | "rui
     ruim: { caixa: "border-destructive/30 bg-destructive/5", icone: <CircleAlert className="h-5 w-5 text-destructive" /> },
   }[tom];
   return (
-    <div className={`flex gap-3 rounded-2xl border p-4 sm:p-5 ${t.caixa}`}>
+    <div className={`flex gap-3 rounded-[1.5rem] border p-5 sm:p-6 ${t.caixa}`}>
       <span className="mt-0.5 shrink-0">{t.icone}</span>
       <div>
-        <p className="font-display text-base font-bold text-slate-900">{titulo}</p>
+        <p className="font-display text-lg font-semibold text-slate-900">{titulo}</p>
         <p className="mt-1 text-sm leading-relaxed text-slate-600">{texto}</p>
       </div>
     </div>
@@ -90,9 +90,9 @@ export function GradeIndicadores({ children }: { children: ReactNode }) {
 
 export function Indicador({ rotulo, valor, nota, ruim }: { rotulo: string; valor: string; nota: string; ruim?: boolean }) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-4">
-      <p className="text-2xs font-semibold uppercase tracking-wider text-slate-500">{rotulo}</p>
-      <p className={`mt-1 font-display text-2xl font-bold tabular-nums ${ruim ? "text-destructive" : "text-primary"}`}>{valor}</p>
+    <div className="rounded-[1.25rem] border border-slate-200/80 bg-white p-4 shadow-suave">
+      <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-500">{rotulo}</p>
+      <p className={`mt-1.5 font-display text-[1.75rem] font-medium tracking-[-0.04em] tabular-nums ${ruim ? "text-destructive" : "text-primary"}`}>{valor}</p>
       <p className="mt-0.5 text-2xs text-slate-500">{nota}</p>
     </div>
   );
@@ -105,7 +105,7 @@ export function GradeGraficos({ children }: { children: ReactNode }) {
 export function CartaoGrafico({ titulo, legenda, children }: { titulo: string; legenda?: string; children: ReactNode }) {
   return (
     // min-w-0: item de grid com conteúdo largo não pode empurrar a página.
-    <div className="min-w-0 rounded-2xl border border-slate-200 bg-white p-5">
+    <div className="min-w-0 rounded-[1.5rem] border border-slate-200/80 bg-white p-5 shadow-suave">
       <p className="text-sm font-semibold text-slate-700">{titulo}</p>
       {legenda && <p className="mt-0.5 text-2xs text-slate-500">{legenda}</p>}
       <div className="mt-4">{children}</div>
@@ -149,12 +149,13 @@ export type Recomendacao = { titulo: string; texto: string; href?: string; link?
 export function Recomendacoes({ itens, rodape, titulo = "O que um consultor faria, na ordem" }: { itens: Recomendacao[]; rodape?: ReactNode; titulo?: string }) {
   if (!itens.length) return null;
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-5">
+    <div className="cartao-cp cartao-fita-laranja p-5 sm:p-6">
       <p className="text-sm font-semibold text-slate-700">{titulo}</p>
       <ol className="mt-4 space-y-4">
         {itens.map((r, i) => (
           <li key={r.titulo} className="flex gap-3">
-            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-accent text-xs font-bold text-white">{i + 1}</span>
+            {/* "01, 02…" em ciano fino, como as etapas da Carteira Pontual. */}
+            <span className="w-8 shrink-0 font-display text-xl font-normal leading-7 tracking-[-0.04em] text-ciano-forte tabular-nums">{String(i + 1).padStart(2, "0")}</span>
             <div className="min-w-0">
               <p className="text-sm font-bold text-slate-900">{r.titulo}</p>
               <p className="mt-0.5 text-sm leading-relaxed text-slate-600">{r.texto}</p>
@@ -167,7 +168,7 @@ export function Recomendacoes({ itens, rodape, titulo = "O que um consultor fari
           </li>
         ))}
       </ol>
-      {rodape && <div className="mt-5 rounded-xl bg-primary/5 px-4 py-3 text-sm text-slate-700">{rodape}</div>}
+      {rodape && <div className="painel-gelo mt-5 px-4 py-3 text-sm text-slate-700">{rodape}</div>}
     </div>
   );
 }

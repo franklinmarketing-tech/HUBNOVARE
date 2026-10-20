@@ -97,7 +97,7 @@ export default function LabGraficos() {
           <p className="text-2xs font-semibold uppercase tracking-wider text-ciano-forte">
             FINCASH · obra
           </p>
-          <h1 className="mt-1 font-display text-2xl font-semibold tracking-tight text-primary">
+          <h1 className="mt-1 font-display text-2xl font-medium tracking-[-0.03em] text-primary">
             Laboratório de gráficos
           </h1>
           <p className="mt-1.5 max-w-prose text-xs leading-relaxed text-muted-foreground">

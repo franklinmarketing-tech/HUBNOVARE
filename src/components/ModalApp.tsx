@@ -159,7 +159,7 @@ export function ModalApp({
               />
             )}
             <div className="min-w-0 pr-10">
-              <h2 className="font-display text-xl font-bold leading-tight text-primary">
+              <h2 className="font-display text-xl font-semibold leading-tight text-primary">
                 {app.nome}
               </h2>
               <p className="text-sm leading-snug text-muted-foreground">
@@ -209,7 +209,7 @@ export function ModalApp({
                 href={app.href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-bold text-white transition-opacity hover:opacity-90"
+                className="btn-petroleo flex-1 transition-opacity hover:opacity-90"
               >
                 Abrir {app.nome}
                 <ArrowRight className="h-4 w-4" />
@@ -217,7 +217,7 @@ export function ModalApp({
             ) : (
               <Link
                 href={app.href}
-                className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-bold text-white transition-opacity hover:opacity-90"
+                className="btn-petroleo flex-1 transition-opacity hover:opacity-90"
               >
                 Abrir {app.nome}
                 <ArrowRight className="h-4 w-4" />

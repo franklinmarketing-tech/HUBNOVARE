@@ -45,12 +45,12 @@ export function RodapeNovare({
       {/* Convite: o único bloco navy da página depois do resultado. */}
       {convite && (
       <section className="mx-auto max-w-3xl px-4 pb-12 print:hidden">
-        <div className="relative overflow-hidden rounded-3xl bg-primary sm:flex sm:items-stretch">
+        <div className="relative overflow-hidden rounded-[1.75rem] bg-noite shadow-ciano sm:flex sm:items-stretch">
           <div className="relative z-10 p-7 sm:flex-1 sm:p-9">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[hsl(205_95%_75%)]">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-ciano-claro">
               Novare · Consultoria de Investimentos
             </p>
-            <h2 className="mt-3 max-w-md font-display text-2xl font-bold leading-tight text-white sm:text-[1.75rem]">
+            <h2 className="mt-3 max-w-md font-display text-2xl font-medium leading-tight tracking-[-0.03em] text-white sm:text-[2rem]">
               Construindo seu futuro financeiro com clareza e propósito
             </h2>
             <p className="mt-3 max-w-md text-sm leading-relaxed text-white/70">
@@ -63,7 +63,7 @@ export function RodapeNovare({
               href={zap}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-6 inline-flex items-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-bold text-primary transition-transform hover:-translate-y-0.5"
+              className="btn-cp mt-6"
             >
               <MessageCircle className="h-4 w-4" strokeWidth={2} />
               Falar com a Novare
@@ -81,7 +81,7 @@ export function RodapeNovare({
               sizes="340px"
               className="object-cover"
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-primary via-primary/40 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-r from-noite via-noite/40 to-transparent" />
           </div>
         </div>
       </section>
@@ -183,7 +183,7 @@ export function RodapeNovare({
               </li>
               <li>
                 <Link
-                  href="/assinar"
+                  href="/"
                   className="text-[13px] text-white/60 transition-colors hover:text-white"
                 >
                   Workspace

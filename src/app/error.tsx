@@ -30,7 +30,7 @@ export default function Erro({
 
   return (
     <div className="flex min-h-dvh flex-col items-center justify-center px-5 py-16 text-center">
-      <h1 className="font-display text-2xl font-bold text-primary sm:text-3xl">
+      <h1 className="font-display text-2xl font-medium text-primary sm:text-3xl">
         Alguma coisa quebrou aqui
       </h1>
       <p className="mt-3 max-w-md text-sm leading-relaxed text-slate-500">
@@ -42,7 +42,7 @@ export default function Erro({
         <button
           type="button"
           onClick={reset}
-          className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-bold text-white transition-opacity hover:opacity-90"
+          className="btn-petroleo transition-opacity hover:opacity-90"
         >
           <RotateCcw className="h-4 w-4" />
           Tentar de novo

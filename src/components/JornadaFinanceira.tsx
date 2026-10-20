@@ -279,7 +279,7 @@ export function JornadaFinanceira({ dados }: { dados: DadosJornada }) {
             <p className="text-2xs font-semibold uppercase tracking-[0.14em] text-white/60">
               Como você está
             </p>
-            <h2 className="mt-1 font-display text-2xl font-extrabold leading-tight sm:text-[1.75rem]">
+            <h2 className="mt-1 font-display text-2xl font-semibold leading-tight sm:text-[1.75rem]">
               {estado.titulo}
             </h2>
             <p className="mt-1.5 max-w-lg text-sm leading-relaxed text-white/80">
@@ -311,7 +311,7 @@ export function JornadaFinanceira({ dados }: { dados: DadosJornada }) {
             <p className="text-2xs font-semibold uppercase tracking-wider text-white/60">
               Caminho até o Marco Horizonte
             </p>
-            <h2 className="mt-1 font-display text-xl font-bold">{fase.nome}</h2>
+            <h2 className="mt-1 font-display text-xl font-semibold">{fase.nome}</h2>
           </div>
           <p className="font-display text-3xl font-extrabold tabular-nums">
             {pct.toLocaleString("pt-BR", { maximumFractionDigits: 1 })}%
@@ -372,7 +372,7 @@ export function JornadaFinanceira({ dados }: { dados: DadosJornada }) {
 
       {/* ---------------------------------------------------- as conquistas */}
       <section className="rounded-2xl border border-border bg-white p-5">
-        <h2 className="font-display text-base font-bold text-primary">
+        <h2 className="font-display text-base font-semibold text-primary">
           Suas conquistas
         </h2>
         <p className="mt-0.5 text-xs text-muted-foreground">

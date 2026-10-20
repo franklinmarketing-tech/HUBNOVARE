@@ -115,7 +115,7 @@ export function PortaoGuia({ ebook }: { ebook: Ebook }) {
             type="button"
             onClick={liberar}
             disabled={!ok}
-            className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl bg-accent-btn px-4 py-2.5 text-sm font-bold text-white transition-opacity hover:opacity-95 disabled:opacity-50"
+            className="btn-cp mt-3 w-full transition-opacity hover:opacity-95 disabled:opacity-50"
           >
             <ArrowDownToLine className="h-4 w-4" />
             Baixar o guia

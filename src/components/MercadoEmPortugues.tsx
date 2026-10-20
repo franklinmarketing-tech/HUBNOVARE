@@ -60,17 +60,17 @@ export async function MercadoEmPortugues() {
 
   return (
     <section aria-labelledby="mercado-titulo" className="cine" style={{ transitionDelay: "120ms" }}>
-      <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <h2 id="mercado-titulo" className="titulo-secao text-lg sm:text-xl">
-          O mercado hoje, em português
-        </h2>
-        <p className="text-2xs text-muted-foreground">Dados do Banco Central</p>
-      </div>
-      <ul className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <p className="chapeu chapeu-ciano">Dados do Banco Central</p>
+      <h2 id="mercado-titulo" className="titulo-cp mt-2 text-2xl sm:text-[2rem]">
+        O mercado hoje, <span className="text-ciano-forte">em português.</span>
+      </h2>
+      <ul className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {frases.map(({ icone: Icone, titulo, texto }) => (
-          <li key={titulo} className="rounded-2xl border border-border bg-white/80 p-4">
-            <Icone className="h-5 w-5 text-ciano-forte" strokeWidth={1.8} />
-            <p className="mt-2.5 text-sm font-bold text-primary">{titulo}</p>
+          <li key={titulo} className="cartao-cp p-5">
+            <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-ciano-tint">
+              <Icone className="h-5 w-5 text-ciano-forte" strokeWidth={1.7} />
+            </span>
+            <p className="mt-3 text-sm font-semibold text-primary">{titulo}</p>
             <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{texto}</p>
           </li>
         ))}

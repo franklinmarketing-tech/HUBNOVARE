@@ -24,7 +24,7 @@ export function BannerNews({ className = "" }: { className?: string }) {
   return (
     <Link
       href="/novare-news"
-      className={`glass-card group flex min-w-0 items-center gap-3 overflow-hidden rounded-2xl bg-gradient-to-r from-accent-tint/70 via-white to-white p-3 shadow-card ring-1 ring-accent/15 transition-all hover:-translate-y-0.5 hover:shadow-card-hover hover:ring-accent/30 ${className}`}
+      className={`glass-card group flex min-w-0 items-center gap-3 overflow-hidden rounded-[1.25rem] bg-gradient-to-r from-accent-tint/70 via-white to-white p-3 shadow-card ring-1 ring-accent/15 transition-all hover:-translate-y-0.5 hover:shadow-card-hover hover:ring-accent/30 ${className}`}
     >
       <span className="relative h-[54px] w-[86px] shrink-0 overflow-hidden rounded-xl">
         <Image

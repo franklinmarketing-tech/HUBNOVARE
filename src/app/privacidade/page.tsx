@@ -44,7 +44,7 @@ export default function PrivacidadePage() {
           Conformidade com a LGPD (Lei nº 13.709/2018)
         </div>
 
-        <h1 className="font-display text-3xl font-bold tracking-tight text-primary sm:text-4xl">
+        <h1 className="font-display text-3xl font-medium tracking-[-0.03em] text-primary sm:text-4xl">
           Política de Privacidade
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
@@ -67,7 +67,7 @@ export default function PrivacidadePage() {
               <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
                 <Building2 className="h-4 w-4" />
               </span>
-              <h2 className="font-display text-lg font-bold text-slate-900">
+              <h2 className="font-display text-lg font-semibold text-slate-900">
                 1. Quem é o controlador dos dados
               </h2>
             </div>
@@ -86,7 +86,7 @@ export default function PrivacidadePage() {
               <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
                 <UserCog className="h-4 w-4" />
               </span>
-              <h2 className="font-display text-lg font-bold text-slate-900">
+              <h2 className="font-display text-lg font-semibold text-slate-900">
                 2. Encarregado (DPO) e canal de contato
               </h2>
             </div>
@@ -115,7 +115,7 @@ export default function PrivacidadePage() {
               <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
                 <Database className="h-4 w-4" />
               </span>
-              <h2 className="font-display text-lg font-bold text-slate-900">
+              <h2 className="font-display text-lg font-semibold text-slate-900">
                 3. Quais dados coletamos
               </h2>
             </div>
@@ -183,7 +183,7 @@ export default function PrivacidadePage() {
               <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
                 <Eye className="h-4 w-4" />
               </span>
-              <h2 className="font-display text-lg font-bold text-slate-900">
+              <h2 className="font-display text-lg font-semibold text-slate-900">
                 4. Quem da Novare lê os seus dados financeiros
               </h2>
             </div>
@@ -250,7 +250,7 @@ export default function PrivacidadePage() {
               <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
                 <Scale className="h-4 w-4" />
               </span>
-              <h2 className="font-display text-lg font-bold text-slate-900">
+              <h2 className="font-display text-lg font-semibold text-slate-900">
                 5. Para que usamos e com qual base legal
               </h2>
             </div>
@@ -292,7 +292,7 @@ export default function PrivacidadePage() {
               <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
                 <Share2 className="h-4 w-4" />
               </span>
-              <h2 className="font-display text-lg font-bold text-slate-900">
+              <h2 className="font-display text-lg font-semibold text-slate-900">
                 6. Compartilhamento e transferência internacional
               </h2>
             </div>
@@ -333,7 +333,7 @@ export default function PrivacidadePage() {
               <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
                 <Timer className="h-4 w-4" />
               </span>
-              <h2 className="font-display text-lg font-bold text-slate-900">
+              <h2 className="font-display text-lg font-semibold text-slate-900">
                 7. Por quanto tempo guardamos
               </h2>
             </div>
@@ -374,7 +374,7 @@ export default function PrivacidadePage() {
               <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
                 <ShieldCheck className="h-4 w-4" />
               </span>
-              <h2 className="font-display text-lg font-bold text-slate-900">
+              <h2 className="font-display text-lg font-semibold text-slate-900">
                 8. Seus direitos como titular
               </h2>
             </div>
@@ -415,7 +415,7 @@ export default function PrivacidadePage() {
               <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
                 <KeyRound className="h-4 w-4" />
               </span>
-              <h2 className="font-display text-lg font-bold text-slate-900">
+              <h2 className="font-display text-lg font-semibold text-slate-900">
                 9. Segurança
               </h2>
             </div>
@@ -437,7 +437,7 @@ export default function PrivacidadePage() {
               <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
                 <Cookie className="h-4 w-4" />
               </span>
-              <h2 className="font-display text-lg font-bold text-slate-900">
+              <h2 className="font-display text-lg font-semibold text-slate-900">
                 10. Cookies e armazenamento no navegador
               </h2>
             </div>
@@ -459,7 +459,7 @@ export default function PrivacidadePage() {
               <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
                 <Mail className="h-4 w-4" />
               </span>
-              <h2 className="font-display text-lg font-bold text-slate-900">
+              <h2 className="font-display text-lg font-semibold text-slate-900">
                 11. Como exercer seus direitos
               </h2>
             </div>

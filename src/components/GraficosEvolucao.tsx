@@ -106,7 +106,7 @@ function Rosca({
                 borderRadius: 12,
                 border: "1px solid hsl(215 20% 90%)",
                 fontSize: 12,
-                boxShadow: "0 8px 24px -12px hsl(215 40% 20% / 0.25)",
+                boxShadow: "0 8px 24px -12px hsl(199 60% 14% / 0.25)",
               }}
             />
             <Legend

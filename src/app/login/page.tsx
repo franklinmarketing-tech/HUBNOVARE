@@ -285,7 +285,7 @@ export default function LoginPage() {
               style={{ height: 35, width: "auto" }}
             />
           </Link>
-          <h1 className="mt-6 font-display text-xl font-bold text-primary">
+          <h1 className="mt-6 font-display text-xl font-medium text-primary">
             Acesse sua conta
           </h1>
           <p className="mt-1.5 text-xs text-muted-foreground">

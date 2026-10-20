@@ -10,7 +10,6 @@ import {
   Lock,
   Newspaper,
   Search,
-  Sparkles,
   User,
 } from "lucide-react";
 
@@ -26,7 +25,8 @@ const ITENS = [
   { href: "/meu-dia", rotulo: "Meu dia", curto: "Meu dia", icone: LayoutDashboard },
   { href: "/aplicativos", rotulo: "Aplicativos", curto: "Apps", icone: LayoutGrid },
   { href: "/novare-news", rotulo: "Novare News", curto: "News", icone: Newspaper },
-  { href: "/assinar", rotulo: "Workspace", curto: "Workspace", icone: Sparkles },
+  // ⚠️ O item "Workspace" → /assinar SAIU em 20/10/2026: era a página de
+  // venda, e tudo é gratuito. O Workspace é o próprio "Início".
 ];
 
 export function BarraLateral() {

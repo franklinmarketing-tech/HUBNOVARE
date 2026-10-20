@@ -196,7 +196,7 @@ export function TopoApp({
         ) : (
           <Link
             href="/login"
-            className="shrink-0 rounded-xl bg-primary px-4 py-2.5 text-xs font-semibold text-white transition-colors hover:bg-primary-soft"
+            className="btn-petroleo shrink-0 min-h-10 px-4 text-xs"
           >
             Entrar
           </Link>

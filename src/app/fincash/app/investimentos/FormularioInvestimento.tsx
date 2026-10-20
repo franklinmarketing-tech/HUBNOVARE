@@ -450,7 +450,7 @@ export function FormularioInvestimento({
           <button
             type="submit"
             disabled={salvando || !nome.trim() || !instituicao.trim()}
-            className="min-h-12 flex-1 rounded-xl bg-accent-btn px-4 text-sm font-bold text-white shadow-[var(--fin-sombra-card)] transition-all hover:-translate-y-0.5 disabled:pointer-events-none disabled:opacity-50"
+            className="btn-cp flex-1 disabled:pointer-events-none disabled:opacity-50"
           >
             {salvando ? "Salvando…" : "Salvar"}
           </button>
@@ -647,7 +647,7 @@ export function ModalValorAtual({
           <button
             type="submit"
             disabled={salvando}
-            className="min-h-12 flex-1 rounded-xl bg-accent-btn px-4 text-sm font-bold text-white shadow-[var(--fin-sombra-card)] transition-all hover:-translate-y-0.5 disabled:pointer-events-none disabled:opacity-50"
+            className="btn-cp flex-1 disabled:pointer-events-none disabled:opacity-50"
           >
             {salvando ? "Salvando…" : "Salvar valor"}
           </button>
