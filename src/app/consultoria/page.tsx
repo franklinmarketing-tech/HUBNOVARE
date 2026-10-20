@@ -60,10 +60,12 @@ export default async function ConsultoriaPage() {
         <section className="text-center sm:text-left">
           <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-3 py-1 text-xs font-medium text-primary">
             <ShieldCheck className="h-3.5 w-3.5" />
-            Ecossistema Oficial de Soluções Novare
+            Consultoria Novare
           </div>
           <h1 className="mt-4 max-w-2xl font-display text-3xl font-bold tracking-tight text-primary sm:text-4xl">
-            Soluções completas para cada momento da sua vida financeira.
+            {/* Era "Soluções completas para cada momento" — e a linha de baixo
+                diz que a casa tem UM serviço (varredura de 20/10/2026). */}
+            Uma análise isenta do seu dinheiro, feita por gente.
           </h1>
           <p className="mt-3 max-w-2xl text-base text-muted-foreground">
             Hoje a casa tem um serviço, e ele é direto ao ponto: a{" "}
@@ -81,9 +83,11 @@ export default async function ConsultoriaPage() {
               href={`/consultoria/${item.slug}`}
               className={`group overflow-hidden rounded-3xl border transition-shadow hover:shadow-[0_20px_45px_-25px_hsl(215_50%_23%_/_0.6)] ${
                 item.isIsca ? "border-emerald-300/60 sm:col-span-2" : "border-slate-200"
-              }`}
+              } ${CONSULTORIAS.length === 1 ? "sm:col-span-2" : ""}`}
             >
-              <div className="relative h-56 w-full overflow-hidden">
+              {/* Com um serviço só, o cartão ocupa a linha inteira em vez de
+                  deixar metade do grid vazia. */}
+              <div className={`relative w-full overflow-hidden ${CONSULTORIAS.length === 1 ? "h-56 sm:h-80" : "h-56"}`}>
                 <Image
                   src={CAPA_PRODUTO[item.slug] ?? "/banner-novare.png"}
                   alt=""
@@ -232,8 +236,8 @@ export default async function ConsultoriaPage() {
       </main>
 
       <CapturaLead
-        titulo="Não sabe por qual produto começar?"
-        subtitulo="Deixe seu e-mail: um especialista da Novare olha o seu caso e indica o próximo passo — grátis, sem compromisso."
+        titulo="Quer conversar antes de decidir?"
+        subtitulo="Deixe seu nome e e-mail: um especialista da Novare entende o seu caso e diz se a análise faz sentido para você — grátis e sem compromisso."
         tipo="produto"
       />
 

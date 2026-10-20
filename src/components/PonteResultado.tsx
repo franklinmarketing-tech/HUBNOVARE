@@ -29,7 +29,11 @@ export function PonteResultado({
   /** Texto do botão. O padrão serve para quase toda ferramenta. */
   acao = "Fazer meu diagnóstico gratuito",
   /** Só mude para outra rota interna se a ferramenta pedir. */
-  href = "/consultoria/diagnostico",
+  /* ⚠️ ERA "/consultoria/diagnostico", uma rota que NÃO EXISTE (404), e era
+     o padrão de todas as ferramentas que usam esta ponte — achado na
+     varredura de 20/10/2026. O Exame é o diagnóstico gratuito que existe de
+     verdade, e a pessoa faz sozinha. */
+  href = "/exame-saude-financeira",
 }: {
   pergunta: string;
   valor?: string;
@@ -38,7 +42,7 @@ export function PonteResultado({
   href?: string;
 }) {
   return (
-    <section className="mx-auto mt-6 max-w-3xl px-4">
+    <section className="mx-auto mt-6 max-w-3xl px-4 print:hidden">
       <div className="overflow-hidden rounded-2xl bg-primary p-6 text-white sm:p-7">
         {/* O número primeiro, grande: é o que a pessoa veio buscar e o que
             dá peso à pergunta logo abaixo. Sem valor (ferramenta que não
@@ -61,9 +65,9 @@ export function PonteResultado({
         </p>
 
         <p className="mt-2 max-w-xl text-sm leading-relaxed text-white/75">
-          Um consultor da Novare lê os seus números e devolve o próximo passo.
-          Sem custo e sem comissão — a Novare não recebe de banco nem de
-          corretora.
+          Faça o Exame de Saúde Financeira e receba a sua nota de 0 a 100. Se
+          quiser, um consultor da Novare olha os números com você — é
+          opcional, sem custo e sem comissão.
         </p>
 
         <Link

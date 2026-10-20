@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { usePathname } from "next/navigation";
-import { ArrowRight, Check, FileText, Lock, MessageCircle, Loader2, AlertCircle} from "lucide-react";
+import { ArrowRight, Check, Download, FileText, Lock, MessageCircle, Loader2, AlertCircle, UserRound } from "lucide-react";
 import { falarNoWhatsApp } from "@/lib/contato";
 import { salvarLead, type LeadTipo } from "@/lib/leads";
 import {
@@ -21,18 +21,36 @@ import {
  * precisar colar nada. O lead vai pro comercial (WhatsApp) + banco.
  */
 export function CapturaLead({
-  titulo = "Receba o relatório completo",
-  subtitulo = "Um especialista da Novare revisa o seu caso e envia o próximo passo — grátis, sem compromisso.",
+  titulo,
+  subtitulo,
   tipo = "ferramenta",
   produto,
+  comRelatorio = false,
 }: {
   titulo?: string;
   subtitulo?: string;
   tipo?: LeadTipo;
   /** Slug do produto, quando a captura vive numa página de produto. */
   produto?: string;
+  /**
+   * NAS FERRAMENTAS: o resultado é da pessoa, e o especialista é OPCIONAL.
+   *
+   * ⚠️ ATÉ 20/10/2026 O BLOCO DIZIA "Receba o relatório completo · um
+   * especialista revisa", e um cliente entendeu que só veria o relatório se
+   * mandasse os dados para alguém ("para gerar um relatório precisa enviar a
+   * um especialista"). Agora o primeiro botão salva o resultado em PDF na
+   * hora, sem cadastro, e o formulário só abre para quem pedir a revisão.
+   */
+  comRelatorio?: boolean;
 } = {}) {
+  titulo ??= comRelatorio ? "Leve o seu resultado" : "Receba o relatório completo";
+  subtitulo ??= comRelatorio
+    ? "Salve em PDF ou imprima agora, sem cadastro. Se quiser, um especialista da Novare revisa o seu caso — é opcional e gratuito."
+    : "Um especialista da Novare revisa o seu caso e envia o próximo passo — grátis, sem compromisso.";
   const pathname = usePathname();
+  /* O formulário nasce fechado só nas ferramentas: lá ele é a segunda
+     escolha, não o caminho para ver o resultado. */
+  const [querEspecialista, setQuerEspecialista] = useState(!comRelatorio);
   const [dados, setDados] = useState<DadosLead>({ nome: "", telefone: "", email: "" });
   const [enviado, setEnviado] = useState(false);
   const [enviando, setEnviando] = useState(false);
@@ -92,7 +110,7 @@ export function CapturaLead({
 ` +
       (produto
         ? `Quero saber mais sobre o serviço da Novare (${produto}).`
-        : "Usei as ferramentas da Novare e quero receber o relatório completo com um especialista.") +
+        : "Usei as ferramentas da Novare e quero que um especialista revise o meu caso.") +
       `
 WhatsApp: ${dados.telefone}${linhaEmailLead(dados.email)}`,
   );
@@ -138,6 +156,34 @@ WhatsApp: ${dados.telefone}${linhaEmailLead(dados.email)}`,
               Prefere falar agora? Chamar no WhatsApp
             </a>
           </div>
+        ) : !querEspecialista ? (
+          <div className="mt-5">
+            <div className="flex flex-col gap-2 sm:flex-row">
+              {/* `window.print()` abre a janela do navegador, onde "Salvar como
+                  PDF" é o destino padrão no celular e no computador. A página
+                  já esconde menu, botões flutuantes e rodapé na impressão. */}
+              <button
+                type="button"
+                onClick={() => window.print()}
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-accent-btn px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-accent-strong"
+              >
+                <Download className="h-4 w-4" />
+                Baixar meu resultado em PDF
+              </button>
+              <button
+                type="button"
+                onClick={() => setQuerEspecialista(true)}
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-white px-5 py-3 text-sm font-bold text-primary transition-colors hover:border-primary/30 hover:bg-muted"
+              >
+                <UserRound className="h-4 w-4" />
+                Falar com um especialista
+              </button>
+            </div>
+            <p className="mt-2.5 text-2xs text-muted-foreground">
+              Na janela que abrir, escolha “Salvar como PDF”. Seus números não
+              saem do seu aparelho.
+            </p>
+          </div>
         ) : (
           <>
             <div className="mt-5">
@@ -156,7 +202,8 @@ WhatsApp: ${dados.telefone}${linhaEmailLead(dados.email)}`,
                 </>
               ) : (
                 <>
-                  Quero receber
+                  {/* Era "Quero receber", sem dizer o quê. */}
+                  Quero falar com um especialista
                   <ArrowRight className="h-4 w-4" />
                 </>
               )}

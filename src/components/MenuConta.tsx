@@ -118,7 +118,7 @@ export function MenuConta({
                 className="flex items-center gap-2.5 px-4 py-2.5 text-[13px] font-bold text-accent-strong transition-colors hover:bg-accent-tint"
               >
                 <Crown className="h-4 w-4" />
-                Liberar o Workspace
+                Ver tudo o que é grátis
               </Link>
             )}
           </div>

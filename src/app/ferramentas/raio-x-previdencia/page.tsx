@@ -11,6 +11,7 @@ import {
   Resultado,
 } from "@/components/CascaFerramenta";
 import { PonteResultado } from "@/components/PonteResultado";
+import { AnaliseRaioXPrevidencia } from "@/components/analises/AnaliseRaioXPrevidencia";
 import {
   auditarPrevidencia,
   classificarTaxa,
@@ -202,6 +203,9 @@ export default function RaioXPrevidencia() {
         </div>
       </section>
 
+      {/* A leitura de consultor dos mesmos números (20/10/2026). */}
+      <AnaliseRaioXPrevidencia entrada={entrada} saida={saida} />
+
       {/* A ponte substituiu um convite próprio que dizia a mesma coisa sem
           mostrar o número. Com o valor na frente, a pergunta deixa de ser
           abstrata: "R$ 17.825 em taxas" cobra uma resposta. */}
@@ -209,7 +213,6 @@ export default function RaioXPrevidencia() {
         valor={brl(Math.abs(saida.custoTotal))}
         rotulo="em taxas até o resgate"
         pergunta="Onde mais o seu dinheiro está vazando? Veja o conjunto."
-        acao="Quero a análise gratuita"
       />
     </CascaFerramenta>
   );

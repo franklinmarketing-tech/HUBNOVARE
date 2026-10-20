@@ -851,8 +851,8 @@ export const ARTIGOS: Artigo[] = [
     ],
     ferramenta: {
       slug: "consultoria-investimentos",
-      nome: "Ver a consultoria de investimentos",
-      href: "/consultoria/investimentos",
+      nome: "Ver a consultoria da Novare",
+      href: "/consultoria",
     },
   },
   {
@@ -874,7 +874,7 @@ export const ARTIGOS: Artigo[] = [
     ferramenta: {
       slug: "planejamento",
       nome: "Descobrir a minha taxa de poupança",
-      href: "/finplan",
+      href: "/ferramentas/orcamento",
     },
   },
   {
@@ -1136,7 +1136,7 @@ export const ARTIGOS: Artigo[] = [
     ferramenta: {
       slug: "planejamento",
       nome: "Montar meu plano",
-      href: "/finplan",
+      href: "/fincash",
     },
   },
   {

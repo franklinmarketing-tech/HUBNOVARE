@@ -16,6 +16,7 @@ import {
 import { brl, parseNumero, pct, reservaEmergencia } from "@/lib/calculos";
 import { formatarMoedaInput, digitosParaReais } from "@/lib/moeda";
 import { PonteResultado } from "@/components/PonteResultado";
+import { AnaliseReserva } from "@/components/analises/AnaliseReserva";
 
 /* -------------------------------------------------------------------------- */
 
@@ -273,6 +274,21 @@ export default function ReservaPage() {
                 : `No ritmo atual você completa a reserva em ${prazoLegivel(r.mesesParaCompletar)}.`}
           </p>
         </section>
+
+        {/* A leitura de consultor dos mesmos números (20/10/2026). */}
+        <AnaliseReserva
+          custoMensal={parseNumero(custo)}
+          perfil={perfil}
+          jaGuardado={parseNumero(jaGuardado)}
+          aporteMensal={parseNumero(aporte)}
+          taxaAnualPct={parseNumero(taxa)}
+          alvo={r.alvo}
+          falta={r.falta}
+          mesesRecomendados={r.mesesRecomendados}
+          mesesParaCompletar={r.mesesParaCompletar}
+          progressoPct={r.progressoPct}
+          prazoTexto={prazoLegivel(r.mesesParaCompletar)}
+        />
 
         {/* Micro-card explicativo */}
         <section className="mt-6 rounded-2xl border border-slate-200 bg-white p-5">

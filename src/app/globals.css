@@ -1114,3 +1114,9 @@
   .etapa-atual-icone,
   .etapa-tique { animation: none; }
 }
+
+/* `.nao-imprimir` era usada (BarraInferior, FINCASH) e nunca tinha sido
+   definida: o menu e a barra de baixo saíam no PDF. */
+@media print {
+  .nao-imprimir { display: none !important; }
+}

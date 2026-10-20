@@ -1,6 +1,7 @@
 "use client";
 import { InstagramLogo, LinkedinLogo, YoutubeLogo } from "@/components/LogosSociais";
 import { PonteResultado } from "@/components/PonteResultado";
+import { AnaliseJurosCompostos } from "@/components/analises/AnaliseJurosCompostos";
 
 import Image from "next/image";
 import Link from "next/link";
@@ -244,6 +245,15 @@ export default function JurosCompostosPage() {
             </AreaChart>
           </ResponsiveContainer>
         </section>
+
+        {/* A leitura de consultor dos mesmos números (20/10/2026). */}
+        <AnaliseJurosCompostos
+          inicial={parseNumero(inicial)}
+          aporteMensal={parseNumero(aporte)}
+          taxaAnualPct={parseNumero(taxa)}
+          linhas={linhas}
+          rendaMensal={rendaMensal}
+        />
 
         <section className="mt-6 rounded-2xl border border-slate-200 bg-white p-5">
           <h2 className="text-sm font-semibold text-slate-700 mb-4">

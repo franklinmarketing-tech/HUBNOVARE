@@ -12,6 +12,7 @@ import {
   Resultado,
 } from "@/components/CascaFerramenta";
 import { PonteResultado } from "@/components/PonteResultado";
+import { AnaliseRescisao } from "@/components/analises/AnaliseRescisao";
 
 const MOTIVOS: Array<{ chave: MotivoRescisao; nome: string; nota: string }> = [
   {
@@ -253,6 +254,14 @@ export default function RescisaoPage() {
           )}
         </div>
       </section>
+
+      {/* A leitura de consultor da mesma rescisão (20/10/2026). */}
+      <AnaliseRescisao
+        r={r}
+        motivo={motivo}
+        salario={Math.max(0, parseNumero(salario))}
+        totalNaMao={totalNaMao}
+      />
 
       {r.temSeguroDesemprego ? (
         <section className="mt-6 rounded-2xl border border-emerald-200 bg-emerald-50 p-5">

@@ -62,16 +62,16 @@ export const CAPAS: Record<string, string> = {
    * um card honesto vale mais que uma foto prometendo integração bancária.
    */
   "orcamento-inteligente": "/cards/card-orcamento-inteligente.webp",
-  "reserva-emergencia": "/cards/card-leads-objetivos.webp",
-  "correcao-inflacao": "/cards/card-leads-simulador.webp",
-  "reajuste-aluguel": "/cards/card-dividas.webp",
+  "reserva-emergencia": "/cards/card-reserva-emergencia.webp", // própria desde 20/10/2026
+  "correcao-inflacao": "/cards/card-correcao-inflacao.webp", // própria desde 20/10/2026
+  "reajuste-aluguel": "/cards/card-reajuste-aluguel.webp", // própria desde 20/10/2026 (era a de dívidas)
 
   // Trabalho e Salário
-  "salario-liquido": "/cards/card-novare.webp",
-  rescisao: "/cards/card-aposentadoria.webp",
-  ferias: "/cards/card-simulador.webp",
+  "salario-liquido": "/cards/card-salario-liquido.webp", // própria desde 20/10/2026
+  rescisao: "/cards/card-rescisao.webp", // própria desde 20/10/2026
+  ferias: "/cards/card-ferias.webp", // própria desde 20/10/2026
   "decimo-terceiro": "/cards/card-decimo-terceiro.webp",
-  "seguro-desemprego": "/cards/card-dividas.webp",
+  "seguro-desemprego": "/cards/card-seguro-desemprego.webp", // própria desde 20/10/2026 (era a de dívidas)
 
   // Exclusivas de assinante
   //

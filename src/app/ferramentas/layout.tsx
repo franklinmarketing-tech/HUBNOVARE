@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { AssistenteFerramentas } from "@/components/AssistenteFerramentas";
 import { CapturaLead } from "@/components/CapturaLead";
+import { GuiaFerramenta } from "@/components/GuiaFerramenta";
 import { RegistrarVisita } from "@/components/RegistrarVisita";
 import { RodapeNovare } from "@/components/RodapeNovare";
 import { VoltarAoWorkspace } from "@/components/VoltarAoWorkspace";
@@ -35,7 +36,11 @@ export default async function LayoutFerramentas({
       {/* Fica aqui, com o rodapé e a captura, pelo mesmo motivo que eles:
           ferramenta nova já nasce medida, sem ninguém lembrar de colar. */}
       <RegistrarVisita />
-      <CapturaLead />
+      {/* O passo a passo de cada ferramenta (`lib/guias-ferramentas.ts`). */}
+      <GuiaFerramenta />
+      {/* `comRelatorio`: aqui o PDF do resultado vem primeiro e o
+          especialista é opcional (ver a nota em `CapturaLead`). */}
+      <CapturaLead comRelatorio />
       <VoltarAoWorkspace />
       <RodapeNovare />
       <AssistenteFerramentas apps={apps} />

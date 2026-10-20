@@ -16,7 +16,7 @@ export function VoltarAoWorkspace() {
   return (
     <Link
       href="/"
-      className="fixed bottom-5 left-5 z-40 flex items-center gap-2 rounded-full border border-slate-200 bg-white/95 px-4 py-3 text-sm font-semibold text-slate-600 shadow-[0_10px_30px_-12px_hsl(215_50%_23%_/_0.5)] backdrop-blur-sm transition-colors hover:border-primary/30 hover:text-primary"
+      className="fixed bottom-5 left-5 z-40 flex print:hidden items-center gap-2 rounded-full border border-slate-200 bg-white/95 px-4 py-3 text-sm font-semibold text-slate-600 shadow-[0_10px_30px_-12px_hsl(215_50%_23%_/_0.5)] backdrop-blur-sm transition-colors hover:border-primary/30 hover:text-primary"
     >
       <ArrowLeft className="h-4 w-4" />
       {/* No celular o espaço é do polegar: só a seta e a palavra curta. */}

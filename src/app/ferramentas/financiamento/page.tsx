@@ -1,6 +1,7 @@
 "use client";
 import { InstagramLogo, LinkedinLogo, YoutubeLogo } from "@/components/LogosSociais";
 import { PonteResultado } from "@/components/PonteResultado";
+import { AnaliseFinanciamento } from "@/components/analises/AnaliseFinanciamento";
 
 import Image from "next/image";
 import Link from "next/link";
@@ -423,6 +424,9 @@ function SimuladorTipo({ tipo }: { tipo: Tipo }) {
             </p>
           )}
         </section>
+
+        {/* A leitura de consultor dos mesmos números (20/10/2026). */}
+        <AnaliseFinanciamento tipo={tipo} valorBem={valor$} entrada={entrada$} price={price} sac={sac} />
 
         <PonteResultado
           valor={brl(price.parcela)}

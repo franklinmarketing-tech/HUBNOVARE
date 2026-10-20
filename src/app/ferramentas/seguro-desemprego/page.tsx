@@ -5,6 +5,7 @@ import { LifeBuoy } from "lucide-react";
 import { brl, parseNumero } from "@/lib/calculos";
 import { SALARIO_MINIMO, TETO_SEGURO, seguroDesemprego } from "@/lib/trabalhista";
 import { PonteResultado } from "@/components/PonteResultado";
+import { AnaliseSeguroDesemprego } from "@/components/analises/AnaliseSeguroDesemprego";
 import {
   Campo,
   CascaFerramenta,
@@ -56,6 +57,9 @@ export default function SeguroDesempregoPage() {
       <section className="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 sm:p-8">
         <p className="text-xs font-semibold text-slate-600 mb-1.5">
           Seus três últimos salários
+        </p>
+        <p className="mb-3 text-2xs text-slate-500">
+          Salário bruto, como está no holerite — antes dos descontos.
         </p>
         <div className="grid sm:grid-cols-3 gap-x-5 gap-y-4">
           <Campo label="Último mês" prefixo="R$" value={s1} onChange={setS1} />
@@ -158,6 +162,9 @@ export default function SeguroDesempregoPage() {
           </p>
         </section>
       )}
+
+      {/* A leitura de consultor do mesmo benefício (20/10/2026). */}
+      <AnaliseSeguroDesemprego r={r} />
 
       <section className="mt-6 grid sm:grid-cols-2 gap-4">
         <div className="rounded-2xl border border-slate-200 bg-white p-5">

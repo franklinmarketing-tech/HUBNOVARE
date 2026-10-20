@@ -5,6 +5,7 @@ import { Gift } from "lucide-react";
 import { brl, parseNumero } from "@/lib/calculos";
 import { decimoTerceiro } from "@/lib/trabalhista";
 import { PonteResultado } from "@/components/PonteResultado";
+import { AnaliseDecimoTerceiro } from "@/components/analises/AnaliseDecimoTerceiro";
 import {
   Campo,
   CascaFerramenta,
@@ -132,6 +133,9 @@ export default function DecimoTerceiroPage() {
           <Linha rotulo="Total no ano" valor={brl(r.liquido)} tom="total" />
         </div>
       </section>
+
+      {/* A leitura de consultor do mesmo 13º (20/10/2026). */}
+      <AnaliseDecimoTerceiro r={r} meses={mesesTrabalhados} />
 
       <section className="mt-6 rounded-2xl bg-slate-50 p-4">
         <p className="text-xs text-slate-500">

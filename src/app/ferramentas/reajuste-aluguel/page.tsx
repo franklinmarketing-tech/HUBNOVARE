@@ -16,6 +16,7 @@ import {
 } from "recharts";
 import { ArrowRight, FileSignature, Handshake, Home } from "lucide-react";
 import { brl, parseNumero, pct } from "@/lib/calculos";
+import { AnaliseReajusteAluguel } from "@/components/analises/AnaliseReajusteAluguel";
 
 const INDICES = [
   { chave: "igpm", nome: "IGP-M", nota: "O índice tradicional de locação. É o que está na maioria dos contratos." },
@@ -405,6 +406,16 @@ export default function ReajusteAluguelPage() {
             </p>
           </section>
         )}
+
+        {/* A leitura de consultor dos mesmos índices (20/10/2026). */}
+        <AnaliseReajusteAluguel
+          aluguel={valorAtual}
+          indice={indice}
+          indices={INDICES}
+          dados={dados}
+          carregando={carregando}
+          erro={erro}
+        />
 
         <section className="mt-6 grid sm:grid-cols-2 gap-4">
           <div className="rounded-2xl border border-slate-200 bg-white p-5">

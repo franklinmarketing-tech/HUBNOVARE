@@ -16,6 +16,7 @@ import {
 } from "recharts";
 import { ArrowRight, History, Landmark, TrendingUp } from "lucide-react";
 import { brl, parseNumero, pct } from "@/lib/calculos";
+import { AnaliseCorrecao } from "@/components/analises/AnaliseCorrecao";
 
 /** Espelha `INDICES` do servidor: rótulo e uso típico de cada série. */
 const INDICES = [
@@ -377,6 +378,17 @@ export default function CorrecaoPage() {
             </ResponsiveContainer>
           </section>
         )}
+
+        {/* A leitura de consultor dos mesmos índices (20/10/2026). */}
+        <AnaliseCorrecao
+          valorOriginal={valorOriginal}
+          indice={indice}
+          indices={INDICES}
+          dados={dados}
+          carregando={carregando}
+          erro={erro}
+          periodoInvalido={periodoInvalido}
+        />
 
         <section className="mt-6 grid sm:grid-cols-2 gap-4">
           <div className="rounded-2xl border border-slate-200 bg-white p-5">

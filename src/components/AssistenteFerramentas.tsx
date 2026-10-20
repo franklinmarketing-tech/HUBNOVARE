@@ -54,7 +54,7 @@ export function AssistenteFerramentas({ apps }: { apps: AppLeve[] }) {
         type="button"
         onClick={() => window.dispatchEvent(new Event("novare:abrir-paleta"))}
         aria-label="Buscar ferramenta"
-        className="fixed bottom-5 right-5 z-40 flex items-center gap-2 rounded-full bg-primary px-4 py-3 text-sm font-medium text-primary-foreground shadow-[0_10px_30px_-10px_hsl(215_50%_23%_/_0.6)] transition-transform hover:scale-105"
+        className="fixed bottom-5 right-5 z-40 flex print:hidden items-center gap-2 rounded-full bg-primary px-4 py-3 text-sm font-medium text-primary-foreground shadow-[0_10px_30px_-10px_hsl(215_50%_23%_/_0.6)] transition-transform hover:scale-105"
       >
         <Search className="h-4 w-4" />
         <span className="hidden sm:block">Buscar</span>

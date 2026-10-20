@@ -96,7 +96,7 @@ export default function ExameSaudePage() {
               {
                 pergunta: "A nota é um diagnóstico definitivo?",
                 resposta:
-                  "Não. É um retrato rápido, com quatro perguntas, para mostrar onde olhar primeiro. Ela não conhece o seu contrato, a sua profissão nem os seus planos — por isso o passo seguinte é a conversa com um consultor, que é gratuita.",
+                  "Não. É um retrato rápido, com quatro perguntas, para mostrar onde olhar primeiro. Ela não conhece o seu contrato, a sua profissão nem os seus planos. Logo abaixo da nota você já vê o que melhorar em cada pilar; se quiser ir além, a conversa com um consultor é opcional e gratuita.",
               },
             ]}
           />
@@ -107,8 +107,8 @@ export default function ExameSaudePage() {
           <div className="space-y-2">
             <h2 className="font-display text-xl font-bold sm:text-2xl">Quer subir a sua nota?</h2>
             <p className="max-w-lg text-sm text-white/75">
-              Na primeira análise, que é grátis, um especialista da Novare olha o que você já tem e
-              aponta o que mudar em cada pilar — sem compromisso e sem comissão.
+              O plano acima já mostra o caminho. Se quiser uma segunda opinião, um especialista da
+              Novare olha o que você já tem com você — opcional, grátis e sem comissão.
             </p>
           </div>
           <div className="mt-5 flex shrink-0 flex-col gap-2.5 sm:mt-0">

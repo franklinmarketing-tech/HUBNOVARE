@@ -13,7 +13,7 @@ import {
   sombraCardDe,
   sombraTileDe,
 } from "@/lib/icones";
-import { capaDe, emblemaDe } from "@/lib/capas";
+import { capaDe } from "@/lib/capas";
 import { BotaoLampada, ModalApp } from "@/components/ModalApp";
 import { INTRO_ASSINATURA, INTRO_FAMILIAS, type Familia } from "@/lib/apps";
 import { FILTRO_ASSINATURA, type AppLeve } from "@/lib/navegacao";
@@ -85,7 +85,8 @@ function CardWorkspace({ app }: { app: AppLeve }) {
 
         <p className="inline-flex shrink-0 items-center gap-1.5 text-sm font-semibold text-[hsl(16_90%_70%)] transition-colors group-hover:text-white">
           <span className="hidden sm:block">
-            {app.aberto ? "Abrir" : "Liberar"}
+            {/* Era "Liberar", com cara de pago: tudo é grátis, só pede a conta. */}
+            {app.aberto ? "Abrir" : "Criar conta grátis"}
           </span>
           <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
         </p>
@@ -113,7 +114,12 @@ function CardApp({ app }: { app: AppLeve }) {
   const Icone = iconeDe(app.slug);
   // Produto da casa tem foto; ferramenta gratuita fica no tile de cor.
   const capa = capaDe(app.slug);
-  const emblema = emblemaDe(app.slug);
+  /* ⚠️ OS EMBLEMAS 3D SAÍRAM DO CATÁLOGO em 20/10/2026 (varredura ao vivo):
+     eram ilustrações soltas que não batiam com a ferramenta — coração no
+     reajuste de aluguel, cesta na correção pela inflação, câmera no salário
+     líquido — e misturavam três estilos na mesma grade. Agora todo card usa
+     o ícone de traço de `iconeDe` no quadradinho com a cor da categoria. */
+  const emblema: string | null = null;
   const temExplicacao =
     !app.emBreve && Boolean(app.descricao || app.pontosFortes?.length);
 
@@ -165,7 +171,7 @@ function CardApp({ app }: { app: AppLeve }) {
               ? "em breve"
               : app.aberto
                 ? app.chamada
-                : "Incluso na assinatura"}
+                : "Grátis, é só criar a conta"}
           </p>
 
           {/* O benchmark NÃO é renderizado: era anotação interna de

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight, ChevronDown, Crown } from "lucide-react";
+import { ArrowRight, ChevronDown } from "lucide-react";
 import { BuscaDestaque } from "@/components/BuscaDestaque";
 import { BarraLateral } from "@/components/BarraLateral";
 import { BarraInferior } from "@/components/BarraInferior";
@@ -166,6 +166,24 @@ export default async function Home() {
                   sizes="(max-width: 1024px) 100vw, 45vw"
                   className="cine-ken-burns object-cover"
                 />
+                {/* A FOTO QUE RESPIRA (20/10/2026): 5 s em Kling 2.5 com a
+                    MESMA foto no primeiro e no último quadro, para o laço não
+                    ter corte. ~200 KB. A foto acima continua por baixo: é o
+                    que aparece até o vídeo carregar e o que fica para quem
+                    pediu menos movimento no sistema (`motion-reduce:hidden`). */}
+                <video
+                  className="absolute inset-0 h-full w-full object-cover motion-reduce:hidden"
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  preload="auto"
+                  poster="/home/topo.webp"
+                  aria-hidden
+                >
+                  <source src="/home/topo.webm" type="video/webm" />
+                  <source src="/home/topo.mp4" type="video/mp4" />
+                </video>
               </div>
 
               {/* A CARTEIRA PONTUAL NA FOTO DO TOPO (pedido do dono, 19/10/2026):
@@ -427,56 +445,43 @@ function SegundaParte({
 }
 
 /**
- * Free logado: o painel existe, mas ainda não é dele.
+ * Logado sem painel: o convite leva ao que existe e é grátis.
  *
- * Duas versões, e a diferença importa: quem já respondeu as oito perguntas
- * inteiras via exatamente o mesmo texto de quem nunca abriu o app — "aqui
- * entra o seu painel", como se não tivesse dado nada. Depois de dez minutos
- * preenchendo, isso lê como se o trabalho não tivesse sido registrado.
- *
- * O acesso continua igual (o painel é o produto pago). O que muda é o
- * reconhecimento: para quem preencheu, os números JÁ existem e o que falta é
- * destravar — que por acaso é também o argumento de venda mais forte.
+ * ⚠️ ATÉ 20/10/2026 ESTE CARTÃO DIZIA QUE O PAINEL "abre com a assinatura",
+ * com o botão "Liberar meus números" para /assinar — numa casa em que tudo
+ * passou a ser gratuito, e com um link para o FINPLAN, que saiu do ar. Agora
+ * ele leva ao FINCASH (onde o painel do mês de fato nasce) e ao Exame.
  */
-function ConvitePainelHome({ temFicha }: { temFicha: boolean }) {
+function ConvitePainelHome(_: { temFicha: boolean }) {
   return (
-    <div
-      className="cine palco-cta mt-5 overflow-hidden rounded-3xl p-7 text-white sm:p-9"
-      style={{
-        background:
-          "linear-gradient(140deg, hsl(216 54% 16%) 0%, hsl(219 58% 11%) 100%)",
-      }}
-    >
-      <Crown className="h-6 w-6 text-warning-claro" strokeWidth={1.75} />
-      <h3 className="mt-4 font-display text-2xl font-bold leading-tight">
-        {temFicha
-          ? "Seus números já estão prontos"
-          : "Aqui entra o seu painel"}
-      </h3>
-      <p className="mt-3 max-w-lg text-sm leading-relaxed text-white/70">
-        {temFicha
-          ? "Você já respondeu a trilha, e o diagnóstico foi calculado com os seus dados. O painel completo — saúde financeira, patrimônio, dívidas, objetivos e projeção, mês a mês — abre com a assinatura."
-          : "Nota de saúde financeira, patrimônio, dívidas, objetivos e projeção — calculados a partir dos seus números, atualizados a cada mês."}
-      </p>
-      <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-3">
-        <Link
-          href="/assinar"
-          className="group inline-flex items-center gap-2 rounded-xl bg-warning-claro px-5 py-3 text-sm font-bold text-primary transition-colors hover:bg-warning"
-        >
-          {temFicha ? "Liberar meus números" : "Liberar meu painel"}
-          <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-        </Link>
-
-        {/* Quem preencheu tem para onde ir sem pagar: o diagnóstico é a parte
-            que já é dele. Esconder isso seria cobrar pelo que já entregamos. */}
-        {temFicha && (
+    <div className="cine mt-5 grid overflow-hidden rounded-3xl border border-border bg-white shadow-card sm:grid-cols-[0.9fr_1.1fr]">
+      <div className="relative aspect-[16/10] sm:aspect-auto">
+        <Image src="/home/fincash.webp" alt="" fill sizes="(max-width: 640px) 100vw, 40vw" className="object-cover" />
+      </div>
+      <div className="p-6 sm:p-8">
+        <h3 className="font-display text-2xl font-bold leading-tight text-primary">
+          Seu painel nasce no FINCASH
+        </h3>
+        <p className="mt-3 max-w-lg text-sm leading-relaxed text-muted-foreground">
+          Lance as contas do mês — é grátis — e acompanhe o saldo, os cartões, as
+          metas e quanto ainda dá para gastar. Quer começar pelo retrato geral? O
+          Exame de Saúde Financeira dá a sua nota e o que melhorar primeiro.
+        </p>
+        <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-3">
           <Link
-            href="/finplan/app/diagnostico"
-            className="text-xs font-semibold text-white/70 underline-offset-4 hover:text-white hover:underline"
+            href="/fincash/app"
+            className="group inline-flex min-h-11 items-center gap-2 rounded-xl bg-primary px-5 text-sm font-semibold text-white transition-colors hover:bg-primary-soft"
           >
-            Rever meu diagnóstico
+            Abrir meu FINCASH
+            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
           </Link>
-        )}
+          <Link
+            href="/exame-saude-financeira"
+            className="text-sm font-semibold text-accent-strong underline-offset-4 hover:underline"
+          >
+            Fazer o Exame de Saúde Financeira
+          </Link>
+        </div>
       </div>
     </div>
   );

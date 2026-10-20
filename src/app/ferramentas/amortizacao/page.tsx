@@ -1,6 +1,7 @@
 "use client";
 import { InstagramLogo, LinkedinLogo, YoutubeLogo } from "@/components/LogosSociais";
 import { PonteResultado } from "@/components/PonteResultado";
+import { AnaliseAmortizacao } from "@/components/analises/AnaliseAmortizacao";
 
 import Image from "next/image";
 import Link from "next/link";
@@ -329,7 +330,32 @@ export default function AmortizacaoPage() {
             economia futura.
           </p>
         </section>
-      
+
+        {/* A leitura de consultor dos mesmos números (20/10/2026). */}
+        <AnaliseAmortizacao
+          validos={validos}
+          abatimento={abate$}
+          taxaAnualPct={taxa$}
+          parcelaInformada={parcela$}
+          parcelaTeorica={teorica.parcela}
+          prazo={prazo$}
+          caminhoPrazo={{
+            ok: prazoOk,
+            jurosSem: baseA.jurosSem,
+            jurosCom: comA.jurosSem,
+            mesesSem: baseA.mesesSem,
+            mesesCom: comA.mesesSem,
+            economia: economiaPrazo,
+          }}
+          caminhoParcela={{
+            jurosSem: teorica.totalJuros,
+            jurosCom: comB.totalJuros,
+            parcelaNova: comB.parcela,
+            queda: quedaParcela,
+            economia: economiaParcela,
+          }}
+        />
+
       <PonteResultado
         valor={brlCurto(validos ? melhorEconomia : 0)}
         rotulo="de juros economizados"

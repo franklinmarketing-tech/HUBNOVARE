@@ -4,6 +4,7 @@ import { InstagramLogo, LinkedinLogo, YoutubeLogo } from "@/components/LogosSoci
 import Image from "next/image";
 import Link from "next/link";
 import { BotaoHome } from "@/components/BotaoHome";
+import { AnaliseOrcamento } from "@/components/AnaliseOrcamento";
 import { useId, useMemo, useState } from "react";
 import {
   ArrowRight,
@@ -38,7 +39,8 @@ const GRUPOS: Record<
   { rotulo: string; alvoPct: number; cor: string }
 > = {
   necessidades: { rotulo: "Necessidades", alvoPct: 50, cor: "bg-primary" },
-  estilo: { rotulo: "Estilo de vida", alvoPct: 30, cor: "bg-slate-400" },
+  // Laranja, e não cinza: a mesma cor do gráfico da análise logo abaixo.
+  estilo: { rotulo: "Estilo de vida", alvoPct: 30, cor: "bg-[hsl(24_85%_55%)]" },
   futuro: { rotulo: "Futuro", alvoPct: 20, cor: "bg-success" },
 };
 
@@ -336,7 +338,7 @@ export default function OrcamentoPage() {
           <h2 className="text-sm font-semibold text-slate-700">
             Plano contra a renda
           </h2>
-          <div className="mt-3 flex items-baseline justify-between text-sm">
+          <div className="mt-3 flex items-baseline justify-between gap-3 text-sm">
             <span className="text-slate-500">
               {brl(totais.total)} de {renda > 0 ? brl(renda) : "renda não informada"}
             </span>
@@ -372,20 +374,30 @@ export default function OrcamentoPage() {
               const acima = renda > 0 && gasto > alvo;
               return (
                 <div key={g} className="rounded-xl bg-slate-50 p-3">
-                  <div className="flex items-baseline justify-between text-xs">
+                  {/* ⚠️ ERA UMA LINHA SÓ, e no celular o valor espremia o
+                      rótulo: saía "NecessidadesR$ 2.015,00" grudado e
+                      quebrado em três linhas (print de cliente, 20/10/2026).
+                      Agora o rótulo e o valor ficam em cima e o alvo desce. */}
+                  <div className="flex items-baseline justify-between gap-3 text-xs">
                     <span className="font-semibold text-slate-600">
                       {GRUPOS[g].rotulo}
                     </span>
                     <span
-                      className={`tabular-nums ${
-                        acima ? "text-destructive font-semibold" : "text-slate-500"
+                      className={`whitespace-nowrap tabular-nums ${
+                        acima ? "text-destructive font-semibold" : "text-slate-600 font-semibold"
                       }`}
                     >
                       {brl(gasto)}
-                      {renda > 0 &&
-                        ` de ${brl(alvo)} (alvo ${GRUPOS[g].alvoPct}%)`}
+                      {renda > 0 && (
+                        <span className="font-normal text-slate-500"> de {brl(alvo)}</span>
+                      )}
                     </span>
                   </div>
+                  {renda > 0 && (
+                    <p className="mt-0.5 text-2xs text-slate-500">
+                      Alvo: {GRUPOS[g].alvoPct}% da renda
+                    </p>
+                  )}
                   <div className="mt-1.5 h-2 rounded-full bg-slate-200/70 overflow-hidden">
                     <div
                       className={`h-full rounded-full ${
@@ -402,6 +414,16 @@ export default function OrcamentoPage() {
           </div>
         </section>
 
+        {/* A leitura de consultor dos mesmos números (20/10/2026). */}
+        <AnaliseOrcamento
+          renda={renda}
+          porGrupo={totais.porGrupo}
+          categorias={dados.categorias.map((c) => ({
+            nome: c.nome || "Sem nome",
+            valor: Math.max(0, parseNumero(c.valor)),
+            grupo: c.grupo,
+          }))}
+        />
 
         <p className="mt-6 text-[11px] text-slate-500">
           Seus dados ficam no seu navegador e, se você estiver logado, na sua conta Novare.

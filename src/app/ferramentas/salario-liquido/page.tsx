@@ -17,6 +17,7 @@ import {
   Resultado,
 } from "@/components/CascaFerramenta";
 import { PonteResultado } from "@/components/PonteResultado";
+import { AnaliseSalarioLiquido } from "@/components/analises/AnaliseSalarioLiquido";
 
 export default function SalarioLiquidoPage() {
   const [bruto, setBruto] = useState("5000");
@@ -176,6 +177,9 @@ export default function SalarioLiquidoPage() {
           <Linha rotulo="Líquido" valor={brl(r.liquido)} tom="total" />
         </div>
       </section>
+
+      {/* A leitura de consultor do mesmo holerite (20/10/2026). */}
+      <AnaliseSalarioLiquido r={r} dependentes={qtdDependentes} />
 
       <section className="mt-6 grid sm:grid-cols-2 gap-4">
         <div className="rounded-2xl border border-slate-200 bg-white p-5">

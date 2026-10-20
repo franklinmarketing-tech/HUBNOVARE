@@ -4,6 +4,7 @@ import { InstagramLogo, LinkedinLogo, YoutubeLogo } from "@/components/LogosSoci
 import Image from "next/image";
 import Link from "next/link";
 import { BotaoHome } from "@/components/BotaoHome";
+import { AnaliseInventario } from "@/components/analises/AnaliseInventario";
 import { useMemo, useState, type FormEvent, type ReactNode } from "react";
 import {
   ArrowRight,
@@ -316,6 +317,21 @@ export default function InventarioPage() {
             </ul>
           )}
         </section>
+
+        {/* A leitura de consultor da mesma lista (20/10/2026). */}
+        {carregado && (
+          <AnaliseInventario
+            contas={contas.map((c) => ({
+              servico: c.servico,
+              email: c.email ?? "",
+              doisFatores: c.doisFatores,
+              temInstrucao: !!c.instrucoes?.trim(),
+            }))}
+            comDoisFatores={comDoisFatores}
+            pctDoisFatores={pctDoisFatores}
+            semInstrucoes={semInstrucoes}
+          />
+        )}
 
         {/* ⚠️ ESTE BLOCO MANDAVA PARA O DASHBOARD PATRIMONIAL, que saiu do
             catálogo em 13/09/2026 — e ele dizia "que lê exatamente estes

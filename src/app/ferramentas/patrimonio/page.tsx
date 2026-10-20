@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { BotaoHome } from "@/components/BotaoHome";
 import { PonteResultado } from "@/components/PonteResultado";
+import { AnalisePatrimonio } from "@/components/analises/AnalisePatrimonio";
 import { type FormEvent, type ReactNode, useMemo, useState } from "react";
 import {
   ArrowRight,
@@ -421,6 +422,18 @@ export default function PatrimonioPage() {
             </ul>
           )}
         </section>
+
+        {/* A leitura de consultor dos mesmos números (20/10/2026). */}
+        {carregado && (
+          <AnalisePatrimonio
+            ativos={patrimonio.ativos}
+            dividas={patrimonio.dividas}
+            totalAtivos={totalAtivos}
+            totalDividas={totalDividas}
+            liquido={liquido}
+            endividamento={endividamento}
+          />
+        )}
 
         {/* Próximo passo */}
         <section className="mt-6 rounded-xl bg-slate-50 p-3">

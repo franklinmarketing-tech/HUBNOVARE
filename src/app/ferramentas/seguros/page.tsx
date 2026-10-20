@@ -4,6 +4,7 @@ import { InstagramLogo, LinkedinLogo, YoutubeLogo } from "@/components/LogosSoci
 import Image from "next/image";
 import Link from "next/link";
 import { BotaoHome } from "@/components/BotaoHome";
+import { AnaliseSeguros } from "@/components/analises/AnaliseSeguros";
 import { type FormEvent, type ReactNode, useMemo, useState } from "react";
 import {
   ArrowRight,
@@ -338,6 +339,14 @@ export default function SegurosPage() {
           </section>
         )}
 
+        {/* A leitura de consultor das mesmas apólices (20/10/2026). */}
+        {carregado && (
+          <AnaliseSeguros
+            seguros={ordenados.map((s) => ({ ...s, dias: diasAteVencer(s.vencimento) }))}
+            coberturaTotal={coberturaTotal}
+            custoMensal={custoMensal}
+          />
+        )}
 
         <p className="mt-6 text-[11px] text-slate-500">
           Seus dados ficam no seu navegador e, se você estiver logado, na sua conta Novare.

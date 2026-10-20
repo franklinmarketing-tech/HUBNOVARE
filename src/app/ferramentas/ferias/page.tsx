@@ -5,6 +5,7 @@ import { Palmtree } from "lucide-react";
 import { brl, parseNumero } from "@/lib/calculos";
 import { ferias } from "@/lib/trabalhista";
 import { PonteResultado } from "@/components/PonteResultado";
+import { AnaliseFerias } from "@/components/analises/AnaliseFerias";
 import {
   Campo,
   CascaFerramenta,
@@ -168,6 +169,9 @@ export default function FeriasPage() {
           </p>
         </section>
       )}
+
+      {/* A leitura de consultor das mesmas férias (20/10/2026). */}
+      <AnaliseFerias r={r} soGozar={soGozar} vendendo={vendendo} diferenca={diferenca} />
 
       <section className="mt-6 grid sm:grid-cols-2 gap-4">
         <div className="rounded-2xl border border-slate-200 bg-white p-5">

@@ -44,7 +44,7 @@ export function RodapeNovare({
     <>
       {/* Convite: o único bloco navy da página depois do resultado. */}
       {convite && (
-      <section className="mx-auto max-w-3xl px-4 pb-12">
+      <section className="mx-auto max-w-3xl px-4 pb-12 print:hidden">
         <div className="relative overflow-hidden rounded-3xl bg-primary sm:flex sm:items-stretch">
           <div className="relative z-10 p-7 sm:flex-1 sm:p-9">
             <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[hsl(205_95%_75%)]">
@@ -88,7 +88,7 @@ export function RodapeNovare({
       )}
 
       {/* Rodapé institucional */}
-      <footer className="pb-24 sm:pb-16 bg-primary text-white/70">
+      <footer className="pb-24 sm:pb-16 bg-primary text-white/70 print:hidden">
         <div className="mx-auto grid max-w-5xl gap-8 px-5 py-12 sm:grid-cols-2 lg:grid-cols-4">
           <div>
             <Image

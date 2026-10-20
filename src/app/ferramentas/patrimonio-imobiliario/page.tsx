@@ -4,6 +4,7 @@ import { InstagramLogo, LinkedinLogo, YoutubeLogo } from "@/components/LogosSoci
 import Image from "next/image";
 import Link from "next/link";
 import { BotaoHome } from "@/components/BotaoHome";
+import { AnalisePatrimonioImobiliario } from "@/components/analises/AnalisePatrimonioImobiliario";
 import { type FormEvent, type ReactNode, useMemo, useState } from "react";
 import {
   ArrowRight,
@@ -379,6 +380,19 @@ export default function PatrimonioImobiliarioPage() {
             </ul>
           )}
         </section>
+
+        {/* A leitura de consultor dos mesmos números (20/10/2026). */}
+        {carregado && (
+          <AnalisePatrimonioImobiliario
+            imoveis={imoveis.map((i) => ({ ...i, tipo: rotuloTipo(i.tipo) }))}
+            totalValor={totalValor}
+            totalDivida={totalDivida}
+            totalAluguel={totalAluguel}
+            liquido={liquido}
+            yieldCarteira={yieldCarteira}
+            composicao={composicao}
+          />
+        )}
 
         <section className="mt-6 rounded-xl bg-slate-50 p-3">
           <p className="text-xs text-slate-500">

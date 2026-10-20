@@ -4,6 +4,7 @@ import { InstagramLogo, LinkedinLogo, YoutubeLogo } from "@/components/LogosSoci
 import Image from "next/image";
 import Link from "next/link";
 import { BotaoHome } from "@/components/BotaoHome";
+import { AnaliseRebalanceador } from "@/components/analises/AnaliseRebalanceador";
 import { type FormEvent, type ReactNode, useMemo, useState } from "react";
 import {
   ArrowRight,
@@ -450,7 +451,7 @@ export default function RebalanceadorPage() {
                     {l.nome}
                   </p>
                   <span
-                    className={`text-sm font-semibold tabular-nums ${
+                    className={`whitespace-nowrap text-sm font-semibold tabular-nums ${
                       l.compraComAporte > 0 ? "text-success" : "text-slate-500"
                     }`}
                   >
@@ -496,6 +497,17 @@ export default function RebalanceadorPage() {
           Seus dados ficam no seu navegador e, se você estiver logado, na sua conta Novare.
         </p>
         </section>
+
+        {/* A leitura de consultor dos mesmos números (20/10/2026). */}
+        <AnaliseRebalanceador
+          linhas={linhas}
+          total={total}
+          somaAlvos={somaAlvos}
+          alvosOk={alvosOk}
+          maiorDesvio={maiorDesvio}
+          totalAVender={totalAVender}
+          aporte={aporteNumero}
+        />
       </main>
     </div>
   );

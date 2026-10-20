@@ -92,7 +92,8 @@ const nextConfig: NextConfig = {
          cá. Agora vai para a página certa em vez de virar 404. */
       {
         source: "/consultoria/diagnostico-gratuito",
-        destination: "/consultoria/diagnostico",
+        // /consultoria/diagnostico não existe (404): o diagnóstico gratuito é o Exame.
+        destination: "/exame-saude-financeira",
         permanent: true,
       },
 
@@ -173,7 +174,7 @@ const nextConfig: NextConfig = {
         consorcio: "/ferramentas/amortizacao",
         // Patrimônio e investimento: o Dashboard e o Raio-X ficaram.
         aportes: "/ferramentas/juros-compostos",
-        dividendos: "/ferramentas/dashboard-patrimonial",
+        dividendos: "/ferramentas/patrimonio", // o dashboard-patrimonial não existe mais
         radar: "/ferramentas/reserva",
         "rentabilidade-aluguel": "/ferramentas/patrimonio-imobiliario",
         valorizacao: "/ferramentas/patrimonio-imobiliario",
