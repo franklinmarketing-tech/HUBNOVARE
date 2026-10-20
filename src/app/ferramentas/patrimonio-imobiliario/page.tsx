@@ -128,15 +128,15 @@ export default function PatrimonioImobiliarioPage() {
       <Cabecalho nome="Patrimônio imobiliário" />
 
       <main className="max-w-3xl mx-auto px-4 pb-16">
-        <section className="pt-12 pb-8">
-          <div className="inline-flex items-center gap-1.5 rounded-full bg-ciano-tint text-ciano-forte px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] mb-5">
+        <section className="topo-ferramenta secao-noite">
+          <div className="inline-flex items-center gap-1.5 rounded-full bg-white/10 text-ciano-claro ring-1 ring-white/15 px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] mb-5">
             <Building2 className="h-3.5 w-3.5" />
             Mercado imobiliário
           </div>
-          <h1 className="text-[2rem] sm:text-[2.75rem] leading-[1.08] font-display font-medium tracking-[-0.03em] text-primary">
+          <h1 className="text-[2rem] sm:text-[2.75rem] leading-[1.08] font-display font-medium tracking-[-0.03em] text-white">
             Quanto dos seus imóveis é seu, e quanto ainda é do banco?
           </h1>
-          <p className="text-slate-500 mt-3 max-w-xl">
+          <p className="text-white/75 mt-4 max-w-xl">
             Liste os imóveis com valor de mercado, saldo devedor e aluguel
             recebido. A carteira inteira aparece em uma tela, com o retorno de
             cada peça.

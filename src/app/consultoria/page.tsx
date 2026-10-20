@@ -203,11 +203,11 @@ export default async function ConsultoriaPage() {
         <section className="mt-10 rounded-3xl border border-slate-200 bg-white p-6 sm:flex sm:items-center sm:gap-7 sm:p-8">
           <div className="relative aspect-[5/4] w-full overflow-hidden rounded-2xl sm:w-64 sm:shrink-0">
             <Image
-              src="/marca/novare-site/socios-novare-alta.jpg"
-              alt="Jefferson Freitas, sócio da Novare"
+              src="/marca/novare-site/jefferson-sofa.jpg"
+              alt="Jefferson Freitas, fundador da Novare"
               fill
               sizes="(max-width: 640px) 100vw, 256px"
-              className="object-cover"
+              className="object-cover object-[50%_18%]"
             />
           </div>
           <div className="mt-5 space-y-2 sm:mt-0">
@@ -216,7 +216,7 @@ export default async function ConsultoriaPage() {
             </h3>
             <p className="text-sm leading-relaxed text-slate-600">
               A Novare é uma consultoria independente, sem comissão de
-              corretora. Nosso sócio conduz cada atendimento pessoalmente, da
+              corretora. Nosso fundador conduz cada atendimento pessoalmente, da
               primeira análise à devolutiva por escrito.
             </p>
           </div>

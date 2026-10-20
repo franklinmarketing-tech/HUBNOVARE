@@ -15,8 +15,12 @@
 export const CONTATO = {
   telefone: "(19) 98861-0799",
   whatsapp: "5519988610799",
-  email: "contato@novareapp.com.br",
-  site: "novareapp.com.br",
+  /* E-mail e site do SITE OFICIAL (novareinvestimentos.com), conferidos em
+     20/10/2026. Eram contato@novareapp.com.br e novareapp.com.br — o domínio
+     do app, cujo e-mail cai num receptor automático (Amazon SES), não numa
+     caixa que alguém lê. */
+  email: "contato@novareinvestimentos.com",
+  site: "novareinvestimentos.com",
 } as const;
 
 /** Conversa com a Novare. Sempre com destinatário. */

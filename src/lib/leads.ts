@@ -19,7 +19,11 @@ export type LeadTipo =
   // propósito: pede só o e-mail, sem telefone, porque cada campo a mais
   // derruba a conversão de quem ainda está só lendo. Vira quente depois, na
   // régua de conteúdo — não na hora do cadastro.
-  | "newsletter";
+  | "newsletter"
+  // Baixou o PDF do resultado numa ferramenta (20/10/2026). O PDF só libera
+  // com nome, e-mail e WhatsApp, e o `payload.ferramenta` diz de onde veio —
+  // é a lista que o Jefferson usa para ligar.
+  | "relatorio";
 
 /**
  * Grava um lead captado numa isca (calculadora ou landing page) na tabela

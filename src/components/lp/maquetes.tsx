@@ -329,7 +329,7 @@ export function MaqueteConsultoria({ desconto }: { desconto: string }) {
               Jefferson Freitas
             </p>
             <p className="text-[0.8125rem] font-medium text-[#5b6d81]">
-              Sócio · Novare
+              Fundador · Novare
             </p>
           </div>
         </div>

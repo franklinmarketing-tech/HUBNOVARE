@@ -30,15 +30,15 @@ export default function ExameSaudePage() {
 
       <main className="mx-auto max-w-5xl px-4 pb-16 pt-10 sm:px-6">
         {/* HERO */}
-        <section className="text-center sm:text-left">
-          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-3 py-1 text-xs font-medium text-primary">
+        <section className="topo-ferramenta secao-noite !mt-0 text-center sm:text-left">
+          <div className="mb-5 inline-flex items-center gap-2 rounded-full bg-white/10 px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-ciano-claro ring-1 ring-white/15">
             <HeartPulse className="h-3.5 w-3.5" />
             Exame de Saúde Financeira
           </div>
-          <h1 className="max-w-2xl font-display text-3xl font-medium tracking-[-0.03em] text-primary sm:text-[2.6rem] sm:leading-[1.1]">
+          <h1 className="max-w-2xl font-display text-3xl font-medium tracking-[-0.03em] text-white sm:text-[2.75rem] sm:leading-[1.08]">
             De 0 a 100, como está a sua vida financeira?
           </h1>
-          <p className="mt-3 max-w-2xl text-base text-muted-foreground">
+          <p className="mt-4 max-w-2xl text-base text-white/75">
             Em um minuto você recebe a sua nota e vê exatamente quais pilares precisam de atenção —
             sobra mensal, reserva de emergência, dívidas e investimentos.
           </p>

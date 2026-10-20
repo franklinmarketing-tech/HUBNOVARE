@@ -172,15 +172,15 @@ export default function ReajusteAluguelPage() {
       </header>
 
       <main className="max-w-3xl mx-auto px-4 pb-16">
-        <section className="pt-12 pb-8">
-          <div className="inline-flex items-center gap-1.5 rounded-full bg-ciano-tint text-ciano-forte px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] mb-5">
+        <section className="topo-ferramenta secao-noite">
+          <div className="inline-flex items-center gap-1.5 rounded-full bg-white/10 text-ciano-claro ring-1 ring-white/15 px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] mb-5">
             <Home className="h-3.5 w-3.5" />
             Índices oficiais do Banco Central
           </div>
-          <h1 className="text-[2rem] sm:text-[2.75rem] leading-[1.08] font-display font-medium tracking-[-0.03em] text-primary">
+          <h1 className="text-[2rem] sm:text-[2.75rem] leading-[1.08] font-display font-medium tracking-[-0.03em] text-white">
             O reajuste certo do seu aluguel
           </h1>
-          <p className="text-slate-500 mt-3 max-w-xl">
+          <p className="text-white/75 mt-4 max-w-xl">
             Todo ano o contrato faz aniversário e vem o reajuste. Aqui a conta é
             feita com o índice acumulado dos doze meses anteriores, direto da
             fonte oficial — vale tanto para conferir o que o proprietário

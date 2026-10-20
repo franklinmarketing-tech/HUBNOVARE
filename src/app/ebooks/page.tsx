@@ -1,7 +1,6 @@
 import Link from "next/link";
-import Image from "next/image";
 import type { Metadata } from "next";
-import { ArrowLeft, Download } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { Cabecalho } from "@/components/Cabecalho";
 import { RodapeNovare } from "@/components/RodapeNovare";
 import { EBOOKS, GUIAS } from "@/lib/ebooks";
@@ -46,48 +45,20 @@ export default function EbooksPage() {
           ))}
         </ul>
 
-        {/* E o material da casa, que continua de download livre: é folheto
-            institucional, não vale pedir contato por ele. */}
+        {/* O material da casa TAMBÉM tem portão desde 20/10/2026 — era
+            download livre. Pedido do dono: todo eBook pede contato. */}
         <h2 className="mt-14 font-display text-lg font-semibold text-primary">
           Sobre a Novare
         </h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          Material institucional, download livre.
+          Material institucional — também com o seu contato.
         </p>
         <ul className="mt-4 grid gap-4 sm:grid-cols-2">
-          {EBOOKS.filter((e) => e.prateleira === "casa").map(
-            ({ href, capa, titulo, tema }) => (
-              <li key={href}>
-                <a
-                  href={href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group flex h-full items-start gap-4 rounded-2xl bg-card p-5 shadow-card ring-1 ring-primary/5 transition-all hover:-translate-y-0.5 hover:shadow-card-hover"
-                >
-                  {/* alt vazio: o título vem logo ao lado, em texto. */}
-                  <Image
-                    src={capa}
-                    alt=""
-                    width={72}
-                    height={96}
-                    className="h-24 w-[72px] shrink-0 rounded-lg object-cover shadow-[0_10px_24px_-12px_hsl(215_50%_23%_/_0.6)] transition-transform group-hover:-translate-y-0.5"
-                  />
-                  <span className="min-w-0 flex-1">
-                    <span className="block font-display text-base font-bold text-primary">
-                      {titulo}
-                    </span>
-                    <span className="mt-1 block text-sm leading-relaxed text-muted-foreground">
-                      {tema}
-                    </span>
-                    <span className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-accent-strong">
-                      <Download className="h-3.5 w-3.5" />
-                      Baixar PDF
-                    </span>
-                  </span>
-                </a>
-              </li>
-            ),
-          )}
+          {EBOOKS.filter((e) => e.prateleira === "casa").map((e) => (
+            <li key={e.href}>
+              <PortaoGuia ebook={e} />
+            </li>
+          ))}
         </ul>
       </main>
 

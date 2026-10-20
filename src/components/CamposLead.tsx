@@ -68,9 +68,12 @@ export type DadosLead = { nome: string; telefone: string; email: string };
  * exatamente o que aconteceu quando o e-mail virou obrigatório mas o rótulo
  * ainda dizia "(opcional)".
  */
-export function faltaNoLead(d: DadosLead): string | null {
+export function faltaNoLead(d: DadosLead, telefoneObrigatorio = false): string | null {
   if (!nomeValido(d.nome)) return "Falta o seu nome.";
   if (!emailValido(d.email)) return "Falta um e-mail válido.";
+  /* Só no PDF das ferramentas (20/10/2026): o dono quer o telefone de
+     todo mundo que baixa o relatório, para o Jefferson ligar. */
+  if (telefoneObrigatorio && !telefoneValido(d.telefone)) return "Falta o seu WhatsApp com DDD.";
   /* O WhatsApp é opcional, mas meio número preenchido é engano, não escolha. */
   if (d.telefone.trim() !== "" && !telefoneValido(d.telefone))
     return "O WhatsApp está incompleto — apague o campo ou termine o número.";
@@ -78,7 +81,38 @@ export function faltaNoLead(d: DadosLead): string | null {
 }
 
 /** Dá para enviar? Nome e e-mail certos; telefone só se foi preenchido. */
-export const leadCompleto = (d: DadosLead) => faltaNoLead(d) === null;
+export const leadCompleto = (d: DadosLead, telefoneObrigatorio = false) =>
+  faltaNoLead(d, telefoneObrigatorio) === null;
+
+/**
+ * O contato já deixado neste aparelho (`novare:lead`), SÓ se estiver completo:
+ * nome, e-mail e WhatsApp válidos. É a régua de "já identificado" do PDF das
+ * ferramentas (`LiberarPdf`) e dos eBooks (`PortaoGuia`) — contato antigo
+ * sem telefone não passa, e a pessoa revê o formulário já preenchido.
+ */
+export function contatoSalvo(): (DadosLead & { faixaRenda?: string }) | null {
+  try {
+    const bruto = localStorage.getItem("novare:lead");
+    if (!bruto) return null;
+    const d = JSON.parse(bruto) as Partial<DadosLead> & { faixaRenda?: string };
+    const contato = { nome: d.nome ?? "", email: d.email ?? "", telefone: d.telefone ?? "", faixaRenda: d.faixaRenda };
+    return nomeValido(contato.nome) && emailValido(contato.email) && telefoneValido(contato.telefone)
+      ? contato
+      : null;
+  } catch {
+    return null;
+  }
+}
+
+/** O que houver guardado, mesmo incompleto — para pré-preencher o formulário. */
+export function contatoParcial(): DadosLead {
+  try {
+    const d = JSON.parse(localStorage.getItem("novare:lead") ?? "{}") as Partial<DadosLead>;
+    return { nome: d.nome ?? "", email: d.email ?? "", telefone: d.telefone ?? "" };
+  } catch {
+    return { nome: "", email: "", telefone: "" };
+  }
+}
 
 /** A saudação da mensagem de WhatsApp, com ou sem nome. */
 export const saudacaoLead = (nome: string) =>
@@ -96,18 +130,21 @@ export function CamposLead({
   dados,
   aoMudar,
   compacto = false,
+  telefoneObrigatorio = false,
 }: {
   dados: DadosLead;
   aoMudar: (d: DadosLead) => void;
   /** Empilha os campos em vez de usar duas colunas. */
   compacto?: boolean;
+  /** O WhatsApp passa a ser exigido (o PDF das ferramentas). */
+  telefoneObrigatorio?: boolean;
 }) {
   const id = useId();
   /* O aviso do que falta só aparece depois que a pessoa saiu de algum campo:
      dizer "falta o seu nome" num formulário que ela ainda nem tocou é
      repreender quem não fez nada. */
   const [tocado, setTocado] = useState(false);
-  const falta = faltaNoLead(dados);
+  const falta = faltaNoLead(dados, telefoneObrigatorio);
 
   const campo =
     "h-11 w-full rounded-xl border border-border bg-white px-3.5 text-[0.9375rem] outline-none transition-colors focus:border-accent focus:ring-4 focus:ring-accent/12";
@@ -153,13 +190,19 @@ export function CamposLead({
 
       <div>
         <label htmlFor={`${id}-tel`} className={rotulo}>
-          WhatsApp <span className="font-normal">(opcional)</span>
+          WhatsApp{" "}
+          {telefoneObrigatorio ? (
+            <span className="text-accent-strong">*</span>
+          ) : (
+            <span className="font-normal">(opcional)</span>
+          )}
         </label>
         <input
           id={`${id}-tel`}
           type="tel"
           inputMode="numeric"
           autoComplete="tel"
+          required={telefoneObrigatorio}
           value={dados.telefone}
           onChange={(e) =>
             aoMudar({ ...dados, telefone: formatarTelefone(e.target.value) })

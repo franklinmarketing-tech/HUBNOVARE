@@ -1,4 +1,5 @@
-import { Banknote, DollarSign, Landmark, ShoppingCart, type LucideIcon } from "lucide-react";
+import Link from "next/link";
+import { ArrowRight, Banknote, DollarSign, Landmark, ShoppingCart, type LucideIcon } from "lucide-react";
 
 import { getIndicadores, type Indicador } from "@/lib/mercado";
 
@@ -61,9 +62,16 @@ export async function MercadoEmPortugues() {
   return (
     <section aria-labelledby="mercado-titulo" className="cine" style={{ transitionDelay: "120ms" }}>
       <p className="chapeu chapeu-ciano">Dados do Banco Central</p>
-      <h2 id="mercado-titulo" className="titulo-cp mt-2 text-2xl sm:text-[2rem]">
-        O mercado hoje, <span className="text-ciano-forte">em português.</span>
-      </h2>
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <h2 id="mercado-titulo" className="titulo-cp mt-2 text-2xl sm:text-[2rem]">
+          O mercado hoje, <span className="text-ciano-forte">em português.</span>
+        </h2>
+        {/* A página com todos os índices (20/10/2026). */}
+        <Link href="/indicadores" className="group inline-flex items-center gap-1.5 text-sm font-semibold text-accent-strong">
+          Ver todos os indicadores
+          <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+        </Link>
+      </div>
       <ul className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {frases.map(({ icone: Icone, titulo, texto }) => (
           <li key={titulo} className="cartao-cp p-5">

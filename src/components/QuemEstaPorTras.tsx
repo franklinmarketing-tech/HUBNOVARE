@@ -35,7 +35,7 @@ export function QuemEstaPorTras() {
           <div className="relative aspect-square overflow-hidden rounded-[1.1rem]">
             <Image
               src="/lp/socio-jefferson.webp"
-              alt="Jefferson Freitas, sócio da Novare"
+              alt="Jefferson Freitas, fundador da Novare"
               fill
               sizes="(max-width: 640px) 90vw, 240px"
               className="object-cover"
@@ -44,7 +44,7 @@ export function QuemEstaPorTras() {
           <figcaption className="px-1 pb-1 pt-3 text-center">
             <span className="block text-sm font-semibold text-white">Jefferson Freitas</span>
             <span className="mt-0.5 block text-[10px] font-semibold uppercase tracking-[0.22em] text-ciano-claro">
-              Sócio · Novare Investimentos
+              Fundador · Novare
             </span>
           </figcaption>
         </figure>

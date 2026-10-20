@@ -230,17 +230,18 @@ export function AnaliseOrcamento({
 
       {/* 4. O que um consultor faria */}
       {recs.length > 0 && (
-        <div className="min-w-0 rounded-[1.5rem] border border-slate-200/80 bg-white p-5 shadow-suave">
-          <p className="text-sm font-semibold text-slate-700">O que um consultor faria, na ordem</p>
+        // Bloco noite, igual ao do kit das outras ferramentas (20/10/2026).
+        <div className="secao-noite sem-ondas min-w-0 rounded-[1.75rem] p-5 shadow-ciano sm:p-7">
+          <p className="chapeu chapeu-claro">O que um consultor faria, na ordem</p>
           <ol className="mt-4 space-y-4">
             {recs.map((r, i) => (
               <li key={r.titulo} className="flex gap-3">
-                <span className="w-8 shrink-0 font-display text-xl font-normal leading-7 tracking-[-0.04em] text-ciano-forte tabular-nums">{String(i + 1).padStart(2, "0")}</span>
+                <span className="w-8 shrink-0 font-display text-xl font-normal leading-7 tracking-[-0.04em] text-ciano-claro tabular-nums">{String(i + 1).padStart(2, "0")}</span>
                 <div className="min-w-0">
-                  <p className="text-sm font-bold text-slate-900">{r.titulo}</p>
-                  <p className="mt-0.5 text-sm leading-relaxed text-slate-600">{r.texto}</p>
+                  <p className="text-sm font-semibold text-white">{r.titulo}</p>
+                  <p className="mt-0.5 text-sm leading-relaxed text-white/75">{r.texto}</p>
                   {r.href && (
-                    <Link href={r.href} className="mt-1 inline-flex min-h-8 items-center gap-1 text-xs font-semibold text-accent-strong hover:underline print:hidden">
+                    <Link href={r.href} className="mt-1 inline-flex min-h-8 items-center gap-1 text-xs font-semibold text-accent-claro hover:underline print:hidden">
                       {r.link} <ArrowRight className="h-3 w-3" />
                     </Link>
                   )}
@@ -249,7 +250,7 @@ export function AnaliseOrcamento({
             ))}
           </ol>
           {guardaMes > 0 && (
-            <p className="mt-5 rounded-xl bg-primary/5 px-4 py-3 text-sm text-slate-700">
+            <p className="painel-gelo mt-5 px-4 py-3 text-sm text-slate-700">
               Seguindo o plano, você guarda <b className="text-primary">{brl(guardaMes)}</b> por mês:{" "}
               <b className="text-primary">{brl(guardaMes * 12)}</b> em 12 meses, sem contar rendimento.
             </p>
@@ -289,10 +290,10 @@ export function AnaliseOrcamento({
 
 function Indicador({ rotulo, valor, nota, ruim }: { rotulo: string; valor: string; nota: string; ruim?: boolean }) {
   return (
-    <div className="rounded-[1.25rem] border border-slate-200/80 bg-white p-4 shadow-suave">
-      <p className="text-2xs font-semibold uppercase tracking-wider text-slate-500">{rotulo}</p>
-      <p className={`mt-1.5 font-display text-[1.75rem] font-medium tracking-[-0.04em] tabular-nums ${ruim ? "text-destructive" : "text-primary"}`}>{valor}</p>
-      <p className="mt-0.5 text-2xs text-slate-500">{nota}</p>
+    <div className="rounded-[1.25rem] bg-noite p-4 shadow-ciano ring-1 ring-white/10">
+      <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-ciano-claro">{rotulo}</p>
+      <p className={`mt-1.5 font-display text-[1.75rem] font-medium tracking-[-0.04em] tabular-nums ${ruim ? "text-[hsl(0_90%_72%)]" : "text-white"}`}>{valor}</p>
+      <p className="mt-0.5 text-2xs text-white/65">{nota}</p>
     </div>
   );
 }

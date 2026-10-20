@@ -75,13 +75,13 @@ export function RodapeNovare({
               quebrar os 12 lugares que o referenciam. */}
           <div className="relative hidden w-2/5 shrink-0 sm:block">
             <Image
-              src="/marca/novare-site/socios-novare-alta.jpg"
-              alt="Jefferson Freitas, sócio da Novare"
+              src="/marca/novare-site/jefferson-sofa.jpg"
+              alt="Jefferson Freitas, fundador da Novare"
               fill
               sizes="340px"
-              className="object-cover"
+              className="object-cover object-[50%_18%]"
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-noite via-noite/40 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-r from-noite to-transparent to-[22%]" />
           </div>
         </div>
       </section>
@@ -154,7 +154,7 @@ export function RodapeNovare({
             <ul className="mt-4 space-y-2.5">
               <li>
                 <a
-                  href="https://novareinvestimentos.com.br"
+                  href="https://novareinvestimentos.com"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-[13px] font-medium text-white/70 transition-colors hover:text-white"

@@ -82,15 +82,16 @@ export default async function NovareNewsPage({
       <CabecalhoNews />
 
       <main className="mx-auto max-w-6xl px-4 pb-20 pt-10 sm:pt-14">
-        <header className="max-w-2xl">
-          <p className="flex items-center gap-3 text-2xs font-semibold uppercase tracking-[0.2em] text-accent-strong">
+        {/* Topo noite, como o das ferramentas (pedido do dono, 20/10/2026). */}
+        <header className="topo-ferramenta secao-noite !mt-0">
+          <p className="flex items-center gap-3 text-2xs font-semibold uppercase tracking-[0.2em] text-accent-claro">
             Novare News
             <span aria-hidden className="h-px w-10 bg-accent-soft" />
           </p>
-          <h1 className="mt-4 text-balance font-display text-3xl font-medium leading-[1.06] tracking-[-0.03em] text-primary sm:text-5xl">
+          <h1 className="mt-4 max-w-2xl text-balance font-display text-3xl font-medium leading-[1.06] tracking-[-0.03em] text-white sm:text-5xl">
             Dinheiro explicado, sem letra miúda
           </h1>
-          <p className="mt-4 text-base leading-relaxed text-muted-foreground">
+          <p className="mt-4 max-w-2xl text-base leading-relaxed text-white/75">
             Salário, rescisão, investimento e o dia a dia das contas — cada
             artigo termina na ferramenta que resolve o que você acabou de ler.
           </p>

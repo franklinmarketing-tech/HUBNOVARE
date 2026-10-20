@@ -95,16 +95,16 @@ export function CascaFerramenta({
       <main className="max-w-3xl mx-auto px-4 pb-16">
         {/* Abertura no desenho da Carteira Pontual (20/10/2026): selo em
             pílula ciano, título grande de PESO MÉDIO com a letra junta. */}
-        <section className="pt-12 pb-8">
-          <div className="inline-flex items-center gap-1.5 rounded-full bg-ciano-tint text-ciano-forte px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] mb-5">
+        <section className="topo-ferramenta secao-noite">
+          <div className="inline-flex items-center gap-1.5 rounded-full bg-white/10 text-ciano-claro ring-1 ring-white/15 px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] mb-5">
             {selo}
           </div>
-          <h1 className="text-[2rem] sm:text-[2.75rem] leading-[1.08] font-display font-medium tracking-[-0.03em] text-primary">
+          <h1 className="text-[2rem] sm:text-[2.75rem] leading-[1.08] font-display font-medium tracking-[-0.03em] text-white">
             {titulo}
           </h1>
           {/* slate-600, não 500: sobre o fundo azulado o 500 cai para 4,42:1
               e reprova no axe (o mínimo é 4,5). Aqui dá 7,03:1. */}
-          <p className="text-slate-600 mt-3 max-w-xl">{abertura}</p>
+          <p className="text-white/75 mt-4 max-w-xl">{abertura}</p>
         </section>
 
         {children}

@@ -105,8 +105,8 @@ export function GuiaFerramenta() {
           </ol>
 
           <p className="mt-4 rounded-xl bg-slate-50 px-3 py-2.5 text-xs leading-relaxed text-muted-foreground">
-            No fim da página você salva o resultado em PDF — sem cadastro. Falar
-            com um especialista é opcional.
+            No fim da página você baixa o seu relatório em PDF — é só deixar
+            o seu contato. É grátis.
           </p>
 
           <button

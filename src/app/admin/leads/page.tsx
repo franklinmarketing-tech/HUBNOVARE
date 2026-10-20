@@ -50,6 +50,8 @@ const TIPO = {
   cupom: { rotulo: "Cupom", cls: "bg-amber-100 text-amber-700" },
   produto: { rotulo: "Produto", cls: "bg-indigo-100 text-indigo-700" },
   ferramenta: { rotulo: "Ferramenta", cls: "bg-slate-100 text-slate-600" },
+  relatorio: { rotulo: "Baixou PDF", cls: "bg-orange-100 text-orange-700" },
+  guia: { rotulo: "eBook", cls: "bg-cyan-100 text-cyan-800" },
 } as const;
 
 /* ⚠️ AQUI FICAVA `zapDe`, que punha "55" na frente de QUALQUER telefone.
@@ -65,6 +67,9 @@ function resumo(l: Lead): string {
   if (l.tipo === "cupom" && p.cupom != null)
     return p.desconto != null ? `${p.cupom} · ${p.desconto}% OFF` : String(p.cupom);
   if (l.tipo === "produto" && p.produto != null) return `Interesse: ${p.produto}`;
+  if (l.tipo === "relatorio" && p.ferramenta != null) return `PDF: ${p.ferramenta}`;
+  if (l.tipo === "guia" && p.guia != null)
+    return p.faixaRenda ? `eBook: ${p.guia} · renda ${p.faixaRenda}` : `eBook: ${p.guia}`;
   return l.origem ?? "—";
 }
 

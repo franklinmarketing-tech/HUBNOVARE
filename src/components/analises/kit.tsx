@@ -90,10 +90,12 @@ export function GradeIndicadores({ children }: { children: ReactNode }) {
 
 export function Indicador({ rotulo, valor, nota, ruim }: { rotulo: string; valor: string; nota: string; ruim?: boolean }) {
   return (
-    <div className="rounded-[1.25rem] border border-slate-200/80 bg-white p-4 shadow-suave">
-      <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-500">{rotulo}</p>
-      <p className={`mt-1.5 font-display text-[1.75rem] font-medium tracking-[-0.04em] tabular-nums ${ruim ? "text-destructive" : "text-primary"}`}>{valor}</p>
-      <p className="mt-0.5 text-2xs text-slate-500">{nota}</p>
+    // Cartão NOITE (20/10/2026): "muitas seções brancas", disse o dono. Os
+    // três números-resumo viram faixa escura entre o veredito e os gráficos.
+    <div className="rounded-[1.25rem] bg-noite p-4 shadow-ciano ring-1 ring-white/10">
+      <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-ciano-claro">{rotulo}</p>
+      <p className={`mt-1.5 font-display text-[1.75rem] font-medium tracking-[-0.04em] tabular-nums ${ruim ? "text-[hsl(0_90%_72%)]" : "text-white"}`}>{valor}</p>
+      <p className="mt-0.5 text-2xs text-white/65">{nota}</p>
     </div>
   );
 }
@@ -149,18 +151,21 @@ export type Recomendacao = { titulo: string; texto: string; href?: string; link?
 export function Recomendacoes({ itens, rodape, titulo = "O que um consultor faria, na ordem" }: { itens: Recomendacao[]; rodape?: ReactNode; titulo?: string }) {
   if (!itens.length) return null;
   return (
-    <div className="cartao-cp cartao-fita-laranja p-5 sm:p-6">
-      <p className="text-sm font-semibold text-slate-700">{titulo}</p>
+    // Bloco NOITE: a recomendação é o fecho da análise, e o escuro a destaca.
+    // O rodapé continua num painel claro — os números em negrito dele usam
+    // `text-primary`, que sumiria sobre o fundo escuro.
+    <div className="secao-noite sem-ondas rounded-[1.75rem] p-5 shadow-ciano sm:p-7">
+      <p className="chapeu chapeu-claro">{titulo}</p>
       <ol className="mt-4 space-y-4">
         {itens.map((r, i) => (
           <li key={r.titulo} className="flex gap-3">
             {/* "01, 02…" em ciano fino, como as etapas da Carteira Pontual. */}
-            <span className="w-8 shrink-0 font-display text-xl font-normal leading-7 tracking-[-0.04em] text-ciano-forte tabular-nums">{String(i + 1).padStart(2, "0")}</span>
+            <span className="w-8 shrink-0 font-display text-xl font-normal leading-7 tracking-[-0.04em] text-ciano-claro tabular-nums">{String(i + 1).padStart(2, "0")}</span>
             <div className="min-w-0">
-              <p className="text-sm font-bold text-slate-900">{r.titulo}</p>
-              <p className="mt-0.5 text-sm leading-relaxed text-slate-600">{r.texto}</p>
+              <p className="text-sm font-semibold text-white">{r.titulo}</p>
+              <p className="mt-0.5 text-sm leading-relaxed text-white/75">{r.texto}</p>
               {r.href && r.link && (
-                <Link href={r.href} className="mt-1 inline-flex min-h-8 items-center gap-1 text-xs font-semibold text-accent-strong hover:underline print:hidden">
+                <Link href={r.href} className="mt-1 inline-flex min-h-8 items-center gap-1 text-xs font-semibold text-accent-claro hover:underline print:hidden">
                   {r.link} <ArrowRight className="h-3 w-3" />
                 </Link>
               )}

@@ -96,7 +96,7 @@ export function Duvidas() {
           <span className="relative block aspect-[4/3] w-full overflow-hidden bg-[#e9eef4]">
             <Image
               src="/lp/hero-socios.webp"
-              alt="Jefferson Freitas, sócio da Novare"
+              alt="Jefferson Freitas, fundador da Novare"
               fill
               sizes="384px"
               className="object-cover object-[center_25%]"

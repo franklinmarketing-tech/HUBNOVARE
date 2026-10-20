@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { usePathname } from "next/navigation";
-import { ArrowRight, Check, Download, FileText, Lock, MessageCircle, Loader2, AlertCircle, UserRound } from "lucide-react";
+import { ArrowRight, Check, FileText, Lock, MessageCircle, Loader2, AlertCircle } from "lucide-react";
+import { LiberarPdf } from "@/components/LiberarPdf";
 import { falarNoWhatsApp } from "@/lib/contato";
 import { salvarLead, type LeadTipo } from "@/lib/leads";
 import {
@@ -43,14 +44,15 @@ export function CapturaLead({
    */
   comRelatorio?: boolean;
 } = {}) {
-  titulo ??= comRelatorio ? "Leve o seu resultado" : "Receba o relatório completo";
+  /* ⚠️ 20/10/2026: O PDF PASSOU A PEDIR CONTATO. Até aqui ele saía "sem
+     cadastro"; o dono pediu nome, e-mail e WhatsApp de todo mundo que baixa,
+     para o Jefferson ligar pelo painel de leads. O resultado na tela continua
+     aberto — só o PDF tem a trava (ver `LiberarPdf`). */
+  titulo ??= comRelatorio ? "Baixe o seu relatório em PDF" : "Receba o relatório completo";
   subtitulo ??= comRelatorio
-    ? "Salve em PDF ou imprima agora, sem cadastro. Se quiser, um especialista da Novare revisa o seu caso — é opcional e gratuito."
+    ? "Deixe o seu contato para liberar o PDF com o resultado e a análise completa. É grátis."
     : "Um especialista da Novare revisa o seu caso e envia o próximo passo — grátis, sem compromisso.";
   const pathname = usePathname();
-  /* O formulário nasce fechado só nas ferramentas: lá ele é a segunda
-     escolha, não o caminho para ver o resultado. */
-  const [querEspecialista, setQuerEspecialista] = useState(!comRelatorio);
   const [dados, setDados] = useState<DadosLead>({ nome: "", telefone: "", email: "" });
   const [enviado, setEnviado] = useState(false);
   const [enviando, setEnviando] = useState(false);
@@ -128,7 +130,9 @@ WhatsApp: ${dados.telefone}${linhaEmailLead(dados.email)}`,
           </div>
         </div>
 
-        {enviado ? (
+        {comRelatorio ? (
+          <LiberarPdf />
+        ) : enviado ? (
           <div className="mt-5">
             {/* ⚠️ A FRASE DEPENDE DO QUE REALMENTE ACONTECEU. Antes ela
                 dizia "Abrimos o WhatsApp" sempre — inclusive quando nada
@@ -155,34 +159,6 @@ WhatsApp: ${dados.telefone}${linhaEmailLead(dados.email)}`,
               <MessageCircle className="h-4 w-4 shrink-0 text-[#25D366]" />
               Prefere falar agora? Chamar no WhatsApp
             </a>
-          </div>
-        ) : !querEspecialista ? (
-          <div className="mt-5">
-            <div className="flex flex-col gap-2 sm:flex-row">
-              {/* `window.print()` abre a janela do navegador, onde "Salvar como
-                  PDF" é o destino padrão no celular e no computador. A página
-                  já esconde menu, botões flutuantes e rodapé na impressão. */}
-              <button
-                type="button"
-                onClick={() => window.print()}
-                className="btn-cp"
-              >
-                <Download className="h-4 w-4" />
-                Baixar meu resultado em PDF
-              </button>
-              <button
-                type="button"
-                onClick={() => setQuerEspecialista(true)}
-                className="btn-claro"
-              >
-                <UserRound className="h-4 w-4" />
-                Falar com um especialista
-              </button>
-            </div>
-            <p className="mt-2.5 text-2xs text-muted-foreground">
-              Na janela que abrir, escolha “Salvar como PDF”. Seus números não
-              saem do seu aparelho.
-            </p>
           </div>
         ) : (
           <>

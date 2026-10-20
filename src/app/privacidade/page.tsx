@@ -99,10 +99,10 @@ export default function PrivacidadePage() {
               <li>
                 E-mail:{" "}
                 <a
-                  href="mailto:contato@novareapp.com.br"
+                  href="mailto:contato@novareinvestimentos.com"
                   className="font-medium text-primary hover:text-accent-strong transition-colors"
                 >
-                  contato@novareapp.com.br
+                  contato@novareinvestimentos.com
                 </a>
               </li>
               <li>WhatsApp: disponível pelos canais de atendimento oficiais da Novare.</li>
@@ -467,10 +467,10 @@ export default function PrivacidadePage() {
               Para exercer qualquer um dos direitos acima, entre em contato com o
               nosso Encarregado pelo e-mail{" "}
               <a
-                href="mailto:contato@novareapp.com.br"
+                href="mailto:contato@novareinvestimentos.com"
                 className="font-medium text-primary hover:text-accent-strong transition-colors"
               >
-                contato@novareapp.com.br
+                contato@novareinvestimentos.com
               </a>{" "}
               ou pelo WhatsApp de atendimento oficial da Novare. Podemos precisar
               confirmar sua identidade antes de atender ao pedido, para proteger
@@ -484,10 +484,10 @@ export default function PrivacidadePage() {
         <div className="mt-10 text-center text-xs text-muted-foreground">
           Novare Consultoria de Investimentos • Encarregado (DPO):{" "}
           <a
-            href="mailto:contato@novareapp.com.br"
+            href="mailto:contato@novareinvestimentos.com"
             className="font-medium text-primary hover:text-accent-strong transition-colors"
           >
-            contato@novareapp.com.br
+            contato@novareinvestimentos.com
           </a>
         </div>
       </main>

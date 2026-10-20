@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { excedeuLimitePorIp, respostaLimite } from "@/lib/api-security";
 import { createClient } from "@/lib/supabase/server";
 import { avisarEquipeDeLead, enviarConfirmacaoDeLead } from "@/lib/email";
+import { ehLeadDeTeste } from "@/lib/leads-teste";
 
 /**
  * Gravação de lead, pelo servidor.
@@ -61,6 +62,14 @@ export async function POST(req: Request) {
   const telefone = limitar(corpo.telefone, 40);
   const origem = limitar(corpo.origem, 80);
   const tipo = limitar(corpo.tipo, 40);
+
+  /* ⚠️ LEAD DE TESTE NÃO ENTRA (pedido do dono, 20/10/2026). A tela recebe
+     "gravado" para o fluxo seguir (o PDF libera, a confirmação aparece),
+     mas nada vai para `hub_leads` e nenhum e-mail sai — nem para a pessoa,
+     nem o aviso à equipe. O banco tem o mesmo filtro num gatilho. */
+  if (ehLeadDeTeste(email, nome)) {
+    return NextResponse.json({ ok: true, gravado: true, emailEnviado: false });
+  }
 
   let gravado = false;
   try {

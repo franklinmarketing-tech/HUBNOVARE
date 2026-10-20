@@ -2,17 +2,9 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { ArrowRight, Check, Download, HeartPulse, Loader2, Lock, MessageCircle, PiggyBank, Shield, TrendingUp, UserRound, Wallet } from "lucide-react";
+import { ArrowRight, HeartPulse, PiggyBank, Shield, TrendingUp, Wallet } from "lucide-react";
 import { formatarMoedaInput, digitosParaReais } from "@/lib/moeda";
-import { falarNoWhatsApp } from "@/lib/contato";
-import { salvarLead } from "@/lib/leads";
-import {
-  CamposLead,
-  leadCompleto,
-  primeiroNomeLead,
-  saudacaoLead,
-  type DadosLead,
-} from "@/components/CamposLead";
+import { LiberarPdf } from "@/components/LiberarPdf";
 
 const brl = (v: number) =>
   v.toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 });
@@ -48,8 +40,6 @@ export function CalculadoraSaudeFinanceira() {
   const [divida, setDivida] = useState("12000");
   const [reserva, setReserva] = useState("15000");
   const [invest, setInvest] = useState("30000");
-  const [dados, setDados] = useState<DadosLead>({ nome: "", telefone: "", email: "" });
-  const [enviado, setEnviado] = useState(false);
 
   const r = useMemo(() => {
     const n = (v: string) => parseFloat(v) || 0;
@@ -57,7 +47,6 @@ export function CalculadoraSaudeFinanceira() {
     return { ...p, f: faixa(p.score) };
   }, [renda, gastos, divida, reserva, invest]);
 
-  const leadOk = leadCompleto(dados);
 
   /* O QUE MELHORAR, NA ORDEM CERTA — calculado aqui, na tela, para todos.
      ⚠️ ATÉ 20/10/2026 ISTO ERA PROMETIDO E NUNCA EXISTIA: "Receba o
@@ -95,58 +84,6 @@ export function CalculadoraSaudeFinanceira() {
     }
     return itens.sort((a, b) => a.pts - b.pts);
   }, [renda, gastos, divida, reserva, invest, r]);
-
-  const [querEspecialista, setQuerEspecialista] = useState(false);
-  const [enviando, setEnviando] = useState(false);
-  const [falhou, setFalhou] = useState(false);
-
-  /* ⚠️ O MESMO CONSERTO DO `CapturaLead`: antes a tela comemorava antes de
-     gravar, o lead ia sem `await` e o WhatsApp abria SOZINHO. Agora grava,
-     espera a resposta, e o WhatsApp é um botão que a pessoa escolhe. */
-  const enviar = async () => {
-    if (!leadOk || enviando) return;
-    setEnviando(true);
-    setFalhou(false);
-    const resp = await salvarLead({
-      email: dados.email,
-      nome: dados.nome.trim(),
-      telefone: dados.telefone,
-      origem: "/exame-saude-financeira",
-      tipo: "saude-financeira",
-      payload: { score: r.score, faixa: r.f.rotulo, renda, gastos, divida, reserva, invest },
-    });
-    setEnviando(false);
-    if (!resp.gravado) {
-      setFalhou(true);
-      return;
-    }
-    setEnviado(true);
-    try {
-      localStorage.setItem(
-        "novare:saude-lead",
-        JSON.stringify({
-          nome: dados.nome.trim(),
-          telefone: dados.telefone,
-          email: dados.email,
-          renda,
-          gastos,
-          divida,
-          reserva,
-          invest,
-          score: r.score,
-          ts: Date.now(),
-        }),
-      );
-    } catch {}
-  };
-
-  const zap = falarNoWhatsApp(
-    `${saudacaoLead(dados.nome)} Fiz o Exame de Saúde Financeira no site da Novare.\n` +
-      `• Nota: ${r.score}/100 (${r.f.rotulo})\n` +
-      `• WhatsApp: ${dados.telefone}\n` +
-      (dados.email.trim() ? `• E-mail: ${dados.email}\n` : "") +
-      `Quero que um especialista olhe os meus números comigo.`,
-  );
 
   const DIMS = [
     { icone: PiggyBank, nome: "Sobra mensal", val: r.p1 },
@@ -240,74 +177,18 @@ export function CalculadoraSaudeFinanceira() {
         </div>
 
 
-        {/* AÇÕES: o PDF primeiro, sem cadastro; o especialista é opcional. */}
+        {/* O PDF COM TRAVA (20/10/2026): nome, e-mail e WhatsApp liberam o
+            relatório, e o lead entra no painel como "Exame de Saúde" com a
+            nota — ver `LiberarPdf`. */}
         <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm print:hidden">
-          {enviado ? (
-            <div className="text-center">
-              <p className="flex items-center justify-center gap-2 text-sm font-bold text-emerald-700">
-                <Check className="h-4 w-4" />
-                {primeiroNomeLead(dados.nome) ? `Recebemos, ${primeiroNomeLead(dados.nome)}!` : "Recebemos!"}
-              </p>
-              <p className="mt-1 text-xs text-slate-500">Um especialista da Novare entra em contato.</p>
-              <a
-                href={zap}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-bold text-primary hover:bg-slate-50"
-              >
-                <MessageCircle className="h-4 w-4 text-[#25D366]" />
-                Prefere falar agora? Chamar no WhatsApp
-              </a>
-            </div>
-          ) : !querEspecialista ? (
-            <>
-              <button
-                type="button"
-                onClick={() => window.print()}
-                className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-accent-btn px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-accent-strong"
-              >
-                <Download className="h-4 w-4" />
-                Baixar meu resultado em PDF
-              </button>
-              <button
-                type="button"
-                onClick={() => setQuerEspecialista(true)}
-                className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 px-5 py-2.5 text-sm font-bold text-primary transition-colors hover:bg-slate-50"
-              >
-                <UserRound className="h-4 w-4" />
-                Falar com um especialista
-              </button>
-              <p className="mt-2 text-center text-[11px] text-muted-foreground">
-                Sem cadastro para ver ou salvar. O especialista é opcional e gratuito.
-              </p>
-            </>
-          ) : (
-            <>
-              <p className="font-display text-sm font-bold text-primary">Falar com um especialista</p>
-              <p className="mt-1 text-xs text-slate-500">
-                Ele olha os seus números com você e indica o próximo passo — grátis, sem compromisso.
-              </p>
-              <div className="mt-3">
-                <CamposLead dados={dados} aoMudar={setDados} compacto />
-              </div>
-              <button
-                onClick={enviar}
-                disabled={!leadOk || enviando}
-                className="btn-cp mt-4 w-full disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                {enviando ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-                {enviando ? "Enviando…" : "Quero falar com um especialista"}
-              </button>
-              {falhou && (
-                <p className="mt-2 text-xs font-medium text-destructive">
-                  Não conseguimos registrar agora. Tente de novo em instantes.
-                </p>
-              )}
-              <p className="mt-2 flex items-center justify-center gap-1 text-[10px] text-muted-foreground">
-                <Lock className="h-3 w-3" /> Seus dados são tratados conforme a LGPD.
-              </p>
-            </>
-          )}
+          <p className="font-display text-base font-semibold text-primary">Baixe o seu relatório em PDF</p>
+          <p className="mt-1 text-xs text-slate-500">Deixe o seu contato para liberar a sua nota e o plano de melhoria em PDF.</p>
+          <LiberarPdf
+            compacto
+            tipo="saude-financeira"
+            ferramenta="Exame de Saúde Financeira"
+            payload={{ score: r.score, faixa: r.f.rotulo, renda, gastos, divida, reserva, invest }}
+          />
         </div>
       </div>
     </div>

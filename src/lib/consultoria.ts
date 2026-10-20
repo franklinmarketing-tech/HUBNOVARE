@@ -38,7 +38,7 @@ export const ROTULO_PRIMEIRA_ANALISE = "Primeira análise grátis";
 export function buildTrackingUrl(baseUrl: string, productSlug: string): string {
   if (!baseUrl || baseUrl.startsWith("#")) return baseUrl;
   try {
-    const url = new URL(baseUrl, "https://novareinvestimentos.com.br");
+    const url = new URL(baseUrl, "https://novareinvestimentos.com");
     url.searchParams.set("utm_source", "novare_workspace");
     url.searchParams.set("utm_medium", "hub_produtos");
     url.searchParams.set("utm_campaign", `lead_${productSlug}`);

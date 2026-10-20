@@ -112,20 +112,23 @@ export default async function ArtigoPage({
         </Link>
 
         <article className="mt-6">
-          <p className="flex items-center gap-2 text-2xs font-semibold uppercase tracking-[0.16em] text-accent-strong">
+          {/* Cabeçalho da matéria em painel noite (20/10/2026). */}
+          <div className="topo-ferramenta secao-noite !mt-0">
+          <p className="flex items-center gap-2 text-2xs font-semibold uppercase tracking-[0.16em] text-accent-claro">
             <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-accent" />
             {FAMILIAS[artigo.categoria]}
           </p>
 
-          <h1 className="mt-3 text-balance font-display text-3xl font-medium leading-[1.1] tracking-[-0.03em] text-primary sm:text-4xl lg:text-[2.75rem] lg:leading-[1.06]">
+          <h1 className="mt-3 text-balance font-display text-3xl font-medium leading-[1.1] tracking-[-0.03em] text-white sm:text-4xl lg:text-[2.75rem] lg:leading-[1.06]">
             {artigo.titulo}
           </h1>
 
           {/* A linha-fina: o resumo já existe na fonte e é ele que segura
               o leitor entre a manchete e o primeiro parágrafo. */}
-          <p className="mt-4 text-lg leading-relaxed text-muted-foreground sm:text-xl">
+          <p className="mt-4 text-lg leading-relaxed text-white/75 sm:text-xl">
             {artigo.resumo}
           </p>
+          </div>
 
           <div className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-3 border-y border-border py-4 text-2xs text-muted-foreground">
             <span className="flex items-center gap-2">

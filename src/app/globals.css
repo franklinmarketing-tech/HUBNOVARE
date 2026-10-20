@@ -478,6 +478,19 @@
       linear-gradient(90deg, hsl(203 100% 2% / 0.94) 0%, hsl(203 100% 2% / 0.72) 45%, hsl(203 100% 2% / 0.35) 100%),
       var(--fundo-noite, url("/marca/ondas-noite.webp")) center / cover no-repeat;
   }
+  /* O TOPO DAS FERRAMENTAS (20/10/2026): "muito branco", disse o dono.
+     Vira um painel noite como o topo da Carteira Pontual, e a página passa
+     a alternar escuro (topo, resultado, convite) e claro (campos, análise). */
+  .topo-ferramenta {
+    margin-top: 1.5rem;
+    margin-bottom: 1.5rem;
+    border-radius: 1.75rem;
+    padding: 2.25rem 1.5rem 2rem;
+  }
+  @media (min-width: 640px) {
+    .topo-ferramenta { padding: 3rem 2.75rem 2.75rem; }
+  }
+
   /* Variante sem foto, só a luz ciano e laranja nas bordas. */
   .secao-noite.sem-ondas::before {
     background:
@@ -503,7 +516,17 @@
   @keyframes correr-etiquetas {
     to { transform: translate3d(-50%, 0, 0); }
   }
+  /* A barra do pop-up "Parabéns" do PDF (LiberarPdf): enche em 1,8 s. */
+  .barra-enchendo {
+    animation: encher-barra 1.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  @keyframes encher-barra {
+    from { transform: scaleX(0.04); }
+    to { transform: scaleX(1); }
+  }
+
   @media (prefers-reduced-motion: reduce) {
+    .barra-enchendo { animation: none; }
     .faixa-etiquetas > ul { animation: none; flex-wrap: wrap; width: auto; }
     .faixa-etiquetas [data-dup] { display: none; }
   }

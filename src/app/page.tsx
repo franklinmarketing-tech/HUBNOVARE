@@ -8,9 +8,10 @@ import { BarraInferior } from "@/components/BarraInferior";
 import { TopoApp } from "@/components/TopoApp";
 import { PaletaComandos } from "@/components/PaletaComandos";
 import { QuemEstaPorTras } from "@/components/QuemEstaPorTras";
-import { MercadoEmPortugues } from "@/components/MercadoEmPortugues";
+import { IndicadoresHome } from "@/components/IndicadoresHome";
 import { ComoTrabalhamos } from "@/components/ComoTrabalhamos";
 import { TudoDeGraca } from "@/components/TudoDeGraca";
+import { ChamadaJefferson } from "@/components/ChamadaJefferson";
 import { buildTrackingUrl, CARTEIRA_PONTUAL_LP } from "@/lib/consultoria";
 import { CardPortal } from "@/components/CardPortal";
 import { CardFincashHome } from "@/components/CardFincashHome";
@@ -307,6 +308,11 @@ export default async function Home() {
               ))}
           </section>
 
+          {/* Os indicadores logo abaixo das vitrines (pedido do dono,
+              20/10/2026: primeiro "embaixo, chamando a atenção", depois
+              "abaixo dos cards"). */}
+          <IndicadoresHome />
+
           {/* O "Continue de onde parou" (components/Recentes) já morou aqui e
               saiu a pedido: mais uma fileira de pílulas entre as vitrines e as
               ferramentas deixava a dobra carregada demais. O componente
@@ -345,12 +351,17 @@ export default async function Home() {
 
           <QuemEstaPorTras />
 
-          <MercadoEmPortugues />
+          {/* ⚠️ O "MERCADO EM PORTUGUÊS" SAIU DAQUI em 20/10/2026: os mesmos
+              números agora ficam no painel de indicadores, logo abaixo das vitrines
+              (`IndicadoresHome`), a pedido do dono. */}
 
           {/* ⚠️ ERA A FAIXA NAVY "Novare Workspace completo · Ver o que tem
               aqui" (`ConviteWorkspace`), trocada em 19/10/2026 por um fecho que
               mostra o TAMANHO do que é de graça. */}
           <TudoDeGraca />
+
+          {/* A chamada de destaque com o Jefferson (pedido dele, 20/10/2026). */}
+          <ChamadaJefferson />
 
           {/* A seta que avisa que a página continua. Sem ela, quem chega numa
               tela cheia e sem barra de rolagem visível acredita que acabou —

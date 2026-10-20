@@ -598,14 +598,14 @@ export default async function ProdutoPage({
 
           <div className="relative hidden w-2/5 shrink-0 sm:block">
             <Image
-              src="/marca/novare-site/socios-novare-alta.jpg"
-              alt="Jefferson Freitas, sócio da Novare"
+              src="/marca/novare-site/jefferson-sofa.jpg"
+              alt="Jefferson Freitas, fundador da Novare"
               fill
               sizes="340px"
-              className="object-cover"
+              className="object-cover object-[50%_18%]"
             />
             {/* O degradê costura a foto no navy — sem ele a emenda fica dura. */}
-            <div className="absolute inset-0 bg-gradient-to-r from-noite via-noite/40 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-r from-noite to-transparent to-[22%]" />
           </div>
         </section>
 
