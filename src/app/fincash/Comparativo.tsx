@@ -425,8 +425,7 @@ export default function Comparativo({ className }: { className?: string }) {
       <p className="mt-4 text-xs leading-relaxed text-muted-foreground">
         &ldquo;App do banco&rdquo; é o aplicativo de qualquer banco, sem citar
         marca — a comparação é com o que a tela faz, não com quem a fez. Toda
-        linha acima é conferível no FINCASH hoje: o assistente de WhatsApp ficou
-        de fora da tabela porque a linha oficial ainda não está ligada.
+        linha acima é conferível no FINCASH hoje.
       </p>
     </div>
   );

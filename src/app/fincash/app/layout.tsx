@@ -6,6 +6,7 @@ import { LogOut, Wallet } from "lucide-react";
 import { getPerfil } from "@/lib/perfil";
 import { InstalarApp } from "@/components/InstalarApp";
 import { CascaFincash } from "./CascaFincash";
+import { PopupAlertas } from "./PopupAlertas";
 import { carregarAvisosDoMenu } from "./avisos-servidor";
 import { sair } from "@/lib/acoes-sessao";
 
@@ -132,6 +133,9 @@ export default async function FincashLayout({
           tela, porque pode aparecer em qualquer uma — e some sozinho para
           quem já instalou ou já dispensou. */}
       <InstalarApp />
+
+      {/* Os alertas que a pessoa ligou em Avisos, num pop-up ao abrir o app. */}
+      <PopupAlertas />
     </div>
   );
 }

@@ -1,28 +1,24 @@
 /**
- * O QUE AVISAR NO WHATSAPP, E QUANDO.
+ * O QUE AVISAR, E QUANDO.
  *
- * ═══ ESTE ARQUIVO NÃO FALA COM O BANCO NEM COM A META ════════════════════
+ * ═══ ESTE ARQUIVO NÃO FALA COM O BANCO ═══════════════════════════════════
  *
- * Ele recebe o que já foi lido e devolve as mensagens que devem sair. Quem
- * lê o banco é a rota, quem envia é `whatsapp-envio.ts`. A separação é o que
- * permite provar as regras sem banco, sem sessão e sem mandar mensagem para
- * ninguém — e aqui isso vale mais do que o normal: errar a regra de um
- * alerta não gera um pixel torto, gera uma mensagem indevida no celular de
- * um cliente.
+ * Ele recebe o que já foi lido e devolve os alertas. Quem lê o banco é
+ * `alertas-do-dia.ts`, e quem mostra é o pop-up do app (`PopupAlertas.tsx`).
+ * A separação é o que permite provar as regras sem banco e sem sessão
+ * (`scripts/testar-alertas.mjs`).
  *
- * ⚠️ NINGUÉM RECEBE NADA SEM TER LIGADO. Todo alerta começa desligado em
- * `fin_whatsapp_alertas`, e cada função abaixo volta vazia quando o campo
- * correspondente é falso. Mensagem não pedida não é incômodo: é número
- * bloqueado — e quem a Meta pune é o remetente, o que derruba a entrega de
- * todos os outros clientes junto.
+ * ⚠️ NINGUÉM VÊ NADA SEM TER LIGADO. Todo alerta começa desligado em
+ * `fin_alertas`, e cada função abaixo volta vazia quando o campo
+ * correspondente é falso.
  *
- * ⚠️ UM AVISO POR ASSUNTO, NÃO UM POR DIA. O verificador roda diariamente e
- * olha a mesma janela ("vence em até 2 dias"), então sem trava a mesma conta
- * seria anunciada hoje, amanhã e depois. As datas `ultimo_*` são o que
- * transforma a janela em um aviso só.
+ * ⚠️ UM AVISO POR ASSUNTO POR DIA. A janela ("vence em até 2 dias") é a
+ * mesma a cada abertura do app, então sem trava a mesma conta apareceria a
+ * cada vez. As datas `ultimo_*`, gravadas quando a pessoa fecha o pop-up,
+ * calam o assunto até o dia seguinte.
  */
 
-/** O que o cliente escolheu receber. Espelha `fin_whatsapp_alertas`. */
+/** O que o cliente escolheu receber. Espelha `fin_alertas`. */
 export type ConfigAlertas = {
   contas_ligado: boolean;
   contas_dias_antes: number;

@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import {
   ArrowRight,
+  Bell,
   BadgeCheck,
   CalendarClock,
   Camera,
@@ -13,7 +14,6 @@ import {
   Layers,
   ListPlus,
   Lock,
-  MessageCircle,
   Mic,
   PiggyBank,
   RefreshCw,
@@ -26,7 +26,6 @@ import {
 } from "lucide-react";
 import { Foto, type NomeTela } from "./Molduras";
 import Vitrine from "./Vitrine";
-import Conversa from "./Conversa";
 import SequenciaProduto from "./SequenciaProduto";
 import QuadroOferta from "./QuadroOferta";
 import FaixaNumeros from "./FaixaNumeros";
@@ -58,8 +57,8 @@ import { CONTAGEM } from "@/lib/apps";
  * ⚠️ O QUE MUDOU É DENSIDADE, NUNCA HONESTIDADE. Nenhuma promessa nova
  * entrou, e as quatro ressalvas que a casa se obriga a fazer continuam
  * palavra por palavra, porque elas são o argumento e não o rodapé:
- *   • o assistente de WhatsApp está CONSTRUÍDO E NÃO LIGADO, e nada responde
- *     hoje (seção 6);
+ *   • (era a do assistente de WhatsApp, que saiu do FINCASH em 19/10/2026;
+ *     a seção 6 virou a dos alertas no app);
  *   • não há Open Finance, e isso é escolha e não etapa pendente (seção 7);
  *   • os depoimentos são de clientes da CONSULTORIA, não do app, e a frase
  *     que diz isso vem ANTES da primeira aspa (seção 8);
@@ -258,21 +257,12 @@ const SEGURANCA: { titulo: string; texto: string }[] = [
   },
 ];
 
-/**
- * O que o assistente de WhatsApp faz — seis linhas onde havia nove capacidades
- * com exemplo e mais cinco recusas com justificativa (590 palavras).
- *
- * ⚠️ A RECUSA SOBREVIVEU EM UMA LINHA, e ela não é decoração: "quando não tem
- * certeza do valor, ele pergunta" é a regra que separa este assistente de um
- * que grava R$ 1.000 quando você disse "mil e duzentos".
- */
-const WHATSAPP: string[] = [
-  "“Uber 35” — e o gasto está lançado",
-  "Áudio: fale o gasto em vez de digitar",
-  "Foto do comprovante: ele lê o valor e confirma com você",
-  "“quanto gastei com mercado esse mês?”",
-  "“saldo”, “resumo” e “desfazer”",
-  "Aviso na hora em que a categoria estoura",
+/** Os quatro alertas de `PopupAlertas`, na ordem da tela de Avisos. */
+const ALERTAS: string[] = [
+  "Conta fixa chegando, com o total",
+  "Fatura do cartão perto de fechar",
+  "Categoria passando do limite do orçamento",
+  "Resumo da semana: quanto ainda dá para gastar",
 ];
 
 /**
@@ -315,7 +305,7 @@ const DEPOIMENTOS: { texto: string; nome: string }[] = [
  * Elas nao entraram no corte de texto, e a razao e de leitura: um acordeao
  * fechado nao ocupa tela. O que pesava na pagina era paragrafo aberto, nao
  * resposta guardada atras de um clique — e e aqui que moram a letra miuda e
- * as ressalvas (Open Finance, a linha do WhatsApp, a garantia, os dados).
+ * as ressalvas (Open Finance, a garantia, os dados).
  */
 const FAQ = [
                 {
@@ -333,15 +323,11 @@ const FAQ = [
                      que subestima o produto custa venda tanto quanto uma que o
                      superestima.
 
-                     ⚠️ A TELA DO WHATSAPP ESTÁ NA CONTA, E A RESSALVA CONTINUA
-                     INTEIRA, porque as duas coisas são verdade ao mesmo tempo:
-                     a tela existe dentro do app (é onde se vincula o número), e
-                     o assistente não responde porque falta a linha oficial da
-                     Meta. Contar a tela e omitir a ressalva seria prometer o
-                     que não entrega; omitir a tela seria mentir ao contrário. A
-                     frase diz as duas em orações separadas, de propósito. */
+                     Em 19/10/2026 a tela do WhatsApp saiu do app (o FINCASH é
+                     gratuito e WhatsApp custa por mensagem) e a de Avisos
+                     entrou na conta: continuam catorze. */
                   resposta:
-                    "As catorze telas estão no ar: Painel, Lançamentos, Cartões e faturas, Contas fixas, Contas, Importar extrato, Orçamento, Dívidas, Metas, Investimentos, Projeção de 12 meses, Categorias, Meus dados, e a do assistente de WhatsApp, onde você vincula o seu número. As capturas desta página saíram todas do app, de uma conta de demonstração. O que ainda falta não é tela: é a linha oficial do WhatsApp, e enquanto ela não estiver plugada o assistente não responde.",
+                    "As catorze telas estão no ar: Painel, Lançamentos, Cartões e faturas, Contas fixas, Contas, Importar extrato, Orçamento, Dívidas, Metas, Investimentos, Projeção de 12 meses, Categorias, Meus dados e Avisos. As capturas desta página saíram todas do app, de uma conta de demonstração.",
                 },
                 {
                   pergunta: "Preciso digitar tudo à mão?",
@@ -358,9 +344,9 @@ const FAQ = [
                     "Ajuda, e é o módulo em que o FINCASH vai mais longe que os concorrentes: cada dívida é amortizada parcela a parcela, em Price ou SAC, com juro e amortização separados. O app compara as duas ordens de pagamento que funcionam, a avalanche e a bola de neve, diz quanto de juro cada uma custa e quantos meses ela adianta, e simula o que acontece se você conseguir pagar um pouco a mais por mês.",
                 },
                 {
-                  pergunta: "O assistente de WhatsApp funciona hoje?",
+                  pergunta: "O app me avisa das contas?",
                   resposta:
-                    "Ainda não, e isso vale para tudo o que a seção dele lista, inclusive o áudio e a foto do comprovante: nada responde enquanto a linha oficial do WhatsApp não estiver plugada. O interpretador, o vínculo do número e a tela do assistente já estão prontos dentro do app. Quando a linha entrar no ar, vale para quem já assina, sem custo adicional.",
+                    "Avisa, se você quiser. Em Avisos você liga o que quer receber: conta fixa chegando, fatura perto de fechar, categoria passando do limite do orçamento e o resumo da semana. Quando você abre o FINCASH, os alertas do dia aparecem num aviso na tela, cada assunto no máximo uma vez por dia. Nada chega por WhatsApp nem por e-mail.",
                 },
                 {
                   pergunta: "Funciona no celular?",
@@ -1172,99 +1158,87 @@ export default function FincashPage() {
             </p>
           </section>
 
-          {/* ═══ 6. WHATSAPP ═══════════════════════════════════════════════
-              ⚠️ A PASTILHA "CONSTRUIDO, AINDA NAO LIGADO" E A FRASE DE QUE NADA
-              RESPONDE HOJE SAO OBRIGATORIAS. Esta e a unica secao da pagina
-              sobre algo que ainda nao esta no ar.
+          {/* ═══ 6. ALERTAS E CELULAR ══════════════════════════════════════
+              ⚠️ AQUI FICAVA A SEÇÃO DO ASSISTENTE DE WHATSAPP, e ela saiu em
+              19/10/2026 por decisão do dono: o FINCASH é gratuito, e WhatsApp
+              tem custo por mensagem. O que o app entrega no lugar, e que está
+              no ar de verdade: os alertas num pop-up ao abrir o app, e a
+              instalação na tela do celular.
 
-              ── POR QUE A IMAGEM E UM RECORTE, E NAO A PECA INTEIRA ───────────
-              `whatsapp-peca.webp` e um infografico de divulgacao fechado: traz
-              o proprio logo, o proprio titulo ("Seu financeiro, direto no
-              WhatsApp") e os cinco recursos escritos dentro da arte. Posta na
-              secao inteira, ela entregava DOIS titulos e DUAS listas de
-              recursos na mesma tela, um dentro da imagem e outro em HTML logo
-              abaixo. Era o que deixava a secao poluida.
-
-              `whatsapp-conversa.webp` e o recorte da metade que PROVA: a mao, o
-              aparelho com a conversa e os cinco baloes. Zero texto duplicado, e
-              de quebra sai o azul do material de divulgacao, que nao e cor
-              desta casa (navy e laranja).
-
-              ⚠️ A PECA ORIGINAL CONTINUA EM `public/fincash/`, intacta. Ela
-              serve para story, post e apresentacao, onde viaja sozinha e
-              PRECISA do proprio titulo. Quem apagar o arquivo por achar que
-              virou sobra tira a arte de divulgacao da casa.
-
-              ⚠️ E A LISTA EM HTML DEIXOU DE SER REPETICAO. Com os recursos fora
-              da arte, ela passou a ser a UNICA versao dos cinco recursos que o
-              Google indexa e o leitor de tela le. Antes era redundante; agora
-              e a fonte. */}
-          <section id="whatsapp" className="fin-revela fin-faixa fin-faixa-navy mx-auto max-w-5xl px-4 py-14 text-white sm:px-6 sm:py-20">
+              O cartão da direita é HTML, não captura: é o mesmo desenho do
+              `PopupAlertas`, com valores de exemplo — e diz isso embaixo. */}
+          <section id="alertas" className="fin-revela fin-faixa fin-faixa-navy mx-auto max-w-5xl px-4 py-14 text-white sm:px-6 sm:py-20">
             <div className="grid gap-10 lg:grid-cols-[1fr_1.02fr] lg:items-center lg:gap-12">
               <div>
-                <Icone3D nome="chat" tamanho={40} chip />
-                <span className="mt-4 inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold text-white/80 ring-1 ring-white/15">
-                  <Smartphone className="h-3.5 w-3.5" />
-                  Construído, ainda não ligado
+                <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold text-white/80 ring-1 ring-white/15">
+                  <Bell className="h-3.5 w-3.5" />
+                  Alertas do próprio app
                 </span>
 
                 <h2 className="mt-5 font-display text-[1.9rem] font-medium leading-[1.08] tracking-tight sm:text-[2.4rem] lg:text-[2.75rem]">
-                  O gasto de hoje cabe{" "}
+                  O app te avisa{" "}
                   <span className="font-semibold text-accent-claro">
-                    numa mensagem
+                    antes do problema
                   </span>
                   .
                 </h2>
 
                 <p className="mt-5 max-w-md text-base leading-relaxed text-white/80">
-                  Ninguém abre um app de finanças na fila do caixa. O WhatsApp,
-                  esse você já abriu quatro vezes hoje.
+                  Ligue os alertas que quiser. Quando você abre o FINCASH, os
+                  do dia aparecem na tela.
                 </p>
 
                 <ul className="mt-8 grid gap-x-8 gap-y-3 sm:grid-cols-2 lg:grid-cols-1 lg:gap-y-3.5">
-                  {WHATSAPP.map((w) => (
+                  {ALERTAS.map((a) => (
                     <li
-                      key={w}
+                      key={a}
                       className="flex items-start gap-2.5 text-sm leading-snug text-white/85"
                     >
-                      <MessageCircle className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
-                      {w}
+                      <Bell className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
+                      {a}
                     </li>
                   ))}
                 </ul>
 
-                <p className="mt-7 max-w-md border-l-2 border-white/20 pl-4 text-xs leading-relaxed text-white/70">
-                  A linha oficial do WhatsApp ainda não está ligada, e nada nesta
-                  seção responde hoje. Você não paga nada a mais por isso: quando
-                  ligar, entra para quem já assina. Quando ele não tem certeza do
-                  valor, ele pergunta em vez de gravar, e isso vale para o texto,
-                  o áudio e a foto.
+                <p className="mt-7 flex max-w-md items-start gap-2.5 border-l-2 border-white/20 pl-4 text-xs leading-relaxed text-white/70">
+                  <Smartphone className="mt-0.5 h-4 w-4 shrink-0 text-white/60" />
+                  Instale na tela do celular e abra como aplicativo, com a
+                  marca da Novare — sem loja e sem pagar nada.
                 </p>
               </div>
 
-              {/* ⚠️ AQUI MORAVA UMA IMAGEM, E ANTES DELA UM INFOGRAFICO
-                  INTEIRO. A troca de 13/09/2026 atende ao pedido de "um video
-                  usando o WhatsApp" pelo unico caminho que nao mente: video
-                  real nao existe, porque a linha oficial nao esta ligada e nao
-                  ha uso para filmar. `<Conversa />` faz a conversa acontecer em
-                  CSS, com as frases que o interpretador reconhece de verdade e
-                  os numeros da conta de demonstracao.
-
-                  O que se ganhou alem da honestidade: zero byte de midia (um
-                  webm de 20s custa megabytes no celular de quem so queria ler a
-                  pagina), nitidez em qualquer tela, e texto que leitor de tela
-                  le e busca indexa. Video nenhum faz isso.
-
-                  A foto `whatsapp-conversa.webp` continua em `public/fincash/`
-                  e serve para quando a conversa precisar viajar como imagem
-                  (story, post, apresentacao). */}
-              <figure className="lg:justify-self-end">
-                <Conversa />
+              <figure className="w-full max-w-md lg:justify-self-end">
+                <div className="rounded-3xl border border-white/10 bg-white p-5 text-foreground shadow-2xl">
+                  <div className="flex items-center gap-3">
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent-tint text-accent-strong">
+                      <Bell className="h-5 w-5" strokeWidth={2} />
+                    </span>
+                    <p className="font-display text-base font-bold text-primary">
+                      2 alertas para hoje
+                    </p>
+                  </div>
+                  <div className="mt-4 space-y-3">
+                    <div className="rounded-2xl border border-border bg-slate-50/70 p-4">
+                      <p className="text-sm font-semibold">Conta chegando</p>
+                      <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">
+                        • Aluguel — R$ 1.800,00 (amanhã)
+                        <br />• Internet — R$ 119,90 (em 2 dias)
+                      </p>
+                    </div>
+                    <div className="rounded-2xl border border-border bg-slate-50/70 p-4">
+                      <p className="text-sm font-semibold">Orçamento apertando</p>
+                      <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">
+                        • Mercado — 84% (R$ 1.008,00 de R$ 1.200,00)
+                      </p>
+                    </div>
+                  </div>
+                  <div className="mt-4 flex min-h-11 items-center justify-center rounded-xl bg-primary text-sm font-semibold text-white">
+                    Entendi
+                  </div>
+                </div>
                 <figcaption className="mt-3 text-2xs leading-relaxed text-white/60">
-                  Demonstração: as frases são as que o interpretador já
-                  reconhece e os valores são os da conta de exemplo. A última
-                  resposta é a regra da casa, e ela vale para todo valor por
-                  extenso.
+                  Exemplo com valores fictícios. Só aparece o que você ligar em
+                  Avisos, cada assunto no máximo uma vez por dia.
                 </figcaption>
               </figure>
             </div>

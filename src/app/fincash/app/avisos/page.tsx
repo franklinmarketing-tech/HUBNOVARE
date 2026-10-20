@@ -10,9 +10,9 @@ import { Alertas } from "./Alertas";
  * 1º/10/2026, cobra também dentro da janela de 24h que antes era grátis.
  * Com o FINCASH gratuito, isso seria custo por cliente sem receita atrás.
  *
- * Agora os avisos saem pelo sino do Hub (sem teto, sem custo) e por e-mail
- * (dentro do plano gratuito da Resend). Ficar na tela de WhatsApp depois
- * disso só confundiria quem procura onde desligar.
+ * Desde 19/10/2026 o alerta é um pop-up dentro do app (`PopupAlertas.tsx`),
+ * sem WhatsApp e sem e-mail: o FINCASH é gratuito e o aviso aparece onde a
+ * pessoa já está.
  */
 export const metadata: Metadata = {
   title: "Avisos",
@@ -26,8 +26,8 @@ export default function AvisosPage() {
           Avisos
         </h1>
         <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
-          Escolha o que você quer que o FINCASH te avise. Chega no sino aqui
-          dentro e no seu e-mail — nada é enviado sem você ligar.
+          Escolha o que você quer que o FINCASH te avise. O alerta aparece na
+          tela quando você abre o app — nada aparece sem você ligar.
         </p>
       </div>
 

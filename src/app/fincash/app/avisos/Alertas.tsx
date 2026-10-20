@@ -15,11 +15,9 @@ import { AvisoSQL, Bloco, Esqueleto } from "../pecas";
  * conta no FINCASH não é permissão para a gente mandar o que quiser. Cada
  * aviso é uma escolha da pessoa, uma a uma.
  *
- * Os alertas são do próprio app: o sino aqui dentro e o e-mail. O WhatsApp
- * saiu do FINCASH em 19/10/2026 — não volte a citá-lo nesta tela.
- *
- * E-mail não pedido não é incômodo que se desculpa depois: é spam marcado,
- * e a reputação do remetente cai para todos os outros clientes junto.
+ * O alerta é um POP-UP DENTRO DO APP (`PopupAlertas.tsx`), e só isso: o
+ * WhatsApp e o e-mail saíram do FINCASH em 19/10/2026, por decisão do dono.
+ * Não volte a citá-los nesta tela.
  *
  * ⚠️ SALVA SOZINHA, SEM BOTÃO "SALVAR". Tela de preferências com botão de
  * salvar é tela onde a pessoa mexe, sai e descobre depois que não valeu.
@@ -145,9 +143,9 @@ export function Alertas({ ligado = true }: { ligado?: boolean }) {
         ) : null}
       </div>
       <p className="mb-5 text-xs leading-relaxed text-muted-foreground">
-        O próprio app te avisa: no sino, aqui dentro, e no seu e-mail. Nada é
-        enviado sem você ligar, cada alerta sai no máximo uma vez por dia, e
-        você desliga quando quiser.
+        O próprio app te avisa: quando você abre o FINCASH, os alertas do dia
+        aparecem num aviso na tela. Só aparece o que você ligar aqui, cada
+        assunto no máximo uma vez por dia, e você desliga quando quiser.
       </p>
 
       <div className="space-y-3">
