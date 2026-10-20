@@ -11,15 +11,15 @@ import { AvisoSQL, Bloco, Esqueleto } from "../pecas";
 /**
  * O CLIENTE ESCOLHE O QUE QUER RECEBER.
  *
- * ⚠️ TUDO COMEÇA DESLIGADO, e é a regra mais importante desta tela. A
- * pessoa ligou o WhatsApp dela ao FINCASH para LANÇAR gasto por mensagem —
- * isso não é permissão para a gente mandar o que quiser. Cada aviso é uma
- * escolha dela, uma a uma.
+ * ⚠️ TUDO COMEÇA DESLIGADO, e é a regra mais importante desta tela. Ter
+ * conta no FINCASH não é permissão para a gente mandar o que quiser. Cada
+ * aviso é uma escolha da pessoa, uma a uma.
  *
- * Mensagem não pedida no WhatsApp não é incômodo que se desculpa depois: é
- * número bloqueado. E quem a Meta pune é o remetente, o que derruba a
- * entrega de todos os outros clientes junto — o estrago de um cliente
- * irritado não fica nele.
+ * Os alertas são do próprio app: o sino aqui dentro e o e-mail. O WhatsApp
+ * saiu do FINCASH em 19/10/2026 — não volte a citá-lo nesta tela.
+ *
+ * E-mail não pedido não é incômodo que se desculpa depois: é spam marcado,
+ * e a reputação do remetente cai para todos os outros clientes junto.
  *
  * ⚠️ SALVA SOZINHA, SEM BOTÃO "SALVAR". Tela de preferências com botão de
  * salvar é tela onde a pessoa mexe, sai e descobre depois que não valeu.
@@ -130,7 +130,7 @@ export function Alertas({ ligado = true }: { ligado?: boolean }) {
       <div className="mb-4 flex items-center justify-between gap-3">
         <h2 className="flex items-center gap-2 font-display text-base font-bold text-primary">
           <Bell className="h-4 w-4 text-accent-strong" strokeWidth={2} />
-          Avisos no WhatsApp
+          Alertas do FINCASH
         </h2>
         {salvando ? (
           <span className="flex shrink-0 items-center gap-1.5 text-2xs text-muted-foreground">
@@ -145,8 +145,8 @@ export function Alertas({ ligado = true }: { ligado?: boolean }) {
         ) : null}
       </div>
       <p className="mb-5 text-xs leading-relaxed text-muted-foreground">
-        Nada é enviado sem você ligar aqui. Os avisos chegam no sino, aqui
-        dentro, e no seu e-mail. Cada um sai no máximo uma vez por dia, e
+        O próprio app te avisa: no sino, aqui dentro, e no seu e-mail. Nada é
+        enviado sem você ligar, cada alerta sai no máximo uma vez por dia, e
         você desliga quando quiser.
       </p>
 
