@@ -1,4 +1,3 @@
-import { Wallet } from "lucide-react";
 import {
   CardProdutoHome,
   SetaRodape,
@@ -65,7 +64,7 @@ export function CardFincashHome({
     <CardProdutoHome
       app={FINCASH}
       href={href}
-      Icone={Wallet}
+      foto="/home/fincash.webp"
       /* O QUE VEM JUNTO, na própria capa.
          Sem esta linha o card vende um app de gastos por R$ 29,90, que é mais
          caro que o concorrente mais direto pelo mesmo tipo de produto. O
@@ -100,11 +99,11 @@ export function CardFincashHome({
                 Saiu em 18/10/2026: o FINCASH passou a ser gratuito, e um
                 card que anuncia valor onde não há cobrança é a mentira mais
                 cara que uma home pode contar. */}
-            <span className="text-sm font-bold text-accent-strong">
-              Grátis
-            </span>
-            <span className="flex items-center gap-1.5 text-2xs font-semibold text-muted-foreground">
-              é só criar a conta
+            {/* Uma frase só: "é só criar a conta" ao lado espremia o botão em
+                duas linhas no card de um quarto de largura. O selo "App
+                gratuito" na foto já diz o resto. */}
+            <span className="flex items-center gap-1.5 whitespace-nowrap text-sm font-semibold text-accent-strong">
+              Quero experimentar
               <SetaRodape />
             </span>
           </>

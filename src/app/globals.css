@@ -890,7 +890,19 @@
   will-change: transform;
 }
 
+/* Ken Burns: a foto do topo da home se aproxima devagar, como câmera que
+   respira. Lento o bastante (24s, ida e volta) para ser sentido, não visto. */
+.cine-ken-burns {
+  animation: cine-ken-burns 24s ease-in-out infinite alternate;
+  transform-origin: 60% 40%;
+}
+@keyframes cine-ken-burns {
+  from { transform: scale(1); }
+  to   { transform: scale(1.09) translate3d(-1.5%, -1%, 0); }
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .cine-ken-burns { animation: none; }
   [data-revelar="pronto"] .cine,
   [data-revelar="pronto"] .cine-palavra {
     opacity: 1;

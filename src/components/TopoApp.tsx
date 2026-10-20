@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { Newspaper, Search, Mail, ArrowRight} from "lucide-react";
+import { BookOpen, Newspaper, Search, Mail, ArrowRight} from "lucide-react";
 import { MenuAreas } from "@/components/MenuAreas";
 import { MenuConta } from "@/components/MenuConta";
 import { SinoNotificacoes } from "@/components/SinoNotificacoes";
@@ -90,7 +90,10 @@ export function TopoApp({
             navegador vai para a home e rola até lá. */}
         <a
           href="/#inscrever"
-          className="hidden shrink-0 items-center gap-1.5 rounded-xl border border-slate-200 px-3 py-2 text-2xs font-semibold text-muted-foreground transition-colors hover:border-primary/30 hover:text-primary md:flex"
+          /* Só a partir de 1800px desde 19/10/2026: com o botão eBooks ao lado
+             do News, em 1280px o "Entrar" saía da tela. Quem quer se
+             inscrever acha a faixa no fim da home. */
+          className="hidden shrink-0 items-center gap-1.5 rounded-xl border border-slate-200 px-3 py-2 text-2xs font-semibold text-muted-foreground transition-colors hover:border-primary/30 hover:text-primary min-[1800px]:flex"
         >
           <Mail className="h-3.5 w-3.5" />
           Inscreva-se
@@ -126,6 +129,17 @@ export function TopoApp({
         <div className="mx-auto">
           <MenuAreas portais={portais} />
         </div>
+
+        {/* A estante no topo, ao lado do News (pedido do dono, 19/10/2026):
+            com os oito guias de patrimônio ela virou porta de captação e não
+            podia depender só da faixa da home. */}
+        <Link
+          href="/ebooks"
+          className="hidden shrink-0 items-center gap-2 rounded-xl bg-accent-tint px-3 py-2 text-xs font-semibold text-accent-strong ring-1 ring-accent/20 transition-all hover:-translate-y-px hover:ring-accent/40 md:flex"
+        >
+          <BookOpen className="h-3.5 w-3.5" />
+          eBooks
+        </Link>
 
         {/* O News com pulso de "ao vivo": o canal publica sempre, e o ponto
             pulsando é o jeito de dizer isso sem mais um botão colorido. */}

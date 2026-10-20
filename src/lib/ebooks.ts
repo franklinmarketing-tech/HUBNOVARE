@@ -61,6 +61,66 @@ export const EBOOKS: Ebook[] = [
     prateleira: "guia",
   },
 
+  /* ⚠️ OS OITO GUIAS DE PATRIMÔNIO (19/10/2026), escritos pela Novare e
+     entregues prontos em PDF — NÃO saem de `gerar-guias.mjs`. As capas são a
+     primeira página de cada PDF, renderizada a 600px de largura. */
+  {
+    href: "/novare-juros-altos.pdf",
+    capa: "/ebooks/juros-altos.jpg",
+    titulo: "Investindo com Juros Altos",
+    tema: "O guia da renda fixa para o cenário atual: Tesouro, CDB, LCI, LCA, CRI, CRA e impostos.",
+    prateleira: "guia",
+  },
+  {
+    href: "/novare-dividendos-sem-ir.pdf",
+    capa: "/ebooks/dividendos-sem-ir.jpg",
+    titulo: "Dividendos sem IR",
+    tema: "Renda mensal isenta depois da nova tributação: fundos imobiliários, Fiagros e afins.",
+    prateleira: "guia",
+  },
+  {
+    href: "/novare-diversificacao-global.pdf",
+    capa: "/ebooks/diversificacao-global.jpg",
+    titulo: "Diversificação Global",
+    tema: "Como e por que ter parte do patrimônio fora do Brasil, com os riscos e a tributação.",
+    prateleira: "guia",
+  },
+  {
+    href: "/novare-holding-reforma-tributaria.pdf",
+    capa: "/ebooks/holding-reforma-tributaria.jpg",
+    titulo: "Holding após a Reforma Tributária",
+    tema: "O que mudou para a sua estrutura patrimonial com IBS, CBS, dividendos e ITCMD.",
+    prateleira: "guia",
+  },
+  {
+    href: "/novare-saida-fiscal-uruguai.pdf",
+    capa: "/ebooks/saida-fiscal-uruguai.jpg",
+    titulo: "Saída Fiscal para o Uruguai",
+    tema: "Vale a pena? As regras de 2026, os custos, os riscos e as alternativas.",
+    prateleira: "guia",
+  },
+  {
+    href: "/novare-saida-fiscal-paraguai.pdf",
+    capa: "/ebooks/saida-fiscal-paraguai.jpg",
+    titulo: "Saída Fiscal para o Paraguai",
+    tema: "Tributação territorial, o passo a passo da residência e os pontos de atenção.",
+    prateleira: "guia",
+  },
+  {
+    href: "/novare-mercado-agro.pdf",
+    capa: "/ebooks/mercado-agro.jpg",
+    titulo: "O Mercado Agro Brasileiro",
+    tema: "As commodities do Brasil e os caminhos para investir no setor: CRA, LCA, Fiagro e ações.",
+    prateleira: "guia",
+  },
+  {
+    href: "/novare-terras-raras.pdf",
+    capa: "/ebooks/terras-raras.jpg",
+    titulo: "Terras Raras",
+    tema: "O que são, por que o mundo disputa esses minerais e quais os riscos de investir no tema.",
+    prateleira: "guia",
+  },
+
   {
     href: "/novare-ecossistema.pdf",
     capa: "/ebooks/ecossistema.jpg",

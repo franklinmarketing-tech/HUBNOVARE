@@ -1,12 +1,18 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowRight, ChevronDown, Crown } from "lucide-react";
 import { BuscaDestaque } from "@/components/BuscaDestaque";
 import { BarraLateral } from "@/components/BarraLateral";
 import { BarraInferior } from "@/components/BarraInferior";
 import { TopoApp } from "@/components/TopoApp";
 import { PaletaComandos } from "@/components/PaletaComandos";
-import { BarraMercado } from "@/components/BarraMercado";
+import { ComecePorAqui } from "@/components/ComecePorAqui";
+import { QuemEstaPorTras } from "@/components/QuemEstaPorTras";
+import { MercadoEmPortugues } from "@/components/MercadoEmPortugues";
+import { ComoTrabalhamos } from "@/components/ComoTrabalhamos";
+import { TudoDeGraca } from "@/components/TudoDeGraca";
+import { buildTrackingUrl, CARTEIRA_PONTUAL_LP } from "@/lib/consultoria";
 import { CardPortal } from "@/components/CardPortal";
 import { CardFincashHome } from "@/components/CardFincashHome";
 import { BannerEbooks } from "@/components/BannerEbooks";
@@ -117,34 +123,80 @@ export default async function Home() {
             Rolar não é defeito — é como todo mundo lê uma página. O ar entre
             as seções vale mais do que a promessa de caber numa tela. */}
         <main className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-8 px-5 pb-10 pt-6">
-          {/* Fita de indicadores do mercado ao vivo (SELIC, CDI, IPCA...).
-              Some abaixo de 740px de altura: em 720p ela era justamente os
-              pixels que faziam a home rolar, e é o bloco menos essencial da
-              tela — os índices continuam em /aplicativos e no Novare News. */}
-          <div className="[@media(max-height:740px)]:hidden">
-            <BarraMercado />
-          </div>
+          {/* ⚠️ A FITA DO BANCO CENTRAL (`BarraMercado`) ABRIA A HOME até
+              19/10/2026. Saiu daqui a pedido do dono ("deixar mais
+              humanizado"): a primeira coisa da página eram siglas soltas.
+              Os mesmos números agora vêm traduzidos em frases, mais abaixo
+              (`MercadoEmPortugues`). */}
 
-          <section className="cine flex flex-wrap items-end justify-between gap-4">
+          {/* A abertura conversa: saudação pela hora para todos, e a
+              pergunta que leva ao "Comece por aqui" logo abaixo. */}
+          {/* A FOTO DO TOPO (19/10/2026): alguém em casa, de manhã, tranquilo
+              com as contas — o oposto de painel de banco. Gerada na Magnific,
+              ilustrativa: não é cliente, e nenhum texto fala por ela. */}
+          <section className="cine grid items-center gap-6 lg:grid-cols-[1.05fr_0.95fr] lg:gap-10">
             <div>
-              <h1 className="titulo-secao text-xl sm:text-2xl">
-                {perfil
-                  ? primeiroNome
-                    ? `${saudacao}, ${primeiroNome}`
-                    : `${saudacao}!`
-                  : "Ferramentas de dinheiro, de graça"}
+              <h1 className="titulo-secao text-[1.75rem] leading-tight sm:text-4xl">
+                {/* Palavra por palavra (`.cine-palavra`, globals.css): a saudação
+                    entra primeiro e a pergunta assenta logo depois. */}
+                {palavras(primeiroNome ? `${saudacao}, ${primeiroNome}!` : `${saudacao}!`, 0)}
+                <span className="text-accent-strong">
+                  {palavras("O que você quer resolver hoje?", 3)}
+                </span>
               </h1>
               {/* Não some mais em tela baixa: escondê-lo era parte da mesma
                   corrida por caber numa tela, e a página perdia a única
                   linha que diz o que a Novare faz. */}
-              <p className="mt-1.5 text-sm text-muted-foreground">
+              <p className="mt-3 max-w-xl text-base leading-relaxed text-muted-foreground">
                 {perfil
-                  ? "Tudo o que você usa, num lugar só."
-                  : "Calcule, organize e entenda o seu dinheiro. Sem pagar nada e sem ninguém te empurrar produto."}
+                  ? "Tudo o que você usa, num lugar só — e a gente por perto se precisar."
+                  : "Ferramentas de graça para entender e organizar o seu dinheiro, feitas por gente da Novare. Gratuitas e independentes, para você decidir com clareza."}
               </p>
+              <div className="mt-5 max-w-md">
+                <BuscaDestaque />
+              </div>
             </div>
-            <BuscaDestaque />
+            <div className="relative">
+              <div className="relative aspect-[4/3] overflow-hidden rounded-[2rem] shadow-card">
+                <Image
+                  src="/home/topo.webp"
+                  alt="Mulher sorrindo em casa, com café e celular, organizando o mês"
+                  fill
+                  priority
+                  sizes="(max-width: 1024px) 100vw, 45vw"
+                  className="cine-ken-burns object-cover"
+                />
+              </div>
+
+              {/* A CARTEIRA PONTUAL NA FOTO DO TOPO (pedido do dono, 19/10/2026):
+                  título na dor — dinheiro parado no lugar errado, carteira
+                  montada pelo banco — e o botão direto para a página oficial.
+                  No celular o cartão desce para baixo da foto, sobrepondo só a
+                  borda: em cima dela, cobriria a pessoa inteira. */}
+              <div style={{ transitionDelay: "650ms" }} className="cine relative mx-3 -mt-12 rounded-2xl bg-white/95 p-4 shadow-card-hover ring-1 ring-primary/5 backdrop-blur-sm sm:absolute sm:bottom-4 sm:left-4 sm:mx-0 sm:mt-0 sm:max-w-sm sm:p-5">
+                <p className="text-2xs font-semibold uppercase tracking-[0.14em] text-accent-strong">
+                  Carteira Pontual
+                </p>
+                <p className="mt-1.5 font-display text-lg font-bold leading-snug text-primary sm:text-xl">
+                  Seu dinheiro está parado no lugar errado?
+                </p>
+                <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+                  A Novare analisa a sua carteira sem ganhar comissão de nenhum produto.
+                </p>
+                <a
+                  href={buildTrackingUrl(CARTEIRA_PONTUAL_LP, "home-topo")}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group mt-3 inline-flex min-h-11 items-center gap-2 rounded-xl bg-accent px-4 text-sm font-semibold text-white transition-colors hover:bg-accent-strong"
+                >
+                  Quero analisar minha carteira
+                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                </a>
+              </div>
+            </div>
           </section>
+
+          <ComecePorAqui />
 
           {/* O painel de quem assina NÃO fica aqui.
 
@@ -189,7 +241,7 @@ export default async function Home() {
               para baixo) — com 4 cards, `lg` já é largura de sobra. */}
           <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <div className="cine" style={{ transitionDelay: "120ms" }}>
-              <div className="inclina borda-girando rounded-2xl">
+              <div className="h-full rounded-3xl">
                 {/* O destino e o preço saem da `assinatura`: quem já paga
                     entra direto no app, e não vê preço nenhum. */}
                 <CardFincashHome assinatura={assinatura} />
@@ -203,7 +255,7 @@ export default async function Home() {
                   className="cine"
                   style={{ transitionDelay: `${170 + i * 70}ms` }}
                 >
-                  <div className="inclina h-full">
+                  <div className="h-full">
                     <CardPortal portal={area} />
                   </div>
                 </div>
@@ -242,7 +294,18 @@ export default async function Home() {
             <BannerEbooks className="lg:col-span-3 xl:col-span-2" />
           </section>
 
-          <ConviteWorkspace assinante={assinante} />
+          {/* O rosto da casa e os números do mês em frases — as duas peças
+              que tiram a home do tom de painel de banco (19/10/2026). */}
+          <ComoTrabalhamos />
+
+          <QuemEstaPorTras />
+
+          <MercadoEmPortugues />
+
+          {/* ⚠️ ERA A FAIXA NAVY "Novare Workspace completo · Ver o que tem
+              aqui" (`ConviteWorkspace`), trocada em 19/10/2026 por um fecho que
+              mostra o TAMANHO do que é de graça. */}
+          <TudoDeGraca />
 
           {/* A seta que avisa que a página continua. Sem ela, quem chega numa
               tela cheia e sem barra de rolagem visível acredita que acabou —
@@ -288,10 +351,11 @@ export default async function Home() {
             Fica DEPOIS do painel e antes do rodapé: acima disso a home tem
             uma ordem pensada (vitrine na dobra, painel em seguida), e
             enfiar captação no meio empurraria o produto para baixo. */}
-        <div className="mx-auto w-full max-w-6xl px-4 pb-4 pt-10 sm:pt-14">
+        <div className="mx-auto w-full max-w-7xl px-5 pb-6 pt-2">
           {/* Mesmos dados reais da página do News: assuntos das categorias,
               contagem e a última publicada. */}
           <InscreverNews
+            compacto
             assuntos={ORDEM_FAMILIAS.map((f) => ({
               chave: f,
               rotulo: FAMILIAS[f],
@@ -418,62 +482,17 @@ function ConvitePainelHome({ temFicha }: { temFicha: boolean }) {
   );
 }
 
-/* ============================================================ CONVITE PRO */
-
 /**
- * A faixa de fechamento, clara como o resto da página: quem NÃO assina vê o
- * convite com o único botão colorido da home; quem já assina vê a
- * confirmação de que está tudo liberado.
+ * Fatia um texto em palavras para a entrada em cascata (`.cine-palavra`).
+ * `inicio` desloca o atraso, para uma frase continuar a cascata da anterior.
+ * O espaço fica FORA do span: com inline-block, espaço dentro dele sumiria.
  */
-function ConviteWorkspace({ assinante }: { assinante: boolean }) {
-  /**
-   * Quem assina não vê nada aqui.
-   *
-   * Havia um banner verde "Seu Workspace está ativo · FINPLAN, Íris e
-   * todas as ferramentas liberadas", com botão para abrir o plano. Era a
-   * mesma informação que o card do FINPLAN, na mesma tela, já dá — e
-   * ocupava a largura inteira para repeti-la. Quem já pagou não precisa de
-   * um aviso de que pagou; precisa do produto, que está logo acima.
-   */
-  if (assinante) return null;
-
-  return (
-    <section
-      className="cine flex flex-wrap items-center justify-between gap-3 rounded-xl px-4 py-3 [@media(max-height:800px)]:py-2"
-      style={{
-        background:
-          "linear-gradient(120deg, hsl(216 46% 22%) 0%, hsl(219 54% 13%) 100%)",
-        boxShadow: "inset 0 1px 0 hsl(210 60% 80% / 0.14)",
-      }}
-    >
-      <div className="flex min-w-0 items-center gap-3">
-        {/* A coroa em warning-claro é o único dourado da home: ela marca o
-            que é pago sem precisar escrever "PRO" em lugar nenhum. */}
-        <Crown
-          className="h-5 w-5 shrink-0 text-warning-claro"
-          strokeWidth={1.75}
-        />
-        <div className="min-w-0">
-          <p className="font-display text-sm font-bold text-white">
-            Novare Workspace completo
-          </p>
-          <p className="truncate text-xs text-white/70">
-            {/* ⚠️ ERA A OFERTA ("R$ 29,90/mês · R$ 19,90/mês no anual · 7
-                dias de garantia"). Saiu em 18/10/2026. Esta linha fica
-                truncada em tela pequena e por isso escapou das conferências
-                visuais — mas estava inteira no HTML, que é o que o Google
-                lê. */}
-            Grátis · sem cartão · sem pegadinha
-          </p>
-        </div>
-      </div>
-      <Link
-        href="/assinar"
-        className="group inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-warning-claro px-4 py-2 text-xs font-semibold text-primary transition-colors hover:bg-warning"
-      >
-        Ver o que tem aqui
-        <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
-      </Link>
-    </section>
-  );
+function palavras(texto: string, inicio: number) {
+  return texto.split(" ").map((p, i) => (
+    <span key={i}>
+      <span className="cine-palavra" style={{ "--i": inicio + i } as React.CSSProperties}>
+        {p}
+      </span>{" "}
+    </span>
+  ));
 }

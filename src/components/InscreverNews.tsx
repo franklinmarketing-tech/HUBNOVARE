@@ -84,8 +84,16 @@ export function InscreverNews({
   totalEdicoes,
   ultimaEdicao,
   ultimaEdicaoHref,
+  compacto = false,
   className = "",
 }: {
+  /**
+   * Uma faixa só: título à esquerda, e-mail à direita, sem logo, sem amostra
+   * e sem escolha de assuntos. É a da home (pedido do dono em 19/10/2026:
+   * "muito extenso, deixe compacto e prático"); a página do News continua com
+   * a versão completa, onde quem chegou está ali para ler.
+   */
+  compacto?: boolean;
   titulo?: string;
   subtitulo?: string;
   /** As categorias reais dos artigos. Vazio = a seção não mostra escolha. */
@@ -142,6 +150,77 @@ export function InscreverNews({
   const nomesEscolhidos = assuntos
     .filter((a) => escolhidos.includes(a.chave))
     .map((a) => a.rotulo);
+
+  const confirmacao = modal && (
+    <ConfirmacaoNews
+      email={email.trim()}
+      assuntos={nomesEscolhidos}
+      ultimaEdicao={ultimaEdicao}
+      ultimaEdicaoHref={ultimaEdicaoHref}
+      aoFechar={() => setModal(false)}
+    />
+  );
+
+  if (compacto) {
+    return (
+      <section
+        id="inscrever"
+        aria-labelledby="inscrever-news-titulo"
+        className={`flex flex-col gap-4 rounded-3xl border border-border bg-white p-5 shadow-card sm:p-6 lg:flex-row lg:items-center lg:justify-between lg:gap-8 ${className}`}
+      >
+        <div className="min-w-0">
+          <h2 id="inscrever-news-titulo" className="font-display text-lg font-bold text-primary">
+            {titulo}
+          </h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Dinheiro explicado sem letra miúda. De graça e sem spam.
+            {typeof totalEdicoes === "number" && totalEdicoes > 0
+              ? ` ${totalEdicoes} já publicados.`
+              : ""}
+          </p>
+        </div>
+
+        {enviado ? (
+          <p role="status" className="flex items-center gap-2.5 rounded-xl bg-success/10 px-4 py-3 text-sm font-semibold text-success-strong">
+            <Check className="h-4 w-4 shrink-0" strokeWidth={3} />
+            Pronto! Vai para {email.trim()}.
+          </p>
+        ) : (
+          <form onSubmit={enviar} noValidate className="flex w-full flex-col gap-2 sm:flex-row lg:max-w-md">
+            <label htmlFor="inscrever-news-email" className="sr-only">
+              Seu melhor e-mail
+            </label>
+            <input
+              id="inscrever-news-email"
+              type="email"
+              inputMode="email"
+              autoComplete="email"
+              placeholder="Seu melhor e-mail"
+              value={email}
+              onChange={(ev) => setEmail(ev.target.value)}
+              onBlur={() => setTocado(true)}
+              aria-invalid={erro || undefined}
+              className={`h-11 min-w-0 flex-1 rounded-xl border bg-white px-4 text-sm text-foreground placeholder:text-muted-foreground/70 focus:border-primary/50 focus:outline-none focus:ring-2 focus:ring-primary/15 ${
+                erro ? "border-warning" : "border-border"
+              }`}
+            />
+            <button
+              type="submit"
+              className={`flex h-11 shrink-0 items-center justify-center gap-2 rounded-xl px-5 text-sm font-bold transition-colors ${
+                ok
+                  ? "bg-accent-btn text-accent-foreground hover:bg-accent-strong"
+                  : "bg-primary text-white hover:bg-primary-soft"
+              }`}
+            >
+              Quero receber
+              <ArrowRight className="h-4 w-4" />
+            </button>
+          </form>
+        )}
+        {confirmacao}
+      </section>
+    );
+  }
 
   return (
     <section
@@ -324,15 +403,7 @@ export function InscreverNews({
       </div>
 
       {/* O pop-up DEPOIS do sim — ver a nota em `ConfirmacaoNews`. */}
-      {modal && (
-        <ConfirmacaoNews
-          email={email.trim()}
-          assuntos={nomesEscolhidos}
-          ultimaEdicao={ultimaEdicao}
-          ultimaEdicaoHref={ultimaEdicaoHref}
-          aoFechar={() => setModal(false)}
-        />
-      )}
+      {confirmacao}
     </section>
   );
 }

@@ -3,109 +3,77 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { iconeDe } from "@/lib/icones";
 import type { Portal } from "@/lib/categorias";
 
 /**
- * A porta de entrada de uma área, no formato "vitrine": a foto da área como
- * palco, o nome grande e centrado, e o botão Acessar FORA da imagem, num
- * rodapé branco. A separação palco/rodapé é o que dá a limpeza — o olho lê a
- * área primeiro e encontra a ação depois, sempre no mesmo lugar.
+ * A porta de entrada de uma área na home: uma FOTO DE GENTE em cima e o texto
+ * num corpo branco embaixo.
  *
- * A FOTO ESTAVA PREVISTA DESDE O COMEÇO e nunca tinha sido ligada. O tipo
- * `Portal` (categorias.ts) documenta `capa` como "imagem oficial da Novare
- * usada como fundo" e `h`/`s` como "matiz e saturação da área, para o véu de
- * cor" — e este componente ignorava os três, desenhando um gradiente navy
- * igual para todas. Quatro cartões idênticos não são vitrine: são um menu.
+ * ⚠️ ATÉ 19/10/2026 ERA UM PALCO ESCURO: a capa da área (notebook, medidor,
+ * pilha de dinheiro) sob um véu navy, com o nome centrado em maiúsculas.
+ * O dono achou a home "com cara de banco e app" e pediu para humanizar. As
+ * fotos novas (Magnific, em `public/home/`) mostram pessoas vivendo a
+ * situação da área — são ilustrativas, geradas por IA, e NÃO representam
+ * clientes; por isso nenhuma frase do card fala por elas.
  *
- * O véu de cor por área é o que impede a foto de virar ruído: cada área ganha
- * o próprio matiz por cima da imagem, então o cartão continua legível e as
- * quatro continuam parecendo da mesma casa.
+ * A `capa` de `categorias.ts` continua lá e serve às outras telas; a home usa
+ * `FOTO_HOME` e só cai na capa antiga se a área não tiver foto aqui.
  */
+const FOTO_HOME: Record<string, string> = {
+  ia: "/home/servicos.webp",
+  organizacao: "/home/vida.webp",
+  investimentos: "/home/invest.webp",
+};
+
 export function CardPortal({ portal }: { portal: Portal }) {
   /* O destino vem do portal, não é montado aqui: uma área que vende um
      serviço só aponta direto para a página dele, em vez de cobrar um clique
      numa listagem de um item (ver `destino` em `categorias.ts`). */
   const href = portal.destino;
   const externo = portal.destinoExterno;
-  const IconePrincipal = iconeDe(portal.destaques[0] ?? portal.chave);
 
   return (
     <Link
       href={href}
       target={externo ? "_blank" : undefined}
       rel={externo ? "noopener noreferrer" : undefined}
-      className="group flex h-full flex-col overflow-hidden rounded-2xl bg-white shadow-card ring-1 ring-primary/5 transition-all hover:-translate-y-0.5 hover:shadow-card-hover"
+      className="group flex h-full flex-col overflow-hidden rounded-3xl bg-white shadow-card ring-1 ring-primary/5 transition-all hover:-translate-y-0.5 hover:shadow-card-hover"
     >
-      {/* O palco: a foto da área sob o véu da cor dela. */}
-      <span
-        // Mais alto desde que a barra da Íris saiu da home: sobrava vazio antes do
-        // rodapé, e é a foto da área que ganha com o espaço. Encolhe em tela
-        // baixa, onde a régua é caber na dobra, não impressionar.
-        className="relative flex min-h-[10.5rem] flex-1 flex-col items-center justify-center gap-2 px-4 text-center text-white transition-[filter] duration-300 group-hover:brightness-[1.12] [@media(min-height:860px)]:min-h-[13rem]"
-        style={{
-          background:
-            "linear-gradient(160deg, hsl(216 44% 27%) 0%, hsl(218 50% 16%) 60%, hsl(220 55% 12%) 100%)",
-          boxShadow: "inset 0 1px 0 hsl(210 60% 80% / 0.18)",
-        }}
-      >
-        {/* `sizes` conta ao Next que o cartão é um quarto da largura no
-            desktop e a tela inteira no celular — sem isso ele baixaria a
-            imagem grande também no telefone. */}
+      {/* `sizes` conta ao Next que o cartão é um quarto da largura no
+          desktop e a tela inteira no celular — sem isso ele baixaria a
+          imagem grande também no telefone. */}
+      <span className="relative block aspect-[4/3] overflow-hidden">
         <Image
-          src={portal.capa}
+          src={FOTO_HOME[portal.chave] ?? portal.capa}
           alt=""
           fill
-          sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 25vw"
-          className="pointer-events-none object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+          className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
         />
-
-        {/* O véu na cor da área. Escuro o bastante para o texto branco manter
-            contraste sobre QUALQUER parte da foto — o cartão não pode depender
-            de a imagem ser escura no lugar certo. */}
-        <span
-          aria-hidden
-          className="pointer-events-none absolute inset-0"
-          style={{
-            background: `linear-gradient(160deg, hsl(${portal.h} ${portal.s}% 24% / 0.68) 0%, hsl(${portal.h} ${Math.round(portal.s * 0.8)}% 13% / 0.84) 55%, hsl(220 55% 8% / 0.92) 100%)`,
-          }}
-        />
-        <span
-          aria-hidden
-          className="pointer-events-none absolute inset-0"
-          style={{
-            background:
-              "radial-gradient(16rem 9rem at 50% -20%, hsl(208 75% 62% / 0.25), transparent 65%)",
-          }}
-        />
-        {/* O selo vem da área — ver a nota em `categorias.ts`. Escrito à
-            mão aqui, ele anunciava "Grátis" também na área que vende
-            consultoria. Vazio não renderiza: um selo em branco deixaria o
-            espaço reservado e o canto do cartão torto. */}
+        {/* O selo vem da área — ver a nota em `categorias.ts`. Vazio não
+            renderiza. */}
         {portal.selo && (
-          <span className="absolute right-3 top-3 text-2xs font-semibold uppercase tracking-wider text-white/55">
+          <span className="absolute left-3 top-3 rounded-full bg-white/90 px-2.5 py-1 text-2xs font-semibold text-primary shadow-sm backdrop-blur-sm">
             {portal.selo}
           </span>
         )}
-        <span className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-white/[0.10] ring-1 ring-white/[0.14]">
-          <IconePrincipal className="h-5 w-5" strokeWidth={1.75} />
-        </span>
-        <span className="relative font-display text-lg font-extrabold uppercase tracking-tight">
-          {portal.curto}
-        </span>
-        <span className="relative text-xs leading-snug text-white/70">
-          {portal.descricao}
-        </span>
       </span>
 
-      {/* O rodapé branco com a ação, como no padrão de hub limpo. */}
-      <span className="flex items-center justify-between border-t border-primary/5 px-4 py-3">
-        <span className="flex items-center gap-1.5 text-sm font-bold text-primary transition-colors group-hover:text-accent-strong">
-          Acessar
-          <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+      <span className="flex flex-1 flex-col px-5 pb-5 pt-4">
+        <span className="font-display text-lg font-bold text-primary">
+          {portal.curto}
         </span>
-        <span className="text-2xs font-medium text-muted-foreground">
-          {portal.total} {portal.rotuloTotal}
+        <span className="mt-1 text-sm leading-relaxed text-muted-foreground">
+          {portal.descricao}
+        </span>
+        <span className="mt-auto flex items-center justify-between gap-2 pt-4">
+          <span className="flex items-center gap-1.5 text-sm font-semibold text-accent-strong">
+            Quero ver
+            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+          </span>
+          <span className="text-2xs text-muted-foreground">
+            {portal.total} {portal.rotuloTotal}
+          </span>
         </span>
       </span>
     </Link>
