@@ -1,4 +1,4 @@
-import { CARTEIRA_PONTUAL_LP } from "@/lib/consultoria";
+import { CARTEIRA_PONTUAL_LP, DIAGNOSTICO_GRATUITO_LP } from "@/lib/consultoria";
 
 /**
  * Catálogo do Novare Workspace: os aplicativos da casa, as ferramentas e as
@@ -285,6 +285,30 @@ export const APPS: NovareApp[] = [
         "Custo real e taxas ocultas reveladas",
         "Comparação contra benchmarks e alternativas isentas",
         "Carteira sugerida pronta para execução",
+      ],
+    },
+  ),
+
+  // O DIAGNÓSTICO GRATUITO VOLTA PARA SERVIÇOS (pedido do dono, 20/10/2026),
+  // agora apontando para a página oficial dele, como a Carteira Pontual.
+  // É a porta de entrada: análise inicial sem custo, antes do trabalho pago.
+  app(
+    "ia",
+    "diagnostico-gratuito",
+    "Diagnóstico Gratuito",
+    "Sua carteira pode estar custando mais do que rende",
+    DIAGNOSTICO_GRATUITO_LP,
+    "Novare Direct",
+    {
+      tipo: "servico",
+      externo: true,
+      descricao:
+        "Uma análise inicial e independente da sua carteira: o que está funcionando, o que está parado e o que pode estar custando caro. Sem custo e sem compromisso.",
+      pontosFortes: [
+        "Diagnóstico inicial completo da carteira",
+        "Mapa de concentrações e riscos ocultos",
+        "Relatório personalizado em até 3 dias úteis",
+        "Sem trocar de banco e sem obrigação de contratar",
       ],
     },
   ),

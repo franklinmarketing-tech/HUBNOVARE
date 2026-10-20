@@ -146,7 +146,7 @@ export default function OrcamentoPage() {
           <a href="https://www.youtube.com/channel/UCtfpNaHW_Jx7T7U91lXpJhQ" target="_blank" rel="noopener noreferrer" aria-label="Novare no YouTube" className="-m-1 p-1 opacity-80 transition-opacity hover:opacity-100">
             <YoutubeLogo className="h-4 w-4" />
           </a>
-          <a href="https://www.linkedin.com/in/novare-consultoria-de-investimentos-ab0808386/" target="_blank" rel="noopener noreferrer" aria-label="Novare no LinkedIn" className="-m-1 p-1 opacity-80 transition-opacity hover:opacity-100">
+          <a href="https://www.linkedin.com/in/jeffersonfreittas-sociofundadornovare/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn do Jefferson Freitas, fundador da Novare" className="-m-1 p-1 opacity-80 transition-opacity hover:opacity-100">
             <LinkedinLogo className="h-4 w-4" />
           </a>
         </div>

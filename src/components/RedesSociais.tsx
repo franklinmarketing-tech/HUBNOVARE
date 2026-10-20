@@ -36,7 +36,7 @@ const REDES = [
   },
   {
     nome: "LinkedIn",
-    href: "https://www.linkedin.com/in/novare-consultoria-de-investimentos-ab0808386/",
+    href: "https://www.linkedin.com/in/jeffersonfreittas-sociofundadornovare/",
     Icone: LinkedinLogo,
   },
 ] as const;

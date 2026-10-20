@@ -76,10 +76,10 @@ export function CascaFerramenta({
                 <YoutubeLogo className="h-4 w-4" />
               </a>
               <a
-                href="https://www.linkedin.com/in/novare-consultoria-de-investimentos-ab0808386/"
+                href="https://www.linkedin.com/in/jeffersonfreittas-sociofundadornovare/"
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label="Novare no LinkedIn"
+                aria-label="LinkedIn do Jefferson Freitas, fundador da Novare"
                 className="-m-1 p-1 opacity-80 transition-opacity hover:opacity-100"
               >
                 <LinkedinLogo className="h-4 w-4" />

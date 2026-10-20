@@ -159,6 +159,10 @@ export type Consultoria = {
 export const CARTEIRA_PONTUAL_LP =
   "https://diagnostico.novareapp.com.br/carteira-pontual";
 
+/** O Diagnóstico Gratuito da carteira, na página oficial da Novare (20/10/2026). */
+export const DIAGNOSTICO_GRATUITO_LP =
+  "https://diagnostico.novareapp.com.br/gratuito";
+
 export const CONSULTORIAS: Consultoria[] = [
   {
     slug: "revisao-carteira",

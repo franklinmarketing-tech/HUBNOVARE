@@ -268,10 +268,10 @@ export function RodapeNovare({
                 <YoutubeLogo className="h-5 w-5" />
               </a>
               <a
-                href="https://www.linkedin.com/in/novare-consultoria-de-investimentos-ab0808386/"
+                href="https://www.linkedin.com/in/jeffersonfreittas-sociofundadornovare/"
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label="Novare no LinkedIn"
+                aria-label="LinkedIn do Jefferson Freitas, fundador da Novare"
                 className="flex h-10 w-10 items-center justify-center rounded-full bg-white/[0.08] transition-all hover:scale-105 hover:bg-white/15"
               >
                 <LinkedinLogo className="h-5 w-5" />

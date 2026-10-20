@@ -106,10 +106,10 @@ export function Rodape() {
             <YoutubeLogo className="h-[22px] w-[22px]" />
           </a>
           <a
-            href="https://www.linkedin.com/in/novare-consultoria-de-investimentos-ab0808386/"
+            href="https://www.linkedin.com/in/jeffersonfreittas-sociofundadornovare/"
             target="_blank"
             rel="noopener noreferrer"
-            aria-label="Novare no LinkedIn"
+            aria-label="LinkedIn do Jefferson Freitas, fundador da Novare"
             className="-m-2 p-2 opacity-80 transition-opacity hover:opacity-100"
           >
             <LinkedinLogo className="h-[22px] w-[22px]" />
