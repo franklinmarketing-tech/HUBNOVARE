@@ -12,8 +12,10 @@ import {
 import { Cabecalho } from "@/components/Cabecalho";
 import { RevelarAoRolar } from "@/components/RevelarAoRolar";
 import { CapturaLead } from "@/components/CapturaLead";
-import { FundoCena } from "@/components/FundoCena";
-import { IrisExtrato } from "@/components/IrisExtrato";
+import { BotaoExemploIris, IrisExtrato } from "@/components/IrisExtrato";
+import { EXTRATO_EXEMPLO } from "@/lib/iris-exemplo";
+import { lerExtrato, resumirExtrato } from "@/lib/extrato";
+import { brl } from "@/lib/calculos";
 import { OQueSignifica } from "@/components/OQueSignifica";
 import { RodapeNovare } from "@/components/RodapeNovare";
 import { getPerfil } from "@/lib/perfil";
@@ -37,15 +39,17 @@ const O_QUE_FAZ = [
   },
   {
     icone: Eye,
-    titulo: "Fala em português",
+    titulo: "Explica em português",
     texto:
-      "Você pergunta se pode comprar aquilo, e ela responde olhando os seus números de verdade.",
+      // Era "você pergunta e ela responde" — o chat saiu em 18/10/2026.
+      "Ela traduz o extrato em frases claras: quanto entrou, quanto saiu, para onde foi e onde está o vazamento.",
   },
   {
     icone: Sunrise,
-    titulo: "Liga tudo ao seu plano",
+    titulo: "Vira plano no FINCASH",
     texto:
-      "O que você economiza não some: vai para o seu Marco Horizonte e vira patrimônio no seu plano.",
+      // Era "vai para o seu Marco Horizonte" — o FINPLAN saiu em 18/10/2026.
+      "O que você descobrir aqui vira controle de verdade no FINCASH, o app gratuito da Novare para o mês.",
   },
   {
     icone: Link2Off,
@@ -146,7 +150,7 @@ export default async function IrisPage({
   const perfil = await getPerfil();
 
   return (
-    <div className="min-h-dvh bg-gradient-to-b from-muted/50 via-background to-background">
+    <div className="min-h-dvh bg-background">
       <Cabecalho
         direita={
           <Link
@@ -160,67 +164,58 @@ export default async function IrisPage({
 
       <RevelarAoRolar />
 
-      {/* HERÓI — palco navy, como as outras páginas de produto. A Íris é o
-          rosto da IA da casa; um badge discreto não estava à altura. */}
-      <section
-        className="palco-vivo relative overflow-hidden text-white"
-        style={{
-          background:
-            "linear-gradient(157deg, hsl(199 72% 15%) 0%, hsl(202 83% 7%) 100%)",
-        }}
-      >
-        {/* A página do produto de IA não tinha uma única imagem: só gradiente.
-            A cena entra ESPELHADA porque a esfera nasce à esquerda e o texto
-            do herói também mora à esquerda — invertida, a luz cai no lado
-            vazio em vez de brigar com a headline. */}
-        <FundoCena
-          src="/cenas/cena-iris-hero.webp"
-          opacidade={0.62}
-          posicao="center 45%"
-          espelhada
-          prioridade
-          fundir
-        />
+      {/* O TOPO NOVO (upgrade de 20/10/2026, pedido do dono: "mais bonita,
+          chamativa, profissional"). Painel noite com a cena da Íris por trás,
+          a promessa à esquerda e, à direita, a PRÉVIA DO PAINEL — calculada
+          aqui mesmo, no servidor, do extrato de exemplo, com o mesmo leitor
+          que lê o extrato de verdade. */}
+      <div className="mx-auto max-w-6xl px-4 pt-6 sm:px-6">
+        <section
+          className="revelar secao-noite rounded-[1.75rem] px-6 py-10 sm:px-10 sm:py-14"
+          style={{ "--fundo-noite": "url(/cenas/cena-iris-hero.webp)" } as React.CSSProperties}
+        >
+          <div className="grid items-center gap-10 lg:grid-cols-[1.1fr_0.9fr]">
+            <div>
+              <span className="pilula-vidro text-2xs font-semibold uppercase tracking-[0.18em]">
+                <Eye className="h-3.5 w-3.5 text-ciano-claro" aria-hidden="true" />
+                Íris · a IA financeira da Novare
+              </span>
+              <h1 className="mt-6 max-w-2xl font-display text-[2.4rem] font-medium leading-[1.04] tracking-[-0.035em] text-white sm:text-6xl">
+                Ela enxerga o dinheiro <span className="text-accent-claro">que some.</span>
+              </h1>
+              <p className="mt-5 max-w-xl text-base leading-relaxed text-white/80">
+                Cole o extrato do seu banco e, em segundos, ela monta o seu
+                painel:{" "}
+                <strong className="font-semibold text-white">
+                  assinatura esquecida, tarifa e juro escondido
+                </strong>
+                . Como não ganha comissão de ninguém, fala a verdade.
+              </p>
+              <div className="mt-8 flex flex-wrap items-center gap-3">
+                <a href="#analisar" className="group inline-flex items-center gap-2">
+                  <span className="btn-cp">Analisar meu extrato</span>
+                  <span className="btn-seta" aria-hidden="true">
+                    <ArrowRight className="h-4 w-4" />
+                  </span>
+                </a>
+                <BotaoExemploIris className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/25 px-5 text-sm font-semibold text-white transition-colors hover:bg-white/10" />
+              </div>
+              <ul className="mt-8 flex flex-wrap gap-x-5 gap-y-2.5">
+                {PROVAS.map((prova) => (
+                  <li key={prova.texto} className="flex items-center gap-2 text-xs font-medium text-white/75">
+                    <prova.icone className="h-3.5 w-3.5 shrink-0 text-ciano-claro" aria-hidden="true" />
+                    {prova.texto}
+                  </li>
+                ))}
+              </ul>
+            </div>
 
-        <div className="revelar relative mx-auto max-w-3xl px-4 py-14 sm:px-6 sm:py-16">
-          <span className="inline-flex items-center gap-2 rounded-full bg-white/[0.12] px-3 py-1.5 text-2xs font-semibold uppercase tracking-wider backdrop-blur-sm">
-            <Eye className="h-3.5 w-3.5 text-accent-claro" aria-hidden="true" />
-            Íris · a IA financeira da Novare
-          </span>
+            <PreviaPainel />
+          </div>
+        </section>
+      </div>
 
-          <h1 className="mt-5 max-w-2xl font-display text-4xl font-medium leading-[1.05] tracking-[-0.03em] sm:text-5xl">
-            Ela enxerga o dinheiro
-            <br />
-            <span className="text-accent-claro">que some.</span>
-          </h1>
-
-          <p className="mt-5 max-w-xl text-base leading-relaxed text-white/80">
-            Cole o extrato do seu banco e ela diz, em português claro, para
-            onde está indo o seu dinheiro —{" "}
-            <strong className="font-semibold text-white">
-              assinatura esquecida, tarifa e juro escondido
-            </strong>
-            . Como não ganha comissão de ninguém, fala a verdade.
-          </p>
-
-          <ul className="mt-7 flex flex-wrap gap-x-5 gap-y-2.5">
-            {PROVAS.map((prova) => (
-              <li
-                key={prova.texto}
-                className="flex items-center gap-2 text-xs font-medium text-white/70"
-              >
-                <prova.icone
-                  className="h-3.5 w-3.5 shrink-0 text-accent-claro"
-                  aria-hidden="true"
-                />
-                {prova.texto}
-              </li>
-            ))}
-          </ul>
-        </div>
-      </section>
-
-      <main className="mx-auto max-w-3xl px-4 pb-16 pt-10 sm:px-6">
+      <main className="mx-auto max-w-5xl px-4 pb-16 pt-12 sm:px-6">
         {/* ⚠️ AQUI FICAVA O CHAT (`<ConversaIris />`), que chamava o
             gpt-4o-mini a cada pergunta. Saiu em 18/10/2026: a Íris deixou
             de consumir IA para virar uma isca aberta da casa, sem custo por
@@ -228,14 +223,7 @@ export default async function IrisPage({
 
             O que ficou é o que sempre teve valor de verdade — a leitura do
             extrato, que é aritmética feita no navegador de quem usa. */}
-        <section className="revelar mt-2">
-          <h2 className="font-display text-xl font-semibold text-primary">
-            Cole o seu extrato aqui
-          </h2>
-          <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground">
-            Não é papo: é conta. Ela passa linha por linha e mostra quanto
-            está escorrendo por mês — tudo aqui dentro, no seu navegador.
-          </p>
+        <section className="revelar">
           <IrisExtrato />
         </section>
 
@@ -246,8 +234,9 @@ export default async function IrisPage({
 
         {/* POR QUE ELA É DIFERENTE */}
         <section className="mt-14">
-          <h2 className="font-display text-xl font-semibold text-primary">
-            Por que a Íris é diferente
+          <p className="chapeu chapeu-ciano">Por que confiar</p>
+          <h2 className="titulo-cp mt-2 text-2xl sm:text-[2rem]">
+            Por que a Íris <span className="text-accent-strong">é diferente</span>
           </h2>
           <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground">
             Não é um chat genérico com cara de banco. É uma leitora de extrato
@@ -256,13 +245,10 @@ export default async function IrisPage({
 
           <div className="mt-6 grid gap-4 sm:grid-cols-2">
             {O_QUE_FAZ.map((item) => (
-              <div
-                key={item.titulo}
-                className="rounded-2xl border border-border bg-card p-5 shadow-sm"
-              >
-                <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/[0.06]">
+              <div key={item.titulo} className="cartao-cp p-5 sm:p-6">
+                <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-ciano-tint">
                   <item.icone
-                    className="h-4 w-4 text-primary"
+                    className="h-5 w-5 text-ciano-forte"
                     aria-hidden="true"
                   />
                 </span>
@@ -321,6 +307,65 @@ export default async function IrisPage({
       />
 
       <RodapeNovare />
+    </div>
+  );
+}
+
+/**
+ * A prévia do painel no topo: os números do EXTRATO DE EXEMPLO, calculados
+ * pelo mesmo leitor do extrato de verdade. Rotulada como exemplo.
+ */
+function PreviaPainel() {
+  const r = resumirExtrato(lerExtrato(EXTRATO_EXEMPLO));
+  const porAno = (r.totalVazado / r.meses) * 12;
+  const top = r.porCategoria.slice(0, 4);
+  const max = top[0]?.total || 1;
+  const cores = ["#2596BE", "#E86130", "#7fd0ec", "#f4a27f"];
+  const numeros: [string, number][] = [
+    ["Entrou", r.entradas],
+    ["Saiu", r.saidas],
+    ["Sobrou", r.saldo],
+  ];
+  return (
+    <div className="cine-reflexo relative overflow-hidden rounded-[1.5rem] border border-white/15 bg-white/[0.07] p-5 shadow-vidro backdrop-blur-md sm:p-6">
+      <div className="flex items-center justify-between">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-ciano-claro">Painel da Íris</p>
+        <span className="rounded-full bg-white/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-white/70">
+          Exemplo
+        </span>
+      </div>
+      <p className="mt-4 text-xs text-white/65">Vazando por ano em tarifa e juro</p>
+      <p className="mt-1 font-display text-[2.5rem] font-medium leading-none tracking-[-0.04em] text-white tabular-nums">
+        {brl(porAno)}
+      </p>
+      <div className="mt-5 grid grid-cols-3 gap-2">
+        {numeros.map(([rot, v]) => (
+          <div key={rot} className="rounded-xl bg-white/[0.06] p-2.5 ring-1 ring-white/10">
+            <p className="text-[9px] font-semibold uppercase tracking-[0.18em] text-white/55">{rot}</p>
+            <p className="mt-1 truncate text-sm font-semibold tabular-nums text-white">{brl(v)}</p>
+          </div>
+        ))}
+      </div>
+      <ul className="mt-5 space-y-2.5">
+        {top.map((c, i) => (
+          <li key={c.categoria}>
+            <div className="flex justify-between text-[11px] text-white/75">
+              <span>{c.categoria}</span>
+              <span className="tabular-nums">{brl(c.total)}</span>
+            </div>
+            <div className="mt-1 h-1.5 rounded-full bg-white/10">
+              <div className="h-full rounded-full" style={{ width: `${(c.total / max) * 100}%`, background: cores[i] }} />
+            </div>
+          </li>
+        ))}
+      </ul>
+      <div className="mt-5 flex flex-wrap gap-1.5">
+        {["NETFLIX.COM", "SPOTIFY", "TARIFA PACOTE", "JUROS CHEQUE ESP."].map((t) => (
+          <span key={t} className="rounded-full bg-accent/20 px-2.5 py-1 text-[10px] font-semibold text-accent-claro ring-1 ring-accent/30">
+            {t}
+          </span>
+        ))}
+      </div>
     </div>
   );
 }
