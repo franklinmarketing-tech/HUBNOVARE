@@ -34,11 +34,11 @@ export function QuemEstaPorTras() {
         <figure className="rounded-[1.5rem] bg-noite-2 p-2.5 ring-1 ring-white/10">
           <div className="relative aspect-square overflow-hidden rounded-[1.1rem]">
             <Image
-              src="/lp/socio-jefferson.webp"
+              src="/marca/novare-site/jefferson-sofa.jpg"
               alt="Jefferson Freitas, fundador da Novare"
               fill
               sizes="(max-width: 640px) 90vw, 240px"
-              className="object-cover"
+              className="origin-[50%_20%] scale-[1.45] object-cover object-[50%_15%]"
             />
           </div>
           <figcaption className="px-1 pb-1 pt-3 text-center">

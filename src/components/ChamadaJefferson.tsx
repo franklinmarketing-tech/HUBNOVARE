@@ -2,26 +2,23 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, ArrowUpRight, BookOpen } from "lucide-react";
 
-import { EBOOKS } from "@/lib/ebooks";
 
 /**
  * A CHAMADA DE DESTAQUE COM O JEFFERSON (pedido dele, 20/10/2026): "uma
  * chamada igual à da Nord, com a minha foto, ofertando um eBook ou o
- * FINCASH". Painel noite com as ondas, a oferta à esquerda e ele à direita,
- * com as capas dos guias atrás.
+ * FINCASH". Painel noite com as ondas, a oferta à esquerda e a foto dele no
+ * sofá à direita.
  *
  * ⚠️ AS DUAS OFERTAS SÃO GRATUITAS DE VERDADE — os eBooks em /ebooks e o
  * FINCASH. Nada de preço aqui: é convite, não venda.
  */
 export function ChamadaJefferson() {
-  const capas = EBOOKS.filter((e) => e.prateleira === "guia").slice(0, 3);
-
   return (
     <section
       aria-labelledby="chamada-jefferson"
       className="cine secao-noite relative overflow-hidden rounded-[1.75rem]"
     >
-      <div className="grid items-end gap-4 sm:grid-cols-[1.15fr_0.85fr]">
+      <div className="grid items-stretch sm:grid-cols-[1.15fr_0.85fr]">
         <div className="relative z-10 p-6 sm:p-10 sm:pb-11">
           <p className="chapeu chapeu-claro">Presente da Novare</p>
           <h2
@@ -60,33 +57,18 @@ export function ChamadaJefferson() {
           </p>
         </div>
 
-        {/* O Jefferson recortado (fundo já removido) com as capas em leque
-            atrás. No celular a foto vem por baixo do texto, menor. */}
-        <div className="relative mx-auto h-64 w-full max-w-sm sm:h-[22rem] sm:max-w-none">
-          <div aria-hidden className="absolute inset-x-0 bottom-0 top-6 hidden sm:block">
-            {capas.map((e, i) => (
-              <div
-                key={e.href}
-                className="absolute bottom-24 w-28 overflow-hidden rounded-lg shadow-[0_20px_40px_-12px_rgba(0,0,0,0.7)] ring-1 ring-white/15 lg:w-32"
-                style={{
-                  right: `${4 + i * 20}%`,
-                  transform: `rotate(${(i - 1) * 8}deg)`,
-                  zIndex: 3 - i,
-                }}
-              >
-                <Image src={e.capa} alt="" width={160} height={220} className="h-auto w-full" />
-              </div>
-            ))}
-          </div>
+        {/* A FOTO DO SOFÁ (pedido do Jefferson, 20/10/2026), com o fundo
+            dela — sem o sofá ele ficaria flutuando. Encosta na borda direita
+            do painel e se funde ao escuro só na faixa da esquerda. */}
+        <div className="relative h-80 sm:h-full sm:min-h-[24rem]">
           <Image
-            src="/lp/recorte-jefferson-v2.png"
+            src="/marca/novare-site/jefferson-sofa.jpg"
             alt="Jefferson Freitas, fundador da Novare"
             fill
-            sizes="(max-width: 640px) 90vw, 420px"
-            className="z-10 object-contain object-bottom"
+            sizes="(max-width: 640px) 100vw, 45vw"
+            className="object-cover object-[50%_18%]"
           />
-          {/* O pé da foto some na noite, sem corte seco. */}
-          <div aria-hidden className="absolute inset-x-0 bottom-0 z-10 h-16 bg-gradient-to-t from-noite to-transparent" />
+          <div aria-hidden className="absolute inset-0 bg-gradient-to-b from-noite to-transparent to-[25%] sm:bg-gradient-to-r sm:to-[22%]" />
         </div>
       </div>
     </section>
