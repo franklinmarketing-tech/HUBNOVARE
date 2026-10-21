@@ -80,28 +80,34 @@ export function AssinaturaJefferson({
           {CERTIFICACOES_JEFFERSON.join(" · ")}
         </p>
       )}
-      <ul className={`mt-3 flex gap-2.5 ${alinhar === "centro" ? "justify-center" : ""}`}>
-        {REDES.map(({ nome: rotulo, href, Icone }) => (
-          <li key={rotulo} className="group relative">
-            <a
-              href={href}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={rotulo}
-              className="flex h-10 w-10 items-center justify-center rounded-full bg-ciano text-white shadow-ciano transition-transform hover:-translate-y-0.5 hover:brightness-110"
-            >
-              <Icone className="h-[18px] w-[18px]" />
-            </a>
-            {/* A dica com o destino, como na Nord. */}
-            <span
-              role="tooltip"
-              className="pointer-events-none absolute left-1/2 top-full z-20 mt-2 -translate-x-1/2 whitespace-nowrap rounded-md bg-white px-2.5 py-1 text-xs font-medium text-slate-800 opacity-0 shadow-md ring-1 ring-black/5 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100"
-            >
-              {rotulo}
-            </span>
-          </li>
-        ))}
-      </ul>
+      <IconesRedes className={`mt-3 ${alinhar === "centro" ? "justify-center" : ""}`} />
     </div>
+  );
+}
+
+/** Os ícones redondos ciano com a dica do destino (padrão Nord). Também no rodapé. */
+export function IconesRedes({ className = "" }: { className?: string }) {
+  return (
+    <ul className={`flex gap-2.5 ${className}`}>
+      {REDES.map(({ nome: rotulo, href, Icone }) => (
+        <li key={rotulo} className="group relative">
+          <a
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={rotulo}
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-ciano text-white shadow-ciano transition-transform hover:-translate-y-0.5 hover:brightness-110"
+          >
+            <Icone className="h-[18px] w-[18px]" />
+          </a>
+          <span
+            role="tooltip"
+            className="pointer-events-none absolute left-1/2 top-full z-20 mt-2 -translate-x-1/2 whitespace-nowrap rounded-md bg-white px-2.5 py-1 text-xs font-medium text-slate-800 opacity-0 shadow-md ring-1 ring-black/5 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100"
+          >
+            {rotulo}
+          </span>
+        </li>
+      ))}
+    </ul>
   );
 }

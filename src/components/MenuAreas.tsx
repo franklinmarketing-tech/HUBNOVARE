@@ -47,7 +47,9 @@ export function MenuAreas({ portais }: { portais: Portal[] }) {
   return (
     <nav
       ref={barra}
-      className="relative hidden items-center gap-0.5 xl:flex"
+      /* A cápsula das áreas (21/10/2026): um trilho claro único, e a aba
+         aberta vira pílula branca com sombra — segmented control. */
+      className="relative hidden items-center gap-0.5 rounded-full bg-slate-100/80 p-1 ring-1 ring-slate-200/70 xl:flex"
       onMouseLeave={agendarFechamento}
       onMouseEnter={cancelarFechamento}
     >
@@ -65,10 +67,10 @@ export function MenuAreas({ portais }: { portais: Portal[] }) {
               }}
               onClick={() => setAberta(ativa ? null : area.chave)}
               aria-expanded={ativa}
-              className={`flex h-10 items-center gap-1.5 whitespace-nowrap rounded-full px-3 text-[12px] font-semibold uppercase tracking-[0.14em] transition-colors ${
+              className={`flex h-9 items-center gap-1.5 whitespace-nowrap rounded-full px-3.5 text-[13.5px] font-semibold tracking-[-0.01em] transition-all duration-200 ${
                 ativa
-                  ? "bg-slate-100 text-primary"
-                  : "text-slate-600 hover:bg-slate-50 hover:text-primary"
+                  ? "bg-white text-primary shadow-[0_4px_14px_-6px_hsl(199_75%_16%/0.35)]"
+                  : "text-slate-600 hover:bg-white/70 hover:text-primary"
               }`}
             >
               <Icone
@@ -88,7 +90,8 @@ export function MenuAreas({ portais }: { portais: Portal[] }) {
               <div
                 onMouseEnter={cancelarFechamento}
                 onMouseLeave={agendarFechamento}
-                className="absolute left-0 top-[calc(100%+6px)] z-40 w-[22rem] origin-top overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_24px_60px_-24px_hsl(215_50%_23%_/_0.45)] animate-[surgir_.18s_ease-out]"
+                className="absolute left-0 top-[calc(100%+10px)] z-40 w-[23rem] origin-top overflow-hidden rounded-[1.25rem] border border-slate-200/80 bg-white/95 shadow-[0_30px_70px_-28px_hsl(199_75%_16%_/_0.5)] backdrop-blur-xl animate-[surgir_.18s_ease-out]"
+                style={{ borderTop: `3px solid hsl(${area.h} ${area.s}% 45%)` }}
               >
                 <p
                   className="px-4 pb-2 pt-3.5 text-[11px] font-semibold uppercase tracking-wider"
@@ -110,7 +113,7 @@ export function MenuAreas({ portais }: { portais: Portal[] }) {
                            e a paleta ⌘K já davam aos links de saída. */
                         target={item.externo ? "_blank" : undefined}
                         rel={item.externo ? "noopener noreferrer" : undefined}
-                        className="group/i flex items-center gap-3 px-4 py-2.5 transition-colors hover:bg-slate-50"
+                        className="group/i mx-1.5 flex items-center gap-3 rounded-xl px-2.5 py-2.5 transition-colors hover:bg-slate-50"
                       >
                         <span
                           className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl"
@@ -125,7 +128,7 @@ export function MenuAreas({ portais }: { portais: Portal[] }) {
                           />
                         </span>
                         <span className="min-w-0 flex-1">
-                          <span className="block truncate text-[13px] font-bold uppercase tracking-tight text-slate-800">
+                          <span className="block truncate text-[13.5px] font-semibold tracking-[-0.01em] text-slate-800">
                             {item.nome}
                           </span>
                           <span className="block truncate text-[11px] text-slate-500">

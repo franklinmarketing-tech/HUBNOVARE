@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { BookOpen, Newspaper, Search, Mail, ArrowRight} from "lucide-react";
 import { MenuAreas } from "@/components/MenuAreas";
@@ -40,9 +41,28 @@ export function TopoApp({
 }) {
   const primeiroNome = nome?.split(" ")[0] ?? null;
 
+  /* O topo "assenta" ao rolar (21/10/2026, "mais moderno"): no alto da
+     página é vidro claro; rolando, fica mais sólido e ganha sombra. */
+  const [rolou, setRolou] = useState(false);
+  useEffect(() => {
+    const ver = () => setRolou(window.scrollY > 8);
+    ver();
+    window.addEventListener("scroll", ver, { passive: true });
+    return () => window.removeEventListener("scroll", ver);
+  }, []);
+
   return (
-    <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/85 backdrop-blur-md">
-      <div className="flex h-[72px] items-center gap-4 px-5">
+    <header
+      className={`sticky top-0 z-20 transition-[background-color,box-shadow] duration-300 ${
+        rolou
+          ? "bg-white/95 shadow-[0_10px_30px_-18px_hsl(199_75%_16%/0.35)] backdrop-blur-xl"
+          : "bg-white/70 backdrop-blur-xl"
+      }`}
+    >
+      {/* O fio de luz no pé do topo: ciano → laranja, as cores da casa. */}
+      <span aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-ciano/60 to-transparent" />
+      <span aria-hidden className="pointer-events-none absolute inset-x-[30%] bottom-0 h-px bg-gradient-to-r from-transparent via-accent/70 to-transparent" />
+      <div className="flex h-[68px] items-center gap-4 px-5">
         {/* A logo oficial fica em TODAS as larguras: o monograma do trilho
             é um atalho de navegação, não substitui a marca. */}
         {/* min-h-11: o alvo seguia a altura da imagem (24px) dentro de um
@@ -135,7 +155,7 @@ export function TopoApp({
             podia depender só da faixa da home. */}
         <Link
           href="/ebooks"
-          className="hidden shrink-0 items-center gap-2 rounded-xl bg-accent-tint px-3 py-2 text-xs font-semibold text-accent-strong ring-1 ring-accent/20 transition-all hover:-translate-y-px hover:ring-accent/40 md:flex"
+          className="hidden h-10 shrink-0 items-center gap-2 rounded-full px-3.5 text-[13px] font-semibold text-accent-strong transition-colors hover:bg-accent-tint md:flex"
         >
           <BookOpen className="h-3.5 w-3.5" />
           eBooks
@@ -145,7 +165,7 @@ export function TopoApp({
             pulsando é o jeito de dizer isso sem mais um botão colorido. */}
         <Link
           href="/novare-news"
-          className="hidden shrink-0 items-center gap-2 rounded-xl bg-ciano-tint px-3 py-2 text-xs font-semibold text-ciano-forte ring-1 ring-ciano/20 transition-all hover:-translate-y-px hover:ring-ciano/40 md:flex"
+          className="hidden h-10 shrink-0 items-center gap-2 rounded-full px-3.5 text-[13px] font-semibold text-ciano-forte transition-colors hover:bg-ciano-tint md:flex"
         >
           <span className="relative flex h-2 w-2">
             <span className="absolute inline-flex h-full w-full rounded-full bg-ciano opacity-60 motion-safe:animate-ping" />
@@ -174,7 +194,7 @@ export function TopoApp({
             type="button"
             onClick={() => window.dispatchEvent(new Event("novare:abrir-paleta"))}
             aria-label="Pesquisar"
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500 transition-colors hover:border-primary/30 hover:text-primary xl:hidden"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-slate-200/80 bg-white/80 text-slate-500 transition-colors hover:border-ciano/40 hover:text-primary xl:hidden"
           >
             <Search className="h-4 w-4" />
           </button>

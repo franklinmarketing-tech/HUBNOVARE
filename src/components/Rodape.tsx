@@ -1,121 +1,13 @@
-import Image from "next/image";
-import Link from "next/link";
-import { Code2 } from "lucide-react";
-import { InstagramLogo, YoutubeLogo, LinkedinLogo } from "@/components/LogosSociais";
-import { CARTEIRA_PONTUAL_LP } from "@/lib/consultoria";
-
-const ANO = new Date().getFullYear();
+import { RodapeCompleto } from "@/components/RodapeCompleto";
 
 /**
- * Rodapé enxuto de sistema: uma linha só, para não roubar a altura que a
- * home precisa para caber numa tela. O aviso legal fica junto porque
- * consultoria de investimento é obrigada a exibi-lo.
+ * O rodapé das telas do Workspace (home, Meu dia, Indicadores…).
+ *
+ * ⚠️ ERA UMA LINHA SÓ ("rodapé enxuto de sistema") até 21/10/2026, quando o
+ * dono pediu um rodapé "moderno, completo, padrão Novare". Agora é o mesmo
+ * `RodapeCompleto` das ferramentas, do News e da Íris — um rodapé para o
+ * site inteiro. O nome `Rodape` ficou para não mexer nas páginas.
  */
 export function Rodape() {
-  return (
-    <footer className="mt-auto border-t border-slate-200/80 px-5 py-3 [@media(max-height:800px)]:py-2">
-      <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-x-6 gap-y-2">
-        <div className="flex min-w-0 items-center gap-3">
-          {/* A marca assina o rodapé — antes só havia o nome em texto. */}
-          <Image
-            src="/marca/logo-novare.png"
-            alt="Novare"
-            width={84}
-            height={22}
-            className="hidden h-5 w-auto shrink-0 opacity-70 sm:block"
-          />
-          <p className="text-[11px] text-muted-foreground">
-            © {ANO} <span className="font-semibold">Novare Consultoria</span> ·
-            Consultoria sem comissão. Conteúdo educativo, não é recomendação
-            personalizada de investimento.
-          </p>
-        </div>
-
-        {/* Mesma pílula do rodapé institucional, na versão clara.
-            Irmã do bloco da marca, não filha: dentro dele ela era espremida
-            pelo texto longo do aviso legal. Em 11px cinza a assinatura sumia;
-            aqui tem borda, ícone e o nome em degradê laranja-ciano — as duas
-            cores da casa. */}
-        <a
-          href="https://castriani-digital.vercel.app"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-slate-300 hover:shadow"
-        >
-          <Code2 className="h-3 w-3 text-ciano-forte" strokeWidth={2.5} />
-          <span className="text-[10px] text-slate-500">Desenvolvido por</span>
-          <span className="bg-gradient-to-r from-accent-strong to-ciano-forte bg-clip-text font-display text-xs font-semibold tracking-tight text-transparent">
-            Castriani Digital
-          </span>
-        </a>
-
-        {/* flex-wrap + gap-y: com três redes sociais a linha não cabe em 390px
-            e empurrava a página inteira para o lado. */}
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-          <Link
-            href="/profissionais"
-            className="text-[11px] font-medium text-slate-500 transition-colors hover:text-primary"
-          >
-            Sua profissão
-          </Link>
-          {/* ⚠️ SAI DO HUB, DE PROPÓSITO. O dono pediu em 21/09 que
-              "Serviços" levasse DIRETO à página de venda da Carteira
-              Pontual, sem passar pela /consultoria: hoje a casa vende um
-              serviço só, e uma página intermediária com um item é um
-              clique cobrado à toa. A /consultoria continua de pé para SEO
-              e para o conteúdo do serviço. */}
-          <a
-            href={CARTEIRA_PONTUAL_LP}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-[11px] font-medium text-slate-500 transition-colors hover:text-primary"
-          >
-            Serviços
-          </a>
-          <Link
-            href="/"
-            className="text-[11px] font-medium text-slate-500 transition-colors hover:text-primary"
-          >
-            Workspace
-          </Link>
-          <Link
-            href="/privacidade"
-            className="text-[11px] font-medium text-slate-500 transition-colors hover:text-primary"
-          >
-            Privacidade & LGPD
-          </Link>
-          {/* Traço oficial de cada marca, em cor — não currentColor: a 16px
-              anterior, um risco cinza fino virava mancha ilegível. */}
-          <a
-            href="https://www.instagram.com/novare.invest"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Novare no Instagram"
-            // -m-2 p-2: o alvo de toque cresce sem empurrar o layout.
-            className="-m-2 p-2 opacity-80 transition-opacity hover:opacity-100"
-          >
-            <InstagramLogo className="h-[22px] w-[22px]" />
-          </a>
-          <a
-            href="https://www.youtube.com/channel/UCtfpNaHW_Jx7T7U91lXpJhQ"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Novare no YouTube"
-            className="-m-2 p-2 opacity-80 transition-opacity hover:opacity-100"
-          >
-            <YoutubeLogo className="h-[22px] w-[22px]" />
-          </a>
-          <a
-            href="https://www.linkedin.com/in/jeffersonfreittas-sociofundadornovare/"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="LinkedIn do Jefferson Freitas, fundador da Novare"
-            className="-m-2 p-2 opacity-80 transition-opacity hover:opacity-100"
-          >
-            <LinkedinLogo className="h-[22px] w-[22px]" />
-          </a>
-        </div>
-      </div>
-    </footer>
-  );
+  return <RodapeCompleto />;
 }

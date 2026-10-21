@@ -40,57 +40,53 @@ export function TudoDeGraca() {
       a.roles.includes("cliente"),
   );
 
+  /* ⚠️ COMPACTO DESDE 21/10/2026 ("muito grande, ocupa muito espaço"):
+     eram quatro cartões grandes + três fileiras de etiquetas. Agora é UMA
+     faixa: título e botão à esquerda, os quatro números pequenos em linha à
+     direita, e as ferramentas numa linha só correndo (como a fita do topo). */
   return (
-    <section
-      aria-labelledby="tudo-titulo"
-      className="cine cartao-cp relative p-6 sm:p-10"
-    >
-      {/* As ondas claras (Magnific, sem texto) atrás de um véu branco: o
-          mesmo material das seções noite, na versão do dia. */}
-      <div aria-hidden className="absolute inset-0 -z-0 bg-[url(/marca/ondas-clara.webp)] bg-cover bg-center opacity-60" />
-      <div aria-hidden className="absolute inset-0 -z-0 bg-gradient-to-r from-white via-white/85 to-white/40" />
+    <section aria-labelledby="tudo-titulo" className="cine cartao-cp relative px-5 py-5 sm:px-7 sm:py-6">
+      <div aria-hidden className="absolute inset-0 -z-0 bg-[url(/marca/ondas-clara.webp)] bg-cover bg-center opacity-50" />
+      <div aria-hidden className="absolute inset-0 -z-0 bg-gradient-to-r from-white via-white/90 to-white/50" />
 
-      <div className="relative grid gap-8 lg:grid-cols-[1fr_1.1fr] lg:items-center">
-        <div>
+      <div className="relative flex flex-wrap items-center justify-between gap-x-8 gap-y-4">
+        <div className="min-w-0">
           <p className="chapeu">Tudo de graça</p>
-          <h2 id="tudo-titulo" className="titulo-cp mt-2 text-3xl sm:text-[2.75rem]">
-            Tudo isso é seu,{" "}
-            <span className="text-accent-strong">de graça.</span>
+          <h2 id="tudo-titulo" className="titulo-cp mt-1 text-2xl sm:text-[1.9rem]">
+            Tudo isso é seu, <span className="text-accent-strong">de graça.</span>
           </h2>
-          <Link href="/aplicativos" className="group mt-6 inline-flex items-center gap-2">
-            <span className="btn-petroleo">Ver todas as ferramentas</span>
-            <span className="btn-seta" aria-hidden>
-              <ArrowUpRight className="h-4 w-4" />
-            </span>
-          </Link>
         </div>
 
-        <ul className="grid grid-cols-2 gap-3">
+        <ul className="grid grid-cols-2 gap-x-5 gap-y-2 sm:flex sm:flex-wrap sm:items-center sm:gap-x-6">
           {numeros.map(({ n, rotulo }, i) => (
-            <li key={rotulo} className="rounded-[1.25rem] bg-white/90 p-5 shadow-suave ring-1 ring-primary/5 backdrop-blur-sm">
-              <span className={`block font-display text-4xl font-medium tracking-[-0.04em] tabular-nums sm:text-5xl ${i % 2 ? "text-accent-strong" : "text-ciano-forte"}`}>
+            <li key={rotulo} className="flex items-baseline gap-2">
+              <span className={`font-display text-2xl font-medium tracking-[-0.04em] tabular-nums sm:text-[1.75rem] ${i % 2 ? "text-accent-strong" : "text-ciano-forte"}`}>
                 <NumeroQueConta valor={n} />
               </span>
-              <span className="mt-1 block text-sm leading-snug text-primary">
-                {rotulo}
-              </span>
+              <span className="max-w-[9rem] text-2xs leading-tight text-primary/80">{rotulo}</span>
             </li>
           ))}
         </ul>
+
+        <Link href="/aplicativos" className="group inline-flex shrink-0 items-center gap-2">
+          <span className="btn-petroleo">Ver todas</span>
+          <span className="btn-seta" aria-hidden>
+            <ArrowUpRight className="h-4 w-4" />
+          </span>
+        </Link>
       </div>
 
       {nomes.length > 0 && (
-        <div className="faixa-etiquetas relative mt-8">
+        <div className="faixa-etiquetas relative mt-4">
           <ul>
             {/* Duas voltas da mesma lista: o laço anda metade da largura e
-                emenda sem salto. A segunda volta some para leitor de tela e
-                para quem pediu menos movimento (globals.css). */}
+                emenda sem salto. A segunda volta some para leitor de tela. */}
             {[...nomes, ...nomes].map((a, i) => (
               <li key={`${a.slug}-${i}`} aria-hidden={i >= nomes.length || undefined} data-dup={i >= nomes.length || undefined}>
                 <Link
                   href={a.href}
                   tabIndex={i >= nomes.length ? -1 : undefined}
-                  className="block whitespace-nowrap rounded-full border border-border bg-white px-4 py-2 text-xs font-medium text-primary transition-colors hover:border-ciano/50 hover:text-ciano-forte"
+                  className="block whitespace-nowrap rounded-full border border-border bg-white/90 px-3.5 py-1.5 text-2xs font-medium text-primary transition-colors hover:border-ciano/50 hover:text-ciano-forte"
                 >
                   {a.nome}
                 </Link>
