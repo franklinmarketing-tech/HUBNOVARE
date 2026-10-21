@@ -10,6 +10,7 @@ import { InscreverNews } from "@/components/InscreverNews";
 import { artigosOrdenados, type Artigo } from "@/lib/news";
 import { FAMILIAS, ORDEM_FAMILIAS, type Familia } from "@/lib/apps";
 import { CONTAGEM } from "@/lib/apps";
+import { FitaMercado } from "@/components/FitaMercado";
 
 export const metadata: Metadata = {
   title: "Novare News",
@@ -80,6 +81,7 @@ export default async function NovareNewsPage({
   return (
     <div className="min-h-dvh bg-white">
       <CabecalhoNews />
+      <FitaMercado />
 
       <main className="mx-auto max-w-6xl px-4 pb-20 pt-10 sm:pt-14">
         {/* Topo noite, como o das ferramentas (pedido do dono, 20/10/2026). */}

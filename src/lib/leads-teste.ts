@@ -19,8 +19,14 @@ const MARCA_FALSA = [/\+teste?@/i];
 /* 21/10/2026: QUALQUER e-mail com "franklin" e o "novareadm…" (o print do
    dono mostrava franklincastriani.trader@, que o "franklincastriani@" antigo
    deixava passar). */
-const EQUIPE_CONTEM = [/franklin/i, /^novareadm/i, /^jefferson\.ariane1402@/i, /^ariane\.bafreitas@/i];
-const NOMES_FALSOS = [/^zz /i, /^teste( |$)/i, /^test$/i, /^maria teste$/i];
+/* 21/10/2026 (2ª leva): contas internas da aba Clientes — o domínio do app
+   antigo (auditoria, suporte, visitante, teste.cliente), "castriani" e o
+   consultores.novare@. Mesma regra de `supabase/contas_suporte.sql`. */
+const EQUIPE_CONTEM = [
+  /franklin/i, /^novareadm/i, /castriani/i, /@novareapp\.com\.br$/i, /^consultores\.novare@/i,
+  /^jefferson\.ariane1402@/i, /^ariane\.bafreitas@/i,
+];
+const NOMES_FALSOS = [/^zz /i, /^teste( |$)/i, /^test$/i, /^maria teste$/i, /franklin/i];
 
 export function ehLeadDeTeste(email: string, nome?: string | null): boolean {
   const e = email.trim().toLowerCase();

@@ -10,7 +10,7 @@ import { LINKEDIN_JEFFERSON, falarNoWhatsApp } from "@/lib/contato";
  * ⚠️ CERTIFICAÇÕES: preencher com as que ele tem de verdade (ex.: "CEA ·
  * CFP®"). Vazio, a linha não aparece — nunca inventar título profissional.
  */
-export const CERTIFICACOES_JEFFERSON: string[] = [];
+export const CERTIFICACOES_JEFFERSON: string[] = ["CPA", "CPRO-I", "CPRO-R", "CFDe", "CNEP-I"];
 
 const REDES = [
   { nome: "WhatsApp · Novare", href: falarNoWhatsApp("Olá, Jefferson! Vim pelo site da Novare."), Icone: WhatsappIcone },

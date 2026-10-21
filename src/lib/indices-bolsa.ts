@@ -25,9 +25,11 @@ export type IndiceBolsa = {
   minima: number | null;
   /** dd/mm do último pregão */
   data: string;
+  /** Moeda na frente do valor (cotações): "R$", "US$". Índice não tem. */
+  unidade?: string;
 };
 
-const LISTA: { simbolo: string; nome: string; pais: string }[] = [
+const LISTA: { simbolo: string; nome: string; pais: string; unidade?: string }[] = [
   { simbolo: "^BVSP", nome: "Ibovespa", pais: "BR" },
   { simbolo: "^IBX50", nome: "IBrX 50", pais: "BR" },
   { simbolo: "^DJI", nome: "Dow Jones", pais: "EUA" },
@@ -83,6 +85,19 @@ async function um(item: (typeof LISTA)[number]): Promise<IndiceBolsa | null> {
     return null;
   }
 }
+
+/** As cotações da fita do topo (21/10/2026, no formato do TradeMap). */
+const COTACOES: (typeof LISTA)[number][] = [
+  { simbolo: "BRL=X", nome: "Dólar", pais: "USD", unidade: "R$" },
+  { simbolo: "EURBRL=X", nome: "Euro", pais: "EUR", unidade: "R$" },
+  { simbolo: "BTC-USD", nome: "Bitcoin", pais: "BTC", unidade: "US$" },
+  { simbolo: "GC=F", nome: "Ouro", pais: "OURO", unidade: "US$" },
+];
+
+export const getCotacoes = cache(async (): Promise<IndiceBolsa[]> => {
+  const todos = await Promise.all(COTACOES.map(um));
+  return todos.filter((x): x is IndiceBolsa => x !== null);
+});
 
 export const getIndicesBolsa = cache(async (): Promise<IndiceBolsa[]> => {
   const todos = await Promise.all(LISTA.map(um));

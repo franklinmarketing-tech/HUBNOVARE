@@ -9,6 +9,7 @@ import { appsParaBusca, filtrosDoTopo } from "@/lib/navegacao";
 import { CONTAGEM } from "@/lib/apps";
 import { getPerfil } from "@/lib/perfil";
 import { getNotificacoes } from "@/lib/notificacoes";
+import { FitaMercado } from "@/components/FitaMercado";
 
 export const metadata: Metadata = {
   title: "Aplicativos",
@@ -41,6 +42,8 @@ export default async function AplicativosPage() {
           logado={!!perfil}
           notificacoes={notificacoes}
         />
+        {/* A fita do mercado, logo abaixo do topo (TradeMap, 21/10/2026). */}
+        <FitaMercado />
 
         <main className="mx-auto max-w-6xl px-5 pb-16 pt-8">
           <h1 className="titulo-secao text-2xl sm:text-[2rem]">

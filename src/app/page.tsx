@@ -8,7 +8,6 @@ import { BarraInferior } from "@/components/BarraInferior";
 import { TopoApp } from "@/components/TopoApp";
 import { PaletaComandos } from "@/components/PaletaComandos";
 import { QuemEstaPorTras } from "@/components/QuemEstaPorTras";
-import { IndicadoresHome } from "@/components/IndicadoresHome";
 import { ComoTrabalhamos } from "@/components/ComoTrabalhamos";
 import { TudoDeGraca } from "@/components/TudoDeGraca";
 import { ChamadaJefferson } from "@/components/ChamadaJefferson";
@@ -30,6 +29,7 @@ import { getPerfil, temFichaPreenchida } from "@/lib/perfil";
 import { getNotificacoes } from "@/lib/notificacoes";
 import { estadoDaAssinatura } from "@/lib/assinatura-servidor";
 import { ASSINATURA_GARANTIA, ASSINATURA_OFERTA_CURTA } from "@/lib/assinatura";
+import { FitaMercado } from "@/components/FitaMercado";
 
 /**
  * Só o canonical: title, description e Open Graph da home são os do layout
@@ -116,6 +116,8 @@ export default async function Home() {
           portais={areas}
           notificacoes={notificacoes}
         />
+        {/* A fita do mercado, logo abaixo do topo (TradeMap, 21/10/2026). */}
+        <FitaMercado />
 
         {/* O ritmo vertical da home.
             Era `gap-2.5` (10px) com `pt-2`, e media queries que encolhiam
@@ -308,10 +310,9 @@ export default async function Home() {
               ))}
           </section>
 
-          {/* Os indicadores logo abaixo das vitrines (pedido do dono,
-              20/10/2026: primeiro "embaixo, chamando a atenção", depois
-              "abaixo dos cards"). */}
-          <IndicadoresHome />
+          {/* ⚠️ OS CARTÕES DE INDICADORES (`IndicadoresHome`) SAÍRAM DAQUI em
+              21/10/2026: os números agora correm na fita fina do topo
+              (`FitaMercado`), no formato do TradeMap, a pedido do dono. */}
 
           {/* O "Continue de onde parou" (components/Recentes) já morou aqui e
               saiu a pedido: mais uma fileira de pílulas entre as vitrines e as

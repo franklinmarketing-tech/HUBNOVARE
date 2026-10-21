@@ -536,6 +536,19 @@
     to { transform: translate3d(calc(-50% - 0.375rem), 0, 0); }
   }
 
+  /* A FITA DO TOPO (FitaMercado, 21/10/2026): linha fina estilo TradeMap. */
+  .fita-topo { overflow: hidden; }
+  .fita-topo > ul {
+    display: flex;
+    width: max-content;
+    animation: correr-fita-topo 80s linear infinite;
+  }
+  .fita-topo:hover > ul,
+  .fita-topo:focus-within > ul { animation-play-state: paused; }
+  @keyframes correr-fita-topo {
+    to { transform: translate3d(-50%, 0, 0); }
+  }
+
   /* A barra do pop-up "Parabéns" do PDF (LiberarPdf): enche em 1,8 s. */
   .barra-enchendo {
     animation: encher-barra 1.8s cubic-bezier(0.22, 1, 0.36, 1) both;
@@ -550,6 +563,9 @@
     .ticker { overflow-x: auto; mask-image: none; -webkit-mask-image: none; }
     .ticker > ul { animation: none; }
     .ticker [data-dup] { display: none; }
+    .fita-topo { overflow-x: auto; }
+    .fita-topo > ul { animation: none; }
+    .fita-topo [data-dup] { display: none; }
     .faixa-etiquetas > ul { animation: none; flex-wrap: wrap; width: auto; }
     .faixa-etiquetas [data-dup] { display: none; }
   }

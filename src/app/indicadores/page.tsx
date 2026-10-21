@@ -12,6 +12,7 @@ import { getNotificacoes } from "@/lib/notificacoes";
 import { GRUPOS, getCartoesIndicadores, type CartaoIndicador } from "@/lib/indicadores";
 import { Minigrafico } from "@/components/Minigrafico";
 import { formatarPontos, getIndicesBolsa, type IndiceBolsa } from "@/lib/indices-bolsa";
+import { FitaMercado } from "@/components/FitaMercado";
 
 export const metadata: Metadata = {
   title: "Indicadores econômicos hoje",
@@ -51,6 +52,8 @@ export default async function IndicadoresPage() {
           logado={!!perfil}
           notificacoes={notificacoes}
         />
+        {/* A fita do mercado, logo abaixo do topo (TradeMap, 21/10/2026). */}
+        <FitaMercado />
 
         <main className="mx-auto w-full max-w-6xl flex-1 px-5 pb-16 pt-6">
           <header className="topo-ferramenta secao-noite !mt-0">

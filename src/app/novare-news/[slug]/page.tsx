@@ -17,6 +17,7 @@ import {
 import { FAMILIAS } from "@/lib/apps";
 import { urlAbsoluta } from "@/lib/site";
 import { CorpoArtigo } from "@/components/CorpoArtigo";
+import { FitaMercado } from "@/components/FitaMercado";
 
 export function generateStaticParams() {
   return ARTIGOS.map((a) => ({ slug: a.slug }));
@@ -101,6 +102,7 @@ export default async function ArtigoPage({
   return (
     <div className="min-h-dvh bg-white">
       <CabecalhoNews />
+      <FitaMercado />
 
       <main className="mx-auto max-w-3xl px-4 pb-14 pt-8 sm:pt-10">
         <Link

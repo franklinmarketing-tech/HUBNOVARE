@@ -29,6 +29,15 @@ type LeadTeste = {
   criado_em: string;
 };
 
+type ContaInterna = {
+  id: string;
+  nome: string | null;
+  email: string;
+  papel: string;
+  criado_em: string;
+  ultimo_acesso: string | null;
+};
+
 export default async function SuportePage({ searchParams }: { searchParams: Promise<{ erro?: string }> }) {
   const perfil = await getPerfil();
   if (!perfil || perfil.role !== "admin") notFound();
@@ -72,15 +81,20 @@ export default async function SuportePage({ searchParams }: { searchParams: Prom
   }
 
   const supabase = await createClient();
-  const { data, error } = await supabase.rpc("hub_leads_suporte", { p_limite: 500 });
+  const [{ data, error }, { data: contasBrutas }] = await Promise.all([
+    supabase.rpc("hub_leads_suporte", { p_limite: 500 }),
+    supabase.rpc("hub_contas_suporte"),
+  ]);
   const leads = (data ?? []) as LeadTeste[];
+  // As contas internas que saíram da aba Clientes (contas_suporte.sql).
+  const contas = (contasBrutas ?? []) as ContaInterna[];
 
   return (
     <main className="mx-auto max-w-6xl px-5 py-8">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <p className="chapeu chapeu-ciano">Área restrita</p>
-          <h1 className="titulo-cp mt-2 text-3xl">Suporte · leads de teste</h1>
+          <h1 className="titulo-cp mt-2 text-3xl">Suporte · testes e contas internas</h1>
           <p className="mt-1.5 max-w-2xl text-sm text-muted-foreground">
             O que a regra de teste separou: e-mails com “franklin”, “novareadm”, da equipe, domínios
             falsos e o que veio do localhost. Nada daqui entra no painel de leads, na Saúde, nas Iscas
@@ -151,6 +165,47 @@ export default async function SuportePage({ searchParams }: { searchParams: Prom
                           .join(" · ")}
                       </p>
                     )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      <h2 className="titulo-cp mt-12 text-2xl">Contas internas</h2>
+      <p className="mt-1.5 max-w-2xl text-sm text-muted-foreground">
+        Equipe, admin, testes e as contas do domínio do app antigo. Ficam fora da aba Clientes e de
+        toda contagem.
+      </p>
+      {contas.length === 0 ? (
+        <div className="cartao-cp mt-5 p-8 text-center text-sm text-muted-foreground">
+          Nenhuma conta interna — ou o SQL <code>supabase/contas_suporte.sql</code> ainda não rodou.
+        </div>
+      ) : (
+        <div className="cartao-cp mt-5 overflow-x-auto">
+          <table className="w-full min-w-[40rem] text-sm">
+            <thead>
+              <tr className="border-b border-border text-left text-2xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                <th className="px-4 py-3">Conta</th>
+                <th className="px-4 py-3">Papel</th>
+                <th className="px-4 py-3">Criada</th>
+                <th className="px-4 py-3">Último acesso</th>
+              </tr>
+            </thead>
+            <tbody>
+              {contas.map((c) => (
+                <tr key={c.id} className="border-b border-border/60 last:border-0">
+                  <td className="px-4 py-3">
+                    <p className="font-semibold text-foreground">{c.nome?.trim() || "—"}</p>
+                    <p className="text-xs text-primary">{c.email}</p>
+                  </td>
+                  <td className="px-4 py-3">
+                    <span className="rounded-full bg-muted px-2 py-0.5 text-2xs font-semibold text-foreground">{c.papel}</span>
+                  </td>
+                  <td className="px-4 py-3 text-2xs text-muted-foreground">{new Date(c.criado_em).toLocaleDateString("pt-BR")}</td>
+                  <td className="px-4 py-3 text-2xs text-muted-foreground">
+                    {c.ultimo_acesso ? new Date(c.ultimo_acesso).toLocaleDateString("pt-BR") : "nunca"}
                   </td>
                 </tr>
               ))}
