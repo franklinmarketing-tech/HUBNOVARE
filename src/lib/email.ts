@@ -1,5 +1,8 @@
 import { Resend } from "resend";
 import { SITE_URL } from "@/lib/site";
+import { FAIXAS_INVESTIMENTO } from "@/lib/faixas-investimento";
+import { faixaDoInvestimento, investeAlto, oQueFez } from "@/lib/lead-quente";
+import { linkWhatsApp } from "@/lib/lead-whatsapp";
 
 /**
  * OS E-MAILS DA CASA.
@@ -117,7 +120,7 @@ export async function enviarBoasVindas(params: {
     subject: "Seu Workspace Novare já está pronto",
     html: layout({
       chapeu: "Seja bem-vindo(a)",
-      titulo: `${primeiroNome(nome, "tudo bem")}, seu Workspace já está pronto.`,
+      titulo: `${escapar(primeiroNome(nome, "tudo bem"))}, seu Workspace já está pronto.`,
       corpo: par(
         "A partir de agora você tem acesso ao FINCASH, ao FINPLAN, à Íris (a IA que lê seu extrato) e a todas as ferramentas da Novare — sem precisar esperar ninguém liberar nada.",
       ),
@@ -154,7 +157,7 @@ export async function enviarAvisoDeRevisao(params: {
     subject: `Sua revisão de ${periodo} está pronta`,
     html: layout({
       chapeu: `Revisão do consultor · ${periodo}`,
-      titulo: `${primeiroNome(nome)}, um consultor leu o seu plano.`,
+      titulo: `${escapar(primeiroNome(nome))}, um consultor leu o seu plano.`,
       corpo: par(
         "A revisão deste trimestre está no seu Workspace: o que mudou, o que está travando e qual é o próximo movimento.",
       ),
@@ -204,7 +207,7 @@ export async function enviarConfirmacaoDeLead(params: {
     subject: "Recebemos o seu pedido — a Novare já está com ele",
     html: layout({
       chapeu: "Pedido recebido",
-      titulo: `${primeiroNome(nome)}, recebemos o seu pedido.`,
+      titulo: `${escapar(primeiroNome(nome))}, recebemos o seu pedido.`,
       corpo:
         par(
           `Um especialista da Novare vai olhar ${ondeVeio} e responder com o próximo passo. Sem custo e sem compromisso.`,
@@ -232,6 +235,16 @@ export async function enviarConfirmacaoDeLead(params: {
  *
  * Devolve `false` sem erro quando `EMAIL_DA_EQUIPE` não está configurado:
  * falta de aviso interno não pode derrubar o cadastro do cliente.
+ *
+ * ═══ O AVISO DIZ O TAMANHO DO CASO (21/10/2026) ══════════════════════════
+ *
+ * Antes chegava só nome, e-mail, telefone, rota e tipo: o Jefferson abria o
+ * e-mail e ainda não sabia se valia ligar agora. Agora vem quanto a pessoa
+ * investe, o que ela usou e o botão do WhatsApp com a mensagem pronta. De
+ * R$ 100 mil para cima o assunto já chega como "Lead quente".
+ *
+ * ⚠️ TUDO AQUI VEM DE FORMULÁRIO PÚBLICO e passa por `escapar` antes de
+ * entrar no HTML. Até 21/10 o nome entrava cru.
  */
 export async function avisarEquipeDeLead(params: {
   email: string;
@@ -239,30 +252,46 @@ export async function avisarEquipeDeLead(params: {
   telefone?: string | null;
   origem?: string | null;
   tipo?: string | null;
+  payload?: Record<string, unknown> | null;
 }): Promise<boolean> {
   if (!EQUIPE) return false;
 
   const { email, nome, telefone, origem, tipo } = params;
+  const payload = params.payload ?? null;
   const linha = (rotulo: string, valor: string | null | undefined) =>
     valor
-      ? `<p style="font-size:14px;line-height:1.6;color:#3c4a5c;margin:0 0 6px;"><strong style="color:#16314f;">${rotulo}:</strong> ${valor}</p>`
+      ? `<p style="font-size:14px;line-height:1.6;color:#3c4a5c;margin:0 0 6px;"><strong style="color:#16314f;">${rotulo}:</strong> ${escapar(valor)}</p>`
       : "";
+
+  const faixa = faixaDoInvestimento(payload);
+  const investe = faixa >= 0 ? FAIXAS_INVESTIMENTO[faixa] : null;
+  const quente = investeAlto(payload);
+  const fez = oQueFez({ tipo: tipo ?? null, payload });
+  const zap = linkWhatsApp(telefone, nome, fez);
+
+  const botaoZap = zap
+    ? `<p style="margin:18px 0 24px;"><a href="${escapar(zap)}" style="display:inline-block;background:#1f9d55;color:#ffffff;text-decoration:none;font-weight:700;font-size:14px;padding:11px 20px;border-radius:10px;">Chamar no WhatsApp com a mensagem pronta</a></p>`
+    : `<p style="font-size:13px;color:#6b7684;margin:18px 0 24px;">Sem WhatsApp válido — responda pelo painel.</p>`;
 
   const { data, error } = await resend().emails.send({
     from: REMETENTE,
     to: EQUIPE,
     /* O e-mail do lead vai no assunto de propósito: a caixa fica pesquisável
        por endereço sem precisar abrir mensagem por mensagem. */
-    subject: `Novo lead: ${email}`,
+    subject: quente ? `Lead quente (investe ${investe}): ${email}` : `Novo lead: ${email}`,
     html: layout({
-      chapeu: "Entrou um lead",
-      titulo: "Alguém pediu contato pelo site.",
+      chapeu: quente ? "Lead quente · chame primeiro" : "Entrou um lead",
+      titulo: quente
+        ? `${escapar(primeiroNome(nome, "Alguém"))} investe ${investe?.replace(/^(Até|Acima)/, (m) => m.toLowerCase())}.`
+        : "Alguém pediu contato pelo site.",
       corpo:
         linha("Nome", nome) +
         linha("E-mail", email) +
-        linha("Telefone", telefone) +
+        linha("WhatsApp", telefone) +
+        linha("Investe", investe) +
+        linha("O que fez", fez.charAt(0).toUpperCase() + fez.slice(1)) +
         linha("Veio de", origem) +
-        linha("Tipo", tipo),
+        botaoZap,
       cta: { texto: "Abrir a lista de leads", href: `${SITE}/admin/leads` },
     }),
   });

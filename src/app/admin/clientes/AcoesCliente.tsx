@@ -4,7 +4,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { AlertTriangle, Bell, Check, Loader2, Mail, MessageCircle, Pencil } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-import { EscreverEmail, linkWhatsApp } from "../EscreverEmail";
+import { linkWhatsApp } from "@/lib/lead-whatsapp";
+import { EscreverEmail } from "../EscreverEmail";
 import { CAMPO, Campo, Janela } from "../Janela";
 
 export type Cliente = {

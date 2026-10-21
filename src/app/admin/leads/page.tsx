@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { CheckCircle2, Download, Mail, Phone, Users } from "lucide-react";
+import { CheckCircle2, Download, Flame, Mail, Phone, Users } from "lucide-react";
 import { AcoesLead } from "./AcoesLead";
 import { createClient } from "@/lib/supabase/server";
 import { getPerfil } from "@/lib/perfil";
+import { oQueFez, temperaturaPorEmail, type Nivel } from "@/lib/lead-quente";
 import { FaltaRodarSql, Hero, Numero, SeletorDePeriodo } from "../pecas";
 import { MarcarSituacao } from "./MarcarSituacao";
 /* ⚠️ De `./situacoes`, NUNCA de `./MarcarSituacao`: valor importado de
@@ -57,8 +58,20 @@ const TIPO = {
 /* ⚠️ AQUI FICAVA `zapDe`, que punha "55" na frente de QUALQUER telefone.
    Quem digitou "5519988610799" no formulário virava "555519…", e o link
    abria conversa com ninguém. O link certo agora é `linkWhatsApp`, em
-   `../EscreverEmail.tsx`, que só põe o DDI quando falta — e já leva a
-   mensagem escrita. */
+   `lib/lead-whatsapp.ts`, que só põe o DDI quando falta — e já leva a
+   mensagem escrita, citando o que a pessoa usou (`oQueFez`). */
+
+/* A temperatura (`lib/lead-quente.ts`). Laranja e azul da casa; vermelho
+   fica para o que é problema, não para o lead bom. */
+const NIVEL: Record<Nivel, { rotulo: string; cls: string }> = {
+  quente: { rotulo: "Quente", cls: "bg-accent/15 text-accent-strong" },
+  morno: { rotulo: "Morno", cls: "bg-ciano-tint text-ciano-forte" },
+  frio: { rotulo: "Frio", cls: "bg-slate-100 text-slate-500" },
+};
+
+/* Quem já virou cliente ou disse não vai para o fim da lista "mais quentes":
+   a ordem serve para decidir quem chamar agora. */
+const EM_ABERTO = new Set(["novo", "falando"]);
 
 function resumo(l: Lead): string {
   const p = l.payload ?? {};
@@ -77,13 +90,15 @@ function resumo(l: Lead): string {
 export default async function AdminLeadsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; tipo?: string; dias?: string; situacao?: string }>;
+  searchParams: Promise<{ q?: string; tipo?: string; dias?: string; situacao?: string; ordem?: string }>;
 }) {
   const perfil = await getPerfil();
   if (!perfil) redirect("/login?proximo=/admin/leads");
   if (perfil.role !== "admin" && perfil.role !== "equipe") notFound();
 
-  const { q, tipo: tipoFiltro, dias: diasBruto, situacao: sitFiltro } = await searchParams;
+  const { q, tipo: tipoFiltro, dias: diasBruto, situacao: sitFiltro, ordem: ordemBruta } = await searchParams;
+  // Abre nos mais quentes (pedido do dono, 21/10/2026); "recentes" é a ordem de chegada.
+  const ordem = ordemBruta === "recentes" ? "recentes" : "quentes";
   const busca = (q ?? "").trim().toLowerCase();
   const dias = [7, 30, 90, 365].includes(Number(diasBruto)) ? Number(diasBruto) : 90;
 
@@ -108,7 +123,7 @@ export default async function AdminLeadsPage({
      base atual é instantâneo e evita uma consulta por tecla. Passando de
      alguns milhares, o lugar certo é o `ilike` dentro da função, e aí a
      paginação deixa de ser opcional. */
-  const leads = todos.filter((l) => {
+  const filtrados = todos.filter((l) => {
     if (tipoFiltro && l.tipo !== tipoFiltro) return false;
     if (sitFiltro && l.situacao !== sitFiltro) return false;
     if (!busca) return true;
@@ -117,15 +132,37 @@ export default async function AdminLeadsPage({
       .some((v) => String(v).toLowerCase().includes(busca));
   });
 
+  // A nota é da pessoa: calculada sobre TODOS do período, não só os filtrados.
+  const notas = temperaturaPorEmail(todos);
+  const notaDe = (l: Lead) => notas.get(l.email.trim().toLowerCase())!;
+
+  const leads =
+    ordem === "recentes"
+      ? filtrados
+      : [...filtrados].sort(
+          (a, b) =>
+            Number(EM_ABERTO.has(b.situacao)) - Number(EM_ABERTO.has(a.situacao)) ||
+            notaDe(b).pontos - notaDe(a).pontos ||
+            a.email.localeCompare(b.email) ||
+            b.criado_em.localeCompare(a.criado_em),
+        );
+
   const quantos = (s: string) => todos.filter((l) => l.situacao === s).length;
   const converteram = todos.filter((l) => l.virou_conta).length;
   const taxa = todos.length > 0 ? Math.round((converteram / todos.length) * 100) : 0;
+  const quentesSemContato = new Set(
+    todos
+      .filter((l) => l.situacao === "novo" && notaDe(l).nivel === "quente")
+      .map((l) => l.email.trim().toLowerCase()),
+  ).size;
 
   const paraUrl = (extra: Record<string, string | undefined>) => {
     const p = new URLSearchParams();
     p.set("dias", String(dias));
     if (busca) p.set("q", busca);
     if (tipoFiltro) p.set("tipo", tipoFiltro);
+    if (sitFiltro) p.set("situacao", sitFiltro);
+    if (ordem === "recentes") p.set("ordem", "recentes");
     for (const [k, v] of Object.entries(extra)) {
       if (v) p.set(k, v);
       else p.delete(k);
@@ -148,8 +185,9 @@ export default async function AdminLeadsPage({
           { valor: converteram, rotulo: "já têm conta" },
         ]}
       >
-        Quem deixou contato nas ferramentas. Marque em que pé está cada conversa —
-        fica registrado para toda a equipe, não na sua memória.
+        Quem deixou contato nas ferramentas, com os mais quentes primeiro — quem
+        investe mais e usou mais. Marque em que pé está cada conversa: fica
+        registrado para toda a equipe, não na sua memória.
       </Hero>
 
       {/* ⚠️ FILTROS NO TOPO, logo abaixo do hero. */}
@@ -157,8 +195,17 @@ export default async function AdminLeadsPage({
         <SeletorDePeriodo
           base="/admin/leads"
           dias={dias}
-          extra={`${busca ? `&q=${encodeURIComponent(busca)}` : ""}${sitFiltro ? `&situacao=${sitFiltro}` : ""}`}
+          extra={`${busca ? `&q=${encodeURIComponent(busca)}` : ""}${sitFiltro ? `&situacao=${sitFiltro}` : ""}${ordem === "recentes" ? "&ordem=recentes" : ""}`}
         />
+
+        <div
+          role="group"
+          aria-label="Ordem"
+          className="flex flex-wrap items-center gap-1.5 rounded-2xl border border-border bg-white p-1.5 shadow-sm"
+        >
+          <Bolinha href={paraUrl({ ordem: undefined })} ativo={ordem === "quentes"} rotulo="Mais quentes primeiro" />
+          <Bolinha href={paraUrl({ ordem: "recentes" })} ativo={ordem === "recentes"} rotulo="Mais recentes primeiro" />
+        </div>
 
         <div
           role="group"
@@ -177,7 +224,15 @@ export default async function AdminLeadsPage({
         </div>
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-3">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <Numero
+          rotulo="Quentes sem contato"
+          valor={quentesSemContato}
+          Icone={Flame}
+          detalhe="pessoas que investem mais e usaram mais — chame primeiro"
+          tom="destaque"
+          href={paraUrl({ situacao: "novo", ordem: undefined })}
+        />
         <Numero rotulo="Leads no período" valor={todos.length} Icone={Users} tom="destaque" />
         <Numero
           rotulo="Já criaram conta"
@@ -199,6 +254,7 @@ export default async function AdminLeadsPage({
       <form className="flex flex-wrap items-center gap-2">
         <input type="hidden" name="dias" value={dias} />
         {sitFiltro && <input type="hidden" name="situacao" value={sitFiltro} />}
+        {ordem === "recentes" && <input type="hidden" name="ordem" value="recentes" />}
         <input
           type="search"
           name="q"
@@ -253,10 +309,11 @@ export default async function AdminLeadsPage({
 
           <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-sm">
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[64rem] text-left text-sm">
+              <table className="w-full min-w-[72rem] text-left text-sm">
                 <thead>
                   <tr className="border-b border-border bg-slate-50/70 text-2xs uppercase tracking-wider text-muted-foreground">
                     <th className="px-4 py-3 font-semibold">Quando</th>
+                    <th className="px-4 py-3 font-semibold">Temperatura</th>
                     <th className="px-4 py-3 font-semibold">Contato</th>
                     <th className="px-4 py-3 font-semibold">De onde veio</th>
                     <th className="px-4 py-3 font-semibold">Em que pé está</th>
@@ -266,6 +323,8 @@ export default async function AdminLeadsPage({
                 <tbody className="divide-y divide-border/60">
                   {leads.map((l) => {
                     const t = TIPO[(l.tipo ?? "ferramenta") as keyof typeof TIPO] ?? TIPO.ferramenta;
+                    const nota = notaDe(l);
+                    const n = NIVEL[nota.nivel];
                     return (
                       <tr key={l.id} className="align-top hover:bg-slate-50/50">
                         <td className="whitespace-nowrap px-4 py-3 text-2xs text-muted-foreground">
@@ -276,6 +335,18 @@ export default async function AdminLeadsPage({
                             minute: "2-digit",
                             timeZone: "America/Sao_Paulo",
                           })}
+                        </td>
+
+                        {/* O porquê vem escrito, não só no `title`: no
+                            celular e no tablet não existe "passar o mouse". */}
+                        <td className="px-4 py-3">
+                          <span className={`inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2 py-0.5 text-2xs font-semibold ${n.cls}`}>
+                            {nota.nivel === "quente" && <Flame className="h-3 w-3" strokeWidth={2.4} />}
+                            {n.rotulo} · {nota.pontos}
+                          </span>
+                          <p className="mt-1 max-w-[13rem] text-2xs leading-snug text-muted-foreground">
+                            {nota.motivos.join(" · ")}
+                          </p>
                         </td>
 
                         <td className="px-4 py-3">
@@ -327,6 +398,7 @@ export default async function AdminLeadsPage({
                             nome={l.nome}
                             email={l.email}
                             telefone={l.telefone}
+                            oQueFez={oQueFez(l)}
                           />
                         </td>
                       </tr>

@@ -4,7 +4,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { AlertTriangle, Loader2, Mail, MessageCircle, Pencil, Trash2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-import { EscreverEmail, linkWhatsApp } from "../EscreverEmail";
+import { linkWhatsApp } from "@/lib/lead-whatsapp";
+import { EscreverEmail } from "../EscreverEmail";
 import { CAMPO, Campo, Janela } from "../Janela";
 
 /**
@@ -24,11 +25,14 @@ export function AcoesLead({
   nome,
   email,
   telefone,
+  oQueFez,
 }: {
   id: string;
   nome: string | null;
   email: string;
   telefone: string | null;
+  /** "baixou o nosso eBook …" — a mensagem do WhatsApp cita o que a pessoa usou. */
+  oQueFez?: string;
 }) {
   const router = useRouter();
   const [escrevendo, setEscrevendo] = useState(false);
@@ -36,7 +40,7 @@ export function AcoesLead({
   const [apagando, setApagando] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
 
-  const zap = linkWhatsApp(telefone, nome);
+  const zap = linkWhatsApp(telefone, nome, oQueFez);
 
   async function apagar() {
     if (
@@ -78,16 +82,19 @@ export function AcoesLead({
           Responder
         </button>
 
+        {/* Com texto, e não só o ícone (21/10/2026): é o botão mais usado
+            do painel, e o ícone sozinho passava despercebido. */}
         {zap ? (
           <a
             href={zap}
             target="_blank"
             rel="noopener noreferrer"
-            aria-label={`WhatsApp de ${nome ?? email}`}
-            title="Abrir no WhatsApp com a mensagem pronta"
-            className={`${botao} hover:border-success/50 hover:text-success`}
+            aria-label={`Chamar ${nome ?? email} no WhatsApp`}
+            title={`Abre o WhatsApp com a mensagem pronta: "Vi que você ${oQueFez ?? "usou uma das nossas ferramentas"}…"`}
+            className="flex h-9 items-center gap-1.5 rounded-xl border border-success/40 bg-success/10 px-3 text-xs font-semibold text-success transition-colors hover:bg-success hover:text-white"
           >
-            <MessageCircle className="h-4 w-4" strokeWidth={2} />
+            <MessageCircle className="h-3.5 w-3.5" strokeWidth={2.2} />
+            WhatsApp
           </a>
         ) : (
           <span title="Sem telefone" className={`${botao} cursor-not-allowed opacity-35`}>

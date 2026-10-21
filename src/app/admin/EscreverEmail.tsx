@@ -288,19 +288,5 @@ export function EscreverEmail({
   );
 }
 
-/**
- * O link do WhatsApp com a mensagem já escrita.
- *
- * ⚠️ DDI 55 SÓ QUANDO FALTA. O telefone vem de formulário público: às
- * vezes "(19) 98861-0799", às vezes "5519988610799". Pôr 55 na frente dos
- * dois daria "555519…" no segundo, e o link abriria uma conversa com
- * ninguém.
- */
-export function linkWhatsApp(telefone: string | null | undefined, nome?: string | null) {
-  const d = (telefone ?? "").replace(/\D/g, "");
-  if (d.length < 10) return null;
-  const numero = d.length >= 12 && d.startsWith("55") ? d : `55${d}`;
-  const primeiro = (nome ?? "").trim().split(" ")[0];
-  const texto = `Olá${primeiro ? `, ${primeiro}` : ""}! Aqui é da Novare. Vi que você usou uma das nossas ferramentas e queria saber como posso te ajudar.`;
-  return `https://wa.me/${numero}?text=${encodeURIComponent(texto)}`;
-}
+/* O `linkWhatsApp` que morava aqui foi para `lib/lead-whatsapp.ts` (21/10/2026):
+   o e-mail de aviso à equipe, no servidor, também leva o link. */

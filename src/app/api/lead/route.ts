@@ -98,7 +98,7 @@ export async function POST(req: Request) {
     ? ([{ status: "rejected", reason: "teste" }, { status: "fulfilled", value: null }] as const)
     : await Promise.allSettled([
         enviarConfirmacaoDeLead({ email, nome, origem }),
-        avisarEquipeDeLead({ email, nome, telefone, origem, tipo }),
+        avisarEquipeDeLead({ email, nome, telefone, origem, tipo, payload: corpo.payload ?? null }),
       ]);
   if (confirmacao.status === "rejected") {
     console.warn("[lead] confirmação não saiu:", confirmacao.reason);
