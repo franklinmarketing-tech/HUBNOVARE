@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { EBOOKS, rotaDoPdf } from "./src/lib/ebooks";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
@@ -199,7 +200,20 @@ const nextConfig: NextConfig = {
         destination: para,
         permanent: true,
       })),
+
+      /* ── OS PDFs DOS eBOOKS SAÍRAM DE /public (21/10/2026) ──────────────
+         O link antigo (`/novare-….pdf`), que já circulou em grupo e e-mail,
+         vai para a rota que confere a trava (`src/lib/ebooks.ts`). 307 e não
+         301: o endereço antigo não deve ficar gravado como definitivo. */
+      ...EBOOKS.map((e) => ({ source: e.href, destination: rotaDoPdf(e), permanent: false })),
     ];
+  },
+
+  /* Os PDFs dos eBooks são lidos do disco pela rota de download, com o
+     caminho montado em tempo de execução — o rastreador do Next não os vê e
+     eles não subiriam para a Vercel sem esta linha. */
+  outputFileTracingIncludes: {
+    "/ebooks/baixar/*": ["./conteudo/ebooks/*.pdf"],
   },
 
   /**

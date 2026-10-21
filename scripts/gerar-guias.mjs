@@ -19,7 +19,9 @@ import { mkdirSync, readFileSync } from "node:fs";
 import { GUIAS } from "./conteudo-guias.mjs";
 import { auditarPrevidencia } from "../src/lib/previdencia.ts";
 
-const PASTA_PDF = new URL("../public/", import.meta.url);
+// ⚠️ NÃO em /public (21/10/2026): lá o PDF abria sem a trava. Ver `src/lib/ebooks.ts`.
+const PASTA_PDF = new URL("../conteudo/ebooks/", import.meta.url);
+mkdirSync(PASTA_PDF, { recursive: true });
 const PASTA_CAPA = new URL("../public/ebooks/", import.meta.url);
 mkdirSync(PASTA_CAPA, { recursive: true });
 

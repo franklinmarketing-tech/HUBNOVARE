@@ -14,11 +14,29 @@
  * só fala de quem o escreveu não é guia.
  *
  * Publicar um guia novo: escreva em `scripts/conteudo-guias.mjs` e rode
- * `node scripts/gerar-guias.mjs` — o PDF e a capa saem juntos. Depois
- * acrescente a linha aqui.
+ * `node scripts/gerar-guias.mjs` — o PDF (em `conteudo/ebooks/`) e a capa
+ * saem juntos. Depois acrescente a linha aqui. PDF entregue pronto vai direto
+ * para `conteudo/ebooks/`, nunca para `public/`.
+ *
+ * ═══ OS PDFs SAÍRAM DE /public (21/10/2026) ══════════════════════════════
+ *
+ * Em `/public` o PDF tinha endereço fixo: quem copiasse o link e mandasse
+ * num grupo de WhatsApp entregava o guia sem a trava, e o lead se perdia.
+ * Agora o arquivo mora em `conteudo/ebooks/` (fora do que o site serve
+ * sozinho) e só sai por `/ebooks/baixar/<arquivo>`, que confere o cookie
+ * dado pela trava (`/api/ebooks/liberar`). Sem cookie, a pessoa cai na
+ * página de eBooks com a trava daquele guia aberta.
+ *
+ * Os endereços antigos (`/novare-….pdf`) redirecionam para a rota nova —
+ * ver `next.config.ts` —, então link velho não vira 404.
  */
 export type Ebook = {
-  /** O PDF em /public. */
+  /**
+   * O nome público do PDF, com barra: `/novare-reserva-de-emergencia.pdf`.
+   * Era o endereço em /public; hoje é a identidade do guia (as chaves do
+   * localStorage usam isto) e o endereço antigo que redireciona. Para abrir
+   * o PDF, use `rotaDoPdf()`.
+   */
   href: string;
   /** A capa gerada em /public/ebooks. */
   capa: string;
@@ -139,3 +157,15 @@ export const EBOOKS: Ebook[] = [
 
 /** Só os guias práticos — é o que a home e a captura de lead mostram. */
 export const GUIAS = EBOOKS.filter((e) => e.prateleira === "guia");
+
+/** O cookie que a trava dá e a rota de download confere. */
+export const COOKIE_EBOOKS = "novare_ebooks";
+
+/** Onde o PDF abre de verdade (a rota que confere a trava). */
+export const rotaDoPdf = (e: Ebook) => `/ebooks/baixar${e.href}`;
+
+/**
+ * O guia pelo nome do arquivo, ou `undefined`. Só casa nome EXATO da lista —
+ * é isto que impede a rota de servir qualquer outro arquivo do disco.
+ */
+export const ebookPeloArquivo = (arquivo: string) => EBOOKS.find((e) => e.href === `/${arquivo}`);
