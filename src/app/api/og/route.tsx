@@ -114,7 +114,7 @@ export function GET(req: Request) {
             }}
           />
           <div style={{ fontSize: 26, color: "#ffffff90", display: "flex" }}>
-            novareapp.com.br · sem cadastro
+            novareinvestimentos.com · sem cadastro
           </div>
         </div>
       </div>

@@ -46,6 +46,7 @@ import {
   temVideoReal,
 } from "@/lib/consultoria";
 import { falarNoWhatsApp } from "@/lib/contato";
+import { AssinaturaJefferson } from "@/components/AssinaturaJefferson";
 
 const ICONE: Record<string, LucideIcon> = {
   diagnostico: ClipboardCheck,
@@ -594,6 +595,7 @@ export default async function ProdutoPage({
                 paga, então é para você que a gente trabalha.
               </span>
             </p>
+            <AssinaturaJefferson className="mt-6 border-t border-white/10 pt-5" />
           </div>
 
           <div className="relative hidden w-2/5 shrink-0 sm:block">

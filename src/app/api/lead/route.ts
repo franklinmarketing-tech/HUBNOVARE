@@ -63,13 +63,14 @@ export async function POST(req: Request) {
   const origem = limitar(corpo.origem, 80);
   const tipo = limitar(corpo.tipo, 40);
 
-  /* ⚠️ LEAD DE TESTE NÃO ENTRA (pedido do dono, 20/10/2026). A tela recebe
-     "gravado" para o fluxo seguir (o PDF libera, a confirmação aparece),
-     mas nada vai para `hub_leads` e nenhum e-mail sai — nem para a pessoa,
-     nem o aviso à equipe. O banco tem o mesmo filtro num gatilho. */
-  if (ehLeadDeTeste(email, nome)) {
-    return NextResponse.json({ ok: true, gravado: true, emailEnviado: false });
-  }
+  /* ⚠️ LEAD DE TESTE VAI PARA O SUPORTE (21/10/2026; antes era descartado).
+     Grava MARCADO (`eh_teste`) e não dispara e-mail nenhum — nem para a
+     pessoa, nem o aviso à equipe. Fica fora de toda contagem do admin e só
+     aparece em /admin/suporte. Também é teste o que vem do localhost (os
+     testes automáticos do Hub batem no banco de produção). O gatilho
+     `hub_leads_barra_teste` marca pela mesma regra. */
+  const host = req.headers.get("host") ?? "";
+  const ehTeste = ehLeadDeTeste(email, nome) || /^(localhost|127\.0\.0\.1)(:|$)/.test(host);
 
   let gravado = false;
   try {
@@ -81,6 +82,8 @@ export async function POST(req: Request) {
       origem,
       tipo,
       payload: corpo.payload ?? null,
+      // Só manda a coluna quando é teste: lead real nunca depende dela.
+      ...(ehTeste ? { eh_teste: true } : {}),
     });
     if (error) console.warn("[lead] não gravou:", error.message);
     else gravado = true;
@@ -91,10 +94,12 @@ export async function POST(req: Request) {
   /* Os e-mails, isolados do insert. `allSettled` porque um falhar não pode
      impedir o outro: se a caixa da equipe estiver com problema, o cliente
      ainda recebe a confirmação dele. */
-  const [confirmacao, aviso] = await Promise.allSettled([
-    enviarConfirmacaoDeLead({ email, nome, origem }),
-    avisarEquipeDeLead({ email, nome, telefone, origem, tipo }),
-  ]);
+  const [confirmacao, aviso] = ehTeste
+    ? ([{ status: "rejected", reason: "teste" }, { status: "fulfilled", value: null }] as const)
+    : await Promise.allSettled([
+        enviarConfirmacaoDeLead({ email, nome, origem }),
+        avisarEquipeDeLead({ email, nome, telefone, origem, tipo }),
+      ]);
   if (confirmacao.status === "rejected") {
     console.warn("[lead] confirmação não saiu:", confirmacao.reason);
   }

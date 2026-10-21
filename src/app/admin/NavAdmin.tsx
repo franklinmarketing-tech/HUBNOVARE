@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Activity, ArrowUpRight, Inbox, Magnet, Megaphone, Users } from "lucide-react";
+import { Activity, ArrowUpRight, Inbox, LifeBuoy, Magnet, Megaphone, Users } from "lucide-react";
 
 /**
  * A BARRA DO PAINEL — marca, quem está logado e as abas.
@@ -36,7 +36,9 @@ const ABAS = [
   { href: "/admin/clientes", rotulo: "Clientes", Icone: Users },
   { href: "/admin/iscas", rotulo: "Iscas", Icone: Magnet },
   { href: "/admin/avisos", rotulo: "Avisos", Icone: Megaphone },
-];
+  // Só para o papel admin, e com senha extra lá dentro (21/10/2026).
+  { href: "/admin/suporte", rotulo: "Suporte", Icone: LifeBuoy, soAdmin: true },
+] as { href: string; rotulo: string; Icone: typeof Activity; exato?: boolean; contagem?: "leads"; soAdmin?: boolean }[];
 
 export function NavAdmin({
   nome,
@@ -119,7 +121,7 @@ export function NavAdmin({
           menu quebrado empurra o conteúdo para baixo em toda tela. */}
       <nav aria-label="Seções do painel" className="mx-auto max-w-6xl px-2 sm:px-3">
         <ul className="-mb-px flex gap-0.5 overflow-x-auto pt-2">
-          {ABAS.map(({ href, rotulo, Icone, exato, contagem }) => {
+          {ABAS.filter((a) => !a.soAdmin || papel === "admin").map(({ href, rotulo, Icone, exato, contagem }) => {
             const ligada = ativa(href, exato);
             const numero = contagem === "leads" ? leadsEsperando : 0;
             return (

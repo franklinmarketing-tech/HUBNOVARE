@@ -37,6 +37,8 @@ const jaRegistrado = new Set<string>();
 
 export function registrarUso(modulo: string, acao: AcaoUso = "abriu") {
   if (typeof window === "undefined") return;
+  // O localhost grava no banco de produção: teste não é uso (21/10/2026).
+  if (/^(localhost|127\.0\.0\.1)$/.test(window.location.hostname)) return;
 
   const chave = `${modulo}:${acao}`;
   if (acao === "abriu") {

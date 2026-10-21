@@ -48,6 +48,8 @@ function FormularioLogin() {
 
   const [modo, setModo] = useState<Modo>(modoInicial);
   const [email, setEmail] = useState("");
+  // 21/10/2026: o cadastro passa a pedir o nome — contas "Sem nome" no admin.
+  const [nome, setNome] = useState("");
   const [senha, setSenha] = useState("");
   const [erro, setErro] = useState<string | null>(erroDaVolta);
 
@@ -126,10 +128,16 @@ function FormularioLogin() {
 
     // Criar conta: o perfil em hub_profiles nasce sozinho pelo trigger.
     if (modo === "criar") {
+      if (nome.trim().length < 2) {
+        setEnviando(false);
+        return setErro("Digite o seu nome.");
+      }
       const { data, error } = await supabase.auth.signUp({
         email: email.trim(),
         password: senha,
-        options: { emailRedirectTo: `${window.location.origin}${proximo}` },
+        // `nome` vai para o raw_user_meta_data, de onde o gatilho
+        // hub_criar_perfil copia para hub_profiles.nome.
+        options: { emailRedirectTo: `${window.location.origin}${proximo}`, data: { nome: nome.trim() } },
       });
       if (error) {
         setEnviando(false);
@@ -170,6 +178,23 @@ function FormularioLogin() {
 
   return (
     <form onSubmit={enviar} className="space-y-4">
+      {modo === "criar" && (
+        <div>
+          <label htmlFor="nome" className="mb-1.5 block text-xs font-semibold text-muted-foreground">
+            Seu nome
+          </label>
+          <input
+            id="nome"
+            type="text"
+            required
+            autoComplete="name"
+            value={nome}
+            onChange={(e) => setNome(e.target.value)}
+            className="h-11 w-full rounded-xl border border-border bg-white px-3.5 text-[0.9375rem] outline-none transition-colors focus:border-accent focus:ring-4 focus:ring-accent/12"
+          />
+        </div>
+      )}
+
       <div>
         <label
           htmlFor="email"

@@ -1,27 +1,19 @@
 "use client";
 
-import { useEffect, useId, useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { ArrowDownToLine, Check, Lock } from "lucide-react";
 import {
+  CampoInvestimento,
   CamposLead,
   contatoParcial,
+  investimentoValido,
   contatoSalvo,
   leadCompleto,
   type DadosLead,
 } from "@/components/CamposLead";
 import { salvarLead } from "@/lib/leads";
 import type { Ebook } from "@/lib/ebooks";
-
-/** A pergunta opcional de renda (pedido do dono, 20/10/2026). */
-const FAIXAS_RENDA = [
-  "Até R$ 3 mil",
-  "R$ 3 a 6 mil",
-  "R$ 6 a 10 mil",
-  "R$ 10 a 20 mil",
-  "Acima de R$ 20 mil",
-  "Prefiro não dizer",
-];
 
 const chaveGuia = (href: string) => `novare:guia:${href}`;
 const EVENTO_CONTATO = "novare:contato-salvo";
@@ -31,8 +23,9 @@ const EVENTO_CONTATO = "novare:contato-salvo";
  *
  * ⚠️ DESDE 20/10/2026 SÃO TRÊS CAMPOS OBRIGATÓRIOS — nome, e-mail e WhatsApp —
  * e VALE PARA TODO eBOOK, inclusive o material da casa, que era download
- * livre. Pedido do dono: o Jefferson liga para quem baixa. A faixa de renda é
- * opcional e vai no `payload.faixaRenda`.
+ * livre. Pedido do dono: o Jefferson liga para quem baixa.
+ * ⚠️ 21/10/2026: a "faixa de renda" opcional virou a pergunta OBRIGATÓRIA de
+ * quanto a pessoa pretende investir ou já tem investido (`payload.investimento`).
  *
  * TRÊS CUIDADOS que fazem a diferença entre isca e pedágio:
  *
@@ -47,23 +40,23 @@ const EVENTO_CONTATO = "novare:contato-salvo";
  *    segue em paralelo — e lead de equipe/teste é barrado na rota.
  */
 export function PortaoGuia({ ebook }: { ebook: Ebook }) {
-  const idRenda = useId();
   const [aberto, setAberto] = useState(false);
   const [jaIdentificado, setJaIdentificado] = useState(false);
   const [dados, setDados] = useState<DadosLead>({ nome: "", telefone: "", email: "" });
-  const [faixaRenda, setFaixaRenda] = useState("");
-  const ok = leadCompleto(dados, true);
+  const [investimento, setInvestimento] = useState("");
+  const ok = leadCompleto(dados, true) && investimentoValido(investimento);
 
   useEffect(() => {
     const ler = () => {
       const salvo = contatoSalvo();
-      if (salvo) {
+      if (salvo && investimentoValido(salvo.investimento)) {
         setJaIdentificado(true);
         setAberto(false);
         setDados({ nome: salvo.nome, email: salvo.email, telefone: salvo.telefone });
-        setFaixaRenda(salvo.faixaRenda ?? "");
+        setInvestimento(salvo.investimento ?? "");
       } else {
         setDados(contatoParcial());
+        setInvestimento(salvo?.investimento ?? "");
       }
     };
     ler();
@@ -80,7 +73,7 @@ export function PortaoGuia({ ebook }: { ebook: Ebook }) {
       telefone: contato.telefone,
       origem: "/ebooks",
       tipo: "guia",
-      payload: { guia: ebook.titulo, ...(renda ? { faixaRenda: renda } : {}) },
+      payload: { guia: ebook.titulo, investimento: renda },
     });
     try {
       localStorage.setItem(chaveGuia(ebook.href), "1");
@@ -91,18 +84,18 @@ export function PortaoGuia({ ebook }: { ebook: Ebook }) {
   function baixar() {
     window.open(ebook.href, "_blank", "noopener,noreferrer");
     try {
-      if (!localStorage.getItem(chaveGuia(ebook.href))) registrar(dados, faixaRenda);
+      if (!localStorage.getItem(chaveGuia(ebook.href))) registrar(dados, investimento);
     } catch {}
   }
 
   function liberar() {
     if (!ok) return;
     window.open(ebook.href, "_blank", "noopener,noreferrer");
-    registrar(dados, faixaRenda);
+    registrar(dados, investimento);
     try {
       localStorage.setItem(
         "novare:lead",
-        JSON.stringify({ ...dados, ...(faixaRenda ? { faixaRenda } : {}), origem: "/ebooks", ts: Date.now() }),
+        JSON.stringify({ ...dados, ...(investimento ? { investimento } : {}), origem: "/ebooks", ts: Date.now() }),
       );
     } catch {}
     setJaIdentificado(true);
@@ -133,22 +126,7 @@ export function PortaoGuia({ ebook }: { ebook: Ebook }) {
             <CamposLead dados={dados} aoMudar={setDados} compacto telefoneObrigatorio />
           </div>
           <div className="mt-3">
-            <label htmlFor={idRenda} className="mb-1 block text-2xs font-semibold text-muted-foreground">
-              Faixa de renda mensal <span className="font-normal">(opcional)</span>
-            </label>
-            <select
-              id={idRenda}
-              value={faixaRenda}
-              onChange={(e) => setFaixaRenda(e.target.value)}
-              className="h-11 w-full rounded-xl border border-border bg-white px-3 text-[0.9375rem] outline-none focus:border-accent focus:ring-4 focus:ring-accent/12"
-            >
-              <option value="">Escolha, se quiser</option>
-              {FAIXAS_RENDA.map((f) => (
-                <option key={f} value={f}>
-                  {f}
-                </option>
-              ))}
-            </select>
+            <CampoInvestimento valor={investimento} aoMudar={setInvestimento} />
           </div>
           <button type="button" onClick={liberar} disabled={!ok} className="btn-cp mt-4 w-full">
             <ArrowDownToLine className="h-4 w-4" />

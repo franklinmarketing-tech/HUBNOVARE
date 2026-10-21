@@ -12,6 +12,7 @@ import {
   ROTULO_PRIMEIRA_ANALISE,
 } from "@/lib/consultoria";
 import { getPerfil } from "@/lib/perfil";
+import { AssinaturaJefferson } from "@/components/AssinaturaJefferson";
 
 export const metadata: Metadata = {
   title: "Serviços da Novare",
@@ -219,6 +220,7 @@ export default async function ConsultoriaPage() {
               corretora. Nosso fundador conduz cada atendimento pessoalmente, da
               primeira análise à devolutiva por escrito.
             </p>
+            <AssinaturaJefferson tom="claro" className="pt-2" />
           </div>
         </section>
 

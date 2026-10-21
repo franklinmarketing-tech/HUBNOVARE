@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getPerfil } from "@/lib/perfil";
 import { FaltaRodarSql, Hero, Numero } from "../pecas";
 import { AcoesCliente, type Cliente } from "./AcoesCliente";
+import { nomeDoEmail } from "@/lib/nome-do-email";
 
 export const metadata = { title: "Clientes" };
 export const dynamic = "force-dynamic";
@@ -218,8 +219,13 @@ export default async function AdminClientesPage({
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-1.5">
                         <span className="truncate font-semibold text-foreground">
-                          {c.nome?.trim() || "Sem nome"}
+                          {c.nome?.trim() || nomeDoEmail(c.email)}
                         </span>
+                        {!c.nome?.trim() && (
+                          <span title="A pessoa não informou o nome; este vem do e-mail. Use “Editar” para corrigir." className="rounded-full bg-warning/15 px-2 py-0.5 text-2xs font-semibold text-foreground">
+                            nome provisório
+                          </span>
+                        )}
                         {daCasa(c) && (
                           <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-2xs font-semibold text-primary">
                             <ShieldCheck className="h-3 w-3" strokeWidth={2.4} />

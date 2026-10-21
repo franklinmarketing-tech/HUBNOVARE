@@ -1,5 +1,6 @@
 /**
- * O QUE É LEAD DE TESTE — e por isso nunca entra em `hub_leads`.
+ * O QUE É LEAD DE TESTE — gravado MARCADO (`eh_teste`), fora de toda contagem,
+ * e visível só em /admin/suporte (com senha). Até 21/10/2026 era descartado.
  *
  * Pedido do dono em 20/10/2026: "não deixar os testes entrarem e
  * atrapalharem" o painel de leads do Jefferson. A rota `/api/lead` pergunta
@@ -15,7 +16,10 @@
 const DOMINIOS_FALSOS = [/\.invalid$/i, /@exemplo\./i, /@example\./i, /@teste\./i, /@test\./i];
 const INICIO_FALSO = [/^teste[^@]*@/i, /^test@/i, /^test\.[^@]*@/i, /^demo\./i, /^visitante\.teste\./i];
 const MARCA_FALSA = [/\+teste?@/i];
-const EQUIPE = ["jefferson.ariane1402@", "ariane.bafreitas@", "franklincastriani@", "novareadmapp@"];
+/* 21/10/2026: QUALQUER e-mail com "franklin" e o "novareadm…" (o print do
+   dono mostrava franklincastriani.trader@, que o "franklincastriani@" antigo
+   deixava passar). */
+const EQUIPE_CONTEM = [/franklin/i, /^novareadm/i, /^jefferson\.ariane1402@/i, /^ariane\.bafreitas@/i];
 const NOMES_FALSOS = [/^zz /i, /^teste( |$)/i, /^test$/i, /^maria teste$/i];
 
 export function ehLeadDeTeste(email: string, nome?: string | null): boolean {
@@ -25,7 +29,7 @@ export function ehLeadDeTeste(email: string, nome?: string | null): boolean {
     DOMINIOS_FALSOS.some((r) => r.test(e)) ||
     INICIO_FALSO.some((r) => r.test(e)) ||
     MARCA_FALSA.some((r) => r.test(e)) ||
-    EQUIPE.some((p) => e.startsWith(p)) ||
+    EQUIPE_CONTEM.some((r) => r.test(e)) ||
     NOMES_FALSOS.some((r) => r.test(n))
   );
 }

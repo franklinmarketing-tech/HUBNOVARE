@@ -34,6 +34,7 @@ export async function GET(req: Request) {
        trabalhar fora precisa saber com quem já se falou, senão a planilha
        nasce desatualizada em relação ao painel no mesmo instante. */
     .select("email, nome, telefone, origem, tipo, criado_em, situacao, anotacao")
+    .eq("eh_teste", false) // os de teste ficam só no /admin/suporte
     .order("criado_em", { ascending: false })
     .limit(5000);
 

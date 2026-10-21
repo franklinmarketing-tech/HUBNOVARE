@@ -11,6 +11,7 @@ import { getPerfil } from "@/lib/perfil";
 import { getNotificacoes } from "@/lib/notificacoes";
 import { GRUPOS, getCartoesIndicadores, type CartaoIndicador } from "@/lib/indicadores";
 import { Minigrafico } from "@/components/Minigrafico";
+import { formatarPontos, getIndicesBolsa, type IndiceBolsa } from "@/lib/indices-bolsa";
 
 export const metadata: Metadata = {
   title: "Indicadores econômicos hoje",
@@ -26,10 +27,11 @@ export const metadata: Metadata = {
  * grupo, um cartão por índice com o minigráfico dos últimos 12 meses.
  */
 export default async function IndicadoresPage() {
-  const [perfil, notificacoes, cartoes] = await Promise.all([
+  const [perfil, notificacoes, cartoes, bolsas] = await Promise.all([
     getPerfil(),
     getNotificacoes(),
     getCartoesIndicadores(),
+    getIndicesBolsa(),
   ]);
   const apps = appsParaBusca(perfil?.role ?? "cliente", perfil?.plano ?? "free", !!perfil);
   const assinante = perfil?.plano === "pro" || (!!perfil && perfil.role !== "cliente");
@@ -62,6 +64,9 @@ export default async function IndicadoresPage() {
               cada um muda no seu bolso. Atualizados todos os dias.
             </p>
             <nav aria-label="Grupos de indicadores" className="mt-7 flex flex-wrap gap-2.5">
+              <a href="#bolsas" className="pilula-vidro text-sm font-semibold transition-transform hover:-translate-y-0.5">
+                Bolsas
+              </a>
               {GRUPOS.map((g) => (
                 <a key={g} href={`#${ancora(g)}`} className="pilula-vidro text-sm font-semibold transition-transform hover:-translate-y-0.5">
                   {g}
@@ -69,6 +74,9 @@ export default async function IndicadoresPage() {
               ))}
             </nav>
           </header>
+
+          {/* As bolsas, em tabela como a do TradeMap (21/10/2026). */}
+          {bolsas.length > 0 && <TabelaBolsas bolsas={bolsas} />}
 
           {GRUPOS.map((g) => {
             const doGrupo = cartoes.filter((c) => c.grupo === g);
@@ -149,5 +157,55 @@ function Cartao({ c }: { c: CartaoIndicador }) {
         </Link>
       )}
     </article>
+  );
+}
+
+function TabelaBolsas({ bolsas }: { bolsas: IndiceBolsa[] }) {
+  const pts = (v: number | null) => (v === null ? "—" : formatarPontos(v));
+  return (
+    <section id="bolsas" aria-labelledby="bolsas-t" className="mt-12 scroll-mt-24">
+      <p className="chapeu chapeu-ciano">Índices</p>
+      <h2 id="bolsas-t" className="titulo-cp mt-2 text-2xl sm:text-[2rem]">Bolsas no Brasil e no mundo</h2>
+      <div className="cartao-cp mt-5 overflow-x-auto">
+        <table className="w-full min-w-[46rem] text-sm">
+          <thead>
+            <tr className="border-b border-border text-left text-2xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+              <th className="px-5 py-3.5">Nome</th>
+              <th className="px-3 py-3.5 text-right">Último</th>
+              <th className="px-3 py-3.5 text-right">Máxima</th>
+              <th className="px-3 py-3.5 text-right">Mínima</th>
+              <th className="px-3 py-3.5 text-right">Variação</th>
+              <th className="px-3 py-3.5 text-right">Var. %</th>
+              <th className="px-5 py-3.5 text-right">Data</th>
+            </tr>
+          </thead>
+          <tbody>
+            {bolsas.map((b) => {
+              const cor = b.variacao >= 0 ? "text-success-strong" : "text-destructive";
+              const sinal = b.variacao >= 0 ? "+" : "";
+              return (
+                <tr key={b.simbolo} className="border-b border-border/60 last:border-0">
+                  <td className="px-5 py-3">
+                    <span className="flex items-center gap-2.5">
+                      <span className="rounded-md bg-primary/[0.07] px-1.5 py-0.5 text-[9px] font-bold tracking-wider text-primary">{b.pais}</span>
+                      <span className="font-semibold text-primary">{b.nome}</span>
+                    </span>
+                  </td>
+                  <td className="px-3 py-3 text-right tabular-nums text-slate-800">{pts(b.ultimo)}</td>
+                  <td className="px-3 py-3 text-right tabular-nums text-slate-600">{pts(b.maxima)}</td>
+                  <td className="px-3 py-3 text-right tabular-nums text-slate-600">{pts(b.minima)}</td>
+                  <td className={`px-3 py-3 text-right font-semibold tabular-nums ${cor}`}>{sinal}{formatarPontos(b.variacao)}</td>
+                  <td className={`px-3 py-3 text-right font-semibold tabular-nums ${cor}`}>
+                    {sinal}{b.variacaoPct.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%
+                  </td>
+                  <td className="px-5 py-3 text-right tabular-nums text-slate-500">{b.data}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+      <p className="mt-2 text-2xs text-muted-foreground">Cotações com atraso, do último pregão. Fonte: Yahoo Finance.</p>
+    </section>
   );
 }

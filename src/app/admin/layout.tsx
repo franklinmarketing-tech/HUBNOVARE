@@ -55,8 +55,15 @@ export default async function AdminLayout({
   let leadsEsperando = 0;
   try {
     const supabase = await createClient();
-    const { data } = await supabase.rpc("hub_saude", { p_dias: 30 });
-    leadsEsperando = Number((data as { por_tratar?: number }[] | null)?.[0]?.por_tratar ?? 0);
+    /* ⚠️ ERA hub_saude — a consulta MAIS PESADA do painel (varre contas,
+       lançamentos e leads) — a cada troca de aba, só para tirar um número.
+       Agora é uma contagem simples. (21/10/2026) */
+    const { count, error } = await supabase
+      .from("hub_leads")
+      .select("id", { count: "exact", head: true })
+      .eq("situacao", "novo")
+      .eq("eh_teste", false);
+    leadsEsperando = error ? 0 : count ?? 0;
   } catch {
     leadsEsperando = 0;
   }

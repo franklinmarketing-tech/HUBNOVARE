@@ -6,8 +6,11 @@ import { AlertCircle, Check, Download, Loader2, Lock, MessageCircle, PartyPopper
 import { falarNoWhatsApp } from "@/lib/contato";
 import { salvarLead, type LeadTipo } from "@/lib/leads";
 import {
+  CampoInvestimento,
   CamposLead,
+  contatoParcial,
   contatoSalvo,
+  investimentoValido,
   leadCompleto,
   linhaEmailLead,
   primeiroNomeLead,
@@ -56,11 +59,19 @@ export function LiberarPdf({
   const [falhou, setFalhou] = useState(false);
   const [popup, setPopup] = useState<"fechado" | "carregando" | "pronto">("fechado");
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
-  const ok = leadCompleto(dados, true);
+  // 21/10/2026: o valor investido/a investir também é obrigatório.
+  const [investimento, setInvestimento] = useState("");
+  const ok = leadCompleto(dados, true) && investimentoValido(investimento);
 
   useEffect(() => {
     const salvo = contatoSalvo();
-    if (salvo) {
+    // Contato antigo sem o valor investido revê o formulário, já preenchido.
+    if (!salvo || !investimentoValido(salvo.investimento)) {
+      setDados(contatoParcial());
+      setInvestimento(salvo?.investimento ?? "");
+    }
+    if (salvo && investimentoValido(salvo.investimento)) {
+      setInvestimento(salvo.investimento!);
       setDados({ nome: salvo.nome, email: salvo.email, telefone: salvo.telefone });
       setLiberado(true);
     }
@@ -85,7 +96,7 @@ export function LiberarPdf({
       telefone: dados.telefone,
       origem: rota,
       tipo,
-      payload: { ferramenta: nomeDaFerramenta(), pdf: true, ...payload },
+      payload: { ferramenta: nomeDaFerramenta(), pdf: true, investimento, ...payload },
     });
 
   const liberar = async () => {
@@ -99,7 +110,7 @@ export function LiberarPdf({
       return;
     }
     try {
-      localStorage.setItem(CHAVE_LEAD, JSON.stringify({ ...dados, origem: rota, ts: Date.now() }));
+      localStorage.setItem(CHAVE_LEAD, JSON.stringify({ ...dados, investimento, origem: rota, ts: Date.now() }));
       localStorage.setItem(chavePdf(rota), "1");
     } catch {}
     setLiberado(true);
@@ -157,6 +168,9 @@ export function LiberarPdf({
       ) : (
         <div className="mt-5">
           <CamposLead dados={dados} aoMudar={setDados} telefoneObrigatorio compacto={compacto} />
+          <div className="mt-3">
+            <CampoInvestimento valor={investimento} aoMudar={setInvestimento} />
+          </div>
           <button
             type="button"
             onClick={liberar}

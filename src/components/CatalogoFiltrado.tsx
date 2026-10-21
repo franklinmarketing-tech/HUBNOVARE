@@ -191,7 +191,9 @@ function CardApp({ app }: { app: AppLeve }) {
               errado. Agora sai do próprio href. */}
           {app.externo && !app.emBreve && (
             <p className="mt-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-400">
-              Abre em {dominioDe(app.href)}
+              {/* O domínio do app antigo (novareapp.com.br) saiu da tela em
+                  21/10/2026 — pedido do dono: só o .com aparece como site. */}
+              {dominioDe(app.href).endsWith("novareapp.com.br") ? "Abre em outra aba" : `Abre em ${dominioDe(app.href)}`}
             </p>
           )}
         </div>

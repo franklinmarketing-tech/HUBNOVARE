@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { CONTATO } from "@/lib/contato";
+import { AssinaturaJefferson } from "@/components/AssinaturaJefferson";
 import { Code2, Globe, Mail, MessageCircle, Phone } from "lucide-react";
 import { InstagramLogo, YoutubeLogo, LinkedinLogo } from "@/components/LogosSociais";
 import { APPS } from "@/lib/apps";
@@ -68,6 +69,9 @@ export function RodapeNovare({
               <MessageCircle className="h-4 w-4" strokeWidth={2} />
               Falar com a Novare
             </a>
+
+            {/* Nome, certificações e redes, no padrão da Nord (21/10/2026). */}
+            <AssinaturaJefferson className="mt-7 border-t border-white/10 pt-5" />
           </div>
 
           {/* Foto real do sócio da Novare, mesclada no navy. ⚠️ Era a dupla

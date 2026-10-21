@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
 import type { Role, PlanoCliente } from "@/lib/apps";
 
@@ -18,7 +19,9 @@ const PLANOS_VALIDOS: PlanoCliente[] = ["free", "pro"];
  * Se a linha em `hub_profiles` ainda não existir (ou a tabela não tiver sido
  * criada), o usuário cai em `cliente` — menor privilégio por padrão.
  */
-export async function getPerfil(): Promise<Perfil | null> {
+/* ⚠️ `cache` (21/10/2026): o layout do admin e a página chamam getPerfil na
+   MESMA requisição — eram duas idas ao Supabase por clique de aba. */
+export const getPerfil = cache(async function getPerfil(): Promise<Perfil | null> {
   const supabase = await createClient();
 
   const {
@@ -54,7 +57,7 @@ export async function getPerfil(): Promise<Perfil | null> {
     role,
     plano,
   };
-}
+});
 
 /**
  * A pessoa já preencheu a trilha do FINPLAN?

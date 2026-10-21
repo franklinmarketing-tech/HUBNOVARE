@@ -90,12 +90,56 @@ export const leadCompleto = (d: DadosLead, telefoneObrigatorio = false) =>
  * ferramentas (`LiberarPdf`) e dos eBooks (`PortaoGuia`) — contato antigo
  * sem telefone não passa, e a pessoa revê o formulário já preenchido.
  */
-export function contatoSalvo(): (DadosLead & { faixaRenda?: string }) | null {
+/**
+ * A PERGUNTA DO VALOR (pedido do dono, 21/10/2026): o PDF das ferramentas e os
+ * eBooks só liberam com nome, e-mail, WhatsApp E quanto a pessoa pretende
+ * investir ou já tem investido — é o que diz ao Jefferson o tamanho do caso.
+ * Substituiu a "faixa de renda" opcional dos eBooks.
+ */
+export const FAIXAS_INVESTIMENTO = [
+  "Até R$ 10 mil",
+  "R$ 10 mil a R$ 50 mil",
+  "R$ 50 mil a R$ 100 mil",
+  "R$ 100 mil a R$ 300 mil",
+  "R$ 300 mil a R$ 1 milhão",
+  "Acima de R$ 1 milhão",
+] as const;
+
+export const investimentoValido = (v: string | undefined) =>
+  !!v && (FAIXAS_INVESTIMENTO as readonly string[]).includes(v);
+
+/** O campo obrigatório "quanto pretende investir ou já tem investido". */
+export function CampoInvestimento({ valor, aoMudar }: { valor: string; aoMudar: (v: string) => void }) {
+  const id = useId();
+  return (
+    <div>
+      <label htmlFor={id} className="mb-1 block text-2xs font-semibold text-muted-foreground">
+        Quanto pretende investir ou já tem investido? <span className="text-accent-strong">*</span>
+      </label>
+      <select
+        id={id}
+        required
+        value={valor}
+        onChange={(e) => aoMudar(e.target.value)}
+        className="h-11 w-full rounded-xl border border-border bg-white px-3 text-[0.9375rem] outline-none focus:border-accent focus:ring-4 focus:ring-accent/12"
+      >
+        <option value="">Escolha uma faixa</option>
+        {FAIXAS_INVESTIMENTO.map((f) => (
+          <option key={f} value={f}>
+            {f}
+          </option>
+        ))}
+      </select>
+    </div>
+  );
+}
+
+export function contatoSalvo(): (DadosLead & { investimento?: string }) | null {
   try {
     const bruto = localStorage.getItem("novare:lead");
     if (!bruto) return null;
-    const d = JSON.parse(bruto) as Partial<DadosLead> & { faixaRenda?: string };
-    const contato = { nome: d.nome ?? "", email: d.email ?? "", telefone: d.telefone ?? "", faixaRenda: d.faixaRenda };
+    const d = JSON.parse(bruto) as Partial<DadosLead> & { investimento?: string };
+    const contato = { nome: d.nome ?? "", email: d.email ?? "", telefone: d.telefone ?? "", investimento: d.investimento };
     return nomeValido(contato.nome) && emailValido(contato.email) && telefoneValido(contato.telefone)
       ? contato
       : null;

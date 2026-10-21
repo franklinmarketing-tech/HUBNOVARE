@@ -41,6 +41,9 @@ export function RegistrarVisita() {
 
   useEffect(() => {
     if (!caminho || jaContou.current === caminho) return;
+    // O localhost (desenvolvimento e testes automáticos) grava no banco de
+    // PRODUÇÃO: sem isto, cada teste virava "acesso" nas Iscas.
+    if (/^(localhost|127\.0\.0\.1)$/.test(window.location.hostname)) return;
     jaContou.current = caminho;
 
     createClient()

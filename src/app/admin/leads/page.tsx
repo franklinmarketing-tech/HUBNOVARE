@@ -67,9 +67,10 @@ function resumo(l: Lead): string {
   if (l.tipo === "cupom" && p.cupom != null)
     return p.desconto != null ? `${p.cupom} · ${p.desconto}% OFF` : String(p.cupom);
   if (l.tipo === "produto" && p.produto != null) return `Interesse: ${p.produto}`;
-  if (l.tipo === "relatorio" && p.ferramenta != null) return `PDF: ${p.ferramenta}`;
+  if (l.tipo === "relatorio" && p.ferramenta != null)
+    return p.investimento ? `PDF: ${p.ferramenta} · investe ${p.investimento}` : `PDF: ${p.ferramenta}`;
   if (l.tipo === "guia" && p.guia != null)
-    return p.faixaRenda ? `eBook: ${p.guia} · renda ${p.faixaRenda}` : `eBook: ${p.guia}`;
+    return p.investimento ? `eBook: ${p.guia} · investe ${p.investimento}` : `eBook: ${p.guia}`;
   return l.origem ?? "—";
 }
 

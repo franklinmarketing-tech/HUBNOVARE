@@ -1,8 +1,8 @@
 import Image from "next/image";
 import { ArrowUpRight, MessageCircle } from "lucide-react";
 
-import { LINKEDIN_JEFFERSON, falarNoWhatsApp } from "@/lib/contato";
-import { LinkedinLogo } from "@/components/LogosSociais";
+import { falarNoWhatsApp } from "@/lib/contato";
+import { AssinaturaJefferson } from "@/components/AssinaturaJefferson";
 
 /**
  * QUEM ESTÁ POR TRÁS: o rosto da Novare na home do Workspace.
@@ -42,11 +42,8 @@ export function QuemEstaPorTras() {
               className="origin-[50%_20%] scale-[1.45] object-cover object-[50%_15%]"
             />
           </div>
-          <figcaption className="px-1 pb-1 pt-3 text-center">
-            <span className="block text-sm font-semibold text-white">Jefferson Freitas</span>
-            <span className="mt-0.5 block text-[10px] font-semibold uppercase tracking-[0.22em] text-ciano-claro">
-              Fundador · Novare
-            </span>
+          <figcaption className="px-1 pb-2 pt-4">
+            <AssinaturaJefferson alinhar="centro" />
           </figcaption>
         </figure>
 
@@ -73,16 +70,7 @@ export function QuemEstaPorTras() {
               <ArrowUpRight className="h-4 w-4" />
             </span>
           </a>
-          {/* O LinkedIn dele, ao lado do WhatsApp (pedido do dono, 20/10/2026). */}
-          <a
-            href={LINKEDIN_JEFFERSON}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="ml-2 mt-6 inline-flex min-h-11 items-center gap-2 rounded-full border border-white/25 px-5 text-sm font-semibold text-white transition-colors hover:bg-white/10"
-          >
-            <LinkedinLogo className="h-4 w-4" />
-            Ver o LinkedIn
-          </a>
+          {/* O LinkedIn agora mora nos ícones embaixo da foto (21/10/2026). */}
         </div>
       </div>
     </section>
