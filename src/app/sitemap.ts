@@ -17,6 +17,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/iris",
     "/novare-news",
     "/indicadores",
+    "/calendario-economico",
     /* ⚠️ `/finplan` SAIU DAQUI EM 18/10/2026, junto com o produto. Ela
        redireciona para o FINCASH, e rota que redireciona não pode ficar no
        sitemap: o Google trata isso como erro de qualidade — pedimos que ele

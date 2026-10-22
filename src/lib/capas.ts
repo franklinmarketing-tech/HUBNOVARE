@@ -129,6 +129,8 @@ export const EMBLEMAS: Record<string, string> = {
   "tesouro-direto": "/icones-3d/selic-3d.png",
   "rentabilidade-real": "/icones-3d/icon-growth-3d.png",
   "raio-x-previdencia": "/icones-3d/icon-vault-3d.png",
+  // Sem capa própria: cai no degradê com este emblema (22/10/2026).
+  "calendario-economico": "/icones-3d/dashboard-3d.png",
 
   // Simuladores
   "juros-compostos": "/icones-3d/market-3d.png",

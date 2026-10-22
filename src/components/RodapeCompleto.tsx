@@ -27,7 +27,14 @@ const ANO = new Date().getFullYear();
  */
 export function RodapeCompleto({ aviso = "ferramenta" }: { aviso?: "ferramenta" | "servico" }) {
   const ferramentas = APPS.filter(
-    (a) => a.familia && a.plano === "livre" && a.status !== "em-breve" && a.tipo !== "servico" && !a.externo && a.familia !== "ia",
+    (a) =>
+      a.familia &&
+      a.plano === "livre" &&
+      a.status !== "em-breve" &&
+      a.tipo !== "servico" &&
+      a.tipo !== "consulta" &&
+      !a.externo &&
+      a.familia !== "ia",
   ).slice(0, 5);
 
   const colunas: { titulo: string; links: { rotulo: string; href: string; externo?: boolean }[] }[] = [
@@ -42,6 +49,7 @@ export function RodapeCompleto({ aviso = "ferramenta" }: { aviso?: "ferramenta" 
         { rotulo: "Íris, a IA do extrato", href: "/iris" },
         { rotulo: "Exame de Saúde Financeira", href: "/exame-saude-financeira" },
         { rotulo: "Indicadores do mercado", href: "/indicadores" },
+        { rotulo: "Calendário econômico", href: "/calendario-economico" },
       ],
     },
     {

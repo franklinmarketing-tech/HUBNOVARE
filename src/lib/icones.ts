@@ -131,6 +131,7 @@ const ICONES: Record<string, LucideIcon> = {
   "calculadora-dividendos": Banknote,
   "rentabilidade-real": LineChart,
   "raio-x-previdencia": ShieldAlert,
+  "calendario-economico": CalendarClock,
   rebalanceador: Shuffle,
   "raio-x-carteira": PieChart,
 

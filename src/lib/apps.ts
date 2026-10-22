@@ -82,8 +82,13 @@ export type NovareApp = {
    *
    * Sem valor definido vale `calculadora`: é o caso da maioria e evita
    * ter de anotar linha por linha.
+   *
+   * `consulta` (22/10/2026): página de dados públicos para LER, como o
+   * calendário econômico. Tem cartão no catálogo e no menu, mas não é
+   * calculadora nem aplicativo com login — fica fora dos dois contadores,
+   * senão o "4 aplicativos completos" da home viraria 5 sem ser verdade.
    */
-  tipo?: "calculadora" | "servico";
+  tipo?: "calculadora" | "servico" | "consulta";
 
   /**
    * Benchmark mundial que a ferramenta persegue — USO INTERNO.
@@ -375,6 +380,20 @@ export const APPS: NovareApp[] = [
   // e por fim as duas que abrem noutro site.
   app("investimentos", "tesouro-direto", "Simulador Tesouro Direto", "Selic, prefixado e IPCA+", "/ferramentas/tesouro-direto", "Morningstar"),
   app("investimentos", "rentabilidade-real", "Rentabilidade Real", "O ganho acima da inflação", "/ferramentas/rentabilidade-real", "Portfolio Visualizer"),
+  // A agenda que move juros, inflação e bolsa, em português e com fonte
+  // oficial (22/10/2026, a partir do calendário do BTG). `consulta`: não
+  // entra na conta de calculadoras nem de aplicativos.
+  app("investimentos", "calendario-economico", "Calendário Econômico", "Copom, IPCA, Fed e o que vem", "/calendario-economico", "BTG Pactual", {
+    tipo: "consulta",
+    descricao:
+      "As datas que mexem com juros, inflação e bolsa — Copom, IPCA, PIB, Fed, inflação e emprego dos EUA — direto das fontes oficiais, com o resultado anterior e a projeção do mercado.",
+    pontosFortes: [
+      "Em português, com o que cada evento muda no seu bolso",
+      "Datas do IBGE, do Banco Central, do Fed e do governo americano",
+      "Projeção do boletim Focus para Selic e IPCA",
+      "Filtro por país e por importância",
+    ],
+  }),
   // A ferramenta que só uma casa sem comissão pode publicar: mostra o que
   // as taxas do plano custam até o resgate. É a isca da auditoria.
   app("investimentos", "raio-x-previdencia", "Raio-X da Previdência", "Quanto a taxa do seu plano custa", "/ferramentas/raio-x-previdencia", "Vanguard", {
@@ -714,7 +733,8 @@ export const CONTAGEM = {
         a.familia &&
         a.status !== "em-breve" &&
         !a.href.includes("/ferramentas/") &&
-        !a.href.startsWith("/consultoria"),
+        !a.href.startsWith("/consultoria") &&
+        a.tipo !== "consulta",
     ).length;
   },
   /**
@@ -731,7 +751,7 @@ export const CONTAGEM = {
    */
   get calculadoras() {
     return APPS.filter(
-      (a) => a.familia && a.status !== "em-breve" && a.tipo !== "servico",
+      (a) => a.familia && a.status !== "em-breve" && a.tipo !== "servico" && a.tipo !== "consulta",
     ).length;
   },
   /** Serviço com gente: as consultorias. */

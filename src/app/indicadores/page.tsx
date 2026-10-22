@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, CalendarClock } from "lucide-react";
 import { BarraLateral } from "@/components/BarraLateral";
 import { BarraInferior } from "@/components/BarraInferior";
 import { TopoApp } from "@/components/TopoApp";
@@ -67,6 +67,14 @@ export default async function IndicadoresPage() {
               cada um muda no seu bolso. Atualizados todos os dias.
             </p>
             <nav aria-label="Grupos de indicadores" className="mt-7 flex flex-wrap gap-2.5">
+              {/* O calendário econômico (22/10/2026): o que vai sair, ao lado do que já saiu. */}
+              <Link
+                href="/calendario-economico"
+                className="pilula-vidro inline-flex items-center gap-1.5 text-sm font-semibold text-accent-claro transition-transform hover:-translate-y-0.5"
+              >
+                <CalendarClock className="h-4 w-4" />
+                Calendário econômico
+              </Link>
               <a href="#bolsas" className="pilula-vidro text-sm font-semibold transition-transform hover:-translate-y-0.5">
                 Bolsas
               </a>

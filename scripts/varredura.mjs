@@ -24,7 +24,7 @@ const BASE = process.env.BASE ?? "http://localhost:3000";
 // fora da varredura. `/finplan` é o endereço novo — `/planejamento` responde
 // 308 para cá e NÃO deve ser varrido: redirect não é 200 e acusaria problema
 // onde só há mudança de nome.
-const FIXAS = ["/", "/aplicativos", "/assinar", "/iris", "/consultoria", "/login", "/finplan", "/fincash", "/fale-conosco"];
+const FIXAS = ["/", "/aplicativos", "/assinar", "/iris", "/consultoria", "/login", "/finplan", "/fincash", "/fale-conosco", "/calendario-economico"];
 
 const arquivo = readFileSync(
   new URL("../src/lib/apps.ts", import.meta.url),

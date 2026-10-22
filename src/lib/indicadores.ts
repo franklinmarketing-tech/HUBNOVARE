@@ -21,7 +21,8 @@ import { cache } from "react";
 const SGS = "https://api.bcb.gov.br/dados/serie/bcdata.sgs";
 type Ponto = { data: string; valor: number };
 
-async function serie(id: number, n: number): Promise<Ponto[] | null> {
+/** Exportada para o calendário econômico (`lib/calendario-economico.ts`). */
+export async function serie(id: number, n: number): Promise<Ponto[] | null> {
   try {
     const r = await fetch(`${SGS}.${id}/dados/ultimos/${n}?formato=json`, {
       next: { revalidate: 60 * 60 * 6 },

@@ -10,6 +10,8 @@ import { PaletaComandos } from "@/components/PaletaComandos";
 import { QuemEstaPorTras } from "@/components/QuemEstaPorTras";
 import { ComoTrabalhamos } from "@/components/ComoTrabalhamos";
 import { TudoDeGraca } from "@/components/TudoDeGraca";
+import { Suspense } from "react";
+import { ProximosEventos } from "@/components/ProximosEventos";
 import { ChamadaJefferson } from "@/components/ChamadaJefferson";
 import { buildTrackingUrl, CARTEIRA_PONTUAL_LP } from "@/lib/consultoria";
 import { CardPortal } from "@/components/CardPortal";
@@ -345,6 +347,13 @@ export default async function Home() {
 
             <BannerEbooks className="lg:col-span-3 xl:col-span-2" />
           </section>
+
+          {/* Os três próximos eventos fortes do calendário econômico
+              (22/10/2026). Em Suspense: as fontes são de fora e a primeira
+              leitura sem cache não pode segurar a home. */}
+          <Suspense fallback={null}>
+            <ProximosEventos />
+          </Suspense>
 
           {/* O rosto da casa e os números do mês em frases — as duas peças
               que tiram a home do tom de painel de banco (19/10/2026). */}
