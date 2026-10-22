@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { AlertTriangle, Bell, Check, Loader2, Mail, MessageCircle, Pencil } from "lucide-react";
+import { AlertTriangle, Archive, Bell, Check, Loader2, Mail, MessageCircle, Pencil } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { linkWhatsApp } from "@/lib/lead-whatsapp";
 import { EscreverEmail } from "../EscreverEmail";
@@ -37,8 +37,13 @@ function traduzir(msg: string) {
 /**
  * O QUE DÁ PARA FAZER COM UM CLIENTE.
  *
- * Editar o cadastro, mudar o papel (só admin), escrever, avisar no sino e
- * chamar no WhatsApp. Tudo sem sair da lista.
+ * Editar o cadastro, mudar o papel (só admin), escrever, avisar no sino,
+ * chamar no WhatsApp e mover para o Suporte. Tudo sem sair da lista.
+ *
+ * ⚠️ "MOVER PARA O SUPORTE" NÃO APAGA (21/10/2026). Conta de teste ou de
+ * quem não é cliente sai desta aba e de toda contagem, e volta pelo
+ * /admin/suporte (`supabase/mover_para_suporte.sql`). Apagar a conta de
+ * alguém não teria desfazer.
  */
 export function AcoesCliente({
   cliente,
@@ -49,9 +54,36 @@ export function AcoesCliente({
   souAdmin: boolean;
   meuId: string;
 }) {
+  const router = useRouter();
   const [editando, setEditando] = useState(false);
   const [escrevendo, setEscrevendo] = useState(false);
   const [avisando, setAvisando] = useState(false);
+  const [movendo, setMovendo] = useState(false);
+  const [erroMover, setErroMover] = useState<string | null>(null);
+
+  async function moverParaSuporte() {
+    const quem = cliente.nome?.trim() ? `${cliente.nome.trim()} (${cliente.email})` : cliente.email;
+    if (
+      !window.confirm(
+        `Mover ${quem} para o Suporte?\n\nSai da aba Clientes e de todas as contagens. A conta NÃO é apagada: continua existindo e volta pelo Suporte.`,
+      )
+    ) {
+      return;
+    }
+    setMovendo(true);
+    setErroMover(null);
+    const { error } = await createClient().rpc("hub_mover_para_suporte", { p_usuario: cliente.id });
+    setMovendo(false);
+    if (error) {
+      setErroMover(
+        /could not find the function|PGRST202/i.test(error.message)
+          ? "Falta rodar o SQL mover_para_suporte.sql no Supabase."
+          : traduzir(error.message),
+      );
+      return;
+    }
+    router.refresh();
+  }
 
   const zap = linkWhatsApp(cliente.telefone, cliente.nome);
   const botao =
@@ -106,7 +138,25 @@ export function AcoesCliente({
             <MessageCircle className="h-4 w-4" strokeWidth={2} />
           </span>
         )}
+
+        {cliente.id !== meuId && (
+          <button
+            type="button"
+            onClick={moverParaSuporte}
+            disabled={movendo}
+            aria-label={`Mover ${cliente.nome ?? cliente.email} para o Suporte`}
+            title="Mover para o Suporte (teste ou não é cliente). Não apaga a conta."
+            className={`${botao} hover:border-amber-400 hover:text-amber-700 disabled:opacity-40`}
+          >
+            {movendo ? <Loader2 className="h-4 w-4 animate-spin" /> : <Archive className="h-4 w-4" strokeWidth={2} />}
+          </button>
+        )}
       </div>
+      {erroMover && (
+        <p role="alert" className="mt-1.5 text-2xs leading-snug text-destructive">
+          {erroMover}
+        </p>
+      )}
 
       <EditarCliente
         aberta={editando}

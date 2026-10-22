@@ -6,6 +6,7 @@ import { getPerfil } from "@/lib/perfil";
 import { createClient } from "@/lib/supabase/server";
 import { COOKIE_SUPORTE, fichaValida, suporteConfigurado } from "@/lib/suporte-acesso";
 import { entrarNoSuporte, sairDoSuporte } from "./acoes";
+import { VoltarParaClientes } from "./VoltarParaClientes";
 
 export const metadata: Metadata = { title: "Suporte", robots: { index: false, follow: false } };
 
@@ -36,6 +37,8 @@ type ContaInterna = {
   papel: string;
   criado_em: string;
   ultimo_acesso: string | null;
+  /** Movida à mão pela aba Clientes (mover_para_suporte.sql). Sem o SQL, vem vazio. */
+  movida?: boolean;
 };
 
 export default async function SuportePage({ searchParams }: { searchParams: Promise<{ erro?: string }> }) {
@@ -175,8 +178,8 @@ export default async function SuportePage({ searchParams }: { searchParams: Prom
 
       <h2 className="titulo-cp mt-12 text-2xl">Contas internas</h2>
       <p className="mt-1.5 max-w-2xl text-sm text-muted-foreground">
-        Equipe, admin, testes e as contas do domínio do app antigo. Ficam fora da aba Clientes e de
-        toda contagem.
+        Equipe, admin, testes, as contas do domínio do app antigo e as movidas à mão pela aba
+        Clientes. Ficam fora da aba Clientes e de toda contagem.
       </p>
       {contas.length === 0 ? (
         <div className="cartao-cp mt-5 p-8 text-center text-sm text-muted-foreground">
@@ -184,13 +187,14 @@ export default async function SuportePage({ searchParams }: { searchParams: Prom
         </div>
       ) : (
         <div className="cartao-cp mt-5 overflow-x-auto">
-          <table className="w-full min-w-[40rem] text-sm">
+          <table className="w-full min-w-[48rem] text-sm">
             <thead>
               <tr className="border-b border-border text-left text-2xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
                 <th className="px-4 py-3">Conta</th>
                 <th className="px-4 py-3">Papel</th>
                 <th className="px-4 py-3">Criada</th>
                 <th className="px-4 py-3">Último acesso</th>
+                <th className="px-4 py-3">Por que está aqui</th>
               </tr>
             </thead>
             <tbody>
@@ -206,6 +210,16 @@ export default async function SuportePage({ searchParams }: { searchParams: Prom
                   <td className="px-4 py-3 text-2xs text-muted-foreground">{new Date(c.criado_em).toLocaleDateString("pt-BR")}</td>
                   <td className="px-4 py-3 text-2xs text-muted-foreground">
                     {c.ultimo_acesso ? new Date(c.ultimo_acesso).toLocaleDateString("pt-BR") : "nunca"}
+                  </td>
+                  <td className="px-4 py-3">
+                    {c.movida ? (
+                      <div className="space-y-1.5">
+                        <p className="text-2xs font-semibold text-amber-700">Movida à mão pela aba Clientes</p>
+                        <VoltarParaClientes id={c.id} email={c.email} />
+                      </div>
+                    ) : (
+                      <p className="text-2xs text-muted-foreground">Pela regra (equipe, teste ou domínio antigo)</p>
+                    )}
                   </td>
                 </tr>
               ))}
