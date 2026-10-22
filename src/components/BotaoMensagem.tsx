@@ -102,29 +102,37 @@ export function BotaoMensagem() {
             onClick={fechar}
             className="fixed inset-0 z-[60] flex items-end justify-center bg-primary/45 p-3 backdrop-blur-sm sm:items-center sm:p-6"
           >
+            {/* ⚠️ CABE SEM ROLAR NO COMPUTADOR (pedido do dono, 22/10/2026):
+                janela larga, campos lado a lado (`compacto`) e a faixa
+                escura com o título, no padrão da caixa de avaliação. A
+                rolagem interna fica só de reserva, para celular e tela
+                baixa. */}
             <div
               ref={painel}
               onClick={(e) => e.stopPropagation()}
-              className="surgir relative max-h-[90dvh] w-full max-w-xl overflow-y-auto rounded-3xl bg-white p-6 shadow-[0_40px_80px_-30px_hsl(215_50%_15%_/_0.6)] sm:p-7"
+              className="surgir relative max-h-[94dvh] w-full max-w-3xl overflow-y-auto rounded-[1.75rem] border-2 border-primary bg-white shadow-[0_40px_80px_-30px_hsl(199_75%_10%_/_0.7)]"
             >
-              <button
-                type="button"
-                onClick={fechar}
-                aria-label="Fechar"
-                className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-              >
-                <X className="h-5 w-5" />
-              </button>
-              <p className="chapeu chapeu-ciano">Fale com a gente</p>
-              <h2 id="mensagem-titulo" className="titulo-cp mt-1.5 pr-10 text-2xl">
-                Mande a sua mensagem
-              </h2>
-              <p className="mt-1.5 text-sm text-muted-foreground">
-                Dúvida, sugestão, algo que não funcionou ou vontade de falar com um consultor — uma pessoa da
-                Novare lê e responde.
-              </p>
-              <div className="mt-5">
-                <FormContato />
+              <div className="relative bg-primary px-5 py-4 pr-16 text-white sm:px-7 sm:py-5">
+                <button
+                  type="button"
+                  onClick={fechar}
+                  aria-label="Fechar"
+                  className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full text-white/80 transition-colors hover:bg-white/10 hover:text-white"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-ciano-claro">Fale com a gente</p>
+                <h2 id="mensagem-titulo" className="mt-1 font-display text-2xl font-semibold tracking-[-0.02em] sm:text-[1.7rem]">
+                  Mande a sua mensagem
+                </h2>
+                {/* No celular a frase sai: é o que faz a janela caber sem rolar. */}
+                <p className="mt-1 hidden text-sm text-white/75 sm:block">
+                  Dúvida, sugestão, algo que não funcionou ou vontade de falar com um consultor — uma pessoa
+                  da Novare lê e responde.
+                </p>
+              </div>
+              <div className="px-5 py-4 sm:px-7 sm:py-5">
+                <FormContato compacto />
               </div>
             </div>
           </div>,

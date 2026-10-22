@@ -18,7 +18,14 @@ import { falarNoWhatsApp } from "@/lib/contato";
  * O botão fica ativo sempre e, se faltar algo, diz O QUE falta — botão
  * apagado não explica nada (a mesma lição de `CamposLead`).
  */
-export function FormContato({ aoEnviar }: { aoEnviar?: () => void }) {
+export function FormContato({
+  aoEnviar,
+  compacto = false,
+}: {
+  aoEnviar?: () => void;
+  /** Na janela do botão lateral: campos lado a lado e mensagem mais baixa, para caber sem rolar. */
+  compacto?: boolean;
+}) {
   const pagina = usePathname();
   const ids = { nome: useId(), email: useId(), tel: useId(), msg: useId() };
   const [nome, setNome] = useState("");
@@ -81,24 +88,24 @@ export function FormContato({ aoEnviar }: { aoEnviar?: () => void }) {
   }
 
   const campo =
-    "h-11 w-full rounded-xl border border-border bg-white px-3.5 text-sm outline-none transition-colors focus:border-accent focus:ring-4 focus:ring-accent/12";
-  const rotulo = "mb-1 block text-2xs font-semibold text-muted-foreground";
+    "h-11 w-full rounded-xl border border-slate-300 bg-white px-3.5 text-sm outline-none transition-colors placeholder:text-slate-400 focus:border-primary focus:ring-4 focus:ring-primary/12";
+  const rotulo = "mb-1 block text-xs font-semibold text-primary";
 
   return (
-    <form onSubmit={enviar} noValidate className="space-y-4">
+    <form onSubmit={enviar} noValidate className={compacto ? "space-y-3.5" : "space-y-4"}>
       <fieldset>
         <legend className={rotulo}>
           Sobre o que você quer falar? <span className="text-accent-strong">*</span>
         </legend>
-        <div className="mt-1 grid gap-2 sm:grid-cols-2">
+        <div className={`mt-1 grid gap-2 ${compacto ? "grid-cols-2" : "sm:grid-cols-2"}`}>
           {ASSUNTOS.map((a) => {
             const ativo = assunto === a.valor;
             return (
               <label
                 key={a.valor}
-                className={`flex min-h-11 cursor-pointer items-center gap-2.5 rounded-xl border px-3 py-2 text-sm transition-colors ${
-                  ativo ? "border-primary bg-primary text-white" : "border-border bg-white text-foreground hover:border-primary/40"
-                }`}
+                className={`flex cursor-pointer items-center gap-2.5 rounded-xl border px-3 transition-colors ${
+                  compacto ? "min-h-10 py-1.5 text-[13px]" : "min-h-11 py-2 text-sm"
+                } ${ativo ? "border-primary bg-primary font-semibold text-white" : "border-slate-300 bg-white text-foreground hover:border-primary/50"}`}
               >
                 <input
                   type="radio"
@@ -114,14 +121,15 @@ export function FormContato({ aoEnviar }: { aoEnviar?: () => void }) {
                 >
                   {ativo && <span className="h-1.5 w-1.5 rounded-full bg-white" />}
                 </span>
-                {a.rotulo}
+                {compacto ? a.curto : a.rotulo}
               </label>
             );
           })}
         </div>
       </fieldset>
 
-      <div className="grid gap-3 sm:grid-cols-2">
+      {/* Compacto (na janela): nome, e-mail e WhatsApp numa linha só no computador. */}
+      <div className={`grid gap-3 sm:grid-cols-2 ${compacto ? "lg:grid-cols-3" : ""}`}>
         <div>
           <label htmlFor={ids.nome} className={rotulo}>
             Seu nome <span className="text-accent-strong">*</span>
@@ -142,22 +150,21 @@ export function FormContato({ aoEnviar }: { aoEnviar?: () => void }) {
             className={campo}
           />
         </div>
-      </div>
-
-      <div>
-        <label htmlFor={ids.tel} className={rotulo}>
-          WhatsApp (opcional)
-        </label>
-        <input
-          id={ids.tel}
-          type="tel"
-          value={telefone}
-          onChange={(e) => setTelefone(e.target.value)}
-          maxLength={40}
-          autoComplete="tel"
-          placeholder="(00) 00000-0000"
-          className={campo}
-        />
+        <div className={compacto ? "sm:col-span-2 lg:col-span-1" : "sm:col-span-2"}>
+          <label htmlFor={ids.tel} className={rotulo}>
+            WhatsApp <span className="font-normal text-muted-foreground">(opcional)</span>
+          </label>
+          <input
+            id={ids.tel}
+            type="tel"
+            value={telefone}
+            onChange={(e) => setTelefone(e.target.value)}
+            maxLength={40}
+            autoComplete="tel"
+            placeholder="(00) 00000-0000"
+            className={campo}
+          />
+        </div>
       </div>
 
       <div>
@@ -169,7 +176,8 @@ export function FormContato({ aoEnviar }: { aoEnviar?: () => void }) {
           value={mensagem}
           onChange={(e) => setMensagem(e.target.value)}
           maxLength={LIMITE_MENSAGEM}
-          rows={5}
+          rows={compacto ? 3 : 5}
+          placeholder="Conte em poucas linhas o que você precisa."
           className={`${campo} h-auto py-2.5`}
         />
       </div>

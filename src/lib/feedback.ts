@@ -10,11 +10,12 @@
  * o outro faz o banco recusar a mensagem.
  */
 
+/* `curto` é o da janela do botão lateral, que precisa caber sem rolar. */
 export const ASSUNTOS = [
-  { valor: "duvida", rotulo: "Tenho uma dúvida" },
-  { valor: "sugestao", rotulo: "Quero dar uma sugestão" },
-  { valor: "problema", rotulo: "Encontrei um problema numa ferramenta" },
-  { valor: "consultor", rotulo: "Quero falar com um consultor" },
+  { valor: "duvida", rotulo: "Tenho uma dúvida", curto: "Dúvida" },
+  { valor: "sugestao", rotulo: "Quero dar uma sugestão", curto: "Sugestão" },
+  { valor: "problema", rotulo: "Encontrei um problema numa ferramenta", curto: "Problema numa ferramenta" },
+  { valor: "consultor", rotulo: "Quero falar com um consultor", curto: "Falar com um consultor" },
 ] as const;
 
 export type Assunto = (typeof ASSUNTOS)[number]["valor"];
