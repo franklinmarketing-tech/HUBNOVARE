@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { AssistenteFerramentas } from "@/components/AssistenteFerramentas";
+import { AvaliarFerramenta } from "@/components/AvaliarFerramenta";
 import { CapturaLead } from "@/components/CapturaLead";
 import { GuiaFerramenta } from "@/components/GuiaFerramenta";
 import { RegistrarVisita } from "@/components/RegistrarVisita";
@@ -41,6 +42,8 @@ export default async function LayoutFerramentas({
       {/* `comRelatorio`: aqui o PDF do resultado vem primeiro e o
           especialista é opcional (ver a nota em `CapturaLead`). */}
       <CapturaLead comRelatorio />
+      {/* "Esta ferramenta te ajudou?" — a nota de 1 a 5 (21/10/2026). */}
+      <AvaliarFerramenta />
       <VoltarAoWorkspace />
       <RodapeNovare />
       <AssistenteFerramentas apps={apps} />

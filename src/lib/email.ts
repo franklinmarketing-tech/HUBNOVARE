@@ -3,6 +3,7 @@ import { SITE_URL } from "@/lib/site";
 import { FAIXAS_INVESTIMENTO } from "@/lib/faixas-investimento";
 import { faixaDoInvestimento, investeAlto, oQueFez } from "@/lib/lead-quente";
 import { linkWhatsApp } from "@/lib/lead-whatsapp";
+import { rotuloDoAssunto } from "@/lib/feedback";
 
 /**
  * OS E-MAILS DA CASA.
@@ -258,20 +259,11 @@ export async function avisarEquipeDeLead(params: {
 
   const { email, nome, telefone, origem, tipo } = params;
   const payload = params.payload ?? null;
-  const linha = (rotulo: string, valor: string | null | undefined) =>
-    valor
-      ? `<p style="font-size:14px;line-height:1.6;color:#3c4a5c;margin:0 0 6px;"><strong style="color:#16314f;">${rotulo}:</strong> ${escapar(valor)}</p>`
-      : "";
 
   const faixa = faixaDoInvestimento(payload);
   const investe = faixa >= 0 ? FAIXAS_INVESTIMENTO[faixa] : null;
   const quente = investeAlto(payload);
   const fez = oQueFez({ tipo: tipo ?? null, payload });
-  const zap = linkWhatsApp(telefone, nome, fez);
-
-  const botaoZap = zap
-    ? `<p style="margin:18px 0 24px;"><a href="${escapar(zap)}" style="display:inline-block;background:#1f9d55;color:#ffffff;text-decoration:none;font-weight:700;font-size:14px;padding:11px 20px;border-radius:10px;">Chamar no WhatsApp com a mensagem pronta</a></p>`
-    : `<p style="font-size:13px;color:#6b7684;margin:18px 0 24px;">Sem WhatsApp válido — responda pelo painel.</p>`;
 
   const { data, error } = await resend().emails.send({
     from: REMETENTE,
@@ -291,8 +283,133 @@ export async function avisarEquipeDeLead(params: {
         linha("Investe", investe) +
         linha("O que fez", fez.charAt(0).toUpperCase() + fez.slice(1)) +
         linha("Veio de", origem) +
-        botaoZap,
+        botaoWhatsApp(linkWhatsApp(telefone, nome, fez)),
       cta: { texto: "Abrir a lista de leads", href: `${SITE}/admin/leads` },
+    }),
+  });
+
+  if (error) throw new Error(error.message);
+  return Boolean(data);
+}
+
+/* As peças dos avisos internos. Tudo o que entra passa por `escapar`: o
+   valor vem de formulário público. */
+function linha(rotulo: string, valor: string | null | undefined) {
+  return valor
+    ? `<p style="font-size:14px;line-height:1.6;color:#3c4a5c;margin:0 0 6px;"><strong style="color:#16314f;">${rotulo}:</strong> ${escapar(valor)}</p>`
+    : "";
+}
+
+function botaoWhatsApp(zap: string | null) {
+  return zap
+    ? `<p style="margin:18px 0 24px;"><a href="${escapar(zap)}" style="display:inline-block;background:#1f9d55;color:#ffffff;text-decoration:none;font-weight:700;font-size:14px;padding:11px 20px;border-radius:10px;">Chamar no WhatsApp com a mensagem pronta</a></p>`
+    : `<p style="font-size:13px;color:#6b7684;margin:18px 0 24px;">Sem WhatsApp válido — responda pelo painel.</p>`;
+}
+
+/** A mensagem em bloco, com as quebras de linha que a pessoa digitou. */
+function citacao(texto: string) {
+  return `<div style="margin:14px 0 4px;padding:14px 16px;background:#f4f6f8;border-left:3px solid #e8703a;border-radius:8px;font-size:14px;line-height:1.6;color:#1a2433;white-space:pre-wrap;">${escapar(texto)}</div>`;
+}
+
+/**
+ * MENSAGEM DO "FALE COM A GENTE" (21/10/2026) — o aviso à casa.
+ *
+ * Mesmo desenho do aviso de lead: dados em linhas, a mensagem citada e o
+ * WhatsApp pronto. "Quero falar com um consultor" chega marcado no assunto,
+ * porque é o pedido que vira cliente.
+ */
+export async function avisarEquipeDeContato(p: {
+  nome: string;
+  email: string;
+  telefone?: string | null;
+  assunto: string;
+  mensagem: string;
+  pagina?: string | null;
+}): Promise<boolean> {
+  if (!EQUIPE) return false;
+  const consultor = p.assunto === "consultor";
+
+  const { data, error } = await resend().emails.send({
+    from: REMETENTE,
+    to: EQUIPE,
+    replyTo: p.email,
+    subject: `${consultor ? "Quer falar com um consultor" : "Mensagem pelo site"} · ${rotuloDoAssunto(p.assunto)}: ${p.email}`,
+    html: layout({
+      chapeu: consultor ? "Pedido de consultor · chame primeiro" : "Mensagem pelo site",
+      titulo: `${escapar(primeiroNome(p.nome, "Alguém"))} escreveu para a Novare.`,
+      corpo:
+        linha("Assunto", rotuloDoAssunto(p.assunto)) +
+        linha("Nome", p.nome) +
+        linha("E-mail", p.email) +
+        linha("WhatsApp", p.telefone) +
+        linha("Mandou de", p.pagina) +
+        citacao(p.mensagem) +
+        botaoWhatsApp(linkWhatsApp(p.telefone, p.nome, "nos mandou uma mensagem pelo site")),
+      cta: { texto: "Abrir a caixa de mensagens", href: `${SITE}/admin/feedback` },
+      nota: "Responder este e-mail já vai direto para a pessoa.",
+    }),
+  });
+
+  if (error) throw new Error(error.message);
+  return Boolean(data);
+}
+
+/**
+ * A confirmação para quem escreveu — sem prometer prazo que a casa não
+ * controla. Mesma lógica do `enviarConfirmacaoDeLead`.
+ */
+export async function confirmarContato(p: { nome: string; email: string }) {
+  const { data, error } = await resend().emails.send({
+    from: REMETENTE,
+    to: p.email,
+    ...(EQUIPE ? { replyTo: EQUIPE } : {}),
+    subject: "Recebemos a sua mensagem — Novare",
+    html: layout({
+      chapeu: "Mensagem recebida",
+      titulo: `${escapar(primeiroNome(p.nome))}, a sua mensagem chegou.`,
+      corpo: par(
+        "Uma pessoa da Novare vai ler e responder por e-mail ou pelo WhatsApp que você deixou. Se quiser acrescentar alguma coisa, é só responder este e-mail.",
+      ),
+      cta: { texto: "Voltar às ferramentas", href: `${SITE}/aplicativos` },
+    }),
+  });
+
+  if (error) throw new Error(error.message);
+  return data;
+}
+
+/**
+ * NOTA BAIXA NUMA FERRAMENTA (1 ou 2) — o alerta para corrigir rápido.
+ *
+ * Nota boa não dispara e-mail (seria uma caixa cheia de "5 estrelas" que
+ * ninguém lê); fica só na aba Feedback. A ruim chega na hora, com o
+ * comentário, porque quase sempre é conta errada ou tela quebrada.
+ */
+export async function avisarEquipeDeNotaBaixa(p: {
+  ferramenta: string;
+  rota: string;
+  nota: number;
+  comentario?: string | null;
+  nome?: string | null;
+  email?: string | null;
+}): Promise<boolean> {
+  if (!EQUIPE) return false;
+
+  const { data, error } = await resend().emails.send({
+    from: REMETENTE,
+    to: EQUIPE,
+    ...(p.email ? { replyTo: p.email } : {}),
+    subject: `Nota ${p.nota} de 5 na ferramenta ${p.ferramenta}`,
+    html: layout({
+      chapeu: "Nota baixa · vale olhar",
+      titulo: `${escapar(p.ferramenta)} recebeu nota ${p.nota} de 5.`,
+      corpo:
+        linha("Ferramenta", p.ferramenta) +
+        linha("Página", `${SITE}${p.rota}`) +
+        linha("Nome", p.nome) +
+        linha("E-mail", p.email) +
+        (p.comentario ? citacao(p.comentario) : linha("Comentário", "não deixou")),
+      cta: { texto: "Ver as notas das ferramentas", href: `${SITE}/admin/feedback` },
     }),
   });
 

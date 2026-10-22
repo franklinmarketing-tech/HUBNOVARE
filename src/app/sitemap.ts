@@ -28,6 +28,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/exame-saude-financeira",
     "/privacidade",
     "/termos",
+    "/fale-conosco",
     "/profissionais",
   ].map((rota) => ({
     url: `${SITE}${rota}`,

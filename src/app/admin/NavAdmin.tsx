@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Activity, ArrowUpRight, Inbox, LifeBuoy, Magnet, Megaphone, Users } from "lucide-react";
+import { Activity, ArrowUpRight, Inbox, LifeBuoy, Magnet, Megaphone, MessageSquareText, Users } from "lucide-react";
 
 /**
  * A BARRA DO PAINEL — marca, quem está logado e as abas.
@@ -33,23 +33,28 @@ import { Activity, ArrowUpRight, Inbox, LifeBuoy, Magnet, Megaphone, Users } fro
 const ABAS = [
   { href: "/admin", rotulo: "Saúde", Icone: Activity, exato: true },
   { href: "/admin/leads", rotulo: "Leads", Icone: Inbox, contagem: "leads" as const },
+  // As notas das ferramentas e o "Fale com a gente" (21/10/2026).
+  { href: "/admin/feedback", rotulo: "Feedback", Icone: MessageSquareText, contagem: "mensagens" as const },
   { href: "/admin/clientes", rotulo: "Clientes", Icone: Users },
   { href: "/admin/iscas", rotulo: "Iscas", Icone: Magnet },
   { href: "/admin/avisos", rotulo: "Avisos", Icone: Megaphone },
   // Só para o papel admin, e com senha extra lá dentro (21/10/2026).
   { href: "/admin/suporte", rotulo: "Suporte", Icone: LifeBuoy, soAdmin: true },
-] as { href: string; rotulo: string; Icone: typeof Activity; exato?: boolean; contagem?: "leads"; soAdmin?: boolean }[];
+] as { href: string; rotulo: string; Icone: typeof Activity; exato?: boolean; contagem?: "leads" | "mensagens"; soAdmin?: boolean }[];
 
 export function NavAdmin({
   nome,
   email,
   papel,
   leadsEsperando,
+  mensagensPendentes = 0,
 }: {
   nome: string;
   email: string;
   papel: "admin" | "equipe";
   leadsEsperando: number;
+  /** Mensagens do "Fale com a gente" sem resposta (aba Feedback). */
+  mensagensPendentes?: number;
 }) {
   const caminho = usePathname() ?? "/admin";
 
@@ -123,7 +128,7 @@ export function NavAdmin({
         <ul className="-mb-px flex gap-0.5 overflow-x-auto pt-2">
           {ABAS.filter((a) => !a.soAdmin || papel === "admin").map(({ href, rotulo, Icone, exato, contagem }) => {
             const ligada = ativa(href, exato);
-            const numero = contagem === "leads" ? leadsEsperando : 0;
+            const numero = contagem === "leads" ? leadsEsperando : contagem === "mensagens" ? mensagensPendentes : 0;
             return (
               <li key={href} className="shrink-0">
                 <Link

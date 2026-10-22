@@ -53,17 +53,29 @@ export default async function AdminLayout({
      que faz alguém entrar em Leads sem precisar lembrar de olhar. Sem o SQL
      rodado, fica em zero — a aba não pode derrubar o painel. */
   let leadsEsperando = 0;
+  let mensagensPendentes = 0;
   try {
     const supabase = await createClient();
     /* ⚠️ ERA hub_saude — a consulta MAIS PESADA do painel (varre contas,
        lançamentos e leads) — a cada troca de aba, só para tirar um número.
-       Agora é uma contagem simples. (21/10/2026) */
-    const { count, error } = await supabase
-      .from("hub_leads")
-      .select("id", { count: "exact", head: true })
-      .eq("situacao", "novo")
-      .eq("eh_teste", false);
-    leadsEsperando = error ? 0 : count ?? 0;
+       Agora é uma contagem simples. (21/10/2026)
+       As duas contagens vão juntas: em série, cada aba nova somaria mais uma
+       ida ao banco antes de abrir a tela. */
+    const [leads, mensagens] = await Promise.all([
+      supabase
+        .from("hub_leads")
+        .select("id", { count: "exact", head: true })
+        .eq("situacao", "novo")
+        .eq("eh_teste", false),
+      // As mensagens do "Fale com a gente" (feedback_e_mensagens.sql).
+      supabase
+        .from("hub_contatos")
+        .select("id", { count: "exact", head: true })
+        .eq("situacao", "pendente")
+        .eq("eh_teste", false),
+    ]);
+    leadsEsperando = leads.error ? 0 : leads.count ?? 0;
+    mensagensPendentes = mensagens.error ? 0 : mensagens.count ?? 0;
   } catch {
     leadsEsperando = 0;
   }
@@ -75,6 +87,7 @@ export default async function AdminLayout({
         email={perfil.email}
         papel={perfil.role as "admin" | "equipe"}
         leadsEsperando={leadsEsperando}
+        mensagensPendentes={mensagensPendentes}
       />
       <main className="mx-auto max-w-6xl px-4 py-7 sm:py-9">{children}</main>
     </div>
