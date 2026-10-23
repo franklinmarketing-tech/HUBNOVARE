@@ -22,6 +22,8 @@ const AQUI = dirname(fileURLToPath(import.meta.url));
 const RAIZ = join(AQUI, "..", "..");
 
 const CAPAS = {
+  "divida-americana-por-que-os-juros-de-la-mexem-com-o-brasil": { chamada: "Dívida dos EUA: 120% do PIB", titulo: "Os juros de lá mexem com a *Selic daqui*", x: 140 },
+  "credito-privado-com-desagio-vender-ou-esperar": { chamada: "Crédito privado", titulo: "Deságio: *vender* ou *esperar*?", x: 160 },
   "cdi-ganhou-de-tudo-desde-2021-e-agora": { chamada: "5 anos invicto", titulo: "O CDI ganhou *de tudo*. E agora?", x: 120 },
   "payroll-o-emprego-americano-e-o-seu-dinheiro": { chamada: "Emprego nos EUA", titulo: "O número americano que mexe com o *seu dólar*", x: 160 },
   "producao-industrial-o-que-as-fabricas-dizem-sobre-os-juros": { chamada: "Indústria −0,6%", titulo: "O que as fábricas dizem sobre a *Selic*", x: 200 },

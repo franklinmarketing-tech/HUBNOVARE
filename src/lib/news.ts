@@ -103,6 +103,110 @@ export type Artigo = {
 };
 
 export const ARTIGOS: Artigo[] = [
+  /* ── A TERCEIRA LEVA (23/10/2026), sugestões da Nord ─────────────────────
+     Mesma regra das anteriores: texto da Novare, números da Nord creditados.
+
+     ⚠️ "VENDER CRÉDITO PRIVADO COM DESÁGIO OU ESPERAR" NÃO VIROU CONSELHO. A
+     matéria da Nord recomenda esperar; aqui virou o que pesar para decidir,
+     sem dizer o que fazer — orientação individual é a consultoria. A empresa
+     que pediu recuperação entra sem nome, como nas outras matérias.
+
+     ⚠️ A SELIC DE 15% É O PICO DO CICLO, não a de hoje (13,75% em 23/10).
+     Por isso o texto diz "tendo chegado a 15%". */
+  {
+    slug: "divida-americana-por-que-os-juros-de-la-mexem-com-o-brasil",
+    titulo: "Dívida dos EUA: por que os juros de lá mexem com a Selic, o dólar e a bolsa daqui",
+    resumo:
+      "A dívida americana passou de 120% do PIB e os juros de 10 anos de lá chegaram perto de 5,2%. A diferença para os juros do Brasil está entre as menores da história — e isso tem consequência para o seu dinheiro.",
+    categoria: "investimentos",
+    data: "2026-10-23",
+    tempoLeituraMin: 5,
+    capa: "/news/divida-americana-por-que-os-juros-de-la-mexem-com-o-brasil.webp",
+    corpo: [
+      "Os Estados Unidos gastam mais do que arrecadam há anos, e a conta virou dívida: ela já passa de 120% de tudo o que o país produz em um ano. Quanto maior a dívida, maior a parte do orçamento que vai só para pagar juros — e mais o governo precisa oferecer para continuar se financiando.",
+      { tipo: "titulo", texto: "O termômetro: os juros de 10 anos dos EUA" },
+      "O título de 10 anos do Tesouro americano é a referência de juros do mundo. Na pandemia, ele pagava perto de zero. Em outubro de 2026, chegou a cerca de 5,22% ao ano. Quando o investidor global ganha quase 5% no papel considerado o mais seguro do planeta, ele passa a exigir mais de qualquer outro lugar para correr risco — inclusive do Brasil.",
+      { tipo: "titulo", texto: "A diferença para o Brasil ficou estreita" },
+      "Os juros de 10 anos no Brasil estão por volta de 12,5% ao ano. Parece muito, mas a diferença para os EUA, de cerca de 7,3 pontos, está entre as menores da série — no mesmo patamar de 2019 e da pandemia. Descontada a inflação dos dois países, a folga é de uns 3,3 pontos.",
+      { tipo: "destaque", texto: "Quanto menor a diferença entre os juros daqui e os de lá, menos motivo o investidor estrangeiro tem para trazer dinheiro ao Brasil — e menos espaço sobra para os juros daqui caírem." },
+      { tipo: "titulo", texto: "O que isso muda no seu dinheiro" },
+      {
+        tipo: "lista",
+        itens: [
+          "Selic: juros altos nos EUA limitam o quanto o Banco Central pode cortar aqui sem enfraquecer o real.",
+          "Dólar: com menos dinheiro estrangeiro entrando, o real perde apoio. A alta do dólar não é certa, mas o risco aumenta — e dólar mais caro pressiona a inflação.",
+          "Renda fixa longa: prefixados e IPCA+ de prazo longo são os que mais oscilam quando os juros sobem. A estimativa da Nord é de espaço para as taxas longas brasileiras caírem só mais 0,50 a 0,75 ponto.",
+          "Bolsa: parte da alta recente veio da expectativa de juros menores. Se essa expectativa esfriar, a bolsa perde força — o que não quer dizer, necessariamente, uma queda forte.",
+        ],
+      },
+      { tipo: "titulo", texto: "E a tal crise da dívida americana?" },
+      "Gestores conhecidos já falam em risco de uma crise da dívida americana nos próximos anos. Ninguém sabe se ela vem, nem quando. O que dá para fazer é não depender de um único cenário: saber quanto da carteira está em títulos longos, quanto está exposto ao dólar e quanto depende de os juros caírem.",
+      "As decisões de juros do Fed e os números da inflação americana são os eventos que mais mexem nesse jogo — e as datas estão no calendário econômico do Hub.",
+    ],
+    ferramenta: {
+      slug: "calendario-economico",
+      nome: "Ver as datas do Fed e da inflação americana",
+      href: "/calendario-economico",
+    },
+    fonte: {
+      nome: "Nord Investimentos",
+      titulo: "Como a crise da dívida americana pode afetar a Bolsa brasileira?",
+      href: "https://www.nordinvestimentos.com.br/blog/videos/crise-divida-americana-bolsa-brasileira/",
+      data: "2026-10-19",
+    },
+  },
+  {
+    slug: "credito-privado-com-desagio-vender-ou-esperar",
+    titulo: "Debênture, CRI ou CRA com deságio: vender agora ou esperar?",
+    resumo:
+      "Títulos de crédito privado aparecem no extrato valendo bem menos que o investido. Antes de vender, vale entender por que o preço caiu — e o que transforma uma perda no papel em perda de verdade.",
+    categoria: "investimentos",
+    data: "2026-10-23",
+    tempoLeituraMin: 5,
+    capa: "/news/credito-privado-com-desagio-vender-ou-esperar.webp",
+    corpo: [
+      "Quem tem debêntures, CRIs ou CRAs abriu o extrato nas últimas semanas e levou um susto: títulos que pareciam tranquilos aparecem valendo bem menos do que foi investido. Essa diferença entre o preço de hoje e o valor do título tem nome: deságio.",
+      { tipo: "titulo", texto: "Por que o preço caiu se a empresa continua pagando?" },
+      "Porque o extrato mostra a marcação a mercado: quanto alguém pagaria pelo seu título hoje, se você quisesse vender. Mesmo com a empresa pagando tudo em dia, o preço cai quando o mercado passa a desconfiar mais do crédito — ou quando sobra gente querendo vender ao mesmo tempo.",
+      {
+        tipo: "lista",
+        itens: [
+          "Juros altos por muito tempo: com a Selic tendo chegado a 15%, empresas muito endividadas ficaram sem fôlego, e alguns pedidos de recuperação extrajudicial assustaram o mercado inteiro.",
+          "Clima: o El Niño atrapalha o agro, que emite boa parte dos CRAs.",
+          "Saques dos fundos: cerca de R$ 90 bilhões saíram de fundos de crédito privado em 2026. Para pagar os resgates, os gestores vendem títulos, o preço cai, o fundo rende pior, mais gente saca — e o ciclo se alimenta.",
+        ],
+      },
+      { tipo: "destaque", texto: "Deságio no extrato é perda no papel. Ela só vira perda de verdade quando você vende." },
+      { tipo: "titulo", texto: "O que pesar antes de decidir" },
+      {
+        tipo: "lista",
+        ordenada: true,
+        itens: [
+          "Quem é o emissor: o risco é de a empresa não pagar, ou só de o preço oscilar até o vencimento? São problemas muito diferentes.",
+          "O tamanho do deságio: vender com desconto grande realiza a perda inteira. Se o emissor é sólido e você pode esperar, o título caminha para o valor cheio no vencimento.",
+          "O prazo: quanto mais curto o título, menos você depende de achar comprador — dá para esperar o vencimento.",
+          "O spread de crédito, o prêmio que o título paga acima de um título público: ele voltou às máximas, o que na leitura da Nord mostra um preço que já embute muito pessimismo. Reduzir risco costuma fazer mais sentido quando esse prêmio está baixo.",
+          "Onde e como vender: quem vende sozinho pela plataforma da corretora costuma receber as piores ofertas, e alguns títulos simplesmente não têm comprador.",
+        ],
+      },
+      { tipo: "titulo", texto: "A lição que fica: concentração" },
+      "A crise mostrou que até empresa vista como sólida pode ir para a recuperação: uma grande do setor de combustíveis chegou lá com cerca de R$ 65 bilhões em dívidas, e os títulos dela passaram a valer menos da metade. Como referência de prudência, a Nord usa limites de até 30% da carteira em crédito privado e até 5% em um mesmo emissor, preferindo prazos que não dependam de vender no meio do caminho.",
+      "Cada carteira é um caso: o mesmo título pode pedir venda para um investidor e paciência para outro. Uma análise independente, de quem não ganha comissão sobre o que você compra ou vende, ajuda a separar o que é susto do que é risco de verdade.",
+    ],
+    ferramenta: {
+      slug: "consultoria-revisao-carteira",
+      nome: "Pedir uma análise independente da carteira",
+      href: "https://diagnostico.novareapp.com.br/carteira-pontual",
+      externo: true,
+    },
+    fonte: {
+      nome: "Nord Investimentos",
+      titulo: "Vale vender crédito privado com deságio alto ou esperar?",
+      href: "https://www.nordinvestimentos.com.br/blog/vender-credito-privado-com-desagio-ou-esperar/",
+      data: "2026-10-22",
+    },
+  },
+
   /* ══════════════════════════════════════════════════════════════════════
      OS QUATRO EXPLICADORES DE 19/10/2026, a partir de dados da Nord.
 
