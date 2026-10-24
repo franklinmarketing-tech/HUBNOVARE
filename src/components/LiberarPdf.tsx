@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { AlertCircle, Check, Download, Loader2, Lock, MessageCircle, PartyPopper, X } from "lucide-react";
 import { falarNoWhatsApp } from "@/lib/contato";
 import { salvarLead, type LeadTipo } from "@/lib/leads";
+import { registrarUso } from "@/lib/uso";
 import {
   CampoInvestimento,
   CamposLead,
@@ -126,6 +127,8 @@ export function LiberarPdf({
         void registrar();
       }
     } catch {}
+    // O fim do funil abriu → mexeu → baixou (24/10/2026). Só o slug, nunca o conteúdo.
+    registrarUso(rota.split("/")[2] || rota, "exportou");
     timers.current.forEach(clearTimeout);
     setPopup("carregando");
     timers.current = [

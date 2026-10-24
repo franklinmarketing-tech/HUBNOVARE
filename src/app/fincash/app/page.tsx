@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { faltaTabela } from "@/lib/fincash/erros";
+import { PrimeirosPassos } from "./PrimeirosPassos";
 import Link from "next/link";
 import {
   ArrowDownRight,
@@ -494,9 +495,16 @@ export default function PainelFincash() {
       />
 
       {semNada ? (
-        <PrimeiroUso />
+        <PrimeirosPassos temConta={false} temLancamento={false} temFixa={dados.recorrencias.length > 0} destaque />
       ) : (
         <div className="space-y-3">
+          {/* Até os três passos estarem feitos (24/10/2026). */}
+          <PrimeirosPassos
+            temConta={dados.contas.length > 0}
+            temLancamento={dados.lancamentos.length > 0}
+            temFixa={dados.recorrencias.length > 0}
+            destaque={false}
+          />
           {/* O HERÓI. Um bloco escuro num app claro, e só um: é o que faz o
               olho pousar aqui antes de qualquer outra coisa. */}
           <NumeroHeroi
@@ -974,30 +982,5 @@ async function carregarHistorico(ate: string): Promise<PontoMes[]> {
   }));
 }
 
-/**
- * A primeira vez.
- *
- * Painel vazio com zeros é o que faz a pessoa fechar e não voltar. Aqui ela
- * recebe uma instrução só, com o primeiro passo pronto para clicar — e os três
- * passos seguintes à vista, porque saber que são três e não trinta é o que
- * convence alguém a começar.
- */
-function PrimeiroUso() {
-  return (
-    <Vazio
-      Icone={Wallet}
-      titulo="Vamos começar pelo começo"
-      texto="Cadastre onde o seu dinheiro está — a conta do banco, a carteira. Sem isso o app até anota os gastos, mas não consegue te dizer quanto você tem."
-      passos={[
-        "Cadastre suas contas com o saldo de hoje.",
-        "Lance o que já entrou e o que já saiu neste mês.",
-        "Deixe as contas fixas cadastradas uma vez — elas voltam sozinhas todo mês.",
-      ]}
-      acao={
-        <BotaoAcao href="/fincash/app/contas" Icone={Plus}>
-          Cadastrar minha primeira conta
-        </BotaoAcao>
-      }
-    />
-  );
-}
+/* A "primeira vez" (PrimeiroUso) virou `PrimeirosPassos.tsx` em 24/10/2026:
+   os mesmos três passos, agora com ✓ no que já foi feito e barra de progresso. */

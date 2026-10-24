@@ -32,6 +32,8 @@ interface Categoria {
 interface Orcamento {
   renda: string;
   categorias: Categoria[];
+  /** true enquanto a tela mostra o EXEMPLO; a primeira mexida desliga. */
+  exemplo?: boolean;
 }
 
 const GRUPOS: Record<
@@ -46,7 +48,16 @@ const GRUPOS: Record<
 
 const ORDEM_GRUPOS: Grupo[] = ["necessidades", "estilo", "futuro"];
 
-function categoriasIniciais(): Categoria[] {
+/* Valores do EXEMPLO (24/10/2026): a tela abria vazia, com oito categorias em
+   R$ 0,00, e quem chegava não via o que a ferramenta entrega antes de
+   preencher tudo. Agora abre com um mês de R$ 5.000 já distribuído — e a
+   análise aparece na hora. "Começar do zero" zera os valores. */
+const EXEMPLO: Record<string, string> = {
+  Moradia: "1500", Mercado: "900", Transporte: "400", Saúde: "300",
+  Lazer: "400", Assinaturas: "150", Investimentos: "800", Outros: "250",
+};
+
+function categoriasIniciais(comExemplo = false): Categoria[] {
   const base: Array<[string, Grupo]> = [
     ["Moradia", "necessidades"],
     ["Mercado", "necessidades"],
@@ -60,20 +71,23 @@ function categoriasIniciais(): Categoria[] {
   return base.map(([nome, grupo], i) => ({
     id: `cat-${i}-${nome.toLowerCase()}`,
     nome,
-    valor: "",
+    valor: comExemplo ? EXEMPLO[nome] : "",
     grupo,
   }));
 }
 
-const INICIAL: Orcamento = { renda: "", categorias: categoriasIniciais() };
+const INICIAL: Orcamento = { renda: "5000", categorias: categoriasIniciais(true), exemplo: true };
 
 /* -------------------------------------------------------------------------- */
 
 export default function OrcamentoPage() {
-  const [dados, setDados, carregado] = useArmazenado<Orcamento>(
+  const [dados, setDadosCru, carregado] = useArmazenado<Orcamento>(
     "orcamento",
     INICIAL
   );
+  // Qualquer mexida é da pessoa: o aviso de "exemplo" sai.
+  const setDados = (f: (d: Orcamento) => Orcamento) => setDadosCru((d) => ({ ...f(d), exemplo: false }));
+  const comecarDoZero = () => setDadosCru({ renda: "", categorias: categoriasIniciais(), exemplo: false });
 
   const renda = parseNumero(dados.renda);
 
@@ -175,6 +189,22 @@ export default function OrcamentoPage() {
             para o essencial, um pedaço para viver bem e o resto para o futuro.
           </p>
         </section>
+
+        {dados.exemplo && (
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border-2 border-accent/40 bg-accent-tint px-4 py-3">
+            <p className="text-sm text-foreground">
+              <strong className="text-accent-strong">Exemplo:</strong> um mês de R$ 5.000 já distribuído. Troque
+              pelos seus números — a conta refaz na hora.
+            </p>
+            <button
+              type="button"
+              onClick={comecarDoZero}
+              className="min-h-10 rounded-full border border-primary/30 bg-white px-4 text-xs font-semibold text-primary transition-colors hover:bg-primary hover:text-white"
+            >
+              Começar do zero
+            </button>
+          </div>
+        )}
 
         {/* Renda + sugestão 50/30/20 */}
         <section className="bg-white rounded-[1.75rem] border border-slate-200/80 shadow-suave p-6 sm:p-8">

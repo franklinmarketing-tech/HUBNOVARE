@@ -25,18 +25,11 @@ export function GuiaFerramenta() {
   const chave = `novare:guia-visto:${slug}`;
   const [aberto, setAberto] = useState(false);
 
-  useEffect(() => {
-    if (!passos) return;
-    let visto = true;
-    try {
-      visto = Boolean(localStorage.getItem(chave));
-    } catch {
-      /* Sem armazenamento, não abre sozinho: melhor não insistir a cada visita. */
-    }
-    if (visto) return;
-    const t = setTimeout(() => setAberto(true), 900);
-    return () => clearTimeout(t);
-  }, [passos, chave]);
+  /* ⚠️ NÃO ABRE MAIS SOZINHO (24/10/2026). Na primeira visita ele abria por
+     cima da tela junto com o aviso de cookies, e no celular a pessoa fechava
+     duas janelas antes de ver a ferramenta — era a queixa de "difícil de
+     usar". Agora fica só o botão, ao lado do "Voltar", e o exemplo já
+     calculado na tela faz o papel de mostrar como funciona. */
 
   useEffect(() => {
     if (!aberto) return;
@@ -69,7 +62,8 @@ export function GuiaFerramenta() {
         type="button"
         onClick={() => (aberto ? fechar() : setAberto(true))}
         aria-expanded={aberto}
-        className="fixed bottom-20 left-5 z-40 flex items-center gap-2 rounded-full bg-accent px-4 py-3 text-sm font-semibold text-white shadow-[0_10px_30px_-12px_hsl(16_80%_40%_/_0.7)] transition-transform hover:-translate-y-0.5 print:hidden"
+        aria-label="Como usar esta ferramenta"
+        className="flex items-center gap-2 rounded-full bg-accent px-4 py-3 text-sm font-semibold text-white shadow-[0_10px_30px_-12px_hsl(16_80%_40%_/_0.7)] transition-transform hover:-translate-y-0.5 print:hidden"
       >
         <CircleHelp className="h-4 w-4" />
         Como usar
@@ -79,7 +73,7 @@ export function GuiaFerramenta() {
         <div
           role="dialog"
           aria-label="Como usar esta ferramenta"
-          className="fixed inset-x-3 bottom-36 z-50 mx-auto max-w-sm rounded-[1.75rem] border border-border bg-white p-5 shadow-vidro motion-safe:animate-[surgir_0.35s_ease-out] sm:inset-x-auto sm:left-5 print:hidden"
+          className="fixed inset-x-3 bottom-20 z-50 mx-auto max-w-sm rounded-[1.75rem] border border-border bg-white p-5 shadow-vidro motion-safe:animate-[surgir_0.35s_ease-out] sm:inset-x-auto sm:left-5 print:hidden"
         >
           <div className="flex items-start justify-between gap-3">
             <p className="font-display text-base font-bold text-primary">Como usar, em 3 passos</p>

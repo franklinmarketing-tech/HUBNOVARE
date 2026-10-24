@@ -39,7 +39,10 @@ const ESPERA_MS = 12_000;
  * é cliente; quem está no login está no meio de um formulário. Interromper
  * qualquer um dos três é atrapalhar, não converter.
  */
-const MUDO_EM = ["/assinar", "/login", "/hub", "/admin", "/perfil", "/finplan/app"];
+/* `/ferramentas` desde 24/10/2026: quem está no meio de uma conta não pode
+   ser interrompido por uma janela de tela cheia — era um dos três avisos que
+   abriam sozinhos por cima da ferramenta. */
+const MUDO_EM = ["/assinar", "/login", "/hub", "/admin", "/perfil", "/finplan/app", "/ferramentas", "/fincash/app"];
 
 export function ConviteDeSaida() {
   const caminho = usePathname();
