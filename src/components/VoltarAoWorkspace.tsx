@@ -21,7 +21,8 @@ export function VoltarAoWorkspace() {
       <ArrowLeft className="h-4 w-4" />
       {/* No celular o espaço é do polegar: só a seta e a palavra curta. */}
       <span className="hidden sm:inline">Voltar ao Workspace</span>
-      <span className="sm:hidden">Workspace</span>
+      {/* No celular só a seta (24/10/2026): o "Como usar" ao lado ficou maior. */}
+      <span className="sr-only sm:hidden">Voltar ao Workspace</span>
     </Link>
   );
 }

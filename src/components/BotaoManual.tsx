@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { usePathname } from "next/navigation";
-import { BookOpen, X } from "lucide-react";
+import { BookOpen, Play, X } from "lucide-react";
 import { MANUAIS, arquivoDoVideo } from "@/lib/manuais";
 import { registrarUso } from "@/lib/uso";
 
@@ -47,17 +47,53 @@ export function BotaoManual({ modo }: { modo: "ferramenta" | "fincash" }) {
 
   if (!manual) return null;
 
-  const botao =
-    modo === "ferramenta"
-      ? "flex items-center gap-2 rounded-full bg-accent px-4 py-3 text-sm font-semibold text-white shadow-[0_10px_30px_-12px_hsl(16_80%_40%_/_0.7)] transition-transform hover:-translate-y-0.5"
-      : "inline-flex min-h-10 items-center gap-2 rounded-full border-2 border-primary/20 bg-white px-4 text-xs font-semibold text-primary transition-colors hover:border-primary hover:bg-primary hover:text-white";
+  /* ⚠️ DESTACADO, MAS NUNCA ABRE SOZINHO (pedido do dono, 24/10/2026: "destaque melhor os vídeos
+     que ensinam e os manuais"). O que chama o olho é o círculo de play com um anel pulsando de
+     leve e a promessa "vídeo de 15 s" — a janela continua fechada até o clique. */
+  const play = (
+    <span className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white text-accent shadow">
+      <span aria-hidden className="absolute inset-0 rounded-full ring-2 ring-white/70 motion-safe:animate-ping" />
+      <Play className="relative ml-0.5 h-4 w-4 fill-current" />
+    </span>
+  );
 
   return (
     <>
-      <button type="button" onClick={() => setAberta(true)} aria-haspopup="dialog" className={`${botao} print:hidden`}>
-        <BookOpen className="h-4 w-4" />
-        {modo === "ferramenta" ? "Manual" : "Manual desta tela"}
-      </button>
+      {modo === "ferramenta" ? (
+        <button
+          type="button"
+          onClick={() => setAberta(true)}
+          aria-haspopup="dialog"
+          aria-label={`Como usar: vídeo de 15 segundos e manual de ${manual.titulo}`}
+          className="flex items-center gap-2.5 rounded-full bg-accent py-1.5 pl-1.5 pr-4 text-left text-white shadow-[0_12px_32px_-10px_hsl(16_80%_40%_/_0.8)] ring-2 ring-white transition-transform hover:-translate-y-0.5 print:hidden"
+        >
+          {play}
+          <span className="leading-tight">
+            <span className="block text-sm font-bold">Como usar</span>
+            <span className="block text-[11px] font-medium text-white/85">Vídeo de 15 s + manual</span>
+          </span>
+        </button>
+      ) : (
+        <button
+          type="button"
+          onClick={() => setAberta(true)}
+          aria-haspopup="dialog"
+          aria-label={`Aprenda esta tela: vídeo de 15 segundos e manual de ${manual.titulo}`}
+          className="flex w-full items-center gap-3 rounded-2xl border-2 border-primary bg-primary px-3 py-2.5 text-left text-white shadow-[0_16px_36px_-22px_hsl(199_75%_12%_/_0.8)] transition-transform hover:-translate-y-0.5 sm:w-auto sm:pr-5 print:hidden"
+        >
+          <span className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent text-white">
+            <span aria-hidden className="absolute inset-0 rounded-full ring-2 ring-accent/60 motion-safe:animate-ping" />
+            <Play className="relative ml-0.5 h-4 w-4 fill-current" />
+          </span>
+          <span className="min-w-0 flex-1 leading-tight">
+            <span className="block text-sm font-bold">Aprenda esta tela em 15 segundos</span>
+            <span className="mt-0.5 flex items-center gap-1 text-xs text-white/75">
+              <BookOpen className="h-3.5 w-3.5" />
+              Vídeo curto + manual passo a passo
+            </span>
+          </span>
+        </button>
+      )}
 
       {aberta &&
         montado &&
@@ -94,6 +130,8 @@ export function BotaoManual({ modo }: { modo: "ferramenta" | "fincash" }) {
                   <video
                     src={arquivoDoVideo(chave)}
                     controls
+                    // O clique que abriu a janela é o gesto que o navegador exige para tocar com som.
+                    autoPlay
                     playsInline
                     preload="metadata"
                     onError={() => setSemVideo(true)}

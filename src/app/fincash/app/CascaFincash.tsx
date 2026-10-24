@@ -86,7 +86,7 @@ export function CascaFincash({
         <main className="mx-auto max-w-5xl px-5 pb-28 pt-6 md:pb-12 md:pt-8">
           {/* O manual da tela atual, no topo e à direita — não flutua
               (24/10/2026, docs/GUIDELINE-UX.md). */}
-          <div className="mb-3 flex justify-end">
+          <div className="mb-4 flex justify-end">
             <BotaoManual modo="fincash" />
           </div>
           {children}
