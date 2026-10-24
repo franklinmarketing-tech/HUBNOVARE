@@ -29,6 +29,62 @@ export function BotaoManual({ modo }: { modo: "ferramenta" | "fincash" }) {
   useEffect(() => setMontado(true), []);
   useEffect(() => setSemVideo(false), [chave]);
 
+  /* ═══ PRIMEIRO USO (pedido do dono, 24/10/2026: "guia com pop up no primeiro uso, assim
+     ajuda quem nunca usou a ferramenta") ════════════════════════════════════════════════
+     Uma vez por tela, neste aparelho (`novare:manual-visto:<chave>`), num cartão pequeno com
+     "Ver como usar" e "Agora não" — nunca o manual inteiro por cima.
+     ⚠️ SÓ DEPOIS DO AVISO DE COOKIES (`novare:consent`): antes, no celular, os dois
+     empilhavam e a pessoa fechava duas janelas antes de ver a ferramenta. */
+  const [convite, setConvite] = useState(false);
+  const chaveVisto = `novare:manual-visto:${chave}`;
+  useEffect(() => {
+    if (!manual) return;
+    setConvite(false);
+    let visto = true;
+    try {
+      visto = Boolean(localStorage.getItem(chaveVisto));
+    } catch {}
+    if (visto) return;
+    let t: ReturnType<typeof setTimeout> | undefined;
+    const espera = setInterval(() => {
+      let aceitou = false;
+      try {
+        aceitou = Boolean(localStorage.getItem("novare:consent"));
+      } catch {
+        aceitou = true;
+      }
+      if (!aceitou) return;
+      clearInterval(espera);
+      t = setTimeout(() => setConvite(true), 1200);
+    }, 1000);
+    return () => {
+      clearInterval(espera);
+      if (t) clearTimeout(t);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [chave]);
+
+  useEffect(() => {
+    if (!convite) return;
+    const tecla = (e: KeyboardEvent) => e.key === "Escape" && marcarVisto();
+    document.addEventListener("keydown", tecla);
+    return () => document.removeEventListener("keydown", tecla);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [convite]);
+
+  function marcarVisto() {
+    setConvite(false);
+    try {
+      localStorage.setItem(chaveVisto, "1");
+    } catch {}
+  }
+
+  // Abriu o manual por qualquer caminho: o convite não volta mais nesta tela.
+  useEffect(() => {
+    if (aberta) marcarVisto();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [aberta]);
+
   useEffect(() => {
     if (!aberta) return;
     registrarUso(`manual:${chave}`, "usou");
@@ -94,6 +150,57 @@ export function BotaoManual({ modo }: { modo: "ferramenta" | "fincash" }) {
           </span>
         </button>
       )}
+
+      {convite &&
+        !aberta &&
+        montado &&
+        createPortal(
+          <div
+            role="dialog"
+            aria-modal="false"
+            aria-labelledby="convite-manual-titulo"
+            className="surgir fixed inset-x-3 bottom-24 z-[65] mx-auto max-w-sm overflow-hidden rounded-[1.5rem] border-2 border-primary bg-white shadow-[0_30px_70px_-25px_hsl(199_75%_10%_/_0.75)] sm:inset-x-auto sm:bottom-auto sm:left-1/2 sm:top-1/2 sm:w-[26rem] sm:max-w-none sm:-translate-x-1/2 sm:-translate-y-1/2 print:hidden"
+          >
+            <div className="flex items-center gap-3 bg-primary px-5 py-4 text-white">
+              <span className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-accent">
+                <span aria-hidden className="absolute inset-0 rounded-full ring-2 ring-accent/60 motion-safe:animate-ping" />
+                <Play className="relative ml-0.5 h-5 w-5 fill-current" />
+              </span>
+              <div className="min-w-0">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-ciano-claro">Primeira vez aqui?</p>
+                <p id="convite-manual-titulo" className="font-display text-lg font-semibold leading-tight">
+                  {manual.titulo}
+                </p>
+              </div>
+            </div>
+            <div className="px-5 py-4">
+              <p className="text-sm leading-relaxed text-foreground">{manual.oQueFaz}</p>
+              <p className="mt-2 text-sm font-semibold text-primary">Veja em 15 segundos como usar.</p>
+              <div className="mt-4 flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  autoFocus
+                  onClick={() => setAberta(true)}
+                  className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-full bg-accent px-5 text-sm font-bold text-white transition-colors hover:bg-accent-strong"
+                >
+                  <Play className="h-4 w-4 fill-current" />
+                  Ver como usar
+                </button>
+                <button
+                  type="button"
+                  onClick={marcarVisto}
+                  className="inline-flex min-h-11 items-center justify-center rounded-full px-4 text-sm font-semibold text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                >
+                  Agora não
+                </button>
+              </div>
+              <p className="mt-2.5 text-[11px] text-muted-foreground">
+                Depois, é só tocar em “Como usar” para ver de novo.
+              </p>
+            </div>
+          </div>,
+          document.body,
+        )}
 
       {aberta &&
         montado &&

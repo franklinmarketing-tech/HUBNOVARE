@@ -8,7 +8,7 @@ Cada regra tem o motivo — regra sem motivo é a primeira que alguém quebra.
 
 | Regra | Por quê |
 |---|---|
-| **Nada abre sozinho por cima do conteúdo.** Pop-up, guia, convite: só quando a pessoa clica. Única exceção: o aviso de cookies (LGPD), uma vez. | No celular, quem chegava fechava 2 ou 3 janelas antes de ver a ferramenta. |
+| **Nada abre sozinho por cima do conteúdo**, com duas exceções, cada uma uma vez só: o aviso de cookies (LGPD) e o **convite de primeiro uso** de cada tela ("Primeira vez aqui? Ver como usar / Agora não", pedido do dono em 24/10/2026), que só aparece **depois** do aceite dos cookies e nunca volta depois de fechado. | No celular, quem chegava fechava 2 ou 3 janelas empilhadas antes de ver a ferramenta. Um convite pequeno, na hora certa, ajuda quem nunca usou sem atrapalhar quem já sabe. |
 | **No máximo 2 botões fixos na tela** (hoje: "Voltar + Manual" à esquerda, "Buscar" à direita) mais a aba "Fale com a gente". | Cinco botões flutuantes viram ruído e tampam o formulário. |
 | **Abrir com exemplo calculado**, com a faixa "Exemplo — troque pelos seus números" e o botão "Começar do zero". | Tela vazia com R$ 0,00 não mostra o que a ferramenta entrega. |
 | **O resultado tem de estar visível sem rolar no computador** (ou a 1 rolagem no celular). | Quem não vê o resultado acha que a ferramenta não funcionou. |
