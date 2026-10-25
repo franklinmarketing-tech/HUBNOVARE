@@ -18,7 +18,9 @@ import {
   brl,
   brlCurto,
   parcelaPrice,
+  parcelaSac,
   parseNumero,
+  sacMantendoAmortizacao,
   pct,
   simularAntecipacao,
 } from "@/lib/calculos";
@@ -52,6 +54,10 @@ export default function AmortizacaoPage() {
   const [parcelaAtual, setParcelaAtual] = useState("2416,90");
   const [prazo, setPrazo] = useState("240");
   const [abatimento, setAbatimento] = useState("30000");
+  /* SAC é o sistema da maior parte do financiamento imobiliário. A tela só sabia PRICE, e para
+     quem tem SAC exagerava a economia de reduzir o prazo em ~2,4× (auditoria de 25/10/2026). */
+  const [sistema, setSistema] = useState<"sac" | "price">("sac");
+  const sac = sistema === "sac";
 
   const saldo$ = parseNumero(saldo);
   const taxa$ = parseNumero(taxa);
@@ -95,9 +101,35 @@ export default function AmortizacaoPage() {
     [saldoNovo, taxa$, parcela$]
   );
 
-  const prazoOk = baseA.mesesSem !== null && comA.mesesSem !== null;
-  const mesesCaem = prazoOk ? (baseA.mesesSem ?? 0) - (comA.mesesSem ?? 0) : 0;
-  const economiaPrazo = prazoOk ? Math.max(0, baseA.jurosSem - comA.jurosSem) : 0;
+  /* SAC: amortização = saldo ÷ meses. Reduzir prazo mantém a amortização (n' = ⌈m·S'/S⌉);
+     reduzir parcela mantém o prazo e recalcula a amortização (S'/m). Cada banco pode ter regra
+     própria de recálculo — a tela avisa. */
+  const baseSac = useMemo(
+    () => parcelaSac({ valor: saldo$, entrada: 0, taxaAnualPct: taxa$, meses: prazo$ }),
+    [saldo$, taxa$, prazo$]
+  );
+  const sacPrazoCalc = useMemo(
+    () =>
+      sacMantendoAmortizacao({
+        saldo: saldoNovo,
+        taxaAnualPct: taxa$,
+        amortizacao: prazo$ > 0 ? saldo$ / prazo$ : 0,
+      }),
+    [saldoNovo, taxa$, saldo$, prazo$]
+  );
+  const prazoSac = sacPrazoCalc.meses;
+  const sacPrazo = { totalJuros: sacPrazoCalc.totalJuros, parcela: sacPrazoCalc.primeiraParcela };
+  const sacParcela = useMemo(
+    () => parcelaSac({ valor: saldoNovo, entrada: 0, taxaAnualPct: taxa$, meses: prazo$ }),
+    [saldoNovo, taxa$, prazo$]
+  );
+
+  const prazoOk = sac || (baseA.mesesSem !== null && comA.mesesSem !== null);
+  const mesesCaem = sac ? prazo$ - prazoSac : prazoOk ? (baseA.mesesSem ?? 0) - (comA.mesesSem ?? 0) : 0;
+  const economiaPrazo = sac
+    ? Math.max(0, baseSac.totalJuros - sacPrazo.totalJuros)
+    : prazoOk ? Math.max(0, baseA.jurosSem - comA.jurosSem) : 0;
+  const prazoNovo = sac ? prazoSac : (comA.mesesSem ?? 0);
 
   /* Cenário B: mantém o prazo, alivia a parcela. */
   const comB = useMemo(
@@ -110,8 +142,11 @@ export default function AmortizacaoPage() {
       }),
     [saldoNovo, taxa$, prazo$]
   );
-  const quedaParcela = teorica.parcela - comB.parcela;
-  const economiaParcela = Math.max(0, teorica.totalJuros - comB.totalJuros);
+  const parcelaNova = sac ? sacParcela.parcela : comB.parcela;
+  const quedaParcela = sac ? baseSac.parcela - sacParcela.parcela : teorica.parcela - comB.parcela;
+  const economiaParcela = sac
+    ? Math.max(0, baseSac.totalJuros - sacParcela.totalJuros)
+    : Math.max(0, teorica.totalJuros - comB.totalJuros);
 
   const melhorPrazo = economiaPrazo >= economiaParcela;
   const melhorEconomia = Math.max(economiaPrazo, economiaParcela);
@@ -155,15 +190,49 @@ export default function AmortizacaoPage() {
               value={taxa}
               onChange={setTaxa}
             />
-            <Campo
-              label="Parcela atual"
-              prefixo="R$"
-              value={parcelaAtual}
-              onChange={setParcelaAtual}
-              hint={`Para esse saldo e prazo, a parcela PRICE seria ${brl(
-                teorica.parcela
-              )}.`}
-            />
+            <div className="sm:col-span-2">
+              <p className="mb-1.5 text-xs font-semibold text-slate-600">Sistema do seu contrato</p>
+              <div className="grid grid-cols-2 gap-2" role="radiogroup" aria-label="Sistema do seu contrato">
+                {([
+                  ["sac", "SAC", "Parcela cai todo mês (a maioria dos imóveis)"],
+                  ["price", "PRICE", "Parcela fixa"],
+                ] as const).map(([id, nome, nota]) => (
+                  <button
+                    key={id}
+                    type="button"
+                    role="radio"
+                    aria-checked={sistema === id}
+                    onClick={() => setSistema(id)}
+                    className={`min-h-11 rounded-xl border px-3 py-2 text-left transition-colors ${
+                      sistema === id ? "border-primary bg-primary text-white" : "border-slate-200 bg-white text-slate-700 hover:border-primary/40"
+                    }`}
+                  >
+                    <span className="block text-sm font-semibold">{nome}</span>
+                    <span className={`block text-[11px] ${sistema === id ? "text-white/75" : "text-slate-500"}`}>{nota}</span>
+                  </button>
+                ))}
+              </div>
+              <p className="mt-1 text-[11px] text-slate-500">Está no contrato ou no extrato do banco.</p>
+            </div>
+            {sac ? (
+              <div>
+                <p className="mb-1.5 text-xs font-semibold text-slate-600">Próxima parcela (SAC)</p>
+                <p className="flex h-11 items-center rounded-xl border border-slate-200 bg-slate-50 px-3.5 text-[0.9375rem] tabular-nums text-slate-700">
+                  {brl(baseSac.parcela)}
+                </p>
+                <p className="mt-1 text-[11px] text-slate-500">Saldo ÷ meses restantes + juros do mês. Confira com o seu boleto.</p>
+              </div>
+            ) : (
+              <Campo
+                label="Parcela atual"
+                prefixo="R$"
+                value={parcelaAtual}
+                onChange={setParcelaAtual}
+                hint={`Para esse saldo e prazo, a parcela PRICE seria ${brl(
+                  teorica.parcela
+                )}.`}
+              />
+            )}
             <Campo
               label="Prazo restante"
               sufixo="meses"
@@ -212,8 +281,9 @@ export default function AmortizacaoPage() {
               </h2>
             </div>
             <p className="text-[11px] text-slate-500 mt-1">
-              A parcela continua a mesma e o financiamento simplesmente termina
-              antes.
+              {sac
+                ? "A amortização mensal continua a mesma e o contrato acaba antes. A parcela também cai um pouco, porque o juro incide sobre um saldo menor."
+                : "A parcela continua a mesma e o financiamento simplesmente termina antes."}
             </p>
             <p className="text-2xl font-bold mt-4 tabular-nums text-slate-900">
               {prazoOk && validos ? `${mesesCaem} meses` : "n/d"}
@@ -231,7 +301,7 @@ export default function AmortizacaoPage() {
               <div className="rounded-xl bg-slate-50 p-3">
                 <p className="text-[11px] text-slate-500">Novo prazo</p>
                 <p className="text-sm font-semibold tabular-nums text-slate-800 mt-0.5">
-                  {prazoOk ? mesesTexto(comA.mesesSem ?? 0) : "n/d"}
+                  {prazoOk ? mesesTexto(prazoNovo) : "n/d"}
                 </p>
               </div>
             </div>
@@ -255,10 +325,12 @@ export default function AmortizacaoPage() {
               </h2>
             </div>
             <p className="text-[11px] text-slate-500 mt-1">
-              O prazo fica igual e o alívio aparece todo mês no orçamento.
+              {sac
+                ? "O prazo fica igual. A amortização é recalculada (saldo ÷ meses restantes) e todas as parcelas caem."
+                : "O prazo fica igual e o alívio aparece todo mês no orçamento."}
             </p>
             <p className="text-2xl font-bold mt-4 tabular-nums text-slate-900">
-              {brl(comB.parcela)}
+              {brl(parcelaNova)}
             </p>
             <p className="text-[11px] text-slate-500 mt-0.5">
               nova parcela, {brl(quedaParcela)} a menos por mês
@@ -327,7 +399,8 @@ export default function AmortizacaoPage() {
             a dívida continua viva pelos mesmos anos e o banco segue cobrando
             até o último mês. Reduzir a parcela só faz mais sentido quando o
             orçamento do mês está apertado e o alívio imediato vale mais que a
-            economia futura.
+            economia futura. Cada banco pode ter regra própria de recálculo: peça a
+            simulação da amortização antes de pagar.
           </p>
         </section>
 
@@ -336,21 +409,21 @@ export default function AmortizacaoPage() {
           validos={validos}
           abatimento={abate$}
           taxaAnualPct={taxa$}
-          parcelaInformada={parcela$}
-          parcelaTeorica={teorica.parcela}
+          parcelaInformada={sac ? sacPrazo.parcela : parcela$}
+          parcelaTeorica={sac ? sacPrazo.parcela : teorica.parcela}
           prazo={prazo$}
           caminhoPrazo={{
             ok: prazoOk,
-            jurosSem: baseA.jurosSem,
-            jurosCom: comA.jurosSem,
-            mesesSem: baseA.mesesSem,
-            mesesCom: comA.mesesSem,
+            jurosSem: sac ? baseSac.totalJuros : baseA.jurosSem,
+            jurosCom: sac ? sacPrazo.totalJuros : comA.jurosSem,
+            mesesSem: sac ? prazo$ : baseA.mesesSem,
+            mesesCom: sac ? prazoSac : comA.mesesSem,
             economia: economiaPrazo,
           }}
           caminhoParcela={{
-            jurosSem: teorica.totalJuros,
-            jurosCom: comB.totalJuros,
-            parcelaNova: comB.parcela,
+            jurosSem: sac ? baseSac.totalJuros : teorica.totalJuros,
+            jurosCom: sac ? sacParcela.totalJuros : comB.totalJuros,
+            parcelaNova,
             queda: quedaParcela,
             economia: economiaParcela,
           }}

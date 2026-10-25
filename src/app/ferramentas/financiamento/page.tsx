@@ -67,7 +67,7 @@ const PRESETS: Record<
     meses: "360",
     taxa: "10,5",
     icone: <Building2 className="h-3.5 w-3.5" />,
-    linha: "Imóvel costuma sair entre 9% e 12% ao ano, com prazo de até 35 anos.",
+    linha: "Nos grandes bancos, o imóvel sai entre 12% e 14,5% ao ano, mais a TR (Banco Central, set/2026), com prazo de até 35 anos.",
   },
   carro: {
     titulo: "Quanto custa de verdade financiar o carro",
@@ -78,7 +78,7 @@ const PRESETS: Record<
     meses: "48",
     taxa: "24",
     icone: <Car className="h-3.5 w-3.5" />,
-    linha: "Veículo é caro: 20% a 28% ao ano é o normal do mercado.",
+    linha: "Veículo é caro: 20% a 28% ao ano é o normal do mercado. O banco informou ao mês? Não multiplique por 12: 1,99% ao mês = 26,68% ao ano.",
   },
   terreno: {
     titulo: "Quanto custa de verdade financiar o terreno",
@@ -229,11 +229,14 @@ function SimuladorTipo({ tipo }: { tipo: Tipo }) {
               hint={`${pct(entradaPct, 0)} do valor do bem.`}
             />
             <Campo
-              label="Juros do contrato"
+              label="Juros do contrato (taxa efetiva)"
               sufixo="% ao ano"
               value={taxa}
               onChange={setTaxa}
-              hint={preset.linha}
+              /* Efetiva, como publica o Banco Central e como pede a lei do SFH (Lei 8.692, art. 25).
+                 O contrato traz também a nominal, que é menor: digitada aqui, a parcela pareceria
+                 mais barata (verificado em 25/10/2026). */
+              hint={`${preset.linha} Use a taxa efetiva anual do contrato; a nominal é menor e faria a parcela parecer mais barata. Equivale a ${pct(price.taxaMensal * 100, 4)} ao mês.`}
             />
             <Campo
               label="Prazo"
@@ -257,6 +260,15 @@ function SimuladorTipo({ tipo }: { tipo: Tipo }) {
           <p className="text-sm text-white/70 mt-3">
             Você financia {brlCurto(price.principal)} e devolve ao banco{" "}
             {brlCurto(price.totalJuros)} só de juros.
+          </p>
+          {/* Seguros, tarifa e TR ficam fora da conta: a parcela do banco vem maior. O CET é o número
+              para comparar bancos (Res. CMN 4.881/2020), e ele não inclui a TR. */}
+          <p className="mx-auto mt-4 max-w-xl text-xs leading-relaxed text-white/60">
+            {tipo === "carro"
+              ? "Esta conta mostra só juros e amortização. A parcela do banco pode vir maior: soma IOF, tarifas e seguro, quando houver."
+              : "Esta conta mostra só juros e amortização. A parcela do banco vem maior: soma os seguros obrigatórios (MIP, morte e invalidez; DFI, danos ao imóvel), a tarifa mensal, quando houver, e, em contrato \"TR + juros\", a correção do saldo pela TR."}{" "}
+            Para comparar bancos, peça o CET (Custo Efetivo Total), que o banco é obrigado a informar
+            antes da assinatura.
           </p>
         </section>
 

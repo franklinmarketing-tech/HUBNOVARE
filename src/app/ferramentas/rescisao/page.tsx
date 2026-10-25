@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { FileText } from "lucide-react";
 import { brl, parseNumero } from "@/lib/calculos";
-import { rescisao, type MotivoRescisao } from "@/lib/trabalhista";
+import { rescisao, type FeriasVencidas, type MotivoRescisao } from "@/lib/trabalhista";
 import {
   Campo,
   CascaFerramenta,
@@ -43,18 +43,24 @@ export default function RescisaoPage() {
   const [dias, setDias] = useState("15");
   const [saldoFgts, setSaldoFgts] = useState("5760");
   const [motivo, setMotivo] = useState<MotivoRescisao>("sem-justa-causa");
-  const [vencidas, setVencidas] = useState(false);
+  // Simples ou em dobro (CLT art. 137): a caixinha de sim/não pagava sempre simples (25/10/2026).
+  const [vencidas, setVencidas] = useState<FeriasVencidas>("nenhuma");
   /* Os avos de 13º e de férias contam os meses do ANO, não os de casa.
      Sem este campo, quem tinha 12, 24 ou 36 meses de empresa recebia zero
      das duas verbas — e a tela nem mostrava a linha. */
   const [mesesNoAno, setMesesNoAno] = useState("8");
 
+  const mesesCasa = Math.max(0, Math.round(parseNumero(meses)) || 0);
+  // Opção que o tempo de casa não permite (ex.: dobro com 18 meses) não entra na conta.
+  const vencidasValidas: FeriasVencidas =
+    vencidas === "simples" ? (mesesCasa >= 12 ? vencidas : "nenhuma") : vencidas !== "nenhuma" && mesesCasa < 24 ? "nenhuma" : vencidas;
+
   const r = rescisao(
     Math.max(0, parseNumero(salario)),
-    Math.max(0, Math.round(parseNumero(meses)) || 0),
+    mesesCasa,
     Math.max(0, Math.round(parseNumero(dias)) || 0),
     motivo,
-    vencidas,
+    vencidasValidas,
     Math.max(0, parseNumero(saldoFgts)),
     0,
     Math.max(0, Math.min(12, Math.round(parseNumero(mesesNoAno)) || 0)),
@@ -149,17 +155,26 @@ export default function RescisaoPage() {
             consumo de IA. Os campos acima continuam todos preenchíveis à
             mão, que é como a ferramenta sempre funcionou por baixo. */}
 
-        <label className="mt-4 flex items-center gap-2.5 cursor-pointer">
-          <input
-            type="checkbox"
-            checked={vencidas}
-            onChange={(e) => setVencidas(e.target.checked)}
-            className="h-4 w-4 rounded border-slate-300 accent-[var(--color-accent)]"
-          />
-          <span className="text-sm text-slate-600">
-            Tenho férias vencidas não tiradas
-          </span>
-        </label>
+        <div className="mt-4">
+          <label htmlFor="ferias-vencidas" className="mb-1 block text-xs font-semibold text-slate-600">
+            Férias vencidas não tiradas
+          </label>
+          <select
+            id="ferias-vencidas"
+            value={vencidas}
+            onChange={(e) => setVencidas(e.target.value as FeriasVencidas)}
+            className="h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-[0.9375rem] outline-none focus:border-accent focus:ring-4 focus:ring-accent/12"
+          >
+            <option value="nenhuma">Não tenho férias vencidas</option>
+            <option value="simples" disabled={mesesCasa < 12}>Venceram há menos de 12 meses (simples)</option>
+            <option value="dobro" disabled={mesesCasa < 24}>Venceram há mais de 12 meses (em dobro)</option>
+            <option value="simples+dobro" disabled={mesesCasa < 24}>Dois períodos: um no prazo e um fora</option>
+          </select>
+          <p className="mt-1 text-[11px] leading-relaxed text-slate-500">
+            O seu período de férias fecha a cada aniversário de admissão. A empresa tem os 12 meses
+            seguintes para dar as férias; passou disso, paga em dobro.
+          </p>
+        </div>
       </section>
 
       <Resultado
@@ -213,9 +228,14 @@ export default function RescisaoPage() {
           )}
           {r.feriasVencidas > 0 && (
             <Linha
-              rotulo="Férias vencidas + 1/3"
+              rotulo={vencidasValidas === "simples" ? "Férias vencidas + 1/3" : "Férias vencidas + 1/3, com dobra"}
               valor={brl(r.feriasVencidas)}
               tom="ganho"
+              detalhe={
+                vencidasValidas === "simples"
+                  ? "Dentro do prazo de concessão. Não sofrem INSS nem IR."
+                  : "Fora do prazo, a empresa paga em dobro (arts. 137 e 146 da CLT). Não sofrem INSS nem IR."
+              }
             />
           )}
           {r.feriasProporcionais > 0 && (

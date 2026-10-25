@@ -99,6 +99,10 @@ eq("projeção trava em 12 avos", rescisao(3000, 24, 10, "sem-justa-causa", fals
 // meio centavo arredonda para cima, sem tolerância
 eq("INSS 1.621 = 121,575 → 121,58 (exato)", inss(1621), 121.58, 0.001);
 eq("seguro média 3.000 → 2.166,66 (exato)", seguroDesemprego([3000, 3000, 3000], 14, 1).valorParcela, 2166.66, 0.001);
+eq("férias vencidas no prazo: simples (3.000 + 1/3)", rescisao(3000, 24, 10, "sem-justa-causa", "simples", 0, 0, 8).feriasVencidas, 4000, 0.001);
+eq("férias vencidas fora do prazo: em dobro (CLT 137)", rescisao(3000, 36, 10, "sem-justa-causa", "dobro", 0, 0, 8).feriasVencidas, 8000, 0.001);
+eq("um período de cada: 3×", rescisao(3000, 36, 10, "pedido-demissao", "simples+dobro", 0, 0, 8).feriasVencidas, 12000, 0.001);
+eq("justa causa também recebe a dobra (art. 146)", rescisao(3000, 36, 10, "justa-causa", "dobro", 0, 0, 8).feriasVencidas, 8000, 0.001);
 eq("seguro sem salário informado não promete nada", seguroDesemprego([0, 0, 0], 24, 1).total, 0, 0.001);
 
 console.log(falhas ? `\n${falhas} FALHARAM` : "\nTUDO CERTO");

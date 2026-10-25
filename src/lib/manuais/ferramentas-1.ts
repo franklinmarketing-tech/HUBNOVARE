@@ -497,7 +497,7 @@ export const MANUAIS_FERRAMENTAS_1: Record<string, Manual> = {
       "Em \"Como foi o desligamento\", escolha o motivo da saída.",
       "Digite o \"Último salário\" e o \"Tempo de empresa\" em meses.",
       "Preencha os \"Dias trabalhados no mês da saída\" e os \"Meses trabalhados neste ano\".",
-      "Informe o \"Saldo do FGTS\" e marque \"Tenho férias vencidas não tiradas\", se for o seu caso.",
+      "Informe o \"Saldo do FGTS\" e, em \"Férias vencidas não tiradas\", diga se venceram há menos ou há mais de 12 meses.",
       "Veja o \"Total a receber\" e confira \"Verba por verba\" contra o papel da empresa.",
       "Desça até a \"Análise completa\" e veja se você tem direito ao seguro-desemprego.",
     ],
@@ -530,8 +530,8 @@ export const MANUAIS_FERRAMENTAS_1: Record<string, Manual> = {
           "O FGTS é o depósito mensal que a empresa faz numa conta da Caixa em seu nome. Veja o saldo no app FGTS. É a base da multa.",
       },
       {
-        nome: "Tenho férias vencidas não tiradas",
-        explica: "Marque se você já completou um período de férias e não tirou. Elas entram na conta com o adicional de 1/3.",
+        nome: "Férias vencidas não tiradas",
+        explica: "Se você completou um período de férias e não tirou. Venceram há menos de 12 meses: entram simples, com 1/3. Há mais de 12 meses, a empresa perdeu o prazo e paga em dobro (CLT, art. 137).",
       },
     ],
     resultado: [

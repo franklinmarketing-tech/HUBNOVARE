@@ -256,6 +256,34 @@ export function parcelaPrice({
  *
  * Sanidade: R$ 320 mil, 10,5% a.a., 360 meses → 1ª ≈ R$ 3.562, última ≈ R$ 896.
  */
+/**
+ * SAC depois de uma amortização extra, REDUZINDO O PRAZO: a amortização mensal continua a mesma
+ * (saldo antigo ÷ meses antigos) e o contrato acaba antes, com a última parcela menor. É a conta
+ * exata — recalcular a amortização pelo prazo arredondado ficava ~1% abaixo (25/10/2026).
+ */
+export function sacMantendoAmortizacao({
+  saldo,
+  taxaAnualPct,
+  amortizacao,
+}: {
+  saldo: number;
+  taxaAnualPct: number;
+  amortizacao: number;
+}): { meses: number; totalJuros: number; primeiraParcela: number } {
+  const i = taxaAnualParaMensal(taxaAnualPct);
+  let resta = positivo(saldo);
+  if (resta <= 0 || amortizacao <= 0) return { meses: 0, totalJuros: 0, primeiraParcela: 0 };
+  const primeiraParcela = Math.min(amortizacao, resta) + resta * i;
+  let meses = 0;
+  let totalJuros = 0;
+  while (resta > 0.005 && meses < 1200) {
+    totalJuros += resta * i;
+    resta -= Math.min(amortizacao, resta);
+    meses++;
+  }
+  return { meses, totalJuros, primeiraParcela };
+}
+
 export function parcelaSac({
   valor,
   entrada,
@@ -601,6 +629,8 @@ export interface TesouroParams {
   /** Taxa contratada ao ano, em % (no IPCA+, some juro real + inflação estimada). */
   taxaAnualPct: number;
   anos: number;
+  /** Isenção de custódia da B3: R$ 10.000 por CPF no Tesouro Selic; 0 nos outros. */
+  isencaoCustodia?: number;
 }
 
 export interface ResultadoTesouro {
@@ -609,6 +639,8 @@ export interface ResultadoTesouro {
   juros: number;
   ir: number;
   aliquotaIrPct: number;
+  /** Taxa de custódia da B3 acumulada até o resgate. */
+  custodia: number;
   liquido: number;
   /** Rentabilidade líquida anual equivalente, em %. */
   taxaLiquidaAnualPct: number;
@@ -616,15 +648,18 @@ export interface ResultadoTesouro {
 }
 
 /**
- * Projeção de título com IR regressivo cobrado no resgate, sobre o rendimento.
- * Não modela taxa de custódia da B3 nem marcação a mercado — é a conta de quem
- * leva o título até o vencimento.
+ * Projeção de título com IR regressivo cobrado no resgate, sobre o rendimento, e com a TAXA DE
+ * CUSTÓDIA DA B3: 0,20% ao ano sobre o valor dos títulos, provisionada dia a dia e descontada no
+ * resgate ou no vencimento (a cobrança semestral acabou em 2025). Tesouro Selic isento até
+ * R$ 10 mil por CPF. Fonte: tesourodireto.com.br/sobre-o-tesouro/regras-e-regulamento (conferido
+ * em 25/10/2026). Não modela marcação a mercado nem a taxa da corretora (a maioria cobra zero).
  */
 export function simularTesouro({
   valorInicial,
   aporteMensal,
   taxaAnualPct,
   anos,
+  isencaoCustodia = 0,
 }: TesouroParams): ResultadoTesouro {
   const evolucao = jurosCompostos({
     inicial: valorInicial,
@@ -639,7 +674,16 @@ export function simularTesouro({
   const meses = (evolucao.length - 1) * 12;
   const aliquota = irRegressivo(meses);
   const ir = fim.juros * (aliquota / 100);
-  const liquido = fim.total - ir;
+  // Custódia mês a mês sobre o saldo do mês (o mesmo fluxo da projeção). IR sobre o rendimento
+  // bruto, sem abater a custódia: o lado conservador.
+  const iMes = taxaAnualParaMensal(taxaAnualPct);
+  let saldoCustodia = positivo(valorInicial);
+  let custodia = 0;
+  for (let m = 0; m < meses; m++) {
+    saldoCustodia = saldoCustodia * (1 + iMes) + positivo(aporteMensal);
+    custodia += (Math.max(0, saldoCustodia - Math.max(0, isencaoCustodia)) * 0.002) / 12;
+  }
+  const liquido = fim.total - ir - custodia;
 
   /* Taxa líquida equivalente: a taxa anual que, com os MESMOS aportes nas mesmas datas, chega
      ao líquido. ⚠️ Era (líquido/investido)^(1/anos) − 1, como se tudo tivesse entrado no dia 1:
@@ -670,6 +714,7 @@ export function simularTesouro({
     juros: fim.juros,
     ir,
     aliquotaIrPct: aliquota,
+    custodia,
     liquido,
     taxaLiquidaAnualPct: taxaLiquida,
     evolucao,

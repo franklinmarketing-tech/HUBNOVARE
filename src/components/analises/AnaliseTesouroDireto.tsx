@@ -33,8 +33,8 @@ import {
  * Tudo sai de `simularTesouro`, que a página já roda. O gráfico de barras
  * aplica a MESMA tabela regressiva (`irRegressivo`) à evolução ano a ano, para
  * mostrar quanto ficaria líquido se o resgate fosse no fim de cada ano. Como
- * na página, não entra taxa de custódia nem marcação a mercado: é a conta de
- * quem leva o título até o vencimento. Não recomenda título nenhum.
+ * na página, não entra marcação a mercado. As barras ano a ano não descontam a custódia da B3
+ * (0,20% a.a.); o líquido final da página desconta. Não recomenda título nenhum.
  */
 
 type Modo = "selic" | "prefixado" | "ipca";
@@ -233,7 +233,7 @@ export function AnaliseTesouroDireto({
 
       <Recomendacoes
         itens={recs.slice(0, 4)}
-        rodape="A simulação não inclui a taxa de custódia da B3 nem a variação de preço antes do vencimento. Confira esses custos no extrato."
+        rodape="A simulação já desconta o IR e a taxa de custódia da B3. Não inclui a taxa da corretora nem a variação de preço antes do vencimento."
       />
     </CascaAnalise>
   );

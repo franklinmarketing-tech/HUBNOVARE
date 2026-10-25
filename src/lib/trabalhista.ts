@@ -320,6 +320,9 @@ export type MotivoRescisao =
   | "acordo"
   | "justa-causa";
 
+/** Férias vencidas: "simples" (no prazo), "dobro" (passou dos 12 meses de concessão) ou um de cada. */
+export type FeriasVencidas = "nenhuma" | "simples" | "dobro" | "simples+dobro";
+
 export type Rescisao = {
   saldoSalario: number;
   avisoPrevio: number;
@@ -351,7 +354,11 @@ export function rescisao(
   mesesNaEmpresa: number,
   diasTrabalhadosNoMes: number,
   motivo: MotivoRescisao,
-  feriasVencidasPendentes = false,
+  /**
+   * Férias vencidas não tiradas. `true` = um período dentro do prazo (simples). "dobro" = um
+   * período fora do prazo de concessão; "simples+dobro" = um de cada (máximo legal na prática).
+   */
+  feriasVencidasPendentes: boolean | FeriasVencidas = false,
   saldoFgts = 0,
   dependentes = 0,
   /** Meses trabalhados no ano corrente — os avos de 13º e de férias. */
@@ -410,9 +417,17 @@ export function rescisao(
     ? 0
     : arredondar((salario / 12) * avos);
 
-  const feriasVencidas = feriasVencidasPendentes
-    ? arredondar(salario + salario / 3)
-    : 0;
+  /**
+   * ⚠️ FORA DO PRAZO É EM DOBRO (CLT arts. 134, 137 e 146; Súmulas 7, 81 e 328 do TST). A empresa
+   * tem os 12 meses seguintes ao período aquisitivo para dar as férias; passou disso, paga em dobro,
+   * com o 1/3 também dobrado — qualquer que seja o motivo da saída. A ADPF 501 do STF derrubou a
+   * Súmula 450 (dobra por ATRASO NO PAGAMENTO), não o art. 137. Antes o app pagava sempre simples
+   * (auditoria de 25/10/2026). Sem INSS (Lei 8.212, art. 28 §9º "d") nem IR.
+   */
+  const tipoVencidas: FeriasVencidas =
+    feriasVencidasPendentes === true ? "simples" : feriasVencidasPendentes || "nenhuma";
+  const pesoVencidas = { nenhuma: 0, simples: 1, dobro: 2, "simples+dobro": 3 }[tipoVencidas];
+  const feriasVencidas = arredondar((salario + salario / 3) * pesoVencidas);
 
   const feriasProporcionais = justaCausa
     ? 0

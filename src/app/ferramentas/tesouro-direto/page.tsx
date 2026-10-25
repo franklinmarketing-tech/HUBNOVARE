@@ -62,8 +62,9 @@ export default function TesouroDiretoPage() {
         aporteMensal: parseNumero(aporte),
         taxaAnualPct: taxaTotal,
         anos: parseNumero(anos),
+        isencaoCustodia: modo === "selic" ? 10000 : 0,
       }),
-    [valorInicial, aporte, taxaTotal, anos]
+    [valorInicial, aporte, taxaTotal, anos, modo]
   );
 
   return (
@@ -115,7 +116,7 @@ export default function TesouroDiretoPage() {
           <p className="text-white/75 mt-4 max-w-xl">
             Escolha o tipo de título, ajuste taxa e prazo e veja o resultado
             bruto e líquido. A projeção é de quem leva o título até o
-            vencimento.
+            vencimento, já descontando o IR e a taxa de custódia da B3.
           </p>
         </section>
 
@@ -210,7 +211,15 @@ export default function TesouroDiretoPage() {
           <p className="text-sm text-white/70 mt-3">
             {brlCurto(resultado.investido)} investidos viram{" "}
             {brlCurto(resultado.bruto)} brutos. O IR fica com{" "}
-            {brlCurto(resultado.ir)} do rendimento.
+            {brlCurto(resultado.ir)} do rendimento e a custódia da B3 com{" "}
+            {brlCurto(resultado.custodia)}.
+          </p>
+          {/* Custódia (25/10/2026): 0,20% a.a. sobre o valor dos títulos, descontada no resgate ou no
+              vencimento; Selic isento até R$ 10 mil por CPF (regras do Tesouro Direto). */}
+          <p className="mt-2 max-w-xl text-xs leading-relaxed text-white/60">
+            Custódia da B3: 0,20% ao ano sobre o valor dos títulos, cobrada no resgate ou no
+            vencimento.{modo === "selic" ? " No Tesouro Selic, os primeiros R$ 10 mil por CPF são isentos, somando todos os seus títulos Selic." : ""}{" "}
+            A taxa da sua corretora não entra na conta: a maioria cobra zero, mas confira a sua.
           </p>
         </section>
 
