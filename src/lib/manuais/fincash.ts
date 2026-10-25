@@ -76,6 +76,12 @@ export const MANUAIS_FINCASH: Record<string, Manual> = {
       "No rodapé do quadro, Ainda a receber, Ainda a pagar e O mês fecha com mostram o que falta acontecer e onde o mês termina.",
       "Cada dia tem uma faixa com o total do dia; linhas com fundo claro ainda são previstas.",
     ],
+    tour: [
+      { alvo: "Lançar", titulo: "Lançar", explica: "Toque aqui para anotar um gasto ou um dinheiro recebido: escolha Saiu ou Entrou e preencha Quanto, O que foi, Quando, Categoria e Conta." },
+      { alvo: "Do que já entrou e saiu", titulo: "O resultado do mês", explica: "Só o que já aconteceu: o que entrou menos o que saiu, contando as linhas marcadas como pagas." },
+      { alvo: "Hoje / Ontem / Segunda / Terça / Quarta / Quinta / Sexta / Sábado / Domingo", titulo: "Os dias do mês", explica: "Cada dia tem uma faixa com o total do dia. Linha com fundo claro ainda é prevista; toque no círculo ao lado dela para marcar como paga." },
+      { alvo: "Apagar", titulo: "Apagar", explica: "Toque em Apagar, use a lixeira da linha e depois toque em Pronto. O que você apaga fica 30 dias na Lixeira, em Meus dados." },
+    ],
     duvidas: [
       { p: "Lancei uma compra em 10 vezes. Preciso lançar todo mês?", r: "Não. Em Parcelas, coloque 10 e o app cria as dez de uma vez, uma por mês." },
       { p: "Qual a diferença entre o número do topo e o do Painel?", r: "Aqui o topo soma só o que já foi pago. O Painel mostra a previsão do mês, incluindo o que ainda está previsto." },
@@ -114,6 +120,13 @@ export const MANUAIS_FINCASH: Record<string, Manual> = {
       "O quadro O que vem pela frente soma, mês a mês, o que já está lançado nos cartões. Toque num mês para abri-lo.",
       "Em cada cartão, a frase “A próxima fatura … já tem” mostra o que já está comprometido para o mês seguinte, inclusive parcelas.",
       "Ao confirmar o pagamento, nasce uma despesa na conta escolhida, e é ela que tira o dinheiro do saldo.",
+    ],
+    tour: [
+      { alvo: "Novo cartão / Cadastrar o primeiro", titulo: "Cadastrar um cartão", explica: "Informe o nome, o dia em que a fatura fecha e o dia em que vence. Limite e conta que paga são opcionais." },
+      { alvo: "De fatura, ainda falta pagar", titulo: "Quanto falta pagar", explica: "Quanto ainda falta pagar de fatura no mês escolhido, somando todos os cartões. O anel mostra a parte já paga." },
+      { alvo: "O que vem pela frente", titulo: "O que vem pela frente", explica: "Soma, mês a mês, o que já está lançado nos cartões, inclusive parcelas. Toque num mês para abri-lo." },
+      { alvo: "A pagar / Fatura do período", titulo: "A fatura do cartão", explica: "Quanto ainda falta pagar dessa fatura, ou o total dela quando já está paga." },
+      { alvo: "Pagar", titulo: "Pagar a fatura", explica: "Na hora de pagar, toque aqui, escolha de qual conta sai e quando foi pago, e confirme. Nasce uma despesa nessa conta, e é ela que tira o dinheiro do saldo." },
     ],
     duvidas: [
       { p: "Por que a compra caiu na fatura do mês seguinte?", r: "Porque foi feita depois do dia de fechamento. A tela mostra o período de compras de cada fatura." },
@@ -154,6 +167,12 @@ export const MANUAIS_FINCASH: Record<string, Manual> = {
       "A barra com marca compara o gasto com o calendário: se o gasto passar da marca do mês, o orçamento está sendo consumido mais rápido do que o mês corre.",
       "Cada linha mostra “gasto de limite” e uma barra; a frase do topo cita as linhas que já passaram do limite.",
     ],
+    tour: [
+      { alvo: "Você planejou", titulo: "Planejado × gasto", explica: "Planejado é a soma dos limites que você definiu; o número grande é o que já foi gasto nessas categorias." },
+      { alvo: "Necessidades / Estilo de vida / Futuro e reservas", titulo: "Os grupos", explica: "As categorias ficam em grupos. Cada linha mostra quanto já foi gasto do limite, com uma barra." },
+      { alvo: "Definir", titulo: "Definir o limite", explica: "Toque em Definir (ou no valor atual), digite o limite e escolha se vale Só neste mês ou Todo mês." },
+      { alvo: "Usar a média", titulo: "Usar a média", explica: "Preenche o limite com a média dos meses anteriores. Aparece quando a categoria tem pelo menos dois meses de histórico e ainda não tem limite." },
+    ],
     duvidas: [
       { p: "Qual a diferença entre Só neste mês e Todo mês?", r: "Só neste mês vale para o mês atual. Todo mês repete o valor nos outros meses; meses que você ajustou à mão mantêm o valor próprio." },
       { p: "Por que não aparece Usar a média?", r: "Ela só aparece com pelo menos dois meses de histórico na categoria e quando a linha ainda não tem limite." },
@@ -189,6 +208,12 @@ export const MANUAIS_FINCASH: Record<string, Manual> = {
       "Depois de importar, a mensagem Pronto diz quantos lançamentos entraram e quantos já estavam lá ou foram desmarcados.",
       "Se o arquivo parecer extrato de cartão e você escolher uma conta, a tela avisa para escolher um cartão.",
       "Com um cartão como destino, cada linha mostra de qual fatura ela vai fazer parte.",
+    ],
+    tour: [
+      { alvo: "1. O arquivo do banco", titulo: "O arquivo do banco", explica: "No app do seu banco, exporte o extrato em OFX e toque em Escolher arquivo .ofx. O arquivo é lido no seu navegador e não sobe para lugar nenhum." },
+      { alvo: "2. Onde esse dinheiro entra", titulo: "Onde o dinheiro entra", explica: "Extrato de conta vai para a conta; fatura de cartão vai para o cartão, e cada compra cai na fatura certa." },
+      { alvo: "3. Confira antes de gravar", titulo: "Confira antes de gravar", explica: "Desmarque o que não quer trazer e ajuste a categoria de cada linha. O que já tinha entrado antes fica de fora, sem duplicar." },
+      { alvo: "O que você já importou", titulo: "O que você já importou", explica: "A lista dos arquivos já trazidos, com quantas linhas entraram e quantas foram ignoradas." },
     ],
     duvidas: [
       { p: "Se eu importar o mesmo arquivo duas vezes, duplica?", r: "Não. As linhas que já foram importadas aparecem como já está no app e ficam de fora." },
@@ -226,6 +251,12 @@ export const MANUAIS_FINCASH: Record<string, Manual> = {
       "As listas Entra todo mês e Sai todo mês mostram cada item com o dia em que cai e o total de cada lado.",
       "Cada conta fixa aparece sozinha em Lançamentos como prevista; ao pagar, marque lá como paga.",
     ],
+    tour: [
+      { alvo: "Nova conta fixa / Cadastrar a primeira", titulo: "Cadastrar uma conta fixa", explica: "Aluguel, internet, salário: escolha Sai todo mês ou Entra todo mês e preencha O que é, Quanto e Dia do mês. O app lança sozinho todo mês, como previsto." },
+      { alvo: "Todo mês, antes de qualquer gasto", titulo: "O que sobra todo mês", explica: "Renda fixa menos contas fixas: o que sobra (ou falta) antes de qualquer gasto do dia a dia." },
+      { alvo: "Entra todo mês", titulo: "Entra todo mês", explica: "As rendas que se repetem, com o dia em que caem e o total." },
+      { alvo: "Sai todo mês", titulo: "Sai todo mês", explica: "As contas que se repetem. Para parar uma, toque no X da linha; o que já foi lançado continua no histórico." },
+    ],
     duvidas: [
       { p: "Se eu desligar uma conta fixa, perco o que já foi lançado?", r: "Não. Os lançamentos já criados continuam no histórico." },
       { p: "A luz veio mais cara este mês. Onde corrijo?", r: "No lançamento do mês, em Lançamentos. A conta fixa é só a regra que cria a linha." },
@@ -259,6 +290,11 @@ export const MANUAIS_FINCASH: Record<string, Manual> = {
       "O número em destaque é a soma de todas as contas: o saldo inicial de cada uma mais tudo o que já foi lançado como pago. O que está previsto não entra aqui.",
       "A barra colorida mostra a fatia de cada conta no total.",
       "Cada conta mostra o saldo de hoje e quanto ela representa do total.",
+    ],
+    tour: [
+      { alvo: "Nova conta / Cadastrar a primeira", titulo: "Cadastrar uma conta", explica: "Cadastre cada lugar onde há dinheiro: banco, poupança, carteira. Em Quanto tem nela hoje, digite o saldo atual; pode ser aproximado." },
+      { alvo: "Somando todas as contas", titulo: "Quanto você tem hoje", explica: "A soma de todas as contas: o saldo inicial de cada uma mais tudo o que já foi lançado como pago. O que está previsto não entra aqui." },
+      { alvo: "É o saldo inicial", titulo: "De onde vem o número", explica: "Só o que está marcado como pago mexe no saldo. Gasto previsto ainda não tira dinheiro daqui." },
     ],
     duvidas: [
       { p: "Não sei o valor exato. Posso cadastrar mesmo assim?", r: "Pode. O saldo de hoje pode ser aproximado; ele é só o ponto de partida." },
@@ -300,6 +336,14 @@ export const MANUAIS_FINCASH: Record<string, Manual> = {
       "O alerta “Uma dívida sua está crescendo” aparece quando a parcela não cobre nem o juro do mês, e mostra quanto pagar para ela parar de crescer.",
       "O aviso “pode estar contando duas vezes” aparece quando uma dívida tem a mesma parcela de um lançamento.",
     ],
+    tour: [
+      { alvo: "Nova dívida / Cadastrar", titulo: "Cadastrar uma dívida", explica: "Informe o saldo devedor de hoje, a taxa de juros e o valor da parcela. O app calcula quanto é juro e quando você fica livre." },
+      { alvo: "Você ainda deve", titulo: "Você ainda deve", explica: "O total dos saldos devedores; abaixo, a data em que você fica livre no ritmo de hoje." },
+      { alvo: "Comprometimento da renda", titulo: "Comprometimento da renda", explica: "Quanto da receita prevista do mês vai para parcelas de dívida: até 10% sob controle, até 30% merece atenção, até 50% pesado, acima disso crítico." },
+      { alvo: "Em que ordem pagar", titulo: "Em que ordem pagar", explica: "Avalanche paga primeiro a de maior juro (custa menos). Bola de neve paga primeiro o menor saldo. A tela mostra o preço de cada uma; a decisão é sua." },
+      { alvo: "E se você pagasse um pouco a mais", titulo: "Pagar um pouco a mais", explica: "Toque nos valores extras para ver quanto antes você fica livre e quanto economiza de juro." },
+      { alvo: "Registrar pagamento", titulo: "Registrar pagamento", explica: "Todo mês, registre a parcela do mês ou uma amortização extra, que vai inteira no saldo." },
+    ],
     duvidas: [
       { p: "Compra parcelada no cartão precisa ser cadastrada aqui?", r: "Não. Compra parcelada que você já lançou em Lançamentos já está sendo acompanhada." },
       { p: "Avalanche ou Bola de neve: qual escolher?", r: "A tela mostra o preço de cada uma em juro e em meses. A decisão é sua; escolha a que você consegue seguir." },
@@ -338,6 +382,13 @@ export const MANUAIS_FINCASH: Record<string, Manual> = {
       "O medidor mostra quanto da renda prevista isso toma. Pela leitura da casa, até 15% é confortável e até 30% aperta; acima disso, a tela avisa que é plano de risco.",
       "Cada meta mostra o anel com quanto já foi guardado e uma etiqueta: no ritmo, abaixo do ritmo, atrasada, sem prazo, sem aporte ainda ou alvo atingido.",
       "O gráfico O que você guardou compara o Guardado de cada mês com o Plano de hoje.",
+    ],
+    tour: [
+      { alvo: "Nova meta / Criar a primeira meta", titulo: "Criar uma meta", explica: "Diga o que você quer, quanto custa, quanto já tem guardado e para quando. O app calcula quanto separar por mês." },
+      { alvo: "Para todas as suas metas", titulo: "Quanto separar por mês", explica: "Quanto separar por mês para todas as metas ativas com prazo acontecerem. O medidor mostra quanto da renda prevista isso toma." },
+      { alvo: "Já guardado nas metas", titulo: "Já guardado", explica: "Quanto já foi guardado nas metas em andamento e quanto ainda falta." },
+      { alvo: "O que você guardou", titulo: "O que você guardou", explica: "Compara o que foi guardado em cada mês com o plano de hoje." },
+      { alvo: "Guardei", titulo: "Guardei", explica: "Sempre que separar dinheiro, toque aqui e informe quanto e quando. Para retirada, use Tirei." },
     ],
     duvidas: [
       { p: "Por que a meta diz “sem prazo”?", r: "Porque não tem data. Toque em Definir um prazo para o app calcular o valor por mês." },
@@ -378,6 +429,13 @@ export const MANUAIS_FINCASH: Record<string, Manual> = {
       "Patrimônio no FINCASH soma o investido e o que está parado em conta. Imóveis e outros bens não entram.",
       "Em Quanto isso te sustenta, troque entre Juro real de hoje e 4% a.a. (conservador). É uma fotografia de hoje: não considera imposto, novos aportes nem a inflação do seu custo de vida.",
       "Posições sem conferir há mais de 3 meses ganham o aviso Desatualizado; use Atualizar a mais antiga.",
+    ],
+    tour: [
+      { alvo: "Nova posição / Cadastrar a primeira", titulo: "Cadastrar uma aplicação", explica: "Informe o que é, onde está, quanto você aplicou e quanto vale hoje. O app não busca cotação: o valor é o do seu extrato." },
+      { alvo: "Patrimônio no FINCASH", titulo: "Patrimônio no FINCASH", explica: "Soma o investido e o que está parado em conta. Total aplicado é o que você colocou; Vale hoje é o valor informado." },
+      { alvo: "Quanto isso te sustenta", titulo: "Quanto isso te sustenta", explica: "Quantos meses de custo de vida a sua reserva cobre e quanto do mês a renda do patrimônio pagaria. É uma fotografia de hoje." },
+      { alvo: "Onde está o dinheiro", titulo: "Onde está o dinheiro", explica: "Alterne entre Por classe e Por instituição para ver onde o dinheiro está concentrado." },
+      { alvo: "Atualizar", titulo: "Atualizar o valor", explica: "Quando olhar o extrato, toque aqui e informe o valor que aparece e a data. Posição sem conferir há mais de 3 meses ganha o aviso Desatualizado." },
     ],
     duvidas: [
       { p: "O app atualiza o valor sozinho?", r: "Não. Você informa o valor que aparece no extrato, pelo botão Atualizar." },
@@ -483,6 +541,11 @@ export const MANUAIS_FINCASH: Record<string, Manual> = {
       "O arquivo de Categorias leva o grupo 50/30/20 de cada categoria; o de Contas leva o saldo inicial e o saldo de hoje.",
       "Lixeira vazia aparece como Nada apagado.",
     ],
+    tour: [
+      { alvo: "Exportar", titulo: "Exportar", explica: "Leve seus dados em planilhas (CSV), que abrem no Excel ou no Google Sheets. Os arquivos são gerados no seu aparelho." },
+      { alvo: "Baixar tudo", titulo: "Baixar tudo", explica: "Gera todos os arquivos de uma vez. Para um item só, use o botão de download dele." },
+      { alvo: "Lixeira", titulo: "Lixeira", explica: "Lançamento apagado fica aqui por 30 dias e não conta em saldo, projeção nem relatório. Toque em Restaurar para trazê-lo de volta." },
+    ],
     duvidas: [
       { p: "Apaguei um lançamento. Perdi?", r: "Não, por 30 dias. Ele está na Lixeira e volta com Restaurar." },
       { p: "Os arquivos ficam salvos em algum servidor?", r: "Não. São gerados no seu aparelho." },
@@ -515,6 +578,11 @@ export const MANUAIS_FINCASH: Record<string, Manual> = {
     resultado: [
       "As categorias aparecem agrupadas em Necessidades, Estilo de vida, Futuro e reservas e Outras categorias, com a contagem de cada grupo.",
       "A subcategoria herda o grupo da categoria em que ela está.",
+    ],
+    tour: [
+      { alvo: "Despesas", titulo: "Despesas e Receitas", explica: "Escolha a aba: as categorias de gasto ficam em Despesas; as de dinheiro recebido, em Receitas." },
+      { alvo: "Nova categoria / Criar as categorias sugeridas", titulo: "Criar uma categoria", explica: "Dê o nome, escolha a cor e o grupo da regra 50/30/20. Para detalhar, use Nova subcategoria na linha da categoria." },
+      { alvo: "Necessidades", titulo: "Os grupos da regra 50/30/20", explica: "Necessidades (o que não se corta), Estilo de vida (o que se escolhe) e Futuro (o que vira patrimônio). Sem grupo, vai para Outras categorias." },
     ],
     duvidas: [
       { p: "Posso apagar uma categoria?", r: "Não. Dá para arquivar: ela sai da lista de escolha e o histórico continua legível." },

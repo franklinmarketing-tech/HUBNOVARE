@@ -4,9 +4,27 @@ import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
+import { Eye, EyeOff } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
 type Modo = "entrar" | "criar" | "recuperar";
+
+/**
+ * O erro do Supabase em português (auditoria de 25/10/2026). Só "Invalid login credentials" era
+ * traduzido; o resto chegava em inglês na tela ("Email not confirmed", limite de tentativas…).
+ */
+function emPortugues(mensagem: string): string {
+  const m = mensagem.toLowerCase();
+  if (m.includes("invalid login credentials")) return "E-mail ou senha incorretos.";
+  if (m.includes("already registered")) return "Já existe uma conta com este e-mail. Tente entrar.";
+  if (m.includes("email not confirmed")) return "Falta confirmar o seu e-mail. Abra o link que enviamos (veja também o spam).";
+  if (m.includes("password should be") || m.includes("weak password")) return "A senha precisa ter pelo menos 6 caracteres.";
+  if (m.includes("rate limit") || m.includes("for security purposes") || m.includes("too many"))
+    return "Muitas tentativas seguidas. Espere um minuto e tente de novo.";
+  if (m.includes("invalid format") || m.includes("unable to validate email")) return "Confira o e-mail: parece que falta alguma parte.";
+  if (m.includes("failed to fetch") || m.includes("network")) return "Sem conexão com a internet. Confira a rede e tente de novo.";
+  return "Não deu certo agora. Tente de novo em instantes.";
+}
 
 function FormularioLogin() {
   const router = useRouter();
@@ -51,6 +69,8 @@ function FormularioLogin() {
   // 21/10/2026: o cadastro passa a pedir o nome — contas "Sem nome" no admin.
   const [nome, setNome] = useState("");
   const [senha, setSenha] = useState("");
+  // Ver a senha digitada: no celular é fácil errar uma letra sem perceber (auditoria 25/10/2026).
+  const [verSenha, setVerSenha] = useState(false);
   const [erro, setErro] = useState<string | null>(erroDaVolta);
 
   /**
@@ -77,8 +97,7 @@ function FormularioLogin() {
     setErro(
       codigo === "otp_expired" || codigo === "access_denied"
         ? GASTO
-        : vindo.get("error_description")?.replace(/\+/g, " ") ??
-            "Não consegui validar esse link. Peça outro abaixo.",
+        : "Não consegui validar esse link. Peça outro abaixo.",
     );
 
     /* Tira o `#...` da barra de endereço: ele não serve para mais nada e,
@@ -122,7 +141,7 @@ function FormularioLogin() {
         redirectTo: `${window.location.origin}/reset-password`,
       });
       setEnviando(false);
-      if (error) return setErro(error.message);
+      if (error) return setErro(emPortugues(error.message));
       return setAviso("Enviamos um link de recuperação para o seu e-mail.");
     }
 
@@ -141,11 +160,7 @@ function FormularioLogin() {
       });
       if (error) {
         setEnviando(false);
-        return setErro(
-          error.message.includes("already registered")
-            ? "Já existe uma conta com este e-mail. Tente entrar."
-            : error.message,
-        );
+        return setErro(emPortugues(error.message));
       }
       // Com confirmação de e-mail ligada no Supabase, ainda não há sessão.
       if (!data.session) {
@@ -163,11 +178,7 @@ function FormularioLogin() {
     });
 
     if (error) {
-      setErro(
-        error.message === "Invalid login credentials"
-          ? "E-mail ou senha incorretos."
-          : error.message,
-      );
+      setErro(emPortugues(error.message));
       setEnviando(false);
       return;
     }
@@ -221,16 +232,27 @@ function FormularioLogin() {
           >
             Senha
           </label>
+          <div className="relative">
           <input
             id="senha"
-            type="password"
+            type={verSenha ? "text" : "password"}
             required
             minLength={modo === "criar" ? 6 : undefined}
             autoComplete={modo === "criar" ? "new-password" : "current-password"}
             value={senha}
             onChange={(e) => setSenha(e.target.value)}
-            className="h-11 w-full rounded-xl border border-border bg-white px-3.5 text-[0.9375rem] outline-none transition-colors focus:border-accent focus:ring-4 focus:ring-accent/12"
+            className="h-11 w-full rounded-xl border border-border bg-white pl-3.5 pr-12 text-[0.9375rem] outline-none transition-colors focus:border-accent focus:ring-4 focus:ring-accent/12"
           />
+          <button
+            type="button"
+            onClick={() => setVerSenha((v) => !v)}
+            aria-label={verSenha ? "Esconder a senha" : "Mostrar a senha"}
+            aria-pressed={verSenha}
+            className="absolute inset-y-0 right-0 flex w-11 items-center justify-center rounded-r-xl text-muted-foreground hover:text-primary"
+          >
+            {verSenha ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+          </button>
+          </div>
           {modo === "criar" && (
             <p className="mt-1 text-[11px] text-muted-foreground">Mínimo de 6 caracteres.</p>
           )}
@@ -269,14 +291,14 @@ function FormularioLogin() {
             <button
               type="button"
               onClick={() => trocarModo("criar")}
-              className="font-semibold text-primary hover:text-accent-strong"
+              className="min-h-10 font-semibold text-primary hover:text-accent-strong"
             >
               Criar conta grátis
             </button>
             <button
               type="button"
               onClick={() => trocarModo("recuperar")}
-              className="text-muted-foreground hover:text-primary"
+              className="min-h-10 text-muted-foreground hover:text-primary"
             >
               Esqueci minha senha
             </button>
@@ -285,7 +307,7 @@ function FormularioLogin() {
           <button
             type="button"
             onClick={() => trocarModo("entrar")}
-            className="font-semibold text-primary hover:text-accent-strong"
+            className="min-h-10 font-semibold text-primary hover:text-accent-strong"
           >
             ← Já tenho conta, quero entrar
           </button>

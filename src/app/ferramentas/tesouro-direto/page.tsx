@@ -345,10 +345,11 @@ export default function TesouroDiretoPage() {
           </p>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
             {[
-              { prazo: "Até 6 meses", aliquota: "22,5%" },
-              { prazo: "6 a 12 meses", aliquota: "20%" },
-              { prazo: "1 a 2 anos", aliquota: "17,5%" },
-              { prazo: "Acima de 2 anos", aliquota: "15%" },
+              // A lei conta DIAS corridos (Lei 11.033/2004), igual ao motor (`irRegressivo`).
+              { prazo: "Até 180 dias", aliquota: "22,5%" },
+              { prazo: "181 a 360 dias", aliquota: "20%" },
+              { prazo: "361 a 720 dias", aliquota: "17,5%" },
+              { prazo: "Acima de 720 dias", aliquota: "15%" },
             ].map((f) => (
               <div
                 key={f.prazo}

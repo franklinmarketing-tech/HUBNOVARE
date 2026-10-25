@@ -14,7 +14,8 @@ import { INDICES, acumularIndice, type ChaveIndice } from "@/lib/indices";
 export async function GET(req: Request) {
   // Consulta o Banco Central a cada chamada: sem teto, vira um proxy
   // aberto que gasta a cota da API pública em nome do nosso servidor.
-  if (excedeuLimitePorIp(req, "indices", 30)) return respostaLimite();
+  // 90 e não 30 (25/10/2026): cada mudança na correção dispara 5 chamadas (uma por índice).
+  if (excedeuLimitePorIp(req, "indices", 90)) return respostaLimite();
 
   const { searchParams } = new URL(req.url);
   const indice = searchParams.get("indice") ?? "";
@@ -37,6 +38,11 @@ export async function GET(req: Request) {
     );
   }
 
-  const dados = await acumularIndice(indice as ChaveIndice, de, ate);
-  return NextResponse.json(dados);
+  try {
+    const dados = await acumularIndice(indice as ChaveIndice, de, ate);
+    return NextResponse.json(dados);
+  } catch {
+    // A tela mostra "não conseguimos falar com o Banco Central" — e não "sem índice publicado".
+    return NextResponse.json({ erro: "Banco Central indisponível" }, { status: 502 });
+  }
 }

@@ -44,6 +44,13 @@ export const MANUAIS_FERRAMENTAS_1: Record<string, Manual> = {
       "Barras de Necessidades, Estilo de vida e Futuro: mostram quanto você planejou em cada grupo contra o alvo da regra (50%, 30% e 20% da renda). Valor em vermelho quer dizer que passou do alvo.",
       "Análise completa: traz um veredito, os indicadores \"Comprometimento da renda\", \"Taxa de poupança\" (referência: 20% ou mais) e \"Sobra livre no mês\", um gráfico de para onde vai a renda e \"O que um consultor faria, na ordem\".",
     ],
+    tour: [
+      { alvo: "Ver exemplo de", titulo: "Comece por um exemplo", explica: "Escolha um perfil pronto (CLT, Autônomo, Aposentado) para ver como funciona, ou toque em Começar do zero para usar os seus números." },
+      { alvo: "Renda mensal líquida", titulo: "Renda mensal líquida", explica: "O que de fato cai na sua conta no mês, depois dos descontos. Logo abaixo aparece quanto a regra 50/30/20 sugere para cada parte." },
+      { alvo: "Categorias do orçamento", titulo: "Categorias do orçamento", explica: "Cada linha tem o nome, o valor planejado e o grupo (Necessidades, Estilo de vida ou Futuro). Use Adicionar categoria para criar uma linha nova." },
+      { alvo: "Plano contra a renda", titulo: "Plano contra a renda", explica: "Compara o total planejado com a renda e mostra quanto sobra livre." },
+      { alvo: "O que os seus números dizem", titulo: "O que os seus números dizem", explica: "O veredito do seu plano e as recomendações, na ordem." },
+    ],
     duvidas: [
       {
         p: "Preciso seguir a regra 50/30/20 à risca?",

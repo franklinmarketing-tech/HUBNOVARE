@@ -96,7 +96,11 @@ export const leadCompleto = (d: DadosLead, telefoneObrigatorio = false) =>
 export { FAIXAS_INVESTIMENTO, investimentoValido };
 
 /** O campo obrigatório "quanto pretende investir ou já tem investido". */
-export function CampoInvestimento({ valor, aoMudar }: { valor: string; aoMudar: (v: string) => void }) {
+/**
+ * `faltando`: o contato já está completo e só falta a faixa. Sem o aviso, a pessoa preenchia
+ * nome, e-mail e WhatsApp e ficava olhando um botão apagado (auditoria de 25/10/2026).
+ */
+export function CampoInvestimento({ valor, aoMudar, faltando = false }: { valor: string; aoMudar: (v: string) => void; faltando?: boolean }) {
   const id = useId();
   return (
     <div>
@@ -108,7 +112,8 @@ export function CampoInvestimento({ valor, aoMudar }: { valor: string; aoMudar: 
         required
         value={valor}
         onChange={(e) => aoMudar(e.target.value)}
-        className="h-11 w-full rounded-xl border border-border bg-white px-3 text-[0.9375rem] outline-none focus:border-accent focus:ring-4 focus:ring-accent/12"
+        aria-describedby={faltando ? `${id}-falta` : undefined}
+        className={`h-11 w-full rounded-xl border bg-white px-3 text-[0.9375rem] outline-none focus:border-accent focus:ring-4 focus:ring-accent/12 ${faltando ? "border-accent" : "border-border"}`}
       >
         <option value="">Escolha uma faixa</option>
         {FAIXAS_INVESTIMENTO.map((f) => (
@@ -117,6 +122,11 @@ export function CampoInvestimento({ valor, aoMudar }: { valor: string; aoMudar: 
           </option>
         ))}
       </select>
+      {faltando && (
+        <p id={`${id}-falta`} className="mt-1 text-2xs font-medium text-accent-strong" role="status">
+          Falta só escolher uma faixa para liberar o botão.
+        </p>
+      )}
     </div>
   );
 }

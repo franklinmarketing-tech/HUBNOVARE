@@ -75,7 +75,7 @@
 }
 
 .fin-entra {
-  animation: fin-entra 420ms var(--fin-mola) both;
+  animation: fin-entra 420ms var(--fin-mola) backwards; /* backwards: ver .surgir no globals.css */
   animation-delay: calc(min(var(--fin-i, 0), 6) * 55ms);
 }
 
@@ -101,7 +101,7 @@
 }
 
 .fin-assenta {
-  animation: fin-assenta 620ms var(--fin-mola) both;
+  animation: fin-assenta 620ms var(--fin-mola) backwards;
 }
 
 /* ------------------------------------------------------------------ toque --

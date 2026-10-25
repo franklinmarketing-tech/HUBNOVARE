@@ -97,7 +97,7 @@ export function BotaoNovidades({
           type="button"
           onClick={() => fechar(true)}
           aria-label="Fechar novidades"
-          className="flex h-10 w-10 items-center justify-center rounded-xl text-slate-500 transition-colors hover:bg-slate-50 hover:text-primary"
+          className="flex h-11 w-11 items-center justify-center rounded-xl text-slate-500 transition-colors hover:bg-slate-50 hover:text-primary"
         >
           <X className="h-4 w-4" />
         </button>
@@ -147,7 +147,7 @@ export function BotaoNovidades({
         aria-expanded={aberto}
         aria-haspopup="dialog"
         aria-label={novo ? "Novidades, há itens novos" : "Novidades"}
-        className={`relative flex h-10 w-10 items-center justify-center rounded-xl border transition-colors ${
+        className={`relative flex h-11 w-11 items-center justify-center rounded-xl border transition-colors ${
           aberto
             ? "border-primary/30 bg-primary-light text-primary"
             : "border-slate-200 bg-white text-slate-500 hover:border-primary/30 hover:text-primary"

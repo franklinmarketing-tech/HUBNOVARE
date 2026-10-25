@@ -72,7 +72,7 @@ export default function SeguroDesempregoPage() {
             label="Meses trabalhados"
             value={meses}
             onChange={setMeses}
-            hint="No emprego que acabou de terminar."
+            hint="Somando os empregos com carteira dos últimos 36 meses."
           />
           <div>
             <label className="block text-xs font-semibold text-slate-600 mb-1.5">

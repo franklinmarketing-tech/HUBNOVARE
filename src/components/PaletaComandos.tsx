@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowUpRight, Lock, Search } from "lucide-react";
+import { ArrowUpRight, Lock, Search, X } from "lucide-react";
 import { gradienteDe, iconeDe, raioDe } from "@/lib/icones";
 import type { AppLeve } from "@/lib/navegacao";
 
@@ -130,6 +130,15 @@ export function PaletaComandos({ apps }: { apps: AppLeve[] }) {
           <kbd className="hidden shrink-0 rounded border border-border px-1.5 py-0.5 text-[10px] text-muted-foreground sm:block">
             esc
           </kbd>
+          {/* No celular não há Esc, e "tocar fora" não é óbvio: o fechar fica à vista (25/10/2026). */}
+          <button
+            type="button"
+            onClick={() => setAberta(false)}
+            aria-label="Fechar a busca"
+            className="-mr-2 flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-primary sm:hidden"
+          >
+            <X className="h-4 w-4" />
+          </button>
         </div>
 
         <div className="max-h-[52vh] overflow-y-auto p-2">

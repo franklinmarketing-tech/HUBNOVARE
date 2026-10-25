@@ -59,7 +59,11 @@ export default function RentabilidadeRealPage() {
       poderDeCompra: number;
     }> = [];
     for (let ano = 0; ano <= anosNumero; ano++) {
-      const bruto = valorAplicado * Math.pow(1 + liquidaPct / 100, ano);
+      /* O IR sai UMA VEZ, no resgate, sobre o rendimento acumulado (renda fixa, Lei 11.033/2004).
+         Compor a taxa já líquida todo ano cobrava imposto sobre imposto: com os padrões da tela,
+         R$ 132.069 em vez de R$ 139.496 (auditoria de 25/10/2026). */
+      const rendimento = valorAplicado * (Math.pow(1 + nominalPct / 100, ano) - 1);
+      const bruto = valorAplicado + rendimento * (1 - irPct / 100);
       linhas.push({
         ano,
         nominal: bruto,
@@ -67,7 +71,7 @@ export default function RentabilidadeRealPage() {
       });
     }
     return linhas;
-  }, [anosNumero, valorAplicado, liquidaPct, inflacaoPct]);
+  }, [anosNumero, valorAplicado, nominalPct, irPct, inflacaoPct]);
 
   const fim = serie[serie.length - 1];
   const perdidoParaInflacao = fim.nominal - fim.poderDeCompra;

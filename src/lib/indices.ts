@@ -91,12 +91,24 @@ export async function acumularIndice(
     `${SGS}.${serie}/dados?formato=json` +
     `&dataInicial=${paraBr(inicioIso)}&dataFinal=${paraBr(fimIso)}`;
 
-  try {
-    const res = await fetch(url, { next: { revalidate: 60 * 60 * 12 } });
-    // Período fora da série devolve 404: não é falha, é ausência de dado.
-    if (!res.ok) return vazio;
+  /* ⚠️ FALHA NÃO É "SEM DADO" (auditoria de 25/10/2026). Antes, qualquer erro do BCB virava
+     fator 1 e 0 meses — e a tela dizia "o Banco Central não tem esse índice publicado". Agora só o
+     404 (período fora da série) é ausência de dado; o resto tenta de novo uma vez e, se falhar,
+     LANÇA, para a rota responder 502 e a tela pedir para tentar de novo. */
+  let res: Response | null = null;
+  for (let tentativa = 0; tentativa < 2; tentativa++) {
+    try {
+      res = await fetch(url, { next: { revalidate: 60 * 60 * 12 } });
+      if (res.ok || res.status === 404) break;
+    } catch {
+      res = null;
+    }
+  }
+  if (res?.status === 404) return vazio;
+  if (!res?.ok) throw new Error("Banco Central indisponível");
 
-    const dados = await res.json();
+  {
+    const dados = await res.json().catch(() => null);
     if (!Array.isArray(dados) || dados.length === 0) return vazio;
 
     let fator = 1;
@@ -120,9 +132,6 @@ export async function acumularIndice(
       de: pontos[0].data,
       ate: pontos[pontos.length - 1].data,
     };
-  } catch {
-    // BCB fora do ar: a página avisa em vez de mostrar número errado.
-    return vazio;
   }
 }
 

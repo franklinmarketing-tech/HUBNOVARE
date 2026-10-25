@@ -97,8 +97,11 @@ export default function PatrimonioImobiliarioPage() {
     [imoveis, totalValor]
   );
 
+  /* Yield só sobre os imóveis que RENDEM aluguel (auditoria de 25/10/2026): a tela convida a
+     cadastrar a casa onde se mora, e somá-la no denominador diluía o rendimento dos alugados. */
+  const valorAlugado = imoveis.filter((i) => i.aluguel > 0).reduce((a, i) => a + i.valor, 0);
   const yieldCarteira =
-    totalValor > 0 ? ((totalAluguel * 12) / totalValor) * 100 : 0;
+    valorAlugado > 0 ? ((totalAluguel * 12) / valorAlugado) * 100 : 0;
 
   const adicionar = (e: FormEvent) => {
     e.preventDefault();
@@ -396,7 +399,7 @@ export default function PatrimonioImobiliarioPage() {
 
         <section className="mt-6 rounded-xl bg-slate-50 p-3">
           <p className="text-xs text-slate-500">
-            O yield bruto da carteira está em {pct(yieldCarteira, 2)} ao ano.
+            O yield bruto dos imóveis alugados está em {pct(yieldCarteira, 2)} ao ano.
             Ele ignora IPTU, condomínio, manutenção e meses vagos, então o
             número que chega no seu bolso é sempre menor. Compare com a renda
             fixa antes de decidir se vale manter o imóvel parado.

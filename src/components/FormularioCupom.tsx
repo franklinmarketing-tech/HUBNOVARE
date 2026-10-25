@@ -84,7 +84,7 @@ export function FormularioCupom() {
                 if (erro) setErro(null);
               }}
               placeholder="Digite seu código"
-              className="flex-1 rounded-xl border border-slate-300 bg-slate-50 px-3.5 py-2 text-xs font-mono font-semibold uppercase tracking-wider text-slate-800 focus:border-primary focus:bg-white focus:outline-none"
+              className="min-w-0 flex-1 rounded-xl border border-slate-300 bg-slate-50 px-3.5 py-2 text-xs font-mono font-semibold uppercase tracking-wider text-slate-800 focus:border-primary focus:bg-white focus:outline-none"
             />
             <button
               type="submit"

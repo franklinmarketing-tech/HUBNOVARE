@@ -327,7 +327,7 @@ export default async function Home() {
               vitrine + 6 pílulas de calculadora + 3 faixas de banner + o
               convite de assinatura, tudo antes da segunda parte — muita
               coisa competindo por atenção na mesma rolagem, e as calculadoras
-              já têm porta própria em /aplicativos e na busca (⌘K).
+              já têm porta própria em /aplicativos e na busca.
               O componente (`components/FerramentasHome.tsx`) não foi apagado
               porque guarda a lógica de favoritar/fixar atalho, que pode
               voltar a servir outra tela — religar aqui é uma linha. */}

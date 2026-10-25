@@ -174,7 +174,7 @@ export function PortaoGuia({ ebook }: { ebook: Ebook }) {
             <CamposLead dados={dados} aoMudar={setDados} compacto telefoneObrigatorio />
           </div>
           <div className="mt-3">
-            <CampoInvestimento valor={investimento} aoMudar={setInvestimento} />
+            <CampoInvestimento valor={investimento} aoMudar={setInvestimento} faltando={leadCompleto(dados, true) && !investimentoValido(investimento)} />
           </div>
           <button type="button" onClick={liberar} disabled={!ok} className="btn-cp mt-4 w-full">
             <ArrowDownToLine className="h-4 w-4" />

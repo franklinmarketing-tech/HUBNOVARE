@@ -172,7 +172,7 @@ export function LiberarPdf({
         <div className="mt-5">
           <CamposLead dados={dados} aoMudar={setDados} telefoneObrigatorio compacto={compacto} />
           <div className="mt-3">
-            <CampoInvestimento valor={investimento} aoMudar={setInvestimento} />
+            <CampoInvestimento valor={investimento} aoMudar={setInvestimento} faltando={leadCompleto(dados, true) && !investimentoValido(investimento)} />
           </div>
           <button
             type="button"

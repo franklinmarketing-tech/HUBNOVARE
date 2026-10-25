@@ -132,7 +132,7 @@ export default function RescisaoPage() {
             sufixo="meses"
             value={mesesNoAno}
             onChange={setMesesNoAno}
-            hint="De janeiro até a saída. É o que define o 13º e as férias proporcionais."
+            hint="De janeiro até a saída: define o 13º. As férias proporcionais usam o mesmo número; se o seu período de férias começa em outro mês (aniversário da admissão), o valor delas pode mudar."
           />
           <Campo
             label="Saldo do FGTS"
@@ -197,7 +197,11 @@ export default function RescisaoPage() {
               rotulo="Aviso prévio indenizado"
               valor={brl(r.avisoPrevio)}
               tom="ganho"
-              detalhe={`${r.diasAviso} dias: 30 mais 3 por ano de casa.`}
+              detalhe={
+                motivo === "acordo"
+                  ? `Metade de ${r.diasAviso} dias (30 mais 3 por ano de casa), como manda o acordo.`
+                  : `${r.diasAviso} dias: 30 mais 3 por ano de casa. Contam como tempo de serviço e somam avos ao 13º e às férias.`
+              }
             />
           )}
           {r.decimoProporcional > 0 && (

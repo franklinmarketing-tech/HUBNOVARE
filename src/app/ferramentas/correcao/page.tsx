@@ -44,10 +44,12 @@ const MESES = [
 ];
 
 const ANO_ATUAL = new Date().getFullYear();
-// Volta até 1980: o IPCA existe desde lá, e é o que permite corrigir um
-// salário ou um imóvel de décadas atrás. Índices que nasceram depois
-// (IGP-M em 1989, TR em 1991) simplesmente não retornam nada antes disso.
-const ANOS = Array.from({ length: ANO_ATUAL - 1980 + 1 }, (_, i) => ANO_ATUAL - i);
+/* ⚠️ COMEÇA EM JULHO DE 1994, NO REAL (auditoria de 25/10/2026). Ia até 1980, mas antes do Real
+   houve quatro trocas de moeda (Cruzeiro, Cruzado, Cruzado Novo, Cruzeiro Real), cada uma cortando
+   zeros, e a conta só com o índice não as aplica: R$ 1.000 de 1985 viravam "R$ 15 trilhões". Para
+   valores mais antigos, a tela aponta a Calculadora do Cidadão do Banco Central, que faz as trocas. */
+const INICIO_DO_REAL = "1994-07";
+const ANOS = Array.from({ length: ANO_ATUAL - 1994 + 1 }, (_, i) => ANO_ATUAL - i);
 
 /** O mês corrente, "08" para agosto — usado como padrão dos dois seletores. */
 const MES_ATUAL = String(new Date().getMonth() + 1).padStart(2, "0");
@@ -72,7 +74,9 @@ export default function CorrecaoPage() {
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState<string | null>(null);
 
-  const de = `${anoDe}-${mesDe}`;
+  const escolhido = `${anoDe}-${mesDe}`;
+  const antesDoReal = escolhido < INICIO_DO_REAL;
+  const de = antesDoReal ? INICIO_DO_REAL : escolhido;
   const ate = `${anoAte}-${mesAte}`;
   const periodoInvalido = de > ate;
 
@@ -215,6 +219,15 @@ export default function CorrecaoPage() {
               onMes={setMesDe}
               onAno={setAnoDe}
             />
+            {antesDoReal && (
+              <p className="-mt-2 text-xs leading-relaxed text-accent-strong sm:col-span-2" role="status">
+                A conta começa em julho de 1994, quando o Real entrou. Para valores de antes, use a{" "}
+                <a href="https://www3.bcb.gov.br/CALCIDADAO/" target="_blank" rel="noopener noreferrer" className="font-semibold underline">
+                  Calculadora do Cidadão do Banco Central
+                </a>
+                , que converte as moedas antigas.
+              </p>
+            )}
             <ParDeData
               titulo="Corrigir até"
               mes={mesAte}

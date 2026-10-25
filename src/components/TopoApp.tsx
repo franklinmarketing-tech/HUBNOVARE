@@ -63,7 +63,10 @@ export function TopoApp({
       {/* O fio de luz no pé do topo: ciano → laranja, as cores da casa. */}
       <span aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-ciano/60 to-transparent" />
       <span aria-hidden className="pointer-events-none absolute inset-x-[30%] bottom-0 h-px bg-gradient-to-r from-transparent via-accent/70 to-transparent" />
-      <div className="flex h-[68px] items-center gap-4 px-5">
+      {/* ⚠️ Espaço contado (auditoria de 25/10/2026): com `gap-4` fixo o menu da conta saía da tela
+          em TODA largura quando logado (360: 399px de itens; 1280: menu de 602px + rótulos). O
+          espaçamento cresce com a tela, e eBooks/News/nome da conta só mostram texto a partir de 2xl. */}
+      <div className="flex h-[68px] items-center gap-2 px-4 sm:px-5 md:gap-3 2xl:gap-4">
         {/* A logo oficial fica em TODAS as larguras: o monograma do trilho
             é um atalho de navegação, não substitui a marca. */}
         {/* min-h-11: o alvo seguia a altura da imagem (24px) dentro de um
@@ -156,24 +159,28 @@ export function TopoApp({
             podia depender só da faixa da home. */}
         <Link
           href="/ebooks"
-          className="hidden h-10 shrink-0 items-center gap-2 rounded-full px-3.5 text-[13px] font-semibold text-accent-strong transition-colors hover:bg-accent-tint md:flex"
+          aria-label="eBooks"
+          title="eBooks"
+          className="hidden h-10 shrink-0 items-center gap-2 rounded-full px-3 text-[13px] font-semibold text-accent-strong transition-colors hover:bg-accent-tint md:flex 2xl:px-3.5"
         >
-          <BookOpen className="h-3.5 w-3.5" />
-          eBooks
+          <BookOpen className="h-4 w-4 2xl:h-3.5 2xl:w-3.5" />
+          <span className="hidden 2xl:inline">eBooks</span>
         </Link>
 
         {/* O News com pulso de "ao vivo": o canal publica sempre, e o ponto
             pulsando é o jeito de dizer isso sem mais um botão colorido. */}
         <Link
           href="/novare-news"
-          className="hidden h-10 shrink-0 items-center gap-2 rounded-full px-3.5 text-[13px] font-semibold text-ciano-forte transition-colors hover:bg-ciano-tint md:flex"
+          aria-label="Novare News"
+          title="Novare News"
+          className="hidden h-10 shrink-0 items-center gap-2 rounded-full px-3 text-[13px] font-semibold text-ciano-forte transition-colors hover:bg-ciano-tint md:flex 2xl:px-3.5"
         >
           <span className="relative flex h-2 w-2">
             <span className="absolute inline-flex h-full w-full rounded-full bg-ciano opacity-60 motion-safe:animate-ping" />
             <span className="relative inline-flex h-2 w-2 rounded-full bg-ciano" />
           </span>
-          <Newspaper className="h-3.5 w-3.5" />
-          News
+          <Newspaper className="h-4 w-4 2xl:h-3.5 2xl:w-3.5" />
+          <span className="hidden 2xl:inline">News</span>
         </Link>
 
         {/* Novidades (25/10/2026): só o ícone — o topo já é justo em 1280px.
@@ -187,12 +194,13 @@ export function TopoApp({
           <button
             type="button"
             onClick={() => window.dispatchEvent(new Event("novare:abrir-paleta"))}
-            className="flex h-11 min-w-0 flex-1 items-center gap-3 rounded-full border border-slate-200 bg-slate-50 px-4 text-left text-sm text-muted-foreground transition-colors hover:border-primary/30 hover:bg-white sm:max-w-xs"
+            aria-label="Pesquisar"
+            className="flex h-11 min-w-0 flex-1 items-center gap-3 rounded-full border border-slate-200 bg-slate-50 px-3 text-left text-sm text-muted-foreground transition-colors hover:border-primary/30 hover:bg-white max-[379px]:hidden sm:max-w-xs sm:px-4"
           >
             <Search className="h-4 w-4 shrink-0" />
             <span className="flex-1 truncate">Pesquisar...</span>
-            <kbd className="hidden rounded border border-slate-200 bg-white px-1.5 py-0.5 text-[10px] sm:block">
-              ⌘K
+            <kbd className="hidden rounded border border-slate-200 bg-white px-1.5 py-0.5 text-[10px] lg:block">
+              Ctrl K
             </kbd>
           </button>
         ) : (
@@ -200,7 +208,7 @@ export function TopoApp({
             type="button"
             onClick={() => window.dispatchEvent(new Event("novare:abrir-paleta"))}
             aria-label="Pesquisar"
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-slate-200/80 bg-white/80 text-slate-500 transition-colors hover:border-ciano/40 hover:text-primary xl:hidden"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-slate-200/80 bg-white/80 text-slate-500 transition-colors hover:border-ciano/40 hover:text-primary max-[379px]:hidden xl:hidden"
           >
             <Search className="h-4 w-4" />
           </button>

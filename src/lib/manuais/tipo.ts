@@ -22,6 +22,13 @@ export type Manual = {
   campos: { nome: string; explica: string }[];
   /** Como ler o resultado: o que cada número ou aviso quer dizer. */
   resultado: string[];
+  /**
+   * Passos do TOUR na própria tela (opcional). Sem ele, o tour usa `campos` — o que basta quando
+   * os campos estão à vista (ferramentas). No FINCASH os campos moram no formulário que só abre
+   * depois de "Lançar"/"Nova…", então o tour aponta o que JÁ está na tela: `alvo` é o começo do
+   * texto do elemento (com "/" para alternativas, ex. o botão de lista vazia).
+   */
+  tour?: { alvo: string; titulo: string; explica: string }[];
   /** Dúvidas frequentes, de 2 a 4. */
   duvidas: { p: string; r: string }[];
   /**

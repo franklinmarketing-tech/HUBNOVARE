@@ -109,7 +109,7 @@ export function CabecalhoNews() {
     >
       {/* No celular a barra é mais baixa: com a trilha do ecossistema
           embaixo, duas faixas altas comeriam meia tela de leitura. */}
-      <div className="mx-auto flex h-14 max-w-6xl items-center gap-4 px-4 sm:h-16 sm:gap-5">
+      <div className="mx-auto flex h-14 max-w-6xl items-center gap-2 px-4 min-[360px]:gap-4 sm:h-16 sm:gap-5">
         {/* A marca do canal: logo da casa + selo NEWS. */}
         <Link href="/novare-news" className="flex shrink-0 items-center gap-2">
           <Image
@@ -187,7 +187,7 @@ export function CabecalhoNews() {
           </a>
         </nav>
 
-        <div className="ml-auto flex items-center gap-3">
+        <div className="ml-auto flex items-center gap-2 sm:gap-3">
           {/* Sociais como texto: esta versão do lucide não traz ícone de
               marca, e desenhar logo alheio à mão é pedir para errar. */}
           <div className="flex items-center gap-1.5">
@@ -219,15 +219,15 @@ export function CabecalhoNews() {
               inclusive para quem já estava logado, e não havia outro jeito
               de voltar à home. Agora: logado volta; visitante conhece. */}
           {logado ? (
-            <Link href="/" className="btn-petroleo min-h-10 px-4 text-xs">
+            <Link href="/" aria-label="Voltar ao Workspace" className="btn-petroleo min-h-10 px-3 text-xs sm:px-4">
               <ArrowLeft className="h-3.5 w-3.5" />
               <span className="hidden sm:inline">Voltar ao Workspace</span>
-              <span className="sm:hidden">Workspace</span>
+              <span className="hidden min-[360px]:inline sm:hidden">Workspace</span>
             </Link>
           ) : (
-            <Link href="/" className="btn-cp min-h-10 px-4 text-xs">
+            <Link href="/" aria-label="Conhecer o Workspace" className="btn-cp min-h-10 px-3 text-xs sm:px-4">
               <span className="hidden sm:inline">Conhecer o Workspace</span>
-              <span className="sm:hidden">Workspace</span>
+              <span className="hidden min-[360px]:inline sm:hidden">Workspace</span>
               <ArrowRight className="h-3.5 w-3.5" />
             </Link>
           )}

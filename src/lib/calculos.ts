@@ -102,8 +102,8 @@ export interface LinhaAno {
  * o CDI pinga todo dia útil, o fundo cota todo mês).
  * A linha do ano 0 é o retrato de hoje, antes de qualquer aporte.
  *
- * Sanidade: 0 inicial, R$ 1.000/mês, 12% a.a., 10 anos ≈ R$ 230 mil
- * (R$ 120 mil investidos + ~R$ 110 mil de juros).
+ * Sanidade: 0 inicial, R$ 1.000/mês, 12% a.a., 10 anos ≈ R$ 222 mil
+ * (R$ 120 mil investidos + ~R$ 102 mil de juros; conferido em 25/10/2026).
  */
 export function jurosCompostos({
   inicial,
@@ -633,17 +633,36 @@ export function simularTesouro({
     anos,
   });
   const fim = evolucao[evolucao.length - 1];
-  const aliquota = irRegressivo(Math.round(anos * 12));
+  /* O IR usa o MESMO prazo da projeção (anos inteiros, ver `jurosCompostos`). Antes usava os
+     meses digitados: com 0,5 ano a projeção rendia 12 meses e o IR saía como de 6 (auditoria
+     de 25/10/2026). */
+  const meses = (evolucao.length - 1) * 12;
+  const aliquota = irRegressivo(meses);
   const ir = fim.juros * (aliquota / 100);
   const liquido = fim.total - ir;
 
-  // Taxa líquida equivalente: o que renderia por ano para sair do investido
-  // e chegar ao líquido, sem aportes. Aproximação boa para comparar produtos.
-  const n = Math.max(1, Math.round(anos) || 1);
-  const taxaLiquida =
-    fim.investido > 0 && liquido > 0
-      ? (Math.pow(liquido / fim.investido, 1 / n) - 1) * 100
-      : 0;
+  /* Taxa líquida equivalente: a taxa anual que, com os MESMOS aportes nas mesmas datas, chega
+     ao líquido. ⚠️ Era (líquido/investido)^(1/anos) − 1, como se tudo tivesse entrado no dia 1:
+     com aporte mensal dava 7,78% a.a. onde o certo é 12,22% (auditoria de 25/10/2026). */
+  const base = positivo(valorInicial);
+  const aporte = positivo(aporteMensal);
+  const chegaEm = (taxaAnual: number) => {
+    const i = taxaAnualParaMensal(taxaAnual);
+    let saldo = base;
+    for (let m = 0; m < meses; m++) saldo = saldo * (1 + i) + aporte;
+    return saldo;
+  };
+  let taxaLiquida = 0;
+  if (meses > 0 && fim.investido > 0 && liquido > 0) {
+    let baixo = -99;
+    let alto = 1000;
+    for (let k = 0; k < 200 && alto - baixo > 1e-7; k++) {
+      const meio = (baixo + alto) / 2;
+      if (chegaEm(meio) < liquido) baixo = meio;
+      else alto = meio;
+    }
+    taxaLiquida = (baixo + alto) / 2;
+  }
 
   return {
     bruto: fim.total,

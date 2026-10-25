@@ -71,7 +71,7 @@ export default async function AplicativosPage() {
                 que sobrou um serviço só. O número vem de CONTAGEM, então o
                 plural tem de vir do número, não escrito à mão. */}
             {CONTAGEM.consultorias === 1 ? "serviço" : "serviços"} de
-            consultoria. Filtre por área ou busque com ⌘K.
+            consultoria. Filtre por área ou use a busca.
           </p>
 
           <div className="mt-7">

@@ -5,7 +5,7 @@ import { createPortal } from "react-dom";
 import { usePathname } from "next/navigation";
 import { ArrowLeft, ArrowRight, Check, X } from "lucide-react";
 import { MANUAIS } from "@/lib/manuais";
-import { acharCampos, type Achado } from "@/lib/manuais/achar";
+import { acharPassosDoTour, type Achado } from "@/lib/manuais/achar";
 import { registrarUso } from "@/lib/uso";
 
 /** Dispare este evento para começar o tour da tela atual (convite de primeiro uso, Manual). */
@@ -64,7 +64,7 @@ export function TourTela({ modo }: { modo: "ferramenta" | "fincash" }) {
   useEffect(() => {
     const iniciar = () => {
       if (!manual) return;
-      const achados = acharCampos(manual, 6);
+      const achados = acharPassosDoTour(manual, 6);
       if (!achados.length) return;
       registrarUso(`tour:${chave}`, "usou");
       setI(0);
@@ -72,8 +72,9 @@ export function TourTela({ modo }: { modo: "ferramenta" | "fincash" }) {
       setPassos(
         achados.map((a) => ({
           ...a,
-          // "Valor do imóvel / Valor do veículo / …": o título mostra só o que está NA tela
-          nome: a.nome.includes("/") ? (a.el.innerText.split("\n")[0].replace(/\?$/, "").trim() || a.nome) : a.nome,
+          // "Valor do imóvel / Valor do veículo / …": o título mostra só a parte que está NA tela
+          // (antes lia o texto do elemento e saía "Pagar R$ 319" — 25/10)
+          nome: a.parte || a.nome,
           el: blocoDo(a.el, rotulos),
         })),
       );
@@ -87,7 +88,11 @@ export function TourTela({ modo }: { modo: "ferramenta" | "fincash" }) {
     if (!passos) return;
     const el = passos[i]?.el;
     if (!el) return;
-    el.scrollIntoView({ block: "center", behavior: "smooth" });
+    // No celular o cartão mora no pé da tela: o campo sobe para logo abaixo do cabeçalho, e não
+    // para o meio, onde o cartão o cobria (Importar, Avisos — 25/10).
+    if (window.innerWidth < 640) {
+      window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 84, behavior: "smooth" });
+    } else el.scrollIntoView({ block: "center", behavior: "smooth" });
     const medir = () => setCaixa(el.getBoundingClientRect());
     const t = setTimeout(medir, 380);
     window.addEventListener("resize", medir);
@@ -160,7 +165,10 @@ export function TourTela({ modo }: { modo: "ferramenta" | "fincash" }) {
             ? { width: LARGURA, left: esquerda, top: embaixo ? r!.bottom + vao : "auto", bottom: embaixo ? "auto" : window.innerHeight - r!.top + vao }
             : r && window.innerWidth >= 640
               ? { width: LARGURA, left: esquerda }
-              : undefined
+              : r && r.bottom + folga > window.innerHeight - alturaCartao - 16
+                ? // celular, campo no fim da página (não sobe até o topo): o cartão vai para cima
+                  { top: 12, bottom: "auto" }
+                : undefined
         }
       >
         {/* setinha apontando para o campo aceso */}

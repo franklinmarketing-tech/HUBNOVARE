@@ -72,3 +72,25 @@ Cada regra tem o motivo — regra sem motivo é a primeira que alguém quebra.
 4. Manual escrito (5 partes) e vídeo gravado.
 5. Sem rolagem lateral; botões com no mínimo 44 px de altura.
 6. Nada que soe como recomendação de investimento.
+7. Tela do FINCASH com formulário: o manual ganha `tour` (passos que apontam o que JÁ está na
+   tela — o formulário só abre depois do clique). Conferir com `testar-guias.ts`.
+
+## 8. Armadilhas técnicas (auditoria de 25/10/2026)
+
+- **Animação de entrada nunca com `both`** num invólucro de conteúdo (`.surgir`, `.fin-entra`):
+  o fim da animação fica aplicado como `transform` e prende toda janela `fixed` lá dentro — os
+  formulários do FINCASH ficavam embaixo da barra do polegar, com o Salvar coberto. Use `backwards`.
+- **Linha com `flex-1` precisa de `min-w-0`**, e campo de texto também: `<input>` tem largura
+  mínima própria e empurra o botão vizinho para fora (cupom da Consultoria em 320 px).
+- **Topo: contar o espaço.** Cada item novo no cabeçalho tira lugar do menu da conta; o texto de
+  eBooks/News e o nome da conta só aparecem a partir de `2xl`.
+- **Erro do Supabase em português** (`emPortugues` no login) — nunca `error.message` cru na tela.
+
+## 9. Testes desta área
+
+```
+node scripts/auditoria.mjs [pasta-fotos]   # todas as rotas × 11 tamanhos, com e sem login, + links
+node scripts/testar-janelas.mjs            # cada janela: abre, cabe, tem fechar, fecha no Esc
+MSYS_NO_PATHCONV=1 npx tsx scripts/testar-guias.ts    # tour e "?" nas 34 telas
+MSYS_NO_PATHCONV=1 npx tsx scripts/testar-manuais.ts  # manual e vídeo nas 34 telas
+```

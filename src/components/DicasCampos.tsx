@@ -46,10 +46,21 @@ export function DicasCampos({ modo }: { modo: "ferramenta" | "fincash" }) {
     setPontos(
       achados
         .map((a, id) => {
-          // logo depois do TEXTO do rótulo, não no fim da caixa (rótulo de bloco ocupa a linha toda)
+          // logo depois do TEXTO do rótulo, não no fim da caixa (rótulo de bloco ocupa a linha toda).
+          // Mede só os nós de TEXTO: num rótulo com caixinha de marcar, medir o conteúdo todo punha
+          // o "?" logo depois da caixinha, em cima da primeira palavra (Rescisão, 25/10).
+          const textos: Text[] = [];
+          const andar = document.createTreeWalker(a.el, NodeFilter.SHOW_TEXT);
+          for (let n = andar.nextNode(); n; n = andar.nextNode()) if (n.textContent?.trim()) textos.push(n as Text);
           const faixa = document.createRange();
-          faixa.selectNodeContents(a.el);
-          const t = faixa.getClientRects()[0] ?? a.el.getBoundingClientRect();
+          if (textos.length) {
+            faixa.setStart(textos[0], 0);
+            const ultimo = textos[textos.length - 1];
+            faixa.setEnd(ultimo, ultimo.length);
+          } else faixa.selectNodeContents(a.el);
+          const linhas = faixa.getClientRects();
+          // primeira linha do texto (rótulo de uma linha só = a linha toda); se quebrar, a última
+          const t = linhas[linhas.length - 1] ?? a.el.getBoundingClientRect();
           return { id, x: t.right + window.scrollX + 6, y: t.top + window.scrollY + t.height / 2, nome: a.nome, explica: a.explica };
         })
         .filter((p) => p.x - window.scrollX + 30 <= largura),
@@ -93,12 +104,16 @@ export function DicasCampos({ modo }: { modo: "ferramenta" | "fincash" }) {
           onClick={() => setAberta(aberta?.id === p.id ? null : p)}
           aria-label={`O que é: ${p.nome}`}
           aria-expanded={aberta?.id === p.id}
-          className="absolute z-20 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-full bg-ciano-tint text-[12px] font-bold text-ciano-forte ring-1 ring-ciano/30 transition-colors hover:bg-ciano hover:text-white print:hidden"
+          // O botão tem 44 px (o dedo pede 44); o círculo desenhado continua de 24, no mesmo lugar.
+          className="group absolute z-20 flex h-11 w-11 -translate-x-2.5 -translate-y-1/2 items-center justify-center print:hidden"
           style={{ left: p.x, top: p.y }}
         >
-          ?
-          {/* área de toque de 44 px sem aumentar o desenho */}
-          <span aria-hidden className="absolute -inset-2.5" />
+          <span
+            aria-hidden
+            className="flex h-6 w-6 items-center justify-center rounded-full bg-ciano-tint text-[12px] font-bold text-ciano-forte ring-1 ring-ciano/30 transition-colors group-hover:bg-ciano group-hover:text-white"
+          >
+            ?
+          </span>
         </button>
       ))}
       {aberta && (

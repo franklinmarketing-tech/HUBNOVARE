@@ -500,7 +500,7 @@ export default function ProjecaoPage() {
                       <button
                         type="button"
                         onClick={() => setMesEscolhido(p.ref)}
-                        className="flex min-h-11 items-center gap-1.5 rounded-xl border border-border bg-white px-3 text-2xs font-semibold capitalize text-primary transition-colors hover:border-accent-soft"
+                        className="flex min-h-12 items-center gap-1.5 rounded-xl border border-border bg-white px-3 text-2xs font-semibold capitalize text-primary transition-colors hover:border-accent-soft"
                       >
                         {mesCurto(p.ref)}
                         <span className="font-normal tabular-nums text-destructive">

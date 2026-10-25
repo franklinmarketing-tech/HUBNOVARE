@@ -58,8 +58,10 @@ export function MenuConta({
         >
           {iniciais(nome, email)}
         </span>
-        <span className="hidden text-left leading-tight sm:block">
-          <span className="block max-w-[9rem] truncate text-xs font-semibold text-foreground">
+        {/* Sem o nome ao lado do avatar (25/10/2026): onde ele caberia (2xl) o topo já diz "Olá, Fulano",
+            e os dois juntos empurravam a conta para fora da tela em 1920px. O nome está no menu. */}
+        <span className="hidden text-left leading-tight">
+          <span className="block max-w-[7rem] truncate text-xs font-semibold text-foreground">
             {primeiroNome}
           </span>
           <span className="block text-[10px] text-muted-foreground">

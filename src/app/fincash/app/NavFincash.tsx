@@ -720,7 +720,9 @@ export function NavFincashCelular({
            o último item fica embaixo da barrinha do sistema. */
       style={{ paddingBottom: "max(0.25rem, env(safe-area-inset-bottom))" }}
     >
-      <ul className="grid grid-cols-5">
+      {/* Colunas = telas + "Mais", contadas (25/10/2026): era `grid-cols-5` fixo com 6 itens,
+          e o "Mais" caía para uma segunda linha em todo celular. */}
+      <ul className="grid" style={{ gridTemplateColumns: `repeat(${DO_DIA.length + 1}, minmax(0, 1fr))` }}>
         {DO_DIA.map((t) => {
           const ativo = estaAtivo(caminho, t);
           const n = t.aviso && !ativo ? avisos[t.aviso] : 0;

@@ -142,21 +142,21 @@ export function RodapeCompleto({ aviso = "ferramenta" }: { aviso?: "ferramenta" 
 
           <div className="col-span-2 sm:col-span-3 lg:col-span-1">
             <h3 className="text-[11px] font-semibold uppercase tracking-[0.22em] text-ciano-claro">Fale com a gente</h3>
-            <ul className="mt-4 space-y-2.5 text-[13px]">
+            <ul className="mt-4 space-y-1 text-[13px]">
               <li>
-                <a href={zap} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-white/65 transition-colors hover:text-white">
+                <a href={zap} target="_blank" rel="noopener noreferrer" className="flex min-h-8 items-center gap-2 text-white/65 transition-colors hover:text-white">
                   <Phone className="h-3.5 w-3.5 shrink-0" />
                   {CONTATO.telefone}
                 </a>
               </li>
               <li>
-                <a href={`mailto:${CONTATO.email}`} className="flex items-center gap-2 text-white/65 transition-colors [overflow-wrap:anywhere] hover:text-white">
+                <a href={`mailto:${CONTATO.email}`} className="flex min-h-8 items-center gap-2 text-white/65 transition-colors [overflow-wrap:anywhere] hover:text-white">
                   <Mail className="h-3.5 w-3.5 shrink-0" />
                   {CONTATO.email}
                 </a>
               </li>
               <li>
-                <a href={`https://${CONTATO.site}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-white/65 transition-colors hover:text-white">
+                <a href={`https://${CONTATO.site}`} target="_blank" rel="noopener noreferrer" className="flex min-h-8 items-center gap-2 text-white/65 transition-colors hover:text-white">
                   <Globe className="h-3.5 w-3.5 shrink-0" />
                   {CONTATO.site}
                 </a>

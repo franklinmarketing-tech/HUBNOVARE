@@ -395,9 +395,20 @@ export function rescisao(
   const justaCausa = motivo === "justa-causa";
   const pediuDemissao = motivo === "pedido-demissao";
 
+  /**
+   * ⚠️ O AVISO INDENIZADO CONTA COMO TEMPO DE SERVIÇO (CLT art. 487 §1º; OJ 82 da SDI-1 do TST).
+   * Na dispensa sem justa causa ele projeta o contrato para a frente e gera avos de 13º e de
+   * férias: 30 dias = 1 avo, e a sobra de 15 dias ou mais também vale 1 (Lei 4.090, art. 1º §2º).
+   * Faltava (auditoria de 25/10/2026): no padrão da tela (24 meses, 8 no ano, aviso de 36 dias)
+   * o app pagava 8/12 em vez de 9/12 — R$ 583,33 a menos.
+   */
+  const avosDoAviso =
+    motivo === "sem-justa-causa" ? Math.floor(diasAviso / 30) + (diasAviso % 30 >= 15 ? 1 : 0) : 0;
+  const avos = Math.min(12, mesesNoAnoCorrente + avosDoAviso);
+
   const decimoProporcional = justaCausa
     ? 0
-    : arredondar((salario / 12) * mesesNoAnoCorrente);
+    : arredondar((salario / 12) * avos);
 
   const feriasVencidas = feriasVencidasPendentes
     ? arredondar(salario + salario / 3)
@@ -405,7 +416,7 @@ export function rescisao(
 
   const feriasProporcionais = justaCausa
     ? 0
-    : arredondar((salario / 12) * mesesNoAnoCorrente);
+    : arredondar((salario / 12) * avos);
   const tercoFerias = arredondar(feriasProporcionais / 3);
 
   // A multa incide sobre tudo o que o empregador depositou na conta do FGTS.
@@ -495,6 +506,11 @@ export function seguroDesemprego(
     ? validos.reduce((a, b) => a + b, 0) / validos.length
     : 0;
 
+  /* Sem salário informado não há média: antes o piso de 1 mínimo entrava e a tela prometia
+     "R$ 1.621,00 × 4" a quem deixou tudo em branco (auditoria de 25/10/2026). */
+  if (!validos.length)
+    return { media: 0, valorParcela: 0, parcelas: 0, total: 0, temDireito: false, motivo: "Informe os últimos salários para calcular o valor." };
+
   let valorParcela: number;
   if (media <= FAIXA1_SEGURO) valorParcela = media * 0.8;
   else if (media <= FAIXA2_SEGURO)
@@ -555,7 +571,12 @@ function parcelasDoSeguro(
 
 /* ----------------------------------------------------------------- apoio */
 
-/** Dinheiro tem duas casas: arredondar no fim evita centavo fantasma. */
+/**
+ * Dinheiro tem duas casas: arredondar no fim evita centavo fantasma.
+ * ⚠️ O `Number.EPSILON` somado ANTES de multiplicar não salvava o meio centavo acima de 1
+ * (1.621 × 7,5% = 121,575 virava 121,57). A folga vai depois de ×100, onde o erro de ponto
+ * flutuante aparece (25/10/2026).
+ */
 function arredondar(v: number): number {
-  return Math.round((v + Number.EPSILON) * 100) / 100;
+  return Math.round(v * 100 + (v >= 0 ? 1e-7 : -1e-7)) / 100;
 }

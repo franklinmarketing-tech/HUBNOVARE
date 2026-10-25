@@ -16,7 +16,18 @@ const normal = (s: string) =>
 
 const SELETOR = "label, legend, dt, h2, h3, h4, th, summary, button, [role=tab], p.text-xs, p.text-sm, span.text-xs";
 
-export type Achado = { el: HTMLElement; nome: string; explica: string };
+/** `parte`: a alternativa do nome que bateu, escrita como no manual ("Valor do imóvel"). */
+export type Achado = { el: HTMLElement; nome: string; parte: string; explica: string };
+
+/** Os passos do tour: os do `tour` do manual quando houver, senão os campos. */
+export function acharPassosDoTour(manual: Manual, limite = 6): Achado[] {
+  if (!manual.tour?.length) return acharCampos(manual, limite);
+  const titulos = new Map(manual.tour.map((t) => [t.alvo, t.titulo]));
+  return acharCampos({ ...manual, campos: manual.tour.map((t) => ({ nome: t.alvo, explica: t.explica })) }, limite).map((a) => ({
+    ...a,
+    parte: titulos.get(a.nome) ?? a.parte,
+  }));
+}
 
 export function acharCampos(manual: Manual, limite = 8): Achado[] {
   const main = document.querySelector("main");
@@ -28,15 +39,17 @@ export function acharCampos(manual: Manual, limite = 8): Achado[] {
   const usados = new Set<HTMLElement>();
   const achados: Achado[] = [];
   for (const c of manual.campos) {
-    const nomes = c.nome.split("/").map(normal).filter((n) => n.length >= 3);
+    const partes = c.nome.split("/").map((p) => p.trim()).filter((p) => normal(p).length >= 3);
+    let parte = "";
     const el = candidatos.find((e) => {
       if (usados.has(e)) return false;
       const t = normal(e.innerText || "").slice(0, 120);
-      return nomes.some((n) => t.startsWith(n) || t === n);
+      parte = partes.find((p) => t.startsWith(normal(p))) ?? "";
+      return !!parte;
     });
     if (el) {
       usados.add(el);
-      achados.push({ el, nome: c.nome, explica: c.explica });
+      achados.push({ el, nome: c.nome, parte, explica: c.explica });
     }
     if (achados.length >= limite) break;
   }

@@ -88,5 +88,18 @@ const s4 = seguroDesemprego([1500, 1500, 1500], 24, 1);
 eq("nunca abaixo do mínimo", s4.valorParcela, 1621);
 eq("pouco tempo de casa não tem direito", seguroDesemprego([2000,2000,2000], 5, 1).temDireito ? 1 : 0, 0);
 
+console.log("\n--- auditoria 25/10/2026 ---");
+// aviso indenizado projeta avos (CLT 487 §1º): 36 dias = +1 avo → 9/12
+const rAviso = rescisao(3000, 24, 10, "sem-justa-causa", false, 0, 0, 8);
+eq("aviso de 36 dias projeta o 13º: 9/12 de 3.000", rAviso.decimoProporcional, 2250, 0.001);
+eq("  e as férias: 9/12 + 1/3", rAviso.feriasProporcionais + rAviso.tercoFerias, 3000, 0.001);
+eq("pedido de demissão não projeta: 8/12", rescisao(3000, 24, 10, "pedido-demissao", false, 0, 0, 8).decimoProporcional, 2000, 0.001);
+eq("aviso de 45 dias (5 anos) projeta 2 avos (15 de sobra)", rescisao(3000, 60, 10, "sem-justa-causa", false, 0, 0, 5).decimoProporcional, 1750, 0.001);
+eq("projeção trava em 12 avos", rescisao(3000, 24, 10, "sem-justa-causa", false, 0, 0, 12).decimoProporcional, 3000, 0.001);
+// meio centavo arredonda para cima, sem tolerância
+eq("INSS 1.621 = 121,575 → 121,58 (exato)", inss(1621), 121.58, 0.001);
+eq("seguro média 3.000 → 2.166,66 (exato)", seguroDesemprego([3000, 3000, 3000], 14, 1).valorParcela, 2166.66, 0.001);
+eq("seguro sem salário informado não promete nada", seguroDesemprego([0, 0, 0], 24, 1).total, 0, 0.001);
+
 console.log(falhas ? `\n${falhas} FALHARAM` : "\nTUDO CERTO");
 process.exit(falhas ? 1 : 0);
