@@ -9,6 +9,8 @@ import { CascaFincash } from "./CascaFincash";
 import { PopupAlertas } from "./PopupAlertas";
 import { carregarAvisosDoMenu } from "./avisos-servidor";
 import { sair } from "@/lib/acoes-sessao";
+import { TourTela } from "@/components/TourTela";
+import { DicasCampos } from "@/components/DicasCampos";
 
 /* A folha de tokens e animações DESTE app.
    Importada aqui e não no `globals.css` de propósito: o `globals` serve o Hub
@@ -66,7 +68,9 @@ export default async function FincashLayout({
   const primeiroNome = perfil.nome?.split(" ")[0];
 
   return (
-    <div className="aurora-clara min-h-dvh">
+    // `data-clarity-mask`: na gravação anônima (Clarity) o FINCASH sai todo mascarado — saldo é
+    // dado financeiro (25/10/2026, ClarityAnonimo.tsx).
+    <div className="aurora-clara min-h-dvh" data-clarity-mask="true">
       {/* Nada `fixed` pode nascer aqui dentro: o `backdrop-blur` deste
           cabeçalho vira bloco de contenção e âncora qualquer `position: fixed`
           nele, não na janela. O trilho e a barra do polegar são montados fora,
@@ -136,6 +140,10 @@ export default async function FincashLayout({
 
       {/* Os alertas que a pessoa ligou em Avisos, num pop-up ao abrir o app. */}
       <PopupAlertas />
+
+      {/* Ajuda da tela (25/10/2026): o tour guiado (só por clique) e o "?" nos termos. */}
+      <TourTela modo="fincash" />
+      <DicasCampos modo="fincash" />
     </div>
   );
 }

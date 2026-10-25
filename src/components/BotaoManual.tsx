@@ -1,9 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { createPortal } from "react-dom";
 import { usePathname } from "next/navigation";
-import { BookOpen, Play, X } from "lucide-react";
+import { BookOpen, Play, Route, X } from "lucide-react";
 import { MANUAIS, arquivoDoVideo } from "@/lib/manuais";
 import { registrarUso } from "@/lib/uso";
 
@@ -22,12 +23,16 @@ export function BotaoManual({ modo }: { modo: "ferramenta" | "fincash" }) {
   const manual = MANUAIS[chave];
   const [aberta, setAberta] = useState(false);
   const [montado, setMontado] = useState(false);
-  const [semVideo, setSemVideo] = useState(false);
-  const painel = useRef<HTMLDivElement>(null);
   const fechar = useCallback(() => setAberta(false), []);
 
   useEffect(() => setMontado(true), []);
-  useEffect(() => setSemVideo(false), [chave]);
+
+  // Outros pedaços da tela abrem este manual (ex.: "Ver o FINCASH cheio" nos Primeiros passos).
+  useEffect(() => {
+    const abrir = () => setAberta(true);
+    window.addEventListener("novare:abrir-manual", abrir);
+    return () => window.removeEventListener("novare:abrir-manual", abrir);
+  }, []);
 
   /* ═══ PRIMEIRO USO (pedido do dono, 24/10/2026: "guia com pop up no primeiro uso, assim
      ajuda quem nunca usou a ferramenta") ════════════════════════════════════════════════
@@ -84,22 +89,6 @@ export function BotaoManual({ modo }: { modo: "ferramenta" | "fincash" }) {
     if (aberta) marcarVisto();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [aberta]);
-
-  useEffect(() => {
-    if (!aberta) return;
-    registrarUso(`manual:${chave}`, "usou");
-    const antes = document.activeElement as HTMLElement | null;
-    const tecla = (e: KeyboardEvent) => e.key === "Escape" && fechar();
-    document.addEventListener("keydown", tecla);
-    const overflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    painel.current?.querySelector<HTMLElement>("button")?.focus();
-    return () => {
-      document.removeEventListener("keydown", tecla);
-      document.body.style.overflow = overflow;
-      antes?.focus?.();
-    };
-  }, [aberta, fechar, chave]);
 
   if (!manual) return null;
 
@@ -186,14 +175,26 @@ export function BotaoManual({ modo }: { modo: "ferramenta" | "fincash" }) {
                   <Play className="h-4 w-4 fill-current" />
                   Ver como usar
                 </button>
+                {/* O tour guiado na própria tela (TourTela), alternativa ao vídeo (25/10/2026). */}
                 <button
                   type="button"
-                  onClick={marcarVisto}
-                  className="inline-flex min-h-11 items-center justify-center rounded-full px-4 text-sm font-semibold text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                  onClick={() => {
+                    marcarVisto();
+                    window.dispatchEvent(new Event("novare:tour"));
+                  }}
+                  className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-full border-2 border-primary px-4 text-sm font-bold text-primary transition-colors hover:bg-primary hover:text-white"
                 >
-                  Agora não
+                  <Route className="h-4 w-4" />
+                  Fazer o tour
                 </button>
               </div>
+              <button
+                type="button"
+                onClick={marcarVisto}
+                className="mt-2 inline-flex min-h-10 items-center rounded-full px-2 text-sm font-semibold text-muted-foreground hover:text-foreground"
+              >
+                Agora não
+              </button>
               <p className="mt-2.5 text-[11px] text-muted-foreground">
                 Depois, é só tocar em “Como usar” para ver de novo.
               </p>
@@ -202,14 +203,58 @@ export function BotaoManual({ modo }: { modo: "ferramenta" | "fincash" }) {
           document.body,
         )}
 
-      {aberta &&
-        montado &&
-        createPortal(
+      {aberta && montado && <JanelaManual chave={chave} aoFechar={fechar} />}
+    </>
+  );
+}
+
+/**
+ * A JANELA DO MANUAL, sozinha (25/10/2026): a mesma do botão "Como usar",
+ * reaproveitada pela Central de Ajuda (/ajuda). Montar = abrir; `aoFechar`
+ * desmonta. Esc fecha, o fundo trava e o foco volta para quem abriu.
+ * `semLinkAjuda` esconde o "Ver todos os manuais" (dentro da própria /ajuda).
+ */
+export function JanelaManual({
+  chave,
+  aoFechar,
+  semLinkAjuda = false,
+}: {
+  chave: string;
+  aoFechar: () => void;
+  semLinkAjuda?: boolean;
+}) {
+  const manual = MANUAIS[chave];
+  const [semVideo, setSemVideo] = useState(false);
+  const [montado, setMontado] = useState(false);
+  const painel = useRef<HTMLDivElement>(null);
+
+  useEffect(() => setMontado(true), []);
+  useEffect(() => setSemVideo(false), [chave]);
+
+  useEffect(() => {
+    if (!manual || !montado) return;
+    registrarUso(`manual:${chave}`, "usou");
+    const antes = document.activeElement as HTMLElement | null;
+    const tecla = (e: KeyboardEvent) => e.key === "Escape" && aoFechar();
+    document.addEventListener("keydown", tecla);
+    const overflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    painel.current?.querySelector<HTMLElement>("button")?.focus();
+    return () => {
+      document.removeEventListener("keydown", tecla);
+      document.body.style.overflow = overflow;
+      antes?.focus?.();
+    };
+  }, [manual, montado, aoFechar, chave]);
+
+  if (!manual || !montado) return null;
+
+  return createPortal(
           <div
             role="dialog"
             aria-modal="true"
             aria-labelledby="manual-titulo"
-            onClick={fechar}
+            onClick={aoFechar}
             className="fixed inset-0 z-[70] flex items-end justify-center bg-primary/50 p-3 backdrop-blur-sm sm:items-center sm:p-6"
           >
             <div
@@ -220,7 +265,7 @@ export function BotaoManual({ modo }: { modo: "ferramenta" | "fincash" }) {
               <div className="sticky top-0 z-10 bg-primary px-5 py-4 pr-16 text-white sm:px-7">
                 <button
                   type="button"
-                  onClick={fechar}
+                  onClick={aoFechar}
                   aria-label="Fechar o manual"
                   className="absolute right-4 top-3.5 flex h-10 w-10 items-center justify-center rounded-full text-white/80 hover:bg-white/10 hover:text-white"
                 >
@@ -244,6 +289,23 @@ export function BotaoManual({ modo }: { modo: "ferramenta" | "fincash" }) {
                     onError={() => setSemVideo(true)}
                     className="mx-auto aspect-[9/16] max-h-[52dvh] rounded-2xl bg-slate-900 shadow-lg"
                   />
+                )}
+
+                {/* Fora da /ajuda a tela de verdade está aberta atrás: dá para fazer o tour nela. */}
+                {!semLinkAjuda && (
+                  <p className="text-center">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        aoFechar();
+                        setTimeout(() => window.dispatchEvent(new Event("novare:tour")), 250);
+                      }}
+                      className="inline-flex min-h-11 items-center gap-2 rounded-full border-2 border-primary px-5 text-sm font-bold text-primary transition-colors hover:bg-primary hover:text-white"
+                    >
+                      <Route className="h-4 w-4" />
+                      Prefere ver na própria tela? Fazer o tour
+                    </button>
+                  </p>
                 )}
 
                 <Parte titulo="O que esta tela faz">
@@ -294,12 +356,22 @@ export function BotaoManual({ modo }: { modo: "ferramenta" | "fincash" }) {
                     ))}
                   </div>
                 </Parte>
+
+                {!semLinkAjuda && (
+                  <p className="border-t border-border pt-4 text-center">
+                    <Link
+                      href="/ajuda"
+                      onClick={aoFechar}
+                      className="inline-flex min-h-11 items-center px-3 text-sm font-semibold text-primary underline-offset-4 hover:underline"
+                    >
+                      Ver todos os manuais
+                    </Link>
+                  </p>
+                )}
               </div>
             </div>
           </div>,
           document.body,
-        )}
-    </>
   );
 }
 

@@ -4,6 +4,8 @@ import { AvaliarFerramenta } from "@/components/AvaliarFerramenta";
 import { CapturaLead } from "@/components/CapturaLead";
 import { BotaoManual } from "@/components/BotaoManual";
 import { MedirUsoFerramenta } from "@/components/MedirUsoFerramenta";
+import { TourTela } from "@/components/TourTela";
+import { DicasCampos } from "@/components/DicasCampos";
 import { RegistrarVisita } from "@/components/RegistrarVisita";
 import { RodapeNovare } from "@/components/RodapeNovare";
 import { VoltarAoWorkspace } from "@/components/VoltarAoWorkspace";
@@ -40,6 +42,9 @@ export default async function LayoutFerramentas({
       <RegistrarVisita />
       {/* "usou" no primeiro campo mexido: o meio do funil abriu → mexeu → baixou. */}
       <MedirUsoFerramenta />
+      {/* Ajuda da tela (25/10/2026): o tour guiado (só por clique) e o "?" nos termos. */}
+      <TourTela modo="ferramenta" />
+      <DicasCampos modo="ferramenta" />
       {/* O passo a passo de cada ferramenta (`lib/guias-ferramentas.ts`). */}
       {/* "Voltar" e "Como usar" lado a lado num grupo só, no canto de baixo
           à esquerda (24/10/2026): antes eram dois botões empilhados e o guia

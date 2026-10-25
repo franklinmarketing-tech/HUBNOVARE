@@ -30,6 +30,11 @@ Cada regra tem o motivo — regra sem motivo é a primeira que alguém quebra.
 | **Toda tela tem vídeo curto (15–20 s, vertical)**, no topo do Manual (`public/manuais/*.mp4`). Gravação real da tela + legenda + locução. | Muita gente entende vendo, não lendo. |
 | **O manual e o vídeo descrevem a tela REAL**: nomes de campo copiados do código. Mudou a tela → atualizar manual, roteiro e regravar o vídeo. | Manual que não bate com a tela é pior que nenhum. |
 | **Estado vazio ensina**: diz o que fazer e tem o botão do próximo passo (componente `Vazio` no FINCASH). | "Nenhum item" é constatação; "1, 2, 3 + botão" é caminho. |
+| **Tour na própria tela** (`TourTela.tsx`): acende até 6 campos do manual, um por vez. Só abre por clique (convite ou janela do manual), nunca sozinho. | Mostrar no lugar ensina mais rápido que descrever. |
+| **"?" ao lado do termo** (`DicasCampos.tsx`): explicação do manual num toque. Os campos saem do manual (`acharCampos`): renomeou o rótulo, atualize o `nome` no manual. Não entra em tabela que rola de lado. | `title` de passar o mouse não existe no celular. |
+| **Central de Ajuda** (`/ajuda`): busca local nos manuais, sem IA paga. | Site grátis não paga IA por pergunta. |
+| **Novidades** (`src/lib/novidades.ts`): mudou algo que o cliente vê? Uma linha nova lá. | Quem volta precisa saber o que mudou. |
+| **Mapa de cliques (Clarity)**: só depois do aceite dos cookies, FINCASH mascarado, nunca em admin/login. | LGPD e dado financeiro. |
 
 ## 4. FINCASH
 

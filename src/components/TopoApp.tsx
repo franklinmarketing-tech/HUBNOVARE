@@ -10,6 +10,7 @@ import { SinoNotificacoes } from "@/components/SinoNotificacoes";
 import type { Portal } from "@/lib/categorias";
 import type { Notificacao } from "@/lib/notificacoes";
 import { RedesSociais } from "@/components/RedesSociais";
+import { BotaoNovidades } from "@/components/BotaoNovidades";
 
 /**
  * Topo do aplicativo: saudação à esquerda, o menu das áreas no centro e o
@@ -174,6 +175,11 @@ export function TopoApp({
           <Newspaper className="h-3.5 w-3.5" />
           News
         </Link>
+
+        {/* Novidades (25/10/2026): só o ícone — o topo já é justo em 1280px.
+            Fica fora do celular pelo mesmo motivo: em 390px logo, redes,
+            busca, sino e avatar já ocupam a linha toda. */}
+        <BotaoNovidades className="hidden sm:block" />
 
         {/* min-w-0 + flex-1: sem isso a busca não cede espaço e o botão da
             direita sai da tela no celular. */}

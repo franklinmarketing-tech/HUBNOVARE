@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { BarraLateralFincash, NavFincashCelular } from "./NavFincash";
 import { SEM_AVISOS, type AvisosDoMenu } from "./avisos";
 import { BotaoManual } from "@/components/BotaoManual";
+import { BotaoNovidades } from "@/components/BotaoNovidades";
 
 const CHAVE = "fincash:menu-recolhido";
 
@@ -85,8 +86,10 @@ export function CascaFincash({
       >
         <main className="mx-auto max-w-5xl px-5 pb-28 pt-6 md:pb-12 md:pt-8">
           {/* O manual da tela atual, no topo e à direita — não flutua
-              (24/10/2026, docs/GUIDELINE-UX.md). */}
-          <div className="mb-4 flex justify-end">
+              (24/10/2026, docs/GUIDELINE-UX.md). As Novidades ficam à esquerda,
+              na mesma linha (25/10/2026). */}
+          <div className="mb-4 flex items-center justify-between gap-3">
+            <BotaoNovidades alinhar="esquerda" />
             <BotaoManual modo="fincash" />
           </div>
           {children}

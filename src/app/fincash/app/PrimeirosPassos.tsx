@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowRight, Check, X } from "lucide-react";
+import { ArrowRight, Check, Play, X } from "lucide-react";
 import { registrarUso } from "@/lib/uso";
 
 const CHAVE_OCULTO = "novare:fincash-passos-oculto";
@@ -112,6 +112,22 @@ export function PrimeirosPassos({
           <div className="h-full rounded-full bg-accent transition-all" style={{ width: `${(feitos / passos.length) * 100}%` }} />
         </div>
       </div>
+
+      {/* EXEMPLO CHEIO (25/10/2026): quem acabou de criar a conta vê o app com dados antes de
+          digitar nada — o vídeo do Painel foi gravado na conta de demonstração. Não troca a
+          sessão da pessoa (a conta dela continua vazia e dela). */}
+      {destaque && (
+        <div className="border-b border-border bg-ciano-tint/60 px-5 py-3">
+          <button
+            type="button"
+            onClick={() => window.dispatchEvent(new Event("novare:abrir-manual"))}
+            className="inline-flex min-h-10 items-center gap-2 text-sm font-semibold text-ciano-forte hover:underline"
+          >
+            <Play className="h-4 w-4 fill-current" />
+            Ver o FINCASH cheio, com dados de exemplo (15 s)
+          </button>
+        </div>
+      )}
 
       <ol className="divide-y divide-border">
         {passos.map((p, i) => {

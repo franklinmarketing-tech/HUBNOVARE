@@ -451,6 +451,15 @@ export default function PrivacidadePage() {
               esses dados a qualquer momento nas configurações do seu navegador,
               lembrando que isso pode apagar o progresso salvo localmente.
             </p>
+            {/* 25/10/2026 — ClarityAnonimo.tsx */}
+            <p className="mt-3">
+              Depois que você aceita os cookies, usamos também o Microsoft Clarity
+              para entender como as telas são usadas — onde as pessoas clicam, até
+              onde rolam e onde têm dificuldade — e assim deixar o site mais fácil.
+              O que você digita nos campos é mascarado, as telas do FINCASH são
+              gravadas com todo o conteúdo mascarado, e a área administrativa e o
+              login não são gravados. Não usamos esses dados para publicidade.
+            </p>
           </section>
 
           {/* (j) Como exercer direitos */}

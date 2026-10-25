@@ -30,6 +30,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/privacidade",
     "/termos",
     "/fale-conosco",
+    "/ajuda",
     "/profissionais",
   ].map((rota) => ({
     url: `${SITE}${rota}`,

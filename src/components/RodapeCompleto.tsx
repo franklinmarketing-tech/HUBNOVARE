@@ -72,6 +72,7 @@ export function RodapeCompleto({ aviso = "ferramenta" }: { aviso?: "ferramenta" 
       titulo: "Institucional",
       links: [
         { rotulo: "Fale com a gente", href: "/fale-conosco" },
+        { rotulo: "Central de ajuda", href: "/ajuda" },
         { rotulo: "Site oficial da Novare", href: "https://novareinvestimentos.com", externo: true },
         { rotulo: "Privacidade & LGPD", href: "/privacidade" },
         { rotulo: "Termos de Uso", href: "/termos" },

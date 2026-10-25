@@ -30,7 +30,7 @@ const rotaDe = (c: string) => (c.startsWith("/") ? c : `/ferramentas/${c}`);
       const apareceu = await convite.getByRole("button", { name: "Ver como usar" }).waitFor({ timeout: 6000 }).then(() => true, () => false);
       if (!apareceu) { falhas++; console.log(`XX ${nome} ${rota}: convite de primeiro uso não apareceu`); continue; }
       await convite.getByRole("button", { name: "Ver como usar" }).click();
-      const abriu = await p.getByRole("dialog", { name: titulo }).locator("video").isVisible();
+      const abriu = await p.getByRole("dialog", { name: titulo }).locator("video").waitFor({ timeout: 5000 }).then(() => true, () => false);
       await p.keyboard.press("Escape");
       await p.reload({ waitUntil: "networkidle" });
       await p.waitForTimeout(3500);

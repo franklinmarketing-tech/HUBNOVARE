@@ -34,6 +34,8 @@ interface Orcamento {
   categorias: Categoria[];
   /** true enquanto a tela mostra o EXEMPLO; a primeira mexida desliga. */
   exemplo?: boolean;
+  /** Qual exemplo está na tela (só vale com `exemplo`). */
+  perfil?: Perfil;
 }
 
 const GRUPOS: Record<
@@ -51,13 +53,53 @@ const ORDEM_GRUPOS: Grupo[] = ["necessidades", "estilo", "futuro"];
 /* Valores do EXEMPLO (24/10/2026): a tela abria vazia, com oito categorias em
    R$ 0,00, e quem chegava não via o que a ferramenta entrega antes de
    preencher tudo. Agora abre com um mês de R$ 5.000 já distribuído — e a
-   análise aparece na hora. "Começar do zero" zera os valores. */
-const EXEMPLO: Record<string, string> = {
-  Moradia: "1500", Mercado: "900", Transporte: "400", Saúde: "300",
-  Lazer: "400", Assinaturas: "150", Investimentos: "800", Outros: "250",
+   análise aparece na hora. "Começar do zero" zera os valores.
+
+   PERFIS PRONTOS (25/10/2026): pílulas na faixa do exemplo trocam o mês por
+   um de CLT, autônomo ou aposentado. São números redondos e plausíveis para
+   ilustrar, NÃO média de ninguém — por isso a faixa diz "exemplo". O
+   autônomo põe mais no Futuro (renda que varia pede reserva maior) e o
+   aposentado, mais em Saúde. Cada perfil soma no máximo a própria renda. */
+type Perfil = "padrao" | "clt" | "autonomo" | "aposentado";
+
+const PERFIS: Record<Perfil, { rotulo: string; renda: string; valores: Record<string, string> }> = {
+  padrao: {
+    rotulo: "Padrão",
+    renda: "5000",
+    valores: {
+      Moradia: "1500", Mercado: "900", Transporte: "400", Saúde: "300",
+      Lazer: "400", Assinaturas: "150", Investimentos: "800", Outros: "250",
+    },
+  },
+  clt: {
+    rotulo: "Sou CLT",
+    renda: "4500",
+    valores: {
+      Moradia: "1300", Mercado: "800", Transporte: "350", Saúde: "200",
+      Lazer: "400", Assinaturas: "120", Investimentos: "700", Outros: "250",
+    },
+  },
+  autonomo: {
+    rotulo: "Autônomo",
+    renda: "6000",
+    valores: {
+      Moradia: "1600", Mercado: "900", Transporte: "450", Saúde: "400",
+      Lazer: "400", Assinaturas: "150", Investimentos: "1500", Outros: "300",
+    },
+  },
+  aposentado: {
+    rotulo: "Aposentado",
+    renda: "3200",
+    valores: {
+      Moradia: "800", Mercado: "700", Transporte: "150", Saúde: "650",
+      Lazer: "250", Assinaturas: "80", Investimentos: "350", Outros: "150",
+    },
+  },
 };
 
-function categoriasIniciais(comExemplo = false): Categoria[] {
+const ORDEM_PERFIS: Perfil[] = ["clt", "autonomo", "aposentado"];
+
+function categoriasIniciais(perfil: Perfil | null = null): Categoria[] {
   const base: Array<[string, Grupo]> = [
     ["Moradia", "necessidades"],
     ["Mercado", "necessidades"],
@@ -71,12 +113,12 @@ function categoriasIniciais(comExemplo = false): Categoria[] {
   return base.map(([nome, grupo], i) => ({
     id: `cat-${i}-${nome.toLowerCase()}`,
     nome,
-    valor: comExemplo ? EXEMPLO[nome] : "",
+    valor: perfil ? PERFIS[perfil].valores[nome] : "",
     grupo,
   }));
 }
 
-const INICIAL: Orcamento = { renda: "5000", categorias: categoriasIniciais(true), exemplo: true };
+const INICIAL: Orcamento = { renda: "5000", categorias: categoriasIniciais("padrao"), exemplo: true, perfil: "padrao" };
 
 /* -------------------------------------------------------------------------- */
 
@@ -88,6 +130,10 @@ export default function OrcamentoPage() {
   // Qualquer mexida é da pessoa: o aviso de "exemplo" sai.
   const setDados = (f: (d: Orcamento) => Orcamento) => setDadosCru((d) => ({ ...f(d), exemplo: false }));
   const comecarDoZero = () => setDadosCru({ renda: "", categorias: categoriasIniciais(), exemplo: false });
+  // Trocar de perfil continua sendo exemplo: a faixa e as pílulas ficam.
+  const usarPerfil = (perfil: Perfil) =>
+    setDadosCru({ renda: PERFIS[perfil].renda, categorias: categoriasIniciais(perfil), exemplo: true, perfil });
+  const perfilAtual: Perfil = dados.perfil ?? "padrao";
 
   const renda = parseNumero(dados.renda);
 
@@ -193,7 +239,8 @@ export default function OrcamentoPage() {
         {dados.exemplo && (
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border-2 border-accent/40 bg-accent-tint px-4 py-3">
             <p className="text-sm text-foreground">
-              <strong className="text-accent-strong">Exemplo:</strong> um mês de R$ 5.000 já distribuído. Troque
+              <strong className="text-accent-strong">Exemplo:</strong> um mês de{" "}
+              {brl(parseNumero(PERFIS[perfilAtual].renda), 0)} já distribuído. Troque
               pelos seus números — a conta refaz na hora.
             </p>
             <button
@@ -203,6 +250,37 @@ export default function OrcamentoPage() {
             >
               Começar do zero
             </button>
+            {/* Perfis prontos: trocam só o exemplo, e o exemplo continua. */}
+            <div role="radiogroup" aria-label="Ver o exemplo de outro perfil" className="flex w-full flex-wrap items-center gap-2">
+              <span className="text-xs font-semibold text-slate-600">Ver exemplo de:</span>
+              {ORDEM_PERFIS.map((p) => {
+                const ativo = perfilAtual === p;
+                return (
+                  <button
+                    key={p}
+                    type="button"
+                    role="radio"
+                    aria-checked={ativo}
+                    onClick={() => usarPerfil(p)}
+                    className={`inline-flex min-h-10 items-center gap-2 rounded-full border px-3.5 text-xs font-semibold transition-colors ${
+                      ativo
+                        ? "border-primary bg-primary text-white"
+                        : "border-slate-200 bg-white text-slate-700 hover:border-primary/40 hover:text-primary"
+                    }`}
+                  >
+                    <span
+                      aria-hidden
+                      className={`flex h-3.5 w-3.5 items-center justify-center rounded-full border-2 ${
+                        ativo ? "border-white" : "border-slate-300"
+                      }`}
+                    >
+                      {ativo && <span className="h-1.5 w-1.5 rounded-full bg-white" />}
+                    </span>
+                    {PERFIS[p].rotulo}
+                  </button>
+                );
+              })}
+            </div>
           </div>
         )}
 

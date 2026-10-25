@@ -5,6 +5,7 @@ import { InclinaAoCursor } from "@/components/InclinaAoCursor";
 import { FitaProgresso } from "@/components/FitaProgresso";
 import { BannerConsentimento } from "@/components/BannerConsentimento";
 import { BotaoMensagem } from "@/components/BotaoMensagem";
+import { ClarityAnonimo } from "@/components/ClarityAnonimo";
 import { RastroDeUso } from "@/components/RastroDeUso";
 import { ConviteDeSaida } from "@/components/ConviteDeSaida";
 import { SITE_URL } from "@/lib/site";
@@ -127,6 +128,8 @@ export default function RootLayout({
         <BannerConsentimento />
         {/* "Fale com a gente" na lateral, em toda página pública (21/10/2026). */}
         <BotaoMensagem />
+        {/* Mapa de cliques anônimo, só depois do aceite dos cookies (25/10/2026). */}
+        <ClarityAnonimo />
         {/* Mede o uso a partir da rota — ver a nota longa no componente.
             Fica aqui para que tela nova seja medida sozinha, sem ninguem
             precisar lembrar de instrumentar. */}
