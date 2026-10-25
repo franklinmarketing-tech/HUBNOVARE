@@ -168,7 +168,6 @@ export function BotaoManual({ modo }: { modo: "ferramenta" | "fincash" }) {
               <div className="mt-4 flex flex-wrap items-center gap-2">
                 <button
                   type="button"
-                  autoFocus
                   onClick={() => setAberta(true)}
                   className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-full bg-accent px-5 text-sm font-bold text-white transition-colors hover:bg-accent-strong"
                 >
