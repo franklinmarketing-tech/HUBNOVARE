@@ -15,7 +15,8 @@ const FUSO = "America/Sao_Paulo";
  * ⚠️ A home o carrega dentro de um <Suspense>: as fontes são de fora, e a
  * primeira leitura sem cache não pode segurar o resto da página.
  */
-export async function ProximosEventos() {
+/** `compacto`: em meia largura (ao lado do último vídeo, 25/10/2026) os três eventos empilham. */
+export async function ProximosEventos({ compacto = false }: { compacto?: boolean } = {}) {
   const { eventos } = await getCalendarioEconomico();
   const agora = Date.now();
   const futuros = eventos.filter((e) => Date.parse(e.quando) >= agora - 60 * 60 * 1000);
@@ -25,7 +26,7 @@ export async function ProximosEventos() {
   if (!escolhidos.length) return null;
 
   return (
-    <section aria-labelledby="proximos-eventos-t" className="cartao-cp border-2 border-primary/85 p-5 sm:p-6">
+    <section aria-labelledby="proximos-eventos-t" className="cartao-cp h-full border-2 border-primary/85 p-5 sm:p-6">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <p className="chapeu chapeu-ciano">Calendário econômico</p>
@@ -39,7 +40,7 @@ export async function ProximosEventos() {
         </Link>
       </div>
 
-      <ul className="mt-4 grid gap-3 md:grid-cols-3">
+      <ul className={`mt-4 grid gap-3 ${compacto ? "" : "md:grid-cols-3"}`}>
         {escolhidos.map((e) => (
           <li key={e.id}>
             <Cartao e={e} />

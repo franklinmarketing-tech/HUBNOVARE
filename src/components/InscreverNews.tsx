@@ -1,5 +1,7 @@
 "use client";
 
+import Image from "next/image";
+
 import { useState } from "react";
 import { usePathname } from "next/navigation";
 import { ArrowRight, Check, ShieldCheck, Sparkles } from "lucide-react";
@@ -168,7 +170,15 @@ export function InscreverNews({
         aria-labelledby="inscrever-news-titulo"
         className={`flex flex-col gap-4 rounded-3xl border border-border bg-white p-5 shadow-card sm:p-6 lg:flex-row lg:items-center lg:justify-between lg:gap-8 ${className}`}
       >
-        <div className="min-w-0">
+        <div className="flex min-w-0 items-start gap-4">
+          {/* A marca do canal, igual à do cabeçalho do News: ícone da casa + selo NEWS (25/10/2026). */}
+          <span aria-hidden className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-ciano-tint">
+            <Image src="/marca/icone-novare.png" alt="" width={32} height={32} className="h-8 w-8" />
+            <span className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 rounded-md bg-primary px-1 py-px font-display text-[9px] font-semibold uppercase tracking-wider text-white">
+              News
+            </span>
+          </span>
+          <div className="min-w-0">
           <h2 id="inscrever-news-titulo" className="font-display text-lg font-semibold text-primary">
             {titulo}
           </h2>
@@ -178,6 +188,7 @@ export function InscreverNews({
               ? ` ${totalEdicoes} já publicados.`
               : ""}
           </p>
+          </div>
         </div>
 
         {enviado ? (

@@ -1,5 +1,7 @@
 "use client";
 
+import Image from "next/image";
+
 import Link from "next/link";
 import {
   ArrowRight,
@@ -458,8 +460,9 @@ function SemFicha() {
   return (
     <section className="cine cartao-cp mt-6 flex flex-wrap items-center justify-between gap-5 p-6 sm:p-7">
       <div className="flex min-w-0 items-start gap-4">
-        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-ciano-tint text-ciano-forte">
-          <Target className="h-5 w-5" strokeWidth={1.75} />
+        {/* A marca de verdade do FINCASH (pedido do dono, 25/10/2026), no lugar de um ícone genérico. */}
+        <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-ciano-tint">
+          <Image src="/fincash/marca.svg" alt="" width={40} height={40} className="h-10 w-10" />
         </span>
         <div className="min-w-0">
           <h3 className="titulo-cp text-xl sm:text-2xl">Seu painel nasce no FINCASH</h3>

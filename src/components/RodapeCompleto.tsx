@@ -83,17 +83,17 @@ export function RodapeCompleto({ aviso = "ferramenta" }: { aviso?: "ferramenta" 
   const zap = falarNoWhatsApp("Olá! Vim pelo site da Novare e quero falar sobre o meu planejamento.");
 
   return (
-    <footer className="secao-noite mt-auto pb-24 text-white sm:pb-10 print:hidden">
-      <div className="mx-auto max-w-6xl px-5 pt-12 sm:pt-16">
+    <footer className="secao-noite mt-auto pb-24 text-white sm:pb-8 print:hidden">
+      <div className="mx-auto max-w-6xl px-5 pt-10 sm:pt-12">
         {/* 1. A marca e a chamada */}
-        <div className="grid gap-8 border-b border-white/10 pb-10 lg:grid-cols-[1.2fr_1fr] lg:items-end">
+        <div className="grid gap-6 border-b border-white/10 pb-7 lg:grid-cols-[1.2fr_1fr] lg:items-end">
           <div>
             <Image src="/marca/logo-novare-branca.png" alt="Novare" width={150} height={38} className="h-8 w-auto" />
-            <p className="mt-5 max-w-md font-display text-2xl font-medium leading-snug tracking-[-0.03em] sm:text-[1.75rem]">
+            <p className="mt-4 max-w-md font-display text-xl font-medium leading-snug tracking-[-0.03em] sm:text-2xl">
               Consultoria de investimentos <span className="text-accent-claro">sem comissão</span> e ferramentas
               gratuitas para você decidir com clareza.
             </p>
-            <div className="mt-5 flex items-center gap-3">
+            <div className="mt-4 flex items-center gap-3">
               <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/60">Parceiro oficial</span>
               <span className="inline-flex items-center rounded-lg bg-white px-2.5 py-1.5">
                 <Image src="/marca/novare-site/logo-nord.png" alt="Nord Investimentos" width={96} height={30} className="h-5 w-auto" />
@@ -118,11 +118,11 @@ export function RodapeCompleto({ aviso = "ferramenta" }: { aviso?: "ferramenta" 
         </div>
 
         {/* 2. Os links e o contato */}
-        <div className="grid grid-cols-2 gap-x-6 gap-y-9 py-10 sm:grid-cols-3 lg:grid-cols-[repeat(5,minmax(0,1fr))_minmax(0,1.7fr)]">
+        <div className="grid grid-cols-2 gap-x-6 gap-y-7 py-7 sm:grid-cols-3 lg:grid-cols-[repeat(5,minmax(0,1fr))_minmax(0,1.7fr)]">
           {colunas.map((col) => (
             <nav key={col.titulo} aria-label={col.titulo}>
               <h3 className="text-[11px] font-semibold uppercase tracking-[0.22em] text-ciano-claro">{col.titulo}</h3>
-              <ul className="mt-4 space-y-2.5">
+              <ul className="mt-3 space-y-1.5">
                 {col.links.map((l) => (
                   <li key={l.rotulo}>
                     {l.externo ? (
@@ -142,7 +142,7 @@ export function RodapeCompleto({ aviso = "ferramenta" }: { aviso?: "ferramenta" 
 
           <div className="col-span-2 sm:col-span-3 lg:col-span-1">
             <h3 className="text-[11px] font-semibold uppercase tracking-[0.22em] text-ciano-claro">Fale com a gente</h3>
-            <ul className="mt-4 space-y-1 text-[13px]">
+            <ul className="mt-3 space-y-0.5 text-[13px]">
               <li>
                 <a href={zap} target="_blank" rel="noopener noreferrer" className="flex min-h-8 items-center gap-2 text-white/65 transition-colors hover:text-white">
                   <Phone className="h-3.5 w-3.5 shrink-0" />
@@ -162,12 +162,12 @@ export function RodapeCompleto({ aviso = "ferramenta" }: { aviso?: "ferramenta" 
                 </a>
               </li>
             </ul>
-            <IconesRedes className="mt-5" />
+            <IconesRedes className="mt-3" />
           </div>
         </div>
 
         {/* 3. O aviso legal e a assinatura */}
-        <div className="space-y-4 border-t border-white/10 pt-6">
+        <div className="space-y-3 border-t border-white/10 pt-5">
           {aviso === "servico" ? <DisclaimerServico tom="escuro" /> : <DisclaimerFerramenta tom="escuro" />}
           <div className="flex flex-wrap items-center justify-between gap-4">
             <p className="text-[11px] text-white/55">

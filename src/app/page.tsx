@@ -11,6 +11,8 @@ import { QuemEstaPorTras } from "@/components/QuemEstaPorTras";
 import { ComoTrabalhamos } from "@/components/ComoTrabalhamos";
 import { TudoDeGraca } from "@/components/TudoDeGraca";
 import { Suspense } from "react";
+import { UltimoVideo } from "@/components/UltimoVideo";
+import { ultimoVideoYoutube } from "@/lib/youtube";
 import { ProximosEventos } from "@/components/ProximosEventos";
 import { ChamadaJefferson } from "@/components/ChamadaJefferson";
 import { buildTrackingUrl, CARTEIRA_PONTUAL_LP } from "@/lib/consultoria";
@@ -145,11 +147,11 @@ export default async function Home() {
               noite com as ondas prateadas por trás (`.secao-noite`), título
               branco de peso médio e as três pílulas de vidro no pé — o mesmo
               desenho do topo de diagnostico.novareapp.com.br/carteira-pontual. */}
-          <section className="cine secao-noite rounded-[1.75rem] px-5 pb-5 pt-8 sm:px-9 sm:pb-7 sm:pt-12">
-          <div className="grid items-center gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:gap-12">
+          <section className="cine secao-noite rounded-[1.75rem] px-5 pb-5 pt-8 sm:px-9 sm:pb-7 sm:pt-12 lg:pb-6 lg:pt-8">
+          <div className="grid items-center gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:gap-10">
             <div>
               <p className="chapeu chapeu-claro">Novare Workspace</p>
-              <h1 className="mt-3 font-display text-[2rem] font-medium leading-[1.08] tracking-[-0.03em] text-white sm:text-5xl">
+              <h1 className="mt-3 font-display text-[2rem] font-medium leading-[1.08] tracking-[-0.03em] text-white sm:text-5xl lg:text-[2.6rem]">
                 {/* Palavra por palavra (`.cine-palavra`, globals.css): a saudação
                     entra primeiro e a pergunta assenta logo depois. */}
                 {palavras(primeiroNome ? `${saudacao}, ${primeiroNome}!` : `${saudacao}!`, 0)}
@@ -160,76 +162,44 @@ export default async function Home() {
               {/* Não some mais em tela baixa: escondê-lo era parte da mesma
                   corrida por caber numa tela, e a página perdia a única
                   linha que diz o que a Novare faz. */}
-              <p className="mt-4 max-w-xl text-base leading-relaxed text-white/75">
+              <p className="mt-4 max-w-xl text-base leading-relaxed text-white/75 lg:mt-3">
                 {perfil
                   ? "Tudo o que você usa, num lugar só — e a gente por perto se precisar."
                   : "Ferramentas gratuitas e independentes para organizar o seu dinheiro."}
               </p>
-              <div className="mt-6 max-w-md">
+              <div className="mt-6 max-w-md lg:mt-5">
                 <BuscaDestaque />
               </div>
+              {/* No computador, embaixo da busca (25/10/2026): embaixo da foto ele empurrava o botão
+                  para fora da primeira tela em 1366×768, e por cima dela cobria o rosto. */}
+              <CartaoCarteiraPontual className="mt-5 hidden max-w-md lg:block" compacto />
             </div>
             <div className="relative">
               <div className="relative aspect-[4/3] overflow-hidden rounded-[1.5rem] ring-1 ring-white/10">
+                {/* A capa é o Jefferson (pedido do dono, 25/10/2026): saíram a foto da mulher com café e o
+                    vídeo em laço dela. As fotos do sofá já se repetiam pelo site; esta, à mesa do
+                    escritório, foi enviada pelo dono (a do Instagram era marcada "Conteúdo de IA"). */}
                 <Image
-                  src="/home/topo.webp"
-                  alt="Mulher sorrindo em casa, com café e celular, organizando o mês"
+                  src="/home/topo-jefferson-escritorio.webp"
+                  alt="Jefferson Freitas, sócio-fundador da Novare, à mesa do escritório"
                   fill
                   priority
                   sizes="(max-width: 1024px) 100vw, 45vw"
-                  className="cine-ken-burns object-cover"
+                  className="object-cover object-top"
                 />
-                {/* A FOTO QUE RESPIRA (20/10/2026): 5 s em Kling 2.5 com a
-                    MESMA foto no primeiro e no último quadro, para o laço não
-                    ter corte. ~200 KB. A foto acima continua por baixo: é o
-                    que aparece até o vídeo carregar e o que fica para quem
-                    pediu menos movimento no sistema (`motion-reduce:hidden`). */}
-                <video
-                  className="absolute inset-0 h-full w-full object-cover motion-reduce:hidden"
-                  autoPlay
-                  muted
-                  loop
-                  playsInline
-                  preload="auto"
-                  poster="/home/topo.webp"
-                  aria-hidden
-                >
-                  <source src="/home/topo.webm" type="video/webm" />
-                  <source src="/home/topo.mp4" type="video/mp4" />
-                </video>
               </div>
 
-              {/* A CARTEIRA PONTUAL NA FOTO DO TOPO (pedido do dono, 19/10/2026):
-                  título na dor — dinheiro parado no lugar errado, carteira
-                  montada pelo banco — e o botão direto para a página oficial.
-                  No celular o cartão desce para baixo da foto, sobrepondo só a
-                  borda: em cima dela, cobriria a pessoa inteira. */}
-              <div style={{ transitionDelay: "650ms" }} className="cine relative mx-3 -mt-12 rounded-[1.25rem] bg-white/95 p-4 shadow-vidro ring-1 ring-white/40 backdrop-blur-md sm:absolute sm:bottom-4 sm:left-4 sm:mx-0 sm:mt-0 sm:max-w-sm sm:p-5">
-                <p className="chapeu">Carteira Pontual</p>
-                <p className="mt-2 font-display text-lg font-semibold leading-snug tracking-[-0.03em] text-primary sm:text-xl">
-                  Seu dinheiro está parado no lugar errado?
-                </p>
-                <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-                  A Novare analisa a sua carteira sem ganhar comissão de nenhum produto.
-                </p>
-                <a
-                  href={buildTrackingUrl(CARTEIRA_PONTUAL_LP, "home-topo")}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group mt-3.5 flex items-center gap-2"
-                >
-                  <span className="btn-cp">Quero analisar minha carteira</span>
-                  <span className="btn-seta" aria-hidden>
-                    <ArrowUpRight className="h-4 w-4" />
-                  </span>
-                </a>
-              </div>
+              {/* No celular e no tablet o cartão da Carteira Pontual fica embaixo da foto, encostando
+                  só na borda. No computador ele mora na coluna da esquerda (ver acima). */}
+              <CartaoCarteiraPontual className="relative mx-3 -mt-6 sm:mx-6 sm:-mt-8 lg:hidden" />
             </div>
           </div>
 
           {/* As pílulas de vidro do pé do topo — as três promessas da casa,
               no mesmo formato "Recomendação isenta · NÃO VENDEMOS PRODUTO". */}
-          <ul className="mt-8 flex flex-wrap gap-2.5" aria-label="O que a Novare garante">
+          {/* Em tela de computador baixa (até 800px de altura útil) as pílulas saem: o resto da capa
+              cabe inteiro sem rolar, e as três promessas se repetem logo abaixo (25/10/2026). */}
+          <ul className="mt-8 flex flex-wrap gap-2.5 lg:mt-6 [@media(min-width:1024px)_and_(max-height:800px)]:hidden" aria-label="O que a Novare garante">
             {[
               ["Tudo de graça", "sem cartão"],
               ["Independente", "não vendemos produto"],
@@ -352,7 +322,7 @@ export default async function Home() {
               (22/10/2026). Em Suspense: as fontes são de fora e a primeira
               leitura sem cache não pode segurar a home. */}
           <Suspense fallback={null}>
-            <ProximosEventos />
+            <CalendarioEVideo />
           </Suspense>
 
           {/* O rosto da casa e os números do mês em frases — as duas peças
@@ -548,4 +518,50 @@ function palavras(texto: string, inicio: number) {
       </span>{" "}
     </span>
   ));
+}
+
+/**
+ * O calendário econômico e, ao lado, o último vídeo do canal (pedido do dono, 25/10/2026: "nem que
+ * encurte uma seção pela metade para caber uma preview"). Sem vídeo (feed fora do ar), o calendário
+ * volta a ocupar a largura toda.
+ */
+async function CalendarioEVideo() {
+  const video = await ultimoVideoYoutube();
+  if (!video) return <ProximosEventos />;
+  return (
+    <div className="grid items-stretch gap-3 lg:grid-cols-2">
+      <ProximosEventos compacto />
+      <UltimoVideo video={video} />
+    </div>
+  );
+}
+
+/**
+ * A CARTEIRA PONTUAL NO TOPO (pedido do dono, 19/10/2026): título na dor — dinheiro parado no
+ * lugar errado, carteira montada pelo banco — e o botão direto para a página oficial. Montado em
+ * dois lugares da capa conforme a largura (só um aparece por vez: o outro fica `hidden`).
+ */
+function CartaoCarteiraPontual({ className = "", compacto = false }: { className?: string; compacto?: boolean }) {
+  return (
+    <div style={{ transitionDelay: "650ms" }} className={`cine rounded-[1.25rem] bg-white/95 p-4 shadow-vidro ring-1 ring-white/40 backdrop-blur-md ${compacto ? "" : "sm:p-5"} ${className}`}>
+      <p className="chapeu">Carteira Pontual</p>
+      <p className={`mt-1.5 font-display text-lg font-semibold leading-snug tracking-[-0.03em] text-primary ${compacto ? "" : "sm:text-xl"}`}>
+        Seu dinheiro está parado no lugar errado?
+      </p>
+      <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+        A Novare analisa a sua carteira sem ganhar comissão de nenhum produto.
+      </p>
+      <a
+        href={buildTrackingUrl(CARTEIRA_PONTUAL_LP, "home-topo")}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="group mt-3 flex items-center gap-2"
+      >
+        <span className="btn-cp">Quero analisar minha carteira</span>
+        <span className="btn-seta" aria-hidden>
+          <ArrowUpRight className="h-4 w-4" />
+        </span>
+      </a>
+    </div>
+  );
 }
