@@ -23,15 +23,35 @@ export type ContratoDI = {
   taxa: number;
 };
 
-export type TituloIpca = {
+export type TipoTitulo = "Reserva" | "Selic" | "Prefixado" | "IPCA+" | "Renda+" | "Educa+";
+export const ORDEM_TIPOS: TipoTitulo[] = ["Reserva", "Selic", "Prefixado", "IPCA+", "Renda+", "Educa+"];
+
+/** Um título à venda agora no Tesouro Direto, como na página "Rendimento dos Títulos". */
+export type TituloTesouro = {
   nome: string;
+  tipo: TipoTitulo;
+  /** Como o Tesouro escreve: "SELIC + 0,0992%", "IPCA + 8,10%", "13,20%". */
+  rendimento: string;
+  /** Só no IPCA+, Renda+ e Educa+: o ganho real, % a.a. acima do IPCA. */
+  taxaReal: number | null;
+  minimo: number;
+  preco: number;
   vencimento: string;
   ano: number;
-  /** Taxa real de compra, % a.a. acima do IPCA. */
-  taxaReal: number;
-  preco: number;
-  minimo: number;
   jurosSemestrais: boolean;
+};
+
+/** Compatível com a primeira versão (fita do topo): só os IPCA+. */
+export type TituloIpca = TituloTesouro & { taxaReal: number };
+
+const tipoDe = (nome: string): TipoTitulo | null => {
+  if (/Reserva/i.test(nome)) return "Reserva";
+  if (/Selic/i.test(nome)) return "Selic";
+  if (/Prefixado/i.test(nome)) return "Prefixado";
+  if (/Renda\+|RendA\+|Aposentadoria/i.test(nome)) return "Renda+";
+  if (/Educa\+/i.test(nome)) return "Educa+";
+  if (/IPCA\+/i.test(nome)) return "IPCA+";
+  return null;
 };
 
 const ANO_ATUAL = () => new Date().getFullYear();
@@ -83,14 +103,19 @@ export const getJurosFuturos = cache(async (): Promise<{ contratos: ContratoDI[]
   }
 });
 
-export const getTesouroIpca = cache(async (): Promise<{ titulos: TituloIpca[]; atualizado: string | null }> => {
+/**
+ * ⚠️ A LISTA MUDA AO LONGO DO DIA: em dia de muita oscilação o Tesouro suspende a venda e o mesmo
+ * endpoint passa de 36 títulos para só Selic e Reserva (visto em 26/10/2026). A tela mostra o que
+ * houver e avisa quando faltam tipos — não inventa a taxa de quem saiu.
+ */
+export const getTesouroTitulos = cache(async (): Promise<{ titulos: TituloTesouro[]; atualizado: string | null }> => {
   try {
     const r = await fetch("https://www.tesourodireto.com.br/o/rentabilidade/investir", {
       headers: {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/130 Safari/537.36",
         Accept: "application/json",
       },
-      next: { revalidate: 60 * 60 },
+      next: { revalidate: 60 * 30 },
     });
     if (!r.ok) return { titulos: [], atualizado: null };
     const d = (await r.json()) as Record<string, unknown>;
@@ -104,26 +129,38 @@ export const getTesouroIpca = cache(async (): Promise<{ titulos: TituloIpca[]; a
     }[];
     let atualizado: string | null = null;
     const titulos = lista
-      .filter((t) => /^Tesouro IPCA\+/.test(t.treasuryBondName ?? ""))
-      .map((t): TituloIpca | null => {
-        // "IPCA + 6,72%" → 6.72. Título só para resgate vem sem taxa de compra e fica de fora.
-        const m = (t.investmentProfitabilityIndexerName ?? "").match(/IPCA\s*\+\s*([\d.,]+)\s*%/);
-        if (!m || !t.maturityDate) return null;
+      .map((t): TituloTesouro | null => {
+        const nome = (t.treasuryBondName ?? "").trim();
+        const tipo = tipoDe(nome);
+        const rendimento = (t.investmentProfitabilityIndexerName ?? "").trim();
+        // Título só para resgate vem sem rendimento de compra e fica de fora.
+        if (!tipo || !rendimento || !t.maturityDate) return null;
         if (t.lastMarketPricingDate && (!atualizado || t.lastMarketPricingDate > atualizado)) atualizado = t.lastMarketPricingDate;
+        const m = rendimento.match(/IPCA\s*\+\s*([\d.,]+)\s*%/);
         return {
-          nome: t.treasuryBondName!.trim(),
+          nome,
+          tipo,
+          rendimento,
+          taxaReal: m ? Number(m[1].replace(/\./g, "").replace(",", ".")) : null,
+          minimo: t.investmentBondMinimumValue ?? 0,
+          preco: t.unitaryInvestmentValue ?? 0,
           vencimento: t.maturityDate.slice(0, 10),
           ano: Number(t.maturityDate.slice(0, 4)),
-          taxaReal: Number(m[1].replace(/\./g, "").replace(",", ".")),
-          preco: t.unitaryInvestmentValue ?? 0,
-          minimo: t.investmentBondMinimumValue ?? 0,
-          jurosSemestrais: /Juros Semestrais/i.test(t.treasuryBondName ?? ""),
+          jurosSemestrais: /Juros Semestrais/i.test(nome),
         };
       })
-      .filter((t): t is TituloIpca => t !== null && Number.isFinite(t.taxaReal))
-      .sort((a, b) => a.vencimento.localeCompare(b.vencimento));
+      .filter((t): t is TituloTesouro => t !== null)
+      .sort((a, b) => ORDEM_TIPOS.indexOf(a.tipo) - ORDEM_TIPOS.indexOf(b.tipo) || a.vencimento.localeCompare(b.vencimento));
     return { titulos, atualizado };
   } catch {
     return { titulos: [], atualizado: null };
   }
+});
+
+export const getTesouroIpca = cache(async (): Promise<{ titulos: TituloIpca[]; atualizado: string | null }> => {
+  const { titulos, atualizado } = await getTesouroTitulos();
+  return {
+    titulos: titulos.filter((t): t is TituloIpca => t.tipo === "IPCA+" && t.taxaReal !== null),
+    atualizado,
+  };
 });

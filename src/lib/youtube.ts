@@ -21,7 +21,10 @@ export async function ultimoVideoYoutube(): Promise<VideoYoutube | null> {
     });
     if (!res.ok) return null;
     const xml = await res.text();
-    const entrada = xml.match(/<entry>([\s\S]*?)<\/entry>/)?.[1];
+    /* SÓ VÍDEO, NÃO SHORTS (pedido do dono, 26/10/2026): o Short vertical ficava espremido no cartão
+       16:9. O feed marca o Short pelo link `/shorts/`; vídeo normal é `/watch?v=`. */
+    const entradas = [...xml.matchAll(/<entry>([\s\S]*?)<\/entry>/g)].map((m) => m[1]);
+    const entrada = entradas.find((e) => /<link rel="alternate" href="[^"]*\/watch\?v=/.test(e));
     if (!entrada) return null;
     const id = entrada.match(/<yt:videoId>([^<]+)<\/yt:videoId>/)?.[1];
     const titulo = entrada.match(/<title>([^<]+)<\/title>/)?.[1];

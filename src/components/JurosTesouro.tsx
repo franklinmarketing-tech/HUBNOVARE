@@ -1,4 +1,4 @@
-import { getJurosFuturos, getTesouroIpca, type ContratoDI } from "@/lib/juros-tesouro";
+import { getJurosFuturos, getTesouroTitulos, ORDEM_TIPOS, type ContratoDI, type TituloTesouro } from "@/lib/juros-tesouro";
 
 /**
  * JUROS FUTUROS E TESOURO IPCA+ na página de indicadores (pedido do Jefferson, 26/10/2026).
@@ -24,7 +24,7 @@ function Curva({ contratos }: { contratos: ContratoDI[] }) {
   const y = (t: number) => H - my - ((t - min) / Math.max(0.01, max - min)) * (H - 2 * my);
   const linha = contratos.map((c, i) => `${x(i).toFixed(1)},${y(c.taxa).toFixed(1)}`).join(" ");
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} className="h-auto w-full" role="img" aria-label={`Curva de juros futuros: ${contratos.map((c) => `${c.rotulo} ${pct(c.taxa)}`).join(", ")}`}>
+    <svg viewBox={`0 0 ${W} ${H}`} className="h-auto max-h-[240px] w-full" role="img" aria-label={`Curva de juros futuros: ${contratos.map((c) => `${c.rotulo} ${pct(c.taxa)}`).join(", ")}`}>
       <polyline points={linha} fill="none" stroke="var(--color-ciano)" strokeWidth={3} strokeLinejoin="round" />
       {contratos.map((c, i) => (
         <g key={c.codigo}>
@@ -42,7 +42,7 @@ function Curva({ contratos }: { contratos: ContratoDI[] }) {
 }
 
 export async function JurosTesouro() {
-  const [di, td] = await Promise.all([getJurosFuturos(), getTesouroIpca()]);
+  const [di, td] = await Promise.all([getJurosFuturos(), getTesouroTitulos()]);
   if (!di.contratos.length && !td.titulos.length) return null;
   const curto = di.contratos[0];
   const longo = di.contratos[di.contratos.length - 1];
@@ -50,13 +50,13 @@ export async function JurosTesouro() {
   return (
     <section id="juros-futuros" aria-labelledby="juros-futuros-t" className="mt-12 scroll-mt-24">
       <p className="chapeu chapeu-ciano">Indicadores</p>
-      <h2 id="juros-futuros-t" className="titulo-cp mt-2 text-2xl sm:text-[2rem]">Juros futuros e Tesouro IPCA+</h2>
+      <h2 id="juros-futuros-t" className="titulo-cp mt-2 text-2xl sm:text-[2rem]">Juros futuros e Tesouro Direto</h2>
       <p className="mt-2 max-w-3xl text-sm leading-relaxed text-muted-foreground">
-        O que o mercado espera para os juros nos próximos anos, e quanto o Tesouro paga acima da inflação hoje.
-        São taxas do dia, não recomendação de investimento.
+        O que o mercado espera para os juros nos próximos anos, e quanto rende cada título do Tesouro Direto
+        para quem compra hoje. São taxas do dia, não recomendação de investimento.
       </p>
 
-      <div className="mt-5 grid gap-4 lg:grid-cols-[1.15fr_0.85fr]">
+      <div className="mt-5 grid gap-4">
         {di.contratos.length > 0 && (
           <article className="cartao-cp p-5 sm:p-6">
             <h3 className="font-display text-lg font-semibold text-primary">Curva de juros futuros (DI)</h3>
@@ -85,43 +85,75 @@ export async function JurosTesouro() {
           </article>
         )}
 
-        {td.titulos.length > 0 && (
-          <article className="cartao-cp p-5 sm:p-6">
-            <h3 className="font-display text-lg font-semibold text-primary">Tesouro IPCA+ hoje</h3>
-            <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-              A taxa é o ganho acima da inflação, por ano, para quem compra hoje e leva até o vencimento.
-            </p>
-            <div className="mt-3 overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-border text-left text-[11px] uppercase tracking-wider text-muted-foreground">
-                    <th className="py-2 pr-3 font-semibold">Título</th>
-                    <th className="py-2 pr-3 text-right font-semibold">Taxa</th>
-                    <th className="py-2 text-right font-semibold">Preço</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border/60">
-                  {td.titulos.map((t) => (
-                    <tr key={t.nome}>
-                      <td className="py-2.5 pr-3">
-                        <span className="block whitespace-nowrap font-semibold text-primary">IPCA+ {t.ano}</span>
-                        {t.jurosSemestrais && <span className="block text-[11px] text-muted-foreground">juros semestrais</span>}
-                      </td>
-                      <td className="whitespace-nowrap py-2.5 pr-3 text-right font-semibold tabular-nums text-primary">IPCA + {pct(t.taxaReal)}</td>
-                      <td className="whitespace-nowrap py-2.5 text-right text-xs tabular-nums text-muted-foreground sm:text-sm">{brl(t.preco)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-            <p className="mt-2 text-[11px] text-muted-foreground">
-              Fonte: Tesouro Direto (taxas de compra){quando(td.atualizado) ? ` · ${quando(td.atualizado)}` : ""}. O preço é de um título
-              inteiro; dá para comprar frações
-              {td.titulos[0].minimo > 0 ? ` (no IPCA+ ${td.titulos[0].ano}, o mínimo hoje é ${brl(td.titulos[0].minimo)})` : ""}.
-            </p>
-          </article>
-        )}
       </div>
+
+      {td.titulos.length > 0 && <TabelaTesouro titulos={td.titulos} atualizado={td.atualizado} />}
     </section>
+  );
+}
+
+/**
+ * Os títulos à venda agora, como a página "Rendimento dos Títulos" do Tesouro Direto (pedido do
+ * Jefferson, 26/10/2026): rendimento anual, investimento mínimo, preço unitário e vencimento.
+ */
+function TabelaTesouro({ titulos, atualizado }: { titulos: TituloTesouro[]; atualizado: string | null }) {
+  const tipos = ORDEM_TIPOS.filter((t) => titulos.some((x) => x.tipo === t));
+  const faltam = ORDEM_TIPOS.filter((t) => t !== "Reserva" && !tipos.includes(t));
+  return (
+    <article className="cartao-cp mt-4 p-5 sm:p-6">
+      <h3 className="font-display text-lg font-semibold text-primary">Tesouro Direto: rendimento dos títulos hoje</h3>
+      <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+        O rendimento é por ano, para quem compra hoje e leva até o vencimento. No IPCA+, é o ganho acima da inflação.
+      </p>
+      {faltam.length > 0 && (
+        <p className="mt-3 rounded-xl bg-accent-tint/60 px-3.5 py-2.5 text-xs leading-relaxed text-accent-strong" role="status">
+          No momento o Tesouro Direto está oferecendo só {tipos.join(" e ")}. {faltam.join(", ")} voltam a aparecer aqui
+          assim que estiverem à venda de novo.
+        </p>
+      )}
+      <div className="mt-3 overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-border text-left text-[11px] uppercase tracking-wider text-muted-foreground">
+              <th className="py-2 pr-3 font-semibold">Título</th>
+              <th className="py-2 pr-3 text-right font-semibold">Rendimento anual</th>
+              <th className="hidden py-2 pr-3 text-right font-semibold sm:table-cell">Invest. mín.</th>
+              <th className="hidden py-2 pr-3 text-right font-semibold sm:table-cell">Preço unit.</th>
+              <th className="py-2 text-right font-semibold">Vencimento</th>
+            </tr>
+          </thead>
+          {tipos.map((tipo) => (
+            <tbody key={tipo} className="divide-y divide-border/60">
+              <tr>
+                <th colSpan={5} scope="colgroup" className="pb-1 pt-4 text-left text-[11px] font-semibold uppercase tracking-[0.18em] text-ciano-forte">
+                  {tipo === "Reserva" ? "Tesouro Reserva" : `Tesouro ${tipo}`}
+                </th>
+              </tr>
+              {titulos
+                .filter((t) => t.tipo === tipo)
+                .map((t) => (
+                  <tr key={t.nome}>
+                    <td className="py-2.5 pr-3">
+                      <span className="block font-semibold text-primary">{t.nome.replace(/^Tesouro /, "")}</span>
+                    </td>
+                    <td className="whitespace-nowrap py-2.5 pr-3 text-right font-semibold tabular-nums text-primary">
+                      {t.tipo === "Reserva" ? "Selic (liquidez diária)" : t.rendimento}
+                    </td>
+                    <td className="hidden whitespace-nowrap py-2.5 pr-3 text-right tabular-nums text-muted-foreground sm:table-cell">{brl(t.minimo)}</td>
+                    <td className="hidden whitespace-nowrap py-2.5 pr-3 text-right tabular-nums text-muted-foreground sm:table-cell">{brl(t.preco)}</td>
+                    <td className="whitespace-nowrap py-2.5 text-right tabular-nums text-muted-foreground">
+                      {t.vencimento.split("-").reverse().join("/")}
+                    </td>
+                  </tr>
+                ))}
+            </tbody>
+          ))}
+        </table>
+      </div>
+      <p className="mt-2 text-[11px] text-muted-foreground">
+        Fonte: Tesouro Direto (taxas de compra){quando(atualizado) ? ` · ${quando(atualizado)}` : ""}. Por enquanto, o Tesouro
+        Reserva é operado exclusivamente pelo Banco do Brasil.
+      </p>
+    </article>
   );
 }
