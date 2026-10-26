@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { getCartoesIndicadores } from "@/lib/indicadores";
 import { formatarPontos, getCotacoes, getIndicesBolsa } from "@/lib/indices-bolsa";
+import { getJurosFuturos, getTesouroIpca } from "@/lib/juros-tesouro";
 
 /**
  * A FITA DO MERCADO no topo do Workspace (pedido do dono, 21/10/2026, no
@@ -18,7 +19,7 @@ type Item = { chave: string; nome: string; valor: string; unidade?: string; pct?
 const fmtPct = (v: number) => `${v >= 0 ? "+" : ""}${v.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%`;
 
 export async function FitaMercado() {
-  const [bcb, bolsas, cotacoes] = await Promise.all([getCartoesIndicadores(), getIndicesBolsa(), getCotacoes()]);
+  const [bcb, bolsas, cotacoes, di, td] = await Promise.all([getCartoesIndicadores(), getIndicesBolsa(), getCotacoes(), getJurosFuturos(), getTesouroIpca()]);
 
   const doBcb = (chave: string, nome: string): Item | null => {
     const c = bcb.find((x) => x.chave === chave);
@@ -36,10 +37,16 @@ export async function FitaMercado() {
     return { chave: simbolo, nome: b.nome, valor, unidade: b.unidade, pct: b.variacaoPct };
   };
 
+  // DI de janeiro do ano que vem e o IPCA+ mais curto à venda (pedido do Jefferson, 26/10/2026).
+  const fmtTaxa = (v: number) => `${v.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%`;
+  const di1 = di.contratos[0];
+  const ipcaMais = td.titulos.find((t) => !t.jurosSemestrais) ?? td.titulos[0];
   const itens = [
     doBcb("ipca", "IPCA"),
     doBcb("selic", "Selic"),
     doBcb("cdi", "CDI"),
+    di1 ? { chave: "di", nome: `DI ${di1.rotulo}`, valor: fmtTaxa(di1.taxa) } : null,
+    ipcaMais ? { chave: "ipca-mais", nome: `IPCA+ ${ipcaMais.ano}`, valor: `IPCA + ${fmtTaxa(ipcaMais.taxaReal)}` } : null,
     doBcb("igpm", "IGP-M"),
     daBolsa("^BVSP"),
     daBolsa("^IBX50"),

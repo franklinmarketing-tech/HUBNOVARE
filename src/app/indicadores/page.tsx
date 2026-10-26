@@ -13,6 +13,7 @@ import { GRUPOS, getCartoesIndicadores, type CartaoIndicador } from "@/lib/indic
 import { Minigrafico } from "@/components/Minigrafico";
 import { formatarPontos, getIndicesBolsa, type IndiceBolsa } from "@/lib/indices-bolsa";
 import { FitaMercado } from "@/components/FitaMercado";
+import { JurosTesouro } from "@/components/JurosTesouro";
 
 export const metadata: Metadata = {
   title: "Indicadores econômicos hoje",
@@ -78,6 +79,9 @@ export default async function IndicadoresPage() {
               <a href="#bolsas" className="pilula-vidro text-sm font-semibold transition-transform hover:-translate-y-0.5">
                 Bolsas
               </a>
+              <a href="#juros-futuros" className="pilula-vidro text-sm font-semibold transition-transform hover:-translate-y-0.5">
+                Juros futuros e Tesouro
+              </a>
               {GRUPOS.map((g) => (
                 <a key={g} href={`#${ancora(g)}`} className="pilula-vidro text-sm font-semibold transition-transform hover:-translate-y-0.5">
                   {g}
@@ -88,6 +92,9 @@ export default async function IndicadoresPage() {
 
           {/* As bolsas, em tabela como a do TradeMap (21/10/2026). */}
           {bolsas.length > 0 && <TabelaBolsas bolsas={bolsas} />}
+
+          {/* Juros futuros (B3) e Tesouro IPCA+ (Tesouro Direto) — pedido do Jefferson, 26/10/2026. */}
+          <JurosTesouro />
 
           {GRUPOS.map((g) => {
             const doGrupo = cartoes.filter((c) => c.grupo === g);
