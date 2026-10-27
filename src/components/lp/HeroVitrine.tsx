@@ -73,7 +73,7 @@ export function HeroVitrine() {
                 junto, em vez de ficar segurando um filho só. */}
             <span className="relative h-8 w-8 shrink-0 overflow-hidden rounded-full border-2 border-white bg-[#e9eef4]">
               <Image
-                src="/lp/socio-jefferson.webp"
+                src="/marca/jefferson/emPe.webp"
                 alt=""
                 fill
                 sizes="32px"

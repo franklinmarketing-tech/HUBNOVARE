@@ -317,7 +317,7 @@ export function MaqueteConsultoria({ desconto }: { desconto: string }) {
               `HeroVitrine`. */}
           <span className="relative h-11 w-11 shrink-0 overflow-hidden rounded-full border-2 border-white bg-[#e9eef4]">
             <Image
-              src="/lp/socio-jefferson.webp"
+              src="/marca/jefferson/sofa.webp"
               alt=""
               fill
               sizes="44px"

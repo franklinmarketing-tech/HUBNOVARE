@@ -904,7 +904,7 @@ export const FECHO_CENAS: ReadonlyArray<{
   fita?: readonly [string, string];
 }> = [
   {
-    imagem: "/lp/recorte-jefferson-v2.png",
+    imagem: "/marca/jefferson/sorrindo.webp",
     fundo:
       "radial-gradient(60% 60% at 80% 15%, #8fd0f0 0%, transparent 60%), radial-gradient(60% 60% at 20% 95%, #2f8fb0 0%, transparent 60%), linear-gradient(160deg,#a9d6ee 0%,#5aa8d6 55%,#1f6f9c 100%)",
     fita: ["Mês", "Fechado"],

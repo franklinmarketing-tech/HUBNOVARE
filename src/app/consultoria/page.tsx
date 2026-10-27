@@ -204,7 +204,7 @@ export default async function ConsultoriaPage() {
         <section className="mt-10 rounded-3xl border border-slate-200 bg-white p-6 sm:flex sm:items-center sm:gap-7 sm:p-8">
           <div className="relative aspect-[5/4] w-full overflow-hidden rounded-2xl sm:w-64 sm:shrink-0">
             <Image
-              src="/marca/novare-site/jefferson-sofa.jpg"
+              src="/marca/jefferson/sofa.webp"
               alt="Jefferson Freitas, fundador da Novare"
               fill
               sizes="(max-width: 640px) 100vw, 256px"

@@ -95,7 +95,7 @@ export function Duvidas() {
               fica inteiro e o enquadramento continua largo. */}
           <span className="relative block aspect-[4/3] w-full overflow-hidden bg-[#e9eef4]">
             <Image
-              src="/lp/hero-socios.webp"
+              src="/marca/jefferson/mesa.webp"
               alt="Jefferson Freitas, fundador da Novare"
               fill
               sizes="384px"

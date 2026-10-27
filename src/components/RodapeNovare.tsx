@@ -70,7 +70,7 @@ export function RodapeNovare({
               quebrar os 12 lugares que o referenciam. */}
           <div className="relative hidden w-2/5 shrink-0 sm:block">
             <Image
-              src="/marca/novare-site/jefferson-sofa.jpg"
+              src="/marca/jefferson/sofa.webp"
               alt="Jefferson Freitas, fundador da Novare"
               fill
               sizes="340px"

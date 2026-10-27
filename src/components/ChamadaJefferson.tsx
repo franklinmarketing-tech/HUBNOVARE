@@ -61,7 +61,7 @@ export function ChamadaJefferson() {
             do painel e se funde ao escuro só na faixa da esquerda. */}
         <div className="relative h-80 sm:h-full sm:min-h-[24rem]">
           <Image
-            src="/marca/novare-site/jefferson-sofa.jpg"
+            src="/marca/jefferson/mesa.webp"
             alt="Jefferson Freitas, fundador da Novare"
             fill
             sizes="(max-width: 640px) 100vw, 45vw"
