@@ -17,6 +17,7 @@ const limpar = (s: string) => s.replace(/&(amp|quot|#39|lt|gt);/g, (m) => ENTIDA
 export async function ultimoVideoYoutube(): Promise<VideoYoutube | null> {
   try {
     const res = await fetch(`https://www.youtube.com/feeds/videos.xml?channel_id=${CANAL_YOUTUBE_ID}`, {
+      signal: AbortSignal.timeout(3000),
       next: { revalidate: 60 * 30 },
     });
     if (!res.ok) return null;

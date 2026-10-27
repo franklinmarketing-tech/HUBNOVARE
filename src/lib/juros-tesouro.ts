@@ -67,6 +67,7 @@ const ANO_ATUAL = () => new Date().getFullYear();
 export const getJurosFuturos = cache(async (): Promise<{ contratos: ContratoDI[]; atualizado: string | null; doPregaoAnterior: boolean }> => {
   try {
     const r = await fetch("https://cotacao.b3.com.br/mds/api/v1/DerivativeQuotation/DI1", {
+      signal: AbortSignal.timeout(3000),
       headers: { "User-Agent": "Mozilla/5.0 (Novare Hub)" },
       next: { revalidate: 60 * 10 },
     });
@@ -119,6 +120,7 @@ export const getJurosFuturos = cache(async (): Promise<{ contratos: ContratoDI[]
 async function buscarTitulosAoVivo(): Promise<{ titulos: TituloTesouro[]; atualizado: string | null }> {
   try {
     const r = await fetch("https://www.tesourodireto.com.br/o/rentabilidade/investir", {
+      signal: AbortSignal.timeout(3000),
       headers: {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/130 Safari/537.36",
         Accept: "application/json",
