@@ -23,7 +23,7 @@ const PUBLICAS = [
   ...["salario-liquido", "rescisao", "seguro-desemprego", "decimo-terceiro", "ferias", "financiamento",
     "amortizacao", "juros-compostos", "reserva", "correcao", "reajuste-aluguel", "tesouro-direto",
     "rentabilidade-real", "raio-x-previdencia", "orcamento", "patrimonio", "patrimonio-imobiliario",
-    "rebalanceador", "inventario", "seguros"].map((s) => `/ferramentas/${s}`),
+    "rebalanceador", "inventario", "seguros", "aposentadoria", "renda-fixa"].map((s) => `/ferramentas/${s}`),
 ];
 const LOGADAS = [
   "/hub", "/meu-dia", "/perfil",

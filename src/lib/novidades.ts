@@ -20,6 +20,27 @@ export interface Novidade {
 
 export const NOVIDADES: Novidade[] = [
   {
+    id: "2026-10-27-aposentadoria",
+    data: "2026-10-27",
+    titulo: "Calculadora de Aposentadoria",
+    texto: "Quanto você precisa para viver de renda, em que idade chega lá e quanto investir por mês para chegar no prazo.",
+    href: "/ferramentas/aposentadoria",
+  },
+  {
+    id: "2026-10-27-renda-fixa",
+    data: "2026-10-27",
+    titulo: "Simulador de Renda Fixa e CDI",
+    texto: "Quanto rende no líquido, já com o imposto, com o CDI do Banco Central. Compara a mesma taxa com IR, isenta e na poupança.",
+    href: "/ferramentas/renda-fixa",
+  },
+  {
+    id: "2026-10-26-juros-futuros",
+    data: "2026-10-26",
+    titulo: "Juros futuros e Tesouro Direto",
+    texto: "A curva de juros futuros da B3 e o rendimento de cada título do Tesouro Direto, atualizados ao longo do dia.",
+    href: "/indicadores#juros-futuros",
+  },
+  {
     id: "2026-10-25-como-usar",
     data: "2026-10-25",
     titulo: "Como usar em todas as telas",

@@ -10,6 +10,7 @@ import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YA
 import { Banknote, Coins, Info, Landmark, Receipt, Scale } from "lucide-react";
 import { brl, brlCurto, parseNumero, pct } from "@/lib/calculos";
 import { formatarMoedaInput, digitosParaReais } from "@/lib/moeda";
+import { AnaliseRendaFixa } from "@/components/analises/AnaliseRendaFixa";
 import {
   equivalenteTributado,
   simular,
@@ -257,6 +258,9 @@ export function SimuladorRendaFixa({ indices, doDia, dataCdi }: { indices: Indic
             O IR usa a alíquota do prazo total; aportes dos últimos meses ficaram menos tempo e pagariam um pouco mais.
           </p>
         </section>
+
+        {/* A leitura de consultor dos mesmos números (27/10/2026). */}
+        <AnaliseRendaFixa r={r} poupanca={poup} anualPct={anual} ipca12={indices.ipca12} meses={n} />
 
         <PonteResultado valor={brlCurto(r.liquido)} rotulo="no líquido" pergunta="O seu dinheiro está no lugar certo? Peça uma análise da carteira." />
       </main>

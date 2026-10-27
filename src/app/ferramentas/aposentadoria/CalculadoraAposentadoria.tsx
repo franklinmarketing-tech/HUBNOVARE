@@ -11,6 +11,7 @@ import { CalendarCheck, Info, PiggyBank, Sunrise, Target } from "lucide-react";
 import { brl, brlCurto, parseNumero, pct } from "@/lib/calculos";
 import { formatarMoedaInput, digitosParaReais } from "@/lib/moeda";
 import { RETIRADA_SEGURA_PCT, simularAposentadoria } from "@/lib/aposentadoria";
+import { AnaliseAposentadoria } from "@/components/analises/AnaliseAposentadoria";
 
 /**
  * Quando você pode viver de renda — tudo em valores de hoje (rentabilidade REAL). Ver
@@ -194,6 +195,9 @@ export function CalculadoraAposentadoria({ jurosRealHoje }: { jurosRealHoje: { t
             Não. É uma projeção educacional com as premissas que você informou, não uma recomendação de investimento.
           </Pergunta>
         </section>
+
+        {/* A leitura de consultor dos mesmos números (27/10/2026). */}
+        <AnaliseAposentadoria r={r} rentabilidadeRealPct={parseNumero(rentReal)} />
 
         <PonteResultado valor={brlCurto(r.necessario)} rotulo="para viver de renda" pergunta="Quer um plano para chegar lá antes? Fale com a Novare." />
       </main>

@@ -70,24 +70,36 @@ export async function JurosTesouro() {
             <div className="mt-3 hidden text-primary sm:block">
               <Curva contratos={di.contratos} />
             </div>
+            {/* Variação do dia por vencimento (volta em 27/10/2026, com trava em `lib/juros-tesouro`). */}
+            {di.contratos.some((c) => c.variacaoBp != null) && (
+              <ul className="mt-1 hidden grid-cols-5 gap-x-3 gap-y-1 text-[11px] sm:grid lg:grid-cols-10">
+                {di.contratos.map((c) => (
+                  <li key={c.codigo} className="flex items-center justify-between gap-1 tabular-nums">
+                    <span className="text-muted-foreground">{c.rotulo}</span>
+                    {c.variacaoBp != null ? <Variacao bp={c.variacaoBp} /> : <span className="text-muted-foreground">–</span>}
+                  </li>
+                ))}
+              </ul>
+            )}
             <ul className="mt-3 grid grid-cols-3 gap-2 sm:hidden">
               {di.contratos.map((c) => (
                 <li key={c.codigo} className="rounded-xl bg-muted/60 px-2.5 py-2 text-center">
                   <span className="block text-[11px] text-muted-foreground">{c.rotulo}</span>
                   <span className="block text-sm font-semibold tabular-nums text-primary">{pct(c.taxa)}</span>
+                  {c.variacaoBp != null && <Variacao bp={c.variacaoBp} />}
                 </li>
               ))}
             </ul>
             <p className="mt-2 text-[11px] text-muted-foreground">
               Fonte: B3 (contratos DI1 de janeiro){di.doPregaoAnterior ? ", ajuste do pregão anterior" : ", última negociação"}
-              {quando(di.atualizado) ? ` · ${quando(di.atualizado)}` : ""} · atraso de cerca de 15 minutos.
+              {quando(di.atualizado) ? ` · ${quando(di.atualizado)}` : ""} · atraso de cerca de 15 minutos. Variação contra o fechamento anterior, em bp (1 bp = 0,01 ponto percentual).
             </p>
           </article>
         )}
 
       </div>
 
-      {td.titulos.length > 0 && <TabelaTesouro titulos={td.titulos} atualizado={td.atualizado} />}
+      {td.titulos.length > 0 && <TabelaTesouro titulos={td.titulos} atualizado={td.atualizado} vendaSuspensa={td.vendaSuspensa} />}
     </section>
   );
 }
@@ -96,7 +108,7 @@ export async function JurosTesouro() {
  * Os títulos à venda agora, como a página "Rendimento dos Títulos" do Tesouro Direto (pedido do
  * Jefferson, 26/10/2026): rendimento anual, investimento mínimo, preço unitário e vencimento.
  */
-function TabelaTesouro({ titulos, atualizado }: { titulos: TituloTesouro[]; atualizado: string | null }) {
+function TabelaTesouro({ titulos, atualizado, vendaSuspensa }: { titulos: TituloTesouro[]; atualizado: string | null; vendaSuspensa: boolean }) {
   const tipos = ORDEM_TIPOS.filter((t) => titulos.some((x) => x.tipo === t));
   const faltam = ORDEM_TIPOS.filter((t) => t !== "Reserva" && !tipos.includes(t));
   return (
@@ -105,7 +117,13 @@ function TabelaTesouro({ titulos, atualizado }: { titulos: TituloTesouro[]; atua
       <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
         O rendimento é por ano, para quem compra hoje e leva até o vencimento. No IPCA+, é o ganho acima da inflação.
       </p>
-      {faltam.length > 0 && (
+      {vendaSuspensa && (
+        <p className="mt-3 rounded-xl bg-accent-tint/60 px-3.5 py-2.5 text-xs leading-relaxed text-accent-strong" role="status">
+          A venda de parte dos títulos está suspensa agora no Tesouro Direto. As taxas abaixo são da última lista completa
+          {quando(atualizado) ? `, de ${quando(atualizado)}` : ""}; elas voltam a ser as do momento quando a venda reabrir.
+        </p>
+      )}
+      {!vendaSuspensa && faltam.length > 0 && (
         <p className="mt-3 rounded-xl bg-accent-tint/60 px-3.5 py-2.5 text-xs leading-relaxed text-accent-strong" role="status">
           No momento o Tesouro Direto está oferecendo só {tipos.join(" e ")}. {faltam.join(", ")} voltam a aparecer aqui
           assim que estiverem à venda de novo.
@@ -155,5 +173,16 @@ function TabelaTesouro({ titulos, atualizado }: { titulos: TituloTesouro[]; atua
         Reserva é operado exclusivamente pelo Banco do Brasil.
       </p>
     </article>
+  );
+}
+
+/** "+12 bp" em vermelho (juros subindo), "−8 bp" em azul: no DI, alta de taxa é piora para quem tem prefixado. */
+function Variacao({ bp }: { bp: number }) {
+  if (bp === 0) return <span className="text-muted-foreground">0 bp</span>;
+  return (
+    <span className={`font-semibold ${bp > 0 ? "text-[hsl(0_70%_45%)]" : "text-ciano-forte"}`}>
+      {bp > 0 ? "+" : "−"}
+      {Math.abs(bp)} bp
+    </span>
   );
 }

@@ -1,4 +1,5 @@
 import { cache } from "react";
+import { unstable_cache } from "next/cache";
 
 /**
  * JUROS FUTUROS (DI) E TESOURO IPCA+ (pedido do Jefferson, 26/10/2026 — as referências eram a
@@ -21,6 +22,8 @@ export type ContratoDI = {
   vencimento: string;
   /** Taxa da última negociação do dia (ou o ajuste anterior, antes de o pregão abrir). */
   taxa: number;
+  /** Variação contra o ajuste do pregão anterior, em pontos-base; null quando não dá para confiar. */
+  variacaoBp: number | null;
 };
 
 export type TipoTitulo = "Reserva" | "Selic" | "Prefixado" | "IPCA+" | "Renda+" | "Educa+";
@@ -57,9 +60,9 @@ const tipoDe = (nome: string): TipoTitulo | null => {
 const ANO_ATUAL = () => new Date().getFullYear();
 
 /**
- * ⚠️ SEM "VARIAÇÃO DO DIA" (26/10/2026): o `prvsDayAdjstmntPric` da B3 veio incoerente com a curva
- * (+2,9 p.p. num dia; o jan/36 sem negócio a 12,7% entre vizinhos a 15%). Mostramos só a taxa
- * negociada hoje; antes da abertura, o ajuste anterior — e a tela diz qual dos dois é.
+ * VARIAÇÃO DO DIA (volta em 27/10/2026): em 26/10 a alta de quase 3 p.p. pareceu erro, mas o
+ * Tesouro subiu na mesma proporção no mesmo dia — era mercado. Só sai variação de contrato que
+ * NEGOCIOU hoje e com mudança de até 5 p.p. (500 bp); fora disso, null e a tela não mostra.
  */
 export const getJurosFuturos = cache(async (): Promise<{ contratos: ContratoDI[]; atualizado: string | null; doPregaoAnterior: boolean }> => {
   try {
@@ -95,6 +98,11 @@ export const getJurosFuturos = cache(async (): Promise<{ contratos: ContratoDI[]
         rotulo: `jan/${String(x.ano).slice(2)}`,
         vencimento: x.s.asset?.AsstSummry?.mtrtyCode ?? `${x.ano}-01-01`,
         taxa: (doPregaoAnterior ? x.ajuste : x.atual) as number,
+        variacaoBp: (() => {
+          if (doPregaoAnterior || x.atual == null || x.ajuste == null || !Number.isFinite(x.ajuste)) return null;
+          const bp = Math.round((x.atual - x.ajuste) * 100);
+          return Math.abs(bp) <= 500 ? bp : null;
+        })(),
       }))
       .sort((a, b) => a.vencimento.localeCompare(b.vencimento));
     return { contratos, atualizado: d.Msg?.dtTm ?? null, doPregaoAnterior };
@@ -108,7 +116,7 @@ export const getJurosFuturos = cache(async (): Promise<{ contratos: ContratoDI[]
  * endpoint passa de 36 títulos para só Selic e Reserva (visto em 26/10/2026). A tela mostra o que
  * houver e avisa quando faltam tipos — não inventa a taxa de quem saiu.
  */
-export const getTesouroTitulos = cache(async (): Promise<{ titulos: TituloTesouro[]; atualizado: string | null }> => {
+async function buscarTitulosAoVivo(): Promise<{ titulos: TituloTesouro[]; atualizado: string | null }> {
   try {
     const r = await fetch("https://www.tesourodireto.com.br/o/rentabilidade/investir", {
       headers: {
@@ -155,7 +163,43 @@ export const getTesouroTitulos = cache(async (): Promise<{ titulos: TituloTesour
   } catch {
     return { titulos: [], atualizado: null };
   }
-});
+}
+
+/** Com menos títulos que isto, a venda está (ao menos em parte) suspensa. */
+const LISTA_COMPLETA_MIN = 10;
+
+/**
+ * A ÚLTIMA LISTA COMPLETA (27/10/2026). `unstable_cache` guarda o resultado; quando a busca de
+ * revalidação LANÇA (lista reduzida), o Next mantém o valor anterior — é assim que a tabela
+ * continua mostrando as taxas de antes da suspensão, com o horário delas.
+ */
+const ultimaListaCompleta = unstable_cache(
+  async () => {
+    const r = await buscarTitulosAoVivo();
+    if (r.titulos.length < LISTA_COMPLETA_MIN) throw new Error("lista do Tesouro reduzida");
+    return r;
+  },
+  ["tesouro-lista-completa-v1"],
+  { revalidate: 60 * 30 },
+);
+
+export const getTesouroTitulos = cache(
+  async (): Promise<{ titulos: TituloTesouro[]; atualizado: string | null; vendaSuspensa: boolean }> => {
+    const aoVivo = await buscarTitulosAoVivo();
+    if (aoVivo.titulos.length >= LISTA_COMPLETA_MIN) {
+      // lista completa: renova a cópia guardada (a busca é a mesma, sai do cache de fetch)
+      await ultimaListaCompleta().catch(() => null);
+      return { ...aoVivo, vendaSuspensa: false };
+    }
+    try {
+      const ultima = await ultimaListaCompleta();
+      if (ultima.titulos.length >= LISTA_COMPLETA_MIN) return { ...ultima, vendaSuspensa: true };
+    } catch {
+      // nunca houve lista completa guardada: mostra o que está à venda agora
+    }
+    return { ...aoVivo, vendaSuspensa: false };
+  },
+);
 
 export const getTesouroIpca = cache(async (): Promise<{ titulos: TituloIpca[]; atualizado: string | null }> => {
   const { titulos, atualizado } = await getTesouroTitulos();
