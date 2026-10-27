@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Suspense } from "react";
 
 import { getCartoesIndicadores } from "@/lib/indicadores";
 import { formatarPontos, getCotacoes, getIndicesBolsa } from "@/lib/indices-bolsa";
@@ -18,7 +19,21 @@ type Item = { chave: string; nome: string; valor: string; unidade?: string; pct?
 
 const fmtPct = (v: number) => `${v >= 0 ? "+" : ""}${v.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%`;
 
-export async function FitaMercado() {
+/**
+ * ⚠️ EM SUSPENSE (27/10/2026): a fita espera Banco Central, B3, Tesouro e bolsas. Sem Suspense ela
+ * segurava a PÁGINA INTEIRA até a última fonte responder — o Clarity mediu 3,5 s até aparecer o
+ * conteúdo principal. Agora a página sai na hora e a fita entra depois, num espaço já reservado
+ * com a mesma altura (40 px), para nada pular.
+ */
+export function FitaMercado() {
+  return (
+    <Suspense fallback={<div aria-hidden className="h-10 border-b border-white/10 bg-noite" />}>
+      <FitaMercadoConteudo />
+    </Suspense>
+  );
+}
+
+async function FitaMercadoConteudo() {
   const [bcb, bolsas, cotacoes, di, td] = await Promise.all([getCartoesIndicadores(), getIndicesBolsa(), getCotacoes(), getJurosFuturos(), getTesouroIpca()]);
 
   const doBcb = (chave: string, nome: string): Item | null => {

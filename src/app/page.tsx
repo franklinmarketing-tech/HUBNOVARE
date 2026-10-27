@@ -179,6 +179,9 @@ export default async function Home() {
                 {/* A capa é o Jefferson (pedido do dono, 25/10/2026): saíram a foto da mulher com café e o
                     vídeo em laço dela. Em 27/10 o dono pediu a foto em que ele sorri, à mesa do
                     escritório (a do Instagram era marcada "Conteúdo de IA"). */}
+                {/* A foto leva à Consultoria (27/10/2026): no Clarity, era o elemento mais tocado da home
+                    no celular, e não fazia nada (clique morto). */}
+                <Link href="/consultoria" aria-label="Conhecer a consultoria da Novare com o Jefferson" className="absolute inset-0 z-[1]" />
                 <Image
                   src="/home/topo-jefferson-sorrindo.webp"
                   alt="Jefferson Freitas, sócio-fundador da Novare, sorrindo à mesa do escritório"
