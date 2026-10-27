@@ -86,7 +86,7 @@ function horaLocalParaUtc(ano: number, mes: number, dia: number, hora: number, m
 
 async function json<T>(url: string, revalidar = 6 * HORA): Promise<T | null> {
   try {
-    const r = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0" }, next: { revalidate: revalidar } });
+    const r = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0" }, next: { revalidate: revalidar }, signal: AbortSignal.timeout(3000) });
     if (!r.ok) return null;
     return (await r.json()) as T;
   } catch {
