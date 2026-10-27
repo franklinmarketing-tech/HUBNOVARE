@@ -419,8 +419,10 @@ export const APPS: NovareApp[] = [
    * local e tirar `externo` — mas isso é decisão de produto (o que fazer com
    * a página antiga e com os leads que ela ainda capta), não de código.
    */
-  app("investimentos", "simulador-cdi", "Simulador CDI", "CDB e renda fixa no líquido", `${NOVAREAPP}/ferramentas/simulador-de-renda-fixa`, "TradingView", { externo: true }),
-  app("investimentos", "simulador-aposentadoria", "Simulador de Aposentadoria", "Quando viver de renda", `${NOVAREAPP}/ferramentas/calculadora-de-aposentadoria`, "Empower", { externo: true }),
+  // Trazido para o Hub em 27/10/2026: no app antigo o endereço dava 404.
+  app("investimentos", "simulador-cdi", "Simulador CDI", "CDB e renda fixa no líquido", "/ferramentas/renda-fixa", "TradingView"),
+  // Trazida para o Hub em 27/10/2026: no app antigo o endereço dava 404.
+  app("investimentos", "simulador-aposentadoria", "Simulador de Aposentadoria", "Quando viver de renda", "/ferramentas/aposentadoria", "Empower"),
 
   // ======================================== EXCLUSIVAS DE QUEM ASSINA
   /**

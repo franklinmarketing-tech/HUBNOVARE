@@ -177,11 +177,11 @@ export default async function Home() {
             <div className="relative">
               <div className="relative aspect-[4/3] overflow-hidden rounded-[1.5rem] ring-1 ring-white/10">
                 {/* A capa é o Jefferson (pedido do dono, 25/10/2026): saíram a foto da mulher com café e o
-                    vídeo em laço dela. As fotos do sofá já se repetiam pelo site; esta, à mesa do
-                    escritório, foi enviada pelo dono (a do Instagram era marcada "Conteúdo de IA"). */}
+                    vídeo em laço dela. Em 27/10 o dono pediu a foto em que ele sorri, à mesa do
+                    escritório (a do Instagram era marcada "Conteúdo de IA"). */}
                 <Image
-                  src="/home/topo-jefferson-escritorio.webp"
-                  alt="Jefferson Freitas, sócio-fundador da Novare, à mesa do escritório"
+                  src="/home/topo-jefferson-sorrindo.webp"
+                  alt="Jefferson Freitas, sócio-fundador da Novare, sorrindo à mesa do escritório"
                   fill
                   priority
                   sizes="(max-width: 1024px) 100vw, 45vw"

@@ -6,6 +6,77 @@ import type { Manual } from "./tipo";
  * Mudou a tela, muda aqui.
  */
 export const MANUAIS_FERRAMENTAS_2: Record<string, Manual> = {
+  "renda-fixa": {
+    titulo: "Quanto rende na renda fixa, no líquido",
+    oQueFaz:
+      "Mostra quanto o seu dinheiro vira no CDB, LCI, LCA, Tesouro ou poupança, já descontado o imposto de renda. O CDI, a Selic e o IPCA vêm do Banco Central.",
+    passos: [
+      "Em \"Como a aplicação rende\", escolha % do CDI, Prefixado, IPCA + ou Selic +.",
+      "Em \"Tem imposto de renda?\", escolha Com IR (CDB, Tesouro, debênture) ou Isento (LCI, LCA, CRI, CRA).",
+      "Preencha \"Valor inicial\", \"Aporte mensal\", a taxa e o \"Prazo\" em meses.",
+      "Leia o valor líquido no quadro escuro e confira o imposto nos números logo abaixo.",
+      "Em \"A mesma taxa, lado a lado\", compare com IR, isento e poupança.",
+    ],
+    campos: [
+      { nome: "Como a aplicação rende", explica: "% do CDI acompanha os juros do dia a dia; Prefixado tem a taxa fixa; IPCA + paga a inflação mais uma taxa; Selic + paga a Selic mais uma taxa." },
+      { nome: "Tem imposto de renda?", explica: "CDB, Tesouro e debênture pagam IR sobre o rendimento. LCI, LCA, CRI, CRA e debênture incentivada são isentos para pessoa física." },
+      { nome: "Valor inicial", explica: "Quanto você aplica no primeiro dia." },
+      { nome: "Aporte mensal", explica: "Quanto você coloca a mais todo mês. Pode ser zero." },
+      { nome: "Quanto paga do CDI / Taxa ao ano / Quanto paga acima do IPCA / Quanto paga acima da Selic", explica: "A taxa do investimento, como o banco informa: \"100% do CDI\", \"13% ao ano\" ou \"IPCA + 7%\"." },
+      { nome: "Prazo", explica: "Por quantos meses o dinheiro fica aplicado. O IR cai com o tempo: 22,5% até 180 dias e 15% acima de 720 dias." },
+    ],
+    resultado: [
+      "O número grande é quanto você terá no fim do prazo, já sem o imposto.",
+      "Os três números mostram quanto saiu do seu bolso, o rendimento antes do IR e quanto foi de imposto.",
+      "\"A mesma taxa, lado a lado\" mostra a mesma aplicação com IR, isenta e na poupança. Em % do CDI, diz quanto um investimento com IR precisa pagar para empatar com um isento.",
+    ],
+    duvidas: [
+      { p: "De onde vem o CDI?", r: "Do Banco Central, atualizado ao longo do dia. A conta repete a taxa de hoje no prazo todo." },
+      { p: "Por que o isento rende mais com a mesma taxa?", r: "Porque não paga imposto sobre o rendimento. Na prática os isentos costumam pagar uma porcentagem menor do CDI; a linha de empate mostra até onde vale a pena." },
+      { p: "A tela diz em qual investir?", r: "Não. Ela mostra quanto cada forma rende com a taxa que você informou. A decisão depende do prazo, da liquidez e do risco." },
+    ],
+    roteiro: [
+      "Escolha como a aplicação rende e se ela paga imposto de renda.",
+      "Informe o valor, o aporte, a taxa e o prazo, e veja quanto sobra no líquido.",
+      "Compare a mesma taxa com IR, isenta e na poupança, com o CDI do Banco Central.",
+    ],
+  },
+  aposentadoria: {
+    titulo: "Quando você vai poder viver de renda",
+    oQueFaz:
+      "Mostra quanto patrimônio você precisa para viver de renda, quanto vai ter no seu ritmo de hoje e em que idade chega lá. Tudo em valores de hoje.",
+    passos: [
+      "Informe \"Sua idade hoje\" e a idade em \"Quero me aposentar aos\".",
+      "Em \"Renda mensal desejada\", diga quanto quer gastar por mês, em dinheiro de hoje.",
+      "Preencha \"Quanto já tem investido\" e \"Quanto consegue investir por mês\".",
+      "Ajuste a \"Rentabilidade real esperada\": o ganho acima da inflação. A dica embaixo do campo mostra quanto o Tesouro IPCA+ paga hoje.",
+      "Leia a meta no quadro escuro, os três números logo abaixo e o recado de quanto falta, ou de quando você chega lá.",
+    ],
+    campos: [
+      { nome: "Sua idade hoje", explica: "A sua idade agora. É o ponto de partida da conta." },
+      { nome: "Quero me aposentar aos", explica: "A idade em que você quer parar de depender do salário. A conta projeta o patrimônio até ela." },
+      { nome: "Renda mensal desejada", explica: "Quanto você quer gastar por mês na aposentadoria, em dinheiro de hoje. A meta é essa renda × 12 ÷ 4%." },
+      { nome: "Quanto já tem investido", explica: "O que você já tem aplicado hoje. Deixe zero se está começando." },
+      { nome: "Quanto consegue investir por mês", explica: "O aporte de todo mês até a idade de se aposentar." },
+      { nome: "Rentabilidade real esperada", explica: "O ganho acima da inflação, por ano. Como tudo está em valores de hoje, a conta usa o juro real; para o longo prazo, 4% a 6% é prudente." },
+    ],
+    resultado: [
+      "O número grande é o patrimônio necessário para viver de renda pela regra dos 4%: renda anual ÷ 4%.",
+      "\"Você terá aos…\" é o patrimônio projetado no seu ritmo de hoje; a renda ao lado é quanto ele paga por mês.",
+      "A idade mostra quando o patrimônio cruza a meta, se nada mudar. \"Depois dos 95\" quer dizer que, nesse ritmo, não chega.",
+      "Se não chegar no prazo, o recado diz quanto investir por mês para chegar exatamente na idade escolhida.",
+    ],
+    duvidas: [
+      { p: "O que é a regra dos 4%?", r: "Retirar cerca de 4% do patrimônio por ano, corrigido pela inflação, tende a sustentar a renda por décadas sem esgotar o capital." },
+      { p: "O INSS entra na conta?", r: "Não. O resultado é o que você mesmo precisa juntar; uma aposentadoria do INSS reduz esse valor." },
+      { p: "Por que rentabilidade real, e não o CDI?", r: "Porque a renda está em dinheiro de hoje. Usar a taxa acima da inflação mantém tudo no mesmo poder de compra." },
+    ],
+    roteiro: [
+      "Diga sua idade, quando quer se aposentar e quanto quer gastar por mês.",
+      "Informe o que já tem e quanto investe, e a calculadora mostra a meta para viver de renda.",
+      "Veja em que idade você chega lá e quanto investir por mês para chegar no prazo.",
+    ],
+  },
   "decimo-terceiro": {
     titulo: "Quanto vem de 13º salário",
     oQueFaz:
