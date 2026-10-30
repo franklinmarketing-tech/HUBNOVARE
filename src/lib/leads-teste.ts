@@ -25,6 +25,8 @@ const MARCA_FALSA = [/\+teste?@/i];
 const EQUIPE_CONTEM = [
   /franklin/i, /^novareadm/i, /castriani/i, /@novareapp\.com\.br$/i, /^consultores\.novare@/i,
   /^jefferson\.ariane1402@/i, /^ariane\.bafreitas@/i,
+  /* 30/10/2026: os dois e-mails de admin do Jefferson. */
+  /^novare\.investimentos@/i, /^jefferson@novare\.com\.br$/i,
 ];
 const NOMES_FALSOS = [/^zz /i, /^teste( |$)/i, /^test$/i, /^maria teste$/i, /franklin/i];
 

@@ -201,6 +201,67 @@ export default async function ConsultoriaPage() {
           ))}
         </section>
 
+        {/* ─── VÍDEO + ARTIGO DO BLOG (pedido do dono, 27/10/2026) ───
+            O vídeo de 20 s "Quem ganha quando você investe?" e o artigo do blog
+            sobre contratar consultoria contam o mesmo argumento da seção acima.
+            O vídeo só baixa quando a pessoa dá o play (preload="none"). */}
+        <section className="mt-10 grid items-center gap-6 rounded-3xl bg-noite p-6 text-white sm:grid-cols-[minmax(0,15rem)_1fr] sm:p-8">
+          <video
+            src="/consultoria/quem-ganha.mp4"
+            poster="/consultoria/quem-ganha.jpg"
+            controls
+            playsInline
+            preload="none"
+            width={720}
+            height={1280}
+            aria-label="Vídeo: quem ganha quando você investe?"
+            className="mx-auto aspect-[9/16] w-full max-w-[15rem] rounded-2xl bg-black object-cover shadow-vidro"
+          />
+          <div className="space-y-4">
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-ciano">
+                Em 20 segundos
+              </p>
+              <h2 className="mt-1.5 font-display text-2xl font-bold leading-tight">
+                Quem ganha quando você investe?
+              </h2>
+              <p className="mt-2 text-sm leading-relaxed text-white/75">
+                Gerente e assessor costumam ganhar comissão pelo produto que
+                vendem. A consultoria independente é paga só por você, então a
+                recomendação segue o seu plano, não a meta do banco.
+              </p>
+            </div>
+            <a
+              href="https://novareinvestimentos.com/consultoria-de-investimentos-em-sumare/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group flex items-center gap-4 rounded-2xl bg-white/[0.06] p-3 ring-1 ring-white/10 transition-colors hover:bg-white/10"
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="https://novareinvestimentos.com/wp-content/uploads/2026/10/Rotatoria-de-Sumare-ao-entardecer.webp"
+                alt=""
+                width={96}
+                height={72}
+                loading="lazy"
+                className="h-[4.5rem] w-24 shrink-0 rounded-xl object-cover"
+              />
+              <span className="min-w-0">
+                <span className="block text-[11px] font-semibold uppercase tracking-wider text-white/55">
+                  No blog da Novare
+                </span>
+                <span className="mt-0.5 block font-semibold leading-snug">
+                  Consultoria de investimentos em Sumaré: como contratar?
+                </span>
+                <span className="mt-1 inline-flex items-center gap-1 text-sm font-semibold text-ciano">
+                  Ler o artigo
+                  <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+                </span>
+              </span>
+            </a>
+          </div>
+        </section>
+
         <section className="mt-10 rounded-3xl border border-slate-200 bg-white p-6 sm:flex sm:items-center sm:gap-7 sm:p-8">
           <div className="relative aspect-[5/4] w-full overflow-hidden rounded-2xl sm:w-64 sm:shrink-0">
             <Image
