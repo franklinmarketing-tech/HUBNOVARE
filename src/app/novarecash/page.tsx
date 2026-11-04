@@ -5,17 +5,23 @@ import {
   ArrowRight,
   BadgeCheck,
   BookOpenText,
+  CalendarClock,
+  Check,
   ChevronDown,
   Clock,
+  CreditCard,
   Download,
   HandCoins,
+  Headset,
+  Landmark,
+  LayoutGrid,
   MessageCircle,
   Monitor,
   ShieldCheck,
   Smartphone,
   Sparkles,
   Users,
-  Wand2,
+  type LucideIcon,
 } from "lucide-react";
 import { Cabecalho } from "@/components/Cabecalho";
 import { RodapeNovare } from "@/components/RodapeNovare";
@@ -25,7 +31,8 @@ import { getPerfil } from "@/lib/perfil";
 import { sair } from "@/lib/acoes-sessao";
 import { CONTATO } from "@/lib/contato";
 import { temAcessoNovareCash } from "@/lib/novarecash/acesso";
-import { BLACK, faseBlack, GARANTIA_DIAS, NOVARECASH_NOME, RECURSOS, type FaseBlack } from "@/lib/novarecash/config";
+import { MAX_PARCELAS } from "@/lib/novarecash/cartoes";
+import { BLACK, faseBlack, GARANTIA_DIAS, NOVARECASH_NOME, RECURSOS, type FaseBlack, type Recurso } from "@/lib/novarecash/config";
 import {
   aPartirDe,
   avisoPendentes,
@@ -35,6 +42,8 @@ import {
   maiorDesconto,
   NOME_CURTO,
   ofertas,
+  statusRecurso,
+  textoCompra,
 } from "@/lib/novarecash/oferta";
 import { Planos } from "./_venda/Planos";
 import { Recursos } from "./_venda/Recursos";
@@ -64,6 +73,13 @@ import { LegendaExemplo, TelaInicio, TelasExemplo } from "./_venda/TelasExemplo"
  * na Vercel); enquanto o link não existe, vai ao WhatsApp da casa
  * (`linkDeCompra`). Ninguém troca preço editando esta página.
  *
+ * ═══ COPY NO MODELO "BLACK NOVEMBER" (04/11/2026) ═══
+ * Ancoragem (cheio riscado), garantia repetida, objeções em blocos próprios
+ * (preço, onde funciona, risco, confiança), números concretos, prazo real da
+ * campanha, missão ("por que só R$ X"), o MESMO texto de botão (`textoCompra`)
+ * e autoridade. ⚠️ PROVA SOCIAL: ainda não há clientes. Nada de depoimento,
+ * nota, "milhares de usuários" ou estatística sem fonte. A prova aqui é a casa.
+ *
  * ⚠️ DINÂMICA DE PROPÓSITO. A fase da Black depende da hora, e uma página
  * estática congelaria a fase do dia do build: a faixa diria "vem aí" com a
  * campanha já aberta. Ler `searchParams` (o aviso de `?sem-assinatura=1`) e
@@ -78,12 +94,18 @@ import { LegendaExemplo, TelaInicio, TelasExemplo } from "./_venda/TelasExemplo"
  */
 
 const PENDENTES = RECURSOS.filter((r) => !r.noAr);
-const recurso = (chave: (typeof RECURSOS)[number]["chave"]) => RECURSOS.find((r) => r.chave === chave);
+const recurso = (chave: Recurso["chave"]) => RECURSOS.find((r) => r.chave === chave);
 const BANCO = recurso("banco");
 const BANCO_NO_AR = Boolean(BANCO?.noAr);
 const WHATSAPP_NO_AR = Boolean(recurso("whatsapp")?.noAr);
 const EXTRATO_NO_AR = Boolean(recurso("extrato")?.noAr);
+const CONSULTOR_NO_AR = Boolean(recurso("consultor")?.noAr);
+const COMPARTILHADA_NO_AR = Boolean(recurso("compartilhada")?.noAr);
 const NO_AR = RECURSOS.filter((r) => r.noAr).map((r) => NOME_CURTO[r.chave]);
+const TOTAL_RECURSOS = RECURSOS.length;
+/** "8 já funcionam hoje." / "Todos já funcionam." — contado, nunca escrito à mão. */
+const QUANTOS_FUNCIONAM =
+  NO_AR.length === TOTAL_RECURSOS ? "Todos já funcionam." : `${NO_AR.length} já ${NO_AR.length > 1 ? "funcionam" : "funciona"} hoje.`;
 /** "IA e extrato com orçamento já funcionam." — derivado de `noAr`, nunca escrito à mão. */
 /* 04/11: com 10 recursos a lista ficaria enorme — acima de 3 no ar, diz "todo o resto". */
 const JA_FUNCIONA = !NO_AR.length
@@ -93,16 +115,21 @@ const JA_FUNCIONA = !NO_AR.length
     : `${juntar(NO_AR).replace(/^./, (c) => c.toUpperCase())} já ${NO_AR.length > 1 ? "funcionam" : "funciona"}.`;
 /** "Conexão com o banco e WhatsApp liberam em dezembro de 2026." — vai ao lado de toda promessa de "sozinho". */
 const AVISO_PENDENTES = avisoPendentes();
+/** A data do "Vem aí", quando todos os pendentes ligam juntos ("dezembro de 2026"). */
+const DATAS_PENDENTES = [...new Set(PENDENTES.map((r) => r.liberaEm ?? ""))];
+const DATA_UNICA = DATAS_PENDENTES.length === 1 && DATAS_PENDENTES[0] ? DATAS_PENDENTES[0] : null;
+
+const ICONE_PENDENTE: Partial<Record<Recurso["chave"], LucideIcon>> = { banco: Landmark, whatsapp: MessageCircle };
 
 export const metadata: Metadata = {
-  title: `${NOVARECASH_NOME}: o seu dinheiro organizado sozinho`,
-  description: `O app pago da Novare: o banco e o WhatsApp lançam, a IA explica. Extrato próprio, orçamento por categoria e uma IA que responde com os seus números.${
+  title: `${NOVARECASH_NOME}: seu dinheiro organizado por quem não vende nada`,
+  description: `${TOTAL_RECURSOS} recursos num app só: extrato, cartões com fatura, contas a pagar, orçamento, metas e uma IA que responde com os seus números. Feito por uma consultoria que não ganha comissão de banco.${
     AVISO_PENDENTES ? ` ${AVISO_PENDENTES}` : ""
   } Garantia de ${GARANTIA_DIAS} dias.`,
   alternates: { canonical: "/novarecash" },
   openGraph: {
     title: `${NOVARECASH_NOME}, da Novare`,
-    description: "O seu dinheiro organizado sozinho e explicado por IA, por uma consultoria que não vende produto financeiro.",
+    description: `Seu dinheiro organizado por quem não vende nada: ${TOTAL_RECURSOS} recursos num app só e garantia de ${GARANTIA_DIAS} dias.`,
     url: "/novarecash",
     images: [{ url: "/og.png", width: 1200, height: 630, alt: "Novare" }],
   },
@@ -127,8 +154,38 @@ const ZAP_SUPORTE = `https://wa.me/${NUMERO_SUPORTE}?text=${encodeURIComponent(
 /** O texto da faixa do topo, depois de "Black Novare:". `null` = nada fora da campanha. */
 function textoFaixa(fase: FaseBlack, desconto: number | null): string | null {
   if (fase === "aviso") return `vem aí, de ${dataBlack("inicio")} a ${dataBlack("fim")}`;
-  if (fase === "aberta") return desconto ? `${desconto}% OFF até ${dataBlack("fim")}` : `aberta até ${dataBlack("fim")}`;
+  if (fase === "aberta") return desconto ? `${desconto}% OFF, só até ${dataBlack("fim")}` : `aberta até ${dataBlack("fim")}`;
   return null;
+}
+
+/** "de R$ 34,90 por" + "R$ 29,90/mês" + selo de % OFF. O riscado só existe com a Black aberta. */
+function Preco({
+  cheio,
+  valor,
+  desconto,
+  centro = false,
+}: {
+  cheio: number | null;
+  valor: number;
+  desconto: number | null;
+  centro?: boolean;
+}) {
+  return (
+    <div className={centro ? "text-center" : ""}>
+      {cheio != null && (
+        <p className="text-sm text-white/65">
+          de <s>{brl(cheio)}</s> por
+        </p>
+      )}
+      <p className={`mt-0.5 flex flex-wrap items-baseline gap-x-1.5 gap-y-1 ${centro ? "justify-center" : ""}`}>
+        <strong className="font-display text-4xl font-bold tracking-[-0.03em] text-white">{brl(valor)}</strong>
+        <span className="text-sm text-white/70">/mês</span>
+        {desconto && (
+          <span className="ml-1 self-center rounded-full bg-accent px-2 py-0.5 text-2xs font-bold text-white">{desconto}% OFF</span>
+        )}
+      </p>
+    </div>
+  );
 }
 
 export default async function NovareCashVendaPage({
@@ -142,12 +199,18 @@ export default async function NovareCashVendaPage({
 
   const agora = new Date();
   const fase = faseBlack(agora);
+  const black = fase === "aberta";
   const lista = ofertas(agora);
   const emVenda = lista.length > 0;
   const desde = aPartirDe(lista);
   const desconto = maiorDesconto(lista);
+  /** O preço cheio para riscar: só existe com a Black aberta (`ofertas()` decide). */
+  const cheio = lista.find((o) => o.cheioPorMes != null)?.cheioPorMes ?? null;
+  const peloWhatsApp = lista.some((o) => o.peloWhatsApp);
   const faixa = textoFaixa(fase, desconto);
-  const textoCta = "Assinar o NovareCash";
+  /** O MESMO texto em todo botão de compra: "Quero o NovareCash por R$ X". */
+  const textoCta = textoCompra(desde);
+  const chapeuCampanha = black ? `${BLACK.nome} · só até ${dataBlack("fim")}` : null;
 
   return (
     <div className="min-h-dvh overflow-x-clip bg-white text-foreground">
@@ -208,7 +271,7 @@ export default async function NovareCashVendaPage({
       )}
 
       <main>
-        {/* 2 · O herói. */}
+        {/* 2 · O herói: promessa curta + preço ancorado + garantia. */}
         <section className="relative isolate overflow-hidden text-white" style={PALCO_OURO}>
           <div className="relative mx-auto grid max-w-5xl items-center gap-10 px-4 pb-14 pt-10 sm:px-6 sm:pt-14 lg:grid-cols-[1.15fr_0.85fr] lg:pb-20">
             <div>
@@ -216,16 +279,15 @@ export default async function NovareCashVendaPage({
               <p className="mt-4">
                 <span className="inline-flex items-center gap-2 rounded-full bg-ouro/12 px-3 py-1 text-2xs font-semibold uppercase tracking-[0.16em] text-ouro ring-1 ring-ouro/30">
                   <Sparkles className="h-3.5 w-3.5" />
-                  Novo app da Novare
+                  {chapeuCampanha ?? "Novo app da Novare"}
                 </span>
               </p>
               <h1 className="mt-5 font-display text-[2.1rem] font-semibold leading-[1.08] tracking-[-0.035em] sm:text-5xl">
-                O seu dinheiro organizado sozinho:{" "}
-                <span className="text-ouro">o banco e o WhatsApp lançam, a IA explica.</span>
+                Seu dinheiro organizado por <span className="text-ouro">quem não vende nada.</span>
               </h1>
               <p className="mt-4 max-w-xl text-base leading-relaxed text-white/75">
-                Um extrato que se preenche, um orçamento por categoria que avisa antes de estourar e
-                uma IA que responde com os seus números, no celular e no computador.
+                Extrato, cartões, contas a pagar, orçamento e metas num app só, com uma IA que responde
+                olhando os seus números.
               </p>
               {AVISO_PENDENTES && (
                 <p className="mt-3 flex max-w-xl items-start gap-2 text-xs leading-relaxed text-white/70">
@@ -238,16 +300,14 @@ export default async function NovareCashVendaPage({
               )}
 
               {emVenda && desde != null && (
-                <p className="mt-6 text-sm text-white/70">
-                  a partir de{" "}
-                  <strong className="font-display text-2xl font-bold text-white">{brl(desde)}</strong>
-                  <span className="text-white/70">/mês</span>
-                  {desconto && (
-                    <span className="ml-2 rounded-full bg-accent px-2 py-0.5 text-2xs font-bold text-white">
-                      até {desconto}% OFF
-                    </span>
+                <div className="mt-6">
+                  <Preco cheio={cheio} valor={desde} desconto={desconto} />
+                  {black && cheio != null && (
+                    <p className="mt-1.5 text-xs font-semibold text-ouro">
+                      O menor preço do {NOVARECASH_NOME}, só até {dataBlack("fim")}.
+                    </p>
                   )}
-                </p>
+                </div>
               )}
 
               <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -256,14 +316,14 @@ export default async function NovareCashVendaPage({
                   <ArrowRight className="h-4 w-4" />
                 </a>
                 <a href="#recursos" className="inline-flex min-h-11 items-center justify-center gap-1.5 text-sm font-semibold text-white/80 hover:text-white">
-                  O que vem dentro
+                  Ver os {TOTAL_RECURSOS} recursos
                   <ChevronDown className="h-4 w-4" />
                 </a>
               </div>
 
               <p className="mt-5 flex items-center gap-2 text-xs text-white/65">
                 <ShieldCheck className="h-4 w-4 shrink-0 text-ouro" />
-                Garantia de {GARANTIA_DIAS} dias: não era o que esperava, o dinheiro volta inteiro.
+                {GARANTIA_DIAS} dias de garantia: não gostou, o dinheiro volta inteiro. Cancela quando quiser.
               </p>
             </div>
 
@@ -274,24 +334,24 @@ export default async function NovareCashVendaPage({
           </div>
         </section>
 
-        {/* 3 · O resumo em três pontos. */}
+        {/* 3 · Três benefícios, cada um com um número. */}
         <section className="mx-auto max-w-5xl px-4 py-14 sm:px-6">
           <ul className="grid gap-4 sm:grid-cols-3">
             {[
               {
-                Icone: Wand2,
-                titulo: "Organiza sozinho",
-                texto: "O banco e o WhatsApp lançam, cada gasto cai na sua categoria e o orçamento do mês avisa antes de estourar.",
+                Icone: LayoutGrid,
+                titulo: `${TOTAL_RECURSOS} recursos num app só`,
+                texto: `Extrato, cartões, contas, orçamento, metas, alertas, IA e mais. ${QUANTOS_FUNCIONAM}`,
               },
               {
-                Icone: Sparkles,
-                titulo: "Explica",
-                texto: "Pergunte em português e a IA responde olhando os seus lançamentos, não uma média da internet.",
+                Icone: CreditCard,
+                titulo: `Até ${MAX_PARCELAS} parcelas na fatura certa`,
+                texto: "Comprou parcelado? Cada parcela cai no mês certo, e você vê quanto vem na próxima fatura.",
               },
               {
                 Icone: HandCoins,
-                titulo: "Não vende nada",
-                texto: "A Novare não ganha comissão de banco. O NovareCash não indica investimento: organiza e explica.",
+                titulo: "Zero comissão de banco",
+                texto: "A Novare não ganha de banco, corretora nem seguradora. O app organiza e explica: não vende investimento.",
               },
             ].map(({ Icone, titulo, texto }) => (
               <li key={titulo} className="cartao-cp p-6">
@@ -306,18 +366,22 @@ export default async function NovareCashVendaPage({
           </ul>
         </section>
 
-        {/* 4 · O plano (hoje só o mensal). */}
+        {/* 4 · O plano (hoje só o mensal), com o riscado e o prazo da campanha. */}
         <section id="planos" className="scroll-mt-16 text-white" style={PALCO_OURO}>
           <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6">
             <div className="mx-auto max-w-2xl text-center">
-              <p className="chapeu text-ouro">{fase === "aviso" || fase === "aberta" ? BLACK.nome : NOVARECASH_NOME}</p>
+              <p className="chapeu text-ouro">{fase === "aviso" || black ? BLACK.nome : NOVARECASH_NOME}</p>
               <h2 className="mt-3 font-display text-3xl font-semibold leading-[1.12] tracking-[-0.03em] sm:text-[2.6rem]">
-                {lista.length > 1 ? "Escolha como quer assinar" : `Assine o ${NOVARECASH_NOME}`}
+                {black && desconto
+                  ? `${desconto}% OFF só até ${dataBlack("fim")}`
+                  : lista.length > 1
+                    ? "Escolha como quer assinar"
+                    : `Assine o ${NOVARECASH_NOME}`}
               </h2>
               <p className="mt-3 text-base leading-relaxed text-white/70">
-                {fase === "aberta"
-                  ? `Condição da ${BLACK.nome} até ${dataBlack("fim")}. Depois, volta o preço cheio.`
-                  : `Garantia de ${GARANTIA_DIAS} dias.`}
+                {black && cheio != null
+                  ? `Depois de ${dataBlack("fim")}, volta a ${brl(cheio)} por mês. ${GARANTIA_DIAS} dias de garantia.`
+                  : `Cobrado todo mês, cancela quando quiser. ${GARANTIA_DIAS} dias de garantia.`}
               </p>
             </div>
             <div className="mt-10">
@@ -331,7 +395,12 @@ export default async function NovareCashVendaPage({
           <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6">
             <div className="mx-auto mb-10 max-w-2xl text-center">
               <p className="chapeu text-ouro-forte">O que vem dentro</p>
-              <h2 className="titulo-cp mt-3 text-3xl sm:text-[2.4rem]">{`Tudo o que vem dentro, e o que cada recurso já faz`}</h2>
+              <h2 className="titulo-cp mt-3 text-3xl sm:text-[2.4rem]">
+                {TOTAL_RECURSOS} recursos. {QUANTOS_FUNCIONAM}
+              </h2>
+              <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+                Cada cartão diz o status de verdade. O que tem data, a data está ao lado.
+              </p>
             </div>
             <Recursos />
           </div>
@@ -343,7 +412,7 @@ export default async function NovareCashVendaPage({
             <div className="mx-auto mb-12 max-w-2xl text-center">
               <p className="chapeu text-ouro">Por dentro do {NOVARECASH_NOME}</p>
               <h2 className="mt-3 font-display text-3xl font-medium leading-[1.08] tracking-[-0.03em] sm:text-[2.4rem]">
-                Você abre o app e o mês já está lá
+                Você abre o app e o mês está lá
               </h2>
               <p className="mt-3 text-sm leading-relaxed text-white/70">
                 Ilustração com dados de exemplo: as telas do app podem mudar nos detalhes.
@@ -354,7 +423,7 @@ export default async function NovareCashVendaPage({
           </div>
         </section>
 
-        {/* 7 · Por que a Novare. */}
+        {/* 7 · Autoridade: quem está por trás (a única prova que existe hoje: a casa). */}
         <section className="bg-gelo">
           <div className="mx-auto grid max-w-5xl items-center gap-8 px-4 py-16 sm:px-6 md:grid-cols-[0.9fr_1.1fr]">
             <div className="relative mx-auto aspect-[4/5] w-full max-w-sm overflow-hidden rounded-[1.75rem]">
@@ -367,24 +436,35 @@ export default async function NovareCashVendaPage({
               />
             </div>
             <div>
-              <p className="chapeu text-ouro-forte">Por que a Novare</p>
-              <h2 className="titulo-cp mt-3 text-3xl sm:text-[2.4rem]">Quem fez não ganha com o seu dinheiro</h2>
+              <p className="chapeu text-ouro-forte">Quem está por trás</p>
+              <h2 className="titulo-cp mt-3 text-3xl sm:text-[2.4rem]">
+                Feito por uma consultoria. <span className="block text-ouro-forte">Não por um banco.</span>
+              </h2>
               <ul className="mt-6 space-y-4">
                 {[
                   {
                     Icone: BadgeCheck,
                     titulo: "Consultoria independente",
-                    texto: "A Novare é uma consultoria financeira, e o NovareCash é feito por ela, não por um banco.",
+                    texto: "A Novare é uma consultoria de investimentos independente. O NovareCash é feito por ela, não por um banco.",
                   },
                   {
                     Icone: HandCoins,
-                    titulo: "Sem comissão de banco",
+                    titulo: "Zero comissão",
                     texto: "Ninguém aqui recebe de banco, corretora ou seguradora. Quem paga é você, e por isso a resposta é sua.",
                   },
+                  ...(CONSULTOR_NO_AR
+                    ? [
+                        {
+                          Icone: Headset,
+                          titulo: "Um consultor dentro do app",
+                          texto: "Ficou em dúvida? Fale com um consultor da Novare pelo WhatsApp, direto do app. Gente, não robô.",
+                        },
+                      ]
+                    : []),
                   {
                     Icone: Users,
-                    titulo: "Gente de verdade",
-                    texto: "Do outro lado tem uma equipe, liderada pelo Jefferson, fundador da casa, e não só um robô.",
+                    titulo: "Um fundador certificado",
+                    texto: "Jefferson Freitas fundou a Novare e responde por ela. As certificações dele estão logo abaixo.",
                   },
                 ].map(({ Icone, titulo, texto }) => (
                   <li key={titulo} className="flex gap-3">
@@ -403,13 +483,82 @@ export default async function NovareCashVendaPage({
           </div>
         </section>
 
-        {/* 8 · Celular, computador e app instalado. */}
+        {/* 8 · Vem aí: o que tem data. Curiosidade honesta, nunca "incluso" (CDC). */}
+        {PENDENTES.length > 0 && (
+          <section className="mx-auto max-w-5xl px-4 py-16 sm:px-6">
+            <div className="mx-auto mb-10 max-w-2xl text-center">
+              <p className="chapeu text-ouro-forte">Vem aí</p>
+              <h2 className="titulo-cp mt-3 text-3xl sm:text-[2.4rem]">
+                {DATA_UNICA ? `O que estreia em ${DATA_UNICA}` : "O que estreia em seguida"}
+              </h2>
+              <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+                {EXTRATO_NO_AR && "Até lá, você lança à mão, e o orçamento e a IA já trabalham com isso. "}
+                {PENDENTES.length > 1 ? "Quando ligarem, entram" : "Quando ligar, entra"} na mesma assinatura.
+              </p>
+            </div>
+            <ul className={`mx-auto grid max-w-3xl gap-4 ${PENDENTES.length > 1 ? "sm:grid-cols-2" : ""}`}>
+              {PENDENTES.map((r) => {
+                const Icone = ICONE_PENDENTE[r.chave] ?? CalendarClock;
+                return (
+                  <li key={r.chave} className="cartao-cp flex flex-col p-6">
+                    <span aria-hidden className="absolute inset-x-0 top-0 h-1 bg-ciano" />
+                    <div className="flex items-start justify-between gap-3">
+                      <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-ciano-tint text-ciano-forte">
+                        <Icone className="h-5 w-5" strokeWidth={1.75} />
+                      </span>
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-ciano-tint px-3 py-1 text-2xs font-semibold text-ciano-forte">
+                        <CalendarClock className="h-3.5 w-3.5" />
+                        {statusRecurso(r).rotulo}
+                      </span>
+                    </div>
+                    <h3 className="mt-4 font-display text-lg font-semibold leading-snug text-primary">{r.titulo}</h3>
+                    <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{r.texto}</p>
+                  </li>
+                );
+              })}
+            </ul>
+          </section>
+        )}
+
+        {/* 9 · A objeção do preço, respondida com a missão. */}
+        {emVenda && desde != null && (
+          <section className="text-white" style={PALCO_OURO}>
+            <div className="mx-auto max-w-3xl px-4 py-16 text-center sm:px-6">
+              <p className="chapeu text-ouro">A nossa missão</p>
+              <h2 className="mt-3 font-display text-3xl font-semibold leading-[1.12] tracking-[-0.03em] sm:text-[2.6rem]">
+                Por que só {brl(desde)} por mês?
+              </h2>
+              <p className="mx-auto mt-5 max-w-xl text-base leading-relaxed text-white/80">
+                Porque a gente não ganha com o seu dinheiro. A Novare não vende produto financeiro e
+                não recebe comissão de banco.
+              </p>
+              <p className="mx-auto mt-3 max-w-xl text-base leading-relaxed text-white/80">
+                O que nós queremos é ver você sair do aperto e saber para onde vai cada real. Um app
+                caro atrapalharia justamente isso.
+              </p>
+              <p className="mx-auto mt-3 max-w-xl text-sm font-semibold leading-relaxed text-ouro">
+                Assinar é entrar para esse jeito de cuidar do dinheiro: com clareza e sem ninguém
+                empurrando nada.
+              </p>
+              <a href="#planos" className="btn-cp cta-halo mt-8 px-7">
+                Quero fazer parte
+                <ArrowRight className="h-4 w-4" />
+              </a>
+              <p className="mt-4 flex items-center justify-center gap-2 text-xs text-white/65">
+                <ShieldCheck className="h-4 w-4 shrink-0 text-ouro" />
+                {GARANTIA_DIAS} dias de garantia. Cancela quando quiser.
+              </p>
+            </div>
+          </section>
+        )}
+
+        {/* 10 · Onde funciona (a objeção da compatibilidade). */}
         <section className="mx-auto max-w-5xl px-4 py-16 sm:px-6">
           <div className="mx-auto mb-10 max-w-2xl text-center">
             <p className="chapeu text-ouro-forte">Onde funciona</p>
-            <h2 className="titulo-cp mt-3 text-3xl sm:text-[2.4rem]">No celular, no computador, e vira app</h2>
+            <h2 className="titulo-cp mt-3 text-3xl sm:text-[2.4rem]">Uma conta, no celular e no computador</h2>
           </div>
-          <ul className="grid gap-4 sm:grid-cols-3">
+          <ul className={`grid gap-4 sm:grid-cols-2 ${COMPARTILHADA_NO_AR ? "lg:grid-cols-4" : "lg:grid-cols-3"}`}>
             {[
               { Icone: Smartphone, titulo: "No celular", texto: "Feito primeiro para a tela pequena: lançar um gasto leva segundos." },
               { Icone: Monitor, titulo: "No computador", texto: "A mesma conta, com espaço para ver o mês inteiro de uma vez." },
@@ -418,6 +567,15 @@ export default async function NovareCashVendaPage({
                 titulo: "Instala como app",
                 texto: "No navegador do celular, toque em \"Adicionar à tela inicial\". Abre como app, sem loja.",
               },
+              ...(COMPARTILHADA_NO_AR
+                ? [
+                    {
+                      Icone: Users,
+                      titulo: "Para o casal ou a família",
+                      texto: "Quem divide as contas vê e lança no mesmo NovareCash, com uma assinatura só.",
+                    },
+                  ]
+                : []),
             ].map(({ Icone, titulo, texto }) => (
               <li key={titulo} className="rounded-3xl border border-border bg-card p-6 text-center">
                 <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-ouro-tint text-ouro-forte">
@@ -430,7 +588,7 @@ export default async function NovareCashVendaPage({
           </ul>
         </section>
 
-        {/* 9 · A garantia. */}
+        {/* 11 · A garantia (a objeção do risco). */}
         <section className="px-4 pb-16 sm:px-6">
           <div className="mx-auto flex max-w-3xl flex-col items-center gap-6 rounded-[1.75rem] border-2 border-ouro/40 bg-ouro-tint/60 p-6 text-center sm:flex-row sm:p-8 sm:text-left">
             <span className="flex h-24 w-24 shrink-0 flex-col items-center justify-center rounded-full bg-white text-ouro-forte shadow-[0_8px_30px_-10px_hsl(42_74%_45%/0.45)]">
@@ -438,16 +596,17 @@ export default async function NovareCashVendaPage({
               <span className="mt-0.5 font-display text-lg font-bold leading-none">{GARANTIA_DIAS} dias</span>
             </span>
             <div>
-              <h2 className="font-display text-2xl font-semibold text-primary">Garantia de {GARANTIA_DIAS} dias</h2>
+              <h2 className="font-display text-2xl font-semibold text-primary">Você tem {GARANTIA_DIAS} dias para decidir</h2>
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                Assinou e não era o que esperava? Peça o reembolso em até {GARANTIA_DIAS} dias pela
-                própria Hotmart, onde a compra é feita, e o valor volta inteiro. Sem precisar explicar o motivo.
+                Assine e use à vontade. Não era para você? Peça o reembolso em até {GARANTIA_DIAS} dias
+                {peloWhatsApp ? " falando com a equipe no WhatsApp" : " pela Hotmart, onde a compra é feita"}, e o
+                valor volta inteiro. Sem precisar explicar o motivo.
               </p>
             </div>
           </div>
         </section>
 
-        {/* 10 · Perguntas frequentes. */}
+        {/* 12 · Perguntas frequentes. */}
         <section className="bg-gelo">
           <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6">
             <div className="mb-8 text-center">
@@ -457,6 +616,10 @@ export default async function NovareCashVendaPage({
             <div className="space-y-3">
               {[
                 {
+                  p: "E se eu não gostar? Como cancelo?",
+                  r: `Nos primeiros ${GARANTIA_DIAS} dias, peça o reembolso e o valor volta inteiro. Depois disso, cancela quando quiser, sem multa.`,
+                },
+                {
                   p: "Preciso começar do zero?",
                   r: BANCO_NO_AR
                     ? "Não. Conecte o seu banco pelo Open Finance e o extrato já vem preenchido, com cada gasto na sua categoria. O que faltar, você manda pelo WhatsApp ou lança à mão."
@@ -465,9 +628,21 @@ export default async function NovareCashVendaPage({
                       }, e o orçamento e a IA já trabalham com isso.`,
                 },
                 {
+                  p: "Funciona no meu celular?",
+                  r: "Funciona no navegador do celular e do computador, com a mesma conta. No celular, dá para pôr na tela inicial e abrir como app, sem loja.",
+                },
+                ...(COMPARTILHADA_NO_AR
+                  ? [
+                      {
+                        p: "Dá para dividir com quem mora comigo?",
+                        r: "Dá. Convide quem divide as contas com você: os dois veem e lançam no mesmo NovareCash, com uma assinatura só.",
+                      },
+                    ]
+                  : []),
+                {
                   // A ÚNICA menção ao app gratuito da casa na página (decisão de 03/11, noite).
                   p: "Já uso o FINCASH. Preciso trocar?",
-                  r: "Não. São apps separados: o FINCASH continua grátis, sem cartão e sem prazo, e segue funcionando como está. O NovareCash é outro app, para quem quer o extrato automático, pelo banco e pelo WhatsApp, e uma IA que responde com os seus números.",
+                  r: "Não. São apps separados: o FINCASH continua grátis, sem cartão e sem prazo, e segue funcionando como está. O NovareCash é outro app, com cartões, contas a pagar, alertas e uma IA que responde com os seus números.",
                 },
                 {
                   p: "O NovareCash diz em que investir?",
@@ -486,8 +661,8 @@ export default async function NovareCashVendaPage({
                   } pelo Open Finance oficial do Banco Central: você autoriza no app do seu banco e pode cancelar quando quiser.`,
                 },
                 {
-                  p: "Como cancelo?",
-                  r: `Quando quiser, sem multa. Nos primeiros ${GARANTIA_DIAS} dias, o valor volta inteiro.`,
+                  p: "Quem está por trás do NovareCash?",
+                  r: "A Novare, consultoria de investimentos independente fundada pelo Jefferson Freitas. Ninguém aqui recebe comissão de banco, corretora ou seguradora.",
                 },
                 {
                   p: "Já assinei. Como entro?",
@@ -506,43 +681,87 @@ export default async function NovareCashVendaPage({
           </div>
         </section>
 
-        {/* 11 · Suporte por WhatsApp. */}
+        {/* 13 · Dúvidas pelo WhatsApp (gente, não robô). */}
         <section className="px-4 py-16 sm:px-6">
           <div className="mx-auto flex max-w-3xl flex-col items-center gap-5 rounded-[1.75rem] bg-noite p-6 text-center text-white sm:flex-row sm:p-8 sm:text-left">
             <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-ouro/12 text-ouro">
               <MessageCircle className="h-7 w-7" />
             </span>
             <div className="flex-1">
-              <h2 className="font-display text-xl font-semibold">Ficou alguma dúvida?</h2>
+              <h2 className="font-display text-xl font-semibold">Ainda em dúvida? Fale com gente.</h2>
               <p className="mt-1 text-sm leading-relaxed text-white/70">
-                Fale com a gente no WhatsApp. Quem responde é a equipe da Novare.
+                Quem responde no WhatsApp é a equipe da Novare, não um robô.
               </p>
             </div>
             <a href={ZAP_SUPORTE} target="_blank" rel="noopener noreferrer" className="btn-claro shrink-0">
               <MessageCircle className="h-4 w-4" />
-              Chamar no WhatsApp
+              Quero falar com a equipe
             </a>
           </div>
-          <p className="mx-auto mt-8 flex max-w-3xl items-start gap-2 text-2xs leading-relaxed text-muted-foreground">
-            <BookOpenText className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-            O {NOVARECASH_NOME} é uma ferramenta de organização financeira. Não constitui recomendação de
-            investimento nem promessa de rentabilidade.
-          </p>
         </section>
+
+        {/* 14 · O fecho: o resumo da oferta e o risco zero. */}
+        <section className="text-white" style={PALCO_OURO}>
+          <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6">
+            <div className="text-center">
+              <p className="chapeu text-ouro">{chapeuCampanha ?? "Resumo"}</p>
+              <h2 className="mt-3 font-display text-3xl font-semibold leading-[1.12] tracking-[-0.03em] sm:text-[2.6rem]">
+                O que você leva ao assinar
+              </h2>
+            </div>
+            <ul className="mx-auto mt-8 max-w-xl space-y-3">
+              {[
+                `${TOTAL_RECURSOS} recursos num app só. ${QUANTOS_FUNCIONAM}`,
+                ...(AVISO_PENDENTES ? [`${AVISO_PENDENTES} ${PENDENTES.length > 1 ? "Entram" : "Entra"} na mesma assinatura.`] : []),
+                "Uma IA que responde com os seus números, não com média da internet.",
+                ...(CONSULTOR_NO_AR ? ["Um consultor da Novare pelo WhatsApp, direto do app."] : []),
+                "Zero comissão: ninguém aqui vende nada para você.",
+                `${GARANTIA_DIAS} dias de garantia e cancelamento quando quiser.`,
+              ].map((item) => (
+                <li key={item} className="flex items-start gap-3 text-sm leading-relaxed text-white/85">
+                  <Check className="mt-0.5 h-4 w-4 shrink-0 text-ouro" />
+                  {item}
+                </li>
+              ))}
+            </ul>
+            {emVenda && desde != null && (
+              <div className="mt-10 flex flex-col items-center">
+                <Preco cheio={cheio} valor={desde} desconto={desconto} centro />
+                {black && (
+                  <p className="mt-1.5 text-xs font-semibold text-ouro">Preço da {BLACK.nome} só até {dataBlack("fim")}.</p>
+                )}
+                <a href="#planos" className="btn-cp cta-halo cta-varredura mt-6 w-full px-7 sm:w-auto">
+                  {textoCta}
+                  <ArrowRight className="h-4 w-4" />
+                </a>
+                <p className="mt-4 flex items-center justify-center gap-2 text-center text-xs text-white/65">
+                  <ShieldCheck className="h-4 w-4 shrink-0 text-ouro" />
+                  Risco zero: em {GARANTIA_DIAS} dias, não gostou, o dinheiro volta inteiro.
+                </p>
+              </div>
+            )}
+          </div>
+        </section>
+
+        <p className="mx-auto flex max-w-3xl items-start gap-2 px-4 py-8 text-2xs leading-relaxed text-muted-foreground sm:px-6">
+          <BookOpenText className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+          O {NOVARECASH_NOME} é uma ferramenta de organização financeira. Não constitui recomendação de
+          investimento nem promessa de rentabilidade.
+        </p>
       </main>
 
       <RodapeNovare convite={false} aviso="servico" />
       {/* Respiro para a barra fixa não cobrir o fim do rodapé no celular. */}
       <div aria-hidden className="h-20 sm:hidden" />
 
-      {/* 12 · A barra fixa do celular. */}
+      {/* 15 · A barra fixa do celular: a oferta numa linha e "Assinar agora". */}
       <BarraFixaCelular
         href="#planos"
-        texto={textoCta}
+        texto={emVenda ? "Assinar agora" : textoCta}
         apoio={
           emVenda && desde != null
-            ? `a partir de ${brl(desde)}/mês`
-            : fase === "aviso" || fase === "aberta"
+            ? `${cheio != null ? `de ${brl(cheio)} por ` : ""}${brl(desde)}/mês · ${GARANTIA_DIAS} dias de garantia`
+            : fase === "aviso" || black
               ? `${BLACK.nome}: avisamos você primeiro`
               : `Garantia de ${GARANTIA_DIAS} dias`
         }

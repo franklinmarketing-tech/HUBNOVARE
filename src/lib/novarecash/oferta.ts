@@ -84,6 +84,14 @@ export function brl(v: number): string {
   return v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 }
 
+/**
+ * O texto do botão de compra — O MESMO em toda a página e no pop-up (04/11:
+ * copy no modelo "Black November"). O valor sai da oferta; sem valor, o genérico.
+ */
+export function textoCompra(valor: number | null): string {
+  return valor != null ? `Quero o NovareCash por ${brl(valor)}` : "Assinar o NovareCash";
+}
+
 /** "30 de novembro", no fuso de Brasília. */
 export function dataBlack(qual: "inicio" | "fim"): string {
   return new Date(BLACK[qual]).toLocaleDateString("pt-BR", {

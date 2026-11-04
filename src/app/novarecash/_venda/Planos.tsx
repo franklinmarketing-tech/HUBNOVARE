@@ -1,6 +1,6 @@
 import { ArrowRight, Check, Clock, ShieldCheck } from "lucide-react";
-import { GARANTIA_DIAS, RECURSOS } from "@/lib/novarecash/config";
-import { brl, statusRecurso, type Oferta } from "@/lib/novarecash/oferta";
+import { BLACK, GARANTIA_DIAS, RECURSOS } from "@/lib/novarecash/config";
+import { brl, statusRecurso, textoCompra, type Oferta } from "@/lib/novarecash/oferta";
 
 /**
  * Os planos.
@@ -21,7 +21,13 @@ export function Planos({ lista }: { lista: Oferta[] }) {
       {[...lista]
         .sort((a, b) => (a.prazo === "anual" ? -1 : b.prazo === "anual" ? 1 : 0))
         .map((o) => (
-          <CartaoPlano key={o.prazo} oferta={o} destaque={sozinho || o.prazo === "anual"} rotuloDestaque={sozinho ? null : "Melhor oferta"} />
+          <CartaoPlano
+            key={o.prazo}
+            oferta={o}
+            destaque={sozinho || o.prazo === "anual"}
+            /* O selo da campanha só existe com desconto de verdade (`desconto` vem de `ofertas()`). */
+            rotuloDestaque={sozinho ? (o.desconto ? BLACK.nome : null) : "Melhor oferta"}
+          />
         ))}
     </div>
   );
@@ -88,7 +94,7 @@ function CartaoPlano({
               <strong className={destaque ? "text-foreground" : "text-white"}>{brl(o.agora)}</strong>
             </>
           ) : (
-            "Cobrado todo mês. Cancela quando quiser."
+            "Cobrado todo mês. Cancela quando quiser, sem multa."
           )}
         </p>
       </div>
@@ -122,7 +128,7 @@ function CartaoPlano({
         rel="noopener noreferrer"
         className={`mt-6 w-full ${destaque ? "btn-cp cta-halo cta-varredura" : "btn-claro"}`}
       >
-        Assinar o NovareCash
+        {textoCompra(o.porMes)}
         <ArrowRight className="h-4 w-4" />
       </a>
       <p
@@ -132,8 +138,8 @@ function CartaoPlano({
       >
         <ShieldCheck className="h-3.5 w-3.5 shrink-0" />
         {o.peloWhatsApp
-          ? `${GARANTIA_DIAS} dias de garantia. A equipe da Novare conclui a sua assinatura pelo WhatsApp.`
-          : `${GARANTIA_DIAS} dias de garantia. Pagamento seguro pela Hotmart.`}
+          ? `${GARANTIA_DIAS} dias de garantia: não gostou, o dinheiro volta. A equipe da Novare conclui a assinatura pelo WhatsApp.`
+          : `${GARANTIA_DIAS} dias de garantia: não gostou, o dinheiro volta. Pagamento seguro pela Hotmart.`}
       </p>
     </div>
   );

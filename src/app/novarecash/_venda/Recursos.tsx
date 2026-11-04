@@ -59,8 +59,8 @@ export function Recursos() {
       </ul>
       {pendentes && (
         <p className="mx-auto mt-6 max-w-2xl text-center text-xs leading-relaxed text-muted-foreground">
-          O que tem data ainda não funciona. Ele entra na sua assinatura quando ligar, e até lá
-          esta página mostra a data, não a promessa.
+          O que tem data ainda não funciona. Quando ligar, entra na mesma assinatura. Até lá, esta
+          página mostra a data, não a promessa.
         </p>
       )}
     </>

@@ -5,8 +5,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ArrowRight, Sparkles, X } from "lucide-react";
 import { MarcaNovareCash } from "@/components/novarecash/MarcaNovareCash";
-import { BLACK, faseBlack, NOVARECASH_NOME, type FaseBlack } from "@/lib/novarecash/config";
-import { avisoPendentes, dataBlack, maiorDesconto, ofertas } from "@/lib/novarecash/oferta";
+import { BLACK, faseBlack, GARANTIA_DIAS, NOVARECASH_NOME, type FaseBlack } from "@/lib/novarecash/config";
+import { aPartirDe, avisoPendentes, brl, dataBlack, maiorDesconto, ofertas, textoCompra } from "@/lib/novarecash/oferta";
 
 /**
  * O POP-UP DA BLACK NOVARE (03/11/2026) — anuncia o NovareCash.
@@ -154,19 +154,27 @@ export function PopupBlack() {
   const desconto = fase === "aberta" ? maiorDesconto(lista) : null;
   const emVenda = lista.length > 0;
 
-  const chapeu = fase === "aviso" ? `${BLACK.nome} · vem aí` : `${BLACK.nome} · até ${dataBlack("fim")}`;
+  // 04/11: copy no tom da página (modelo "Black November"): preço ancorado, prazo real, garantia.
+  const desde = aPartirDe(lista);
+  const cheio = lista.find((o) => o.cheioPorMes != null)?.cheioPorMes ?? null;
+  const chapeu =
+    fase === "aviso" ? `${BLACK.nome} · vem aí` : `${BLACK.nome} · ${desconto ? `${desconto}% OFF ` : ""}só até ${dataBlack("fim")}`;
   const titulo =
-    fase === "aviso"
-      ? `O ${NOVARECASH_NOME} chega na ${BLACK.nome}.`
-      : desconto
-        ? `Até ${desconto}% OFF no ${NOVARECASH_NOME}.`
-        : `A ${BLACK.nome} começou.`;
+    fase === "aviso" ? (
+      `O ${NOVARECASH_NOME} chega na ${BLACK.nome}.`
+    ) : fase === "aberta" && desde != null && cheio != null ? (
+      <>
+        {NOVARECASH_NOME} de <s className="text-white/60">{brl(cheio)}</s> por <span className="text-ouro">{brl(desde)}</span> ao mês.
+      </>
+    ) : (
+      `A ${BLACK.nome} começou.`
+    );
   const texto =
     fase === "aviso"
-      ? `O novo app da Novare: o banco e o WhatsApp lançam, a IA explica. A campanha vai de ${dataBlack("inicio")} a ${dataBlack("fim")}.`
-      : `O seu dinheiro organizado sozinho: extrato próprio, orçamento por categoria e uma IA que responde com os seus números.`;
+      ? `O novo app da Novare, de quem não vende nada. A campanha vai de ${dataBlack("inicio")} a ${dataBlack("fim")}.`
+      : `Seu dinheiro organizado por quem não vende nada: extrato, cartões, contas e uma IA que responde com os seus números. ${GARANTIA_DIAS} dias de garantia.`;
   const pendentes = avisoPendentes();
-  const cta = emVenda && fase === "aberta" ? "Ver a oferta" : `Conhecer o ${NOVARECASH_NOME}`;
+  const cta = emVenda && fase === "aberta" ? textoCompra(desde) : `Conhecer o ${NOVARECASH_NOME}`;
 
   return (
     <div

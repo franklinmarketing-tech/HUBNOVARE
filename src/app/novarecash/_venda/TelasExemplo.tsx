@@ -1,4 +1,8 @@
 import { Camera, Landmark, MessageCircle, Mic, Sparkles, type LucideIcon } from "lucide-react";
+import { RECURSOS } from "@/lib/novarecash/config";
+
+/** Banco E WhatsApp no ar? Só então a legenda pode dizer "se preenche sozinho" (CDC). */
+const AUTOMATICO_NO_AR = RECURSOS.filter((r) => r.chave === "banco" || r.chave === "whatsapp").every((r) => r.noAr);
 
 /**
  * TELAS DE EXEMPLO DO NOVARECASH — ilustração em HTML, não captura.
@@ -174,13 +178,15 @@ export function TelasExemplo() {
   const telas = [
     {
       Tela: TelaExtrato,
-      titulo: "O extrato se preenche sozinho",
-      texto: "O que vem do banco e o que você manda pelo WhatsApp (texto, áudio ou a foto da nota) entra com a categoria e um selo dizendo de onde veio.",
+      titulo: AUTOMATICO_NO_AR ? "O extrato se preenche sozinho" : "Cada gasto na categoria certa",
+      texto: AUTOMATICO_NO_AR
+        ? "O que vem do banco e o que você manda pelo WhatsApp (texto, áudio ou a foto da nota) entra com a categoria e um selo dizendo de onde veio."
+        : "Cada lançamento entra com a categoria e um selo de origem. Hoje, você lança à mão; banco e WhatsApp passam a lançar quando liberarem.",
     },
     {
       Tela: TelaIA,
       titulo: "A IA responde com os seus números",
-      texto: "Pergunte como falaria com alguém da família. A resposta sai dos seus lançamentos e do seu orçamento, não de uma média da internet.",
+      texto: "Pergunte como falaria com alguém de casa. A resposta sai dos seus lançamentos, não de uma média da internet.",
     },
   ];
   return (
