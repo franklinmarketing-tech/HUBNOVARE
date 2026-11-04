@@ -8,6 +8,7 @@ import { BotaoMensagem } from "@/components/BotaoMensagem";
 import { ClarityAnonimo } from "@/components/ClarityAnonimo";
 import { RastroDeUso } from "@/components/RastroDeUso";
 import { ConviteDeSaida } from "@/components/ConviteDeSaida";
+import { PopupBlack } from "@/components/PopupBlack";
 import { SITE_URL } from "@/lib/site";
 import "./globals.css";
 
@@ -135,6 +136,8 @@ export default function RootLayout({
             precisar lembrar de instrumentar. */}
         <RastroDeUso />
         <ConviteDeSaida />
+        {/* A Black Novare (03/11/2026): some sozinho fora da campanha. */}
+        <PopupBlack />
       </body>
     </html>
   );

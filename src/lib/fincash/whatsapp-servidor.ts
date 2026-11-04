@@ -6,18 +6,41 @@
  * mexer na interpretação não precisa entender de Supabase, e quem for trocar o
  * provedor não precisa entender de português.
  *
+ * ⚠️ O DESTINO DOS DADOS É O NOVARECASH (03/11/2026). O assistente nasceu no
+ * FINCASH, foi desligado lá em 19/10/2026 e hoje só atende assinante do
+ * NovareCash — que é OUTRO app, com dados próprios. Tudo o que a pessoa
+ * registra por aqui (texto, áudio, foto) vai para `ncash_transacoes`, e as
+ * consultas leem `ncash_transacoes`, `ncash_contas` e `ncash_orcamentos`.
+ * NADA aqui lê ou escreve em `fin_lancamentos`, `fin_contas`, `fin_cartoes` ou
+ * nas categorias do FINCASH.
+ *
+ * O que CONTINUA em `fin_whatsapp_*` é a infraestrutura do CANAL — vínculo
+ * telefone → usuário, log de mensagens, idempotência, tetos. Não é dado
+ * financeiro do FINCASH; o prefixo é só história. As duas colunas que ligam o
+ * canal ao NovareCash (`ncash_conta_padrao_id` e `ncash_transacao_id`) entram
+ * por `supabase/novarecash_whatsapp.sql`.
+ *
  * ⚠️ ESTE MÓDULO USA A CHAVE DE SERVIÇO, que passa POR CIMA do RLS.
  * O webhook chega sem sessão: não há cookie, não há `auth.uid()`, e por isso a
- * policy "org: dono manda" não protege nada aqui. A proteção passa a ser
+ * policy "ncash: dono manda" não protege nada aqui. A proteção passa a ser
  * disciplina de código: **toda consulta e toda escrita carrega `user_id`
  * explícito**, vindo do vínculo confirmado do telefone. Um `.eq("user_id", ...)`
  * esquecido neste arquivo é vazamento de dado financeiro entre clientes.
+ *
+ * CONTA COMPARTILHADA (04/11/2026): em `ncash_*` esse id é `vinculo.dono_id` —
+ * o dono do NovareCash que a pessoa aceitou dividir (ou ela mesma). Nas tabelas
+ * do CANAL (`fin_whatsapp_*`) continua `vinculo.user_id`, quem mandou.
  */
 
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
-import type { Cartao, Categoria, Conta } from "@/lib/fincash/modelo";
-import { alertaDeContas, alertaDeFatura } from "@/lib/fincash/alertas";
+import { SITE_URL } from "@/lib/site";
+
+import {
+  CATEGORIAS,
+  adivinharCategoria,
+  categoria as categoriaNcash,
+} from "@/lib/novarecash/categorias";
 import {
   interpretar,
   extrairCodigo,
@@ -34,8 +57,10 @@ import {
   respostaNaoVinculado,
   respostaVinculado,
   formatarBRL,
+  type CategoriaAlvo,
   type Consulta,
   type Intencao,
+  type OrigemAlvo,
   type RascunhoLancamento,
 } from "@/lib/fincash/whatsapp";
 import {
@@ -94,11 +119,15 @@ function servico(): SupabaseClient {
   return cache;
 }
 
+/** 42703 = coluna inexistente: o SQL aditivo ainda não rodou neste banco. */
+function colunaFaltando(erro: unknown): boolean {
+  return (erro as { code?: string } | null)?.code === "42703";
+}
+
 // ── Datas ───────────────────────────────────────────────────────────────────
 // Copiado de `modelo.ts` (seis linhas) em vez de importado: `modelo.ts` é
 // `"use client"` por dentro e arrastá-lo para um route handler traria o cliente
-// de navegador do Supabase junto. Se um dia essas funções saírem de lá para um
-// módulo neutro, este bloco some.
+// de navegador do Supabase junto.
 
 function limitesDoMes(ref: string) {
   const [ano, mes] = ref.split("-").map(Number);
@@ -106,28 +135,70 @@ function limitesDoMes(ref: string) {
   return { inicio: `${ref}-01`, fim: `${ref}-${String(ultimo).padStart(2, "0")}` };
 }
 
+/** "2026-11-03T…" → "03/11", no fuso de quem lê. */
+function diaBrasil(iso: string | null): string | null {
+  if (!iso) return null;
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return null;
+  return d.toLocaleDateString("pt-BR", {
+    timeZone: "America/Sao_Paulo",
+    day: "2-digit",
+    month: "2-digit",
+  });
+}
+
 // ── Vínculo ─────────────────────────────────────────────────────────────────
 
 type Vinculo = {
   id: string;
+  /** Quem está vinculado ao telefone. É o id do LOG do canal (`fin_whatsapp_mensagens`). */
   user_id: string;
+  /**
+   * De quem é o NovareCash em que esta pessoa grava e consulta (04/11/2026,
+   * conta compartilhada): o DONO do grupo que ela aceitou, ou ela mesma. É o
+   * `user_id` de toda leitura e escrita em `ncash_*`. Ver `donoEfetivo`.
+   */
+  dono_id: string;
   telefone: string;
-  conta_padrao_id: string | null;
-  cartao_padrao_id: string | null;
+  /**
+   * A origem padrão no NovareCash (`ncash_contas.id`, conta OU cartão).
+   *
+   * ⚠️ NÃO é `conta_padrao_id`/`cartao_padrao_id`: essas duas colunas apontam
+   * para `fin_contas`/`fin_cartoes` (chave estrangeira) e ficam como história
+   * do FINCASH. Ler qualquer uma delas aqui gravaria um id do FINCASH no
+   * extrato do NovareCash.
+   */
+  ncash_conta_padrao_id: string | null;
 };
 
 async function acharVinculo(telefone: string): Promise<Vinculo | null> {
-  const { data } = await servico()
-    .from("fin_whatsapp_contas")
-    .select("id, user_id, telefone, conta_padrao_id, cartao_padrao_id")
-    // As duas formas do mesmo celular brasileiro. O porquê está em
-    // `variantesTelefone`.
-    .in("telefone", variantesTelefone(telefone))
-    .not("confirmado_em", "is", null)
-    .eq("ativo", true)
-    .limit(1);
+  const consulta = (colunas: string) =>
+    servico()
+      .from("fin_whatsapp_contas")
+      .select(colunas)
+      // As duas formas do mesmo celular brasileiro. O porquê está em
+      // `variantesTelefone`.
+      .in("telefone", variantesTelefone(telefone))
+      .not("confirmado_em", "is", null)
+      .eq("ativo", true)
+      .limit(1);
 
-  return (data?.[0] as Vinculo | undefined) ?? null;
+  let { data, error } = await consulta("id, user_id, telefone, ncash_conta_padrao_id");
+  // Sem `novarecash_whatsapp.sql` a coluna não existe. O vínculo NÃO pode cair
+  // por isso — viraria "número não vinculado" para todo mundo. Segue sem padrão.
+  if (error && colunaFaltando(error)) {
+    ({ data, error } = await consulta("id, user_id, telefone"));
+  }
+
+  const linha = (data as unknown as Partial<Vinculo>[] | null)?.[0];
+  if (!linha?.id || !linha.user_id) return null;
+  return {
+    id: linha.id,
+    user_id: linha.user_id,
+    dono_id: await donoEfetivo(linha.user_id),
+    telefone: linha.telefone ?? telefone,
+    ncash_conta_padrao_id: linha.ncash_conta_padrao_id ?? null,
+  };
 }
 
 /**
@@ -153,6 +224,103 @@ async function mensagensNaHora(telefone: string): Promise<number> {
 const TETO_POR_HORA = 30;
 const TETO_TENTATIVAS_CODIGO = 8;
 
+// ── Assinatura (NovareCash) ─────────────────────────────────────────────────
+
+/**
+ * De quem é o NovareCash desta pessoa (04/11/2026, conta compartilhada).
+ *
+ * A mesma regra de `ncash_dono_atual()` em `supabase/novarecash_compartilhar.sql`
+ * — o dono do grupo que ela ACEITOU (o mais recente); senão, ela mesma —, lida
+ * aqui com a chave de serviço porque o webhook não tem sessão.
+ *
+ * Só convite ACEITO conta: convite pendente não muda nada. Falha de leitura (ou
+ * `ncash_membros` ainda não criada) = a própria pessoa, que é o comportamento
+ * de antes da conta compartilhada: nunca grava no NovareCash de outra pessoa
+ * por engano.
+ */
+async function donoEfetivo(userId: string): Promise<string> {
+  try {
+    const { data, error } = await servico()
+      .from("ncash_membros")
+      .select("dono_id")
+      .eq("membro_id", userId)
+      .eq("status", "aceito")
+      .order("aceito_em", { ascending: false })
+      .limit(1);
+    const dono = (data?.[0] as { dono_id?: string } | undefined)?.dono_id;
+    return !error && dono ? dono : userId;
+  } catch {
+    return userId;
+  }
+}
+
+/**
+ * O dono deste vínculo pode usar o assistente? (03/11/2026)
+ *
+ * O WhatsApp virou recurso do NovareCash (pago). A regra é a do banco —
+ * `ncash_tem_acesso_email()` em `supabase/novarecash.sql` — perguntada pelo
+ * e-mail da conta, porque o webhook não tem sessão (`auth.email()` seria nulo).
+ * A equipe (admin/equipe em `hub_profiles`) sempre passa, como no app.
+ *
+ * CONTA COMPARTILHADA (04/11/2026): o MEMBRO ACEITO de um dono que assina também
+ * passa — a mesma regra que `ncash_tem_acesso()` ganhou no banco. O e-mail
+ * conferido, nesse caso, é o do DONO (o membro não precisa assinar).
+ *
+ * Falha de leitura = NÃO. No pior caso um assinante recebe o aviso educado uma
+ * vez; nunca um não assinante grava de graça.
+ */
+async function temNovareCash(userId: string): Promise<boolean> {
+  try {
+    const s = servico();
+    const { data: perfil } = await s.from("hub_profiles").select("role").eq("id", userId).maybeSingle();
+    if (perfil?.role === "admin" || perfil?.role === "equipe") return true;
+
+    const { data: usuario } = await s.auth.admin.getUserById(userId);
+    const email = usuario?.user?.email;
+    if (!email) return false;
+
+    const { data, error } = await s.rpc("ncash_tem_acesso_email", { p_email: email });
+    if (!error && data === true) return true;
+
+    // Membro aceito: vale a assinatura do dono do grupo.
+    const dono = await donoEfetivo(userId);
+    if (dono === userId) return false;
+    const { data: doDono } = await s.auth.admin.getUserById(dono);
+    const emailDono = doDono?.user?.email;
+    if (!emailDono) return false;
+    const r = await s.rpc("ncash_tem_acesso_email", { p_email: emailDono });
+    return !r.error && r.data === true;
+  } catch {
+    return false;
+  }
+}
+
+/* O link vai para a página do NovareCash (`/novarecash`), e não para
+   `/novarecash/app/...`: quem recebe esta mensagem NÃO é assinante, e a área
+   do app só mostraria a porta fechada. */
+const TEXTO_SEM_ASSINATURA = [
+  "Oi! O assistente de WhatsApp da Novare agora faz parte do NovareCash.",
+  `Para lançar gastos por aqui, conheça o plano: ${SITE_URL}/novarecash`,
+].join("\n");
+
+/**
+ * A resposta a quem não tem NovareCash: UMA vez a cada 24 h por número, e mais
+ * nada. Sem isto, cada mensagem de um ex-assinante viraria um aviso repetido —
+ * e o número da Novare, um robô insistente. Nada é gravado além do log.
+ */
+async function responderSemAssinatura(telefone: string, userId: string | null, mensagemId: string) {
+  const desde = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+  const { count } = await servico()
+    .from("fin_whatsapp_mensagens")
+    .select("id", { count: "exact", head: true })
+    .eq("telefone", telefone)
+    .eq("direcao", "saida")
+    .eq("texto", TEXTO_SEM_ASSINATURA)
+    .gte("criado_em", desde);
+  if ((count ?? 0) > 0) return;
+  await responder({ telefone, userId, texto: TEXTO_SEM_ASSINATURA, mensagemId });
+}
+
 /**
  * Tenta transformar um código em vínculo.
  *
@@ -164,7 +332,7 @@ async function tentarVincular(
   telefone: string,
   texto: string,
   recentes: number,
-): Promise<{ ok: boolean; user_id?: string } | null> {
+): Promise<{ ok: boolean; user_id?: string; semAssinatura?: boolean } | null> {
   const codigo = extrairCodigo(texto);
   if (!codigo) return null;
 
@@ -180,6 +348,11 @@ async function tentarVincular(
 
   const pendente = data?.[0] as { id: string; user_id: string } | undefined;
   if (!pendente) return { ok: false };
+
+  // Sem NovareCash, o código não vira vínculo (o código fica pendente e vence).
+  if (!(await temNovareCash(pendente.user_id))) {
+    return { ok: false, user_id: pendente.user_id, semAssinatura: true };
+  }
 
   // Trocar de celular é o caso comum, e ele passa por aqui: o vínculo anterior
   // sai para o novo entrar. Sem isto o índice `fin_whatsapp_confirmado_idx`
@@ -224,6 +397,10 @@ async function tentarVincular(
  * registrar no fim — deixa aberta a janela em que dois reenvios simultâneos
  * gravam o mesmo gasto duas vezes. Lançamento duplicado num app de dinheiro é o
  * defeito que faz a pessoa desinstalar.
+ *
+ * (Há uma SEGUNDA trava, no destino: a transação nasce com `externo_id` = id da
+ * mensagem no provedor, e o índice único de `ncash_transacoes` recusa repetir.
+ * Ver `gravarTransacao`.)
  */
 async function reservarEntrada(
   msg: MensagemRecebida,
@@ -266,7 +443,8 @@ async function responder(params: {
   userId: string | null;
   texto: string;
   interpretacao?: unknown;
-  lancamentoId?: string | null;
+  /** A transação do NovareCash que esta mensagem gerou (`ncash_transacoes.id`). */
+  transacaoId?: string | null;
   mensagemId?: string | null;
 }) {
   const { telefone, userId, texto } = params;
@@ -298,82 +476,218 @@ async function responder(params: {
     erro,
   });
 
-  // A interpretação e o lançamento vão na linha da ENTRADA, não na da resposta:
+  // A interpretação e a transação vão na linha da ENTRADA, não na da resposta:
   // é a mensagem da pessoa que gerou o lançamento, e é por ela que o "desfazer"
   // procura.
-  if (params.mensagemId && (params.interpretacao || params.lancamentoId)) {
+  //
+  // ⚠️ `ncash_transacao_id`, NÃO `lancamento_id`: a antiga é chave estrangeira
+  // para `fin_lancamentos` e recusaria um id do NovareCash. Ela fica como
+  // história do FINCASH.
+  if (params.mensagemId && params.interpretacao !== undefined) {
     await servico()
       .from("fin_whatsapp_mensagens")
-      .update({
-        interpretacao: params.interpretacao ?? null,
-        lancamento_id: params.lancamentoId ?? null,
-      })
+      .update({ interpretacao: params.interpretacao ?? null })
       .eq("id", params.mensagemId);
+  }
+  if (params.mensagemId && params.transacaoId) {
+    const { error } = await servico()
+      .from("fin_whatsapp_mensagens")
+      .update({ ncash_transacao_id: params.transacaoId })
+      .eq("id", params.mensagemId);
+    if (error) console.warn("[whatsapp] nao carimbou a transacao:", error.message);
   }
 }
 
-// ── Dados do usuário ────────────────────────────────────────────────────────
+// ── Dados do usuário (NovareCash) ───────────────────────────────────────────
 
-type Contexto = {
-  categorias: Categoria[];
-  contas: Conta[];
-  cartoes: Cartao[];
+/**
+ * As categorias do NovareCash no formato do interpretador.
+ *
+ * Lista FECHADA, em código (`src/lib/novarecash/categorias.ts`): não há tabela
+ * por usuário. `id` = a chave gravada em `ncash_transacoes.categoria`; `nome` =
+ * o rótulo, que é o que o casador procura no texto ("mercado", "saúde"…).
+ */
+const CATEGORIAS_ALVO: CategoriaAlvo[] = CATEGORIAS.map((c) => ({
+  id: c.chave,
+  nome: c.rotulo,
+  tipo: c.tipo === "entrada" ? "receita" : "despesa",
+}));
+
+type ContaNcash = {
+  id: string;
+  nome: string;
+  tipo: "conta" | "cartao" | "investimento";
+  saldo: number | null;
+  saldo_em: string | null;
 };
 
+type Contexto = {
+  categorias: CategoriaAlvo[];
+  /** `ncash_contas` com tipo 'conta'. */
+  contas: OrigemAlvo[];
+  /** `ncash_contas` com tipo 'cartao'. */
+  cartoes: OrigemAlvo[];
+};
+
+/**
+ * As contas e os cartões do NovareCash, separados pelo `tipo`.
+ *
+ * 'investimento' NÃO entra como origem: o Open Finance cria essas contas
+ * sozinho, e contá-las faria quem tem uma conta e uma aplicação receber "de
+ * qual conta saiu?" em toda mensagem. Gasto do dia a dia não sai de aplicação.
+ */
 async function carregarContexto(userId: string): Promise<Contexto> {
-  const s = servico();
-  // Em paralelo: três idas ao banco em cascata seriam meio segundo a mais em
-  // cada mensagem, e o assistente vale pela rapidez.
-  const [cats, contas, cartoes] = await Promise.all([
-    s.from("fin_categorias").select("*").eq("user_id", userId).eq("arquivada", false),
-    s.from("fin_contas").select("*").eq("user_id", userId).eq("arquivada", false),
-    s.from("fin_cartoes").select("*").eq("user_id", userId).eq("arquivado", false),
-  ]);
+  const { data } = await servico()
+    .from("ncash_contas")
+    .select("id, nome, tipo")
+    .eq("user_id", userId)
+    .eq("ativa", true);
+
+  const contas = (data ?? []) as Pick<ContaNcash, "id" | "nome" | "tipo">[];
+  return {
+    categorias: CATEGORIAS_ALVO,
+    contas: contas.filter((c) => c.tipo === "conta").map(({ id, nome }) => ({ id, nome })),
+    cartoes: contas.filter((c) => c.tipo === "cartao").map(({ id, nome }) => ({ id, nome })),
+  };
+}
+
+/**
+ * Interpreta com o contexto do NovareCash — o ÚNICO caminho até o
+ * interpretador, para texto, áudio e foto.
+ *
+ * Duas coisas acontecem aqui e em nenhum outro lugar:
+ *
+ *   · A ORIGEM PADRÃO É CONFERIDA contra as contas que acabaram de ser lidas
+ *     com `user_id`. A coluna do vínculo é escrita pelo app sob RLS, que só
+ *     garante que a LINHA é da pessoa, não que o id apontado é dela. Sem esta
+ *     conferência, um id de conta alheia escrito ali iria parar numa transação.
+ *   · A CATEGORIA GANHA UM SEGUNDO PALPITE: quando o casador por nome não acha,
+ *     `adivinharCategoria()` (as `palavras` de cada categoria do NovareCash)
+ *     tenta pela descrição. É o mesmo palpite do banco, então "posto shell"
+ *     cai em Transporte venha pelo WhatsApp ou pelo Open Finance. Usa a
+ *     DESCRIÇÃO, sem o valor: "camiseta 99" não pode virar Transporte pelo "99".
+ */
+function interpretarNoNovareCash(
+  texto: string,
+  vinculo: Vinculo,
+  ctx: Contexto,
+  hoje: Date,
+): Intencao {
+  const padrao = vinculo.ncash_conta_padrao_id;
+  const intencao = interpretar(texto, {
+    ...ctx,
+    contaPadraoId: padrao && ctx.contas.some((c) => c.id === padrao) ? padrao : null,
+    cartaoPadraoId: padrao && ctx.cartoes.some((c) => c.id === padrao) ? padrao : null,
+    hoje,
+  });
+
+  if (intencao.tipo !== "registrar" || intencao.rascunho.categoria_id) return intencao;
+
+  const r = intencao.rascunho;
+  const chave = adivinharCategoria(r.descricao, r.tipo === "receita" ? "entrada" : "saida");
+  if (chave === "outros" || chave === "outras_entradas") return intencao;
 
   return {
-    categorias: (cats.data ?? []) as Categoria[],
-    contas: (contas.data ?? []) as Conta[],
-    cartoes: (cartoes.data ?? []) as Cartao[],
+    ...intencao,
+    rascunho: { ...r, categoria_id: chave, categoria_nome: categoriaNcash(chave).rotulo },
   };
+}
+
+/** A chave que vai para o banco. Sem categoria = "Outros" (a coluna não é anulável). */
+function chaveDaCategoria(r: RascunhoLancamento): string {
+  return r.categoria_id ?? (r.tipo === "receita" ? "outras_entradas" : "outros");
 }
 
 // ── Efeitos ─────────────────────────────────────────────────────────────────
 
 /**
- * Grava o lançamento.
+ * Grava a transação no extrato do NovareCash.
  *
- * `pago: true` porque gasto contado pelo WhatsApp é gasto que JÁ aconteceu — a
- * pessoa acabou de sair do mercado. Conta a pagar (previsto) se cadastra no app,
- * onde dá para escolher a data e conferir.
+ * O valor entra POSITIVO, sempre; quem dá o sinal é `tipo` ('entrada' |
+ * 'saida'). A regra é do contrato em `supabase/novarecash_dados.sql` e está
+ * repetida aqui porque é a que quebra o saldo do app inteiro.
  *
- * O valor entra POSITIVO, sempre; quem dá o sinal é `tipo`. A regra é do
- * `modelo.ts` e está repetida aqui porque é a que quebra o saldo do app inteiro.
+ * Conta e cartão moram na MESMA tabela no NovareCash (`ncash_contas.tipo`),
+ * então os dois viram `conta_id`. Sem origem, `conta_id` vai nulo.
+ *
+ * IDEMPOTÊNCIA NO DESTINO: `origem = 'whatsapp'` + `externo_id` = id da
+ * mensagem no provedor. O índice único (user_id, origem, externo_id) recusa a
+ * segunda cópia; quando recusa, devolvemos a que já existe — o efeito de
+ * "gravar duas vezes" passa a ser "gravar uma vez".
  */
-async function gravarLancamento(
+async function gravarTransacao(
   userId: string,
   r: RascunhoLancamento,
+  externoId: string,
 ): Promise<string | null> {
-  const { data, error } = await servico()
-    .from("fin_lancamentos")
+  const s = servico();
+  const { data, error } = await s
+    .from("ncash_transacoes")
     .insert({
       user_id: userId,
-      tipo: r.tipo,
+      conta_id: r.conta_id ?? r.cartao_id ?? null,
+      data: r.data,
       descricao: r.descricao,
       valor: r.valor,
-      data: r.data,
-      categoria_id: r.categoria_id,
-      conta_id: r.conta_id,
-      cartao_id: r.cartao_id,
-      pago: true,
+      tipo: r.tipo === "receita" ? "entrada" : "saida",
+      categoria: chaveDaCategoria(r),
+      origem: "whatsapp",
+      externo_id: externoId,
     })
     .select("id")
     .single();
 
-  if (error) {
-    console.warn("[whatsapp] nao gravou lancamento:", error.message);
-    return null;
+  if (!error) return data.id as string;
+
+  if (error.code === "23505") {
+    const { data: existente } = await s
+      .from("ncash_transacoes")
+      .select("id")
+      .eq("user_id", userId)
+      .eq("origem", "whatsapp")
+      .eq("externo_id", externoId)
+      .maybeSingle();
+    if (existente?.id) return existente.id as string;
   }
-  return data.id as string;
+
+  console.warn("[whatsapp] nao gravou transacao:", error.message);
+  return null;
+}
+
+/** Total de saídas do mês, opcionalmente de uma categoria. Sempre com `user_id`. */
+async function saidasDoMes(
+  userId: string,
+  ref: string,
+  categoria: string | null,
+): Promise<{ total: number; quantidade: number }> {
+  const { inicio, fim } = limitesDoMes(ref);
+  let q = servico()
+    .from("ncash_transacoes")
+    .select("valor")
+    .eq("user_id", userId)
+    .eq("tipo", "saida")
+    .gte("data", inicio)
+    .lte("data", fim);
+  if (categoria) q = q.eq("categoria", categoria);
+
+  const { data } = await q;
+  const linhas = data ?? [];
+  return {
+    total: linhas.reduce((soma, l) => soma + Number(l.valor), 0),
+    quantidade: linhas.length,
+  };
+}
+
+/** O limite mensal da categoria em `ncash_orcamentos` (vale para todo mês). */
+async function limiteDaCategoria(userId: string, categoria: string): Promise<number | null> {
+  const { data } = await servico()
+    .from("ncash_orcamentos")
+    .select("limite")
+    .eq("user_id", userId)
+    .eq("categoria", categoria)
+    .maybeSingle();
+  const limite = Number(data?.limite ?? 0);
+  return limite > 0 ? limite : null;
 }
 
 /**
@@ -388,190 +702,111 @@ async function alertaDeOrcamento(
   userId: string,
   r: RascunhoLancamento,
 ): Promise<string | null> {
-  if (r.tipo !== "despesa" || !r.categoria_id) return null;
+  if (r.tipo !== "despesa") return null;
 
-  const ref = r.data.slice(0, 7);
-  const { inicio, fim } = limitesDoMes(ref);
-  const s = servico();
-
-  const [orc, gastos] = await Promise.all([
-    s
-      .from("fin_orcamentos")
-      .select("valor")
-      .eq("user_id", userId)
-      .eq("categoria_id", r.categoria_id)
-      .eq("mes_ref", ref)
-      .maybeSingle(),
-    semApagadosServico((filtrar) => {
-      let q = s
-        .from("fin_lancamentos")
-        .select("valor")
-        .eq("user_id", userId)
-        .eq("categoria_id", r.categoria_id)
-        .eq("tipo", "despesa")
-        .gte("data", inicio)
-        .lte("data", fim);
-      if (filtrar) q = q.is("apagado_em", null);
-      return q;
-    }),
+  const chave = chaveDaCategoria(r);
+  const [limite, gastos] = await Promise.all([
+    limiteDaCategoria(userId, chave),
+    saidasDoMes(userId, r.data.slice(0, 7), chave),
   ]);
-
-  const limite = Number(orc.data?.valor ?? 0);
   if (!limite) return null;
 
-  const total = (gastos.data ?? []).reduce((soma, l) => soma + Number(l.valor), 0);
+  const total = gastos.total;
   const antes = total - r.valor;
   if (antes > limite || total <= limite) return null;
 
-  return `Atenção: com este gasto você passou o orçamento de *${r.categoria_nome}* (${formatarBRL(limite)}). Já são ${formatarBRL(total)} no mês.`;
+  const nome = r.categoria_nome ?? categoriaNcash(chave).rotulo;
+  return `Atenção: com este gasto você passou o orçamento de *${nome}* (${formatarBRL(limite)}). Já são ${formatarBRL(total)} no mês.`;
 }
 
 /**
- * A configuração usada quando é o CLIENTE que pergunta.
+ * As perguntas, respondidas com o extrato do NovareCash.
  *
- * Tudo desligado e sem data de último envio: quem liga o campo é cada
- * resposta, para o motor não recusar por "já avisei hoje" — regra que vale
- * para a casa avisando, não para a pessoa perguntando.
+ * "contas" e "fatura" continuam sendo entendidas pelo interpretador, mas o
+ * NovareCash não tem contas fixas nem data de fechamento de cartão: a resposta
+ * diz isso e aponta o que ele SABE responder, em vez de inventar.
  */
-const SOB_DEMANDA = {
-  contas_ligado: false,
-  contas_dias_antes: 7,
-  fatura_ligado: false,
-  fatura_dias_antes: 10,
-  orcamento_ligado: false,
-  orcamento_limite: 80,
-  resumo_ligado: false,
-  resumo_dia_semana: 1,
-  ultimo_contas: null,
-  ultimo_fatura: null,
-  ultimo_orcamento: null,
-  ultimo_resumo: null,
-};
-
 async function responderConsulta(userId: string, c: Consulta): Promise<string> {
   const s = servico();
-  const { inicio, fim } = limitesDoMes(c.ref);
 
-  if (c.escopo === "saldo") {
+  if (c.escopo === "saldo" || c.escopo === "fatura") {
     const { data } = await s
-      .from("fin_saldos")
-      .select("nome, saldo")
-      .eq("user_id", userId);
-    return respostaDeSaldo(
-      (data ?? []).map((l) => ({ nome: l.nome as string, saldo: Number(l.saldo) })),
-    );
-  }
-
-  /* ── O QUE VENCE, E A FATURA ───────────────────────────────────────
-     ⚠️ A RESPOSTA É MONTADA PELO MESMO MOTOR DOS AVISOS
-     (`lib/fincash/alertas.ts`), e isso não é economia de código: é o que
-     garante que o cliente leia a MESMA frase quando pergunta e quando é
-     avisado. Dois textos para o mesmo fato acabam divergindo, e num app
-     de dinheiro divergência encerra a conversa.
-
-     ⚠️ SEM A TRAVA DE "JÁ AVISOU HOJE". Ela existe para a casa não
-     repetir o mesmo aviso dias seguidos; aqui foi a pessoa que perguntou,
-     e quem pergunta tem direito à resposta quantas vezes quiser. Por isso
-     as datas `ultimo_*` vão nulas e os campos entram ligados. */
-  if (c.escopo === "contas") {
-    const { data } = await s
-      .from("fin_recorrencias")
-      .select("descricao, valor, dia, tipo, ativa")
-      .eq("user_id", userId);
-
-    const alerta = alertaDeContas(
-      { ...SOB_DEMANDA, contas_ligado: true, contas_dias_antes: 7 },
-      (data ?? []).map((r) => ({ ...r, valor: Number(r.valor) })) as Parameters<typeof alertaDeContas>[1],
-      new Date(),
-    );
-
-    return (
-      alerta?.texto ??
-      "Não achei conta fixa vencendo nos próximos 7 dias. Você cadastra as que se repetem em Contas fixas, no app."
-    );
-  }
-
-  if (c.escopo === "fatura") {
-    const { data } = await s
-      .from("fin_cartoes")
-      .select("nome, dia_fechamento")
+      .from("ncash_contas")
+      .select("id, nome, tipo, saldo, saldo_em")
       .eq("user_id", userId)
-      .eq("arquivado", false);
-
-    const alerta = alertaDeFatura(
-      { ...SOB_DEMANDA, fatura_ligado: true, fatura_dias_antes: 10 },
-      data ?? [],
-      new Date(),
+      .eq("ativa", true);
+    const contas = ((data ?? []) as ContaNcash[]).filter(
+      (k) => k.saldo !== null && k.saldo !== undefined,
     );
+    const linkBanco = `${SITE_URL}/novarecash/app/banco`;
 
-    return (
-      alerta?.texto ??
-      "Nenhum cartão seu fecha nos próximos 10 dias. Se faltar algum, cadastre em Cartões."
-    );
+    if (c.escopo === "saldo") {
+      // O saldo é o ÚLTIMO CONHECIDO de cada conta (banco ou informado), não
+      // uma soma do extrato — é o mesmo número que o app guarda em `saldo`.
+      const comSaldo = contas.filter((k) => k.tipo !== "cartao");
+      if (comSaldo.length === 0) {
+        return `Ainda não tenho o saldo das suas contas. Conecte o banco no NovareCash (${linkBanco}) e ele entra sozinho.`;
+      }
+      // A data mais recente é escolhida pelo ISO, não pelo "dd/mm" (que ordena
+      // "31/10" depois de "03/11").
+      const maisRecente = comSaldo
+        .map((k) => k.saldo_em)
+        .filter((d): d is string => Boolean(d))
+        .sort()
+        .pop();
+      const dia = diaBrasil(maisRecente ?? null);
+      return [
+        respostaDeSaldo(comSaldo.map((k) => ({ nome: k.nome, saldo: Number(k.saldo) }))),
+        dia ? `Último saldo conhecido (atualizado até ${dia}).` : "",
+      ]
+        .filter(Boolean)
+        .join("\n");
+    }
+
+    const cartoes = contas.filter((k) => k.tipo === "cartao");
+    if (cartoes.length === 0) {
+      return `Ainda não tenho a fatura de nenhum cartão seu. Conecte o banco no NovareCash (${linkBanco}) e ela entra sozinha.`;
+    }
+    return cartoes
+      .map((k) => {
+        const dia = diaBrasil(k.saldo_em);
+        return `*${k.nome}*: ${formatarBRL(Math.abs(Number(k.saldo)))} em aberto${dia ? ` (em ${dia})` : ""}`;
+      })
+      .join("\n");
+  }
+
+  if (c.escopo === "contas") {
+    return "O NovareCash ainda não acompanha contas a pagar. Para ver o mês, mande *resumo*; para um gasto, “quanto gastei com mercado?”.";
   }
 
   if (c.escopo === "resumo") {
-    const { data } = await semApagadosServico<
-      { tipo: string; valor: number; pago: boolean }[]
-    >((filtrar) => {
-      let q = s
-        .from("fin_lancamentos")
-        .select("tipo, valor, pago")
-        .eq("user_id", userId)
-        .gte("data", inicio)
-        .lte("data", fim);
-      if (filtrar) q = q.is("apagado_em", null);
-      return q;
-    });
+    const { inicio, fim } = limitesDoMes(c.ref);
+    const { data } = await s
+      .from("ncash_transacoes")
+      .select("tipo, valor")
+      .eq("user_id", userId)
+      .gte("data", inicio)
+      .lte("data", fim);
 
     let entrou = 0;
     let saiu = 0;
-    let aPagar = 0;
     for (const l of data ?? []) {
       const v = Number(l.valor);
-      if (l.tipo === "receita") {
-        if (l.pago) entrou += v;
-      } else if (l.pago) saiu += v;
-      else aPagar += v;
+      if (l.tipo === "entrada") entrou += v;
+      else saiu += v;
     }
-    return respostaDeResumo({ ref: c.ref, entrou, saiu, aPagar });
+    // O NovareCash não tem "previsto": tudo no extrato já aconteceu.
+    return respostaDeResumo({ ref: c.ref, entrou, saiu, aPagar: 0 });
   }
 
-  let q = s
-    .from("fin_lancamentos")
-    .select("valor")
-    .eq("user_id", userId)
-    .eq("tipo", "despesa")
-    .gte("data", inicio)
-    .lte("data", fim);
-  if (c.categoria_id) q = q.eq("categoria_id", c.categoria_id);
-
-  /* A consulta já está montada acima, então o filtro entra aqui e o fallback
-     refaz sem ele. Mesmo motivo das outras: chave de serviço não vê RLS. */
-  let { data, error: erroConsulta } = await q.is("apagado_em", null);
-  if (erroConsulta && (erroConsulta as { code?: string }).code === "42703") {
-    ({ data } = await q);
-  }
-  const linhas = data ?? [];
-  const total = linhas.reduce((soma, l) => soma + Number(l.valor), 0);
-
-  let orcamento: number | null = null;
-  if (c.categoria_id) {
-    const { data: orc } = await s
-      .from("fin_orcamentos")
-      .select("valor")
-      .eq("user_id", userId)
-      .eq("categoria_id", c.categoria_id)
-      .eq("mes_ref", c.ref)
-      .maybeSingle();
-    orcamento = orc?.valor ? Number(orc.valor) : null;
-  }
+  const { total, quantidade } = await saidasDoMes(userId, c.ref, c.categoria_id);
+  const orcamento = c.categoria_id ? await limiteDaCategoria(userId, c.categoria_id) : null;
 
   return respostaDeConsultaCategoria({
     categoria: c.categoria_nome ?? "Total de gastos",
     ref: c.ref,
     total,
-    quantidade: linhas.length,
+    quantidade,
     orcamento,
   });
 }
@@ -581,62 +816,61 @@ async function responderConsulta(userId: string, c: Consulta): Promise<string> {
  *
  * Só o que veio pelo WhatsApp, e só nas últimas 24h. Deixar o "desfazer" chegar
  * em lançamento feito no app seria dar a um canal sem tela o poder de apagar o
- * que a pessoa digitou com calma em outro lugar.
+ * que a pessoa digitou com calma em outro lugar. Por isso a exclusão exige
+ * TAMBÉM `origem = 'whatsapp'` na própria transação — não basta o log apontar.
+ *
+ * Só olha `ncash_transacao_id`: lançamentos antigos do FINCASH (em
+ * `lancamento_id`) nunca são tocados daqui.
+ *
+ * Conta compartilhada: o LOG é de quem mandou (`userId`) — cada um desfaz só o
+ * que ELE mandou —, e a transação mora no NovareCash do dono (`donoId`).
  */
-async function desfazerUltimo(userId: string): Promise<string> {
+async function desfazerUltimo(userId: string, donoId: string): Promise<string> {
   const s = servico();
   const desde = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
 
   const { data } = await s
     .from("fin_whatsapp_mensagens")
-    .select("id, lancamento_id")
+    .select("id, ncash_transacao_id")
     .eq("user_id", userId)
     .eq("direcao", "entrada")
-    .not("lancamento_id", "is", null)
+    .not("ncash_transacao_id", "is", null)
     .gte("criado_em", desde)
     .order("criado_em", { ascending: false })
     .limit(1);
 
-  const alvo = data?.[0] as { id: string; lancamento_id: string } | undefined;
+  const alvo = data?.[0] as { id: string; ncash_transacao_id: string } | undefined;
   if (!alvo) return respostaNadaParaDesfazer();
 
-  const { data: lanc } = await s
-    .from("fin_lancamentos")
+  const { data: transacao } = await s
+    .from("ncash_transacoes")
     .select("descricao, valor")
-    .eq("id", alvo.lancamento_id)
-    .eq("user_id", userId)
+    .eq("id", alvo.ncash_transacao_id)
+    .eq("user_id", donoId)
+    .eq("origem", "whatsapp")
     .maybeSingle();
 
-  if (!lanc) return respostaNadaParaDesfazer();
+  if (!transacao) return respostaNadaParaDesfazer();
 
-  /* Carimbo, não `delete`: "desfazer" pelo WhatsApp precisa mandar o
-     lançamento para a MESMA lixeira do app, senão o mesmo gesto apaga de vez
-     por um caminho e é recuperável pelo outro. O fallback para `delete` cobre
-     o banco onde `fincash_lixeira.sql` ainda não rodou. */
-  let { error } = await s
-    .from("fin_lancamentos")
-    .update({ apagado_em: new Date().toISOString() })
-    .eq("id", alvo.lancamento_id)
-    .eq("user_id", userId);
+  /* `delete` de verdade: o NovareCash não tem lixeira (não há `apagado_em` em
+     `ncash_transacoes`). O que protege é o filtro triplo — id, dono e origem. */
+  const { error } = await s
+    .from("ncash_transacoes")
+    .delete()
+    .eq("id", alvo.ncash_transacao_id)
+    .eq("user_id", donoId)
+    .eq("origem", "whatsapp");
 
-  if (error && (error as { code?: string }).code === "42703") {
-    ({ error } = await s
-      .from("fin_lancamentos")
-      .delete()
-      .eq("id", alvo.lancamento_id)
-      .eq("user_id", userId));
-  }
-
-  if (error) return "Não consegui apagar agora. Tente pelo app.";
+  if (error) return "Não consegui apagar agora. Tente pelo extrato do NovareCash.";
 
   // Solta o vínculo para "desfazer" duas vezes seguidas não tentar apagar o
   // mesmo lançamento (já morto) em vez de andar para o anterior.
   await s
     .from("fin_whatsapp_mensagens")
-    .update({ lancamento_id: null })
+    .update({ ncash_transacao_id: null })
     .eq("id", alvo.id);
 
-  return respostaDesfeito(lanc.descricao as string, Number(lanc.valor));
+  return respostaDesfeito(transacao.descricao as string, Number(transacao.valor));
 }
 
 /**
@@ -649,30 +883,6 @@ async function desfazerUltimo(userId: string): Promise<string> {
  *
  * Nunca lança: é faxina, não pode derrubar o processamento de uma mensagem.
  */
-/**
- * Repete a consulta sem o filtro da lixeira quando a coluna ainda não existe.
- *
- * POR QUE ISTO PRECISA EXISTIR AQUI TAMBÉM
- * O resto do app fica protegido pela policy restritiva de SELECT criada em
- * `fincash_lixeira.sql`. Este arquivo não: ele usa a chave de SERVIÇO, que
- * passa por cima de toda RLS. Sem filtro explícito, o assistente do WhatsApp
- * responderia "você gastou X em mercado" contando lançamento que a pessoa
- * apagou — e aí dois lugares do mesmo app dão números diferentes, que é o
- * defeito que faz alguém parar de confiar num app de dinheiro.
- *
- * O fallback existe porque `fincash_lixeira.sql` é aditivo e pode não ter sido
- * rodado ainda: melhor responder contando o apagado do que não responder.
- */
-async function semApagadosServico<T>(
-  consulta: (filtrar: boolean) => PromiseLike<{ data: T | null; error: unknown }>,
-) {
-  const r = await consulta(true);
-  const codigo = (r.error as { code?: string } | null)?.code;
-  if (r.error && codigo === "42703") return consulta(false);
-  return r;
-}
-
-
 export async function faxinaEventual(): Promise<void> {
   if (Math.random() > 0.02) return;
   try {
@@ -722,22 +932,31 @@ const JANELA_PROPOSTA_MIN = 15;
  * lembra de ter proposto. Confirmação que envelhece deixa de ser confirmação.
  *
  * Mora no `interpretacao` da própria linha da foto — jsonb que já existe — para
- * não precisar de tabela nem coluna nova. `lancamento_id` nulo é o que marca
- * "ainda não virou lançamento": no momento em que vira, a mesma linha deixa de
- * ser encontrada aqui, e o "sim" repetido não duplica o gasto.
+ * não precisar de tabela nova. Tipo "proposta-foto" com `ncash_transacao_id`
+ * nulo é o que marca "ainda não virou lançamento": no momento em que vira, o
+ * tipo passa a "proposta-foto-gravada", a linha deixa de ser encontrada aqui, e
+ * o "sim" repetido não duplica o gasto (ver `tratarRespostaAProposta`).
+ *
+ * `provedor_msg_id` vem junto porque é o `externo_id` da transação: é a FOTO
+ * que gerou o gasto, e é ela que não pode virar duas transações.
  */
-type PropostaPendente = { id: string; proposta: Proposta; custoCentavos: number };
+type PropostaPendente = {
+  id: string;
+  provedorMsgId: string | null;
+  proposta: Proposta;
+  custoCentavos: number;
+};
 
 async function propostaPendente(userId: string): Promise<PropostaPendente | null> {
   const desde = new Date(Date.now() - JANELA_PROPOSTA_MIN * 60 * 1000).toISOString();
 
   const { data } = await servico()
     .from("fin_whatsapp_mensagens")
-    .select("id, interpretacao")
+    .select("id, provedor_msg_id, interpretacao")
     .eq("user_id", userId)
     .eq("direcao", "entrada")
     .eq("tipo", "imagem")
-    .is("lancamento_id", null)
+    .is("ncash_transacao_id", null)
     .gte("criado_em", desde)
     .order("criado_em", { ascending: false })
     .limit(1);
@@ -745,6 +964,7 @@ async function propostaPendente(userId: string): Promise<PropostaPendente | null
   const linha = data?.[0] as
     | {
         id: string;
+        provedor_msg_id: string | null;
         interpretacao: { tipo?: string; proposta?: Proposta; custo_centavos?: number } | null;
       }
     | undefined;
@@ -754,6 +974,7 @@ async function propostaPendente(userId: string): Promise<PropostaPendente | null
   if (!p || typeof p.valor !== "number") return null;
   return {
     id: linha.id,
+    provedorMsgId: linha.provedor_msg_id,
     proposta: p,
     custoCentavos: Number(linha.interpretacao.custo_centavos ?? 0),
   };
@@ -836,13 +1057,8 @@ async function tratarMidia(
 
     // A partir daqui é uma mensagem de texto como qualquer outra — de novo, um
     // interpretador só para os dois canais.
-    const ctx = await carregarContexto(vinculo.user_id);
-    const intencao = interpretar(r.texto, {
-      ...ctx,
-      contaPadraoId: vinculo.conta_padrao_id,
-      cartaoPadraoId: vinculo.cartao_padrao_id,
-      hoje: agoraNoBrasil(),
-    });
+    const ctx = await carregarContexto(vinculo.dono_id);
+    const intencao = interpretarNoNovareCash(r.texto, vinculo, ctx, agoraNoBrasil());
 
     await executar(vinculo, intencao, mensagemId, msg, {
       transcricao: r.texto,
@@ -907,16 +1123,16 @@ async function tratarRespostaAProposta(
   }
 
   const hoje = agoraNoBrasil();
-  const ctx = await carregarContexto(vinculo.user_id);
-  const intencao = interpretar(fraseDaProposta(pendente.proposta, hoje), {
-    ...ctx,
-    contaPadraoId: vinculo.conta_padrao_id,
-    cartaoPadraoId: vinculo.cartao_padrao_id,
+  const ctx = await carregarContexto(vinculo.dono_id);
+  const intencao = interpretarNoNovareCash(
+    fraseDaProposta(pendente.proposta, hoje),
+    vinculo,
+    ctx,
     hoje,
-  });
+  );
 
   if (intencao.tipo !== "registrar") {
-    // Cai aqui quando falta conta padrão, por exemplo: a pergunta do
+    // Cai aqui quando a origem é ambígua, por exemplo: a pergunta do
     // interpretador é a resposta certa, e a proposta some para o "sim" seguinte
     // não reabrir esta.
     await descartarProposta(pendente);
@@ -930,25 +1146,40 @@ async function tratarRespostaAProposta(
     return true;
   }
 
-  const id = await gravarLancamento(vinculo.user_id, intencao.rascunho);
+  const id = await gravarTransacao(
+    vinculo.dono_id,
+    intencao.rascunho,
+    pendente.provedorMsgId ?? msg.idMensagem,
+  );
   if (!id) {
     await responder({ ...base, texto: "Não consegui salvar agora. Tente de novo em instantes." });
     return true;
   }
 
-  /* O lançamento é carimbado na linha da FOTO, não na do "sim": é a foto que
-     gerou o gasto, é por ela que o `desfazer` procura, e é isso que fecha a
-     proposta para um segundo "sim" não duplicar. */
+  /* A transação é carimbada na linha da FOTO, não na do "sim": é a foto que
+     gerou o gasto, e é por ela que o `desfazer` procura.
+
+     ⚠️ A proposta também troca de tipo ("proposta-foto-gravada"), e é ISSO que
+     a fecha de vez. Só o carimbo não bastaria: o NovareCash apaga de verdade
+     (sem lixeira), o `desfazer` solta o carimbo, e a FK `on delete set null`
+     também — com a linha voltando a ter `ncash_transacao_id` nulo e tipo
+     "proposta-foto", um segundo "sim" dentro da janela regravaria o gasto. */
   await servico()
     .from("fin_whatsapp_mensagens")
-    .update({ lancamento_id: id })
+    .update({
+      ncash_transacao_id: id,
+      interpretacao: {
+        tipo: "proposta-foto-gravada",
+        proposta: pendente.proposta,
+        custo_centavos: pendente.custoCentavos,
+      },
+    })
     .eq("id", pendente.id);
 
-  const alerta = await alertaDeOrcamento(vinculo.user_id, intencao.rascunho);
+  const alerta = await alertaDeOrcamento(vinculo.dono_id, intencao.rascunho);
   await responder({
     ...base,
     interpretacao: intencao as unknown,
-    lancamentoId: id,
     texto: [respostaDeRegistro(intencao.rascunho), alerta].filter(Boolean).join("\n\n"),
   });
   return true;
@@ -982,6 +1213,10 @@ export async function processarMensagem(msg: MensagemRecebida): Promise<void> {
 
     if (!vinculo) {
       const tentativa = await tentarVincular(msg.de, msg.texto, recentes);
+      if (tentativa?.semAssinatura) {
+        await responderSemAssinatura(msg.de, tentativa.user_id ?? null, mensagemId);
+        return;
+      }
       if (tentativa?.ok) {
         await responder({
           telefone: msg.de,
@@ -994,16 +1229,23 @@ export async function processarMensagem(msg: MensagemRecebida): Promise<void> {
       await responder({
         telefone: msg.de,
         userId: null,
-        texto: tentativa ? respostaCodigoInvalido() : respostaNaoVinculado(),
+        texto: tentativa ? respostaCodigoInvalido(SITE_URL) : respostaNaoVinculado(SITE_URL),
         mensagemId,
       });
       return;
     }
 
+    // Trava de assinante (NovareCash): vinculado sem acesso recebe o aviso e
+    // NADA é processado — nem lançamento, nem mídia baixada, nem consulta.
+    if (!(await temNovareCash(vinculo.user_id))) {
+      await responderSemAssinatura(msg.de, vinculo.user_id, mensagemId);
+      return;
+    }
+
     if (msg.tipo !== "texto") {
       // Vídeo e documento continuam de fora: são caros de processar e quase
-      // nunca são comprovante — quem manda PDF de fatura quer o importador de
-      // OFX, que já existe no app.
+      // nunca são comprovante — e o extrato do banco já entra sozinho pelo
+      // Open Finance do NovareCash.
       if (!tipoProcessavel(msg.tipo) || !midiaInterpretavel()) {
         await responder({
           telefone: msg.de,
@@ -1021,15 +1263,10 @@ export async function processarMensagem(msg: MensagemRecebida): Promise<void> {
     // Vem antes do interpretador porque para ele "sim" é conversa fiada.
     if (await tratarRespostaAProposta(vinculo, msg, mensagemId)) return;
 
-    const ctx = await carregarContexto(vinculo.user_id);
-    const intencao: Intencao = interpretar(msg.texto, {
-      ...ctx,
-      contaPadraoId: vinculo.conta_padrao_id,
-      cartaoPadraoId: vinculo.cartao_padrao_id,
-      // O "hoje" do usuário, não o do servidor. A Vercel roda em UTC e, depois
-      // das 21h no Brasil, um gasto de hoje seria gravado amanhã.
-      hoje: agoraNoBrasil(),
-    });
+    const ctx = await carregarContexto(vinculo.dono_id);
+    // O "hoje" do usuário, não o do servidor. A Vercel roda em UTC e, depois
+    // das 21h no Brasil, um gasto de hoje seria gravado amanhã.
+    const intencao = interpretarNoNovareCash(msg.texto, vinculo, ctx, agoraNoBrasil());
 
     await executar(vinculo, intencao, mensagemId, msg);
   } catch (e) {
@@ -1064,7 +1301,8 @@ async function executar(
 
   switch (intencao.tipo) {
     case "registrar": {
-      const id = await gravarLancamento(vinculo.user_id, intencao.rascunho);
+      // `externo_id` = id DESTA mensagem no provedor (texto ou áudio).
+      const id = await gravarTransacao(vinculo.dono_id, intencao.rascunho, msg.idMensagem);
       if (!id) {
         await responder({
           ...base,
@@ -1072,10 +1310,10 @@ async function executar(
         });
         return;
       }
-      const alerta = await alertaDeOrcamento(vinculo.user_id, intencao.rascunho);
+      const alerta = await alertaDeOrcamento(vinculo.dono_id, intencao.rascunho);
       await responder({
         ...base,
-        lancamentoId: id,
+        transacaoId: id,
         texto: comAudio(
           [respostaDeRegistro(intencao.rascunho), alerta].filter(Boolean).join("\n\n"),
         ),
@@ -1086,12 +1324,12 @@ async function executar(
     case "consulta":
       await responder({
         ...base,
-        texto: comAudio(await responderConsulta(vinculo.user_id, intencao.consulta)),
+        texto: comAudio(await responderConsulta(vinculo.dono_id, intencao.consulta)),
       });
       return;
 
     case "desfazer":
-      await responder({ ...base, texto: comAudio(await desfazerUltimo(vinculo.user_id)) });
+      await responder({ ...base, texto: comAudio(await desfazerUltimo(vinculo.user_id, vinculo.dono_id)) });
       return;
 
     case "indefinido":
@@ -1117,7 +1355,7 @@ async function executar(
  * Brasil cairia no dia seguinte — e no dia 30, no mês seguinte, que é onde isso
  * deixa de ser detalhe e vira fechamento errado.
  *
- * Fuso fixo em America/Sao_Paulo: o FINCASH é de cliente brasileiro, e
+ * Fuso fixo em America/Sao_Paulo: o NovareCash é de cliente brasileiro, e
  * inferir fuso pelo DDD acerta menos que assumir.
  */
 function agoraNoBrasil(): Date {

@@ -23,7 +23,11 @@ export type LeadTipo =
   // Baixou o PDF do resultado numa ferramenta (20/10/2026). O PDF só libera
   // com nome, e-mail e WhatsApp, e o `payload.ferramenta` diz de onde veio —
   // é a lista que o Jefferson usa para ligar.
-  | "relatorio";
+  | "relatorio"
+  // Entrou na Lista VIP do NovareCash (/novarecash, 03/11/2026) enquanto o
+  // preço não está definido. É o lead mais perto da compra que a casa tem:
+  // a pessoa leu a página de venda inteira e pediu para ser avisada.
+  | "novarecash";
 
 /**
  * Grava um lead captado numa isca (calculadora ou landing page) na tabela

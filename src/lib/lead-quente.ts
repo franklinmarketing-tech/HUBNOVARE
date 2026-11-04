@@ -44,6 +44,7 @@ const FEZ_FORTE: Record<string, string> = {
   "saude-financeira": "fez o Exame",
   "vida-plan": "montou o FINPLAN",
   produto: "pediu um serviço",
+  novarecash: "Lista VIP NovareCash",
 };
 const FEZ_LEVE: Record<string, string> = { guia: "baixou eBook", cupom: "pegou cupom" };
 const QUARENTA_E_OITO_HORAS = 48 * 60 * 60 * 1000;
@@ -149,6 +150,8 @@ export function oQueFez(l: { tipo: string | null; payload: Record<string, unknow
       return produto ? `se interessou por ${produto}` : "se interessou por um dos nossos serviços";
     case "cupom":
       return "pegou um cupom no nosso site";
+    case "novarecash":
+      return "entrou na Lista VIP do NovareCash";
     default:
       return ferramenta ? `usou a ferramenta ${ferramenta}` : "usou uma das nossas ferramentas";
   }

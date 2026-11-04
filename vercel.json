@@ -3,6 +3,15 @@
   "functions": {
     "src/app/api/whatsapp/webhook/route.ts": {
       "maxDuration": 30
+    },
+    "src/app/api/novarecash/lembretes/route.ts": {
+      "maxDuration": 60
     }
-  }
+  },
+  "crons": [
+    {
+      "path": "/api/novarecash/lembretes",
+      "schedule": "0 12 * * *"
+    }
+  ]
 }

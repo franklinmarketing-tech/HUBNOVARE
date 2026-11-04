@@ -12,6 +12,7 @@
 // quadrada da lista do News usa `object-right`, então mostra a arte, não meia frase cortada.
 // `*palavra*` no título sai em laranja. `x` empurra a arte para a direita quando o objeto dela
 // está no centro e ficaria embaixo do texto. `baixo` desce o texto quando a arte cruza o meio da capa.
+// `arte` reaproveita a arte de outro slug, para matéria nova sem gastar crédito de imagem.
 import { chromium } from "playwright";
 import sharp from "sharp";
 import { readFileSync, existsSync } from "node:fs";
@@ -22,6 +23,11 @@ const AQUI = dirname(fileURLToPath(import.meta.url));
 const RAIZ = join(AQUI, "..", "..");
 
 const CAPAS = {
+  // A quarta leva (03/11/2026) reaproveita artes já guardadas: ver `arte`.
+  "bolsa-depois-da-eleicao-o-que-2014-ensina": { chamada: "Ibovespa −13,88% num dia", titulo: "O que *2014* ensina sobre a queda", x: 260, arte: "copom-pode-parar-de-cortar-a-selic" },
+  "renda-fixa-depois-da-eleicao-juros-futuros-tesouro-e-cdi": { chamada: "Prefixado a 15,4%", titulo: "Renda fixa *depois da eleição*", x: 120, arte: "cdi-ganhou-de-tudo-desde-2021-e-agora" },
+  "pnad-continua-desemprego-renda-e-juros": { chamada: "Desemprego 5,2%", titulo: "O emprego que *segura os juros*", x: 160, arte: "payroll-o-emprego-americano-e-o-seu-dinheiro" },
+  "pib-dos-eua-3-trimestre-2026-economia-forte-fed-dividido": { chamada: "EUA crescem 3,4%", titulo: "Economia forte, *Fed dividido*", x: 140, arte: "divida-americana-por-que-os-juros-de-la-mexem-com-o-brasil" },
   "divida-americana-por-que-os-juros-de-la-mexem-com-o-brasil": { chamada: "Dívida dos EUA: 120% do PIB", titulo: "Os juros de lá mexem com a *Selic daqui*", x: 140 },
   "credito-privado-com-desagio-vender-ou-esperar": { chamada: "Crédito privado", titulo: "Deságio: *vender* ou *esperar*?", x: 160 },
   "cdi-ganhou-de-tudo-desde-2021-e-agora": { chamada: "5 anos invicto", titulo: "O CDI ganhou *de tudo*. E agora?", x: 120 },
@@ -80,7 +86,7 @@ const navegador = await chromium.launch();
 const pagina = await navegador.newPage({ viewport: { width: W, height: H } });
 for (const slug of slugs) {
   const capa = CAPAS[slug];
-  const arte = join(AQUI, "arte", `${slug}.webp`);
+  const arte = join(AQUI, "arte", `${capa?.arte ?? slug}.webp`);
   if (!capa || !existsSync(arte)) throw new Error(`Sem texto ou sem arte para "${slug}"`);
   await pagina.setContent(html(capa, b64(arte)));
   await pagina.evaluate(() => document.fonts.ready);

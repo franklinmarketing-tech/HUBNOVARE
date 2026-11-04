@@ -170,6 +170,13 @@ export function TelaWhatsApp({
   const carregar = useCallback(async () => {
     const supabase = createClient();
 
+    /* ⚠️ `user_id` explícito nas contas e cartões (03/11/2026, NovareCash): a
+       policy "fincash: equipe le" deixa admin/equipe LER as contas de todos os
+       clientes, e esta tela — reaproveitada em /novarecash/app/whatsapp, onde a
+       equipe testa — listaria contas de estranhos como "origem padrão". */
+    const { data: sessao } = await supabase.auth.getUser();
+    const eu = sessao.user?.id ?? "";
+
     /* Tudo de uma vez: são quatro consultas independentes, e encadeá-las só
        somaria a latência de cada uma numa tela que a pessoa abre para resolver
        uma coisa só. */
@@ -180,8 +187,8 @@ export function TelaWhatsApp({
         .select("confirmado_em")
         .not("confirmado_em", "is", null)
         .maybeSingle(),
-      supabase.from("fin_contas").select("*").eq("arquivada", false).order("criado_em"),
-      supabase.from("fin_cartoes").select("*").eq("arquivado", false).order("criado_em"),
+      supabase.from("fin_contas").select("*").eq("user_id", eu).eq("arquivada", false).order("criado_em"),
+      supabase.from("fin_cartoes").select("*").eq("user_id", eu).eq("arquivado", false).order("criado_em"),
     ]);
 
     // `faltaTabela` reconhece os dois códigos (Postgres 42P01 e PostgREST

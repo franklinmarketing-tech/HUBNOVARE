@@ -103,6 +103,316 @@ export type Artigo = {
 };
 
 export const ARTIGOS: Artigo[] = [
+  /* ── A QUARTA LEVA (03/11/2026), depois do 2º turno ──────────────────────
+     Os TEMAS são os de quatro posts da Nord, mas aqui nada vem da Nord: nem
+     texto nem número. O dono pediu os mesmos assuntos, e os textos de lá nem
+     foram abertos — cada número saiu da fonte primária (IBGE/SIDRA, BEA, Fed,
+     Tesouro Transparente, Focus do BC, B3 via imprensa econômica). Por isso o
+     campo `fonte` credita a fonte oficial, e não a Nord.
+
+     ⚠️ NÃO REPETEM AS MATÉRIAS DE 19/10. A do PIB americano explicou o que é
+     "anualizado" com o 2º trimestre; a de depois do 1º turno falou do rali.
+     Estas trazem o número novo e citam as anteriores pelo título.
+
+     ⚠️ CONTINUAM SEM LADO POLÍTICO: o resultado entra como fato, e o que se
+     discute é o que o mercado observa — contas públicas, inflação, juros. */
+  {
+    slug: "bolsa-depois-da-eleicao-o-que-2014-ensina",
+    titulo: "Bolsa depois da eleição: o que 2014 ensina (e o que não ensina) sobre a queda de 2026",
+    resumo:
+      "O Ibovespa caiu quase 14% no dia seguinte ao 2º turno e já perdeu perto de 20%. Em 2014, o tombo do primeiro dia foi pequeno: o estrago de verdade veio devagar, ao longo de um ano. Entender a diferença ajuda a não decidir no susto.",
+    categoria: "investimentos",
+    data: "2026-11-03",
+    tempoLeituraMin: 6,
+    capa: "/news/bolsa-depois-da-eleicao-o-que-2014-ensina.webp",
+    corpo: [
+      "Lula foi reeleito no 2º turno de 25 de outubro, com cerca de 51,8% dos votos válidos. No dia seguinte, o Ibovespa caiu 13,88% e fechou em 176.608 pontos. O circuit breaker, a pausa automática que a B3 aciona em quedas fortes, disparou pela primeira vez desde a pandemia. O dólar subiu mais de 8% num só dia e passou de R$ 5,40.",
+      "E não parou aí. Na terça-feira, 3 de novembro, a bolsa fechou a sexta queda seguida, perto de 165,5 mil pontos: cerca de 19% abaixo do último pregão antes do 2º turno. O dólar foi a R$ 5,49, o nível mais alto desde o fim de 2025.",
+      "Quem tem ações quer saber se isso é o começo de algo longo ou um exagero que passa. A eleição mais lembrada para essa comparação é a de 2014. Ela ensina bastante — mas não tudo.",
+      { tipo: "titulo", texto: "O que aconteceu em 2014" },
+      "Em 26 de outubro de 2014, Dilma Rousseff foi reeleita com pouco mais de 51% dos votos válidos. No dia seguinte, o Ibovespa chegou a cair 6,2% pela manhã e fechou em queda de 2,77%, aos 50.503 pontos. As ações da Petrobras perderam mais de 11%.",
+      "Só que, na mesma semana, o índice virou e terminou com alta de 5,18%. Três dias depois da eleição, o Banco Central surpreendeu e subiu a Selic de 11% para 11,25%. Quem olhasse só para aquela semana diria que o susto tinha passado.",
+      "Não tinha. O estrago de verdade veio devagar, ao longo do ano seguinte.",
+      {
+        tipo: "tabela",
+        cabecalho: ["Quando", "Ibovespa", "O que estava acontecendo"],
+        linhas: [
+          ["27/10/2014, dia seguinte à eleição", "50.503 pontos (−2,77%)", "Reação ao resultado"],
+          ["Primeira semana", "+5,18%", "Alívio rápido; Selic sobe para 11,25%"],
+          ["Fim de 2014", "50.007 pontos", "O ano fecha com −2,91%"],
+          ["Fim de 2015", "43.349 pontos (−13,31% no ano)", "Inflação de 10,67%, PIB −3,5%, Selic a 14,25%, perda do grau de investimento, dólar +48,5%"],
+          ["Fim de 2016", "60.227 pontos (+38,93% no ano)", "Commodities sobem; a Selic começa a cair em outubro"],
+        ],
+        legenda: "Fontes: B3, IBGE, Banco Central e imprensa econômica da época.",
+      },
+      { tipo: "titulo", texto: "A lição que 2014 deixa" },
+      "Em 2014, a bolsa não despencou por causa de um domingo. Ela caiu ao longo de 2015, à medida que as contas do governo não fecharam, a inflação passou de 10%, os juros subiram até 14,25% e a economia entrou em recessão. Do dia seguinte à eleição até o fim de 2015, o Ibovespa perdeu cerca de 14% — e quase nada disso aconteceu na primeira semana.",
+      "A recuperação também não veio de um dia para o outro. Só em 2016, quando a expectativa para a inflação e os juros mudou, o índice subiu quase 39%.",
+      { tipo: "destaque", texto: "O resultado da eleição dispara a reação. Quem decide se a queda fica é o que vem depois: as contas públicas, a inflação e os juros." },
+      { tipo: "titulo", texto: "O que 2014 não ensina" },
+      {
+        tipo: "lista",
+        itens: [
+          "O tamanho: em 2014, o primeiro dia caiu 2,77%. Em 2026, caiu 13,88% — cinco vezes mais. Não é a mesma reação em escala maior: é outro tipo de movimento.",
+          "O ponto de partida: entre os dois turnos de 2026, o Ibovespa tinha subido 6,75%, porque boa parte do mercado apostava no resultado oposto. Parte da queda é essa aposta sendo desfeita — o que, sozinho, não diz se o preço de hoje está caro ou barato.",
+          "A economia de fundo: em 2014, o país já caminhava para a recessão. Em 2026, o desemprego está em 5,2%, perto da mínima da série, e a Selic, em 13,75%. Os riscos são outros, e a história não se repete no mesmo roteiro.",
+          "A média do passado: de 1989 a 2022, a bolsa fechou a primeira semana depois da eleição em alta em oito de nove vezes. Em 2026, não fechou. Estatística de eleição tem poucos casos, e cada um tem a sua história.",
+        ],
+      },
+      { tipo: "titulo", texto: "O que observar daqui para a frente" },
+      "Em vez do placar de cada pregão, os sinais que pesaram em 2014 e voltam a pesar agora:",
+      {
+        tipo: "lista",
+        ordenada: true,
+        itens: [
+          "As contas públicas: que metas o governo vai perseguir no novo mandato e quem vai conduzir a política econômica.",
+          "Os juros: a decisão do Copom desta quarta-feira, 4 de novembro, e o que o comunicado disser sobre as próximas reuniões.",
+          "A inflação: se a alta do dólar começar a aparecer nos preços, o espaço para cortar juros diminui.",
+          "Os juros longos: quando as taxas dos títulos públicos de prazo longo param de subir, é sinal de que o mercado parou de exigir mais prêmio para financiar o país.",
+        ],
+      },
+      "Para quem investe, a pergunta útil no meio da tempestade não é \"vendo ou fico?\". É se o dinheiro que está em ações pode ficar lá por anos, e se a parte da carteira em bolsa é a que você aguenta ver cair 20% sem mudar de planos. Se a resposta for não, o ajuste é na divisão da carteira — e essa decisão, tomada no susto, costuma sair cara.",
+      "Por que algumas ações caem (e antes sobem) muito mais que o índice está explicado em \"Eleição e bolsa: por que algumas ações sobem (ou caem) muito mais que outras\", aqui no Novare News. E se a vontade de mexer vem mais da torcida que dos números, vale ler \"Você investe ou torce?\".",
+    ],
+    ferramenta: {
+      slug: "consultoria-revisao-carteira",
+      nome: "Pedir uma análise independente da carteira",
+      href: "https://diagnostico.novareapp.com.br/carteira-pontual",
+      externo: true,
+    },
+    fonte: {
+      nome: "Exame",
+      titulo: "Investidor rejeita resultado das urnas e bolsa tem pior semana pós-eleição em 37 anos",
+      href: "https://exame.com/invest/mercados/investidor-rejeita-resultado-das-urnas-e-bolsa-tem-pior-semana-pos-eleicao-em-37-anos/",
+      data: "2026-10-30",
+    },
+  },
+  {
+    slug: "renda-fixa-depois-da-eleicao-juros-futuros-tesouro-e-cdi",
+    titulo: "Renda fixa depois da eleição: o que aconteceu com os juros futuros, o Tesouro e o CDI",
+    resumo:
+      "Em uma semana, um prefixado de 2032 foi de 12,9% para 15,4% ao ano e perdeu cerca de 10% de preço. O pós-fixado mal sentiu. O que mudou, o que não mudou e o que observar antes de mexer.",
+    categoria: "investimentos",
+    data: "2026-11-03",
+    tempoLeituraMin: 6,
+    capa: "/news/renda-fixa-depois-da-eleicao-juros-futuros-tesouro-e-cdi.webp",
+    corpo: [
+      "No último pregão antes do 2º turno, em 23 de outubro, o Tesouro Direto oferecia um prefixado com vencimento em 2032 a 12,90% ao ano. Na segunda-feira depois da eleição, a taxa foi a 15,78%. No fim da semana, estava em 15,38% — acima até dos 14,15% de antes do 1º turno.",
+      "Em outras palavras: a queda de juros que veio depois do 1º turno, e que contamos em \"Prefixado ou IPCA+? O que muda na renda fixa em ano de eleição\", foi devolvida inteira em um dia.",
+      { tipo: "titulo", texto: "O que aconteceu nos juros futuros" },
+      "Os juros futuros, os contratos de DI negociados na B3, são a aposta do mercado para o CDI dos próximos anos. É deles que o Tesouro, os bancos e as empresas tiram a referência para remunerar os títulos novos.",
+      "No dia 26, o DI para janeiro de 2031 saiu de 12,64% para 15,185% no fechamento: mais de 2,5 pontos num só dia. Pela manhã, chegou a encostar em 15,94%. Vários contratos bateram no limite de oscilação da B3, e a negociação precisou ser interrompida.",
+      "O Tesouro Nacional cancelou os leilões de títulos prefixados e atrelados à inflação daquela semana e recomprou cerca de R$ 14,8 bilhões desses papéis no mesmo dia. É uma operação comum em dia de estresse: garante que exista comprador quando muita gente quer vender ao mesmo tempo.",
+      { tipo: "titulo", texto: "As taxas do Tesouro Direto, antes e depois" },
+      {
+        tipo: "tabela",
+        cabecalho: ["Título", "2/10 (antes do 1º turno)", "23/10 (antes do 2º turno)", "26/10", "30/10"],
+        linhas: [
+          ["Prefixado 2029", "13,83%", "12,77%", "15,40%", "14,89%"],
+          ["Prefixado 2032", "14,15%", "12,90%", "15,78%", "15,38%"],
+          ["IPCA+ 2035", "IPCA + 7,55%", "IPCA + 6,76%", "IPCA + 8,02%", "IPCA + 7,88%"],
+          ["IPCA+ 2050", "IPCA + 7,06%", "IPCA + 6,48%", "IPCA + 7,64%", "IPCA + 7,27%"],
+          ["Tesouro Selic 2029", "Selic + 0,05%", "Selic + 0,05%", "Selic + 0,05%", "Selic + 0,06%"],
+        ],
+        legenda: "Taxa de compra na abertura de cada dia, no Tesouro Direto. Fonte: Tesouro Transparente.",
+      },
+      { tipo: "titulo", texto: "Quanto isso mexeu no preço" },
+      "Quando a taxa sobe, o título que você já tem passa a valer menos, porque os novos pagam mais. É a marcação a mercado. Veja o que aconteceu com o preço de venda antecipada de cada título entre 23 e 30 de outubro:",
+      {
+        tipo: "tabela",
+        cabecalho: ["Título", "Variação do preço em uma semana"],
+        linhas: [
+          ["Prefixado 2032", "−10,3%"],
+          ["IPCA+ 2035", "−8,3%"],
+          ["IPCA+ 2050", "−15,9%"],
+          ["Tesouro Selic 2029", "+0,2%"],
+        ],
+        legenda: "Preço unitário de recompra no Tesouro Direto, 23/10 contra 30/10/2026.",
+      },
+      "A tabela mostra a regra que vale para qualquer título: quanto mais longo o vencimento, maior o tombo quando as taxas sobem. O IPCA+ 2050 perdeu mais que o prefixado 2032 mesmo com uma alta de taxa menor, porque o prazo é muito maior. E o pós-fixado, que acompanha a Selic, seguiu rendendo como se nada tivesse acontecido.",
+      { tipo: "destaque", texto: "A eleição não mudou quanto o título paga a quem leva até o vencimento. Mudou quanto ele vale hoje — e isso só vira perda de verdade para quem vende antes." },
+      { tipo: "titulo", texto: "E o CDI?" },
+      "O CDI anda colado na Selic, que está em 13,75%. Antes da eleição, o mercado dava como quase certo um corte de 0,25 ponto na reunião do Copom desta quarta-feira, 4 de novembro. No fim do dia 26, a curva de juros já embutia manutenção agora e altas nas reuniões seguintes.",
+      "O Focus, a pesquisa semanal do Banco Central com o mercado, registrou a virada:",
+      {
+        tipo: "tabela",
+        cabecalho: ["Projeção para a Selic", "Antes do 2º turno (23/10)", "Depois (30/10)"],
+        linhas: [
+          ["Fim de 2026", "13,25%", "13,50%"],
+          ["Fim de 2027", "11,75%", "12,50%"],
+          ["Fim de 2028", "10,00%", "11,00%"],
+        ],
+        legenda: "Mediana do Boletim Focus. Entre quem respondeu nos últimos cinco dias úteis, a projeção para o fim de 2026 já é de 13,75% — ou seja, sem corte.",
+      },
+      "A inflação esperada para 2027 também subiu, de 4,34% para 4,76%. Na prática, quem está no pós-fixado deve continuar recebendo CDI alto por mais tempo do que se imaginava há duas semanas.",
+      { tipo: "titulo", texto: "O que observar antes de mexer" },
+      {
+        tipo: "lista",
+        ordenada: true,
+        itens: [
+          "O comunicado do Copom de 4 de novembro: mais importante que a decisão é o que ele disser sobre as próximas reuniões.",
+          "Os sinais sobre as contas públicas no novo mandato: é deles que depende o prêmio que o mercado cobra nos títulos longos.",
+          "O dólar: perto de R$ 5,49, ele pressiona a inflação dos próximos meses — e inflação mais alta segura os juros.",
+          "O seu prazo: dinheiro que pode ser necessário antes do vencimento não combina com um título que oscila 10% numa semana.",
+        ],
+      },
+      "Taxa alta é ao mesmo tempo oportunidade e aviso: ela paga mais porque o mercado está enxergando mais risco. Antes de trocar um título por outro, vale responder três perguntas — para que serve esse dinheiro, quando você vai precisar dele e quanto do patrimônio já depende do mesmo cenário. Fazer a conta com o vencimento e o imposto certos evita trocar um susto por outro.",
+    ],
+    ferramenta: {
+      slug: "tesouro-direto",
+      nome: "Simulador Tesouro Direto",
+      href: "/ferramentas/tesouro-direto",
+    },
+    fonte: {
+      nome: "Tesouro Nacional (Tesouro Transparente)",
+      titulo: "Taxas dos títulos ofertados pelo Tesouro Direto",
+      href: "https://www.tesourotransparente.gov.br/ckan/dataset/taxas-dos-titulos-ofertados-pelo-tesouro-direto",
+      data: "2026-10-30",
+    },
+  },
+  {
+    slug: "pnad-continua-desemprego-renda-e-juros",
+    titulo: "PNAD Contínua: desemprego de 5,2%, renda em alta — e por que isso mexe com os juros",
+    resumo:
+      "O IBGE mostrou o menor desemprego para um 3º trimestre desde 2012 e a renda do trabalho crescendo acima da inflação. Notícia boa para quem trabalha — e um dos motivos para o Banco Central não ter pressa de baixar os juros.",
+    categoria: "investimentos",
+    data: "2026-11-03",
+    tempoLeituraMin: 5,
+    capa: "/news/pnad-continua-desemprego-renda-e-juros.webp",
+    corpo: [
+      "Todo mês, o IBGE divulga a PNAD Contínua, a pesquisa que mede o emprego no Brasil. Ela é feita visitando domicílios no país inteiro e, por isso, enxerga também quem trabalha sem carteira: o autônomo, o informal, o motorista de aplicativo.",
+      { tipo: "titulo", texto: "Como ler a PNAD sem se confundir" },
+      {
+        tipo: "lista",
+        itens: [
+          "Trimestre móvel: cada divulgação mostra a média de três meses. O número de 30 de outubro cobre julho, agosto e setembro; o próximo cobrirá agosto, setembro e outubro.",
+          "Desocupado não é quem está sem trabalho: é quem está sem trabalho E procurou emprego. Quem desistiu de procurar fica fora da taxa — e aparece em outro indicador, o de subutilização.",
+          "Rendimento real: é o que as pessoas ganham, já descontada a inflação. Se ele sobe, o poder de compra subiu de verdade.",
+          "Não é o Caged: o Caged, do Ministério do Trabalho, conta só as vagas com carteira assinada, a partir do que as empresas informam. A PNAD pergunta às pessoas e pega o mercado inteiro.",
+        ],
+      },
+      { tipo: "titulo", texto: "O que saiu em 30 de outubro" },
+      {
+        tipo: "tabela",
+        cabecalho: ["Indicador", "Jul–set 2026", "Abr–jun 2026", "Jul–set 2025"],
+        linhas: [
+          ["Taxa de desemprego", "5,2%", "5,4%", "5,6%"],
+          ["Pessoas desocupadas", "5,6 milhões", "5,9 milhões", "6,0 milhões"],
+          ["Pessoas ocupadas", "103,6 milhões", "103,1 milhões", "102,4 milhões"],
+          ["Informalidade", "37,5%", "37,4%", "37,8%"],
+          ["Subutilização", "13,0%", "12,9%", "13,9%"],
+          ["Rendimento médio real", "R$ 3.790", "R$ 3.753", "R$ 3.660"],
+          ["Massa de rendimentos, por mês", "R$ 387,5 bilhões", "R$ 381,9 bilhões", "R$ 370,0 bilhões"],
+        ],
+        legenda: "PNAD Contínua, IBGE. Rendimento habitual de todos os trabalhos, já descontada a inflação.",
+      },
+      "O desemprego de 5,2% é o menor para um terceiro trimestre desde 2012, quando a série começou, e fica perto da mínima histórica, de 5,1%, registrada no fim de 2025. Em um ano, 1,2 milhão de pessoas a mais passaram a trabalhar. E a renda média subiu 3,6% acima da inflação.",
+      "Somando o que todos os trabalhadores recebem — a chamada massa de rendimentos —, são R$ 387,5 bilhões por mês, 4,7% a mais que um ano antes, já descontada a inflação. É esse dinheiro que vira consumo.",
+      { tipo: "titulo", texto: "Por que emprego bom pode segurar os juros" },
+      "Parece contraditório: uma notícia boa para quem trabalha é lida com cautela pelo Banco Central. A lógica é esta:",
+      {
+        tipo: "lista",
+        ordenada: true,
+        itens: [
+          "Mais gente trabalhando e ganhando mais significa mais dinheiro sendo gasto.",
+          "Com as empresas disputando trabalhador, os salários sobem — e quem mais sente são os serviços, em que o salário é o principal custo: restaurante, salão, escola, conserto.",
+          "Preço de serviço costuma subir e ficar. É a inflação mais difícil de derrubar.",
+          "Para esfriar essa pressão, o Banco Central mantém os juros altos por mais tempo.",
+        ],
+      },
+      "Foi justamente a inflação de serviços que acendeu o alerta no IPCA de setembro, como mostramos em \"A Selic pode parar de cair\", aqui no Novare News. Um mercado de trabalho apertado é o combustível desse tipo de inflação. Somado à alta do dólar depois da eleição, ajuda a explicar por que a maioria dos analistas passou a esperar uma pausa nos cortes da Selic na reunião do Copom de 4 de novembro.",
+      { tipo: "destaque", texto: "Para o Banco Central, desemprego baixo e renda subindo são sinais de economia aquecida. E economia aquecida demais é o que mantém os juros altos." },
+      { tipo: "titulo", texto: "E no seu bolso?" },
+      {
+        tipo: "lista",
+        itens: [
+          "Quem trabalha: emprego mais fácil de achar e salário subindo acima da inflação. É o lado bom, e ele é real.",
+          "Quem tem dívida ou planeja financiar: juros altos por mais tempo deixam o crédito caro. Vale simular o custo total antes de assumir parcela longa.",
+          "Quem investe: o pós-fixado continua rendendo bem enquanto a Selic fica alta. Do outro lado, bolsa e títulos longos perdem um dos motores de alta, que é a expectativa de juros caindo.",
+          "Quem ainda não tem reserva de emergência: período de emprego firme é a melhor hora para montá-la, não a pior. Quando o mercado de trabalho vira, a reserva já precisa estar pronta.",
+        ],
+      },
+      "A próxima PNAD, com o trimestre de agosto a outubro, sai em 27 de novembro. O que vale observar não é um décimo a mais ou a menos na taxa, e sim a renda: se ela continuar subindo bem acima da inflação, a pressão sobre os serviços — e sobre os juros — continua.",
+    ],
+    ferramenta: {
+      slug: "reserva-emergencia",
+      nome: "Reserva de Emergência",
+      href: "/ferramentas/reserva",
+    },
+    fonte: {
+      nome: "IBGE",
+      titulo: "Desocupação fica em 5,2%, a menor para um terceiro trimestre desde 2012",
+      href: "https://agenciadenoticias.ibge.gov.br/agencia-noticias/2012-agencia-de-noticias/noticias/48411-30-10-noticia-2",
+      data: "2026-10-30",
+    },
+  },
+  {
+    slug: "pib-dos-eua-3-trimestre-2026-economia-forte-fed-dividido",
+    titulo: "PIB dos EUA cresce 3,4% no 3º trimestre: economia forte, inflação teimosa e um Fed dividido",
+    resumo:
+      "A economia americana acelerou de 2,2% para 3,4% anualizados, puxada por investimento e consumo. A inflação do trimestre esfriou, mas a de 12 meses segue longe da meta — e dois dirigentes do Fed já votaram por subir os juros.",
+    categoria: "investimentos",
+    data: "2026-11-03",
+    tempoLeituraMin: 5,
+    capa: "/news/pib-dos-eua-3-trimestre-2026-economia-forte-fed-dividido.webp",
+    corpo: [
+      "O BEA, o órgão do governo americano que calcula o PIB, divulgou em 29 de outubro a primeira estimativa para o terceiro trimestre de 2026: crescimento de 3,4% anualizado, contra 2,2% no trimestre anterior. Em ritmo trimestral, sem anualizar, foram 0,8%.",
+      "Se a ideia de número \"anualizado\" ainda confunde, ela está explicada em \"PIB dos EUA: por que a maior economia do mundo mexe com o seu bolso\", aqui no Novare News. Este texto é sobre o que mudou de lá para cá.",
+      { tipo: "titulo", texto: "O que puxou a aceleração" },
+      {
+        tipo: "lista",
+        itens: [
+          "Investimento: o maior empurrão veio dos estoques das empresas e da compra de equipamentos, principalmente computadores e equipamentos de processamento de dados.",
+          "Consumo das famílias: subiu nos serviços, com saúde, restaurantes e hospedagem à frente, e nos bens, com destaque para remédios com receita.",
+          "Governo: o gasto federal subiu, mas por um detalhe contábil. O governo vendeu menos petróleo da sua reserva estratégica do que no trimestre anterior, e essas vendas entram subtraindo do gasto público. Segundo o próprio BEA, isso não tem efeito direto no PIB.",
+          "Comércio exterior: as exportações caíram, puxadas por petróleo e derivados, e as importações subiram, lideradas por bens de capital. As duas coisas pesaram contra.",
+        ],
+      },
+      "Para medir a força de verdade da economia, os economistas olham um número que deixa de fora os estoques, o governo e o comércio exterior: as vendas finais a compradores privados domésticos, que somam o consumo e o investimento fixo. Elas cresceram 4,9%, ainda mais que os 4,6% do trimestre anterior.",
+      {
+        tipo: "tabela",
+        cabecalho: ["Indicador (anualizado)", "2º tri 2026", "3º tri 2026"],
+        linhas: [
+          ["PIB", "2,2%", "3,4%"],
+          ["Vendas finais a compradores privados domésticos", "4,6%", "4,9%"],
+          ["Inflação do consumo (PCE)", "5,0%", "2,1%"],
+          ["PCE sem alimentos e energia", "3,3%", "2,5%"],
+        ],
+        legenda: "Primeira estimativa do BEA para o 3º trimestre, de 29/10/2026. Os números serão revisados em 25 de novembro.",
+      },
+      { tipo: "titulo", texto: "A inflação do trimestre esfriou. A do ano, não" },
+      "À primeira vista, a inflação melhorou bastante: o índice de preços do consumo, o PCE, que é a medida preferida do Fed, subiu 2,1% anualizado no trimestre, contra 5,0% no anterior.",
+      "Mas o mesmo BEA divulgou, no mesmo dia, os números de setembro: o PCE subiu 0,5% só no mês e acumula 3,6% em 12 meses. Sem alimentos e energia, são 3,1%. A meta do Fed é 2%.",
+      { tipo: "destaque", texto: "Crescer 3,4% com inflação acima de 3% é o cenário em que o banco central americano tem menos motivo para cortar juros — e mais motivo para pensar em subir." },
+      { tipo: "titulo", texto: "O Fed parou, mas está dividido" },
+      "Em setembro, o Fed subiu os juros pela primeira vez desde 2023, para a faixa de 3,75% a 4% ao ano. Na reunião de 28 de outubro, um dia antes do PIB, manteve a taxa. Mas a decisão não foi unânime: dois dos doze votantes queriam mais uma alta de 0,25 ponto.",
+      "O comunicado descreveu a economia como crescendo em \"ritmo forte\" e a inflação como \"ainda elevada\". A próxima decisão é em 9 de dezembro, e até lá saem mais dados de emprego e de inflação — além da segunda estimativa do PIB, que pode mudar o retrato.",
+      { tipo: "titulo", texto: "Por que isso chega aqui" },
+      "O título de 10 anos do Tesouro americano, a referência de juros do mundo, fechou 3 de novembro pagando 4,95% ao ano. Com juros assim lá fora, o investidor global exige mais para correr risco em países emergentes. Isso pesa sobre o real justamente quando o Brasil vive a reação do mercado à eleição: no mesmo dia, o dólar fechou perto de R$ 5,49.",
+      "Como os juros de lá limitam o espaço dos juros daqui está explicado em \"Dívida dos EUA: por que os juros de lá mexem com a Selic, o dólar e a bolsa daqui\". As datas que vêm pela frente:",
+      {
+        tipo: "lista",
+        itens: [
+          "25 de novembro: segunda estimativa do PIB do 3º trimestre.",
+          "Primeira sexta-feira de cada mês: o payroll, o relatório de emprego americano.",
+          "9 de dezembro: a última decisão de juros do Fed em 2026.",
+        ],
+      },
+      "Nenhum desses números é motivo para mexer na carteira no dia em que sai. Mas eles explicam boa parte do que acontece com o dólar — e ajudam a entender por que ter parte do patrimônio fora do Brasil é diversificação, e não aposta.",
+    ],
+    ferramenta: {
+      slug: "calendario-economico",
+      nome: "Ver as datas do PIB americano e do Fed",
+      href: "/calendario-economico",
+    },
+    fonte: {
+      nome: "U.S. Bureau of Economic Analysis (BEA)",
+      titulo: "GDP (Advance Estimate), 3rd Quarter 2026",
+      href: "https://www.bea.gov/news/2026/gdp-advance-estimate-3rd-quarter-2026",
+      data: "2026-10-29",
+    },
+  },
+
   /* ── A TERCEIRA LEVA (23/10/2026), sugestões da Nord ─────────────────────
      Mesma regra das anteriores: texto da Novare, números da Nord creditados.
 

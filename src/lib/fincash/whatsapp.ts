@@ -7,26 +7,40 @@
  * — e é justamente o pedaço que decide quanto dinheiro vai para qual categoria.
  * O I/O mora em `whatsapp-servidor.ts`.
  *
- * A REGRA DO SINAL, herdada de `modelo.ts` e repetida aqui porque é a que quebra
- * o app inteiro se alguém esquecer: **`valor` é SEMPRE positivo**. O sinal vem
- * de `tipo`. Um assistente que grava despesa negativa soma o mesmo sinal duas
- * vezes e o saldo aparece errado.
+ * ⚠️ DESDE 03/11/2026 O ASSISTENTE É DO NOVARECASH, e grava no extrato dele
+ * (`ncash_transacoes`), nunca no FINCASH. O interpretador não sabe disso — e é
+ * de propósito: ele recebe categorias e contas já traduzidas para os tipos
+ * estruturais abaixo (`CategoriaAlvo`, `OrigemAlvo`), e quem traduz é
+ * `whatsapp-servidor.ts`. O mesmo casador continua servindo ao importador de
+ * OFX do FINCASH (`importar.ts`), que passa as categorias de lá.
+ *
+ * A REGRA DO SINAL, a mesma do FINCASH e do NovareCash, repetida aqui porque é
+ * a que quebra o app inteiro se alguém esquecer: **`valor` é SEMPRE positivo**.
+ * O sinal vem de `tipo`. Um assistente que grava despesa negativa soma o mesmo
+ * sinal duas vezes e o saldo aparece errado.
  *
  * A REGRA DA AMBIGUIDADE: quando não dá para entender o valor, a descrição ou a
  * origem, o assistente PERGUNTA. Ele nunca escolhe a conta mais provável nem
  * arredonda um valor duvidoso. Registro errado num app de dinheiro custa mais
- * caro do que uma mensagem a mais.
+ * caro do que uma mensagem a mais. (A única exceção é quem NÃO TEM conta
+ * nenhuma: aí não há o que perguntar, e o lançamento nasce sem conta — a
+ * coluna `ncash_transacoes.conta_id` é anulável justamente para isso.)
  */
 
-// Só os tipos: `modelo.ts` importa o cliente de navegador ("use client") e
-// arrastá-lo para dentro de um route handler não faz sentido nenhum. `import
-// type` some na compilação, então nada disso vai parar no servidor.
-import type {
-  Cartao,
-  Categoria,
-  Conta,
-  TipoLancamento,
-} from "@/lib/fincash/modelo";
+// ── Tipos de entrada ────────────────────────────────────────────────────────
+// Estruturais e mínimos, sem importar o modelo de app nenhum: `modelo.ts` do
+// FINCASH é "use client" e arrastá-lo para um route handler não faz sentido, e
+// o NovareCash tem categorias em código, não em tabela. Quem tem MAIS campos
+// (a `Categoria` do FINCASH, por exemplo) continua cabendo aqui.
+
+/** "receita" | "despesa" — o vocabulário do interpretador. O servidor traduz para 'entrada' | 'saida'. */
+export type TipoLancamento = "receita" | "despesa";
+
+/** Uma categoria que o casador pode escolher. No NovareCash, `id` = a chave (`mercado`, `saude`…). */
+export type CategoriaAlvo = { id: string; nome: string; tipo: TipoLancamento };
+
+/** Uma conta ou um cartão de origem. */
+export type OrigemAlvo = { id: string; nome: string };
 
 // ── Tipos da conversa ───────────────────────────────────────────────────────
 
@@ -63,11 +77,15 @@ export type Consulta = {
   ref: string;
 };
 
-/** Por que o assistente não conseguiu concluir. Cada motivo tem uma pergunta. */
+/**
+ * Por que o assistente não conseguiu concluir. Cada motivo tem uma pergunta.
+ *
+ * "sem-conta" SAIU em 03/11/2026: no NovareCash, quem não tem conta nenhuma
+ * grava sem conta (ver a regra da ambiguidade no topo), então não há pergunta.
+ */
 export type Motivo =
   | "sem-valor"
   | "sem-descricao"
-  | "sem-conta"
   | "conta-ambigua"
   | "nao-entendi";
 
@@ -79,9 +97,9 @@ export type Intencao =
   | { tipo: "indefinido"; motivo: Motivo; opcoes?: string[] };
 
 export type ContextoInterpretacao = {
-  categorias: Categoria[];
-  contas: Conta[];
-  cartoes: Cartao[];
+  categorias: CategoriaAlvo[];
+  contas: OrigemAlvo[];
+  cartoes: OrigemAlvo[];
   /** O destino escolhido pela pessoa no app. Um dos dois, nunca os dois. */
   contaPadraoId: string | null;
   cartaoPadraoId: string | null;
@@ -272,11 +290,11 @@ export function interpretarData(
  * Pistas: palavra do dia a dia → nome PROVÁVEL de categoria.
  *
  * Isto expande a BUSCA, não o conjunto de destino. O alvo continua sendo a lista
- * que a pessoa cadastrou — a razão de `fin_categorias` existir está na seção 3
- * de `supabase/fincash.sql`: quem gasta com "ração do cachorro" não deve ser
- * obrigado a escolher "Outros". Aqui só se diz que quem escreve "uber"
- * provavelmente quis dizer a categoria dela que fala de transporte; se ela não
- * tiver nenhuma, o lançamento nasce sem categoria e o assistente avisa.
+ * que o chamador entrega — no NovareCash, a lista fechada de
+ * `src/lib/novarecash/categorias.ts`; no importador do FINCASH, as categorias
+ * que a pessoa cadastrou. Aqui só se diz que quem escreve "uber" provavelmente
+ * quis dizer a categoria que fala de transporte; se não houver nenhuma, o
+ * lançamento nasce sem categoria e o assistente avisa.
  */
 const PISTAS: Record<string, string[]> = {
   uber: ["transporte"],
@@ -325,25 +343,28 @@ const PISTAS: Record<string, string[]> = {
 };
 
 /**
- * A categoria mais provável entre as que a PESSOA cadastrou.
+ * A categoria mais provável entre as que o chamador entregou.
  *
  * Três níveis, do mais confiável para o menos: nome inteiro no texto, pista
  * conhecida apontando para um nome dela, e erro de digitação. Abaixo do limiar
- * devolve `null` — e lançamento sem categoria é um estado legítimo (a coluna é
- * anulável) e honesto. Chutar a categoria errada é pior: o gráfico do mês passa
- * a mentir e a pessoa perde a confiança no relatório inteiro.
+ * devolve `null` — e "sem categoria" é um estado honesto (no NovareCash vira
+ * "Outros", e o assistente avisa). Chutar a categoria errada é pior: o gráfico
+ * do mês passa a mentir e a pessoa perde a confiança no relatório inteiro.
+ *
+ * Genérica para devolver o MESMO objeto que entrou: o importador do FINCASH
+ * passa a `Categoria` completa de lá e recebe a completa de volta.
  */
-export function casarCategoria(
+export function casarCategoria<C extends CategoriaAlvo>(
   texto: string,
-  categorias: Categoria[],
+  categorias: C[],
   tipo?: TipoLancamento,
-): Categoria | null {
+): C | null {
   const t = normalizarTexto(texto);
   const palavras = t.split(" ").filter((p) => p.length >= 3);
   const alvo = tipo ? categorias.filter((c) => c.tipo === tipo) : categorias;
   if (alvo.length === 0) return null;
 
-  let vencedora: Categoria | null = null;
+  let vencedora: C | null = null;
   let melhorEscore = 0;
 
   for (const cat of alvo) {
@@ -360,11 +381,15 @@ export function casarCategoria(
       for (const palavra of palavras) {
         const pistas = PISTAS[palavra];
         if (!pistas) continue;
-        for (const pista of pistas) {
+        // A ORDEM das pistas é preferência: "netflix" → ["assinaturas",
+        // "lazer"] quer dizer Assinaturas quando as duas existem. Sem o
+        // desconto por posição, o empate caía na categoria que viesse antes
+        // na lista — e "netflix" virava Lazer no NovareCash.
+        pistas.forEach((pista, posicao) => {
           if (nome === pista || nome.includes(pista) || pista.includes(nome)) {
-            escore = Math.max(escore, 0.85);
+            escore = Math.max(escore, 0.85 - posicao * 0.01);
           }
-        }
+        });
       }
     }
 
@@ -431,9 +456,9 @@ function aparar(texto: string): string {
  */
 export function casarOrigem(
   texto: string,
-  contas: Conta[],
-  cartoes: Cartao[],
-): { conta_id: string | null; cartao_id: string | null; nome: string } | null {
+  contas: OrigemAlvo[],
+  cartoes: OrigemAlvo[],
+):{ conta_id: string | null; cartao_id: string | null; nome: string } | null {
   const t = normalizarTexto(texto);
 
   const bate = (nome: string) => {
@@ -637,7 +662,9 @@ function montarRegistro(
       conta_id = ctx.contas[0].id;
       origem_nome = ctx.contas[0].nome;
     } else if (ctx.contas.length === 0 && ctx.cartoes.length === 0) {
-      return { tipo: "indefinido", motivo: "sem-conta" };
+      // Nenhuma conta: não há o que perguntar. Grava sem conta (no NovareCash
+      // `conta_id` é anulável) e a pessoa liga o banco quando quiser.
+      origem_nome = null;
     } else {
       return {
         tipo: "indefinido",
@@ -687,15 +714,18 @@ export function respostaDeRegistro(r: RascunhoLancamento): string {
     `${r.tipo === "receita" ? "Receita anotada" : "Anotado"}: *${r.descricao}* — ${formatarBRL(r.valor)}`,
   ];
 
+  // Sem categoria, o NovareCash grava em "Outros" (a coluna não é anulável lá)
+  // — e a mensagem diz isso, em vez de "sem categoria", para bater com o extrato.
+  const outros = r.tipo === "receita" ? "Outras entradas" : "Outros gastos";
   const detalhe = [
-    r.categoria_nome ?? "sem categoria",
+    r.categoria_nome ?? outros,
     r.origem_nome,
     formatarDia(r.data),
   ].filter(Boolean);
   linhas.push(detalhe.join(" · "));
 
   if (!r.categoria_nome) {
-    linhas.push("Não achei a categoria. Ajuste no app quando puder.");
+    linhas.push(`Não achei a categoria e deixei em *${outros}*. Troque no extrato do NovareCash quando puder.`);
   }
   linhas.push("Errei? Responda *desfazer*.");
   return linhas.join("\n");
@@ -703,7 +733,7 @@ export function respostaDeRegistro(r: RascunhoLancamento): string {
 
 export function respostaDeAjuda(): string {
   return [
-    "Sou o assistente do FINCASH Novare. Comigo dá para:",
+    "Sou o assistente do NovareCash. Comigo dá para:",
     "",
     "*Registrar um gasto* — “Uber 35” ou “mercado R$ 280 ontem”",
     "*Registrar uma entrada* — “recebi 5000 de salário”",
@@ -724,25 +754,30 @@ export function respostaIndefinida(motivo: Motivo, opcoes?: string[]): string {
       return "Entendi o gasto, mas faltou o valor. Manda de novo com o número — por exemplo: “mercado 280”.";
     case "sem-descricao":
       return "Peguei o valor, mas não sei em quê. Foi em quê? Ex.: “35 no uber”.";
-    case "sem-conta":
-      return "Você ainda não tem nenhuma conta cadastrada no FINCASH. Crie uma no app e eu passo a registrar por aqui.";
     case "conta-ambigua":
       return [
         "De qual conta saiu? Você tem mais de uma:",
         (opcoes ?? []).map((o) => `• ${o}`).join("\n"),
         "",
-        "Escreva junto (“mercado 280 no nubank”) ou escolha uma conta padrão no app — aí eu paro de perguntar.",
+        "Escreva junto (“mercado 280 no nubank”) ou escolha uma conta padrão no NovareCash, na tela *WhatsApp* — aí eu paro de perguntar.",
       ].join("\n");
     default:
       return "Não entendi. Responda *ajuda* para ver o que eu sei fazer.";
   }
 }
 
-export function respostaNaoVinculado(): string {
+/**
+ * Onde a pessoa gera o código. O endereço do site entra por parâmetro (o
+ * servidor passa `SITE_URL`) para este módulo continuar sem import de runtime
+ * — os testes o carregam com `node` puro, sem o alias `@/`.
+ */
+export const CAMINHO_TELA_WHATSAPP = "/novarecash/app/whatsapp";
+
+export function respostaNaoVinculado(site = ""): string {
   return [
     "Este número ainda não está ligado a nenhuma conta Novare.",
     "",
-    "Abra o FINCASH, vá em *Assistente do WhatsApp*, gere o código de 6 dígitos e mande ele aqui.",
+    `Abra o NovareCash na tela *WhatsApp* (${site}${CAMINHO_TELA_WHATSAPP}), gere o código de 6 dígitos e mande ele aqui.`,
   ].join("\n");
 }
 
@@ -754,8 +789,8 @@ export function respostaVinculado(nome?: string | null): string {
   ].join("\n");
 }
 
-export function respostaCodigoInvalido(): string {
-  return "Esse código não confere ou já venceu. Gere outro no app, em *Assistente do WhatsApp*.";
+export function respostaCodigoInvalido(site = ""): string {
+  return `Esse código não confere ou já venceu. Gere outro no NovareCash, na tela *WhatsApp*: ${site}${CAMINHO_TELA_WHATSAPP}`;
 }
 
 export function respostaDesfeito(descricao: string, valor: number): string {
@@ -806,7 +841,7 @@ export function respostaDeResumo(p: {
 }
 
 export function respostaDeSaldo(contas: { nome: string; saldo: number }[]): string {
-  if (contas.length === 0) return "Você ainda não tem contas cadastradas.";
+  if (contas.length === 0) return "Ainda não tenho o saldo de nenhuma conta sua no NovareCash.";
   const total = contas.reduce((s, c) => s + c.saldo, 0);
   const linhas = contas.map((c) => `${c.nome}: ${formatarBRL(c.saldo)}`);
   if (contas.length > 1) linhas.push(`*Total: ${formatarBRL(total)}*`);

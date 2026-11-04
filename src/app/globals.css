@@ -73,6 +73,15 @@
   --color-ciano-claro: hsl(197 75% 68%);
   --color-ciano-tint: hsl(197 70% 95%);
 
+  /* NOVARECASH (03/11/2026): a marca do app pago. Base noite + OURO, que é o
+     que separa "produto premium" do FINCASH (petróleo + laranja) à primeira
+     vista. ouro decora e é texto sobre a noite (9:1); ouro-forte é texto
+     dourado sobre fundo claro (4,6:1). O laranja continua sendo o botão de
+     ação da casa inteira — o NovareCash não troca o CTA. */
+  --color-ouro: hsl(42 74% 62%);
+  --color-ouro-forte: hsl(36 78% 32%);
+  --color-ouro-tint: hsl(42 80% 94%);
+
   /* Fundo azul-gelo das seções alternadas. O cinza neutro que estava no lugar
      (muted/30) deixava a página com cara de documento; o gelo puxa para a
      mesma família do navy e dá respiro sem esfriar. */

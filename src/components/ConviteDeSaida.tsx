@@ -42,7 +42,10 @@ const ESPERA_MS = 12_000;
 /* `/ferramentas` desde 24/10/2026: quem está no meio de uma conta não pode
    ser interrompido por uma janela de tela cheia — era um dos três avisos que
    abriam sozinhos por cima da ferramenta. */
-const MUDO_EM = ["/assinar", "/login", "/hub", "/admin", "/perfil", "/finplan/app", "/ferramentas", "/fincash/app"];
+/* `/novarecash` desde 03/11/2026: é a página de venda do único produto PAGO
+   da casa, e um convite dizendo "é tudo de graça mesmo" por cima dela
+   contradiria a própria página. */
+const MUDO_EM = ["/assinar", "/login", "/hub", "/admin", "/perfil", "/finplan/app", "/ferramentas", "/fincash/app", "/novarecash"];
 
 export function ConviteDeSaida() {
   const caminho = usePathname();

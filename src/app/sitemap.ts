@@ -26,6 +26,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
     // de `/ferramentas/` logo abaixo (é app com porta própria) e, fora daqui,
     // a única página de venda dele seria invisível para a busca.
     "/fincash",
+    /* O NovareCash (03/11/2026): a página de venda do único produto pago.
+       Só a landing; `/novarecash/app` é área logada e fica de fora. */
+    "/novarecash",
     "/exame-saude-financeira",
     "/privacidade",
     "/termos",

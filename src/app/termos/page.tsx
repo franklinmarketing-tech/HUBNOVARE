@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "/termos" },
 };
 
-const ATUALIZADO = "agosto de 2026";
+const ATUALIZADO = "novembro de 2026";
 
 function Secao({ titulo, children }: { titulo: string; children: React.ReactNode }) {
   return (
@@ -118,7 +118,28 @@ export default function TermosPage() {
             </p>
           </Secao>
 
-          <Secao titulo="7. Conteúdo e marca">
+          {/* 03/11/2026: o NovareCash é o único produto pago da casa — as regras dele moram aqui. */}
+          <Secao titulo="7. NovareCash (assinatura paga)">
+            <p>
+              O <strong>NovareCash</strong> é uma assinatura paga, vendida pela Hotmart, que processa o
+              pagamento e a renovação automática. O FINCASH e as ferramentas continuam gratuitos.
+            </p>
+            <p>
+              <strong>Garantia de 7 dias:</strong> se não for para você, peça o reembolso em até 7 dias da
+              compra e devolvemos o valor integral, sem perguntar o motivo. <strong>Cancelamento:</strong> você
+              pode cancelar a renovação quando quiser; o acesso continua até o fim do período já pago.
+              Reembolso e contestação de cobrança encerram o acesso na hora.
+            </p>
+            <p>
+              <strong>Conexão com o banco:</strong> só acontece com o seu consentimento, dado no ambiente
+              oficial do Open Finance, e pode ser revogada a qualquer momento. <strong>IA e WhatsApp:</strong>{" "}
+              as respostas são geradas por inteligência artificial a partir dos dados que você registra e
+              podem conter erros — confira antes de decidir. Nada no NovareCash é recomendação de
+              investimento (veja a seção 3).
+            </p>
+          </Secao>
+
+          <Secao titulo="8. Conteúdo e marca">
             <p>
               Textos, cálculos, marca e identidade visual da Novare são protegidos. Você pode usar as
               ferramentas e compartilhar links à vontade; copiar o conteúdo para republicar como seu,
@@ -126,7 +147,7 @@ export default function TermosPage() {
             </p>
           </Secao>
 
-          <Secao titulo="8. Mudanças nestes termos">
+          <Secao titulo="9. Mudanças nestes termos">
             <p>
               Podemos ajustar estes termos conforme o serviço evolui. Mudanças relevantes são
               sinalizadas nesta página, com a data de atualização no topo.

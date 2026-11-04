@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Activity, ArrowUpRight, Inbox, LifeBuoy, Magnet, Megaphone, MessageSquareText, MousePointerClick, Users } from "lucide-react";
+import { Activity, ArrowUpRight, Gem, Inbox, LifeBuoy, Magnet, Megaphone, MessageSquareText, MousePointerClick, Users } from "lucide-react";
 
 /**
  * A BARRA DO PAINEL — marca, quem está logado e as abas.
@@ -39,6 +39,7 @@ const ABAS = [
   { href: "/admin/iscas", rotulo: "Iscas", Icone: Magnet },
   // Onde as pessoas travam: os números do Clarity (27/10/2026).
   { href: "/admin/clarity", rotulo: "Cliques", Icone: MousePointerClick },
+  { href: "/admin/novarecash", rotulo: "NovareCash", Icone: Gem },
   { href: "/admin/avisos", rotulo: "Avisos", Icone: Megaphone },
   // Só para o papel admin, e com senha extra lá dentro (21/10/2026).
   { href: "/admin/suporte", rotulo: "Suporte", Icone: LifeBuoy, soAdmin: true },

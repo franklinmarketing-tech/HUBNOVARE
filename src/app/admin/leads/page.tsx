@@ -53,6 +53,8 @@ const TIPO = {
   ferramenta: { rotulo: "Ferramenta", cls: "bg-slate-100 text-slate-600" },
   relatorio: { rotulo: "Baixou PDF", cls: "bg-orange-100 text-orange-700" },
   guia: { rotulo: "eBook", cls: "bg-cyan-100 text-cyan-800" },
+  // A Lista VIP da página de venda do NovareCash (03/11/2026).
+  novarecash: { rotulo: "NovareCash · Lista VIP", cls: "bg-accent/15 text-accent-strong" },
 } as const;
 
 /* ⚠️ AQUI FICAVA `zapDe`, que punha "55" na frente de QUALQUER telefone.
@@ -84,6 +86,8 @@ function resumo(l: Lead): string {
     return p.investimento ? `PDF: ${p.ferramenta} · investe ${p.investimento}` : `PDF: ${p.ferramenta}`;
   if (l.tipo === "guia" && p.guia != null)
     return p.investimento ? `eBook: ${p.guia} · investe ${p.investimento}` : `eBook: ${p.guia}`;
+  if (l.tipo === "novarecash")
+    return p.fase ? `Lista VIP do NovareCash · fase ${p.fase}` : "Lista VIP do NovareCash";
   return l.origem ?? "—";
 }
 

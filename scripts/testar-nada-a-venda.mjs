@@ -28,6 +28,29 @@
  * trabalho das ferramentas. O que se caça aqui é COBRANÇA: um valor colado
  * em "/mês", "por ano", "assine", "plano" e companhia.
  *
+ * ═══ A EXCEÇÃO DO NOVARECASH (03/11/2026) ═══════════════════════════════
+ *
+ * Decisão do dono: o FINCASH continua grátis, e o **NovareCash** é um produto
+ * NOVO e PAGO (Open Finance, WhatsApp e IA em cima dos dados do FINCASH),
+ * vendido pela Hotmart com garantia de 7 dias. É a ÚNICA coisa que o Hub
+ * vende, e a regra deste guardião continua valendo para todo o resto.
+ *
+ * Por isso, duas coisas — e só elas — ficam fora da varredura:
+ *
+ *   1. A rota `/novarecash` NÃO está em `ROTAS`, e não deve entrar. Ela é a
+ *      página de venda: preço, plano, garantia e checkout são o trabalho
+ *      dela. Todo valor exibido lá sai de `src/lib/novarecash/config.ts`,
+ *      nunca escrito à mão.
+ *   2. O POP-UP DA BLACK (`src/components/PopupBlack.tsx`) mora no layout
+ *      raiz e pode mostrar "até X% OFF" em qualquer página pública. Ele é
+ *      marcado com `data-fora-do-guardiao` e REMOVIDO do DOM antes da leitura
+ *      (ver `semExcecoes`). Sem isso, a página onde ele por acaso abriu
+ *      reprovaria por um texto que não é dela. (Ele também não abre para
+ *      navegador automatizado; a remoção é o cinto junto do suspensório.)
+ *
+ * ⚠️ NÃO ALARGUE A EXCEÇÃO. Outra página querendo preço não ganha um
+ * `data-fora-do-guardiao`: ou ela linka para `/novarecash`, ou não cobra.
+ *
  * Roda com o servidor no ar:  node scripts/testar-nada-a-venda.mjs
  */
 import { chromium } from "playwright";
@@ -109,6 +132,12 @@ const PALAVRAS = [
 const nav = await chromium.launch();
 const pagina = await (await nav.newContext()).newPage();
 
+/** Tira do DOM o que é da exceção do NovareCash (o pop-up da Black) antes de ler a página. */
+const semExcecoes = () =>
+  pagina.evaluate(() => {
+    document.querySelectorAll("[data-fora-do-guardiao]").forEach((el) => el.remove());
+  });
+
 let falhas = 0;
 const relatar = (rota, oque, trecho) => {
   falhas++;
@@ -124,6 +153,7 @@ for (const rota of ROTAS) {
     continue;
   }
   await pagina.waitForTimeout(400);
+  await semExcecoes();
 
   /* O HTML inteiro MENOS os <script>: inclui <title>, <meta> e o que está
      truncado ou escondido por CSS — que é onde o preço se escondeu —, mas
