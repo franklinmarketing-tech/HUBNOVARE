@@ -63,17 +63,24 @@ alter table public.ncash_contas enable row level security;
 alter table public.ncash_transacoes enable row level security;
 alter table public.ncash_orcamentos enable row level security;
 
-drop policy if exists "ncash: dono manda" on public.ncash_contas;
-create policy "ncash: dono manda" on public.ncash_contas
-  for all to authenticated using (user_id = auth.uid()) with check (user_id = auth.uid());
-
-drop policy if exists "ncash: dono manda" on public.ncash_transacoes;
-create policy "ncash: dono manda" on public.ncash_transacoes
-  for all to authenticated using (user_id = auth.uid()) with check (user_id = auth.uid());
-
-drop policy if exists "ncash: dono manda" on public.ncash_orcamentos;
-create policy "ncash: dono manda" on public.ncash_orcamentos
-  for all to authenticated using (user_id = auth.uid()) with check (user_id = auth.uid());
+-- ⚠️ SÓ CRIA SE AINDA NÃO EXISTIR (04/11/2026): `novarecash_compartilhar.sql`
+-- troca esta policy pela regra única `ncash_pode()`. Com o antigo
+-- "drop + create", rodar ESTE arquivo de novo depois daquele voltava a regra
+-- para "só o próprio" — e quem está na conta compartilhada perdia o acesso aos
+-- dados da casa sem nenhum erro aparecer.
+do $$
+declare
+  t text;
+begin
+  foreach t in array array['ncash_contas', 'ncash_transacoes', 'ncash_orcamentos'] loop
+    if not exists (select 1 from pg_policies where schemaname = 'public' and tablename = t and policyname = 'ncash: dono manda') then
+      execute format(
+        'create policy "ncash: dono manda" on public.%I for all to authenticated using (user_id = auth.uid()) with check (user_id = auth.uid())',
+        t
+      );
+    end if;
+  end loop;
+end $$;
 
 select
   to_regclass('public.ncash_contas')     is not null as contas,

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { cookies } from "next/headers";
 import type { Metadata } from "next";
 import { LogOut } from "lucide-react";
 
@@ -6,6 +7,8 @@ import { getPerfil } from "@/lib/perfil";
 import { sair } from "@/lib/acoes-sessao";
 import { MarcaNovareCash } from "@/components/novarecash/MarcaNovareCash";
 import { BarraLateralNovareCash, NavNovareCashCelular } from "./NavNovareCash";
+import { COOKIE_TEMA } from "./tema";
+import { TrocaTema } from "./TrocaTema";
 
 export const metadata: Metadata = {
   title: "NovareCash",
@@ -21,20 +24,32 @@ export const metadata: Metadata = {
  * é o `layout.tsx` de `/novarecash/app`, que não é para ser mexido. Este layout
  * fica DENTRO dela: só desenha, não decide acesso.
  *
- * `[color-scheme:dark]` faz os controles nativos (seletor de data, lista do
- * select) abrirem escuros, em vez de um clarão branco no meio do app.
+ * `ncash-tema` liga as variáveis `--ncash-*` e o `color-scheme` (escuro por
+ * padrão, claro com `.ncash-claro`): os controles nativos (seletor de data,
+ * lista do select) abrem na cor do tema, sem clarão branco no escuro nem
+ * calendário preto no claro. Ver o fim do `globals.css`.
  */
 export default async function CascaNovareCash({ children }: { children: React.ReactNode }) {
   // Já lido pela porta; `getPerfil` tem `cache`, então não é uma segunda ida ao banco.
   const perfil = await getPerfil();
   const primeiroNome = perfil?.nome?.split(" ")[0];
+  // 04/11/2026: CLARO é o padrão (cores da Novare); o escuro é opção, guardada em cookie.
+  const tema = (await cookies()).get(COOKIE_TEMA)?.value === "escuro" ? "escuro" : "claro";
 
   return (
     // Dado financeiro: mascarado na gravação anônima (Clarity).
     <div
-      className="min-h-dvh overflow-x-hidden bg-noite text-white [color-scheme:dark] bg-[radial-gradient(ellipse_70%_45%_at_50%_-10%,hsl(42_74%_62%/0.10),transparent_70%)]"
+      id="ncash-casca"
+      className={`ncash-tema ${tema === "claro" ? "ncash-claro " : ""}min-h-dvh overflow-x-hidden bg-noite text-white bg-[radial-gradient(ellipse_70%_45%_at_50%_-10%,var(--ncash-halo),transparent_70%)]`}
       data-clarity-mask="true"
     >
+      {/* Teclado: pula as 14 telas do menu e cai direto no conteúdo. */}
+      <a
+        href="#ncash-conteudo"
+        className="sr-only z-[70] rounded-xl bg-noite-2 px-4 py-3 text-sm font-semibold text-white ring-2 ring-ouro focus:not-sr-only focus:fixed focus:left-3 focus:top-3"
+      >
+        Pular para o conteúdo
+      </a>
       <header className="nao-imprimir sticky top-0 z-20 border-b border-white/10 bg-noite/85 backdrop-blur-md md:hidden">
         <div className="mx-auto flex h-16 max-w-5xl items-center gap-3 px-4">
           <Link
@@ -44,7 +59,10 @@ export default async function CascaNovareCash({ children }: { children: React.Re
           >
             <MarcaNovareCash tamanho="sm" />
           </Link>
-          <form action={sair} className="ml-auto">
+          <div className="ml-auto">
+            <TrocaTema inicial={tema} compacto />
+          </div>
+          <form action={sair}>
             <button
               type="submit"
               aria-label={primeiroNome ? `Sair da conta de ${primeiroNome}` : "Sair"}
@@ -56,10 +74,10 @@ export default async function CascaNovareCash({ children }: { children: React.Re
         </div>
       </header>
 
-      <BarraLateralNovareCash nome={primeiroNome} sair={sair} />
+      <BarraLateralNovareCash nome={primeiroNome} sair={sair} trocaTema={<TrocaTema inicial={tema} />} />
 
       <div className="md:pl-[76px] lg:pl-64">
-        <main className="mx-auto max-w-5xl px-4 pb-28 pt-6 sm:px-5 md:pb-12 md:pt-8">{children}</main>
+        <main id="ncash-conteudo" tabIndex={-1} className="mx-auto max-w-5xl px-4 pb-[calc(7rem+env(safe-area-inset-bottom))] pt-6 outline-none sm:px-5 md:pb-12 md:pt-8">{children}</main>
       </div>
 
       <NavNovareCashCelular />

@@ -1,7 +1,6 @@
 import {
   Car,
   Copy,
-  Database,
   Gift,
   GraduationCap,
   HeartPulse,
@@ -18,7 +17,7 @@ import {
 
 import type { Alerta, TipoAlerta } from "@/lib/novarecash/insights";
 import type { IconeMeta } from "@/lib/novarecash/metas";
-import { Cartao, brl } from "../pecas";
+import { AvisoInstalacao, Cartao, brl } from "../pecas";
 
 export const ICONE_ALERTA: Record<TipoAlerta, LucideIcon> = {
   assinatura: Repeat,
@@ -43,22 +42,7 @@ export function textoEconomia(a: Alerta): string | null {
 
 /** As tabelas novas (`ncash_alertas_dispensados`, `ncash_metas`) ainda não existem. */
 export function AvisoSqlInsights({ oque = "esta tela" }: { oque?: string }) {
-  return (
-    <Cartao className="border-dashed border-ouro/35 p-5">
-      <p className="flex items-center gap-2 font-display text-sm font-semibold text-white">
-        <Database className="h-4 w-4 shrink-0 text-ouro" />
-        Falta um passo de instalação
-      </p>
-      <p className="mt-1 max-w-prose text-xs leading-relaxed text-white/70">
-        A tabela de {oque} ainda não foi criada. Para quem administra: rode o arquivo{" "}
-        <code className="break-all rounded bg-white/10 px-1 font-mono text-2xs text-ouro">
-          supabase/novarecash_insights.sql
-        </code>{" "}
-        no editor SQL do Supabase (depois do <code className="font-mono text-2xs">novarecash_compartilhar.sql</code>) e
-        recarregue a página.
-      </p>
-    </Cartao>
-  );
+  return <AvisoInstalacao titulo={`A parte de ${oque} está quase pronta`} arquivo="supabase/novarecash_insights.sql" />;
 }
 
 export const ICONE_DA_META: Record<IconeMeta, LucideIcon> = {

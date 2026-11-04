@@ -1474,3 +1474,67 @@
     print-color-adjust: exact;
   }
 }
+
+/* NOVARECASH · MODO CLARO, O PADRÃO (04/11/2026: "colocar modo claro, das cores da
+   Novare, e deixar como padrão"; o escuro vira opção). O app foi desenhado no escuro
+   com `text-white`, `bg-noite`, `bg-white/[x]`... Em vez de reescrever 40 telas, o
+   modo claro REDEFINE as variáveis dentro da casca `.ncash-claro`: o "branco" vira
+   o petróleo da Novare (texto), a noite vira o gelo/branco (fundos) e o ouro escurece
+   para continuar legível. As transparências (`white/70`, `white/10`) vêm junto, porque
+   o Tailwind v4 as calcula a partir da mesma variável. O CTA laranja não muda
+   (`.btn-cp` usa branco fixo). Ver `src/app/novarecash/app/(area)/layout.tsx`. */
+/* O que o Tailwind não cobre sozinho (04/11/2026, varredura do modo claro): cores que
+   antes eram hsl fixo no JSX — o verde de entrada, a sombra preta dos cartões, a máscara
+   da janela, o fundo do saldo do Início, as séries dos gráficos. Cada uma vira variável
+   com o valor do ESCURO aqui (o desenho original, intocado) e o do CLARO logo abaixo.
+   `.ncash-tema` mora na casca do app e na página de convite. */
+.ncash-tema {
+  --ncash-verde: hsl(152 60% 62%);
+  --ncash-sombra: hsl(203 100% 1% / 0.9);
+  --ncash-sombra-folha: hsl(203 100% 1%);
+  --ncash-mascara: hsl(0 0% 0% / 0.7);
+  --ncash-halo: hsl(42 74% 62% / 0.1);
+  --ncash-heroi: linear-gradient(150deg, hsl(200 55% 9%), hsl(203 100% 3%));
+  --ncash-heroi-sombra: hsl(42 74% 40% / 0.55);
+  --ncash-serie-entrada: var(--color-ciano);
+  --ncash-serie-saida: var(--color-accent);
+  color-scheme: dark;
+}
+.ncash-claro {
+  --color-white: hsl(199 75% 16%);
+  --color-noite: hsl(200 40% 97%);
+  --color-noite-2: hsl(0 0% 100%);
+  --color-ouro: hsl(36 78% 32%);
+  --color-ciano-claro: hsl(197 70% 31%);
+  /* Laranja e amarelo "claros" eram texto sobre a noite; no branco davam 2:1 e 1,6:1.
+     Aqui viram as versões que passam AA no fundo claro (5,3:1 ou mais, até sobre os selos). */
+  --color-accent-claro: hsl(16 82% 36%);
+  --color-warning-claro: hsl(32 95% 30%);
+  --ncash-verde: hsl(152 62% 27%);
+  --ncash-sombra: hsl(199 60% 20% / 0.16);
+  --ncash-sombra-folha: hsl(199 60% 20% / 0.22);
+  --ncash-mascara: hsl(199 75% 10% / 0.45);
+  --ncash-halo: hsl(197 70% 55% / 0.1);
+  --ncash-heroi: linear-gradient(150deg, hsl(0 0% 100%), hsl(42 70% 95%));
+  --ncash-heroi-sombra: hsl(36 60% 30% / 0.2);
+  --ncash-serie-entrada: hsl(197 70% 38%);
+  --ncash-serie-saida: hsl(16 80% 48%);
+  color-scheme: light;
+}
+
+/* TEXTO SECUNDÁRIO NO CLARO. O app usa `text-white/55`, `/60`... sobre a noite (6:1 ou
+   mais). Com o "branco" virando petróleo, 55% sobre o branco dá 3,4:1 e reprova; o
+   petróleo a 72% dá ~5:1 até sobre os fundos tingidos (`bg-white/[0.06]`). `:where` deixa
+   a regra com o mesmo peso da classe original: o `hover:text-white` continua vencendo.
+   O contorno dos campos sobe para ~3:1 (WCAG 1.4.11): a 15% ele sumia no branco. */
+@layer utilities {
+  :where(.ncash-claro) :is(.text-white\/40, .text-white\/45, .text-white\/50, .text-white\/55, .text-white\/60, .text-white\/65) {
+    color: color-mix(in oklab, var(--color-white) 72%, transparent);
+  }
+  :where(.ncash-claro) .ncash-campo {
+    border-color: color-mix(in oklab, var(--color-white) 50%, transparent);
+  }
+  .ncash-claro ::placeholder {
+    color: color-mix(in oklab, var(--color-white) 60%, transparent);
+  }
+}

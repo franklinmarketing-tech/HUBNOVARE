@@ -7,7 +7,7 @@ import { CalendarClock, ChevronRight } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { ErroDados, dataCurta, hojeNoBrasil, usuarioDaSessao } from "@/lib/novarecash/dados";
 import { carregarMesDeContas, proximasContas, type ItemDoMes } from "@/lib/novarecash/contas-pagar";
-import { ANEL, AvisoErro, Botao, COR_SAIDA, Cartao, Esqueleto, Selo, brl } from "../pecas";
+import { AvisoInstalacao, ANEL, AvisoErro, Botao, COR_SAIDA, Cartao, Esqueleto, Selo, brl } from "../pecas";
 
 /**
  * AS PRÓXIMAS CONTAS, para o Início: atrasadas, de hoje e dos próximos 7 dias.
@@ -40,14 +40,8 @@ export function CartaoProximasContas({ maximo = 5 }: { maximo?: number }) {
   if (estado === "carregando") return <Esqueleto linhas={1} />;
   if (estado === "erro") return <AvisoErro titulo="Próximas contas" mensagem="Não consegui ler as contas a pagar agora." onTentar={carregar} />;
   if (estado === "sem-tabela") {
-    return (
-      <Cartao className="border-dashed border-ouro/35 p-4">
-        <p className="font-display text-sm font-semibold text-white">Próximas contas</p>
-        <p className="mt-1 text-xs leading-relaxed text-white/70">
-          Em instalação: falta rodar <code className="break-all font-mono text-2xs text-ouro">supabase/novarecash_cartoes.sql</code> no Supabase.
-        </p>
-      </Cartao>
-    );
+    // Mesma frase de gente do resto do app; o nome do SQL fica recolhido "para a equipe".
+    return <AvisoInstalacao titulo="As próximas contas estão quase prontas" arquivo="supabase/novarecash_cartoes.sql" />;
   }
 
   const total = itens.reduce((s, i) => s + i.conta.valor, 0);

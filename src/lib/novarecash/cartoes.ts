@@ -1,6 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-import { ErroDados, arred, faltaTabela, mesVizinho, ultimoDia, type Conta, type Transacao } from "./dados";
+import { ErroDados, arred, faltaTabela, lerTodasAsPaginas, mesVizinho, ultimoDia, type Conta, type Transacao } from "./dados";
 
 /**
  * CARTÕES DE CRÉDITO DO NOVARECASH — fatura, parcelas e limite (04/11/2026).
@@ -262,17 +262,22 @@ export async function lerMovimentosDosCartoes(
   desde: string,
 ): Promise<TransacaoCartao[]> {
   if (!ids.length) return [];
-  const { data, error } = await sb
-    .from("ncash_transacoes")
-    .select("*")
-    .eq("user_id", uid)
-    .in("conta_id", ids)
-    .gte("data", desde)
-    .order("data", { ascending: false })
-    .order("criado_em", { ascending: false })
-    .range(0, 4999);
-  checarCartoes(error);
-  return ((data ?? []) as Record<string, unknown>[]).map(paraTransacaoCartao);
+  // De página em página: o Supabase corta cada resposta em mil (ver `lerTodasAsPaginas`).
+  const data = await lerTodasAsPaginas<Record<string, unknown>>(
+    (de, ate) =>
+      sb
+        .from("ncash_transacoes")
+        .select("*")
+        .eq("user_id", uid)
+        .in("conta_id", ids)
+        .gte("data", desde)
+        .order("data", { ascending: false })
+        .order("criado_em", { ascending: false })
+        .order("id")
+        .range(de, ate),
+    checarCartoes,
+  );
+  return data.map(paraTransacaoCartao);
 }
 
 // ── A fatura ────────────────────────────────────────────────────────────────

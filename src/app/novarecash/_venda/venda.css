@@ -1,0 +1,264 @@
+/* ==========================================================================
+   NOVARECASH · PÁGINA DE VENDA: o herói e o bento dos recursos (04/11/2026).
+
+   Prefixo `ncv-` em tudo: esta folha só é importada por `/novarecash/page.tsx`
+   e não pode tocar no resto do site.
+
+   Tudo aqui é DECORATIVO. Movimento só com `transform` e `opacity` (rodam na
+   GPU, sem refazer o layout), e TODO movimento mora dentro de
+   `prefers-reduced-motion: no-preference`: quem pediu menos movimento vê a
+   página pronta, parada, no lugar certo.
+
+   Dentro de `@layer components`, como as classes da casa em globals.css:
+   assim um utilitário do Tailwind escrito no elemento sempre ganha.
+   ========================================================================== */
+
+@layer components {
+  /* ── Herói: o palco escuro com a luz dourada ─────────────────────────────── */
+
+  .ncv-heroi {
+    background: linear-gradient(160deg, hsl(200 55% 8%) 0%, hsl(203 100% 2%) 58%, hsl(203 100% 2%) 100%);
+  }
+
+  /* Camadas de luz: o dourado atrás do produto, um quente mais baixo à
+     esquerda e um frio (ciano) bem fraco no alto, para dar volume. */
+  .ncv-luz {
+    background:
+      radial-gradient(36rem 30rem at 74% 46%, hsl(42 74% 62% / 0.2), transparent 64%),
+      radial-gradient(28rem 20rem at 6% 100%, hsl(36 78% 42% / 0.16), transparent 62%),
+      radial-gradient(30rem 18rem at 30% -8%, hsl(197 68% 45% / 0.1), transparent 60%);
+  }
+  @media (max-width: 1023px) {
+    .ncv-luz {
+      background:
+        radial-gradient(26rem 26rem at 50% 78%, hsl(42 74% 62% / 0.2), transparent 64%),
+        radial-gradient(22rem 16rem at 100% 0%, hsl(36 78% 42% / 0.14), transparent 62%),
+        radial-gradient(24rem 14rem at 0% 0%, hsl(197 68% 45% / 0.1), transparent 60%);
+    }
+  }
+
+  /* Um feixe diagonal muito fraco, como luz de estúdio entrando pelo alto. */
+  .ncv-feixe {
+    background: linear-gradient(112deg, transparent 38%, hsl(42 74% 70% / 0.05) 50%, transparent 62%);
+  }
+
+  /* Grão de filme: ruído SVG estático (gerado uma vez, nunca anima). */
+  .ncv-grao {
+    opacity: 0.08;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+    background-size: 160px 160px;
+  }
+
+  /* A palavra-chave do título: ouro com um leve brilho de metal (o texto
+     continua com cor sólida por baixo, para leitores e navegadores antigos). */
+  .ncv-ouro-texto {
+    color: var(--color-ouro);
+  }
+  @supports (background-clip: text) or (-webkit-background-clip: text) {
+    .ncv-ouro-texto {
+      background: linear-gradient(100deg, hsl(42 80% 70%) 0%, hsl(40 74% 58%) 45%, hsl(44 85% 74%) 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+  }
+
+  /* O bloco de preço: vidro sobre a noite (aproximação web de vidro fosco,
+     não é material oficial de ninguém). Sem transparência para quem pediu. */
+  .ncv-vidro {
+    background:
+      linear-gradient(135deg, hsl(0 0% 100% / 0.09), hsl(0 0% 100% / 0.025) 60%),
+      hsl(200 55% 8% / 0.45);
+    -webkit-backdrop-filter: blur(18px) saturate(140%);
+    backdrop-filter: blur(18px) saturate(140%);
+    border: 1px solid hsl(0 0% 100% / 0.12);
+    box-shadow:
+      inset 0 1px 0 hsl(0 0% 100% / 0.12),
+      0 24px 60px -30px hsl(203 100% 2% / 0.9);
+  }
+  @media (prefers-reduced-transparency: reduce) {
+    .ncv-vidro {
+      background: hsl(200 55% 9%);
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+    }
+  }
+
+  /* O celular: espessura (sombras em degrau no aro), aro dourado e sombra
+     longa tingida da noite. A perspectiva é fixa; nada aqui anima. */
+  .ncv-moldura {
+    box-shadow:
+      0 0 0 1px hsl(42 74% 62% / 0.38),
+      1px 1px 0 1px hsl(42 30% 34%),
+      2px 3px 0 1px hsl(42 25% 22%),
+      3px 5px 0 1px hsl(203 60% 6%),
+      40px 50px 90px -30px hsl(203 100% 1% / 0.95),
+      0 0 80px -20px hsl(42 74% 62% / 0.25);
+  }
+  .ncv-celular-3d {
+    transform: perspective(1400px) rotateY(-9deg) rotateX(4deg) rotateZ(0.8deg);
+  }
+  @media (min-width: 640px) {
+    .ncv-celular-3d {
+      transform: perspective(1700px) rotateY(-15deg) rotateX(6deg) rotateZ(1.2deg);
+    }
+  }
+
+  /* Os cartões que flutuam em volta: fundo quase sólido de propósito (vidro
+     com blur em elemento que se mexe pesa no celular). */
+  .ncv-cartao {
+    background: linear-gradient(160deg, hsl(200 45% 13% / 0.96), hsl(202 60% 7% / 0.96));
+    border: 1px solid hsl(0 0% 100% / 0.1);
+    box-shadow:
+      inset 0 1px 0 hsl(0 0% 100% / 0.08),
+      0 24px 50px -22px hsl(203 100% 1% / 0.95),
+      0 0 0 1px hsl(203 100% 2% / 0.4);
+  }
+
+  /* O chão de luz debaixo do celular e a aura em anel atrás dele. */
+  .ncv-chao {
+    background: radial-gradient(closest-side, hsl(42 74% 62% / 0.28), transparent);
+    filter: blur(6px);
+  }
+  .ncv-aura {
+    background:
+      radial-gradient(closest-side, transparent 62%, hsl(42 74% 62% / 0.07) 63%, transparent 64%),
+      radial-gradient(closest-side, transparent 80%, hsl(42 74% 62% / 0.05) 81%, transparent 82%);
+    pointer-events: none;
+  }
+
+  /* ── Movimento do herói (só para quem não pediu menos) ───────────────────── */
+
+  @media (prefers-reduced-motion: no-preference) {
+    /* Entrada em sequência: título e oferta sobem, o celular chega, os
+       cartões aparecem um a um. `--d` é o atraso de cada peça. */
+    .ncv-entra {
+      animation: ncv-sobe 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+      animation-delay: var(--d, 0ms);
+    }
+    .ncv-celular-entra {
+      animation: ncv-celular 1.15s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both;
+    }
+    .ncv-cartao-entra {
+      animation: ncv-aparece 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+      animation-delay: var(--d, 0ms);
+    }
+    /* A flutuação: lenta (9 a 12 s por ciclo) e curta (6 a 8 px). Cada cartão
+       tem período e fase próprios, então nunca sobem todos juntos. */
+    .ncv-flutua {
+      animation: ncv-flutua var(--t, 10s) ease-in-out var(--fd, 0s) infinite;
+      will-change: transform;
+    }
+  }
+
+  @keyframes ncv-sobe {
+    from { opacity: 0; transform: translate3d(0, 18px, 0); }
+    to   { opacity: 1; transform: none; }
+  }
+  /* O celular é centralizado pela propriedade `translate` (Tailwind v4), não
+     por `transform`: a animação mexe só no `transform` e as duas se somam. */
+  @keyframes ncv-celular {
+    from { opacity: 0; transform: translate3d(0, 46px, 0) scale(0.96); }
+    to   { opacity: 1; transform: none; }
+  }
+  @keyframes ncv-aparece {
+    from { opacity: 0; transform: translate3d(0, 16px, 0) scale(0.92); }
+    to   { opacity: 1; transform: none; }
+  }
+  @keyframes ncv-flutua {
+    0%, 100% { transform: translate3d(0, 0, 0); }
+    50%      { transform: translate3d(0, var(--amp, -8px), 0); }
+  }
+
+  /* ── Bento dos recursos ──────────────────────────────────────────────────── */
+
+  .ncv-bloco {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    background: linear-gradient(165deg, hsl(200 48% 11%) 0%, hsl(203 80% 4%) 100%);
+    border: 1px solid hsl(0 0% 100% / 0.07);
+    box-shadow: 0 30px 60px -40px hsl(203 100% 2% / 0.7);
+    transition:
+      transform 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+      box-shadow 0.5s ease;
+  }
+  /* O conteúdo fica acima das duas luzes. */
+  .ncv-bloco > * {
+    position: relative;
+    z-index: 1;
+  }
+  /* A luz dourada que segue o cursor (`--mx`/`--my` vêm de `GradeLuz`). */
+  .ncv-bloco::before,
+  .ncv-bloco::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+  }
+  .ncv-bloco::before {
+    background: radial-gradient(22rem circle at var(--mx, 50%) var(--my, 0%), hsl(42 74% 62% / 0.13), transparent 62%);
+  }
+  /* A mesma luz, só na borda: o aro acende onde o cursor está. */
+  .ncv-bloco::after {
+    z-index: 2;
+    padding: 1px;
+    background: radial-gradient(14rem circle at var(--mx, 50%) var(--my, 0%), hsl(42 74% 62% / 0.75), transparent 62%);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+  }
+  /* Só com mouse de verdade. No toque, nada depende de hover. */
+  @media (hover: hover) and (pointer: fine) {
+    .ncv-bloco:hover::before,
+    .ncv-bloco:hover::after {
+      opacity: 1;
+    }
+    .ncv-bloco:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 40px 70px -40px hsl(36 78% 32% / 0.55);
+    }
+  }
+
+  /* Fundos que variam o ritmo do bento (nem todo bloco é igual). */
+  .ncv-bloco-ia {
+    background:
+      radial-gradient(30rem 20rem at 100% 0%, hsl(42 74% 62% / 0.2), transparent 60%),
+      radial-gradient(20rem 16rem at 0% 100%, hsl(36 78% 40% / 0.14), transparent 62%),
+      linear-gradient(165deg, hsl(200 48% 11%) 0%, hsl(203 80% 4%) 100%);
+  }
+  .ncv-bloco-cartao {
+    background:
+      radial-gradient(16rem 12rem at 100% 100%, hsl(42 74% 62% / 0.14), transparent 62%),
+      linear-gradient(165deg, hsl(200 48% 11%) 0%, hsl(203 80% 4%) 100%);
+  }
+  /* "Vem aí": frio (ciano) e com borda tracejada. Não pode parecer pronto. */
+  .ncv-bloco-vem {
+    background:
+      radial-gradient(26rem 16rem at 0% 0%, hsl(197 68% 45% / 0.2), transparent 62%),
+      linear-gradient(165deg, hsl(200 50% 12%) 0%, hsl(203 80% 5%) 100%);
+    border: 1px dashed hsl(197 75% 68% / 0.45);
+  }
+
+  /* O cartão de crédito desenhado do bloco "Cartões". */
+  .ncv-plastico {
+    background:
+      radial-gradient(12rem 8rem at 0% 0%, hsl(44 85% 74% / 0.55), transparent 60%),
+      linear-gradient(135deg, hsl(40 70% 52%) 0%, hsl(36 78% 34%) 55%, hsl(30 60% 20%) 100%);
+    box-shadow:
+      inset 0 1px 0 hsl(0 0% 100% / 0.35),
+      0 18px 30px -16px hsl(36 78% 20% / 0.9);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ncv-bloco,
+    .ncv-bloco:hover {
+      transform: none;
+      transition: none;
+    }
+  }
+}

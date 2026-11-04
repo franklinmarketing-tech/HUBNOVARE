@@ -60,7 +60,8 @@ export function ContaCompartilhada({
   const [email, setEmail] = useState("");
   const [ocupado, setOcupado] = useState<string | null>(null);
   const [recado, setRecado] = useState<{ tom: "ok" | "aviso"; texto: string } | null>(null);
-  const [acabouDeConvidar, setAcabouDeConvidar] = useState(false);
+  // O e-mail recém-convidado (o campo esvazia): vai na mensagem do WhatsApp, para a pessoa entrar com o e-mail certo.
+  const [acabouDeConvidar, setAcabouDeConvidar] = useState<string | null>(null);
   const [confirmar, setConfirmar] = useState<Confirmar>(null);
   const [copiado, setCopiado] = useState(false);
 
@@ -126,7 +127,7 @@ export function ContaCompartilhada({
         tom: "aviso",
         texto:
           e instanceof ErroDados && e.motivo === "sem-tabela"
-            ? "Sair ainda não está instalado (falta rodar supabase/novarecash_extras.sql). Peça ao titular para remover você."
+            ? "Sair por aqui ainda está sendo preparado. Por enquanto, peça ao titular para remover você em Ajustes."
             : "Não consegui agora. Tente de novo em instantes.",
       });
     } finally {
@@ -138,15 +139,15 @@ export function ContaCompartilhada({
     e.preventDefault();
     setOcupado("convidar");
     setRecado(null);
-    setAcabouDeConvidar(false);
+    setAcabouDeConvidar(null);
     try {
       const erro = await convidar(sb, eu, meuEmail, email);
       if (erro) {
         setRecado({ tom: "aviso", texto: erro });
         return;
       }
+      setAcabouDeConvidar(email.trim());
       setEmail("");
-      setAcabouDeConvidar(true);
       setMembros(await lerMembros(sb, eu));
     } catch {
       setRecado({ tom: "aviso", texto: "Não consegui enviar o convite agora. Tente de novo em instantes." });
@@ -195,7 +196,7 @@ export function ContaCompartilhada({
           role="status"
           className={`rounded-xl border px-4 py-3 text-xs ${
             recado.tom === "ok"
-              ? "border-[hsl(152_55%_41%/0.4)] bg-[hsl(152_55%_41%/0.12)] text-[hsl(152_60%_62%)]"
+              ? "border-[hsl(152_55%_41%/0.4)] bg-[hsl(152_55%_41%/0.12)] text-[var(--ncash-verde)]"
               : "border-warning/35 bg-warning/10 text-warning-claro"
           }`}
         >
@@ -282,7 +283,8 @@ export function ContaCompartilhada({
           {acabouDeConvidar && (
             <div className="mt-3 rounded-xl border border-white/10 bg-noite p-3">
               <p className="text-xs leading-relaxed text-white/80">
-                Convite criado. Avise a pessoa: ela entra (ou cria a conta) com esse mesmo e-mail e abre este link para aceitar:
+                Convite criado para <strong className="break-all text-white">{acabouDeConvidar}</strong>. Avise a pessoa: ela
+                entra (ou cria a conta) com esse mesmo e-mail e abre este link para aceitar:
               </p>
               <p className="mt-1.5 break-all font-mono text-2xs text-ouro">{linkConvite}</p>
               <div className="mt-2 flex flex-wrap gap-2">
@@ -290,10 +292,12 @@ export function ContaCompartilhada({
                   {copiado ? "Copiado" : "Copiar link"}
                 </Botao>
                 <a
-                  href={`https://wa.me/?text=${encodeURIComponent(`Te convidei para o nosso NovareCash. Entre com este e-mail e aceite aqui: ${linkConvite}`)}`}
+                  href={`https://wa.me/?text=${encodeURIComponent(
+                    `Te convidei para o nosso NovareCash. Entre (ou crie a conta) com o e-mail ${acabouDeConvidar} e aceite aqui: ${linkConvite}`,
+                  )}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/20 px-4 text-sm font-semibold text-white hover:border-ouro/60 hover:bg-white/[0.04]"
+                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/20 px-4 text-sm font-semibold text-white outline-none hover:border-ouro/60 hover:bg-white/[0.04] focus-visible:ring-2 focus-visible:ring-ouro"
                 >
                   <MessageCircle className="h-4 w-4" />
                   Mandar no WhatsApp

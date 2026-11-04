@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Info, RotateCcw, SendHorizontal, Sparkles } from "lucide-react";
 
-import { Cartao } from "../pecas";
+import { ANEL, Cartao } from "../pecas";
 
 /**
  * O chat da IA.
@@ -48,7 +48,10 @@ export function ChatIA({ cota }: { cota: number }) {
     try {
       sessionStorage.setItem(CHAVE, JSON.stringify(mensagens.slice(-30)));
     } catch {}
-    fim.current?.scrollIntoView({ block: "end", behavior: "smooth" });
+    // Só desce quando há conversa: com a lista vazia, rolar até o fim escondia o título ao abrir a tela.
+    if (mensagens.length === 0) return;
+    const calmo = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    fim.current?.scrollIntoView({ block: "end", behavior: calmo ? "auto" : "smooth" });
   }, [mensagens]);
 
   async function perguntar(pergunta: string) {
@@ -140,26 +143,29 @@ export function ChatIA({ cota }: { cota: number }) {
           {pensando && (
             <div className="flex justify-start" role="status">
               <p className="rounded-2xl rounded-bl-md bg-white/[0.06] px-3.5 py-2.5 text-sm text-white/70">
-                <span className="animate-pulse">Olhando os seus números…</span>
+                <span className="animate-pulse motion-reduce:animate-none">Olhando os seus números…</span>
               </p>
             </div>
           )}
           <div ref={fim} />
         </div>
 
-        <div className="mt-3 flex flex-wrap gap-1.5">
-          {SUGESTOES.map((s) => (
-            <button
-              key={s}
-              type="button"
-              onClick={() => perguntar(s)}
-              disabled={pensando}
-              className="min-h-11 rounded-full border border-white/15 bg-white/[0.03] px-3 py-1.5 text-left text-2xs font-semibold text-white/85 transition-colors hover:border-ouro/50 disabled:opacity-50"
-            >
-              {s}
-            </button>
-          ))}
-        </div>
+        {/* As sugestões ajudam a começar; depois da primeira pergunta saem do caminho (no celular, era meia tela). */}
+        {mensagens.length === 0 && (
+          <div className="mt-3 flex flex-wrap gap-1.5">
+            {SUGESTOES.map((s) => (
+              <button
+                key={s}
+                type="button"
+                onClick={() => perguntar(s)}
+                disabled={pensando}
+                className={`min-h-11 rounded-full border border-white/15 bg-white/[0.03] px-3 py-1.5 text-left text-xs font-semibold text-white/85 transition-colors hover:border-ouro/50 disabled:opacity-50 ${ANEL}`}
+              >
+                {s}
+              </button>
+            ))}
+          </div>
+        )}
 
         <form
           className="mt-3 flex items-end gap-2"
@@ -183,13 +189,14 @@ export function ChatIA({ cota }: { cota: number }) {
             }}
             rows={2}
             placeholder="Ex.: dá para guardar R$ 500 este mês?"
-            className="min-h-11 min-w-0 flex-1 resize-none rounded-xl border border-white/15 bg-noite px-3 py-2.5 text-sm text-white outline-none placeholder:text-white/40 focus:border-ouro focus:ring-2 focus:ring-ouro/25"
+            enterKeyHint="send"
+            className="ncash-campo min-h-11 min-w-0 flex-1 resize-none rounded-xl border border-white/15 bg-noite px-3 py-2.5 text-base text-white outline-none sm:text-sm placeholder:text-white/40 focus:border-ouro focus:ring-2 focus:ring-ouro/25"
           />
           <button
             type="submit"
             disabled={pensando || !texto.trim()}
             aria-label="Enviar pergunta"
-            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-accent-btn text-white transition-opacity disabled:opacity-50"
+            className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-accent-btn text-accent-foreground transition-opacity disabled:opacity-50 ${ANEL}`}
           >
             <SendHorizontal className="h-4 w-4" />
           </button>
@@ -201,7 +208,7 @@ export function ChatIA({ cota }: { cota: number }) {
             <button
               type="button"
               onClick={recomecar}
-              className="inline-flex min-h-11 items-center gap-1 rounded-lg px-2 font-semibold text-white/85 hover:bg-white/[0.06]"
+              className={`inline-flex min-h-11 items-center gap-1 rounded-lg px-2 font-semibold text-white/85 hover:bg-white/[0.06] ${ANEL}`}
             >
               <RotateCcw className="h-3 w-3" />
               Nova conversa

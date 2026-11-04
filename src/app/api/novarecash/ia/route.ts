@@ -50,7 +50,12 @@ function lerMensagens(corpo: unknown): Mensagem[] | null {
     const texto = (m as { texto?: unknown })?.texto;
     if ((papel !== "usuario" && papel !== "ia") || typeof texto !== "string") return null;
     const limpo = texto.trim().slice(0, papel === "usuario" ? TAMANHO_MAXIMO : 4000);
-    if (limpo) mensagens.push({ papel, texto: limpo });
+    if (!limpo) continue;
+    // Duas seguidas do mesmo lado (a pergunta anterior falhou e a tela não guardou
+    // resposta): junta numa só. A API do modelo espera pessoa e IA alternadas.
+    const anterior = mensagens[mensagens.length - 1];
+    if (anterior?.papel === papel) anterior.texto = `${anterior.texto}\n\n${limpo}`.slice(-(papel === "usuario" ? TAMANHO_MAXIMO * 2 : 4000));
+    else mensagens.push({ papel, texto: limpo });
   }
 
   // Só as mais recentes, começando por uma da pessoa (a API exige) e terminando nela.

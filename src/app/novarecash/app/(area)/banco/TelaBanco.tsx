@@ -163,7 +163,7 @@ export function TelaBanco() {
   return (
     <div className="space-y-4">
       <p className="flex items-start gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-2xs leading-relaxed text-white/70">
-        <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[hsl(152_60%_62%)]" />
+        <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[var(--ncash-verde)]" />
         <span>
           Só leitura: o Open Finance compartilha saldo e extrato, e ninguém movimenta dinheiro por aqui. Você pode
           desligar a conexão quando quiser.

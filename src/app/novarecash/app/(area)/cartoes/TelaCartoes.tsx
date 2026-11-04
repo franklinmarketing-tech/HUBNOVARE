@@ -50,6 +50,7 @@ import {
   type TomSelo,
 } from "../pecas";
 import { FormLancamento } from "../extrato/FormLancamento";
+import { Toast, useToast } from "../Toast";
 import { AvisoInstalar } from "./AvisoInstalar";
 
 type Estado = "carregando" | "pronto" | "sem-tabela" | "sem-sql" | "erro";
@@ -76,6 +77,7 @@ export function TelaCartoes() {
   const [novaCompra, setNovaCompra] = useState(false);
   const [pagando, setPagando] = useState<Fatura | null>(null);
   const [detalhe, setDetalhe] = useState<TransacaoCartao | null>(null);
+  const toast = useToast();
 
   const carregar = useCallback(
     async (silencioso = false) => {
@@ -204,6 +206,7 @@ export function TelaCartoes() {
             if (formCartao === "novo") await criarCartao(sb, uid, d);
             else await editarCartao(sb, uid, formCartao, d);
             setFormCartao(null);
+            toast.mostrar({ texto: formCartao === "novo" ? `Cartão ${d.nome} cadastrado.` : "Cartão atualizado." });
             await carregar(true);
           }}
         />
@@ -219,6 +222,7 @@ export function TelaCartoes() {
           onFechar={() => setNovaCompra(false)}
           onSalvo={() => {
             setNovaCompra(false);
+            toast.mostrar({ texto: "Compra lançada na fatura do cartão." });
             carregar(true);
           }}
         />
@@ -234,6 +238,7 @@ export function TelaCartoes() {
           onPagar={async (valor, data, contaOrigemId) => {
             await pagarFatura(sb, uid, { cartao: atual.cartao, contaOrigemId, valor, data, nomeFatura: nomeDoMes(pagando.ref) });
             setPagando(null);
+            toast.mostrar({ texto: `Pagamento de ${brl(valor)} registrado na fatura de ${nomeDoMes(pagando.ref, false)}.` });
             await carregar(true);
           }}
         />
@@ -247,10 +252,13 @@ export function TelaCartoes() {
             if (detalhe.compra_id) await apagarCompra(sb, uid, detalhe.compra_id);
             else await apagarLancamento(sb, uid, detalhe.id);
             setDetalhe(null);
+            toast.mostrar({ texto: detalhe.categoria === "pagamento_fatura" ? "Pagamento desfeito." : "Compra apagada." });
             await carregar(true);
           }}
         />
       )}
+
+      <Toast {...toast} />
     </div>
   );
 }
@@ -531,7 +539,7 @@ function Erro({ texto }: { texto: string | null }) {
 
 function mensagemDeFalha(e: unknown, padrao: string) {
   return e instanceof ErroDados && e.motivo === "sem-tabela"
-    ? "Falta instalar os cartões no banco (supabase/novarecash_cartoes.sql). Avise quem administra."
+    ? "Esta parte dos cartões ainda está sendo preparada. Tente de novo em alguns minutos ou fale com a Novare."
     : padrao;
 }
 
@@ -561,6 +569,8 @@ function FormCartao({
     if (!fecha || !vence) return setErro("Escolha o dia em que a fatura fecha e o dia em que vence.");
     const lim = limite.trim() ? Math.round(parseNumero(limite) * 100) / 100 : null;
     if (lim !== null && !(lim >= 0)) return setErro("O limite não pode ser negativo.");
+    // `parseNumero` devolve 0 para o que não entende: sem isto, "5,000.00" virava limite R$ 0,00 calado.
+    if (lim === 0 && /[1-9]/.test(limite)) return setErro("Confira o limite: use só números, como 5.000,00.");
     setSalvando(true);
     try {
       await onSalvar({
@@ -686,7 +696,7 @@ function FormPagarFatura({
     setErro(null);
     const v = Math.round(parseNumero(valor) * 100) / 100;
     if (!(v > 0)) return setErro("Informe um valor maior que zero.");
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(data)) return setErro("Escolha a data do pagamento.");
+    if (!/^20\d{2}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/.test(data)) return setErro("Escolha a data do pagamento.");
     setSalvando(true);
     try {
       await onPagar(v, data, origem || null);
@@ -807,8 +817,13 @@ function DetalheLancamento({ t, onFechar, onApagar }: { t: TransacaoCartao; onFe
           ) : (
             <span />
           )}
-          <Botao variante="contorno" href="/novarecash/app/extrato" Icone={Pencil}>
-            Ir ao Extrato
+          {/* Abre o Extrato já no mês e na busca deste lançamento: um toque até a edição. */}
+          <Botao
+            variante="contorno"
+            href={`/novarecash/app/extrato?${new URLSearchParams({ mes: t.data.slice(0, 7), busca: semSufixo(t) }).toString()}`}
+            Icone={Pencil}
+          >
+            Editar no Extrato
           </Botao>
         </div>
       </div>

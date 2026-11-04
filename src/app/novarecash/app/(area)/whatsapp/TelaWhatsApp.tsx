@@ -16,6 +16,7 @@ import {
   type Transacao,
 } from "@/lib/novarecash/dados";
 import { ANEL, AvisoErro, AvisoSemTabela, Botao, CAMPO, COR_ENTRADA, Cartao, Esqueleto, ROTULO_CAMPO, Selo, brl } from "../pecas";
+import { Toast, useToast } from "../Toast";
 
 /**
  * A TELA DO WHATSAPP do NovareCash (própria, sem nada de outro app).
@@ -68,6 +69,9 @@ export function TelaWhatsApp({ envioLigado }: { envioLigado: boolean }) {
   const [copiado, setCopiado] = useState(false);
   const [recado, setRecado] = useState<string | null>(null);
   const [confirmandoSaida, setConfirmandoSaida] = useState(false);
+  const toast = useToast();
+  // `mostrar` é estável; o objeto `toast` não (muda a cada render) e reiniciaria a conferência a cada segundo.
+  const mostrarToast = toast.mostrar;
 
   const restante = useContagem(codigo?.expira_em ?? null);
   const codigoVivo = Boolean(codigo) && (codigo?.expira_em ? restante > 0 : true);
@@ -115,16 +119,20 @@ export function TelaWhatsApp({ envioLigado }: { envioLigado: boolean }) {
           setCodigo(null);
           setRecado(null);
           await carregar();
+          mostrarToast({ texto: "Pronto: o seu WhatsApp está ligado ao NovareCash." });
         } else if (manual) {
           setRecado(
             "Ainda não chegou. Confira se você mandou os seis dígitos para o número certo, do celular que você quer ligar.",
           );
         }
+      } catch {
+        // Rede caiu no meio da conferência: a automática (a cada 6 s) tenta de novo sozinha; a manual avisa.
+        if (manual) setRecado("Não consegui conferir agora. Tente de novo em instantes.");
       } finally {
         if (manual) setOcupado(null);
       }
     },
-    [lerVinculo, carregar],
+    [lerVinculo, carregar, mostrarToast],
   );
 
   useEffect(() => {
@@ -163,6 +171,7 @@ export function TelaWhatsApp({ envioLigado }: { envioLigado: boolean }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ncash_conta_padrao_id: id || null }),
       });
+      if (r.ok) toast.mostrar({ texto: id ? "Conta padrão salva." : "Sem conta padrão: o que chegar entra sem conta." });
       if (!r.ok) {
         const d = (await r.json().catch(() => null)) as { erro?: string } | null;
         setVinculo((v) => (v ? { ...v, ncash_conta_padrao_id: antes } : v));
@@ -191,6 +200,9 @@ export function TelaWhatsApp({ envioLigado }: { envioLigado: boolean }) {
       }
       setConfirmandoSaida(false);
       await carregar();
+      toast.mostrar({ texto: "Número desligado. O que já entrou continua no Extrato." });
+    } catch {
+      setRecado("Não consegui desligar agora. Tente de novo.");
     } finally {
       setOcupado(null);
     }
@@ -364,6 +376,8 @@ export function TelaWhatsApp({ envioLigado }: { envioLigado: boolean }) {
           </Cartao>
         )}
       </section>
+
+      <Toast {...toast} />
     </div>
   );
 }

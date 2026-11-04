@@ -112,6 +112,18 @@ export function statusRecurso(r: Recurso): { noAr: boolean; rotulo: string } {
   return { noAr: false, rotulo: r.liberaEm ? `Libera em ${r.liberaEm}` : "Em preparação" };
 }
 
+/**
+ * O selo CURTO de um recurso que ainda não está no ar, para caber num cartão
+ * pequeno da ilustração ("Libera em dez/2026"). `null` = já funciona, sem selo.
+ * Sai de `liberaEm`, como `statusRecurso`: a data nunca é escrita à mão.
+ */
+export function seloCurto(r: Recurso): string | null {
+  if (r.noAr) return null;
+  if (!r.liberaEm) return "Em preparação";
+  const m = r.liberaEm.match(/^(\p{L}{3})\p{L}*\s+de\s+(\d{4})$/u);
+  return `Libera em ${m ? `${m[1]}/${m[2]}` : r.liberaEm}`;
+}
+
 /** O nome curto de cada recurso, para frases que não cabem o título inteiro. */
 export const NOME_CURTO: Record<Recurso["chave"], string> = {
   ia: "IA",

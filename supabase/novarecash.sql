@@ -76,16 +76,28 @@ as $$
   );
 $$;
 
-create or replace function public.ncash_tem_acesso()
-returns boolean
-language sql
-stable
-security definer
-set search_path = public
-as $$
-  select coalesce(public.hub_papel() in ('admin', 'equipe'), false)
-      or public.ncash_tem_acesso_email(auth.email());
-$$;
+-- ⚠️ SÓ CRIA SE AINDA NÃO EXISTIR (04/11/2026): `novarecash_compartilhar.sql`
+-- substitui esta função por uma que também deixa entrar o MEMBRO da conta
+-- compartilhada. Com `create or replace` aqui, rodar este arquivo de novo
+-- depois daquele voltava a versão curta — e o convidado era barrado na porta
+-- do app sem nenhum erro aparecer.
+do $do$
+begin
+  if to_regprocedure('public.ncash_tem_acesso()') is null then
+    execute $f$
+      create function public.ncash_tem_acesso()
+      returns boolean
+      language sql
+      stable
+      security definer
+      set search_path = public
+      as $$
+        select coalesce(public.hub_papel() in ('admin', 'equipe'), false)
+            or public.ncash_tem_acesso_email(auth.email());
+      $$
+    $f$;
+  end if;
+end $do$;
 
 revoke all on function public.ncash_tem_acesso_email(text) from public, anon, authenticated;
 -- ⚠️ `revoke ... from public` tira de TODOS os papéis, inclusive o da chave de serviço: o servidor do

@@ -1,4 +1,4 @@
-import { Camera, Landmark, MessageCircle, Mic, Sparkles, type LucideIcon } from "lucide-react";
+import { BatteryFull, Camera, House, Landmark, MessageCircle, Mic, ReceiptText, Signal, Sparkles, Target, type LucideIcon } from "lucide-react";
 import { RECURSOS } from "@/lib/novarecash/config";
 
 /** Banco E WhatsApp no ar? Só então a legenda pode dizer "se preenche sozinho" (CDC). */
@@ -55,44 +55,80 @@ const ORCAMENTO = [
   { nome: "Transporte", gasto: "R$ 290", teto: "R$ 400", pct: 72 },
 ];
 
+/**
+ * A tela Início do HERÓI: o celular é o protagonista da página, então ganha
+ * moldura de aparelho de verdade (ilha, aro dourado, botões, reflexo) e a tela
+ * inteira, da barra de status à barra de abas. Ocupa 100% do pai: quem a usa
+ * decide o tamanho (o herói fixa largura e altura, para não haver salto de layout).
+ *
+ * Sem `role` aqui: o palco do herói é que é o `role="img"` com a descrição.
+ */
 export function TelaInicio() {
   return (
-    <Celular rotulo="Ilustração da tela Início do NovareCash, com dados de exemplo: saldo do mês, entradas e saídas e o orçamento por categoria, com Restaurantes acima do limite.">
-      <TopoApp titulo="Novembro" />
-      <p className="mt-5 text-[11px] text-white/65">Sobra no mês</p>
-      <p className="font-display text-[1.7rem] font-semibold leading-tight tracking-[-0.03em] text-ouro">R$ 2.340,50</p>
-      <div className="mt-2 flex gap-3 text-[10px] text-white/65">
-        <span>
-          Entrou <strong className="text-emerald-300">R$ 6.200</strong>
-        </span>
-        <span>
-          Saiu <strong className="text-white">R$ 3.859</strong>
-        </span>
-      </div>
+    <div className="ncv-moldura relative h-full w-full rounded-[2.75rem] bg-[hsl(203_60%_5%)] p-[7px]">
+      <span aria-hidden className="absolute -left-[3px] top-[18%] h-9 w-[3px] rounded-l-sm bg-ouro/40" />
+      <span aria-hidden className="absolute -left-[3px] top-[27%] h-14 w-[3px] rounded-l-sm bg-ouro/40" />
+      <span aria-hidden className="absolute -right-[3px] top-[24%] h-16 w-[3px] rounded-r-sm bg-ouro/40" />
+      <div className="relative flex h-full flex-col overflow-hidden rounded-[2.3rem] bg-noite-2 px-4 pb-2.5 pt-3 text-white">
+        <div className="flex items-center justify-between px-1.5 text-[10px] font-semibold text-white/80">
+          <span className="tabular-nums">9:41</span>
+          <span className="absolute left-1/2 top-2.5 h-[18px] w-[74px] -translate-x-1/2 rounded-full bg-[hsl(203_100%_1%)]" />
+          <span className="flex items-center gap-1">
+            <Signal className="h-3 w-3" />
+            <BatteryFull className="h-3.5 w-3.5" />
+          </span>
+        </div>
 
-      <p className="mt-5 text-[10px] font-semibold uppercase tracking-[0.18em] text-white/65">Orçamento</p>
-      <ul className="mt-2 space-y-2.5">
-        {ORCAMENTO.map((c) => (
-          <li key={c.nome}>
-            <div className="flex items-baseline justify-between text-[11px]">
-              <span className="text-white/90">{c.nome}</span>
-              <span className={c.estourou ? "font-semibold text-accent-claro" : "text-white/65"}>
-                {c.gasto} <span className="text-white/60">/ {c.teto}</span>
-              </span>
-            </div>
-            <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-white/10">
-              <div
-                className={`h-full rounded-full ${c.estourou ? "bg-accent" : "bg-ouro"}`}
-                style={{ width: `${c.pct}%` }}
-              />
-            </div>
-          </li>
-        ))}
-      </ul>
-      <p className="mt-3 rounded-xl bg-accent/15 px-2.5 py-1.5 text-[10px] leading-snug text-accent-claro">
-        Restaurantes passou R$ 60 do combinado.
-      </p>
-    </Celular>
+        <div className="mt-4">
+          <TopoApp titulo="Novembro" />
+        </div>
+
+        <div className="mt-3 rounded-2xl bg-[linear-gradient(140deg,hsl(42_74%_62%/0.18),hsl(0_0%_100%/0.03)_70%)] px-3 py-2.5 ring-1 ring-ouro/20">
+          <p className="text-[10px] text-white/70">Sobra no mês</p>
+          <p className="font-display text-[1.55rem] font-semibold leading-tight tracking-[-0.03em] text-ouro tabular-nums">
+            R$ 2.340,50
+          </p>
+          <div className="mt-1 flex gap-3 text-[10px] text-white/70">
+            <span>
+              Entrou <strong className="text-emerald-300">R$ 6.200</strong>
+            </span>
+            <span>
+              Saiu <strong className="text-white">R$ 3.859</strong>
+            </span>
+          </div>
+        </div>
+
+        <p className="mt-3.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/65">Orçamento</p>
+        <ul className="mt-1.5 space-y-2">
+          {ORCAMENTO.map((c) => (
+            <li key={c.nome}>
+              <div className="flex items-baseline justify-between text-[11px]">
+                <span className="text-white/90">{c.nome}</span>
+                <span className={c.estourou ? "font-semibold text-accent-claro" : "text-white/70"}>
+                  {c.gasto} <span className="text-white/60">/ {c.teto}</span>
+                </span>
+              </div>
+              <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-white/10">
+                <div className={`h-full rounded-full ${c.estourou ? "bg-accent" : "bg-ouro"}`} style={{ width: `${c.pct}%` }} />
+              </div>
+            </li>
+          ))}
+        </ul>
+        <p className="mt-3 rounded-xl bg-accent/15 px-2.5 py-1.5 text-[10px] leading-snug text-accent-claro">
+          Restaurantes passou R$ 60 do combinado.
+        </p>
+
+        <div className="flex-1" />
+        <div className="flex items-center justify-around rounded-2xl bg-white/[0.06] py-2 text-white/55">
+          <House className="h-4 w-4 text-ouro" />
+          <ReceiptText className="h-4 w-4" />
+          <Sparkles className="h-4 w-4" />
+          <Target className="h-4 w-4" />
+        </div>
+        <span className="mx-auto mt-2 block h-1 w-20 shrink-0 rounded-full bg-white/30" />
+        <span className="pointer-events-none absolute inset-0 rounded-[inherit] bg-[linear-gradient(118deg,hsl(0_0%_100%/0.09)_0%,transparent_30%)]" />
+      </div>
+    </div>
   );
 }
 

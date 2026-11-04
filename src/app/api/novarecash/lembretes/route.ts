@@ -4,7 +4,7 @@ import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
 import { somarDias } from "@/lib/novarecash/cartoes";
 import { paraContaPagar, paraPagamento, vencemNoDia, type ContaPagar, type PagamentoConta } from "@/lib/novarecash/contas-pagar";
-import { hojeNoBrasil } from "@/lib/novarecash/dados";
+import { hojeNoBrasil, lerTodasAsPaginas } from "@/lib/novarecash/dados";
 import {
   enviarModeloLembrete,
   mascararTelefone,
@@ -54,6 +54,10 @@ function servico(): SupabaseClient | null {
   return createClient(url, chave, { auth: { persistSession: false, autoRefreshToken: false } });
 }
 
+function falhaSeHouver(error: unknown) {
+  if (error) throw new Error(String((error as { message?: unknown }).message ?? error));
+}
+
 function agrupar<T extends { user_id: string }>(linhas: T[]): Map<string, T[]> {
   const m = new Map<string, T[]>();
   for (const l of linhas) m.set(l.user_id, [...(m.get(l.user_id) ?? []), l]);
@@ -96,9 +100,18 @@ async function executar(req: Request) {
   const ref = amanha.slice(0, 7);
 
   // 1. As contas ativas de todo mundo (só quem tem conta a pagar interessa).
-  const { data: linhas, error: e1 } = await s.from("ncash_contas_pagar").select("*").eq("ativa", true).range(0, 19999);
-  if (e1) return NextResponse.json({ ok: false, erro: `contas a pagar: ${e1.message}` }, { status: 500 });
-  const porDono = agrupar((linhas ?? []).map((r) => paraContaPagar(r as Record<string, unknown>)) as ContaPagar[]);
+  // De página em página: o Supabase corta cada resposta em mil linhas, e com a
+  // base crescendo os donos da "segunda página" ficariam sem lembrete, sem erro.
+  let linhas: Record<string, unknown>[];
+  try {
+    linhas = await lerTodasAsPaginas<Record<string, unknown>>(
+      (de, ate) => s.from("ncash_contas_pagar").select("*").eq("ativa", true).order("id").range(de, ate),
+      falhaSeHouver,
+    );
+  } catch (e) {
+    return NextResponse.json({ ok: false, erro: `contas a pagar: ${e instanceof Error ? e.message : e}` }, { status: 500 });
+  }
+  const porDono = agrupar(linhas.map((r) => paraContaPagar(r)) as ContaPagar[]);
   const donos = [...porDono.keys()];
 
   const resultado = {
@@ -117,9 +130,17 @@ async function executar(req: Request) {
   if (!donos.length) return NextResponse.json(resultado);
 
   // 2. Quem tem conta vencendo amanhã, sem pagar.
-  const { data: pags, error: e2 } = await s.from("ncash_contas_pagas").select("*").eq("competencia", ref).in("user_id", donos);
-  if (e2) return NextResponse.json({ ok: false, erro: `pagamentos: ${e2.message}` }, { status: 500 });
-  const pagosPorDono = agrupar((pags ?? []).map((r) => paraPagamento(r as Record<string, unknown>)) as PagamentoConta[]);
+  // Pela competência só (sem `.in(user_id, todos os donos)`, que estoura o tamanho da URL com a base grande).
+  let pags: Record<string, unknown>[];
+  try {
+    pags = await lerTodasAsPaginas<Record<string, unknown>>(
+      (de, ate) => s.from("ncash_contas_pagas").select("*").eq("competencia", ref).order("id").range(de, ate),
+      falhaSeHouver,
+    );
+  } catch (e) {
+    return NextResponse.json({ ok: false, erro: `pagamentos: ${e instanceof Error ? e.message : e}` }, { status: 500 });
+  }
+  const pagosPorDono = agrupar(pags.map((r) => paraPagamento(r)) as PagamentoConta[]);
 
   const aLembrar = new Map<string, ReturnType<typeof vencemNoDia>>();
   for (const [dono, contas] of porDono) {

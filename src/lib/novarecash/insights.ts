@@ -108,8 +108,27 @@ export function normalizarDescricao(d: string): string {
     .trim();
 }
 
-/** "Loja X 3/10" ou "parcela": compra parcelada, não é assinatura. */
-const ehParcela = (descricao: string) => /\b\d{1,2}\s*\/\s*\d{1,2}\b|parcela|parc\b/i.test(descricao);
+/**
+ * "Loja X 3/10", "(3/6)" ou "parcela": compra parcelada, não é assinatura.
+ *
+ * ⚠️ DATA NÃO É PARCELA (04/11/2026): o banco põe a data na descrição
+ * ("NETFLIX.COM 03/11"), e o "x/y" solto tratava a Netflix de todo mês como
+ * compra parcelada — a assinatura sumia dos alertas. "a/b" com b = mês do
+ * lançamento (ou o anterior: compra lançada depois) é data; "a/b" com a > b
+ * não é parcela. Parênteses e "parc" continuam valendo sempre.
+ */
+const ehParcela = (t: Pick<Transacao, "descricao" | "data">) => {
+  if (/\(\s*\d{1,2}\s*\/\s*\d{1,2}\s*\)|parcela|parc\b/i.test(t.descricao)) return true;
+  const mes = Number(t.data.slice(5, 7));
+  const mesAnterior = mes === 1 ? 12 : mes - 1;
+  for (const m of t.descricao.matchAll(/\b(\d{1,2})\s*\/\s*(\d{1,2})\b/g)) {
+    const a = Number(m[1]);
+    const b = Number(m[2]);
+    if (b === mes || b === mesAnterior) continue; // dd/mm do próprio lançamento
+    if (a >= 1 && b >= 2 && a <= b) return true;
+  }
+  return false;
+};
 
 /** Descrições parecidas: iguais, uma contém a outra, ou metade das palavras em comum. */
 export function descricoesParecidas(a: string, b: string): boolean {
@@ -226,7 +245,7 @@ function detectarAssinaturas(gastos: Transacao[], ref: string): Alerta[] {
       const t = porMes.get(ref)![0];
       const d = ` ${t.descricao.toLowerCase()} `;
       const pareceAssinatura = categoria(t.categoria).chave === "assinaturas" || PALAVRAS_ASSINATURA.some((p) => d.includes(p));
-      if (pareceAssinatura && !ehParcela(t.descricao)) {
+      if (pareceAssinatura && !ehParcela(t)) {
         alertas.push({
           chave: `assinatura-nova:${k}:${ref}`,
           tipo: "assinatura",
@@ -246,7 +265,7 @@ function detectarAssinaturas(gastos: Transacao[], ref: string): Alerta[] {
 
     if (ultimoMes !== ref && ultimoMes !== anterior) continue;
     if ([...porMes.values()].some((l) => l.length > 2)) continue;
-    if (lista.some((t) => ehParcela(t.descricao))) continue;
+    if (lista.some((t) => ehParcela(t))) continue;
 
     // A série que termina no mês mais recente; se a última cobrança mudou mais
     // de 10% (aumento de preço), a que termina no mês anterior.
@@ -397,7 +416,8 @@ function detectarDuplicadas(gastos: Transacao[], ref: string): Alerta[] {
 
 /**
  * REGRA: por categoria de gasto, o total deste mês contra a média dos 3 meses
- * anteriores (mês sem gasto conta como zero). Alerta se passar de 1,5 × a
+ * anteriores QUE TÊM EXTRATO (mês com extrato e sem gasto na categoria conta
+ * como zero; mês antes de a pessoa começar não entra). Alerta se passar de 1,5 × a
  * média E a diferença for de pelo menos R$ 100. Só roda quando há lançamento
  * em pelo menos 2 dos 3 meses anteriores — sem histórico, tudo pareceria novo.
  */
@@ -412,7 +432,10 @@ function detectarForaDoPadrao(gastos: Transacao[], todas: Transacao[], ref: stri
     const soma3 = gastos
       .filter((t) => chaveDaCategoria(t.categoria) === c.chave && anteriores.includes(t.data.slice(0, 7)))
       .reduce((s, t) => s + t.valor, 0);
-    const media = arred(soma3 / 3);
+    // Média dos meses anteriores QUE TÊM extrato (04/11/2026). Dividir sempre por 3
+    // fazia quem começou há 2 meses ver todo gasto CONSTANTE como "+50%": mercado
+    // R$ 800 em set, out e nov dava média 533 e o alerta "acima do normal".
+    const media = arred(soma3 / comHistorico);
     const diferenca = arred(c.total - media);
     if (!(c.total > media * 1.5 && diferenca >= 100)) continue;
 
@@ -428,8 +451,8 @@ function detectarForaDoPadrao(gastos: Transacao[], todas: Transacao[], ref: stri
       titulo: `${c.rotulo} acima do normal`,
       explicacao: `Neste mês: ${reais(c.total)}. ${
         media > 0
-          ? `A média dos 3 meses anteriores é ${reais(media)}${acima}: ${reais(diferenca)} a mais.`
-          : `Nos 3 meses anteriores não houve gasto nessa categoria.`
+          ? `A média ${comHistorico === 3 ? "dos 3 meses anteriores" : `dos ${comHistorico} meses anteriores com extrato`} é ${reais(media)}${acima}: ${reais(diferenca)} a mais.`
+          : `Nos ${comHistorico} meses anteriores com extrato não houve gasto nessa categoria.`
       } O maior foi ${maiores[0]?.descricao ?? "—"} (${reais(maiores[0]?.valor ?? 0)}).`,
       economia: null,
       noContador: false,

@@ -148,6 +148,10 @@ function FormConta({
     setErro(null);
     const n = nome.trim().slice(0, 60);
     if (!n) return setErro("Dê um nome à conta, por exemplo “Conta do banco” ou “Carteira”.");
+    // `parseNumero` devolve 0 para o que não entende ("1,234.56", "mil"): sem isto, o saldo virava R$ 0,00 calado.
+    if (saldo.trim() && parseNumero(saldo) === 0 && /[1-9]/.test(saldo)) {
+      return setErro("Confira o saldo: use só números, como 1.500,00 (ou −250,00 se está negativo).");
+    }
     const dados = {
       nome: n,
       tipo,

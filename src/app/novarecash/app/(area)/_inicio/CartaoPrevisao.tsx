@@ -6,7 +6,7 @@ import { TrendingUp } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { ErroDados, dataCurta, nomeDoMes, usuarioDaSessao } from "@/lib/novarecash/dados";
 import { carregarPrevisao, type Previsao } from "@/lib/novarecash/previsao";
-import { AvisoErro, Botao, Cartao, Esqueleto, brl } from "../pecas";
+import { AvisoInstalacao, AvisoErro, Botao, Cartao, Esqueleto, brl } from "../pecas";
 
 /**
  * A PREVISÃO DO MÊS, para o Início: quanto sobra no fim do mês.
@@ -36,14 +36,8 @@ export function CartaoPrevisao() {
   if (estado === "carregando") return <Esqueleto linhas={1} />;
   if (estado === "erro") return <AvisoErro titulo="Previsão do mês" mensagem="Não consegui calcular a previsão agora." onTentar={carregar} />;
   if (estado === "sem-tabela" || !p) {
-    return (
-      <Cartao className="border-dashed border-ouro/35 p-4">
-        <p className="font-display text-sm font-semibold text-white">Previsão do mês</p>
-        <p className="mt-1 text-xs leading-relaxed text-white/70">
-          Em instalação: falta rodar <code className="break-all font-mono text-2xs text-ouro">supabase/novarecash_cartoes.sql</code> no Supabase.
-        </p>
-      </Cartao>
-    );
+    // Mesma frase de gente do resto do app; o nome do SQL fica recolhido "para a equipe".
+    return <AvisoInstalacao titulo="A previsão do mês está quase pronta" arquivo="supabase/novarecash_cartoes.sql" />;
   }
 
   if (p.vazia) {

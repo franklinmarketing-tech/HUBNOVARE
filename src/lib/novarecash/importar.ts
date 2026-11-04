@@ -126,11 +126,16 @@ function campo(bloco: string, tag: string): string {
   return m ? m[1].trim() : "";
 }
 
-/** O padrão é ponto decimal, mas banco brasileiro manda vírgula: com vírgula, ela é o decimal. */
+/**
+ * O padrão é ponto decimal, mas banco brasileiro manda vírgula: com vírgula, ela é o decimal.
+ * Com OS DOIS ("1,234.56" ou "1.234,56"), o decimal é o que vem por ÚLTIMO — antes,
+ * "-1,234.56" virava -1,23 (o aluguel de R$ 1.234,56 entrava como R$ 1,23).
+ */
 function numeroOfx(bruto: string): number | null {
   const s = bruto.replace(/\s|R\$/gi, "");
   if (!s) return null;
-  const n = Number(s.includes(",") ? s.replace(/\./g, "").replace(",", ".") : s);
+  const virgulaDecimal = s.includes(",") && s.lastIndexOf(",") > s.lastIndexOf(".");
+  const n = Number(virgulaDecimal ? s.replace(/\./g, "").replace(",", ".") : s.replace(/,/g, ""));
   return Number.isFinite(n) ? n : null;
 }
 

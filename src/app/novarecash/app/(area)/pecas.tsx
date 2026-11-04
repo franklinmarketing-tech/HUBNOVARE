@@ -14,19 +14,29 @@ export { brl } from "@/lib/calculos";
  * AÇÃO continua laranja (`accent-btn`, 4,77:1 com texto branco), como em todo
  * o Hub. Texto secundário em branco 60–75%: passa AA sobre a noite com folga.
  *
+ * MODO CLARO (04/11/2026, o padrão): as mesmas classes, com as variáveis
+ * redefinidas por `.ncash-claro` (fim do globals.css). Regra para peça nova:
+ * NADA de hsl/hex fixo no JSX — use as classes do tema ou uma `--ncash-*`.
+ *
  * Sem hooks aqui: as peças servem a telas de servidor e de navegador.
  */
 
 export const ANEL =
   "outline-none focus-visible:ring-2 focus-visible:ring-ouro focus-visible:ring-offset-2 focus-visible:ring-offset-noite";
 
-/** Verde e laranja claros: legíveis sobre a noite (o verde e o vermelho da casa são para fundo claro). */
-export const COR_ENTRADA = "text-[hsl(152_60%_62%)]";
+/**
+ * Verde e laranja de TEXTO. Passam pelas variáveis do tema (`--ncash-verde`,
+ * `--color-accent-claro`): claros sobre a noite, escuros no modo claro (globals.css).
+ */
+export const COR_ENTRADA = "text-[var(--ncash-verde)]";
 export const COR_SAIDA = "text-accent-claro";
 
-/** Campo de formulário sobre a noite. */
+/**
+ * Campo de formulário. `ncash-campo` engrossa o contorno no modo claro (globals.css).
+ * 16px no celular (`text-base`): abaixo disso o iPhone dá zoom na página ao tocar no campo.
+ */
 export const CAMPO =
-  "block min-h-11 w-full rounded-xl border border-white/15 bg-noite px-3 py-2 text-sm text-white placeholder:text-white/40 outline-none transition-colors focus:border-ouro focus:ring-2 focus:ring-ouro/25 disabled:opacity-60";
+  "ncash-campo block min-h-11 w-full rounded-xl border border-white/15 bg-noite px-3 py-2 text-base text-white sm:text-sm placeholder:text-white/40 outline-none transition-colors focus:border-ouro focus:ring-2 focus:ring-ouro/25 disabled:opacity-60";
 
 export const ROTULO_CAMPO = "block text-2xs font-semibold text-white/70";
 
@@ -39,7 +49,7 @@ export function Cartao({
 }) {
   return (
     <div
-      className={`rounded-2xl border border-white/10 bg-noite-2 shadow-[0_20px_44px_-30px_hsl(203_100%_1%/0.9)] ${className}`}
+      className={`rounded-2xl border border-white/10 bg-noite-2 shadow-[0_20px_44px_-30px_var(--ncash-sombra)] ${className}`}
     >
       {children}
     </div>
@@ -70,7 +80,8 @@ export function Cabecalho({
 type VarianteBotao = "acao" | "contorno" | "fantasma" | "perigo";
 
 const ESTILO_BOTAO: Record<VarianteBotao, string> = {
-  acao: "bg-accent-btn text-white shadow-[0_8px_24px_-12px_hsl(16_80%_55%/0.7)] hover:brightness-110",
+  // `text-accent-foreground` (branco fixo), e não `text-white`: no modo claro o "white" vira petróleo (2,8:1 no laranja).
+  acao: "bg-accent-btn text-accent-foreground shadow-[0_8px_24px_-12px_hsl(16_80%_55%/0.7)] hover:brightness-110",
   contorno: "border border-white/20 text-white hover:border-ouro/60 hover:bg-white/[0.04]",
   fantasma: "text-white/80 hover:bg-white/[0.06] hover:text-white",
   perigo: "border border-accent-claro/40 text-accent-claro hover:bg-accent-claro/10",
@@ -121,7 +132,7 @@ export type TomSelo = "ouro" | "ciano" | "verde" | "alerta" | "perigo" | "neutro
 const ESTILO_SELO: Record<TomSelo, string> = {
   ouro: "bg-ouro/15 text-ouro ring-ouro/30",
   ciano: "bg-ciano/15 text-ciano-claro ring-ciano/30",
-  verde: "bg-[hsl(152_55%_41%/0.15)] text-[hsl(152_60%_62%)] ring-[hsl(152_55%_41%/0.35)]",
+  verde: "bg-[hsl(152_55%_41%/0.15)] text-[var(--ncash-verde)] ring-[hsl(152_55%_41%/0.35)]",
   alerta: "bg-warning/15 text-warning-claro ring-warning/35",
   perigo: "bg-accent/15 text-accent-claro ring-accent/35",
   neutro: "bg-white/[0.06] text-white/75 ring-white/15",
@@ -185,20 +196,37 @@ export function AvisoErro({
 }
 
 /** As tabelas `ncash_*` ainda não existem: falta um passo de instalação, não é defeito. */
-export function AvisoSemTabela() {
+/**
+ * O AVISO DE "AINDA NÃO INSTALADO" — um só para o app inteiro (04/11/2026).
+ * O cliente lê uma frase de gente ("estamos preparando, volte em instantes"); o
+ * nome do arquivo SQL fica recolhido em "Para a equipe da Novare". Antes, o
+ * cliente via "rode o arquivo supabase/..." — instrução de banco na cara de quem paga.
+ */
+export function AvisoInstalacao({ titulo, arquivo }: { titulo: string; arquivo: string }) {
   return (
     <Cartao className="border-dashed border-ouro/35 p-5">
       <p className="flex items-center gap-2 font-display text-sm font-semibold text-white">
         <Database className="h-4 w-4 shrink-0 text-ouro" />
-        O NovareCash está sendo instalado
+        {titulo}
       </p>
       <p className="mt-1 max-w-prose text-xs leading-relaxed text-white/70">
-        As tabelas do extrato ainda não foram criadas. Para quem administra: rode o arquivo{" "}
-        <code className="break-all rounded bg-white/10 px-1 font-mono text-2xs text-ouro">supabase/novarecash_dados.sql</code>{" "}
-        no editor SQL do Supabase e recarregue a página.
+        Estamos terminando de preparar esta parte do NovareCash. O que você já registrou continua
+        guardado. Tente de novo em alguns minutos; se continuar assim, fale com a gente pelo botão
+        &ldquo;Falar com um consultor&rdquo;.
       </p>
+      <details className="mt-3 text-2xs text-white/45">
+        <summary className="cursor-pointer select-none">Para a equipe da Novare</summary>
+        <p className="mt-1">
+          Rodar <code className="break-all rounded bg-white/10 px-1 font-mono text-ouro">{arquivo}</code> no SQL
+          Editor do Supabase (a ordem completa está em <code className="font-mono">docs/NOVARECASH-ATIVAR.md</code>).
+        </p>
+      </details>
     </Cartao>
   );
+}
+
+export function AvisoSemTabela() {
+  return <AvisoInstalacao titulo="O seu NovareCash está quase pronto" arquivo="supabase/novarecash_dados.sql" />;
 }
 
 export function Vazio({

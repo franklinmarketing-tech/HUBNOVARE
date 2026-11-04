@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AlertTriangle, CalendarClock, Check, ChevronLeft, ChevronRight, Plus, Trash2, Undo2 } from "lucide-react";
 
 import { createClient } from "@/lib/supabase/client";
@@ -46,6 +46,7 @@ import {
   brl,
 } from "../pecas";
 import { AvisoInstalar } from "../cartoes/AvisoInstalar";
+import { Toast, useToast } from "../Toast";
 
 type Estado = "carregando" | "pronto" | "sem-tabela" | "sem-sql" | "erro";
 
@@ -81,8 +82,14 @@ export function TelaContas() {
   const [pagando, setPagando] = useState<ItemDoMes | null>(null);
   const [recado, setRecado] = useState<string | null>(null);
 
+  // Só a leitura MAIS RECENTE vale (troca rápida de mês = respostas fora de ordem).
+  const pedido = useRef(0);
+  const toast = useToast();
+  // A última lista lida: o "Desfazer" do aviso de "Paguei" acha nela o pagamento recém-criado.
+  const ultimos = useRef<ItemDoMes[]>([]);
   const carregar = useCallback(
     async (silencioso = false) => {
+      const vez = ++pedido.current;
       if (!silencioso) setEstado("carregando");
       try {
         const eu = await usuarioDaSessao(sb);
@@ -95,11 +102,14 @@ export function TelaContas() {
           throw e;
         }
         const mes = await carregarMesDeContas(sb, eu, ref, hoje);
+        if (vez !== pedido.current) return;
         setContas(cs);
         setCadastradas(mes.contas);
         setItens(mes.itens);
+        ultimos.current = mes.itens;
         setEstado("pronto");
       } catch (e) {
+        if (vez !== pedido.current) return;
         setEstado(e instanceof ErroDados && e.motivo === "sem-tabela" ? "sem-sql" : "erro");
       }
     },
@@ -109,6 +119,12 @@ export function TelaContas() {
   useEffect(() => {
     carregar();
   }, [carregar]);
+
+  // O "Desfazer" do aviso roda segundos depois: recarrega o mês que está na tela AGORA.
+  const carregarAgora = useRef(carregar);
+  useEffect(() => {
+    carregarAgora.current = carregar;
+  });
 
   const nomeConta = useMemo(() => new Map(contas.map((c) => [c.id, c.nome])), [contas]);
   const totais = totaisDoMes(itens);
@@ -169,7 +185,7 @@ export function TelaContas() {
                   {atrasadas} {atrasadas === 1 ? "atrasada" : "atrasadas"} · {brl(totais.atrasado)}
                 </Selo>
               )}
-              {deHoje > 0 && <Selo tom="alerta">{deHoje} vence(m) hoje</Selo>}
+              {deHoje > 0 && <Selo tom="alerta">{deHoje} {deHoje === 1 ? "vence" : "vencem"} hoje</Selo>}
               {totais.pago > 0 && <Selo tom="verde">Pago: {brl(totais.pago)}</Selo>}
               {totais.aPagar === 0 && <Selo tom="verde">Tudo pago</Selo>}
             </div>
@@ -251,12 +267,14 @@ export function TelaContas() {
           onSalvar={async (d) => {
             await salvarContaPagar(sb, uid, editando === "nova" ? null : editando.id, d);
             setEditando(null);
+            toast.mostrar({ texto: editando === "nova" ? `“${d.descricao}” cadastrada.` : `“${d.descricao}” atualizada.` });
             await carregar(true);
           }}
           onApagar={async () => {
             if (editando === "nova") return;
             await apagarContaPagar(sb, uid, editando.id);
             setEditando(null);
+            toast.mostrar({ texto: `“${editando.descricao}” apagada.` });
             await carregar(true);
           }}
         />
@@ -270,11 +288,29 @@ export function TelaContas() {
           onFechar={() => setPagando(null)}
           onPagar={async (d) => {
             await marcarComoPaga(sb, uid, pagando, d);
+            const item = pagando;
             setPagando(null);
             await carregar(true);
+            // "Desfazer" logo ali: é o mesmo `desfazerPagamento` do botão da linha, sem a pergunta.
+            const pago = ultimos.current.find((i) => i.conta.id === item.conta.id && i.competencia === item.competencia)?.pagamento;
+            toast.mostrar({
+              texto: `“${item.conta.descricao}” paga: ${brl(d.valor)} entrou no Extrato.`,
+              acao: pago
+                ? {
+                    rotulo: "Desfazer",
+                    fazer: () => {
+                      desfazerPagamento(sb, uid, pago)
+                        .then(() => carregarAgora.current(true))
+                        .catch(() => setRecado("Não consegui desfazer agora. Use o “Desfazer” da linha, em Pagas."));
+                    },
+                  }
+                : undefined,
+            });
           }}
         />
       )}
+
+      <Toast {...toast} />
     </div>
   );
 }
@@ -352,7 +388,7 @@ function Erro({ texto }: { texto: string | null }) {
 
 function falha(e: unknown, padrao: string) {
   if (e instanceof ErroDados && e.motivo === "sem-tabela") {
-    return "Falta instalar as contas a pagar no banco (supabase/novarecash_cartoes.sql). Avise quem administra.";
+    return "As contas a pagar ainda estão sendo preparadas. Tente de novo em alguns minutos ou fale com a Novare.";
   }
   if (e instanceof ErroDados && e.message === "ja-paga") return "Esta conta já foi marcada como paga neste mês (talvez por outra pessoa da conta).";
   return padrao;
@@ -389,7 +425,7 @@ function FormContaPagar({
     const v = Math.round(parseNumero(valor) * 100) / 100;
     if (!desc) return setErro("Escreva o nome da conta, por exemplo “Aluguel”.");
     if (!(v > 0)) return setErro("Informe um valor maior que zero. Se varia, use a média: dá para ajustar ao pagar.");
-    if (recorrencia === "unica" && !/^\d{4}-\d{2}-\d{2}$/.test(dataUnica)) return setErro("Escolha a data do vencimento.");
+    if (recorrencia === "unica" && !/^20\d{2}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/.test(dataUnica)) return setErro("Escolha a data do vencimento.");
     setSalvando(true);
     try {
       await onSalvar({
@@ -509,7 +545,7 @@ function FormContaPagar({
 
         {inicial && (
           <label className="flex min-h-11 cursor-pointer items-center gap-3 rounded-xl border border-white/10 px-3 text-sm text-white">
-            <input type="checkbox" checked={!ativa} onChange={(e) => setAtiva(!e.target.checked)} className="h-5 w-5 accent-[hsl(42_74%_62%)]" />
+            <input type="checkbox" checked={!ativa} onChange={(e) => setAtiva(!e.target.checked)} className="h-5 w-5 accent-ouro" />
             Pausar (some da lista a partir de agora)
           </label>
         )}
@@ -567,7 +603,7 @@ function FormPagar({
     setErro(null);
     const v = Math.round(parseNumero(valor) * 100) / 100;
     if (!(v > 0)) return setErro("Informe o valor pago.");
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(data)) return setErro("Escolha a data do pagamento.");
+    if (!/^20\d{2}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/.test(data)) return setErro("Escolha a data do pagamento.");
     setSalvando(true);
     try {
       await onPagar({ valor: v, data, conta_id: contaId || null });

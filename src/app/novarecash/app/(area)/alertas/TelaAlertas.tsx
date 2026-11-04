@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Bell, Check, ChevronDown, ListOrdered, Undo2 } from "lucide-react";
 
 import { createClient } from "@/lib/supabase/client";
@@ -31,6 +31,7 @@ import {
   brl,
   type TomSelo,
 } from "../pecas";
+import { Toast, useToast } from "../Toast";
 
 const TOM_GRAVIDADE: Record<Alerta["gravidade"], TomSelo> = { alta: "perigo", media: "alerta", baixa: "neutro" };
 const ROTULO_GRAVIDADE: Record<Alerta["gravidade"], string> = { alta: "Importante", media: "Atenção", baixa: "Para saber" };
@@ -53,6 +54,7 @@ export function TelaAlertas() {
   const [ocupado, setOcupado] = useState<string | null>(null);
   const [aviso, setAviso] = useState<string | null>(null);
   const [verDispensados, setVerDispensados] = useState(false);
+  const toast = useToast();
 
   const carregar = useCallback(async () => {
     setResultado(null);
@@ -79,8 +81,14 @@ export function TelaAlertas() {
     setOcupado(a.chave);
     setAviso(null);
     try {
-      if (dispensar) await dispensarAlerta(sb, uid, a.chave);
-      else await desfazerDispensa(sb, uid, a.chave);
+      if (dispensar) {
+        await dispensarAlerta(sb, uid, a.chave);
+        toast.mostrar({
+          texto: "Alerta marcado como resolvido.",
+          // Pela ref: o "Desfazer" é tocado depois, e precisa do `resultado` de AGORA, não o deste clique.
+          acao: { rotulo: "Desfazer", fazer: () => mudarAgora.current(a, false) },
+        });
+      } else await desfazerDispensa(sb, uid, a.chave);
     } catch {
       setResultado(antes);
       setAviso("Não consegui salvar agora. Tente de novo em instantes.");
@@ -88,6 +96,11 @@ export function TelaAlertas() {
       setOcupado(null);
     }
   }
+
+  const mudarAgora = useRef(mudar);
+  useEffect(() => {
+    mudarAgora.current = mudar;
+  });
 
   if (!resultado) return <Esqueleto linhas={4} />;
   if (resultado.estado === "sem-tabela") return <AvisoSemTabela />;
@@ -238,7 +251,7 @@ export function TelaAlertas() {
             <h2 id="titulo-dispensados" className="font-display text-sm font-semibold text-white/80">
               Já resolvidos ({dispensados.length})
             </h2>
-            <ChevronDown className={`h-4 w-4 text-white/60 transition-transform ${verDispensados ? "rotate-180" : ""}`} />
+            <ChevronDown aria-hidden className={`h-4 w-4 text-white/60 transition-transform motion-reduce:transition-none ${verDispensados ? "rotate-180" : ""}`} />
           </button>
           {verDispensados && (
             <Cartao>
@@ -267,6 +280,8 @@ export function TelaAlertas() {
       </p>
 
       {vendo && <JanelaLancamentos alerta={vendo} onFechar={() => setVendo(null)} />}
+
+      <Toast {...toast} />
     </div>
   );
 }

@@ -104,9 +104,12 @@ const ANEL =
 export function BarraLateralNovareCash({
   nome,
   sair,
+  trocaTema,
 }: {
   nome?: string;
   sair: () => Promise<void>;
+  /** O botão claro/escuro, montado no layout (que sabe o tema pelo cookie). */
+  trocaTema?: React.ReactNode;
 }) {
   const caminho = usePathname();
   const rotulo = "hidden lg:inline";
@@ -171,6 +174,7 @@ export function BarraLateralNovareCash({
           <Headset className="h-[18px] w-[18px] shrink-0" strokeWidth={2} />
           <span className={`${rotulo} truncate`}>Falar com um consultor</span>
         </a>
+        {trocaTema}
         <Link href="/" title="Voltar ao Workspace" aria-label="Voltar ao Workspace" className={rodape}>
           <Home className="h-[18px] w-[18px] shrink-0 text-ciano-claro" strokeWidth={2} />
           <span className={`${rotulo} truncate`}>Voltar ao Workspace</span>
@@ -196,6 +200,7 @@ export function NavNovareCashCelular() {
   const caminho = usePathname();
   const [mais, setMais] = useState(false);
   const folha = useRef<HTMLDivElement>(null);
+  const botaoMais = useRef<HTMLButtonElement>(null);
   const naBarra = TODAS.filter((t) => NA_BARRA.includes(t.href));
   const maisAtivo = !naBarra.some((t) => estaAtivo(caminho, t));
 
@@ -208,14 +213,17 @@ export function NavNovareCashCelular() {
     const antes = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     folha.current?.querySelector<HTMLElement>("a,button")?.focus();
+    const quemAbriu = botaoMais.current;
     return () => {
       document.removeEventListener("keydown", esc);
       document.body.style.overflow = antes;
+      // Fechou sem trocar de tela (X, Esc, toque fora): o foco volta ao "Mais".
+      if (quemAbriu && !document.activeElement?.closest("a")) quemAbriu.focus({ preventScroll: true });
     };
   }, [mais]);
 
   const item = (ativo: boolean) =>
-    `relative flex min-h-14 w-full flex-col items-center justify-center gap-0.5 px-0.5 py-2 text-[10px] font-medium transition-colors active:bg-white/[0.06] motion-reduce:transition-none ${
+    `relative flex min-h-14 w-full flex-col items-center justify-center gap-0.5 px-0.5 py-2 text-[11px] font-medium transition-colors active:bg-white/[0.06] motion-reduce:transition-none ${
       ativo ? "text-ouro" : "text-white/65"
     }`;
   const bolha = (ativo: boolean) => `flex h-7 w-11 items-center justify-center rounded-full ${ativo ? "bg-ouro/[0.14]" : ""}`;
@@ -224,10 +232,10 @@ export function NavNovareCashCelular() {
     <>
       {mais && (
         <div className="fixed inset-0 z-40 md:hidden" role="dialog" aria-modal="true" aria-label="Mais telas do NovareCash">
-          <button type="button" aria-label="Fechar" className="absolute inset-0 bg-noite/70 backdrop-blur-sm" onClick={() => setMais(false)} />
+          <button type="button" aria-label="Fechar" tabIndex={-1} className="absolute inset-0 bg-[var(--ncash-mascara)] backdrop-blur-sm" onClick={() => setMais(false)} />
           <div
             ref={folha}
-            className="absolute inset-x-0 bottom-0 max-h-[85dvh] overflow-y-auto rounded-t-3xl border-t border-white/10 bg-noite-2 px-4 pb-24 pt-4"
+            className="absolute inset-x-0 bottom-0 max-h-[85dvh] overflow-y-auto rounded-t-3xl border-t border-white/10 bg-noite-2 px-4 pb-[calc(6rem+env(safe-area-inset-bottom))] pt-4 shadow-[0_-20px_60px_-20px_var(--ncash-sombra-folha)]"
           >
             <div className="flex items-center justify-between">
               <MarcaNovareCash tamanho="sm" />
@@ -235,7 +243,7 @@ export function NavNovareCashCelular() {
                 type="button"
                 onClick={() => setMais(false)}
                 aria-label="Fechar"
-                className="flex h-11 w-11 items-center justify-center rounded-full text-white/70 hover:bg-white/[0.06]"
+                className={`flex h-11 w-11 items-center justify-center rounded-full text-white/70 hover:bg-white/[0.06] ${ANEL}`}
               >
                 <X className="h-5 w-5" />
               </button>
@@ -251,7 +259,7 @@ export function NavNovareCashCelular() {
                         <Link
                           href={t.href}
                           aria-current={ativo ? "page" : undefined}
-                          className={`flex min-h-12 items-center gap-2.5 rounded-xl px-3 text-sm font-medium ring-1 ring-inset ${
+                          className={`flex min-h-12 items-center gap-2.5 rounded-xl px-3 text-sm font-medium ring-1 ring-inset outline-none focus-visible:ring-2 focus-visible:ring-ouro ${
                             ativo ? "bg-ouro/[0.12] text-ouro ring-ouro/30" : "bg-white/[0.04] text-white/85 ring-white/10"
                           }`}
                         >
@@ -268,7 +276,7 @@ export function NavNovareCashCelular() {
               href={CONSULTOR}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-5 flex min-h-12 items-center justify-center gap-2 rounded-xl bg-ouro/[0.12] text-sm font-semibold text-ouro ring-1 ring-inset ring-ouro/30"
+              className="mt-5 flex min-h-12 items-center justify-center gap-2 rounded-xl bg-ouro/[0.12] text-sm font-semibold text-ouro ring-1 ring-inset ring-ouro/30 outline-none focus-visible:ring-2 focus-visible:ring-ouro"
             >
               <Headset className="h-[18px] w-[18px]" />
               Falar com um consultor da Novare
@@ -287,7 +295,11 @@ export function NavNovareCashCelular() {
             const ativo = estaAtivo(caminho, t);
             return (
               <li key={t.href}>
-                <Link href={t.href} aria-current={ativo ? "page" : undefined} className={item(ativo)}>
+                <Link
+                  href={t.href}
+                  aria-current={ativo ? "page" : undefined}
+                  className={`${item(ativo)} outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ouro`}
+                >
                   {ativo && <span aria-hidden className="absolute inset-x-3 top-0 h-0.5 rounded-b-full bg-ouro" />}
                   <span className={bolha(ativo)}>
                     <t.Icone className={`h-[18px] w-[18px] ${ativo ? "text-ouro" : "text-ciano-claro"}`} strokeWidth={ativo ? 2.4 : 2} />
@@ -298,7 +310,14 @@ export function NavNovareCashCelular() {
             );
           })}
           <li>
-            <button type="button" onClick={() => setMais((v) => !v)} aria-expanded={mais} className={item(maisAtivo || mais)}>
+            <button
+              ref={botaoMais}
+              type="button"
+              onClick={() => setMais((v) => !v)}
+              aria-expanded={mais}
+              aria-label={maisAtivo && !mais ? `Mais telas (agora em ${TODAS.find((t) => estaAtivo(caminho, t))?.rotulo ?? "outra tela"})` : "Mais telas"}
+              className={`${item(maisAtivo || mais)} outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ouro`}
+            >
               {(maisAtivo || mais) && <span aria-hidden className="absolute inset-x-3 top-0 h-0.5 rounded-b-full bg-ouro" />}
               <span className={bolha(maisAtivo || mais)}>
                 <Ellipsis className={`h-[18px] w-[18px] ${maisAtivo || mais ? "text-ouro" : "text-ciano-claro"}`} />

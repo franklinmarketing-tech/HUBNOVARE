@@ -38,9 +38,13 @@ import { SITE_URL } from "@/lib/site";
 
 import {
   CATEGORIAS,
+  NAO_E_GASTO,
   adivinharCategoria,
   categoria as categoriaNcash,
 } from "@/lib/novarecash/categorias";
+import { faturasAbertas } from "@/lib/novarecash/cartoes";
+import { carregarMesDeContas } from "@/lib/novarecash/contas-pagar";
+import { comSaldos, dataCurta, hojeNoBrasil, lerContas } from "@/lib/novarecash/dados";
 import {
   interpretar,
   extrairCodigo,
@@ -654,7 +658,14 @@ async function gravarTransacao(
   return null;
 }
 
-/** Total de saídas do mês, opcionalmente de uma categoria. Sempre com `user_id`. */
+/**
+ * Total de saídas do mês, opcionalmente de uma categoria. Sempre com `user_id`.
+ *
+ * Sem categoria ("quanto gastei?"), fica de fora o que NÃO é gasto
+ * (`NAO_E_GASTO`: pagamento de fatura, transferências, aplicações) — senão a
+ * compra no cartão e o pagamento da fatura dela somavam o mesmo dinheiro duas
+ * vezes, e o número do WhatsApp não batia com o do app.
+ */
 async function saidasDoMes(
   userId: string,
   ref: string,
@@ -663,7 +674,7 @@ async function saidasDoMes(
   const { inicio, fim } = limitesDoMes(ref);
   let q = servico()
     .from("ncash_transacoes")
-    .select("valor")
+    .select("valor, categoria")
     .eq("user_id", userId)
     .eq("tipo", "saida")
     .gte("data", inicio)
@@ -671,7 +682,7 @@ async function saidasDoMes(
   if (categoria) q = q.eq("categoria", categoria);
 
   const { data } = await q;
-  const linhas = data ?? [];
+  const linhas = (data ?? []).filter((l) => categoria || !NAO_E_GASTO.has(String(l.categoria)));
   return {
     total: linhas.reduce((soma, l) => soma + Number(l.valor), 0),
     quantidade: linhas.length,
@@ -730,34 +741,36 @@ async function responderConsulta(userId: string, c: Consulta): Promise<string> {
   const s = servico();
 
   if (c.escopo === "saldo" || c.escopo === "fatura") {
-    const { data } = await s
-      .from("ncash_contas")
-      .select("id, nome, tipo, saldo, saldo_em")
-      .eq("user_id", userId)
-      .eq("ativa", true);
-    const contas = ((data ?? []) as ContaNcash[]).filter(
-      (k) => k.saldo !== null && k.saldo !== undefined,
-    );
     const linkBanco = `${SITE_URL}/novarecash/app/banco`;
+    // O MESMO número do app (04/11/2026): `comSaldos` anda a conta MANUAL com os
+    // lançamentos feitos depois do saldo informado. Ler só a coluna `saldo`
+    // respondia o valor do dia em que a pessoa o digitou — com o app dizendo outro.
+    let contas: Awaited<ReturnType<typeof comSaldos>>;
+    try {
+      contas = await comSaldos(s, userId, await lerContas(s, userId));
+    } catch (e) {
+      console.warn("[whatsapp] nao leu saldos:", e instanceof Error ? e.message : e);
+      return "Não consegui ler suas contas agora. Tente de novo em instantes.";
+    }
 
     if (c.escopo === "saldo") {
-      // O saldo é o ÚLTIMO CONHECIDO de cada conta (banco ou informado), não
-      // uma soma do extrato — é o mesmo número que o app guarda em `saldo`.
-      const comSaldo = contas.filter((k) => k.tipo !== "cartao");
+      const comSaldo = contas.filter((k) => k.tipo !== "cartao" && k.saldoAtual !== null);
       if (comSaldo.length === 0) {
         return `Ainda não tenho o saldo das suas contas. Conecte o banco no NovareCash (${linkBanco}) e ele entra sozinho.`;
       }
+      // "Atualizado até" só faz sentido para o saldo que vem do BANCO; o manual é o de hoje.
       // A data mais recente é escolhida pelo ISO, não pelo "dd/mm" (que ordena
       // "31/10" depois de "03/11").
       const maisRecente = comSaldo
+        .filter((k) => k.origem === "openfinance")
         .map((k) => k.saldo_em)
         .filter((d): d is string => Boolean(d))
         .sort()
         .pop();
       const dia = diaBrasil(maisRecente ?? null);
       return [
-        respostaDeSaldo(comSaldo.map((k) => ({ nome: k.nome, saldo: Number(k.saldo) }))),
-        dia ? `Último saldo conhecido (atualizado até ${dia}).` : "",
+        respostaDeSaldo(comSaldo.map((k) => ({ nome: k.nome, saldo: Number(k.saldoAtual) }))),
+        dia ? `Saldo do banco atualizado até ${dia}.` : "",
       ]
         .filter(Boolean)
         .join("\n");
@@ -765,25 +778,49 @@ async function responderConsulta(userId: string, c: Consulta): Promise<string> {
 
     const cartoes = contas.filter((k) => k.tipo === "cartao");
     if (cartoes.length === 0) {
-      return `Ainda não tenho a fatura de nenhum cartão seu. Conecte o banco no NovareCash (${linkBanco}) e ela entra sozinha.`;
+      return `Ainda não tenho nenhum cartão seu. Cadastre em Cartões no NovareCash ou conecte o banco (${linkBanco}).`;
     }
+    // A FATURA ABERTA de cada cartão (`cartoes.ts`), a mesma do Início; sem o SQL
+    // dos cartões, o saldo do cartão (limite usado).
+    const abertas = await faturasAbertas(s, userId, hojeNoBrasil()).catch(() => null);
     return cartoes
       .map((k) => {
-        const dia = diaBrasil(k.saldo_em);
-        return `*${k.nome}*: ${formatarBRL(Math.abs(Number(k.saldo)))} em aberto${dia ? ` (em ${dia})` : ""}`;
+        const aberta = abertas?.get(k.id);
+        if (aberta !== undefined) return `*${k.nome}*: ${formatarBRL(aberta)} na fatura aberta`;
+        if (k.saldoAtual === null) return `*${k.nome}*: ainda sem lançamentos`;
+        const dia = k.origem === "openfinance" ? diaBrasil(k.saldo_em) : null;
+        return `*${k.nome}*: ${formatarBRL(Math.abs(k.saldoAtual))} em aberto${dia ? ` (em ${dia})` : ""}`;
       })
       .join("\n");
   }
 
   if (c.escopo === "contas") {
-    return "O NovareCash ainda não acompanha contas a pagar. Para ver o mês, mande *resumo*; para um gasto, “quanto gastei com mercado?”.";
+    // 04/11/2026: o NovareCash GANHOU contas a pagar (`contas-pagar.ts`). A resposta
+    // antiga ("ainda não acompanha contas a pagar") passou a ser falsa para quem as cadastrou.
+    const linkContas = `${SITE_URL}/novarecash/app/contas`;
+    try {
+      const hoje = hojeNoBrasil();
+      const { itens } = await carregarMesDeContas(s, userId, hoje.slice(0, 7), hoje);
+      const faltam = itens.filter((i) => !i.pagamento);
+      if (!itens.length) return `Você ainda não cadastrou contas a pagar. Cadastre em ${linkContas} e eu aviso na véspera.`;
+      if (!faltam.length) return "Todas as contas deste mês estão pagas.";
+      const total = faltam.reduce((soma, i) => soma + i.conta.valor, 0);
+      const linhas = faltam
+        .slice(0, 8)
+        .map((i) => `• ${i.conta.descricao}: ${formatarBRL(i.conta.valor)}, ${i.situacao === "atrasada" ? "venceu" : "vence"} ${dataCurta(i.vence)}`);
+      if (faltam.length > 8) linhas.push(`• e mais ${faltam.length - 8}`);
+      return [`Faltam pagar ${formatarBRL(total)} em ${faltam.length === 1 ? "1 conta" : `${faltam.length} contas`}:`, ...linhas].join("\n");
+    } catch (e) {
+      console.warn("[whatsapp] nao leu contas a pagar:", e instanceof Error ? e.message : e);
+      return `Não consegui ler suas contas a pagar agora. Veja em ${linkContas}.`;
+    }
   }
 
   if (c.escopo === "resumo") {
     const { inicio, fim } = limitesDoMes(c.ref);
     const { data } = await s
       .from("ncash_transacoes")
-      .select("tipo, valor")
+      .select("tipo, valor, categoria")
       .eq("user_id", userId)
       .gte("data", inicio)
       .lte("data", fim);
@@ -791,6 +828,9 @@ async function responderConsulta(userId: string, c: Consulta): Promise<string> {
     let entrou = 0;
     let saiu = 0;
     for (const l of data ?? []) {
+      // Dinheiro que só mudou de lugar (fatura paga, transferência, aplicação) não é
+      // entrada nem saída — a mesma regra do resumo do app (`resumoDoMes`).
+      if (NAO_E_GASTO.has(String(l.categoria))) continue;
       const v = Number(l.valor);
       if (l.tipo === "entrada") entrou += v;
       else saiu += v;

@@ -36,6 +36,7 @@ import {
   Vazio,
   brl,
 } from "../pecas";
+import { Toast, useToast } from "../Toast";
 
 const paraCampo = (v: number) => (v ? v.toFixed(2).replace(".", ",") : "");
 const centavos = (texto: string) => Math.round(parseNumero(texto) * 100) / 100;
@@ -48,6 +49,7 @@ export function TelaMetas() {
   const [resultado, setResultado] = useState<ResultadoMetas | null>(null);
   const [form, setForm] = useState<Form | null>(null);
   const [aviso, setAviso] = useState<string | null>(null);
+  const toast = useToast();
 
   const carregar = useCallback(
     async (silencioso = false) => {
@@ -67,9 +69,10 @@ export function TelaMetas() {
     carregar();
   }, [carregar]);
 
-  async function depois(acao: () => Promise<unknown>) {
+  async function depois(acao: () => Promise<unknown>, feito?: string) {
     await acao();
     setForm(null);
+    if (feito) toast.mostrar({ texto: feito });
     await carregar(true);
   }
 
@@ -144,7 +147,10 @@ export function TelaMetas() {
                       if (!uid) return;
                       setAviso(null);
                       try {
-                        await depois(() => editarMeta(sb, uid, m.id, { ...m, concluida: true }));
+                        await depois(
+                          () => editarMeta(sb, uid, m.id, { ...m, guardado: undefined, concluida: true }),
+                          `Parabéns: “${m.nome}” concluída!`,
+                        );
                       } catch {
                         setAviso("Não consegui salvar agora. Tente de novo.");
                       }
@@ -182,14 +188,25 @@ export function TelaMetas() {
           meta={form.tipo === "editar" ? form.meta : null}
           onFechar={() => setForm(null)}
           onSalvar={(d) =>
-            depois(() => (form.tipo === "editar" ? editarMeta(sb, uid, form.meta.id, d) : criarMeta(sb, uid, d)))
+            depois(
+              () => (form.tipo === "editar" ? editarMeta(sb, uid, form.meta.id, d) : criarMeta(sb, uid, d)),
+              form.tipo === "editar" ? "Meta atualizada." : `Meta “${d.nome}” criada.`,
+            )
           }
-          onApagar={form.tipo === "editar" ? () => depois(() => apagarMeta(sb, uid, form.meta.id)) : undefined}
+          onApagar={
+            form.tipo === "editar" ? () => depois(() => apagarMeta(sb, uid, form.meta.id), `Meta “${form.meta.nome}” apagada.`) : undefined
+          }
         />
       )}
       {form?.tipo === "guardar" && (
-        <FormGuardar meta={form.meta} onFechar={() => setForm(null)} onGuardar={(v) => depois(() => guardarNaMeta(sb, form.meta.id, v))} />
+        <FormGuardar
+          meta={form.meta}
+          onFechar={() => setForm(null)}
+          onGuardar={(v) => depois(() => guardarNaMeta(sb, form.meta.id, v), `${brl(v)} guardados em “${form.meta.nome}”.`)}
+        />
       )}
+
+      <Toast {...toast} />
     </div>
   );
 }
@@ -262,7 +279,7 @@ function CartaoMeta({
       {!m.concluida && (
         <div className="mt-3 flex flex-wrap gap-2">
           {onGuardar && (
-            <Botao Icone={PiggyBank} onClick={onGuardar}>
+            <Botao variante="contorno" Icone={PiggyBank} onClick={onGuardar}>
               Guardei mais
             </Botao>
           )}
@@ -337,7 +354,10 @@ function FormMeta({
               valorAlvo: v,
               prazo: prazo || null,
               icone,
-              guardado: g,
+              // Editando sem mexer no "guardado": não manda o número que estava na tela quando a
+              // janela abriu — outra pessoa da casa pode ter guardado nesse meio-tempo
+              // (`ncash_meta_guardar` soma no banco), e regravar o valor velho apagaria a dela.
+              guardado: meta && guardado === paraCampo(meta.guardado) ? undefined : g,
               ...(meta ? { concluida } : {}),
             }),
           );
@@ -412,7 +432,7 @@ function FormMeta({
               type="checkbox"
               checked={concluida}
               onChange={(e) => setConcluida(e.target.checked)}
-              className="h-5 w-5 accent-[hsl(42_74%_62%)]"
+              className="h-5 w-5 accent-ouro"
             />
             Meta concluída
           </label>
@@ -479,6 +499,7 @@ function FormGuardar({
         <label className="block">
           <span className={ROTULO_CAMPO}>Quanto você guardou (R$)</span>
           <input
+            data-autofoco=""
             inputMode="decimal"
             autoComplete="off"
             value={valor}

@@ -88,7 +88,13 @@ create table if not exists public.ncash_contas_pagas (
   valor           numeric(14, 2) not null check (valor > 0),
   criado_em       timestamptz not null default now()
 );
-create unique index if not exists ncash_contas_pagas_uq on public.ncash_contas_pagas (conta_pagar_id, competencia);
+-- Único POR DONO (04/11/2026): sem o `user_id` no índice, quem conhecesse o id
+-- de uma conta alheia (um ex-membro da conta compartilhada, por exemplo) podia
+-- gravar um "pago" na PRÓPRIA conta com aquele id e travar o "Paguei" do dono
+-- ("já paga") sem a conta aparecer como paga. O pagamento legítimo tem sempre o
+-- mesmo `user_id` da conta, então a garantia de "um por competência" continua.
+drop index if exists public.ncash_contas_pagas_uq;
+create unique index if not exists ncash_contas_pagas_dono_uq on public.ncash_contas_pagas (user_id, conta_pagar_id, competencia);
 create index if not exists ncash_contas_pagas_user_idx on public.ncash_contas_pagas (user_id, competencia);
 
 -- ── 4. Lembretes enviados (um por dono por dia) ─────────────────────────

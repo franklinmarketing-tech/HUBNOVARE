@@ -1,12 +1,15 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, LogOut } from "lucide-react";
 
 import { getPerfil } from "@/lib/perfil";
+import { sair } from "@/lib/acoes-sessao";
 import { temAcessoNovareCash } from "@/lib/novarecash/acesso";
 import { MarcaNovareCash } from "@/components/novarecash/MarcaNovareCash";
 import { ContaCompartilhada } from "../app/(area)/ajustes/ContaCompartilhada";
+import { COOKIE_TEMA } from "../app/(area)/tema";
 
 export const metadata: Metadata = {
   title: "Convite para o NovareCash",
@@ -26,9 +29,13 @@ export default async function ConviteNovareCash() {
   const perfil = await getPerfil();
   if (!perfil) redirect("/login?proximo=/novarecash/convite");
   const temAcesso = await temAcessoNovareCash();
+  // O mesmo tema do app (claro por padrão; o cookie vale para /novarecash inteiro).
+  const claro = (await cookies()).get(COOKIE_TEMA)?.value !== "escuro";
 
   return (
-    <div className="min-h-dvh bg-noite text-white [color-scheme:dark] bg-[radial-gradient(ellipse_70%_45%_at_50%_-10%,hsl(42_74%_62%/0.10),transparent_70%)]">
+    <div
+      className={`ncash-tema ${claro ? "ncash-claro " : ""}min-h-dvh bg-noite text-white bg-[radial-gradient(ellipse_70%_45%_at_50%_-10%,var(--ncash-halo),transparent_70%)]`}
+    >
       <main className="mx-auto max-w-xl px-4 pb-16 pt-8">
         <MarcaNovareCash tamanho="sm" />
         <h1 className="mt-6 font-display text-2xl font-semibold tracking-[-0.02em] text-white">Convite para o NovareCash</h1>
@@ -47,6 +54,16 @@ export default async function ConviteNovareCash() {
             <ArrowRight className="h-4 w-4" />
           </Link>
         )}
+        {/* Entrou com o e-mail errado? O convite só aparece no e-mail exato que o titular digitou. */}
+        <form action={sair} className="mt-4">
+          <button
+            type="submit"
+            className="inline-flex min-h-11 items-center gap-2 rounded-xl px-1 text-xs font-semibold text-white/75 outline-none hover:text-white focus-visible:ring-2 focus-visible:ring-ouro"
+          >
+            <LogOut className="h-4 w-4" aria-hidden />
+            Entrar com outro e-mail
+          </button>
+        </form>
       </main>
     </div>
   );

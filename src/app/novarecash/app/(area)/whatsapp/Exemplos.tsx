@@ -28,7 +28,7 @@ export function Exemplos() {
           <ul className="mt-2 space-y-2">
             {TEXTO.map((e) => (
               <li key={e.frase} className="text-xs leading-relaxed">
-                <span className="inline-block rounded-lg bg-[hsl(152_55%_41%/0.15)] px-2 py-0.5 font-semibold text-[hsl(152_60%_62%)]">
+                <span className="inline-block rounded-lg bg-[hsl(152_55%_41%/0.15)] px-2 py-0.5 font-semibold text-[var(--ncash-verde)]">
                   {e.frase}
                 </span>
                 <span className="mt-0.5 block text-white/65">{e.efeito}</span>

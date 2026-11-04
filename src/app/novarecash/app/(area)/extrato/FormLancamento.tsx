@@ -54,6 +54,7 @@ export function FormLancamento({
   custom = [],
   onFechar,
   onSalvo,
+  onApagar,
 }: {
   sb: SupabaseClient;
   uid: string;
@@ -66,6 +67,11 @@ export function FormLancamento({
   onFechar: () => void;
   /** Recebe a data gravada (para o extrato ir ao mês dela), ou nada se apagou. */
   onSalvo: (data?: string) => void;
+  /**
+   * Quem abre a janela cuida de apagar (o Extrato apaga com "Desfazer", sem a caixa
+   * de confirmação). Sem isto, a janela pergunta e apaga ela mesma, como antes.
+   */
+  onApagar?: (t: Transacao) => void;
 }) {
   const doBanco = inicial?.origem === "openfinance";
   const [tipo, setTipo] = useState<TipoTransacao>(inicial?.tipo ?? "saida");
@@ -116,7 +122,7 @@ export function FormLancamento({
     const desc = descricao.trim().slice(0, 120);
     if (!(v > 0)) return setErro("Informe um valor maior que zero.");
     if (!desc) return setErro("Escreva uma descrição, por exemplo “Mercado”.");
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(data)) return setErro("Escolha a data.");
+    if (!/^20\d{2}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/.test(data)) return setErro("Escolha a data.");
 
     const dados = { tipo, valor: v, data, descricao: desc, categoria: cat, conta_id: contaId || null };
     if (nParcelas > 1 && v < nParcelas * 0.01) return setErro("Valor pequeno demais para dividir nessas parcelas.");
@@ -130,7 +136,7 @@ export function FormLancamento({
     } catch (e2) {
       setErro(
         nParcelas > 1 && e2 instanceof ErroDados && e2.motivo === "sem-tabela"
-          ? "Para parcelar, falta instalar os cartões no banco (supabase/novarecash_cartoes.sql). Lance à vista ou avise quem administra."
+          ? "O parcelamento ainda está sendo preparado. Por enquanto, lance à vista; se precisar, fale com a Novare."
           : "Não consegui salvar agora. Nada foi gravado; tente de novo.",
       );
     } finally {
@@ -139,6 +145,7 @@ export function FormLancamento({
   }
 
   async function apagar() {
+    if (inicial && onApagar) return onApagar(inicial);
     if (!inicial || !window.confirm(`Apagar “${inicial.descricao}”? Não dá para desfazer.`)) return;
     setSalvando(true);
     try {
@@ -151,6 +158,12 @@ export function FormLancamento({
   }
 
   const titulo = !inicial ? "Novo lançamento" : doBanco ? "Lançamento do banco" : "Editar lançamento";
+  const hoje = hojeNoBrasil();
+  const ontem = (() => {
+    const d = new Date(`${hoje}T12:00:00Z`);
+    d.setUTCDate(d.getUTCDate() - 1);
+    return d.toISOString().slice(0, 10);
+  })();
   const podeParcelar = !inicial && tipo === "saida" && contas.find((c) => c.id === contaId)?.tipo === "cartao";
   const nParcelas = podeParcelar ? parcelas : 1;
   const valorNum = Math.round(parseNumero(valor) * 100) / 100;
@@ -184,7 +197,7 @@ export function FormLancamento({
                       tipo === t
                         ? t === "saida"
                           ? "border-accent-claro/60 bg-accent/15 text-accent-claro"
-                          : "border-[hsl(152_55%_41%/0.6)] bg-[hsl(152_55%_41%/0.15)] text-[hsl(152_60%_62%)]"
+                          : "border-[hsl(152_55%_41%/0.6)] bg-[hsl(152_55%_41%/0.15)] text-[var(--ncash-verde)]"
                         : "border-white/15 text-white/75 hover:border-white/30"
                     }`}
                   >
@@ -208,6 +221,8 @@ export function FormLancamento({
                 <input
                   inputMode="decimal"
                   autoComplete="off"
+                  enterKeyHint="next"
+                  data-autofoco={inicial ? undefined : ""}
                   value={valor}
                   onChange={(e) => setValor(e.target.value)}
                   placeholder="0,00"
@@ -218,6 +233,27 @@ export function FormLancamento({
                 <span className={ROTULO_CAMPO}>Data</span>
                 <input type="date" value={data} onChange={(e) => setData(e.target.value)} className={`${CAMPO} mt-1`} />
               </label>
+            </div>
+            {/* Hoje e ontem são quase todos os lançamentos: um toque, sem abrir o calendário. */}
+            <div className="-mt-2 flex flex-wrap gap-2" role="group" aria-label="Atalhos de data">
+              {(
+                [
+                  ["Hoje", hoje],
+                  ["Ontem", ontem],
+                ] as const
+              ).map(([rotulo, dia]) => (
+                <button
+                  key={rotulo}
+                  type="button"
+                  onClick={() => setData(dia)}
+                  aria-pressed={data === dia}
+                  className={`min-h-11 rounded-full px-3.5 text-xs font-semibold ring-1 ring-inset transition-colors ${ANEL} ${
+                    data === dia ? "bg-ouro/[0.12] text-ouro ring-ouro/40" : "text-white/75 ring-white/15 hover:text-white"
+                  }`}
+                >
+                  {rotulo}
+                </button>
+              ))}
             </div>
 
             <label className="block">

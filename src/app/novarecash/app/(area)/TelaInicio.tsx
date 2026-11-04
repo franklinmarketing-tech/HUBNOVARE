@@ -6,6 +6,7 @@ import {
   Landmark,
   MessageCircle,
   PenLine,
+  Plus,
   Sparkles,
   Target,
   Wallet,
@@ -54,7 +55,8 @@ const ICONE: Record<CartaoRecurso["chave"], LucideIcon> = {
 };
 
 const dataLonga = (iso: string) =>
-  new Date(iso).toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" });
+  // Fuso de São Paulo: esta tela roda no servidor (UTC), e `expira_em` perto da meia-noite viraria o dia seguinte.
+  new Date(iso).toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo", day: "2-digit", month: "long", year: "numeric" });
 
 export function TelaInicio({
   nome,
@@ -75,10 +77,17 @@ export function TelaInicio({
 }) {
   return (
     <div className="surgir space-y-5">
+      {/* O botão principal da tela: lançar um gasto em dois toques (o valor já abre com o teclado numérico). */}
       <Cabecalho
         titulo={nome ? `Olá, ${nome}` : "Início"}
-        resumo="O seu dinheiro num lugar só: o extrato enche sozinho pelo banco e pelo WhatsApp, e você lança à mão quando quiser."
-      />
+        resumo="O seu dinheiro num lugar só: o mês, as contas que vencem e o que dá para melhorar."
+      >
+        {resultado.estado !== "sem-tabela" && (
+          <Botao href="/novarecash/app/extrato?novo=1" Icone={Plus}>
+            Lançar gasto
+          </Botao>
+        )}
+      </Cabecalho>
 
       {resultado.estado === "sem-tabela" ? (
         <AvisoSemTabela />
@@ -140,7 +149,7 @@ function PrimeiroPasso({ bancoLiberado, bancoLiberaEm }: { bancoLiberado: boolea
             />
           ) : (
             <div className="h-full rounded-2xl border border-dashed border-white/15 p-4">
-              <Landmark className="h-5 w-5 text-white/50" />
+              <Landmark aria-hidden className="h-5 w-5 text-white/50" />
               <p className="mt-2 text-sm font-semibold text-white/85">Conectar o banco</p>
               <p className="mt-0.5 text-xs leading-relaxed text-white/60">
                 Em ativação: libera em {bancoLiberaEm ?? "breve"}.
@@ -194,7 +203,7 @@ function Painel({ r }: { r: Retrato }) {
 
   return (
     <div className="space-y-3">
-      <div className="relative overflow-hidden rounded-3xl border border-ouro/20 bg-[linear-gradient(150deg,hsl(200_55%_9%),hsl(203_100%_3%))] p-5 shadow-[0_30px_60px_-36px_hsl(42_74%_40%/0.55)] sm:p-6">
+      <div className="relative overflow-hidden rounded-3xl border border-ouro/20 bg-[image:var(--ncash-heroi)] p-5 shadow-[0_30px_60px_-36px_var(--ncash-heroi-sombra)] sm:p-6">
         <span
           aria-hidden
           className="pointer-events-none absolute -right-16 -top-20 h-56 w-56 rounded-full bg-ouro/10 blur-3xl"

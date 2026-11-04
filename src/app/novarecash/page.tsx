@@ -8,7 +8,6 @@ import {
   CalendarClock,
   Check,
   ChevronDown,
-  Clock,
   CreditCard,
   Download,
   HandCoins,
@@ -19,14 +18,12 @@ import {
   Monitor,
   ShieldCheck,
   Smartphone,
-  Sparkles,
   Users,
   type LucideIcon,
 } from "lucide-react";
 import { Cabecalho } from "@/components/Cabecalho";
 import { RodapeNovare } from "@/components/RodapeNovare";
 import { AssinaturaJefferson } from "@/components/AssinaturaJefferson";
-import { MarcaNovareCash } from "@/components/novarecash/MarcaNovareCash";
 import { getPerfil } from "@/lib/perfil";
 import { sair } from "@/lib/acoes-sessao";
 import { CONTATO } from "@/lib/contato";
@@ -45,10 +42,12 @@ import {
   statusRecurso,
   textoCompra,
 } from "@/lib/novarecash/oferta";
+import { Heroi } from "./_venda/Heroi";
 import { Planos } from "./_venda/Planos";
 import { Recursos } from "./_venda/Recursos";
 import { BarraFixaCelular } from "./_venda/BarraFixaCelular";
-import { LegendaExemplo, TelaInicio, TelasExemplo } from "./_venda/TelasExemplo";
+import { TelasExemplo } from "./_venda/TelasExemplo";
+import "./_venda/venda.css";
 
 /**
  * A PÁGINA DE VENDA DO NOVARECASH — a única do Hub que mostra preço.
@@ -66,6 +65,11 @@ import { LegendaExemplo, TelaInicio, TelasExemplo } from "./_venda/TelasExemplo"
  * `ouro-forte`, `ouro-tint`) sobre `noite`/`noite-2`. O CTA continua laranja.
  * Não há tela real do app para fotografar ainda: as telas são ilustrações em
  * HTML (`_venda/TelasExemplo.tsx`), sempre com a legenda "dados de exemplo".
+ *
+ * 04/11/2026 ("o herói precisa melhorar muito"): o herói mora em
+ * `_venda/Heroi.tsx` (celular em cena com cartões vivos em volta) e os recursos
+ * viraram um bento escuro (`_venda/Recursos.tsx`). O movimento e as luzes estão
+ * em `_venda/venda.css`, tudo desligado em `prefers-reduced-motion`.
  *
  * ═══ VENDA DIRETA (04/11/2026: "já vamos vender, valor mensal, nada de Lista VIP") ═══
  * O preço sai de `PRECOS` (`config.ts`): riscado e % OFF só com a Black aberta.
@@ -271,68 +275,22 @@ export default async function NovareCashVendaPage({
       )}
 
       <main>
-        {/* 2 · O herói: promessa curta + preço ancorado + garantia. */}
-        <section className="relative isolate overflow-hidden text-white" style={PALCO_OURO}>
-          <div className="relative mx-auto grid max-w-5xl items-center gap-10 px-4 pb-14 pt-10 sm:px-6 sm:pt-14 lg:grid-cols-[1.15fr_0.85fr] lg:pb-20">
-            <div>
-              <MarcaNovareCash tamanho="lg" />
-              <p className="mt-4">
-                <span className="inline-flex items-center gap-2 rounded-full bg-ouro/12 px-3 py-1 text-2xs font-semibold uppercase tracking-[0.16em] text-ouro ring-1 ring-ouro/30">
-                  <Sparkles className="h-3.5 w-3.5" />
-                  {chapeuCampanha ?? "Novo app da Novare"}
-                </span>
-              </p>
-              <h1 className="mt-5 font-display text-[2.1rem] font-semibold leading-[1.08] tracking-[-0.035em] sm:text-5xl">
-                Seu dinheiro organizado por <span className="text-ouro">quem não vende nada.</span>
-              </h1>
-              <p className="mt-4 max-w-xl text-base leading-relaxed text-white/75">
-                Extrato, cartões, contas a pagar, orçamento e metas num app só, com uma IA que responde
-                olhando os seus números.
-              </p>
-              {AVISO_PENDENTES && (
-                <p className="mt-3 flex max-w-xl items-start gap-2 text-xs leading-relaxed text-white/70">
-                  <Clock className="mt-0.5 h-3.5 w-3.5 shrink-0 text-ouro" />
-                  <span>
-                    {AVISO_PENDENTES} {JA_FUNCIONA}
-                    {EXTRATO_NO_AR && " Até lá, você lança à mão."}
-                  </span>
-                </p>
-              )}
-
-              {emVenda && desde != null && (
-                <div className="mt-6">
-                  <Preco cheio={cheio} valor={desde} desconto={desconto} />
-                  {black && cheio != null && (
-                    <p className="mt-1.5 text-xs font-semibold text-ouro">
-                      O menor preço do {NOVARECASH_NOME}, só até {dataBlack("fim")}.
-                    </p>
-                  )}
-                </div>
-              )}
-
-              <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
-                <a href="#planos" className="btn-cp cta-halo cta-varredura px-7">
-                  {textoCta}
-                  <ArrowRight className="h-4 w-4" />
-                </a>
-                <a href="#recursos" className="inline-flex min-h-11 items-center justify-center gap-1.5 text-sm font-semibold text-white/80 hover:text-white">
-                  Ver os {TOTAL_RECURSOS} recursos
-                  <ChevronDown className="h-4 w-4" />
-                </a>
-              </div>
-
-              <p className="mt-5 flex items-center gap-2 text-xs text-white/65">
-                <ShieldCheck className="h-4 w-4 shrink-0 text-ouro" />
-                {GARANTIA_DIAS} dias de garantia: não gostou, o dinheiro volta inteiro. Cancela quando quiser.
-              </p>
-            </div>
-
-            <div className="mx-auto w-full max-w-[17rem] lg:max-w-[18rem]">
-              <TelaInicio />
-              <LegendaExemplo className="mt-4" />
-            </div>
-          </div>
-        </section>
+        {/* 2 · O herói: o produto em cena (celular + cartões vivos), o preço ancorado e a garantia. */}
+        <Heroi
+          cheio={emVenda ? cheio : null}
+          desde={emVenda ? desde : null}
+          desconto={desconto}
+          black={black}
+          textoCta={textoCta}
+          chapeu={chapeuCampanha ?? "Novo app da Novare"}
+          aviso={
+            AVISO_PENDENTES
+              ? `${AVISO_PENDENTES} ${JA_FUNCIONA}${EXTRATO_NO_AR ? " Até lá, você lança à mão." : ""}`
+              : null
+          }
+          totalRecursos={TOTAL_RECURSOS}
+          comFaixa={Boolean(faixa)}
+        />
 
         {/* 3 · Três benefícios, cada um com um número. */}
         <section className="mx-auto max-w-5xl px-4 py-14 sm:px-6">
@@ -392,14 +350,13 @@ export default async function NovareCashVendaPage({
 
         {/* 5 · Os recursos, com o status honesto de cada um. */}
         <section id="recursos" className="scroll-mt-16 bg-gelo">
-          <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6">
-            <div className="mx-auto mb-10 max-w-2xl text-center">
-              <p className="chapeu text-ouro-forte">O que vem dentro</p>
-              <h2 className="titulo-cp mt-3 text-3xl sm:text-[2.4rem]">
-                {TOTAL_RECURSOS} recursos. {QUANTOS_FUNCIONAM}
+          <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
+            <div className="mb-8 max-w-2xl sm:mb-10">
+              <h2 className="titulo-cp text-[2.1rem] sm:text-5xl">
+                {TOTAL_RECURSOS} recursos. <span className="text-ouro-forte">{QUANTOS_FUNCIONAM}</span>
               </h2>
-              <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-                Cada cartão diz o status de verdade. O que tem data, a data está ao lado.
+              <p className="mt-3 text-base leading-relaxed text-muted-foreground">
+                Cada bloco diz o status de verdade. O que tem data, a data está ao lado.
               </p>
             </div>
             <Recursos />

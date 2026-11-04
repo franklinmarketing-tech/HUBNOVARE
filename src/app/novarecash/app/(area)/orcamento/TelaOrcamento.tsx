@@ -37,6 +37,7 @@ import {
   Vazio,
   brl,
 } from "../pecas";
+import { Toast, useToast } from "../Toast";
 
 type Estado = "carregando" | "pronto" | "sem-tabela" | "erro";
 type Editando = { chave: string; rotulo: string; limite: number | null; gasto: number };
@@ -49,6 +50,7 @@ export function TelaOrcamento() {
   const [orcamentos, setOrcamentos] = useState<Orcamento[]>([]);
   const [gastos, setGastos] = useState<TotalCategoria[]>([]);
   const [editando, setEditando] = useState<Editando | null>(null);
+  const toast = useToast();
   // Categorias personalizadas (Ajustes). Sem a tabela, segue só com as fixas.
   const [custom, setCustom] = useState<CategoriaCustom[]>([]);
   const todas = useMemo(() => todasAsCategorias(custom, { incluirArquivadas: true }), [custom]);
@@ -106,7 +108,7 @@ export function TelaOrcamento() {
         <Vazio
           Icone={Target}
           titulo="Nenhum limite ainda"
-          texto="Comece pelas categorias em que você mais gasta. Abaixo está o quanto já saiu em cada uma neste mês."
+          texto="Escolha uma categoria abaixo e toque em “+ Limite”. Comece pelas que mais pesam: o quanto já saiu em cada uma neste mês está ao lado do nome."
         />
       ) : (
         <Cartao className="p-5">
@@ -191,10 +193,15 @@ export function TelaOrcamento() {
             if (limite === null) await removerOrcamento(sb, uid, editando.chave);
             else await salvarOrcamento(sb, uid, editando.chave, limite);
             setEditando(null);
+            toast.mostrar({
+              texto: limite === null ? `${editando.rotulo}: limite retirado.` : `${editando.rotulo}: limite de ${brl(limite)} por mês.`,
+            });
             await carregar(true);
           }}
         />
       )}
+
+      <Toast {...toast} />
     </div>
   );
 }
@@ -250,6 +257,8 @@ function FormLimite({
   onSalvar: (limite: number | null) => Promise<void>;
 }) {
   const [valor, setValor] = useState(editando.limite != null ? editando.limite.toFixed(2).replace(".", ",") : "");
+  // Um ponto de partida: o que já saiu no mês, arredondado para cima (a pessoa ajusta).
+  const sugestao = editando.gasto > 0 ? Math.ceil(editando.gasto / 50) * 50 : null;
   const [erro, setErro] = useState<string | null>(null);
   const [salvando, setSalvando] = useState(false);
 
@@ -284,6 +293,7 @@ function FormLimite({
             value={valor}
             onChange={(e) => setValor(e.target.value)}
             placeholder="0,00"
+            data-autofoco=""
             className={`${CAMPO} mt-1 tabular-nums`}
           />
           <span className="mt-1 block text-2xs text-white/55">
@@ -291,6 +301,15 @@ function FormLimite({
             até você mudar.
           </span>
         </label>
+        {sugestao !== null && editando.limite == null && (
+          <button
+            type="button"
+            onClick={() => setValor(sugestao.toFixed(2).replace(".", ","))}
+            className={`-mt-2 min-h-11 rounded-full px-3.5 text-xs font-semibold text-ouro ring-1 ring-inset ring-ouro/40 hover:bg-ouro/[0.08] ${ANEL}`}
+          >
+            Usar {brl(sugestao)} (o que já saiu, arredondado)
+          </button>
+        )}
 
         {erro && (
           <p role="alert" className="rounded-xl border border-accent/35 bg-accent/10 px-3 py-2 text-xs text-accent-claro">

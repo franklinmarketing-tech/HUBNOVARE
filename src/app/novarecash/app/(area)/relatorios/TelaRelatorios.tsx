@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ChartColumn, ChevronLeft, ChevronRight, Download, Printer } from "lucide-react";
 
 import { createClient } from "@/lib/supabase/client";
@@ -43,9 +43,12 @@ import {
   brl,
 } from "../pecas";
 
-/** Cores das séries, validadas contra a noite (dataviz: CVD ΔE 19,8, contraste ≥ 3:1). */
-const COR_SERIE_ENTRADA = "var(--color-ciano)";
-const COR_SERIE_SAIDA = "var(--color-accent)";
+/**
+ * Cores das séries, validadas contra a noite (dataviz: CVD ΔE 19,8, contraste ≥ 3:1).
+ * No modo claro, as variáveis escurecem um degrau (ciano 4,6:1 e laranja 4,1:1 no branco).
+ */
+const COR_SERIE_ENTRADA = "var(--ncash-serie-entrada)";
+const COR_SERIE_SAIDA = "var(--ncash-serie-saida)";
 
 const MESES_NO_GRAFICO = 6;
 
@@ -92,7 +95,11 @@ export function TelaRelatorios() {
   const [estado, setEstado] = useState<Estado>({ tipo: "carregando" });
   const meses = useMemo(() => mesesAte(ref, MESES_NO_GRAFICO), [ref]);
 
+  // Só a leitura MAIS RECENTE vale: trocando de mês depressa, uma resposta atrasada traria a janela
+  // do mês anterior, e o mês na tela sairia zerado.
+  const pedido = useRef(0);
   const carregar = useCallback(async () => {
+    const vez = ++pedido.current;
     setEstado({ tipo: "carregando" });
     try {
       const eu = await usuarioDaSessao(sb);
@@ -101,9 +108,11 @@ export function TelaRelatorios() {
         lerContas(sb, eu),
         lerCategoriasCustomOuNada(sb, eu),
       ]);
+      if (vez !== pedido.current) return;
       // Com as arquivadas: o nome certo também para o lançamento antigo.
       setEstado({ tipo: "pronto", transacoes, contas, lista: todasAsCategorias(custom, { incluirArquivadas: true }) });
     } catch (e) {
+      if (vez !== pedido.current) return;
       setEstado({ tipo: e instanceof ErroDados && e.motivo === "sem-tabela" ? "sem-tabela" : "erro" });
     }
   }, [sb, meses, ref]);
@@ -351,7 +360,7 @@ function GraficoMeses({ linhas }: { linhas: LinhaMes[] }) {
         </li>
       </ul>
       <div className="flex">
-        <div className="relative h-44 w-11 shrink-0 text-[10px] tabular-nums text-white/55" aria-hidden>
+        <div className="relative h-44 w-11 shrink-0 text-[11px] tabular-nums text-white/55" aria-hidden>
           {[1, 0.5, 0].map((f) => (
             <span key={f} className="absolute right-1.5 -translate-y-1/2" style={{ top: `${(1 - f) * 100}%` }}>
               {compacto(teto * f)}
@@ -506,7 +515,7 @@ function MiniEvolucao({ c, meses }: { c: EvolucaoCategoria; meses: string[] }) {
       </div>
       <div className="mt-1 flex gap-1.5" aria-hidden>
         {meses.map((m) => (
-          <span key={m} className="min-w-0 flex-1 text-center text-[10px] text-white/55">
+          <span key={m} className="min-w-0 flex-1 text-center text-[11px] text-white/55">
             {mesCurto(m).slice(0, 3)}
           </span>
         ))}

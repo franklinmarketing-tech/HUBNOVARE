@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import { ArrowLeft, Check, FileUp, ListOrdered, RotateCcw, ShieldCheck, Upload } from "lucide-react";
 
 import { createClient } from "@/lib/supabase/client";
@@ -255,12 +256,47 @@ export function TelaImportar() {
           role="status"
           className={`rounded-xl border px-4 py-3 text-xs ${
             recado.tom === "ok"
-              ? "border-[hsl(152_55%_41%/0.4)] bg-[hsl(152_55%_41%/0.12)] text-[hsl(152_60%_62%)]"
+              ? "border-[hsl(152_55%_41%/0.4)] bg-[hsl(152_55%_41%/0.12)] text-[var(--ncash-verde)]"
               : "border-warning/35 bg-warning/10 text-warning-claro"
           }`}
         >
           {recado.texto}
+          {recado.tom === "ok" && (
+            <>
+              {" "}
+              <Link href="/novarecash/app/extrato" className={`font-semibold underline underline-offset-2 ${ANEL}`}>
+                Ver no extrato
+              </Link>
+            </>
+          )}
         </p>
+      )}
+
+      {/* Onde a pessoa está no caminho: escolher → (CSV: conferir colunas) → conferir lançamentos. */}
+      {etapa !== "escolher" && (
+        <ol aria-label="Passos da importação" className="flex flex-wrap items-center gap-x-2 gap-y-1 text-2xs font-semibold">
+          {(arquivo?.formato === "csv" ? ["Arquivo", "Colunas", "Conferir e gravar"] : ["Arquivo", "Conferir e gravar"]).map((nome, i, todos) => {
+            const atual = etapa === "previa" ? todos.length - 1 : 1;
+            return (
+              <li
+                key={nome}
+                aria-current={i === atual ? "step" : undefined}
+                className={`flex items-center gap-1.5 ${i === atual ? "text-ouro" : i < atual ? "text-white/70" : "text-white/55"}`}
+              >
+                <span
+                  aria-hidden
+                  className={`flex h-5 w-5 items-center justify-center rounded-full text-[11px] ring-1 ring-inset ${
+                    i === atual ? "bg-ouro/[0.14] ring-ouro/40" : "ring-white/20"
+                  }`}
+                >
+                  {i < atual ? <Check className="h-3 w-3" /> : i + 1}
+                </span>
+                {nome}
+                {i < todos.length - 1 && <span aria-hidden className="text-white/30">›</span>}
+              </li>
+            );
+          })}
+        </ol>
       )}
 
       {ultima && etapa === "escolher" && (
@@ -418,7 +454,7 @@ export function TelaImportar() {
             </>
           )}
 
-          <div className="sticky bottom-24 z-10 flex flex-wrap items-center gap-2 rounded-2xl border border-white/10 bg-noite-2/95 p-3 backdrop-blur-md md:bottom-4">
+          <div className="sticky bottom-[calc(4.75rem+env(safe-area-inset-bottom))] z-10 flex flex-wrap items-center gap-2 rounded-2xl border border-white/10 bg-noite-2/95 p-3 backdrop-blur-md md:bottom-4">
             <Botao Icone={Check} onClick={gravar} desabilitado={gravando || escolhidas.length === 0}>
               {gravando ? "Gravando…" : `Gravar ${escolhidas.length} no extrato`}
             </Botao>
@@ -479,7 +515,7 @@ function LinhaDaPrevia({
             checked={l.incluir}
             disabled={bloqueada}
             onChange={(e) => onIncluir(e.target.checked)}
-            className="h-5 w-5 cursor-pointer accent-[hsl(42_74%_62%)]"
+            className="h-5 w-5 cursor-pointer accent-ouro"
           />
         </label>
         <div className="min-w-0 flex-1 pt-1">
@@ -502,7 +538,7 @@ function LinhaDaPrevia({
             <select
               value={l.categoria}
               onChange={(e) => onCategoria(e.target.value)}
-              className="min-h-11 max-w-[15rem] cursor-pointer truncate rounded-lg border border-white/10 bg-white/[0.04] px-2 text-2xs font-semibold text-ouro outline-none hover:border-ouro/40 focus:border-ouro focus:ring-2 focus:ring-ouro/25"
+              className="min-h-11 max-w-[15rem] cursor-pointer truncate rounded-lg border border-white/10 bg-white/[0.04] px-2 text-base font-semibold text-ouro sm:text-2xs outline-none hover:border-ouro/40 focus:border-ouro focus:ring-2 focus:ring-ouro/25"
             >
               {opcoes.map((c) => (
                 <option key={c.chave} value={c.chave}>
@@ -597,7 +633,7 @@ function MapearCsv({
             type="checkbox"
             checked={mapa.temCabecalho}
             onChange={(e) => onMapa({ ...mapa, temCabecalho: e.target.checked })}
-            className="h-5 w-5 accent-[hsl(42_74%_62%)]"
+            className="h-5 w-5 accent-ouro"
           />
           A primeira linha é o cabeçalho
         </label>
@@ -606,7 +642,7 @@ function MapearCsv({
             type="checkbox"
             checked={mapa.inverterSinal}
             onChange={(e) => onMapa({ ...mapa, inverterSinal: e.target.checked })}
-            className="h-5 w-5 accent-[hsl(42_74%_62%)]"
+            className="h-5 w-5 accent-ouro"
           />
           Gastos vêm positivos (comum em extrato de cartão)
         </label>

@@ -31,11 +31,44 @@ create index if not exists ncash_membros_membro_idx on public.ncash_membros (mem
 
 alter table public.ncash_membros enable row level security;
 
--- O dono vê e gerencia os convites dele; o convidado vê o convite que é para o e-mail dele.
+-- O dono vê os convites dele, convida e tira; o convidado vê o convite que é para o e-mail dele.
+--
+-- ⚠️ SEM "for all" (corrigido em 04/11/2026): com escrita livre, o dono podia
+-- gravar pela API um convite JÁ ACEITO, com `membro_id` = o id de qualquer
+-- pessoa. A vítima passava a abrir o NovareCash DELE (`ncash_dono_atual()`) e
+-- tudo o que lançasse — no app ou pelo WhatsApp — caía na conta de quem a
+-- "convidou". Agora o dono só INSERE convite pendente (sem `membro_id`) e
+-- APAGA; o aceite passa SÓ por `ncash_aceitar_convite()`, que confere o e-mail
+-- de quem aceita. Não há policy de UPDATE: ninguém altera convite pela API.
 drop policy if exists "ncash membros: dono gerencia" on public.ncash_membros;
-create policy "ncash membros: dono gerencia" on public.ncash_membros
-  for all to authenticated
-  using (dono_id = auth.uid()) with check (dono_id = auth.uid());
+drop policy if exists "ncash membros: dono le" on public.ncash_membros;
+create policy "ncash membros: dono le" on public.ncash_membros
+  for select to authenticated
+  using (dono_id = auth.uid());
+
+drop policy if exists "ncash membros: dono convida" on public.ncash_membros;
+create policy "ncash membros: dono convida" on public.ncash_membros
+  for insert to authenticated
+  with check (
+    dono_id = auth.uid()
+    and status = 'convidado'
+    and membro_id is null
+    and aceito_em is null
+    and email = lower(email)
+  );
+
+drop policy if exists "ncash membros: dono tira" on public.ncash_membros;
+create policy "ncash membros: dono tira" on public.ncash_membros
+  for delete to authenticated
+  using (dono_id = auth.uid());
+
+-- Faxina do buraco acima: aceite cujo `membro_id` não é a dona do e-mail
+-- convidado só pode ter sido forjado. Não apaga nada legítimo (o aceite de
+-- verdade grava o próprio id em convite do próprio e-mail).
+delete from public.ncash_membros m
+ using auth.users u
+ where m.membro_id = u.id
+   and lower(coalesce(u.email, '')) <> lower(m.email);
 
 drop policy if exists "ncash membros: convidado le" on public.ncash_membros;
 create policy "ncash membros: convidado le" on public.ncash_membros
@@ -129,4 +162,6 @@ create policy "ncash: dono manda" on public.ncash_orcamentos
 select
   to_regclass('public.ncash_membros') is not null as membros,
   to_regprocedure('public.ncash_pode(uuid)') is not null as regra,
-  to_regprocedure('public.ncash_dono_atual()') is not null as dono_atual;
+  to_regprocedure('public.ncash_dono_atual()') is not null as dono_atual,
+  not exists (select 1 from pg_policies where schemaname = 'public' and tablename = 'ncash_membros'
+               and cmd in ('ALL', 'UPDATE')) as membros_sem_escrita_livre;

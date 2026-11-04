@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight, ListOrdered, Plus, Search, Wallet } from "lucide-react";
 
 import { createClient } from "@/lib/supabase/client";
@@ -13,6 +13,7 @@ import {
 import { lerCategoriasCustomOuNada } from "@/lib/novarecash/ajustes";
 import {
   ErroDados,
+  apagarLancamento,
   comSaldos,
   dataPorExtenso,
   editarLancamento,
@@ -40,6 +41,7 @@ import {
   Vazio,
   brl,
 } from "../pecas";
+import { Toast, useToast } from "../Toast";
 import { FormLancamento } from "./FormLancamento";
 import { MinhasContas } from "./MinhasContas";
 
@@ -72,8 +74,15 @@ export function TelaExtrato({ abrir, filtroInicial = {} }: { abrir: "novo" | "co
   const todas = useMemo(() => todasAsCategorias(custom, { incluirArquivadas: true }), [custom]);
   const ativas = useMemo(() => todasAsCategorias(custom), [custom]);
 
+  // Trocar de mês depressa dispara leituras que podem voltar fora de ordem: só a ÚLTIMA vale,
+  // senão o nome do mês novo aparece com os lançamentos (e os totais) do mês anterior.
+  const pedido = useRef(0);
+  const toast = useToast();
+  // Apagado na tela, mas ainda não no banco: espera o "Desfazer" vencer (ver `apagarComDesfazer`).
+  const apagando = useRef<Set<string>>(new Set());
   const carregar = useCallback(
     async (silencioso = false) => {
+      const vez = ++pedido.current;
       if (!silencioso) setEstado("carregando");
       try {
         const eu = await usuarioDaSessao(sb);
@@ -83,11 +92,14 @@ export function TelaExtrato({ abrir, filtroInicial = {} }: { abrir: "novo" | "co
           lerTransacoesDoMes(sb, eu, ref),
           lerCategoriasCustomOuNada(sb, eu),
         ]);
+        const comSaldo = await comSaldos(sb, eu, cs);
+        if (vez !== pedido.current) return;
         setCustom(cat);
-        setContas(await comSaldos(sb, eu, cs));
-        setTransacoes(ts);
+        setContas(comSaldo);
+        setTransacoes(ts.filter((t) => !apagando.current.has(t.id)));
         setEstado("pronto");
       } catch (e) {
+        if (vez !== pedido.current) return;
         setEstado(e instanceof ErroDados && e.motivo === "sem-tabela" ? "sem-tabela" : "erro");
       }
     },
@@ -97,6 +109,12 @@ export function TelaExtrato({ abrir, filtroInicial = {} }: { abrir: "novo" | "co
   useEffect(() => {
     carregar();
   }, [carregar]);
+
+  // O "Desfazer" e o apagar adiado rodam segundos depois: recarregam o mês que está na tela AGORA.
+  const carregarAgora = useRef(carregar);
+  useEffect(() => {
+    carregarAgora.current = carregar;
+  });
 
   const nomeConta = useMemo(() => new Map(contas.map((c) => [c.id, c.nome])), [contas]);
 
@@ -130,6 +148,37 @@ export function TelaExtrato({ abrir, filtroInicial = {} }: { abrir: "novo" | "co
       setTransacoes((lista) => lista.map((x) => (x.id === t.id ? { ...x, categoria: antes } : x)));
       setRecado("Não consegui trocar a categoria agora. Tente de novo.");
     }
+  }
+
+  /**
+   * APAGAR COM "DESFAZER" (04/11/2026). O lançamento some da lista na hora e o aviso
+   * oferece "Desfazer" por alguns segundos; só quando o aviso some é que o banco
+   * apaga de verdade (`apagarLancamento`, o mesmo de antes). Desfazer = não apagar,
+   * então nada é recriado: o lançamento volta igual, com a mesma origem e o mesmo id.
+   */
+  function apagarComDesfazer(t: Transacao) {
+    if (!uid) return;
+    setEditando(null);
+    apagando.current.add(t.id);
+    setTransacoes((lista) => lista.filter((x) => x.id !== t.id));
+    toast.mostrar({
+      texto: `“${t.descricao}” apagado.`,
+      acao: {
+        rotulo: "Desfazer",
+        fazer: () => {
+          apagando.current.delete(t.id);
+          carregarAgora.current(true);
+        },
+      },
+      aoSumir: () => {
+        apagarLancamento(sb, uid, t.id)
+          .catch(() => setRecado(`Não consegui apagar “${t.descricao}”. Ele continua no extrato; tente de novo.`))
+          .finally(() => {
+            apagando.current.delete(t.id);
+            carregarAgora.current(true);
+          });
+      },
+    });
   }
 
   return (
@@ -176,7 +225,7 @@ export function TelaExtrato({ abrir, filtroInicial = {} }: { abrir: "novo" | "co
             <dd className={`truncate font-semibold tabular-nums ${COR_SAIDA}`}>{brl(totais.saidas)}</dd>
           </div>
           <div className="min-w-0">
-            <dt className="text-white/60">Saldo</dt>
+            <dt className="text-white/60">Sobra</dt>
             <dd className={`truncate font-semibold tabular-nums ${totais.sobra < 0 ? COR_SAIDA : "text-white"}`}>
               {brl(totais.sobra)}
             </dd>
@@ -298,11 +347,20 @@ export function TelaExtrato({ abrir, filtroInicial = {} }: { abrir: "novo" | "co
           contas={contas}
           custom={custom}
           onFechar={() => setEditando(null)}
+          onApagar={apagarComDesfazer}
           onSalvo={(dataSalva) => {
+            const novo = editando === "novo";
             setEditando(null);
             const mes = dataSalva?.slice(0, 7);
             if (mes && mes !== ref) setRef(mes);
             else carregar(true);
+            if (!dataSalva) return;
+            const outroMes = mes && mes !== ref ? ` em ${nomeDoMes(mes, false)}` : "";
+            toast.mostrar(
+              novo
+                ? { texto: `Lançamento salvo${outroMes}.`, acao: { rotulo: "Lançar outro", fazer: () => setEditando("novo") } }
+                : { texto: `Lançamento atualizado${outroMes}.` },
+            );
           }}
         />
       )}
@@ -316,6 +374,8 @@ export function TelaExtrato({ abrir, filtroInicial = {} }: { abrir: "novo" | "co
           onMudou={() => carregar(true)}
         />
       )}
+
+      <Toast {...toast} />
     </div>
   );
 }
@@ -366,7 +426,7 @@ function LinhaExtrato({
           <select
             value={atual.chave}
             onChange={(e) => onCategoria(e.target.value)}
-            className="min-h-11 max-w-[14rem] cursor-pointer truncate rounded-lg border border-white/10 bg-white/[0.04] px-2 text-2xs font-semibold text-ouro outline-none hover:border-ouro/40 focus:border-ouro focus:ring-2 focus:ring-ouro/25"
+            className="min-h-11 max-w-[14rem] cursor-pointer truncate rounded-lg border border-white/10 bg-white/[0.04] px-2 text-base font-semibold text-ouro sm:text-2xs outline-none hover:border-ouro/40 focus:border-ouro focus:ring-2 focus:ring-ouro/25"
           >
             {opcoes.map((c) => (
               <option key={c.chave} value={c.chave}>

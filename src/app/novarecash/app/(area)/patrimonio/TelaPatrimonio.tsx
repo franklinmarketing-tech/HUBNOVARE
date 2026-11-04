@@ -35,6 +35,7 @@ import {
   Vazio,
   brl,
 } from "../pecas";
+import { Toast, useToast } from "../Toast";
 
 type Estado = "carregando" | "pronto" | "sem-tabela" | "erro";
 
@@ -61,6 +62,7 @@ export function TelaPatrimonio({
   const [editando, setEditando] = useState<Investimento | "novo" | null>(null);
   const [apagar, setApagar] = useState<Investimento | null>(null);
   const [recado, setRecado] = useState<string | null>(null);
+  const toast = useToast();
 
   const carregar = useCallback(async () => {
     setEstado("carregando");
@@ -106,6 +108,7 @@ export function TelaPatrimonio({
       await apagarInvestimento(sb, uid, apagar.id);
       setManuais((l) => l.filter((x) => x.id !== apagar.id));
       setApagar(null);
+      toast.mostrar({ texto: `“${apagar.nome}” saiu do seu patrimônio.` });
     } catch {
       setApagar(null);
       setRecado("Não consegui apagar agora. Tente de novo em instantes.");
@@ -165,6 +168,13 @@ export function TelaPatrimonio({
               <p className="mt-2 text-2xs leading-relaxed text-white/55">
                 Sem saldo conhecido, fora da soma: {p.semSaldo.join(", ")}.
               </p>
+            )}
+            {!semTabelaInvest && (
+              <div className="mt-4">
+                <Botao Icone={Plus} onClick={() => setEditando("novo")}>
+                  Lançar investimento
+                </Botao>
+              </div>
             )}
           </Cartao>
 
@@ -256,18 +266,8 @@ export function TelaPatrimonio({
         </>
       )}
 
-      {/* Investimentos à mão */}
-      {semTabelaInvest ? (
-        <AvisoSemTabelaExtras oQue="O lançamento de investimentos" />
-      ) : (
-        !vazio && (
-          <div className="flex flex-wrap gap-2">
-            <Botao Icone={Plus} onClick={() => setEditando("novo")}>
-              Lançar investimento
-            </Botao>
-          </div>
-        )
-      )}
+      {/* Investimentos à mão (o botão mora no resumo, lá em cima) */}
+      {semTabelaInvest && <AvisoSemTabelaExtras oQue="O lançamento de investimentos" />}
 
       {/* Investimentos do banco (Open Finance) */}
       {bancoLiberado ? (
@@ -299,6 +299,7 @@ export function TelaPatrimonio({
           onSalvar={async (d) => {
             await salvarInvestimento(sb, uid, d, editando === "novo" ? undefined : editando.id);
             setEditando(null);
+            toast.mostrar({ texto: editando === "novo" ? `“${d.nome}” entrou no seu patrimônio.` : `“${d.nome}” atualizado.` });
             setManuais(await lerInvestimentos(sb, uid));
           }}
         />
@@ -320,6 +321,8 @@ export function TelaPatrimonio({
           </div>
         </Janela>
       )}
+
+      <Toast {...toast} />
     </div>
   );
 }
@@ -345,10 +348,12 @@ function FormInvestimento({
 
   async function enviar(e: React.FormEvent) {
     e.preventDefault();
-    const v = lerValor(valor, valor.includes(",") || !valor.includes(".") ? "," : ".");
+    // "15.000" (só ponto de milhar) é quinze mil, como em todo o app (`parseNumero`) — não R$ 15,00.
+    const soMilhar = /^\s*(R\$)?\s*-?\d{1,3}(\.\d{3})+\s*$/i.test(valor);
+    const v = lerValor(valor, valor.includes(",") || !valor.includes(".") || soMilhar ? "," : ".");
     if (!nome.trim()) return setErro("Dê um nome, como “CDB do banco X” ou “Tesouro Selic”.");
     if (v === null || v < 0) return setErro("Confira o valor: use só números, como 1.500,00.");
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(data)) return setErro("Confira a data.");
+    if (!/^(19|20)\d{2}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/.test(data)) return setErro("Confira a data.");
     setSalvando(true);
     setErro(null);
     try {
@@ -361,7 +366,7 @@ function FormInvestimento({
 
   return (
     <Janela titulo={inicial ? "Editar investimento" : "Lançar investimento"} onFechar={onFechar}>
-      <form onSubmit={enviar} className="space-y-3">
+      <form onSubmit={enviar} className="space-y-3" noValidate>
         <label className="block">
           <span className={ROTULO_CAMPO}>Nome</span>
           <input value={nome} onChange={(e) => setNome(e.target.value)} maxLength={80} placeholder="Ex.: Tesouro Selic 2029" className={`${CAMPO} mt-1`} />
@@ -383,17 +388,21 @@ function FormInvestimento({
         <div className="grid grid-cols-2 gap-2">
           <label className="block">
             <span className={ROTULO_CAMPO}>Valor atual (R$)</span>
-            <input value={valor} onChange={(e) => setValor(e.target.value)} inputMode="decimal" placeholder="0,00" className={`${CAMPO} mt-1`} />
+            <input value={valor} onChange={(e) => setValor(e.target.value)} inputMode="decimal" autoComplete="off" placeholder="0,00" className={`${CAMPO} mt-1 tabular-nums`} />
           </label>
           <label className="block">
-            <span className={ROTULO_CAMPO}>Valor de</span>
+            <span className={ROTULO_CAMPO}>Data do valor</span>
             <input type="date" value={data} onChange={(e) => setData(e.target.value)} className={`${CAMPO} mt-1`} />
           </label>
         </div>
         <p className="text-2xs leading-relaxed text-white/60">
           Use o valor que aparece hoje no extrato do banco ou da corretora. Atualize quando quiser.
         </p>
-        {erro && <p className="text-xs text-warning-claro">{erro}</p>}
+        {erro && (
+          <p role="alert" className="rounded-xl border border-warning/35 bg-warning/10 px-3 py-2 text-xs text-warning-claro">
+            {erro}
+          </p>
+        )}
         <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
           {onApagar ? (
             <Botao variante="perigo" Icone={Trash2} onClick={onApagar}>

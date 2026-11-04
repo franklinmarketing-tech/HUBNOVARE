@@ -56,10 +56,19 @@ function igual(a: string, b: string): boolean {
 /* eslint-disable @typescript-eslint/no-explicit-any */
 type Payload = Record<string, any>;
 
-/** 'anual' se o nome do plano/oferta disser; senão 'mensal'. */
+/**
+ * 'anual' se o nome do plano/oferta disser; senão 'mensal'.
+ *
+ * ⚠️ PALAVRA INTEIRA (04/11/2026): a regra antiga (`/anual|annual|ano|12/`)
+ * achava "ano" dentro de "PLANO" — "Plano Mensal" virava ANUAL e, sem
+ * `date_next_charge` no aviso, ganhava 370 dias de acesso pagando um mês.
+ */
 function prazoDo(p: Payload): "mensal" | "anual" {
-  const nome = String(p?.data?.subscription?.plan?.name ?? p?.data?.purchase?.offer?.code ?? "").toLowerCase();
-  return /anual|annual|ano|12/.test(nome) ? "anual" : "mensal";
+  const nome = String(p?.data?.subscription?.plan?.name ?? p?.data?.purchase?.offer?.code ?? "")
+    .normalize("NFD")
+    .replace(/\p{M}/gu, "")
+    .toLowerCase();
+  return /\b(anual|annual|yearly|ano)\b|\b12\s*meses\b/.test(nome) ? "anual" : "mensal";
 }
 
 /** Até quando vale: a próxima cobrança que a Hotmart informa; sem ela, o período do plano + 5 dias de folga. */
@@ -103,7 +112,10 @@ export async function POST(req: Request) {
   const produto = String(p?.data?.product?.id ?? "");
 
   // O diário guarda TUDO, inclusive o que for ignorado — é ele que responde "a Hotmart avisou?".
-  await db.from("ncash_hotmart_eventos").insert({ evento, email: email || null, transacao, payload: p });
+  // Sem o hottok: quando ele vem no corpo, gravá-lo deixaria o segredo legível para a equipe.
+  const { hottok: _segredo, ...cru } = p;
+  void _segredo;
+  await db.from("ncash_hotmart_eventos").insert({ evento, email: email || null, transacao, payload: cru });
 
   const produtoEsperado = (process.env.HOTMART_PRODUTO_NOVARECASH ?? "").trim();
   if (produtoEsperado && produto && produto !== produtoEsperado) {
@@ -116,6 +128,19 @@ export async function POST(req: Request) {
   const assinatura = (p?.data?.subscription?.subscriber?.code ?? null) as string | null;
 
   if (ATIVA.includes(evento)) {
+    // REENVIO FORA DE ORDEM: a Hotmart repete avisos, e um "aprovada" antigo que
+    // chegue DEPOIS do reembolso/chargeback da MESMA transação religaria o acesso
+    // de quem recebeu o dinheiro de volta. Transação nova (outra compra) passa.
+    if (transacao) {
+      const { data: atual } = await db
+        .from("ncash_assinantes")
+        .select("status, ultima_transacao")
+        .eq("email", email)
+        .maybeSingle();
+      if (atual && (atual.status === "reembolsada" || atual.status === "chargeback") && atual.ultima_transacao === transacao) {
+        return NextResponse.json({ ok: true, ignorado: "transacao ja reembolsada" });
+      }
+    }
     const { error } = await db.from("ncash_assinantes").upsert(
       {
         email,
@@ -140,10 +165,19 @@ export async function POST(req: Request) {
       evento === "PURCHASE_REFUNDED" ? "reembolsada"
       : evento === "PURCHASE_CHARGEBACK" || evento === "PURCHASE_PROTEST" ? "chargeback"
       : "cancelada";
-    const { error } = await db
+    let corte = db
       .from("ncash_assinantes")
       .update({ status, expira_em: agora, ultima_transacao: transacao, atualizado_em: agora })
       .eq("email", email);
+    // CANCELADA/EXPIRADA não devolve dinheiro: é um boleto/Pix que venceu sem
+    // pagar ou uma cobrança recusada. Só corta se for a transação que DEU o
+    // acesso — senão o boleto esquecido de uma 2ª tentativa (ou a renovação
+    // recusada) cortaria na hora quem tem período pago. A renovação que não
+    // entrou acaba sozinha em `expira_em`. Reembolso e chargeback cortam sempre.
+    if (transacao && (evento === "PURCHASE_CANCELED" || evento === "PURCHASE_EXPIRED")) {
+      corte = corte.eq("ultima_transacao", transacao);
+    }
+    const { error } = await corte;
     if (error) return NextResponse.json({ erro: "nao gravou" }, { status: 500 });
     return NextResponse.json({ ok: true, acao: "cortou" });
   }

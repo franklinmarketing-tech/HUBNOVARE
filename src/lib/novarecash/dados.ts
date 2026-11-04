@@ -93,6 +93,38 @@ function checar(error: unknown) {
   throw new ErroDados(faltaTabela(error) ? "sem-tabela" : "falha", detalhe);
 }
 
+/** Tamanho da página: o `max_rows` padrão do Supabase. */
+const POR_PAGINA = 1000;
+
+/**
+ * LÊ TODAS AS LINHAS, de página em página (04/11/2026).
+ *
+ * ⚠️ O Supabase corta TODA resposta em `max_rows` (1.000 por padrão), mesmo
+ * pedindo `.range(0, 9999)`: o resto some sem erro. Quem tem mais de mil
+ * lançamentos via o saldo da conta manual (que soma o histórico), os alertas e
+ * os relatórios calculados com uma parte do extrato.
+ *
+ * `pagina(de, ate)` monta a consulta com o `.range(de, ate)`; ela precisa de
+ * ORDEM TOTAL (termine com `.order("id")`), senão empates de data e de
+ * `criado_em` — uma importação grava centenas no mesmo instante — fazem a
+ * página seguinte repetir ou pular linhas. `teto` segura o pior caso.
+ */
+export async function lerTodasAsPaginas<T>(
+  pagina: (de: number, ate: number) => PromiseLike<{ data: T[] | null; error: unknown }>,
+  verificar: (error: unknown) => void = checar,
+  teto = 50_000,
+): Promise<T[]> {
+  const todas: T[] = [];
+  for (let de = 0; de < teto; de += POR_PAGINA) {
+    const { data, error } = await pagina(de, de + POR_PAGINA - 1);
+    verificar(error);
+    const lote = data ?? [];
+    todas.push(...lote);
+    if (lote.length < POR_PAGINA) break;
+  }
+  return todas;
+}
+
 /**
  * DE QUEM É O NOVARECASH ABERTO — o id que toda leitura filtra e toda gravação usa.
  *
@@ -217,17 +249,7 @@ export async function lerContas(sb: SupabaseClient, uid: string): Promise<Conta[
 
 export async function lerTransacoesDoMes(sb: SupabaseClient, uid: string, ref: string): Promise<Transacao[]> {
   const { inicio, fim } = limitesDoMes(ref);
-  const { data, error } = await sb
-    .from("ncash_transacoes")
-    .select("*")
-    .eq("user_id", uid)
-    .gte("data", inicio)
-    .lte("data", fim)
-    .order("data", { ascending: false })
-    .order("criado_em", { ascending: false })
-    .range(0, 2999);
-  checar(error);
-  return (data ?? []).map(paraTransacao);
+  return lerTransacoesEntre(sb, uid, inicio, fim);
 }
 
 export async function lerUltimas(
@@ -237,8 +259,10 @@ export async function lerUltimas(
   origem?: OrigemTransacao,
 ): Promise<Transacao[]> {
   let q = sb.from("ncash_transacoes").select("*").eq("user_id", uid);
-  // Por origem (WhatsApp): o que CHEGOU por último. Sem origem: o que aconteceu por último.
-  q = origem ? q.eq("origem", origem) : q.order("data", { ascending: false });
+  // Por origem (WhatsApp): o que CHEGOU por último. Sem origem: o que aconteceu por último —
+  // até HOJE: sem o corte, as parcelas futuras do cartão (datas de meses à frente) eram
+  // "os últimos lançamentos" no Início e na IA.
+  q = origem ? q.eq("origem", origem) : q.lte("data", hojeNoBrasil()).order("data", { ascending: false });
   const { data, error } = await q.order("criado_em", { ascending: false }).limit(quantas);
   checar(error);
   return (data ?? []).map(paraTransacao);
@@ -284,19 +308,20 @@ export async function comSaldos(sb: SupabaseClient, uid: string, contas: Conta[]
   const manuais = contas.filter((c) => c.origem === "manual");
   let movimentos: Movimento[] = [];
   if (manuais.length) {
-    let q = sb
-      .from("ncash_transacoes")
-      .select("conta_id, tipo, valor, data, criado_em")
-      .eq("user_id", uid)
-      .in("conta_id", manuais.map((c) => c.id));
     // Sem saldo informado em alguma conta, ela anda com TODOS os lançamentos: sem corte de data.
-    if (manuais.every((c) => c.saldo_em)) {
-      const minimo = manuais.map((c) => hojeNoBrasil(new Date(c.saldo_em!))).sort()[0];
-      q = q.gte("data", minimo);
-    }
-    const { data, error } = await q.range(0, 9999);
-    checar(error);
-    movimentos = (data ?? []).map((m) => ({
+    const minimo = manuais.every((c) => c.saldo_em)
+      ? manuais.map((c) => hojeNoBrasil(new Date(c.saldo_em!))).sort()[0]
+      : null;
+    const data = await lerTodasAsPaginas<Record<string, unknown>>((de, ate) => {
+      let q = sb
+        .from("ncash_transacoes")
+        .select("conta_id, tipo, valor, data, criado_em")
+        .eq("user_id", uid)
+        .in("conta_id", manuais.map((c) => c.id));
+      if (minimo) q = q.gte("data", minimo);
+      return q.order("id").range(de, ate);
+    });
+    movimentos = data.map((m) => ({
       conta_id: (m.conta_id as string | null) ?? null,
       tipo: m.tipo === "entrada" ? "entrada" : "saida",
       valor: num(m.valor),
@@ -543,8 +568,8 @@ export async function removerOrcamento(sb: SupabaseClient, uid: string, chave: s
 
 /**
  * Os lançamentos entre duas datas (yyyy-mm-dd, inclusive), do mais novo para o
- * mais antigo. Alertas e Relatórios leem 7 meses de uma vez; o teto de 9.999
- * linhas cobre com folga quem lança muito.
+ * mais antigo. Alertas e Relatórios leem 7 meses de uma vez — por isso de
+ * página em página (`lerTodasAsPaginas`): o Supabase corta cada resposta em mil.
  */
 export async function lerTransacoesEntre(
   sb: SupabaseClient,
@@ -552,15 +577,17 @@ export async function lerTransacoesEntre(
   inicio: string,
   fim: string,
 ): Promise<Transacao[]> {
-  const { data, error } = await sb
-    .from("ncash_transacoes")
-    .select("*")
-    .eq("user_id", uid)
-    .gte("data", inicio)
-    .lte("data", fim)
-    .order("data", { ascending: false })
-    .order("criado_em", { ascending: false })
-    .range(0, 9999);
-  checar(error);
-  return (data ?? []).map(paraTransacao);
+  const data = await lerTodasAsPaginas<Record<string, unknown>>((de, ate) =>
+    sb
+      .from("ncash_transacoes")
+      .select("*")
+      .eq("user_id", uid)
+      .gte("data", inicio)
+      .lte("data", fim)
+      .order("data", { ascending: false })
+      .order("criado_em", { ascending: false })
+      .order("id")
+      .range(de, ate),
+  );
+  return data.map(paraTransacao);
 }
