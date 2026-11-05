@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { ArrowRight } from "lucide-react";
+import { medirClique } from "@/lib/medir";
 
 const CHAVE_CONSENTIMENTO = "novare:consent";
 
@@ -69,7 +70,7 @@ export function BarraFixaCelular({
     >
       <div className="flex items-center gap-3">
         <p className="min-w-0 flex-1 text-2xs leading-snug text-white/75">{apoio}</p>
-        <a href={href} tabIndex={visivel ? 0 : -1} className="btn-cp shrink-0">
+        <a href={href} tabIndex={visivel ? 0 : -1} {...medirClique("venda:barra-fixa")} className="btn-cp shrink-0">
           {texto}
           <ArrowRight className="h-4 w-4" />
         </a>

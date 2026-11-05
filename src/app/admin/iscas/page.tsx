@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getPerfil } from "@/lib/perfil";
 import { APPS } from "@/lib/apps";
 import { SITE_URL } from "@/lib/site";
+import { ehModuloMedido } from "@/lib/medir";
 import { FaltaRodarSql, Hero, Numero, SeletorDePeriodo } from "../pecas";
 import { CopiarLink } from "./CopiarLink";
 
@@ -82,8 +83,10 @@ export default async function PainelIscas({
      artigos do News, a Íris. Não são erro — são páginas que captam e não
      são "ferramentas". Mostrar separado evita a conclusão errada de que o
      número da tela não bate com o total do banco. */
+  /* Os eventos de venda e das janelas (`lib/medir.ts`: "popup-black",
+     "venda:heroi"...) moram na mesma tabela, mas não são página: ficam fora. */
   const foraDoCatalogo = [...medidas.values()]
-    .filter((m) => !APPS.some((a) => a.href === m.caminho))
+    .filter((m) => !APPS.some((a) => a.href === m.caminho) && !ehModuloMedido(m.caminho))
     .sort((a, b) => b.leads - a.leads || b.visitas - a.visitas)
     .slice(0, 12);
 

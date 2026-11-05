@@ -1,5 +1,7 @@
 import { getPerfil } from "@/lib/perfil";
-import { estadoDoRecurso } from "@/lib/novarecash/recursos";
+import { estadoDoRecurso, ehEquipe } from "@/lib/novarecash/recursos";
+import { minhaAssinatura } from "@/lib/novarecash/acesso";
+import { bancosDoPlano, planoPorChave } from "@/lib/novarecash/config";
 import { AvisoModoEquipe, EmAtivacao } from "../EmAtivacao";
 import { Cabecalho } from "../pecas";
 import { TelaBanco } from "./TelaBanco";
@@ -17,6 +19,12 @@ export const dynamic = "force-dynamic";
 export default async function BancoNovareCash() {
   const perfil = await getPerfil();
   const estado = estadoDoRecurso("banco", perfil?.role);
+  // O limite de bancos vem do PLANO (Essencial 1, Plus 3, Premium 10). A equipe testa sem limite.
+  // ⚠️ Membro de conta compartilhada não lê a assinatura do dono (RLS): cai no Essencial.
+  const assinatura = await minhaAssinatura();
+  const equipe = ehEquipe(perfil?.role);
+  const limite = equipe ? 99 : bancosDoPlano(assinatura?.plano);
+  const nomePlano = equipe ? "Equipe" : planoPorChave(assinatura?.plano).nome;
 
   return (
     <div className="surgir">
@@ -27,7 +35,7 @@ export default async function BancoNovareCash() {
       {estado.liberado ? (
         <>
           {estado.modoEquipe && <AvisoModoEquipe liberaEm={estado.recurso.liberaEm} />}
-          <TelaBanco />
+          <TelaBanco limite={limite} nomePlano={nomePlano} />
         </>
       ) : (
         <EmAtivacao titulo="Conexão com o banco" liberaEm={estado.recurso.liberaEm}>

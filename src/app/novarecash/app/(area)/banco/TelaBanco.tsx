@@ -50,7 +50,12 @@ function textoDoResultado(r: ResultadoSincronizacao): string {
   return partes.join(" ");
 }
 
-export function TelaBanco() {
+/**
+ * `limite` (05/11/2026): quantos bancos o PLANO do dono permite (Essencial 1, Plus 3,
+ * Premium 10 — `bancosDoPlano` em config.ts). Chegou no limite, o "Conectar" vira o
+ * convite para mudar de plano. A equipe testa sem limite.
+ */
+export function TelaBanco({ limite, nomePlano }: { limite: number; nomePlano: string }) {
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState<string | null>(null);
   const [semTabela, setSemTabela] = useState(false);
@@ -92,6 +97,10 @@ export function TelaBanco() {
 
   async function conectar() {
     setRecado(null);
+    if (conexoes.length >= limite) {
+      setRecado(`O plano ${nomePlano} conecta até ${limite} banco${limite > 1 ? "s" : ""}. Para conectar mais, mude de plano.`);
+      return;
+    }
     setLinkManual(null);
     // A janela abre JÁ, no toque: aberta depois de um `await` o navegador a bloqueia.
     const janela = window.open("about:blank", "_blank");
@@ -168,6 +177,18 @@ export function TelaBanco() {
           Só leitura: o Open Finance compartilha saldo e extrato, e ninguém movimenta dinheiro por aqui. Você pode
           desligar a conexão quando quiser.
         </span>
+      </p>
+
+      <p className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-xs text-white/75">
+        <span>
+          Plano <strong className="text-white">{nomePlano}</strong>: até {limite} banco{limite > 1 ? "s" : ""} ·{" "}
+          <span className="tabular-nums">{Math.min(conexoes.length, limite)}</span> em uso
+        </span>
+        {conexoes.length >= limite && (
+          <a href="/novarecash#planos" className="font-semibold text-ouro underline-offset-2 hover:underline">
+            Conectar mais bancos: mudar de plano
+          </a>
+        )}
       </p>
 
       {semTabela && <AvisoSemTabela />}

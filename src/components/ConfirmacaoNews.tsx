@@ -9,6 +9,7 @@ import {
   ASSINATURA_PRECO_ANUAL_MENSAL_ROTULO,
 } from "@/lib/assinatura";
 import { CARTEIRA_PONTUAL_LP } from "@/lib/consultoria";
+import { marcarInscritoNaNews } from "@/lib/inscricao-news";
 import { doCatalogo } from "@/components/CardProdutoHome";
 
 /**
@@ -75,6 +76,13 @@ export function ConfirmacaoNews({
 }) {
   const caixa = useRef<HTMLDivElement>(null);
   const fechar = useRef<HTMLButtonElement>(null);
+
+  /* Este pop-up só existe depois de um sim: é o ponto único que lembra que
+     este navegador já se inscreveu, para a barra dos artigos não pedir de
+     novo (`lib/inscricao-news.ts`). Vale para todo formulário do News. */
+  useEffect(() => {
+    marcarInscritoNaNews();
+  }, []);
 
   useEffect(() => {
     const focoAnterior = document.activeElement as HTMLElement | null;

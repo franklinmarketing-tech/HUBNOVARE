@@ -9,6 +9,7 @@ import { ClarityAnonimo } from "@/components/ClarityAnonimo";
 import { RastroDeUso } from "@/components/RastroDeUso";
 import { ConviteDeSaida } from "@/components/ConviteDeSaida";
 import { PopupBlack } from "@/components/PopupBlack";
+import { GuardarOrigem } from "@/components/GuardarOrigem";
 import { SITE_URL } from "@/lib/site";
 import "./globals.css";
 
@@ -135,6 +136,9 @@ export default function RootLayout({
             Fica aqui para que tela nova seja medida sozinha, sem ninguem
             precisar lembrar de instrumentar. */}
         <RastroDeUso />
+        {/* De onde a pessoa veio (UTMs + domínio do referrer), para ir junto
+            do lead — só depois do aceite dos cookies (05/11/2026). */}
+        <GuardarOrigem />
         <ConviteDeSaida />
         {/* A Black Novare (03/11/2026): some sozinho fora da campanha. */}
         <PopupBlack />

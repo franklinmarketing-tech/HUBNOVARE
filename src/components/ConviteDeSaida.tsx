@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { ArrowRight, Check, Sparkles, X } from "lucide-react";
 import {
 } from "@/lib/assinatura";
+import { medir } from "@/lib/medir";
 
 /**
  * O convite que aparece quando a pessoa está indo embora.
@@ -27,6 +28,10 @@ import {
  * Aparece uma vez por pessoa (guardado no navegador), nunca antes de 12
  * segundos na página, e nunca em quem já está logado ou já está na página de
  * assinatura — quem já decidiu não precisa ser convencido de novo.
+ *
+ * MEDIÇÃO (05/11/2026, `lib/medir.ts`, módulo "convite-saida"): "abriu" quando
+ * aparece, "clicou" em "Ver as ferramentas" e "fechou" no X, no "Agora não",
+ * no fundo ou no Esc. Só depois do aceite dos cookies.
  */
 
 const CHAVE = "novare:convite-saida";
@@ -63,7 +68,16 @@ export function ConviteDeSaida() {
     }
   }, []);
 
+  /** Saiu sem aceitar (X, "Agora não", fundo, Esc). */
   const fechar = useCallback(() => {
+    setAberto(false);
+    marcarVisto();
+    medir("convite-saida", "fechou");
+  }, [marcarVisto]);
+
+  /** Aceitou o convite: conta o clique e fecha sem contar "fechou". */
+  const seguir = useCallback(() => {
+    medir("convite-saida", "clicou");
     setAberto(false);
     marcarVisto();
   }, [marcarVisto]);
@@ -101,6 +115,7 @@ export function ConviteDeSaida() {
       if (document.querySelector('[role="dialog"]')) return;
       setAberto(true);
       marcarVisto();
+      medir("convite-saida", "abriu");
       limpar();
     };
 
@@ -217,7 +232,7 @@ export function ConviteDeSaida() {
 
           <Link
             href="/aplicativos"
-            onClick={fechar}
+            onClick={seguir}
             className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-white px-5 py-3.5 text-sm font-bold text-primary transition-transform hover:-translate-y-0.5"
           >
             Ver as ferramentas

@@ -2,6 +2,7 @@ import { ArrowRight, Bell, CalendarClock, Check, ChevronDown, Clock, CreditCard,
 import { MarcaNovareCash } from "@/components/novarecash/MarcaNovareCash";
 import { GARANTIA_DIAS, NOVARECASH_NOME, RECURSOS } from "@/lib/novarecash/config";
 import { brl, dataBlack, seloCurto } from "@/lib/novarecash/oferta";
+import { medirClique } from "@/lib/medir";
 import { LegendaExemplo, TelaInicio } from "./TelasExemplo";
 
 /**
@@ -31,9 +32,9 @@ const ZAP = RECURSOS.find((r) => r.chave === "whatsapp");
 const SELO_ZAP = ZAP ? seloCurto(ZAP) : null;
 
 type Props = {
-  /** O preço cheio para riscar (só com a Black aberta). */
+  /** O preço cheio do MENOR plano, para riscar (só com a Black aberta). */
   cheio: number | null;
-  /** O preço de agora, por mês. `null` = nada à venda: o bloco de preço não aparece. */
+  /** O preço de agora do MENOR plano, por mês ("a partir de"). `null` = nada à venda: o bloco de preço não aparece. */
   desde: number | null;
   desconto: number | null;
   black: boolean;
@@ -91,13 +92,14 @@ export function Heroi({ cheio, desde, desconto, black, textoCta, chapeu, aviso, 
           {desde != null && (
             <div className="ncv-entra ncv-vidro mt-5 rounded-[1.75rem] px-4 py-3.5 sm:px-5 sm:py-4" style={atraso(260)}>
               <div className="flex items-center justify-between gap-3">
+                {/* 05/11/2026: três planos — o preço aqui é o do MENOR, então "a partir de". */}
                 <p className="text-sm text-white/70">
                   {cheio != null ? (
                     <>
-                      de <s className="decoration-accent-claro/80">{brl(cheio)}</s> por
+                      Planos a partir de <s className="decoration-accent-claro/80">{brl(cheio)}</s> por
                     </>
                   ) : (
-                    "Assinatura mensal"
+                    "Planos mensais a partir de"
                   )}
                 </p>
                 {desconto != null && (
@@ -120,7 +122,7 @@ export function Heroi({ cheio, desde, desconto, black, textoCta, chapeu, aviso, 
           )}
 
           <div className="ncv-entra mt-4 flex flex-col gap-3 sm:mt-5 sm:flex-row sm:items-center" style={atraso(340)}>
-            <a href="#planos" className="btn-cp cta-halo cta-varredura min-h-12 w-full px-7 text-[0.95rem] sm:w-auto">
+            <a href="#planos" {...medirClique("venda:heroi")} className="btn-cp cta-halo cta-varredura min-h-12 w-full px-7 text-[0.95rem] sm:w-auto">
               {textoCta}
               <ArrowRight className="h-4 w-4" />
             </a>

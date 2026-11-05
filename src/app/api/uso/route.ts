@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { excedeuLimitePorIp } from "@/lib/api-security";
 import { createClient } from "@/lib/supabase/server";
+import { ACOES_USO } from "@/lib/uso";
 
 /**
  * Gravação de evento de uso.
@@ -32,10 +33,13 @@ export async function POST(req: Request) {
   const modulo = (corpo.modulo ?? "").trim().slice(0, 60);
   if (!modulo) return new NextResponse(null, { status: 204 });
 
-  /* Lista fechada: valor fora dela vira "usou" em vez de derrubar o insert
-     no check constraint do banco. */
-  const ACOES = ["abriu", "usou", "salvou", "exportou"] as const;
-  const acao = (ACOES as readonly string[]).includes(corpo.acao ?? "")
+  /* Lista fechada (`ACOES_USO`, em `lib/uso.ts`): valor fora dela vira "usou"
+     em vez de derrubar o insert no check constraint do banco.
+     ⚠️ "clicou" e "fechou" (05/11/2026, `lib/medir.ts`) só gravam depois de
+     rodar `supabase/hub_eventos_acoes.sql`, que as põe no check. Antes disso o
+     insert é recusado (23514) e o evento se perde em silêncio — de propósito:
+     gravar como "usou" misturaria o clique com o fechamento. */
+  const acao = (ACOES_USO as readonly string[]).includes(corpo.acao ?? "")
     ? corpo.acao
     : "usou";
 
@@ -53,7 +57,11 @@ export async function POST(req: Request) {
     /* Tabela ainda não criada (42P01) é o caso esperado antes de rodar o
        SQL — não merece ruído no log do servidor. */
     if (error && error.code !== "42P01") {
-      console.warn("[uso] não gravou:", error.message);
+      console.warn(
+        "[uso] não gravou:",
+        error.message,
+        error.code === "23514" ? "(rode supabase/hub_eventos_acoes.sql)" : "",
+      );
     }
   } catch (e) {
     console.warn("[uso] erro inesperado:", e);

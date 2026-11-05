@@ -27,6 +27,7 @@ export function CapturaLead({
   tipo = "ferramenta",
   produto,
   comRelatorio = false,
+  bloco,
 }: {
   titulo?: string;
   subtitulo?: string;
@@ -43,6 +44,8 @@ export function CapturaLead({
    * hora, sem cadastro, e o formulário só abre para quem pedir a revisão.
    */
   comRelatorio?: boolean;
+  /** De onde NA PÁGINA veio o pedido (vai em `payload.bloco`). Padrão: `captura:produto` ou `captura:especialista`. */
+  bloco?: string;
 } = {}) {
   /* ⚠️ 20/10/2026: O PDF PASSOU A PEDIR CONTATO. Até aqui ele saía "sem
      cadastro"; o dono pediu nome, e-mail e WhatsApp de todo mundo que baixa,
@@ -88,6 +91,7 @@ export function CapturaLead({
       origem: pathname,
       tipo,
       payload: produto ? { produto } : undefined,
+      bloco: bloco ?? (produto ? "captura:produto" : "captura:especialista"),
     });
 
     setEnviando(false);
@@ -131,7 +135,7 @@ WhatsApp: ${dados.telefone}${linhaEmailLead(dados.email)}`,
         </div>
 
         {comRelatorio ? (
-          <LiberarPdf />
+          <LiberarPdf bloco={bloco} />
         ) : enviado ? (
           <div className="mt-5">
             {/* ⚠️ A FRASE DEPENDE DO QUE REALMENTE ACONTECEU. Antes ela

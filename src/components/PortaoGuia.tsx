@@ -111,6 +111,7 @@ export function PortaoGuia({ ebook }: { ebook: Ebook }) {
       origem: "/ebooks",
       tipo: "guia",
       payload: { guia: ebook.titulo, investimento: renda },
+      bloco: "ebook:portao",
     });
     try {
       localStorage.setItem(chaveGuia(ebook.href), "1");

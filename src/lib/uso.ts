@@ -24,7 +24,14 @@
  *    existir.
  */
 
-export type AcaoUso = "abriu" | "usou" | "salvou" | "exportou";
+/**
+ * A lista fechada de ações — a MESMA que `/api/uso` aceita e que o check de
+ * `hub_eventos.acao` permite. "clicou" e "fechou" entraram em 05/11/2026 para
+ * medir a venda e a captação (`lib/medir.ts`); o check do banco ganha as duas
+ * em `supabase/hub_eventos_acoes.sql`.
+ */
+export const ACOES_USO = ["abriu", "usou", "salvou", "exportou", "clicou", "fechou"] as const;
+export type AcaoUso = (typeof ACOES_USO)[number];
 
 /**
  * Evita repetir o mesmo evento na mesma visita.

@@ -44,6 +44,7 @@ export function LiberarPdf({
   ferramenta,
   payload,
   compacto = false,
+  bloco = "ferramenta:pdf",
 }: {
   tipo?: LeadTipo;
   /** Nome legível da ferramenta, para o painel. Padrão: o título da página. */
@@ -52,6 +53,8 @@ export function LiberarPdf({
   payload?: Record<string, unknown>;
   /** Coluna estreita (o Exame): campos e botões empilhados. */
   compacto?: boolean;
+  /** De onde NA PÁGINA veio o pedido do PDF (vai em `payload.bloco`). */
+  bloco?: string;
 }) {
   const rota = usePathname();
   const [dados, setDados] = useState<DadosLead>({ nome: "", telefone: "", email: "" });
@@ -98,6 +101,7 @@ export function LiberarPdf({
       origem: rota,
       tipo,
       payload: { ferramenta: nomeDaFerramenta(), pdf: true, investimento, ...payload },
+      bloco,
     });
 
   const liberar = async () => {

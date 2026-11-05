@@ -94,6 +94,7 @@ export function CalculadoraMarcoHorizonte() {
       origem: "/finplan",
       tipo: "vida-plan",
       payload: { idade, idadeLivre, renda: r.rendaN, alvo: r.alvo, projecao: r.fv, pct: r.pct },
+      bloco: "finplan:marco-horizonte",
     });
     try {
       localStorage.setItem(

@@ -1,5 +1,8 @@
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 import type { BlocoArtigo } from "@/lib/news";
 import { GRAFICOS } from "@/components/GraficosArtigo";
+import { PreviaYoutube } from "@/components/PreviaYoutube";
 
 /**
  * O CORPO DE UM ARTIGO DO NOVARE NEWS.
@@ -34,9 +37,81 @@ export function idDoTitulo(texto: string) {
     .replace(/(^-|-$)/g, "");
 }
 
+/**
+ * Os subtítulos do corpo, já com o id de âncora de cada um.
+ *
+ * ⚠️ ID ÚNICO MESMO COM TÍTULO REPETIDO: dois "O que observar" no mesmo
+ * texto dariam dois `id` iguais, e o link do sumário pararia sempre no
+ * primeiro. O segundo vira `-2`, o terceiro `-3`. É a MESMA lista que o
+ * sumário e os <h2> usam — um cálculo só, para os dois nunca divergirem.
+ */
+export function titulosDoCorpo(corpo: (string | BlocoArtigo)[]) {
+  const vistos = new Map<string, number>();
+  const titulos: { texto: string; id: string; indice: number }[] = [];
+  corpo.forEach((bloco, indice) => {
+    if (typeof bloco === "string" || bloco.tipo !== "titulo") return;
+    const base = idDoTitulo(bloco.texto) || "secao";
+    const n = (vistos.get(base) ?? 0) + 1;
+    vistos.set(base, n);
+    titulos.push({ texto: bloco.texto, id: n === 1 ? base : `${base}-${n}`, indice });
+  });
+  return titulos;
+}
+
+/** Abaixo disso o sumário é mais longo que a utilidade dele. */
+const MINIMO_PARA_SUMARIO = 3;
+
+/**
+ * O SUMÁRIO (05/11/2026): sai sozinho dos blocos `titulo`, no topo dos
+ * artigos com três subtítulos ou mais. Ninguém escreve sumário à mão — o que
+ * se escreve à mão desatualiza no primeiro subtítulo que muda de nome.
+ *
+ * Cada linha é um alvo de 44px: no celular o sumário é tocado com o polegar,
+ * e link de uma linha só de texto é o alvo que mais se erra.
+ */
+function Sumario({ titulos }: { titulos: { texto: string; id: string }[] }) {
+  return (
+    <nav
+      aria-label="Sumário do artigo"
+      className="mb-10 rounded-2xl border border-border bg-muted/40 px-4 py-4 sm:px-6 sm:py-5"
+    >
+      <p className="text-2xs font-semibold uppercase tracking-[0.16em] text-primary">
+        Neste artigo
+      </p>
+      <ol className="mt-2 divide-y divide-border/70">
+        {titulos.map((t, i) => (
+          <li key={t.id}>
+            <a
+              href={`#${t.id}`}
+              className="flex min-h-11 items-center gap-3 rounded-md py-2 text-[0.95rem] font-medium leading-snug text-foreground/85 transition-colors hover:text-accent-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+            >
+              <span
+                aria-hidden
+                className="w-5 shrink-0 font-display text-xs font-semibold tabular-nums text-accent-strong"
+              >
+                {String(i + 1).padStart(2, "0")}
+              </span>
+              <span className="min-w-0">{t.texto}</span>
+            </a>
+          </li>
+        ))}
+      </ol>
+    </nav>
+  );
+}
+
 export function CorpoArtigo({ corpo }: { corpo: (string | BlocoArtigo)[] }) {
+  const titulos = titulosDoCorpo(corpo);
+  /* O id de cada <h2>, pela posição do bloco no corpo. */
+  const idDoBloco = new Map(titulos.map((t) => [t.indice, t.id]));
+
   return (
     <div className="mx-auto mt-10 max-w-2xl">
+      {titulos.length >= MINIMO_PARA_SUMARIO && <Sumario titulos={titulos} />}
+
+      {/* Uma caixa só para o texto, para o `first:mt-0` do primeiro bloco
+          continuar valendo com o sumário em cima. */}
+      <div>
       {corpo.map((bloco, i) => {
         /* String = parágrafo. O caminho antigo, intocado. */
         if (typeof bloco === "string") {
@@ -55,7 +130,7 @@ export function CorpoArtigo({ corpo }: { corpo: (string | BlocoArtigo)[] }) {
             return (
               <h2
                 key={i}
-                id={idDoTitulo(bloco.texto)}
+                id={idDoBloco.get(i)}
                 /* `scroll-mt` porque o cabeçalho do News é fixo: sem isso o
                    link de âncora encosta o título embaixo da barra. */
                 className="mt-12 scroll-mt-24 font-display text-2xl font-semibold leading-tight tracking-[-0.03em] text-primary first:mt-0 sm:text-[1.75rem]"
@@ -164,8 +239,62 @@ export function CorpoArtigo({ corpo }: { corpo: (string | BlocoArtigo)[] }) {
                 )}
               </figure>
             );
+
+          case "video":
+            return (
+              <figure key={i} className="mt-9">
+                {/* O `PreviaYoutube` é absoluto: quem dá o tamanho é esta
+                    caixa 16:9. Só a capa até o toque — ver o componente. */}
+                <div className="relative aspect-video overflow-hidden rounded-2xl border border-border bg-noite shadow-subtle">
+                  <PreviaYoutube id={bloco.youtubeId} titulo={bloco.titulo} />
+                </div>
+                <figcaption className="mt-3 text-center text-xs text-muted-foreground">
+                  {bloco.titulo}
+                </figcaption>
+              </figure>
+            );
+
+          case "cta": {
+            /* Link de fora abre em outra aba; de dentro, navega no Hub. */
+            const externo = /^https?:\/\//.test(bloco.href);
+            const rotulo = (
+              <>
+                {bloco.rotulo}
+                <ArrowRight className="h-4 w-4" />
+              </>
+            );
+            return (
+              <aside
+                key={i}
+                aria-label={bloco.titulo}
+                className="mt-9 rounded-2xl border border-accent/30 bg-accent-tint/60 p-5 sm:p-6"
+              >
+                <p className="font-display text-lg font-semibold leading-snug tracking-[-0.02em] text-primary">
+                  {bloco.titulo}
+                </p>
+                <p className="mt-1.5 text-pretty text-[0.95rem] leading-relaxed text-foreground/80">
+                  {bloco.texto}
+                </p>
+                {externo ? (
+                  <a
+                    href={bloco.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn-cp mt-4"
+                  >
+                    {rotulo}
+                  </a>
+                ) : (
+                  <Link href={bloco.href} className="btn-cp mt-4">
+                    {rotulo}
+                  </Link>
+                )}
+              </aside>
+            );
+          }
         }
       })}
+      </div>
     </div>
   );
 }

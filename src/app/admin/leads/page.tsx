@@ -1,10 +1,11 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { CheckCircle2, Download, Flame, Mail, Phone, Users } from "lucide-react";
+import { CheckCircle2, Download, Flame, Mail, Megaphone, Phone, Users } from "lucide-react";
 import { AcoesLead } from "./AcoesLead";
 import { createClient } from "@/lib/supabase/server";
 import { getPerfil } from "@/lib/perfil";
 import { oQueFez, temperaturaPorEmail, type Nivel } from "@/lib/lead-quente";
+import { origemDoLead } from "@/lib/origem-lead";
 import { FaltaRodarSql, Hero, Numero, SeletorDePeriodo } from "../pecas";
 import { MarcarSituacao } from "./MarcarSituacao";
 /* ⚠️ De `./situacoes`, NUNCA de `./MarcarSituacao`: valor importado de
@@ -131,7 +132,8 @@ export default async function AdminLeadsPage({
     if (tipoFiltro && l.tipo !== tipoFiltro) return false;
     if (sitFiltro && l.situacao !== sitFiltro) return false;
     if (!busca) return true;
-    return [l.email, l.nome, l.telefone, l.origem]
+    // A campanha também é buscável ("black-novare", "instagram").
+    return [l.email, l.nome, l.telefone, l.origem, origemDoLead(l.payload).campanha]
       .filter(Boolean)
       .some((v) => String(v).toLowerCase().includes(busca));
   });
@@ -329,6 +331,9 @@ export default async function AdminLeadsPage({
                     const t = TIPO[(l.tipo ?? "ferramenta") as keyof typeof TIPO] ?? TIPO.ferramenta;
                     const nota = notaDe(l);
                     const n = NIVEL[nota.nivel];
+                    /* A campanha (UTM ou domínio de quem mandou) e o bloco da
+                       página, desde 05/11/2026 — ver `lib/origem-lead.ts`. */
+                    const veio = origemDoLead(l.payload);
                     return (
                       <tr key={l.id} className="align-top hover:bg-slate-50/50">
                         <td className="whitespace-nowrap px-4 py-3 text-2xs text-muted-foreground">
@@ -386,6 +391,18 @@ export default async function AdminLeadsPage({
                             {t.rotulo}
                           </span>
                           <p className="mt-1 text-2xs text-muted-foreground">{resumo(l)}</p>
+                          {veio.campanha && (
+                            <p className="mt-1 flex max-w-[16rem] items-start gap-1 text-2xs font-semibold text-primary">
+                              <Megaphone className="mt-px h-3 w-3 shrink-0 text-accent-strong" aria-hidden />
+                              <span>
+                                <span className="sr-only">Campanha: </span>
+                                {veio.campanha}
+                              </span>
+                            </p>
+                          )}
+                          {veio.bloco && (
+                            <p className="mt-0.5 text-2xs text-muted-foreground/80">bloco: {veio.bloco}</p>
+                          )}
                         </td>
 
                         <td className="px-4 py-3">

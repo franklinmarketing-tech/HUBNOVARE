@@ -1,4 +1,5 @@
 import { cache } from "react";
+import { unstable_cache } from "next/cache";
 import { serie } from "@/lib/indicadores";
 
 /**
@@ -22,6 +23,14 @@ import { serie } from "@/lib/indicadores";
  *
  * ⚠️ SÓ FATO, NUNCA CONSELHO: "o que muda" explica o evento; não diz o que
  * fazer com ele.
+ *
+ * ⚠️ A FALHA TAMBÉM VAI PARA O CACHE (05/11/2026). A home levava ~3,4 s para
+ * fechar o stream em TODA visita: o IBGE não responde à Vercel (iad1) e o
+ * fetch esperava o timeout inteiro. O cache de `fetch` do Next só guarda
+ * resposta 200 — timeout e erro nunca entram —, então cada visita esperava de
+ * novo. Agora o calendário montado (com as falhas dentro) fica num
+ * `unstable_cache` de 10 min, que serve o valor guardado na hora e remonta em
+ * segundo plano quando vence. Ver `getCalendarioEconomico`, no fim.
  */
 
 export type Pais = "BR" | "EUA";
@@ -84,9 +93,25 @@ function horaLocalParaUtc(ano: number, mes: number, dia: number, hora: number, m
   return new Date(palpite - (comoSeFosseUtc - palpite));
 }
 
+/**
+ * Quanto se espera por UMA fonte. Era 3 s; daqui, a fonte mais lenta com a
+ * conexão fria (a agenda do BC) respondeu em ~0,9 s. Com o cache abaixo, o
+ * prazo só pesa na primeira montagem — a remontagem roda em segundo plano.
+ */
+const PRAZO_MS = 2000;
+
+/** Para o que não aceita `signal` daqui (a `serie` do SGS mora em `indicadores.ts`). */
+function noPrazo<T>(p: Promise<T | null>): Promise<T | null> {
+  let relogio: ReturnType<typeof setTimeout> | undefined;
+  const limite = new Promise<null>((ok) => {
+    relogio = setTimeout(() => ok(null), PRAZO_MS);
+  });
+  return Promise.race([p, limite]).finally(() => clearTimeout(relogio));
+}
+
 async function json<T>(url: string, revalidar = 6 * HORA): Promise<T | null> {
   try {
-    const r = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0" }, next: { revalidate: revalidar }, signal: AbortSignal.timeout(3000) });
+    const r = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0" }, next: { revalidate: revalidar }, signal: AbortSignal.timeout(PRAZO_MS) });
     if (!r.ok) return null;
     return (await r.json()) as T;
   } catch {
@@ -233,11 +258,20 @@ async function focusIpcaMensal() {
  * ⚠️ O NÚMERO DA REUNIÃO (R7/2026…) É A POSIÇÃO NO ANO, e é com ele que o
  * Focus guarda a projeção. Por isso a agenda é pedida desde 1º de janeiro:
  * começando hoje, a reunião de novembro sairia como "R1".
+ *
+ * ⚠️ A AGENDA E O FOCUS CHEGAM PRONTOS, buscados junto com as outras fontes.
+ * Antes esta função os pedia depois que a Selic diária respondia — uma
+ * segunda rodada de rede em série, somada ao tempo da mais lenta da primeira.
  */
-async function doCopom(agora: Date, selicHoje: number | null, selicDiaria: { data: string; valor: number }[] | null) {
-  const ano = agora.getUTCFullYear();
-  const [agenda, projecoes] = await Promise.all([agendaBc("Reuniões do Copom", `${ano}-01-01`, `${ano + 1}-12-31`), focusSelic()]);
+function doCopom(
+  agora: Date,
+  agenda: ItemBc[] | null,
+  projecoes: Map<string, number>,
+  selicDiaria: { data: string; valor: number }[] | null,
+) {
   if (!agenda) return null;
+  const hoje = agora.toISOString().slice(0, 10);
+  const selicHoje = selicDiaria?.filter((p) => isoDoSgs(p.data) <= hoje).at(-1)?.valor ?? null;
 
   const dias = [...new Set(agenda.map((e) => e.dataEvento.slice(0, 10)))].sort();
   const segundoDia = dias.filter((d) => {
@@ -381,6 +415,9 @@ async function doBls(): Promise<{ eventos: EventoEconomico[]; aoVivo: boolean }>
     const r = await fetch("https://www.bls.gov/schedule/news_release/bls.ics", {
       headers: { "User-Agent": "Mozilla/5.0 (compatible; NovareHub/1.0; +https://hub.novareapp.com.br)" },
       next: { revalidate: 24 * HORA },
+      // Não tinha prazo nenhum: se o BLS segurasse a conexão, o calendário esperava sem limite.
+      // Estourou? Entra a reserva, como em qualquer outra falha dele.
+      signal: AbortSignal.timeout(PRAZO_MS),
     });
     if (r.ok) {
       // Linhas longas do .ics continuam na linha de baixo, começando com espaço.
@@ -462,26 +499,33 @@ export type Calendario = {
   geradoEm: string;
 };
 
-export const getCalendarioEconomico = cache(async (): Promise<Calendario> => {
+/**
+ * Monta o calendário buscando todas as fontes, SEM o cache de 10 min.
+ * Exportada para medir o custo de uma montagem fora do Next; a página e a
+ * home usam `getCalendarioEconomico`.
+ */
+export async function montarCalendario(): Promise<Calendario> {
   const agora = new Date();
   const de = new Date(agora.getTime() - PASSADO_DIAS * DIA_MS);
   const ate = new Date(agora.getTime() + FUTURO_DIAS * DIA_MS);
   const dia = (d: Date) => d.toISOString().slice(0, 10);
+  const ano = agora.getUTCFullYear();
 
-  const [ibge, selicDiaria, ipca, ipca15, desemprego, focusIpca, bcOutras, bls] = await Promise.all([
+  // UMA rodada de rede só: tudo sai junto, inclusive a agenda do Copom e o Focus da Selic.
+  const [ibge, selicDiaria, ipca, ipca15, desemprego, focusIpca, bcOutras, bls, agendaCopom, focusCopom] = await Promise.all([
     doIbge(de, ate),
-    serie(432, 20),
-    serie(433, 6),
-    serie(7478, 6),
-    serie(24369, 6),
+    noPrazo(serie(432, 20)),
+    noPrazo(serie(433, 6)),
+    noPrazo(serie(7478, 6)),
+    noPrazo(serie(24369, 6)),
     focusIpcaMensal(),
     outrasDoBc(dia(de), dia(ate)),
     doBls(),
+    agendaBc("Reuniões do Copom", `${ano}-01-01`, `${ano + 1}-12-31`),
+    focusSelic(),
   ]);
 
-  const hoje = dia(agora);
-  const selicHoje = selicDiaria?.filter((p) => isoDoSgs(p.data) <= hoje).at(-1)?.valor ?? null;
-  const copom = await doCopom(agora, selicHoje, selicDiaria);
+  const copom = doCopom(agora, agendaCopom, focusCopom, selicDiaria);
 
   const falhas = [
     ...(ibge ? [] : ["IBGE"]),
@@ -506,4 +550,30 @@ export const getCalendarioEconomico = cache(async (): Promise<Calendario> => {
     .sort((a, b) => a.quando.localeCompare(b.quando) || b.importancia - a.importancia);
 
   return { eventos, falhas, geradoEm: agora.toISOString() };
+}
+
+/**
+ * O calendário montado, guardado por 10 minutos — COM AS FALHAS DENTRO.
+ *
+ * Por que não bastava o `next: { revalidate }` de cada fetch: o Next só põe
+ * no cache a resposta com status 200 (`patch-fetch.js`: `res.status === 200`).
+ * Fonte que estoura o prazo ou devolve erro nunca é guardada, e a visita
+ * seguinte espera tudo de novo — era o IBGE custando ~3 s em cada abertura
+ * da home e do /calendario-economico.
+ *
+ * O `unstable_cache` guarda o RESULTADO, seja ele qual for (lista vazia do
+ * IBGE incluída). Vencidos os 10 min, ele entrega o valor guardado na hora e
+ * remonta em segundo plano (`waitUntil`) — ninguém mais espera fonte lenta,
+ * só a primeira montagem depois de o cache esvaziar.
+ *
+ * ⚠️ Dentro do `unstable_cache` o Next trata os fetch como `no-store`: cada
+ * remontagem busca as fontes de novo (no máximo uma vez a cada 10 min, e fora
+ * do caminho de quem está vendo a página). Por isso o prazo é o mesmo.
+ */
+const calendarioGuardado = unstable_cache(montarCalendario, ["calendario-economico-v2"], {
+  revalidate: 10 * 60,
+  tags: ["calendario-economico"],
 });
+
+/** `cache` do React por cima: a home e a página pedem uma vez por requisição. */
+export const getCalendarioEconomico = cache((): Promise<Calendario> => calendarioGuardado());

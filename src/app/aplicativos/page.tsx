@@ -10,6 +10,7 @@ import { CONTAGEM } from "@/lib/apps";
 import { getPerfil } from "@/lib/perfil";
 import { getNotificacoes } from "@/lib/notificacoes";
 import { FitaMercado } from "@/components/FitaMercado";
+import { QuizComeco } from "@/components/QuizComeco";
 
 export const metadata: Metadata = {
   title: "Aplicativos",
@@ -73,6 +74,12 @@ export default async function AplicativosPage() {
             {CONTAGEM.consultorias === 1 ? "serviço" : "serviços"} de
             consultoria. Filtre por área ou use a busca.
           </p>
+
+          {/* "POR ONDE EU COMEÇO?" NO TOPO (05/11/2026), mas FECHADO: aqui o conteúdo é o
+              catálogo, e o quiz aberto o empurraria para baixo. Abre no lugar, num toque. */}
+          <div className="mt-6">
+            <QuizComeco origem="aplicativos" recolhido />
+          </div>
 
           <div className="mt-7">
             <Suspense fallback={null}>

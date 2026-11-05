@@ -2,6 +2,7 @@ import { notFound, redirect } from "next/navigation";
 import { Ban, CalendarClock, Gem, Users } from "lucide-react";
 import { getPerfil } from "@/lib/perfil";
 import { createClient } from "@/lib/supabase/server";
+import { PLANOS, planoPorChave } from "@/lib/novarecash/config";
 import { FaltaRodarSql, Hero, Numero } from "../pecas";
 
 export const metadata = { title: "NovareCash · assinantes" };
@@ -57,8 +58,8 @@ export default async function AdminNovareCashPage() {
 
   const todas = (linhas as Linha[]) ?? [];
   const comAcesso = todas.filter(vale);
-  const mensal = comAcesso.filter((l) => l.plano !== "anual").length;
-  const anual = comAcesso.filter((l) => l.plano === "anual").length;
+  // 05/11/2026: 3 planos por número de bancos (Essencial/Plus/Premium). Valor antigo ou vazio = Essencial.
+  const porPlano = PLANOS.map((p) => `${comAcesso.filter((l) => planoPorChave(l.plano).chave === p.chave).length} ${p.nome}`).join(" · ");
   const perdidos = todas.filter((l) => l.status === "reembolsada" || l.status === "chargeback").length;
   const vencendo = comAcesso.filter((l) => l.status !== "ativa").length;
 
@@ -69,7 +70,7 @@ export default async function AdminNovareCashPage() {
       </Hero>
 
       <section className="grid gap-3 sm:grid-cols-4">
-        <Numero rotulo="Com acesso" valor={comAcesso.length} detalhe={`${mensal} mensal · ${anual} anual`} Icone={Gem} tom="destaque" />
+        <Numero rotulo="Com acesso" valor={comAcesso.length} detalhe={porPlano} Icone={Gem} tom="destaque" />
         <Numero rotulo="Vão sair" valor={vencendo} detalhe="cancelaram ou com cobrança atrasada" Icone={CalendarClock} tom={vencendo > 0 ? "atencao" : "normal"} />
         <Numero rotulo="Reembolso/chargeback" valor={perdidos} Icone={Ban} />
         <Numero rotulo="Já passaram por aqui" valor={todas.length} Icone={Users} />
@@ -99,7 +100,7 @@ export default async function AdminNovareCashPage() {
                       <span className="block text-xs text-slate-500">{l.email}</span>
                     </td>
                     <td className={`py-2 pr-3 ${vale(l) ? "text-slate-700" : "font-semibold text-accent-strong"}`}>{ROTULO[l.status] ?? l.status}</td>
-                    <td className="py-2 pr-3 capitalize">{l.plano ?? "—"}</td>
+                    <td className="py-2 pr-3">{l.plano ? planoPorChave(l.plano).nome : "—"}</td>
                     <td className="py-2 pr-3 tabular-nums">{data(l.comprou_em)}</td>
                     <td className="py-2 tabular-nums">{data(l.expira_em)}</td>
                   </tr>

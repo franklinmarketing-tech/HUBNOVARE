@@ -29,9 +29,24 @@ import { sair } from "@/lib/acoes-sessao";
 import { CONTATO } from "@/lib/contato";
 import { temAcessoNovareCash } from "@/lib/novarecash/acesso";
 import { MAX_PARCELAS } from "@/lib/novarecash/cartoes";
-import { BLACK, faseBlack, GARANTIA_DIAS, NOVARECASH_NOME, RECURSOS, type FaseBlack, type Recurso } from "@/lib/novarecash/config";
+import {
+  BLACK,
+  dataSimulada,
+  faseBlack,
+  GARANTIA_DIAS,
+  NOVARECASH_NOME,
+  RECURSOS,
+  urgenciaBlack,
+  type FaseBlack,
+  type Recurso,
+  type UrgenciaBlack,
+} from "@/lib/novarecash/config";
+import { medirClique } from "@/lib/medir";
+import { MedirCliques } from "@/components/MedirCliques";
 import {
   aPartirDe,
+  avisoBancos,
+  maisBarata,
   avisoPendentes,
   brl,
   dataBlack,
@@ -47,6 +62,7 @@ import { Planos } from "./_venda/Planos";
 import { Recursos } from "./_venda/Recursos";
 import { BarraFixaCelular } from "./_venda/BarraFixaCelular";
 import { TelasExemplo } from "./_venda/TelasExemplo";
+import { CartaFundador } from "./_venda/CartaFundador";
 import "./_venda/venda.css";
 
 /**
@@ -72,8 +88,10 @@ import "./_venda/venda.css";
  * em `_venda/venda.css`, tudo desligado em `prefers-reduced-motion`.
  *
  * ═══ VENDA DIRETA (04/11/2026: "já vamos vender, valor mensal, nada de Lista VIP") ═══
- * O preço sai de `PRECOS` (`config.ts`): riscado e % OFF só com a Black aberta.
- * O botão vai ao checkout da Hotmart (`NEXT_PUBLIC_NOVARECASH_CHECKOUT_MENSAL`
+ * O preço sai de `PLANOS` (`config.ts`; 05/11/2026: Essencial, Plus e Premium,
+ * que só mudam no limite de bancos): riscado e % OFF só com a Black aberta.
+ * Cada botão vai ao checkout da Hotmart do plano (`NEXT_PUBLIC_NOVARECASH_CHECKOUT_ESSENCIAL`,
+ * `_PLUS`, `_PREMIUM`
  * na Vercel); enquanto o link não existe, vai ao WhatsApp da casa
  * (`linkDeCompra`). Ninguém troca preço editando esta página.
  *
@@ -92,6 +110,17 @@ import "./_venda/venda.css";
  * ⚠️ NÃO HÁ `layout.tsx` EM /novarecash, e não deve haver: ele ficaria por
  * cima de `/novarecash/app` e desenharia dentro do app logado (a mesma
  * armadilha já anotada no layout do outro app do Hub). O metadata mora aqui.
+ *
+ * ═══ 05/11/2026 (benchmark com a Nord) ═══
+ * • URGÊNCIA COM DATA REAL: a faixa do topo ganha o rótulo de `urgenciaBlack()`
+ *   ("Última semana", "Hoje é Black Friday", "Últimos dias" e, no dia 30, em
+ *   destaque, "Últimas horas: acaba hoje às 23h59"). Tudo sai de `BLACK`.
+ * • MODO PRÉVIA: `?simular=AAAA-MM-DD`, SÓ para admin/equipe (`getPerfil`),
+ *   calcula fase, preço e rótulos com aquela data. Para o público o parâmetro
+ *   não faz nada. Na prévia, os cliques não são medidos.
+ * • MEDIÇÃO: cada botão de venda leva `medirClique("venda:…")` e o
+ *   `MedirCliques` conta o clique (`lib/medir.ts`, só depois dos cookies).
+ * • A CARTA DO FUNDADOR (`_venda/CartaFundador.tsx`) e o preço por dia no plano.
  *
  * CVM: o NovareCash organiza e explica. Nenhum texto daqui indica produto,
  * ativo ou promete rendimento.
@@ -119,6 +148,8 @@ const JA_FUNCIONA = !NO_AR.length
     : `${juntar(NO_AR).replace(/^./, (c) => c.toUpperCase())} já ${NO_AR.length > 1 ? "funcionam" : "funciona"}.`;
 /** "Conexão com o banco e WhatsApp liberam em dezembro de 2026." — vai ao lado de toda promessa de "sozinho". */
 const AVISO_PENDENTES = avisoPendentes();
+/** "A conexão com bancos libera em …; até lá, todos os recursos que já funcionam vêm em qualquer plano." */
+const AVISO_BANCOS = avisoBancos();
 /** A data do "Vem aí", quando todos os pendentes ligam juntos ("dezembro de 2026"). */
 const DATAS_PENDENTES = [...new Set(PENDENTES.map((r) => r.liberaEm ?? ""))];
 const DATA_UNICA = DATAS_PENDENTES.length === 1 && DATAS_PENDENTES[0] ? DATAS_PENDENTES[0] : null;
@@ -156,13 +187,18 @@ const ZAP_SUPORTE = `https://wa.me/${NUMERO_SUPORTE}?text=${encodeURIComponent(
 )}`;
 
 /** O texto da faixa do topo, depois de "Black Novare:". `null` = nada fora da campanha. */
-function textoFaixa(fase: FaseBlack, desconto: number | null): string | null {
+function textoFaixa(fase: FaseBlack, desconto: number | null, urgencia: UrgenciaBlack | null): string | null {
   if (fase === "aviso") return `vem aí, de ${dataBlack("inicio")} a ${dataBlack("fim")}`;
-  if (fase === "aberta") return desconto ? `${desconto}% OFF, só até ${dataBlack("fim")}` : `aberta até ${dataBlack("fim")}`;
-  return null;
+  if (fase !== "aberta") return null;
+  // No último dia o rótulo já diz "acaba hoje às 23h59": repetir a data só alongaria a faixa no celular.
+  if (urgencia?.destaque) return desconto ? `${desconto}% OFF` : "preço da campanha";
+  return desconto ? `${desconto}% OFF, só até ${dataBlack("fim")}` : `aberta até ${dataBlack("fim")}`;
 }
 
-/** "de R$ 34,90 por" + "R$ 29,90/mês" + selo de % OFF. O riscado só existe com a Black aberta. */
+/**
+ * "Planos a partir de" + "de R$ 59,90 por" + "R$ 29,90/mês" + selo de % OFF —
+ * o MENOR plano (05/11/2026: são três). O riscado só existe com a Black aberta.
+ */
 function Preco({
   cheio,
   valor,
@@ -176,11 +212,14 @@ function Preco({
 }) {
   return (
     <div className={centro ? "text-center" : ""}>
-      {cheio != null && (
-        <p className="text-sm text-white/65">
-          de <s>{brl(cheio)}</s> por
-        </p>
-      )}
+      <p className="text-sm text-white/65">
+        Planos a partir de{cheio != null && (
+          <>
+            {" "}
+            <s>{brl(cheio)}</s> por
+          </>
+        )}
+      </p>
       <p className={`mt-0.5 flex flex-wrap items-baseline gap-x-1.5 gap-y-1 ${centro ? "justify-center" : ""}`}>
         <strong className="font-display text-4xl font-bold tracking-[-0.03em] text-white">{brl(valor)}</strong>
         <span className="text-sm text-white/70">/mês</span>
@@ -195,38 +234,79 @@ function Preco({
 export default async function NovareCashVendaPage({
   searchParams,
 }: {
-  searchParams: Promise<{ "sem-assinatura"?: string }>;
+  searchParams: Promise<{ "sem-assinatura"?: string; simular?: string }>;
 }) {
-  const { "sem-assinatura": semAssinatura } = await searchParams;
+  const { "sem-assinatura": semAssinatura, simular } = await searchParams;
   const perfil = await getPerfil();
   const jaTem = perfil ? await temAcessoNovareCash() : false;
 
-  const agora = new Date();
+  /* O MODO PRÉVIA: só a equipe. Para qualquer outra pessoa `?simular=` não existe. */
+  const podeSimular = perfil?.role === "admin" || perfil?.role === "equipe";
+  const simulada = podeSimular ? dataSimulada(simular) : null;
+  const agora = simulada ?? new Date();
   const fase = faseBlack(agora);
   const black = fase === "aberta";
   const lista = ofertas(agora);
   const emVenda = lista.length > 0;
+  /** O "a partir de": o menor plano (hoje o Essencial). */
   const desde = aPartirDe(lista);
   const desconto = maiorDesconto(lista);
-  /** O preço cheio para riscar: só existe com a Black aberta (`ofertas()` decide). */
-  const cheio = lista.find((o) => o.cheioPorMes != null)?.cheioPorMes ?? null;
+  /** O cheio do MENOR plano, para riscar ao lado do "a partir de": só existe com a Black aberta (`ofertas()` decide). */
+  const cheio = maisBarata(lista)?.cheioPorMes ?? null;
   const peloWhatsApp = lista.some((o) => o.peloWhatsApp);
-  const faixa = textoFaixa(fase, desconto);
+  /** "Última semana", "Hoje é Black Friday"... — só com a Black aberta, pela data (`config.ts`). */
+  const urgencia = urgenciaBlack(agora);
+  const faixa = textoFaixa(fase, desconto, urgencia);
   /** O MESMO texto em todo botão de compra: "Quero o NovareCash por R$ X". */
   const textoCta = textoCompra(desde);
   const chapeuCampanha = black ? `${BLACK.nome} · só até ${dataBlack("fim")}` : null;
 
   return (
     <div className="min-h-dvh overflow-x-clip bg-white text-foreground">
-      {/* 1 · A faixa da campanha. Fora da janela da Black, nada. */}
+      {/* Conta os cliques dos botões marcados com `medirClique` (nunca na prévia). */}
+      <MedirCliques desligado={Boolean(simulada)} />
+
+      {/* 0 · O aviso da prévia, para a equipe não confundir com o site de verdade. */}
+      {simulada && simular && (
+        <div role="status" className="border-b border-ouro/40 bg-ouro-tint">
+          <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-x-4 gap-y-1 px-4 py-2 text-xs text-foreground">
+            <p>
+              <strong>Prévia da equipe:</strong> a página está calculando a campanha como se hoje fosse{" "}
+              {simular.split("-").reverse().join("/")}. Só a equipe vê, e os cliques não contam.
+            </p>
+            <Link href="/novarecash" className="inline-flex min-h-11 items-center font-semibold text-ouro-forte underline underline-offset-4">
+              Sair da prévia
+            </Link>
+          </div>
+        </div>
+      )}
+
+      {/* 1 · A faixa da campanha, com a urgência do calendário. Fora da janela da Black, nada. */}
       {faixa && (
         <a
           href="#planos"
-          className="flex min-h-11 items-center justify-center gap-2 bg-black px-4 py-2 text-center text-xs font-semibold text-white"
+          {...medirClique("venda:faixa")}
+          className={`flex min-h-11 flex-wrap items-center justify-center gap-x-2 gap-y-1 px-4 py-2 text-center text-xs font-semibold ${
+            urgencia?.destaque ? "bg-ouro text-noite" : "bg-black text-white"
+          }`}
         >
-          <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-ouro" aria-hidden />
+          {urgencia ? (
+            <span
+              className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-2xs font-black uppercase tracking-[0.06em] ${
+                urgencia.destaque ? "bg-noite text-ouro" : "bg-ouro text-noite"
+              }`}
+            >
+              <span
+                aria-hidden
+                className={`h-1.5 w-1.5 shrink-0 rounded-full ${urgencia.destaque ? "bg-ouro motion-safe:animate-pulse" : "bg-noite"}`}
+              />
+              {urgencia.rotulo}
+            </span>
+          ) : (
+            <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-ouro" aria-hidden />
+          )}
           <span>
-            <span className="text-ouro">{BLACK.nome}:</span> {faixa}
+            <span className={urgencia?.destaque ? "font-black" : "text-ouro"}>{BLACK.nome}:</span> {faixa}
           </span>
           <ArrowRight className="h-3.5 w-3.5 shrink-0" />
         </a>
@@ -324,7 +404,10 @@ export default async function NovareCashVendaPage({
           </ul>
         </section>
 
-        {/* 4 · O plano (hoje só o mensal), com o riscado e o prazo da campanha. */}
+        {/* 3b · A carta do fundador: por que o app existe, antes do preço. */}
+        <CartaFundador />
+
+        {/* 4 · Os três planos (só muda o limite de bancos), com o riscado e o prazo da campanha. */}
         <section id="planos" className="scroll-mt-16 text-white" style={PALCO_OURO}>
           <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6">
             <div className="mx-auto max-w-2xl text-center">
@@ -333,12 +416,13 @@ export default async function NovareCashVendaPage({
                 {black && desconto
                   ? `${desconto}% OFF só até ${dataBlack("fim")}`
                   : lista.length > 1
-                    ? "Escolha como quer assinar"
+                    ? "Escolha o seu plano"
                     : `Assine o ${NOVARECASH_NOME}`}
               </h2>
               <p className="mt-3 text-base leading-relaxed text-white/70">
+                Todos os planos têm todos os recursos: muda só quantos bancos você conecta.{" "}
                 {black && cheio != null
-                  ? `Depois de ${dataBlack("fim")}, volta a ${brl(cheio)} por mês. ${GARANTIA_DIAS} dias de garantia.`
+                  ? `Depois de ${dataBlack("fim")}, cada plano volta ao preço riscado. ${GARANTIA_DIAS} dias de garantia.`
                   : `Cobrado todo mês, cancela quando quiser. ${GARANTIA_DIAS} dias de garantia.`}
               </p>
             </div>
@@ -483,7 +567,7 @@ export default async function NovareCashVendaPage({
             <div className="mx-auto max-w-3xl px-4 py-16 text-center sm:px-6">
               <p className="chapeu text-ouro">A nossa missão</p>
               <h2 className="mt-3 font-display text-3xl font-semibold leading-[1.12] tracking-[-0.03em] sm:text-[2.6rem]">
-                Por que só {brl(desde)} por mês?
+                Por que a partir de só {brl(desde)} por mês?
               </h2>
               <p className="mx-auto mt-5 max-w-xl text-base leading-relaxed text-white/80">
                 Porque a gente não ganha com o seu dinheiro. A Novare não vende produto financeiro e
@@ -497,7 +581,7 @@ export default async function NovareCashVendaPage({
                 Assinar é entrar para esse jeito de cuidar do dinheiro: com clareza e sem ninguém
                 empurrando nada.
               </p>
-              <a href="#planos" className="btn-cp cta-halo mt-8 px-7">
+              <a href="#planos" {...medirClique("venda:fazer-parte")} className="btn-cp cta-halo mt-8 px-7">
                 Quero fazer parte
                 <ArrowRight className="h-4 w-4" />
               </a>
@@ -597,6 +681,13 @@ export default async function NovareCashVendaPage({
                     ]
                   : []),
                 {
+                  // 05/11/2026: três planos. A resposta sai de `PLANOS` e de `avisoBancos()`.
+                  p: "Qual a diferença entre os planos?",
+                  r: `Só quantos bancos você conecta: ${juntar(lista.map((o) => `${o.nome}, ${o.bancos} ${o.bancos === 1 ? "banco" : "bancos"}`))}. Todos os recursos vêm em todos os planos.${
+                    AVISO_BANCOS ? ` ${AVISO_BANCOS}` : ""
+                  }`,
+                },
+                {
                   // A ÚNICA menção ao app gratuito da casa na página (decisão de 03/11, noite).
                   p: "Já uso o FINCASH. Preciso trocar?",
                   r: "Não. São apps separados: o FINCASH continua grátis, sem cartão e sem prazo, e segue funcionando como está. O NovareCash é outro app, com cartões, contas a pagar, alertas e uma IA que responde com os seus números.",
@@ -650,7 +741,7 @@ export default async function NovareCashVendaPage({
                 Quem responde no WhatsApp é a equipe da Novare, não um robô.
               </p>
             </div>
-            <a href={ZAP_SUPORTE} target="_blank" rel="noopener noreferrer" className="btn-claro shrink-0">
+            <a href={ZAP_SUPORTE} target="_blank" rel="noopener noreferrer" {...medirClique("venda:whatsapp")} className="btn-claro shrink-0">
               <MessageCircle className="h-4 w-4" />
               Quero falar com a equipe
             </a>
@@ -687,7 +778,7 @@ export default async function NovareCashVendaPage({
                 {black && (
                   <p className="mt-1.5 text-xs font-semibold text-ouro">Preço da {BLACK.nome} só até {dataBlack("fim")}.</p>
                 )}
-                <a href="#planos" className="btn-cp cta-halo cta-varredura mt-6 w-full px-7 sm:w-auto">
+                <a href="#planos" {...medirClique("venda:fecho")} className="btn-cp cta-halo cta-varredura mt-6 w-full px-7 sm:w-auto">
                   {textoCta}
                   <ArrowRight className="h-4 w-4" />
                 </a>
@@ -717,7 +808,7 @@ export default async function NovareCashVendaPage({
         texto={emVenda ? "Assinar agora" : textoCta}
         apoio={
           emVenda && desde != null
-            ? `${cheio != null ? `de ${brl(cheio)} por ` : ""}${brl(desde)}/mês · ${GARANTIA_DIAS} dias de garantia`
+            ? `a partir de ${brl(desde)}/mês${desconto ? ` (${desconto}% OFF)` : ""} · ${GARANTIA_DIAS} dias de garantia`
             : fase === "aviso" || black
               ? `${BLACK.nome}: avisamos você primeiro`
               : `Garantia de ${GARANTIA_DIAS} dias`

@@ -3,6 +3,42 @@ import { excedeuLimitePorIp, respostaLimite } from "@/lib/api-security";
 import { createClient } from "@/lib/supabase/server";
 import { avisarEquipeDeLead, enviarConfirmacaoDeLead } from "@/lib/email";
 import { ehLeadDeTeste } from "@/lib/leads-teste";
+import { limparOrigem } from "@/lib/origem-lead";
+
+/**
+ * O TETO DO `payload` (05/11/2026). Até aqui ele entrava cru, de qualquer
+ * tamanho — e é um formulário público. Os payloads da casa (nota do exame,
+ * ferramenta, eBook, assuntos do News, a origem da visita) somam algumas
+ * centenas de caracteres; 8 mil é folga de sobra para eles e corte para abuso.
+ */
+const PAYLOAD_MAX = 8_000;
+
+/**
+ * O payload que vai ao banco: um objeto simples, dentro do teto, com a origem
+ * da visita (`origem_visita`, as UTMs e o domínio do referrer) e o `bloco` da
+ * página limpos e limitados — ver `lib/origem-lead.ts`.
+ *
+ * Passou do teto? O resto é descartado e fica a marca `payload_cortado`: o lead
+ * (o contato) nunca se perde por causa do anexo.
+ */
+function payloadSeguro(bruto: unknown): Record<string, unknown> | null {
+  if (!bruto || typeof bruto !== "object" || Array.isArray(bruto)) return null;
+  const { origem_visita, bloco, ...resto } = bruto as Record<string, unknown>;
+  let cabe = false;
+  try {
+    cabe = JSON.stringify(resto).length <= PAYLOAD_MAX;
+  } catch {
+    cabe = false;
+  }
+  const origem = limparOrigem(origem_visita);
+  const b = typeof bloco === "string" && bloco.trim() ? bloco.trim().slice(0, 80) : null;
+  const limpo: Record<string, unknown> = {
+    ...(cabe ? resto : { payload_cortado: true }),
+    ...(origem ? { origem_visita: origem } : {}),
+    ...(b ? { bloco: b } : {}),
+  };
+  return Object.keys(limpo).length ? limpo : null;
+}
 
 /**
  * Gravação de lead, pelo servidor.
@@ -62,6 +98,7 @@ export async function POST(req: Request) {
   const telefone = limitar(corpo.telefone, 40);
   const origem = limitar(corpo.origem, 80);
   const tipo = limitar(corpo.tipo, 40);
+  const payload = payloadSeguro(corpo.payload);
 
   /* ⚠️ LEAD DE TESTE VAI PARA O SUPORTE (21/10/2026; antes era descartado).
      Grava MARCADO (`eh_teste`) e não dispara e-mail nenhum — nem para a
@@ -81,7 +118,7 @@ export async function POST(req: Request) {
       telefone,
       origem,
       tipo,
-      payload: corpo.payload ?? null,
+      payload,
       // Só manda a coluna quando é teste: lead real nunca depende dela.
       ...(ehTeste ? { eh_teste: true } : {}),
     });
@@ -98,7 +135,7 @@ export async function POST(req: Request) {
     ? ([{ status: "rejected", reason: "teste" }, { status: "fulfilled", value: null }] as const)
     : await Promise.allSettled([
         enviarConfirmacaoDeLead({ email, nome, origem }),
-        avisarEquipeDeLead({ email, nome, telefone, origem, tipo, payload: corpo.payload ?? null }),
+        avisarEquipeDeLead({ email, nome, telefone, origem, tipo, payload }),
       ]);
   if (confirmacao.status === "rejected") {
     console.warn("[lead] confirmação não saiu:", confirmacao.reason);

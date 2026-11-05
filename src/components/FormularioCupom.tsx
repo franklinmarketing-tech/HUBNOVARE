@@ -51,6 +51,7 @@ export function FormularioCupom() {
       tipo: "cupom",
       origem: `cupom:${cupom.codigo}`,
       payload: { cupom: cupom.codigo, desconto: cupom.desconto },
+      bloco: "cupom:formulario",
     });
     window.open(
       falarNoWhatsApp(

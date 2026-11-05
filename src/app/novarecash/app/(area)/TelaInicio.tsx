@@ -2,6 +2,7 @@ import Link from "next/link";
 import { AlertTriangle, ArrowRight, BadgeCheck, Plus, Target } from "lucide-react";
 
 import type { MinhaAssinatura } from "@/lib/novarecash/acesso";
+import { bancosDoPlano, planoPorChave } from "@/lib/novarecash/config";
 import type { PrimeirosPassos as Passos } from "@/lib/novarecash/primeiros-passos";
 import type { ResultadoRetrato, Retrato } from "@/lib/novarecash/retrato";
 import { CartaoAlertas } from "./_inicio/CartaoAlertas";
@@ -305,7 +306,7 @@ const SITUACAO: Record<string, { rotulo: string; tom: TomSelo }> = {
 function Assinatura({ assinatura, equipe }: { assinatura: MinhaAssinatura; equipe: boolean }) {
   const s = assinatura ? SITUACAO[assinatura.status] ?? { rotulo: assinatura.status, tom: "neutro" as const } : null;
   const plano =
-    assinatura?.plano === "anual" ? "Anual" : assinatura?.plano === "mensal" ? "Mensal" : assinatura?.plano ?? null;
+    assinatura?.plano ? `${planoPorChave(assinatura.plano).nome} · até ${bancosDoPlano(assinatura.plano)} banco${bancosDoPlano(assinatura.plano) > 1 ? "s" : ""}` : null;
 
   return (
     <section aria-labelledby="titulo-assinatura" data-guia="inicio-assinatura">

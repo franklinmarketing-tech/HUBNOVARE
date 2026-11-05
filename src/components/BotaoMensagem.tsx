@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import { usePathname } from "next/navigation";
 import { MessageSquareText, X } from "lucide-react";
 import { FormContato } from "@/components/FormContato";
+import { BotaoMensagemBalao } from "@/components/BotaoMensagemBalao";
 
 /** Evento para abrir a janela de qualquer lugar (ex.: o agradecimento da avaliação). */
 export const ABRIR_MENSAGEM = "novare:abrir-mensagem";
@@ -91,6 +92,10 @@ export function BotaoMensagem() {
           Fale com a gente
         </span>
       </button>
+
+      {/* O balão "Oi! Quer falar com alguém…?" (05/11/2026): uma vez por sessão, ao lado da
+          aba. Some enquanto a janela de mensagem está aberta. Regras no componente. */}
+      {!aberta && <BotaoMensagemBalao />}
 
       {aberta &&
         montado &&

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { timingSafeEqual } from "node:crypto";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { excedeuLimitePorIp, respostaLimite } from "@/lib/api-security";
+import type { ChavePlano } from "@/lib/novarecash/config";
 
 /**
  * O AVISO DA HOTMART — é daqui que nasce (e morre) o acesso ao NovareCash.
@@ -69,6 +70,35 @@ function prazoDo(p: Payload): "mensal" | "anual" {
     .replace(/\p{M}/gu, "")
     .toLowerCase();
   return /\b(anual|annual|yearly|ano)\b|\b12\s*meses\b/.test(nome) ? "anual" : "mensal";
+}
+
+/**
+ * QUAL DOS TRÊS PLANOS (05/11/2026): 'essencial', 'plus' ou 'premium', lido do
+ * nome do plano da assinatura ou da oferta da Hotmart (sem acento, sem
+ * diferenciar maiúsculas, palavra inteira). É ele que define quantos bancos a
+ * pessoa conecta (`bancosDoPlano`, em `lib/novarecash/config.ts`).
+ *
+ * Os campos são lidos em ordem e vale o PRIMEIRO que disser um plano. Nenhum
+ * disse? 'essencial' — o menor limite: na dúvida, nunca liberar mais bancos do
+ * que foi pago.
+ */
+function planoDo(p: Payload): ChavePlano {
+  const campos = [
+    p?.data?.subscription?.plan?.name,
+    p?.data?.purchase?.offer?.name,
+    p?.data?.purchase?.offer?.code,
+    p?.data?.product?.name,
+  ];
+  for (const campo of campos) {
+    const nome = String(campo ?? "")
+      .normalize("NFD")
+      .replace(/\p{M}/gu, "")
+      .toLowerCase();
+    if (/\bpremium\b/.test(nome)) return "premium";
+    if (/\bplus\b/.test(nome)) return "plus";
+    if (/\b(essencial|essential)\b/.test(nome)) return "essencial";
+  }
+  return "essencial";
 }
 
 /** Até quando vale: a próxima cobrança que a Hotmart informa; sem ela, o período do plano + 5 dias de folga. */
@@ -146,7 +176,9 @@ export async function POST(req: Request) {
         email,
         nome,
         status: "ativa",
-        plano: prazo,
+        // 05/11/2026: o PLANO (essencial/plus/premium), não mais o prazo. O prazo
+        // continua lido por `prazoDo` só para a validade (hoje, sempre mensal).
+        plano: planoDo(p),
         expira_em: validade(p, prazo),
         assinatura,
         ultima_transacao: transacao,

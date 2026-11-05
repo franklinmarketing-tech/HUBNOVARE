@@ -1,3 +1,5 @@
+import { origemDaVisita } from "@/lib/origem-lead";
+
 
 export type LeadTipo =
   | "ferramenta"
@@ -52,7 +54,21 @@ export async function salvarLead(input: {
   nome?: string | null;
   telefone?: string | null;
   payload?: Record<string, unknown>;
+  /**
+   * De onde NA PÁGINA veio o formulário ("news:faixa-compacta",
+   * "ferramenta:pdf"). Vai em `payload.bloco` (05/11/2026).
+   */
+  bloco?: string;
 }): Promise<ResultadoLead> {
+  /* A campanha e o referrer desta visita (`lib/origem-lead.ts`) vão em TODO
+     lead, sem cada tela precisar lembrar: `payload.origem_visita`. Só existe
+     depois do aceite dos cookies. */
+  const origemVisita = origemDaVisita();
+  const payload: Record<string, unknown> = {
+    ...(input.payload ?? {}),
+    ...(origemVisita ? { origem_visita: origemVisita } : {}),
+    ...(input.bloco ? { bloco: input.bloco } : {}),
+  };
   try {
     /* Passa por /api/lead em vez de falar direto com o Supabase.
      *
@@ -70,7 +86,7 @@ export async function salvarLead(input: {
         telefone: input.telefone ?? null,
         origem: input.origem ?? null,
         tipo: input.tipo ?? null,
-        payload: input.payload ?? null,
+        payload: Object.keys(payload).length ? payload : null,
       }),
     });
     if (!r.ok) {

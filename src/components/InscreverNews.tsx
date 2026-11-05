@@ -87,6 +87,7 @@ export function InscreverNews({
   ultimaEdicao,
   ultimaEdicaoHref,
   compacto = false,
+  bloco,
   className = "",
 }: {
   /**
@@ -106,6 +107,12 @@ export function InscreverNews({
   ultimaEdicao?: string;
   /** O link dela, para o CTA do pop-up de confirmação. */
   ultimaEdicaoHref?: string;
+  /**
+   * De onde NA PÁGINA veio a inscrição, para o painel de leads
+   * ("news:fim-do-artigo"). Sem ele, sai da variante: `news:faixa-compacta`
+   * ou `news:secao-completa`. A campanha (UTM) vai sozinha, por `salvarLead`.
+   */
+  bloco?: string;
   className?: string;
 }) {
   const pathname = usePathname();
@@ -146,6 +153,7 @@ export function InscreverNews({
       origem: pathname,
       tipo: "newsletter",
       payload: escolhidos.length ? { assuntos: escolhidos } : undefined,
+      bloco: bloco ?? (compacto ? "news:faixa-compacta" : "news:secao-completa"),
     });
   }
 

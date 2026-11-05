@@ -1,6 +1,7 @@
 import { ExternalLink, Headset, Users } from "lucide-react";
 
 import type { MinhaAssinatura as Assinatura } from "@/lib/novarecash/acesso";
+import { planoPorChave } from "@/lib/novarecash/config";
 import { falarNoWhatsApp } from "@/lib/contato";
 import { Cartao, Selo, type TomSelo } from "../pecas";
 
@@ -45,7 +46,7 @@ export function MinhaAssinatura({
         <>
           <div className="flex flex-wrap items-center gap-2">
             <p className="font-display text-base font-semibold text-white">
-              NovareCash{assinatura.plano ? ` ${assinatura.plano}` : ""}
+              NovareCash{assinatura.plano ? ` ${planoPorChave(assinatura.plano).nome}` : ""}
             </p>
             <Selo tom={s.tom}>{s.rotulo}</Selo>
           </div>

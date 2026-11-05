@@ -1,45 +1,49 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
-import { ArrowRight, ChevronLeft, ChevronRight, Clock, Mail } from "lucide-react";
+import { ArrowRight, ChevronLeft, ChevronRight, Mail } from "lucide-react";
 import { CabecalhoNews } from "@/components/CabecalhoNews";
 import { UltimosVideos } from "@/components/UltimosVideos";
 import { SigaInstagram } from "@/components/SigaInstagram";
 import { RodapeNovare } from "@/components/RodapeNovare";
 import { InscreverNews } from "@/components/InscreverNews";
+import { CardArtigo, MetaArtigo, dataCurtaNews } from "@/components/CardArtigoNews";
+import { DadosEstruturados } from "@/components/DadosEstruturados";
 import { artigosOrdenados, type Artigo } from "@/lib/news";
 import { FAMILIAS, ORDEM_FAMILIAS, type Familia } from "@/lib/apps";
 import { CONTAGEM } from "@/lib/apps";
+import { jsonLdBlog } from "@/lib/dados-estruturados";
+import { urlAbsoluta } from "@/lib/site";
 import { FitaMercado } from "@/components/FitaMercado";
+
+const DESCRICAO =
+  "Conteúdo educativo da Novare sobre salário, rescisão, investimentos e o dia a dia do dinheiro — sempre ligado à ferramenta que resolve o que acabou de ser explicado.";
 
 export const metadata: Metadata = {
   title: "Novare News",
-  description:
-    "Conteúdo educativo da Novare sobre salário, rescisão, investimentos e o dia a dia do dinheiro — sempre ligado à ferramenta que resolve o que acabou de ser explicado.",
+  description: DESCRICAO,
   alternates: { canonical: "/novare-news" },
+  /* Sem isto o link do News colado no WhatsApp herdava o título e o
+     endereço da home ("Novare Workspace · Suas contas…"). A imagem é a do
+     layout: declarar `openGraph` aqui substitui o dele inteiro. */
+  openGraph: {
+    type: "website",
+    locale: "pt_BR",
+    siteName: "Novare Hub",
+    url: urlAbsoluta("/novare-news"),
+    title: "Novare News · Dinheiro explicado, sem letra miúda",
+    description: DESCRICAO,
+    images: [
+      {
+        url: urlAbsoluta("/og.png"),
+        width: 1200,
+        height: 630,
+        alt: "Novare News: dinheiro explicado, sem letra miúda",
+      },
+    ],
+  },
 };
 
-
-const MESES = [
-  "jan",
-  "fev",
-  "mar",
-  "abr",
-  "mai",
-  "jun",
-  "jul",
-  "ago",
-  "set",
-  "out",
-  "nov",
-  "dez",
-];
-
-/** "14 jul 2026" — data de jornal, não de formulário. */
-function formatarData(iso: string): string {
-  const [ano, mes, dia] = iso.split("-");
-  return `${Number(dia)} ${MESES[Number(mes) - 1] ?? ""} ${ano}`;
-}
 
 export default async function NovareNewsPage({
   searchParams,
@@ -80,6 +84,9 @@ export default async function NovareNewsPage({
 
   return (
     <div className="min-h-dvh bg-white">
+      {/* O acervo inteiro, e não a lista filtrada: o filtro é query string
+          da mesma URL canônica, e o Google lê uma página só. */}
+      <DadosEstruturados dados={jsonLdBlog(todos, DESCRICAO)} />
       <CabecalhoNews />
       <FitaMercado />
 
@@ -222,20 +229,6 @@ function FiltroChip({
   );
 }
 
-/** Data e tempo de leitura, no mesmo formato em toda a página. */
-function MetaArtigo({ artigo }: { artigo: Artigo }) {
-  return (
-    <>
-      <time dateTime={artigo.data}>{formatarData(artigo.data)}</time>
-      <span aria-hidden>·</span>
-      <span className="inline-flex items-center gap-1">
-        <Clock className="h-3 w-3" />
-        {artigo.tempoLeituraMin} min de leitura
-      </span>
-    </>
-  );
-}
-
 /**
  * A manchete: a publicação mais recente ocupa a primeira dobra inteira,
  * capa de um lado e texto do outro. É o que separa uma capa de jornal de
@@ -312,40 +305,6 @@ function ChamadaSecundaria({ artigo }: { artigo: Artigo }) {
   );
 }
 
-function CardArtigo({ artigo }: { artigo: Artigo }) {
-  return (
-    <Link
-      href={`/novare-news/${artigo.slug}`}
-      className="group flex h-full flex-col overflow-hidden rounded-[1.5rem] border border-border bg-card shadow-subtle transition-all duration-300 hover:border-accent-soft hover:shadow-card-hover"
-    >
-      <div className="relative aspect-[16/9] overflow-hidden bg-muted">
-        <Image
-          src={artigo.capa}
-          alt=""
-          fill
-          sizes="(min-width: 640px) 340px, 100vw"
-          className="object-cover transition-transform duration-500 group-hover:scale-105"
-        />
-      </div>
-
-      <div className="flex flex-1 flex-col p-5">
-        <p className="text-2xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-          {FAMILIAS[artigo.categoria]}
-        </p>
-        <h3 className="mt-2 font-display text-base font-semibold leading-snug tracking-[-0.025em] text-primary underline-offset-4 group-hover:underline">
-          {artigo.titulo}
-        </h3>
-        <p className="mt-2 line-clamp-2 flex-1 text-sm leading-relaxed text-muted-foreground">
-          {artigo.resumo}
-        </p>
-        <p className="mt-4 flex flex-wrap items-center gap-x-2 gap-y-1 border-t border-border pt-3 text-2xs text-muted-foreground">
-          <MetaArtigo artigo={artigo} />
-        </p>
-      </div>
-    </Link>
-  );
-}
-
 function SidebarNews() {
   const recentes = artigosOrdenados().slice(0, 5);
 
@@ -400,7 +359,7 @@ function SidebarNews() {
                   dateTime={a.data}
                   className="mt-1 block text-2xs text-muted-foreground"
                 >
-                  {formatarData(a.data)}
+                  {dataCurtaNews(a.data)}
                 </time>
               </div>
             </li>

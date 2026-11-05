@@ -14,6 +14,7 @@ import { Suspense } from "react";
 import { UltimoVideo } from "@/components/UltimoVideo";
 import { ultimoVideoYoutube } from "@/lib/youtube";
 import { ProximosEventos } from "@/components/ProximosEventos";
+import { getCalendarioEconomico } from "@/lib/calendario-economico";
 import { ChamadaJefferson } from "@/components/ChamadaJefferson";
 import { buildTrackingUrl, CARTEIRA_PONTUAL_LP } from "@/lib/consultoria";
 import { CardPortal } from "@/components/CardPortal";
@@ -34,6 +35,9 @@ import { getNotificacoes } from "@/lib/notificacoes";
 import { estadoDaAssinatura } from "@/lib/assinatura-servidor";
 import { ASSINATURA_GARANTIA, ASSINATURA_OFERTA_CURTA } from "@/lib/assinatura";
 import { FitaMercado } from "@/components/FitaMercado";
+import { Stories } from "@/components/Stories";
+import { getStories } from "@/lib/stories";
+import { QuizComeco } from "@/components/QuizComeco";
 
 /**
  * Só o canonical: title, description e Open Graph da home são os do layout
@@ -132,6 +136,11 @@ export default async function Home() {
             Rolar não é defeito — é como todo mundo lê uma página. O ar entre
             as seções vale mais do que a promessa de caber numa tela. */}
         <main className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-8 px-5 pb-10 pt-6">
+          {/* OS "STORIES" (05/11/2026, benchmark com a Nord): a faixa de círculos no topo, cada um
+              com perguntas e respostas de uma matéria do News. Só na home, por ora — levar para o
+              /novare-news é decisão do dono. Conteúdo em `lib/stories.ts`. */}
+          <Stories stories={getStories()} />
+
           {/* ⚠️ A FITA DO BANCO CENTRAL (`BarraMercado`) ABRIA A HOME até
               19/10/2026. Saiu daqui a pedido do dono ("deixar mais
               humanizado"): a primeira coisa da página eram siglas soltas.
@@ -284,6 +293,11 @@ export default async function Home() {
                 </div>
               ))}
           </section>
+
+          {/* "POR ONDE EU COMEÇO?" (05/11/2026): logo depois das vitrines, para quem chegou e não
+              sabe qual delas abrir. Três perguntas, uma porta principal, uma alternativa e o
+              próximo passo — nunca ativo nem perfil de investidor. Regra em `lib/quiz-comeco.ts`. */}
+          <QuizComeco origem="home" />
 
           {/* ⚠️ OS CARTÕES DE INDICADORES (`IndicadoresHome`) SAÍRAM DAQUI em
               21/10/2026: os números agora correm na fita fina do topo
@@ -529,7 +543,10 @@ function palavras(texto: string, inicio: number) {
  * volta a ocupar a largura toda.
  */
 async function CalendarioEVideo() {
-  const video = await ultimoVideoYoutube();
+  // As duas buscas EM PARALELO (05/11/2026): antes o calendário só começava depois de o feed do
+  // YouTube responder. O `cache` do React em `getCalendarioEconomico` faz o `ProximosEventos`
+  // abaixo reaproveitar esta mesma busca, sem pedir de novo.
+  const [video] = await Promise.all([ultimoVideoYoutube(), getCalendarioEconomico()]);
   if (!video) return <ProximosEventos />;
   return (
     <div className="grid items-stretch gap-3 lg:grid-cols-2">

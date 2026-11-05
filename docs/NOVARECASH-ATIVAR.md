@@ -38,19 +38,40 @@ Confere: a última consulta de cada arquivo devolve tudo `true`.
 
 ## 2. Preço e datas da Black — `src/lib/novarecash/config.ts`
 
-- **Definido em 04/11/2026:** só o **mensal** é vendido — **R$ 34,90/mês** (cheio) e **R$ 29,90/mês** na
-  Black Novare, de **04/11 a 30/11** (14% OFF; R$ 29,90 é o PISO do dono). Em 1º/12 volta sozinho ao cheio. Sem Lista VIP.
-  Base: pesquisa de mercado (Pierre Pro R$ 39, Organizze Conectado R$ 39,90, Mobills mensal R$ 42,90,
-  Meu Planner Premium 12x R$ 34,90) — os números estão no comentário de `PRECOS`.
-- Enquanto o link da Hotmart não estiver na Vercel, o botão "Assinar" abre o **WhatsApp da casa** com a
-  mensagem "Quero assinar o NovareCash" — quem atende libera o acesso (Admin → NovareCash mostra quem pagou
-  pela Hotmart; venda pelo WhatsApp precisa do link de pagamento da Hotmart enviado à pessoa).
+- **Definido em 05/11/2026:** **três planos mensais** (`PLANOS`), como o Pierre e o Organizze. Todos têm
+  **todos os recursos**; muda só quantos bancos dá para conectar pelo Open Finance:
+
+  | Plano | Bancos | Cheio (de 1º/12 em diante) | Black Novare (04/11 a 30/11) |
+  |---|---|---|---|
+  | Essencial | 1 | R$ 59,90/mês | R$ 29,90/mês |
+  | **Plus** (selo "Mais escolhido", em destaque) | 3 | R$ 79,90/mês | R$ 39,90/mês |
+  | Premium | 10 | R$ 119,90/mês | R$ 59,90/mês |
+
+  - ⚠️ O **cheio é o preço real** cobrado depois da Black: riscar um valor que nunca se cobra é preço de
+    referência falso (CDC). Em 1º/12 a página volta sozinha ao cheio.
+  - ⚠️ **R$ 29,90 é o PISO do dono**: nenhuma campanha desce disso.
+  - Herói, pop-up e barra do celular mostram "a partir de" (o menor plano). Enquanto o Open Finance não está no
+    ar, os planos dizem: "A conexão com bancos libera em {data}; até lá, todos os recursos que já funcionam vêm
+    em qualquer plano".
+  - O limite de bancos de cada assinante sai de `bancosDoPlano(plano)` (plano desconhecido = 1, o do Essencial).
+  - Sem Lista VIP. Histórico: em 04/11 era um mensal só (R$ 34,90, Black R$ 29,90), pela pesquisa de mercado
+    (Pierre Pro R$ 39, Organizze Conectado R$ 39,90, Mobills mensal R$ 42,90, Meu Planner Premium 12x R$ 34,90).
+- Enquanto o link da Hotmart de um plano não estiver na Vercel, o botão daquele plano abre o **WhatsApp da
+  casa** com a mensagem "Quero assinar o NovareCash {Plano}" — quem atende libera o acesso (Admin → NovareCash
+  mostra quem pagou pela Hotmart; venda pelo WhatsApp precisa do link de pagamento da Hotmart enviado à pessoa).
 - Mudar preço/datas: me passe os números — preço escrito em outro lugar é preço que diverge.
 
 ## 3. Hotmart (15 min)
 
-1. Criar o produto **NovareCash** como **assinatura**, com dois planos: um com "mensal" no nome e outro
-   com "anual" no nome (a rota lê o nome para saber a validade).
+1. Criar o produto **NovareCash** como **assinatura mensal**, com **três planos/ofertas** — o nome de cada um
+   tem de conter a palavra do plano: **Essencial** (R$ 59,90), **Plus** (R$ 79,90) e **Premium** (R$ 119,90).
+   - ⚠️ Até 30/11 o link de cada plano tem de COBRAR o preço da Black (R$ 29,90, R$ 39,90 e R$ 59,90). Em 1º/12
+     a página passa sozinha ao cheio, mas o link da Hotmart não: troque os três links na Vercel (ou o preço das
+     ofertas na Hotmart) no mesmo dia, senão a página mostra um preço e o checkout cobra outro.
+   - A rota grava em `ncash_assinantes.plano` o valor `essencial`, `plus` ou `premium`, lendo nesta ordem o
+     nome do plano da assinatura, o nome da oferta, o código da oferta e o nome do produto (sem acento e sem
+     diferenciar maiúsculas). **Não reconheceu: grava `essencial`** (o menor limite de bancos).
+   - ⚠️ Não use "anual", "ano" ou "12 meses" no nome: a rota lê isso para dar validade de um ano.
 2. Garantia de 7 dias.
 3. Em **Ferramentas → Webhook (API e notificações)**: nova configuração com
    - URL: `https://hub.novareapp.com.br/api/novarecash/hotmart`
@@ -63,8 +84,11 @@ Confere: a última consulta de cada arquivo devolve tudo `true`.
 |---|---|
 | `HOTMART_HOTTOK` | o hottok do passo 3 — **sem ele a rota recusa tudo** (de propósito) |
 | `HOTMART_PRODUTO_NOVARECASH` | id do produto na Hotmart (opcional: ignora aviso de outro produto) |
-| `NEXT_PUBLIC_NOVARECASH_CHECKOUT_MENSAL` | link de pagamento do plano mensal |
-| `NEXT_PUBLIC_NOVARECASH_CHECKOUT_ANUAL` | link de pagamento do plano anual |
+| `NEXT_PUBLIC_NOVARECASH_CHECKOUT_ESSENCIAL` | link de pagamento do plano Essencial |
+| `NEXT_PUBLIC_NOVARECASH_CHECKOUT_PLUS` | link de pagamento do plano Plus |
+| `NEXT_PUBLIC_NOVARECASH_CHECKOUT_PREMIUM` | link de pagamento do plano Premium |
+
+   (As antigas `NEXT_PUBLIC_NOVARECASH_CHECKOUT_MENSAL` / `_ANUAL` não são mais lidas: pode apagar.)
 
 5. Novo deploy. Teste: compra de teste na Hotmart → o e-mail aparece em **Admin → NovareCash** e, logado
    com esse e-mail, `/novarecash/app` abre.
@@ -102,7 +126,7 @@ Até lá, só a equipe vê a tela funcionando (para testar); o cliente vê "em a
 |---|---|---|
 | `HOTMART_HOTTOK` | Vercel | a rota da Hotmart recusa tudo (503) — ninguém é liberado |
 | `HOTMART_PRODUTO_NOVARECASH` | Vercel (opcional) | aceita aviso de qualquer produto da conta |
-| `NEXT_PUBLIC_NOVARECASH_CHECKOUT_MENSAL` / `_ANUAL` | Vercel | o botão de comprar daquele plano não aparece |
+| `NEXT_PUBLIC_NOVARECASH_CHECKOUT_ESSENCIAL` / `_PLUS` / `_PREMIUM` | Vercel | o botão daquele plano abre o WhatsApp da casa em vez do pagamento |
 | `ANTHROPIC_API_KEY` | Vercel (opcional) | a IA usa a OpenAI |
 | `OPENAI_API_KEY` | Vercel (já existe) | sem ela E sem a Anthropic, a IA mostra "em ativação"; o WhatsApp não lê áudio/foto |
 | `SUPABASE_SERVICE_ROLE_KEY` | Vercel (já existe) | webhooks da Hotmart e do WhatsApp não gravam |

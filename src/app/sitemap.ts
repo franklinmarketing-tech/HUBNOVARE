@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { APPS } from "@/lib/apps";
-import { ARTIGOS } from "@/lib/news";
+import { ARTIGOS, artigosDaTag, artigosDoAutor, tagsEmUso } from "@/lib/news";
+import { listaDeAutores } from "@/lib/autores";
 import { CONSULTORIAS } from "@/lib/consultoria";
 import { SITE_URL as SITE } from "@/lib/site";
 
@@ -50,6 +51,27 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.7,
   }));
 
+  /* Os temas e os autores do News (05/11/2026). Só os que TÊM artigo:
+     página de tema ou de autor vazia é conteúdo fino, e a do autor sem texto
+     já sai `noindex`. A data é a da matéria mais recente de cada um — é
+     quando a lista mudou de verdade. */
+  const temas = tagsEmUso().map((t) => ({
+    url: `${SITE}/novare-news/tag/${t}`,
+    lastModified: new Date(artigosDaTag(t)[0].data),
+    changeFrequency: "weekly" as const,
+    priority: 0.5,
+  }));
+
+  const autores = listaDeAutores()
+    .map((autor) => ({ autor, artigos: artigosDoAutor(autor.chave) }))
+    .filter(({ artigos }) => artigos.length > 0)
+    .map(({ autor, artigos }) => ({
+      url: `${SITE}/novare-news/autor/${autor.chave}`,
+      lastModified: new Date(artigos[0].data),
+      changeFrequency: "weekly" as const,
+      priority: 0.4,
+    }));
+
   // Uma página de venda por produto: é o que a busca precisa achar.
   const produtos = CONSULTORIAS.map((c) => ({
     url: `${SITE}/consultoria/${c.slug}`,
@@ -73,5 +95,5 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   // Ferramenta com variação por query (financiamento) entra uma vez só.
   const unicas = new Map(ferramentas.map((f) => [f.url, f]));
-  return [...fixas, ...produtos, ...artigos, ...unicas.values()];
+  return [...fixas, ...produtos, ...artigos, ...temas, ...autores, ...unicas.values()];
 }

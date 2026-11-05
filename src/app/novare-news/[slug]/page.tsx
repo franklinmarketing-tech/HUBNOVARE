@@ -9,14 +9,21 @@ import { RodapeNovare } from "@/components/RodapeNovare";
 import { CapturaLead } from "@/components/CapturaLead";
 import {
   ARTIGOS,
+  GOOGLE_FONTE_PREFERIDA,
+  TAGS,
   artigoPorSlug,
   artigosOrdenados,
   artigosRelacionados,
+  autorDoArtigo,
   type Artigo,
 } from "@/lib/news";
 import { FAMILIAS } from "@/lib/apps";
 import { urlAbsoluta } from "@/lib/site";
+import { jsonLdArtigo, jsonLdTrilha } from "@/lib/dados-estruturados";
 import { CorpoArtigo } from "@/components/CorpoArtigo";
+import { CartaoAutor } from "@/components/CartaoAutor";
+import { BarraInscricaoNews } from "@/components/BarraInscricaoNews";
+import { DadosEstruturados } from "@/components/DadosEstruturados";
 import { FitaMercado } from "@/components/FitaMercado";
 
 export function generateStaticParams() {
@@ -35,14 +42,47 @@ export async function generateMetadata({
   const artigo = artigoPorSlug(slug);
   if (!artigo) return { title: "Artigo não encontrado" };
 
+  const autor = autorDoArtigo(artigo);
+  const tags = (artigo.tags ?? []).map((t) => TAGS[t]);
+  const url = urlAbsoluta(`/novare-news/${artigo.slug}`);
+
+  /* ⚠️ A CAPA PRECISA ESTAR AQUI, E COM URL ABSOLUTA (05/11/2026).
+     O `openGraph` da página SUBSTITUI o do layout inteiro — não mescla. Até
+     esta data ele não tinha `images`, então a imagem do layout sumia junto e
+     o artigo ia para o WhatsApp sem foto nenhuma. As capas de /public/news
+     são todas 1600×900 (16:9), o formato que o WhatsApp e o X recortam bem. */
+  const capa = {
+    url: urlAbsoluta(artigo.capa),
+    width: 1600,
+    height: 900,
+    alt: artigo.titulo,
+  };
+
   return {
     title: artigo.titulo,
     description: artigo.resumo,
+    alternates: { canonical: `/novare-news/${artigo.slug}` },
+    authors: [{ name: autor.nome, url: urlAbsoluta(`/novare-news/autor/${autor.chave}`) }],
+    ...(tags.length ? { keywords: tags } : {}),
     openGraph: {
+      type: "article",
+      locale: "pt_BR",
+      siteName: "Novare Hub",
+      url,
       title: `${artigo.titulo} · Novare News`,
       description: artigo.resumo,
-      type: "article",
       publishedTime: artigo.data,
+      ...(artigo.atualizado ? { modifiedTime: artigo.atualizado } : {}),
+      authors: [autor.nome],
+      section: FAMILIAS[artigo.categoria],
+      ...(tags.length ? { tags } : {}),
+      images: [capa],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${artigo.titulo} · Novare News`,
+      description: artigo.resumo,
+      images: [capa],
     },
   };
 }
@@ -84,6 +124,7 @@ export default async function ArtigoPage({
   if (!artigo) notFound();
 
   const relacionados = artigosRelacionados(artigo);
+  const autor = autorDoArtigo(artigo);
 
   // Navegação cronológica: o anterior é o publicado ANTES, o próximo é o
   // publicado depois. A lista já vem do mais novo para o mais antigo.
@@ -101,6 +142,17 @@ export default async function ArtigoPage({
 
   return (
     <div className="min-h-dvh bg-white">
+      {/* A matéria e a trilha, para a busca (ver `lib/dados-estruturados`). */}
+      <DadosEstruturados
+        dados={[
+          jsonLdArtigo(artigo),
+          jsonLdTrilha([
+            { nome: "Início", caminho: "/" },
+            { nome: "Novare News", caminho: "/novare-news" },
+            { nome: artigo.titulo, caminho: `/novare-news/${artigo.slug}` },
+          ]),
+        ]}
+      />
       <CabecalhoNews />
       <FitaMercado />
 
@@ -113,7 +165,9 @@ export default async function ArtigoPage({
           Novare News
         </Link>
 
-        <article className="mt-6">
+        {/* O `id` é a régua da barra de inscrição: ela aparece na metade
+            DESTE elemento, não da página (que tem rodapé e captação). */}
+        <article id="artigo" className="mt-6">
           {/* Cabeçalho da matéria em painel noite (20/10/2026). */}
           <div className="topo-ferramenta secao-noite !mt-0">
           <p className="flex items-center gap-2 text-2xs font-semibold uppercase tracking-[0.16em] text-accent-claro">
@@ -133,12 +187,28 @@ export default async function ArtigoPage({
           </div>
 
           <div className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-3 border-y border-border py-4 text-2xs text-muted-foreground">
-            <span className="flex items-center gap-2">
-              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary font-display text-2xs font-semibold text-white">
-                N
-              </span>
-              <span className="font-semibold text-primary">Equipe Novare</span>
-            </span>
+            {/* Quem assina, com link para tudo o que assinou. Sem `autor`
+                no artigo, é a Equipe Novare — ver `lib/autores.ts`. */}
+            <Link
+              href={`/novare-news/autor/${autor.chave}`}
+              className="-my-2 flex min-h-11 items-center gap-2 underline-offset-4 hover:underline"
+            >
+              {autor.tipo === "pessoa" ? (
+                <Image
+                  src={autor.foto}
+                  alt=""
+                  width={56}
+                  height={56}
+                  sizes="28px"
+                  className="h-7 w-7 rounded-full object-cover"
+                />
+              ) : (
+                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary font-display text-2xs font-semibold text-white">
+                  N
+                </span>
+              )}
+              <span className="font-semibold text-primary">{autor.nome}</span>
+            </Link>
             <time dateTime={artigo.data}>{formatarData(artigo.data)}</time>
             <span className="flex items-center gap-1">
               <Clock className="h-3 w-3" />
@@ -193,6 +263,27 @@ export default async function ArtigoPage({
             </p>
           )}
 
+          {/* Os temas do texto: cada um leva à página com tudo sobre ele. */}
+          {artigo.tags && artigo.tags.length > 0 && (
+            <nav aria-label="Temas deste artigo" className="mx-auto mt-10 max-w-2xl">
+              <p className="text-2xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+                Temas
+              </p>
+              <ul className="mt-2 flex flex-wrap gap-2">
+                {artigo.tags.map((t) => (
+                  <li key={t}>
+                    <Link
+                      href={`/novare-news/tag/${t}`}
+                      className="inline-flex min-h-11 items-center rounded-full border border-border bg-white px-4 text-xs font-semibold text-muted-foreground transition-colors hover:border-accent-soft hover:text-accent-strong"
+                    >
+                      {TAGS[t]}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          )}
+
           <div className="mx-auto mt-10 flex max-w-2xl flex-wrap items-center justify-between gap-3 border-t border-border pt-5">
             <p className="text-2xs text-muted-foreground">
               Publicado em {formatarData(artigo.data)}
@@ -238,6 +329,29 @@ export default async function ArtigoPage({
               </Link>
             )}
           </div>
+
+          {/* Quem responde pelo texto, no fim — ver `CartaoAutor`. */}
+          <CartaoAutor autor={autor} className="mx-auto mt-10 max-w-2xl" />
+
+          {/* Só existe com um link de fonte preferida de verdade
+              (`GOOGLE_FONTE_PREFERIDA`, em lib/news.ts). Discreto: é um
+              convite para quem já gostou, não mais uma chamada. */}
+          {GOOGLE_FONTE_PREFERIDA && (
+            <p className="mx-auto mt-6 max-w-2xl text-center text-xs text-muted-foreground">
+              <a
+                href={GOOGLE_FONTE_PREFERIDA}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex min-h-11 items-center gap-1.5 font-semibold text-primary underline-offset-4 hover:underline"
+              >
+                Acompanhe a Novare no Google
+                <ArrowRight className="h-3.5 w-3.5" />
+              </a>
+              <span className="block">
+                Marque a Novare como fonte preferida e veja nossas matérias primeiro.
+              </span>
+            </p>
+          )}
         </article>
 
         {/* Continuar lendo: o artigo vizinho na linha do tempo, sem obrigar
@@ -288,7 +402,7 @@ export default async function ArtigoPage({
 
       {/* A captação no fim da leitura: quem chegou até aqui é o lead mais
           quente do canal. */}
-      <div className="pb-16">
+      <div id="fim-da-leitura" className="pb-16">
         <CapturaLead
           titulo="Quer a leitura do seu caso, não só do artigo?"
           subtitulo="Deixe seu e-mail: um especialista da Novare revisa a sua situação e envia o próximo passo — grátis, sem compromisso."
@@ -296,6 +410,10 @@ export default async function ArtigoPage({
       </div>
 
       <RodapeNovare />
+
+      {/* A barra de inscrição: da metade do artigo até a captação acima
+          entrar na tela (dois campos de e-mail juntos dividem o clique). */}
+      <BarraInscricaoNews alvo="artigo" fim="fim-da-leitura" />
     </div>
   );
 }

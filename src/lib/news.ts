@@ -12,6 +12,60 @@
  */
 
 import type { Familia } from "@/lib/apps";
+import { AUTOR_PADRAO, autorPorChave, type Autor, type ChaveAutor } from "@/lib/autores";
+
+/**
+ * OS TEMAS DO NEWS (05/11/2026): o que liga um artigo a outro além da área.
+ *
+ * A categoria é larga demais para "leia também": "Investimentos" junta a
+ * eleição, o PIB americano e a tabela do IR. A tag é o assunto de verdade, e
+ * é ela que decide os relacionados (ver `artigosRelacionados`) e ganha uma
+ * página própria em /novare-news/tag/<chave>.
+ *
+ * ⚠️ VOCABULÁRIO FECHADO, de propósito. Tag escrita à mão em cada artigo
+ * vira "Selic", "selic" e "Taxa Selic" em três meses — três páginas finas
+ * para o mesmo assunto. Aqui a chave é tipada: erro de digitação não compila.
+ * Tag nova entra nesta lista primeiro, e só faz sentido com dois artigos ou
+ * mais (com um só, a página da tag é uma lista de um item).
+ */
+export const TAGS = {
+  "eleicoes-2026": "Eleições 2026",
+  "selic-e-juros": "Selic e juros",
+  inflacao: "Inflação",
+  "renda-fixa": "Renda fixa",
+  "tesouro-direto": "Tesouro Direto",
+  bolsa: "Bolsa",
+  dolar: "Dólar",
+  "economia-americana": "Economia americana",
+  indicadores: "Indicadores econômicos",
+  "imposto-de-renda": "Imposto de Renda",
+  "salario-e-clt": "Salário e CLT",
+  financiamento: "Financiamento",
+  imoveis: "Imóveis e aluguel",
+  "reserva-de-emergencia": "Reserva de emergência",
+  orcamento: "Orçamento",
+  "planejamento-financeiro": "Planejamento financeiro",
+  comportamento: "Comportamento e decisão",
+  "consultoria-independente": "Consultoria independente",
+  "inteligencia-artificial": "Inteligência artificial",
+  diversificacao: "Diversificação",
+  rentabilidade: "Rentabilidade real",
+  "novidades-da-novare": "Novidades da Novare",
+} as const;
+
+export type TagArtigo = keyof typeof TAGS;
+
+/**
+ * O link de "fonte preferida" do Google para a Novare — o botão que faz as
+ * matérias da casa subirem nas Principais Notícias de quem marcou.
+ *
+ * ⚠️ VAZIO DE PROPÓSITO (05/11/2026). O link só vale para site que o Google
+ * já trata como fonte de notícias, e a Novare ainda não tem um confirmado.
+ * Link que leva a uma tela de "fonte não encontrada" é pior que nenhum.
+ * Quando existir, é só colocar aqui: o bloco "Acompanhe a Novare no Google"
+ * aparece sozinho no fim de cada artigo.
+ */
+export const GOOGLE_FONTE_PREFERIDA: string | null = null;
 
 /**
  * Os blocos que um artigo pode ter além do parágrafo.
@@ -47,7 +101,29 @@ export type BlocoArtigo =
       cabecalho: string[];
       linhas: string[][];
       legenda?: string;
-    };
+    }
+  /**
+   * Um vídeo do YouTube no meio do texto (05/11/2026).
+   *
+   * Usa o `PreviaYoutube` da casa: até o toque é só a capa, e o player
+   * (youtube-nocookie) não carrega — nada de cookie do Google nem de 1 MB de
+   * script para quem não vai assistir.
+   *
+   * ⚠️ SÓ COM ID DE VÍDEO REAL, publicado no canal. Id inventado vira uma
+   * capa cinza com botão de play que não toca nada.
+   */
+  | { tipo: "video"; youtubeId: string; titulo: string }
+  /**
+   * Uma chamada no meio do texto (05/11/2026): para a ferramenta, o eBook ou
+   * o produto que resolve o trecho que a pessoa acabou de ler.
+   *
+   * ⚠️ UMA POR ARTIGO, NO MÁXIMO, e nunca antes do segundo subtítulo. O
+   * artigo já termina na ferramenta (`ferramenta`); a chamada do meio existe
+   * para quem não vai chegar ao fim — não para transformar o texto em vitrine.
+   * E continua valendo a regra da CVM do topo deste arquivo: aponta para
+   * ferramenta ou serviço da casa, nunca para um ativo.
+   */
+  | { tipo: "cta"; titulo: string; texto: string; href: string; rotulo: string };
 
 export type Artigo = {
   slug: string;
@@ -56,6 +132,20 @@ export type Artigo = {
   /** Reaproveita as áreas do catálogo: mesma categoria, mesmo lugar. */
   categoria: Familia;
   data: string; // ISO
+  /**
+   * Quando o texto foi revisto DEPOIS de publicado (ISO). Só se preenche
+   * quando o conteúdo mudou de verdade — número corrigido, trecho novo —, e
+   * vai para o `dateModified` dos dados estruturados. Data mexida sem
+   * mudança é o que o Google chama de falsa atualização.
+   */
+  atualizado?: string;
+  /**
+   * Quem assina: uma chave de `AUTORES` (lib/autores.ts). Sem o campo, é a
+   * Equipe Novare. ⚠️ Só se põe nome de pessoa em texto que ela escreveu.
+   */
+  autor?: ChaveAutor;
+  /** Os assuntos do texto, do vocabulário fechado de `TAGS`. Dois ou três. */
+  tags?: TagArtigo[];
   tempoLeituraMin: number;
   /**
    * A capa do artigo, em /public/news, uma por slug.
@@ -122,6 +212,7 @@ export const ARTIGOS: Artigo[] = [
     resumo:
       "O Ibovespa caiu quase 14% no dia seguinte ao 2º turno e já perdeu perto de 20%. Em 2014, o tombo do primeiro dia foi pequeno: o estrago de verdade veio devagar, ao longo de um ano. Entender a diferença ajuda a não decidir no susto.",
     categoria: "investimentos",
+    tags: ["eleicoes-2026", "bolsa", "comportamento"],
     data: "2026-11-03",
     tempoLeituraMin: 6,
     capa: "/news/bolsa-depois-da-eleicao-o-que-2014-ensina.webp",
@@ -193,6 +284,7 @@ export const ARTIGOS: Artigo[] = [
     resumo:
       "Em uma semana, um prefixado de 2032 foi de 12,9% para 15,4% ao ano e perdeu cerca de 10% de preço. O pós-fixado mal sentiu. O que mudou, o que não mudou e o que observar antes de mexer.",
     categoria: "investimentos",
+    tags: ["eleicoes-2026", "renda-fixa", "tesouro-direto", "selic-e-juros"],
     data: "2026-11-03",
     tempoLeituraMin: 6,
     capa: "/news/renda-fixa-depois-da-eleicao-juros-futuros-tesouro-e-cdi.webp",
@@ -276,6 +368,7 @@ export const ARTIGOS: Artigo[] = [
     resumo:
       "O IBGE mostrou o menor desemprego para um 3º trimestre desde 2012 e a renda do trabalho crescendo acima da inflação. Notícia boa para quem trabalha — e um dos motivos para o Banco Central não ter pressa de baixar os juros.",
     categoria: "investimentos",
+    tags: ["indicadores", "selic-e-juros"],
     data: "2026-11-03",
     tempoLeituraMin: 5,
     capa: "/news/pnad-continua-desemprego-renda-e-juros.webp",
@@ -352,6 +445,7 @@ export const ARTIGOS: Artigo[] = [
     resumo:
       "A economia americana acelerou de 2,2% para 3,4% anualizados, puxada por investimento e consumo. A inflação do trimestre esfriou, mas a de 12 meses segue longe da meta — e dois dirigentes do Fed já votaram por subir os juros.",
     categoria: "investimentos",
+    tags: ["economia-americana", "indicadores"],
     data: "2026-11-03",
     tempoLeituraMin: 5,
     capa: "/news/pib-dos-eua-3-trimestre-2026-economia-forte-fed-dividido.webp",
@@ -429,6 +523,7 @@ export const ARTIGOS: Artigo[] = [
     resumo:
       "A dívida americana passou de 120% do PIB e os juros de 10 anos de lá chegaram perto de 5,2%. A diferença para os juros do Brasil está entre as menores da história — e isso tem consequência para o seu dinheiro.",
     categoria: "investimentos",
+    tags: ["economia-americana", "selic-e-juros", "dolar"],
     data: "2026-10-23",
     tempoLeituraMin: 5,
     capa: "/news/divida-americana-por-que-os-juros-de-la-mexem-com-o-brasil.webp",
@@ -471,6 +566,7 @@ export const ARTIGOS: Artigo[] = [
     resumo:
       "Títulos de crédito privado aparecem no extrato valendo bem menos que o investido. Antes de vender, vale entender por que o preço caiu — e o que transforma uma perda no papel em perda de verdade.",
     categoria: "investimentos",
+    tags: ["renda-fixa", "diversificacao"],
     data: "2026-10-23",
     tempoLeituraMin: 5,
     capa: "/news/credito-privado-com-desagio-vender-ou-esperar.webp",
@@ -554,6 +650,7 @@ export const ARTIGOS: Artigo[] = [
     resumo:
       "Na semana depois do 1º turno, houve ação que subiu perto de 75%. Não foi sorte: empresas endividadas reagem muito mais aos juros — e a eleição mexe justamente com os juros.",
     categoria: "investimentos",
+    tags: ["eleicoes-2026", "bolsa"],
     data: "2026-10-19",
     tempoLeituraMin: 4,
     capa: "/news/eleicao-e-bolsa-por-que-algumas-acoes-reagem-mais.webp",
@@ -593,6 +690,7 @@ export const ARTIGOS: Artigo[] = [
     resumo:
       "O dólar teve a maior queda diária em mais de oito anos e os juros longos despencaram. Parece hora de mudar tudo — e é justamente quando mais se erra.",
     categoria: "investimentos",
+    tags: ["eleicoes-2026", "renda-fixa", "dolar"],
     data: "2026-10-19",
     tempoLeituraMin: 5,
     capa: "/news/depois-do-primeiro-turno-renda-fixa-dolar-e-bolsa-americana.webp",
@@ -627,6 +725,7 @@ export const ARTIGOS: Artigo[] = [
     resumo:
       "Alguns prefixados valorizaram cerca de 20% no rali depois do 1º turno. Bom para quem já tinha — mas a mesma conta que fez o preço subir pode fazê-lo cair.",
     categoria: "investimentos",
+    tags: ["eleicoes-2026", "renda-fixa", "tesouro-direto"],
     data: "2026-10-19",
     tempoLeituraMin: 5,
     capa: "/news/prefixado-ou-ipca-em-ano-de-eleicao.webp",
@@ -667,6 +766,7 @@ export const ARTIGOS: Artigo[] = [
     resumo:
       "Estudos com ressonância magnética mostram que crença política mexe com as mesmas áreas do cérebro da identidade e da emoção. Por isso ela resiste a fatos — e por isso não deveria decidir onde vai o seu dinheiro.",
     categoria: "investimentos",
+    tags: ["eleicoes-2026", "comportamento"],
     data: "2026-10-19",
     tempoLeituraMin: 4,
     capa: "/news/voce-investe-ou-torce-politica-e-carteira.webp",
@@ -706,6 +806,7 @@ export const ARTIGOS: Artigo[] = [
     resumo:
       "O IPCA de setembro veio acima do esperado, e o acumulado em 12 meses passou do teto da meta. Por trás do número, os serviços preocupam — e isso pode fazer o Copom pausar os cortes.",
     categoria: "investimentos",
+    tags: ["selic-e-juros", "inflacao"],
     data: "2026-10-19",
     tempoLeituraMin: 4,
     capa: "/news/copom-pode-parar-de-cortar-a-selic.webp",
@@ -746,6 +847,7 @@ export const ARTIGOS: Artigo[] = [
     resumo:
       "Toda segunda-feira o Banco Central pergunta a bancos, corretoras e consultorias o que esperam para a economia. A resposta é o Focus — e ela mostra para onde o mercado acha que os juros vão.",
     categoria: "investimentos",
+    tags: ["indicadores", "selic-e-juros", "inflacao"],
     data: "2026-10-19",
     tempoLeituraMin: 3,
     capa: "/news/relatorio-focus-o-que-o-mercado-espera.webp",
@@ -785,6 +887,7 @@ export const ARTIGOS: Artigo[] = [
     resumo:
       "Em 1720, o maior cientista da época vendeu ações com lucro — e depois voltou a comprar no topo, com medo de ficar de fora. A lição vale ainda mais em ano de eleição.",
     categoria: "investimentos",
+    tags: ["comportamento", "bolsa"],
     data: "2026-10-19",
     tempoLeituraMin: 4,
     capa: "/news/bolha-dos-mares-do-sul-o-erro-de-newton.webp",
@@ -826,6 +929,7 @@ export const ARTIGOS: Artigo[] = [
     resumo:
       "Dois em cada três brasileiros já usam IA, mas só 17% para cuidar do dinheiro. A conta a máquina faz em segundos. O que ela não faz é o que mais faz diferença.",
     categoria: "ia",
+    tags: ["inteligencia-artificial", "consultoria-independente"],
     data: "2026-10-19",
     tempoLeituraMin: 4,
     capa: "/news/a-ia-vai-substituir-o-planejador-financeiro.webp",
@@ -867,6 +971,7 @@ export const ARTIGOS: Artigo[] = [
     resumo:
       "Em cinco anos, nenhuma aplicação rendeu mais que o CDI. Nos seis anos antes disso, ele ficou em último. A virada não foi sorte: foi juro — e juro muda.",
     categoria: "investimentos",
+    tags: ["renda-fixa", "selic-e-juros", "diversificacao"],
     data: "2026-10-19",
     tempoLeituraMin: 5,
     capa: "/news/cdi-ganhou-de-tudo-desde-2021-e-agora.webp",
@@ -919,6 +1024,7 @@ export const ARTIGOS: Artigo[] = [
     resumo:
       "Toda primeira sexta-feira do mês, os EUA contam quantos empregos criaram. Esse número ajuda a decidir os juros de lá — e chega no dólar e nos investimentos daqui.",
     categoria: "investimentos",
+    tags: ["economia-americana", "indicadores"],
     data: "2026-10-19",
     tempoLeituraMin: 4,
     capa: "/news/payroll-o-emprego-americano-e-o-seu-dinheiro.webp",
@@ -961,6 +1067,7 @@ export const ARTIGOS: Artigo[] = [
     resumo:
       "A indústria produziu menos em agosto, bem abaixo do esperado. Entender esse número ajuda a ler o que o Banco Central pode fazer com a Selic — e com o rendimento da sua renda fixa.",
     categoria: "investimentos",
+    tags: ["indicadores", "selic-e-juros"],
     data: "2026-10-19",
     tempoLeituraMin: 4,
     capa: "/news/producao-industrial-o-que-as-fabricas-dizem-sobre-os-juros.webp",
@@ -1003,6 +1110,7 @@ export const ARTIGOS: Artigo[] = [
     resumo:
       "A economia americana cresceu mais do que se pensava no segundo trimestre. Quando os EUA aceleram, os juros de lá tendem a subir — e isso chega no dólar e nos investimentos daqui.",
     categoria: "investimentos",
+    tags: ["economia-americana", "indicadores"],
     data: "2026-10-19",
     tempoLeituraMin: 4,
     capa: "/news/pib-dos-eua-por-que-a-maior-economia-mexe-com-o-seu-bolso.webp",
@@ -1062,6 +1170,7 @@ export const ARTIGOS: Artigo[] = [
     resumo:
       "Não é sobre caráter, é sobre arranjo. Quando quem monta a carteira é o mesmo que a revisa, o custo não aparece no dia — aparece somado, anos depois.",
     categoria: "investimentos",
+    tags: ["consultoria-independente"],
     data: "2026-09-23",
     tempoLeituraMin: 8,
     capa: "/news/conflito-de-interesse-quem-confere-quem-cuida-do-seu-dinheiro.webp",
@@ -1141,6 +1250,7 @@ export const ARTIGOS: Artigo[] = [
     resumo:
       "Provavelmente mais do que o aplicativo mostra. A carteira diz 20% em dólar; o patrimônio inteiro, contando empresa e imóveis, pode dizer 7%.",
     categoria: "investimentos",
+    tags: ["diversificacao", "dolar"],
     data: "2026-09-22",
     tempoLeituraMin: 6,
     capa: "/news/quanto-do-seu-patrimonio-esta-no-brasil.webp",
@@ -1195,6 +1305,7 @@ export const ARTIGOS: Artigo[] = [
     resumo:
       "O fim da isenção não pune quem distribui lucro. Pune quem decide sem entender a mecânica — e as saídas mais vendidas costumam ser as que mais custam.",
     categoria: "investimentos",
+    tags: ["imposto-de-renda"],
     data: "2026-09-21",
     tempoLeituraMin: 7,
     capa: "/news/imposto-sobre-dividendos-o-que-muda-na-sua-conta.webp",
@@ -1253,6 +1364,7 @@ export const ARTIGOS: Artigo[] = [
     resumo:
       "A parceria que embasa as recomendações da Novare — e por que análise independente é o oposto do que a maioria do mercado chama de recomendação.",
     categoria: "investimentos",
+    tags: ["consultoria-independente", "novidades-da-novare"],
     data: "2026-08-22",
     tempoLeituraMin: 4,
     capa: "/news/parceria-novare-nord-research-que-nao-vende-produto.webp",
@@ -1275,6 +1387,7 @@ export const ARTIGOS: Artigo[] = [
     resumo:
       "Renda alta engana: ela some no padrão de vida e não vira patrimônio. O que separa quem ganha bem de quem está seguro é a taxa de poupança, não o salário.",
     categoria: "organizacao",
+    tags: ["planejamento-financeiro", "orcamento"],
     data: "2026-08-21",
     tempoLeituraMin: 5,
     capa: "/news/ganhar-bem-nao-e-o-mesmo-que-estar-seguro.webp",
@@ -1297,6 +1410,7 @@ export const ARTIGOS: Artigo[] = [
     resumo:
       "O rendimento que aparece no extrato não é o que você ganhou. Entre a taxa anunciada e o dinheiro que sobra existem dois pedágios — e um deles não aparece em lugar nenhum.",
     categoria: "investimentos",
+    tags: ["inflacao", "imposto-de-renda", "rentabilidade"],
     data: "2026-08-20",
     tempoLeituraMin: 5,
     capa: "/news/o-calote-silencioso-inflacao-e-imposto.webp",
@@ -1319,6 +1433,7 @@ export const ARTIGOS: Artigo[] = [
     resumo:
       "Antes de perguntar onde deixar a reserva, vale saber o que ela precisa entregar. São três exigências — e a rentabilidade não está entre elas.",
     categoria: "organizacao",
+    tags: ["reserva-de-emergencia"],
     data: "2026-08-19",
     tempoLeituraMin: 4,
     capa: "/news/reserva-de-emergencia-os-tres-criterios.webp",
@@ -1341,6 +1456,7 @@ export const ARTIGOS: Artigo[] = [
     resumo:
       "2026 trouxe isenção para quem ganha até R$ 5.000 por mês, mas a régua não é uma linha reta — e é aí que mora o erro mais comum de quem calcula o próprio salário.",
     categoria: "trabalho",
+    tags: ["imposto-de-renda", "salario-e-clt"],
     data: "2026-07-14",
     tempoLeituraMin: 5,
     capa: "/news/isencao-do-ir-2026-quem-ficou-de-fora.webp",
@@ -1364,6 +1480,7 @@ export const ARTIGOS: Artigo[] = [
     resumo:
       "Aviso prévio, 13º proporcional, férias vencidas, multa do FGTS — cada verba tem uma regra própria, e o termo de rescisão nem sempre chega com todas elas.",
     categoria: "trabalho",
+    tags: ["salario-e-clt"],
     data: "2026-06-22",
     tempoLeituraMin: 6,
     capa: "/news/rescisao-o-que-a-empresa-e-obrigada-a-pagar.webp",
@@ -1386,6 +1503,7 @@ export const ARTIGOS: Artigo[] = [
     resumo:
       "O abono pecuniário — vender até 10 dias de férias — não sofre desconto de INSS nem de imposto de renda. Isso muda mais o líquido do que parece.",
     categoria: "trabalho",
+    tags: ["salario-e-clt"],
     data: "2026-05-30",
     tempoLeituraMin: 4,
     capa: "/news/vender-dias-de-ferias-vale-a-pena.webp",
@@ -1406,6 +1524,7 @@ export const ARTIGOS: Artigo[] = [
     resumo:
       "A primeira parcela do 13º chega sem nenhum desconto. Todo o INSS e o imposto de renda do ano caem de uma vez só na segunda — e é aí que o orçamento de dezembro costuma furar.",
     categoria: "trabalho",
+    tags: ["salario-e-clt", "imposto-de-renda"],
     data: "2026-05-12",
     tempoLeituraMin: 4,
     capa: "/news/13o-salario-por-que-a-segunda-parcela-vem-menor.webp",
@@ -1427,6 +1546,7 @@ export const ARTIGOS: Artigo[] = [
     resumo:
       "Rendimento nominal alto não é sinônimo de ganho de verdade. O juro real — o que sobra depois da inflação — é a única conta que responde se o seu patrimônio está mesmo crescendo.",
     categoria: "investimentos",
+    tags: ["rentabilidade", "inflacao"],
     data: "2026-04-18",
     tempoLeituraMin: 5,
     capa: "/news/juro-real-o-numero-que-decide-se-voce-fica-mais-rico.webp",
@@ -1449,6 +1569,7 @@ export const ARTIGOS: Artigo[] = [
     resumo:
       "O carro perde valor todo mês; a casa, historicamente, não. Isso muda qual sistema de amortização faz mais sentido, e por quanto tempo vale a pena esticar o prazo.",
     categoria: "organizacao",
+    tags: ["financiamento"],
     data: "2026-03-25",
     tempoLeituraMin: 5,
     capa: "/news/financiar-carro-e-diferente-de-financiar-casa.webp",
@@ -1470,6 +1591,7 @@ export const ARTIGOS: Artigo[] = [
     resumo:
       "Quando a Selic cai, papel pós-fixado rende menos — mas o prefixado e o IPCA+ comprado antes da queda ficam mais valiosos. Entender a diferença evita resgatar na hora errada.",
     categoria: "investimentos",
+    tags: ["selic-e-juros", "renda-fixa", "tesouro-direto"],
     data: "2026-02-27",
     tempoLeituraMin: 5,
     capa: "/news/selic-caindo-o-que-muda-na-renda-fixa.webp",
@@ -1492,6 +1614,7 @@ export const ARTIGOS: Artigo[] = [
     resumo:
       "Seis meses de custo fixo é a regra mais repetida — e a mais genérica. O número certo depende de quem paga as contas na casa e do quanto o emprego é estável.",
     categoria: "organizacao",
+    tags: ["reserva-de-emergencia"],
     data: "2026-01-30",
     tempoLeituraMin: 4,
     capa: "/news/reserva-de-emergencia-quanto-e-o-suficiente.webp",
@@ -1513,6 +1636,7 @@ export const ARTIGOS: Artigo[] = [
     resumo:
       "A maioria dos orçamentos morre na segunda semana porque nasce categorizado demais. O método que funciona começa simples e vai ganhando detalhe com o tempo.",
     categoria: "organizacao",
+    tags: ["orcamento"],
     data: "2026-01-08",
     tempoLeituraMin: 4,
     capa: "/news/orcamento-que-sobrevive-ao-mes.webp",
@@ -1534,6 +1658,7 @@ export const ARTIGOS: Artigo[] = [
     resumo:
       "Retrato, diagnóstico, plano de ação e acompanhamento mensal — tudo calculado na hora, a partir do que você preenche. É o método da consultoria, escrito em software.",
     categoria: "ia",
+    tags: ["planejamento-financeiro", "novidades-da-novare"],
     data: "2026-08-25",
     tempoLeituraMin: 6,
     capa: "/news/planejamento-financeiro-o-app-que-monta-seu-plano-sozinho.webp",
@@ -1559,6 +1684,7 @@ export const ARTIGOS: Artigo[] = [
     resumo:
       "Sem plano básico e sem versão premium. Uma mensalidade só libera o FINCASH, a Íris e as ferramentas — e ainda dá desconto na consultoria particular.",
     categoria: "ia",
+    tags: ["novidades-da-novare"],
     data: "2026-08-24",
     tempoLeituraMin: 4,
     capa: "/news/workspace-novare-uma-assinatura-tudo-liberado.webp",
@@ -1581,6 +1707,7 @@ export const ARTIGOS: Artigo[] = [
     resumo:
       "A IA financeira da Novare ganhou chat: pergunte sobre juro composto, reserva de emergência ou por onde começar. Ela explica e organiza — e não indica produto nenhum.",
     categoria: "ia",
+    tags: ["inteligencia-artificial", "novidades-da-novare"],
     data: "2026-08-23",
     tempoLeituraMin: 3,
     capa: "/news/conversar-com-a-iris-a-ia-que-nao-ganha-comissao.webp",
@@ -1603,6 +1730,7 @@ export const ARTIGOS: Artigo[] = [
     resumo:
       "Assinatura esquecida, tarifa, juro escondido — a Íris cola o extrato do seu banco e devolve, em português, para onde o dinheiro está indo. Sem conectar conta nenhuma.",
     categoria: "ia",
+    tags: ["inteligencia-artificial", "orcamento", "novidades-da-novare"],
     data: "2026-07-28",
     tempoLeituraMin: 3,
     capa: "/news/iris-a-ia-que-le-seu-extrato.webp",
@@ -1623,6 +1751,7 @@ export const ARTIGOS: Artigo[] = [
     resumo:
       "O índice que corrige o aluguel é o que está escrito no contrato — e a lei só permite aplicar uma vez por ano. Entender a regra muda a conversa com o proprietário na renovação.",
     categoria: "organizacao",
+    tags: ["imoveis", "inflacao"],
     data: "2026-07-05",
     tempoLeituraMin: 5,
     capa: "/news/reajuste-de-aluguel-igpm-ou-ipca.webp",
@@ -1645,6 +1774,7 @@ export const ARTIGOS: Artigo[] = [
     resumo:
       "Inflação acumula por multiplicação, não por soma — e a soma sempre subestima. A diferença parece pequena num ano, mas cresce com o tempo e muda qualquer conta de correção.",
     categoria: "organizacao",
+    tags: ["inflacao"],
     data: "2026-06-10",
     tempoLeituraMin: 4,
     capa: "/news/somar-inflacao-esta-errado.webp",
@@ -1666,6 +1796,7 @@ export const ARTIGOS: Artigo[] = [
     resumo:
       "Na renda fixa, o imposto sobre o rendimento cai conforme o tempo passa: de 22,5% no curtíssimo prazo até 15% depois de 2 anos. O mesmo papel rende mais líquido só por esperar.",
     categoria: "investimentos",
+    tags: ["imposto-de-renda", "renda-fixa"],
     data: "2026-04-02",
     tempoLeituraMin: 5,
     capa: "/news/tabela-regressiva-ir-renda-fixa.webp",
@@ -1688,6 +1819,7 @@ export const ARTIGOS: Artigo[] = [
     resumo:
       "Conta padronizada, a ferramenta resolve sozinha e de graça. Consultor entra quando a decisão carrega contexto de vida: herança, venda de empresa, sucessão, prazo apertado.",
     categoria: "ia",
+    tags: ["consultoria-independente", "planejamento-financeiro"],
     data: "2026-03-12",
     tempoLeituraMin: 4,
     capa: "/news/quando-procurar-um-consultor-financeiro.webp",
@@ -1709,6 +1841,7 @@ export const ARTIGOS: Artigo[] = [
     resumo:
       "No juro composto, o rendimento rende sobre o rendimento — e o tempo pesa mais que o valor. É por isso que começar cedo com pouco costuma vencer começar tarde com muito.",
     categoria: "organizacao",
+    tags: ["planejamento-financeiro", "rentabilidade"],
     data: "2026-06-05",
     tempoLeituraMin: 4,
     capa: "/news/juros-compostos-o-aporte-pequeno-que-vence.webp",
@@ -1731,6 +1864,7 @@ export const ARTIGOS: Artigo[] = [
     resumo:
       "Na SAC a parcela começa maior e cai todo mês; na Price ela é fixa, mas o total de juros sai mais caro. A escolha é entre o orçamento de hoje e o custo do contrato inteiro.",
     categoria: "organizacao",
+    tags: ["financiamento", "imoveis"],
     data: "2026-05-20",
     tempoLeituraMin: 5,
     capa: "/news/sac-ou-price-qual-tabela-escolher.webp",
@@ -1753,6 +1887,7 @@ export const ARTIGOS: Artigo[] = [
     resumo:
       "Ao usar um dinheiro extra para abater o saldo, cortar PRAZO quase sempre economiza muito mais juros do que reduzir a parcela — e o motivo é mais simples do que parece.",
     categoria: "organizacao",
+    tags: ["financiamento", "imoveis"],
     data: "2026-04-28",
     tempoLeituraMin: 4,
     capa: "/news/amortizar-prazo-ou-parcela.webp",
@@ -1780,8 +1915,60 @@ export function artigosOrdenados(): Artigo[] {
   return [...ARTIGOS].sort((a, b) => (a.data < b.data ? 1 : -1));
 }
 
+/**
+ * "Leia também", por ordem de parentesco (05/11/2026):
+ * mesma tag > mesma categoria > mais recente.
+ *
+ * Antes era só a categoria, e a categoria é larga: a matéria da eleição
+ * sugeria a do PIB americano porque as duas são "Investimentos". Agora cada
+ * tag em comum vale mais que a categoria inteira, e a data só desempata.
+ *
+ * ⚠️ COMPLETA ATÉ `max` COM OS MAIS RECENTES. Artigo sem tag e com categoria
+ * pequena ficava com um ou nenhum relacionado, e a página terminava num beco.
+ */
 export function artigosRelacionados(atual: Artigo, max = 3): Artigo[] {
+  const minhas = new Set(atual.tags ?? []);
+  const pontos = (a: Artigo) =>
+    (a.tags ?? []).filter((t) => minhas.has(t)).length * 10 +
+    (a.categoria === atual.categoria ? 1 : 0);
+
+  // `artigosOrdenados` já vem do mais novo ao mais antigo, e o sort do JS é
+  // estável: no empate de pontos, fica a ordem de recência.
   return artigosOrdenados()
-    .filter((a) => a.slug !== atual.slug && a.categoria === atual.categoria)
-    .slice(0, max);
+    .filter((a) => a.slug !== atual.slug)
+    .map((a) => ({ a, p: pontos(a) }))
+    .sort((x, y) => y.p - x.p)
+    .slice(0, max)
+    .map(({ a }) => a);
+}
+
+/** Quem assina o artigo — a Equipe Novare quando o campo não diz. */
+export function autorDoArtigo(artigo: Artigo): Autor {
+  return (
+    (artigo.autor && autorPorChave(artigo.autor)) ||
+    (autorPorChave(AUTOR_PADRAO) as Autor)
+  );
+}
+
+/** Os artigos de um autor, mais recentes primeiro. */
+export function artigosDoAutor(chave: string): Artigo[] {
+  return artigosOrdenados().filter((a) => autorDoArtigo(a).chave === chave);
+}
+
+export function ehTag(chave: string): chave is TagArtigo {
+  return Object.prototype.hasOwnProperty.call(TAGS, chave);
+}
+
+/** Os artigos de uma tag, mais recentes primeiro. */
+export function artigosDaTag(tag: TagArtigo): Artigo[] {
+  return artigosOrdenados().filter((a) => a.tags?.includes(tag));
+}
+
+/**
+ * As tags que têm artigo. É desta lista — e não de `TAGS` — que saem as
+ * páginas e o sitemap: tag sem artigo seria uma página vazia indexada.
+ */
+export function tagsEmUso(): TagArtigo[] {
+  const usadas = new Set(ARTIGOS.flatMap((a) => a.tags ?? []));
+  return (Object.keys(TAGS) as TagArtigo[]).filter((t) => usadas.has(t));
 }

@@ -49,6 +49,21 @@ export type AppLeve = {
 };
 
 /**
+ * Um artigo do Novare News na busca (Ctrl K), no formato mais enxuto que
+ * resolve: título, endereço e o nome da área (05/11/2026).
+ *
+ * ⚠️ NÃO VEM NO BUNDLE. `ARTIGOS` tem o texto inteiro de cada matéria; a
+ * paleta pede esta lista a `/api/news-indice` só quando é aberta pela
+ * primeira vez, e as páginas que a usam não mudam em nada.
+ */
+export type ArtigoLeve = {
+  slug: string;
+  titulo: string;
+  /** O rótulo da área ("Investimentos"), não a chave. */
+  categoria: string;
+};
+
+/**
  * A ÁREA do app — o assunto dele, sempre.
  *
  * Havia aqui um desvio "pago sem família vira Workspace". Ele não classificava

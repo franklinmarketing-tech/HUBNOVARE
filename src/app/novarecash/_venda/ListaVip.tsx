@@ -42,6 +42,7 @@ export function ListaVip() {
       origem: "/novarecash",
       tipo: "novarecash",
       payload: { produto: "NovareCash", fase: faseBlack() },
+      bloco: "novarecash:lista-vip",
     });
     if (r.gravado) {
       try {

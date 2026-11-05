@@ -6,6 +6,7 @@ import { getPerfil } from "@/lib/perfil";
 import { sair } from "@/lib/acoes-sessao";
 import { minhaAssinatura } from "@/lib/novarecash/acesso";
 import { ehEquipe } from "@/lib/novarecash/recursos";
+import { planoPorChave } from "@/lib/novarecash/config";
 import { MarcaNovareCash } from "@/components/novarecash/MarcaNovareCash";
 import { BarraLateralNovareCash, BotaoBusca, NavNovareCashCelular } from "./NavNovareCash";
 import { MenuUsuario } from "./MenuUsuario";
@@ -43,11 +44,9 @@ export default async function CascaNovareCash({ children }: { children: React.Re
   const recolhido = jarra.get(COOKIE_MENU)?.value === "recolhido";
   const plano = ehEquipe(perfil?.role)
     ? "Equipe Novare"
-    : assinatura?.plano === "anual"
-      ? "Assinante · Anual"
-      : assinatura?.plano === "mensal"
-        ? "Assinante · Mensal"
-        : "Assinante";
+    : assinatura?.plano
+      ? `Assinante · ${planoPorChave(assinatura.plano).nome}`
+      : "Assinante";
   const usuario = { nome: perfil?.nome, plano, tema, sair };
 
   return (
