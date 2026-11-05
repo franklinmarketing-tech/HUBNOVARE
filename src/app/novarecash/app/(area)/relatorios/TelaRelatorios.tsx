@@ -142,7 +142,7 @@ export function TelaRelatorios() {
       <style>{CSS_IMPRESSAO}</style>
 
       {/* O mês, no topo */}
-      <Cartao className="nao-imprimir flex flex-wrap items-center justify-between gap-3 p-3 sm:p-4">
+      <Cartao guia="relatorios-mes" className="nao-imprimir flex flex-wrap items-center justify-between gap-3 p-3 sm:p-4">
         <div className="flex min-w-0 items-center gap-1">
           <button
             type="button"
@@ -185,12 +185,13 @@ export function TelaRelatorios() {
         <AvisoErro mensagem="Não consegui montar os relatórios agora. Tente de novo em instantes." onTentar={carregar} />
       ) : estado.transacoes.length === 0 ? (
         <Vazio
+          guia="relatorios-vazio"
           Icone={ChartColumn}
           titulo="Ainda não há o que mostrar"
-          texto={`Nenhum lançamento entre ${nomeDoMes(meses[0])} e ${nomeDoMes(ref)}. Conecte o banco ou lance à mão: os relatórios se montam sozinhos.`}
+          texto={`Nenhum lançamento entre ${nomeDoMes(meses[0])} e ${nomeDoMes(ref)}. Lance à mão ou importe o extrato do banco: os relatórios se montam sozinhos.`}
         >
-          <Botao href="/novarecash/app/banco" variante="contorno">
-            Conectar o banco
+          <Botao href="/novarecash/app/importar" variante="contorno">
+            Importar extrato
           </Botao>
           <Botao href="/novarecash/app/extrato?novo=1">Lançar à mão</Botao>
         </Vazio>
@@ -222,7 +223,7 @@ function Relatorio({
 
   return (
     <>
-      <section aria-labelledby="titulo-mes-a-mes">
+      <section aria-labelledby="titulo-mes-a-mes" data-guia="relatorios-mes-a-mes">
         <Cartao className="rel-cartao p-4 sm:p-5">
           <h2 id="titulo-mes-a-mes" className="font-display text-base font-semibold text-white">
             Mês contra mês
@@ -257,7 +258,7 @@ function Relatorio({
         </section>
       )}
 
-      <section aria-labelledby="titulo-categorias">
+      <section aria-labelledby="titulo-categorias" data-guia="relatorios-categorias">
         <Cartao className="rel-cartao p-4 sm:p-5">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
             <h2 id="titulo-categorias" className="font-display text-base font-semibold text-white">
@@ -290,7 +291,7 @@ function Relatorio({
         </Cartao>
       </section>
 
-      <section aria-labelledby="titulo-maiores">
+      <section aria-labelledby="titulo-maiores" data-guia="relatorios-maiores">
         <Cartao className="rel-cartao p-4 sm:p-5">
           <h2 id="titulo-maiores" className="font-display text-base font-semibold text-white">
             Maiores gastos do mês

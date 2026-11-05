@@ -3,6 +3,8 @@ import { AlertTriangle, Database, RefreshCw, type LucideIcon } from "lucide-reac
 
 import type { OrigemTransacao } from "@/lib/novarecash/dados";
 import { ORIGEM_ROTULO } from "@/lib/novarecash/dados";
+import { BotaoGuia } from "./BotaoGuia";
+import { IconeDaTela } from "./IconeDaTela";
 
 export { brl } from "@/lib/calculos";
 
@@ -42,15 +44,17 @@ export const ROTULO_CAMPO = "block text-2xs font-semibold text-white/70";
 
 export function Cartao({
   className = "",
+  guia,
   children,
 }: {
   className?: string;
+  /** `data-guia`: o alvo do tour da tela (`src/lib/novarecash/guias.ts`). */
+  guia?: string;
   children: React.ReactNode;
 }) {
   return (
-    <div
-      className={`rounded-2xl border border-white/10 bg-noite-2 shadow-[0_20px_44px_-30px_var(--ncash-sombra)] ${className}`}
-    >
+    // `ncash-cartao` (globals.css): borda fina, luz de 1px no topo e sombra em duas camadas, nos dois temas.
+    <div data-guia={guia} className={`ncash-cartao rounded-2xl border bg-noite-2 ${className}`}>
       {children}
     </div>
   );
@@ -66,11 +70,20 @@ export function Cabecalho({
   children?: React.ReactNode;
 }) {
   return (
-    <header className="mb-5 flex flex-wrap items-end justify-between gap-3">
-      <div className="min-w-0">
-        <p className="text-2xs font-semibold uppercase tracking-[0.14em] text-ouro">NovareCash</p>
-        <h1 className="mt-1 font-display text-2xl font-semibold tracking-[-0.02em] text-white sm:text-3xl">{titulo}</h1>
-        {resumo && <p className="mt-1.5 max-w-prose text-xs leading-relaxed text-white/70">{resumo}</p>}
+    <header data-guia="cabecalho" className="mb-6 flex flex-wrap items-end justify-between gap-x-4 gap-y-3">
+      {/* Base de 20rem: no celular os botões descem para a linha de baixo em vez de espremer o título. */}
+      <div className="min-w-0 flex-[1_1_20rem]">
+        {/* O ícone 3D da tela sai do caminho (`menu.ts`): nenhuma tela precisa passá-lo. */}
+        <div className="flex items-center gap-3 sm:gap-3.5">
+          <IconeDaTela />
+          <div className="min-w-0">
+            <p className="text-2xs font-semibold uppercase tracking-[0.14em] text-ouro">NovareCash</p>
+            <h1 className="font-display text-2xl font-semibold leading-tight tracking-[-0.02em] text-white sm:text-3xl">{titulo}</h1>
+          </div>
+          {/* O "?": o tour desta tela (05/11/2026, guia de primeiro uso). */}
+          <BotaoGuia />
+        </div>
+        {resumo && <p className="mt-3 max-w-prose text-xs leading-relaxed text-white/70">{resumo}</p>}
       </div>
       {children && <div className="flex flex-wrap gap-2">{children}</div>}
     </header>
@@ -95,6 +108,7 @@ export function Botao({
   Icone,
   desabilitado,
   className = "",
+  guia,
   children,
 }: {
   href?: string;
@@ -104,6 +118,8 @@ export function Botao({
   Icone?: LucideIcon;
   desabilitado?: boolean;
   className?: string;
+  /** `data-guia`: o alvo do tour da tela. */
+  guia?: string;
   children: React.ReactNode;
 }) {
   const classes = `inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-4 text-sm font-semibold transition motion-reduce:transition-none disabled:cursor-not-allowed disabled:opacity-50 ${ANEL} ${ESTILO_BOTAO[variante]} ${className}`;
@@ -115,13 +131,13 @@ export function Botao({
   );
   if (href) {
     return (
-      <Link href={href} className={classes}>
+      <Link href={href} data-guia={guia} className={classes}>
         {miolo}
       </Link>
     );
   }
   return (
-    <button type={type} onClick={onClick} disabled={desabilitado} className={classes}>
+    <button type={type} onClick={onClick} disabled={desabilitado} data-guia={guia} className={classes}>
       {miolo}
     </button>
   );
@@ -233,15 +249,18 @@ export function Vazio({
   Icone,
   titulo,
   texto,
+  guia,
   children,
 }: {
   Icone: LucideIcon;
   titulo: string;
   texto: string;
+  /** `data-guia`: o alvo do tour da tela. */
+  guia?: string;
   children?: React.ReactNode;
 }) {
   return (
-    <Cartao className="px-5 py-8 text-center">
+    <Cartao guia={guia} className="px-5 py-8 text-center">
       <span
         aria-hidden
         className="mx-auto flex h-11 w-11 items-center justify-center rounded-2xl bg-ouro/15 text-ouro ring-1 ring-ouro/25"

@@ -93,6 +93,7 @@ export function TelaMetas() {
     <div className="space-y-4">
       {metas.length === 0 ? (
         <Vazio
+          guia="metas-resumo"
           Icone={Flag}
           titulo="Nenhuma meta ainda"
           texto="Uma reserva de emergência, uma viagem, a entrada da casa. Diga quanto quer juntar e até quando; o NovareCash mostra quanto guardar por mês."
@@ -103,7 +104,7 @@ export function TelaMetas() {
         </Vazio>
       ) : (
         <>
-          <Cartao className="p-5">
+          <Cartao guia="metas-resumo" className="p-5">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div className="min-w-0">
                 <p className="text-2xs font-semibold uppercase tracking-[0.14em] text-ouro">
@@ -136,7 +137,7 @@ export function TelaMetas() {
           )}
 
           {abertas.length > 0 && (
-            <ul className="grid gap-3 sm:grid-cols-2">
+            <ul data-guia="metas-lista" className="grid gap-3 sm:grid-cols-2">
               {abertas.map((m) => (
                 <li key={m.id}>
                   <CartaoMeta
@@ -178,7 +179,7 @@ export function TelaMetas() {
         </>
       )}
 
-      <p className="max-w-prose text-2xs leading-relaxed text-white/55">
+      <p data-guia="metas-aviso" className="max-w-prose text-2xs leading-relaxed text-white/55">
         “Guardei mais” só atualiza a meta: não cria lançamento no extrato. Onde guardar o dinheiro é uma decisão sua; para
         falar sobre investimentos, procure um consultor da Novare.
       </p>

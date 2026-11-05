@@ -1489,13 +1489,20 @@
    com o valor do ESCURO aqui (o desenho original, intocado) e o do CLARO logo abaixo.
    `.ncash-tema` mora na casca do app e na página de convite. */
 .ncash-tema {
+  /* 05/11/2026 (pedido do dono): DENTRO DO APP a paleta é a da NOVARE — o "ouro"
+     (destaque) vira o CIANO da casa; o laranja segue nos botões. A página de venda
+     (fora da casca `.ncash-tema`) continua dourada, de propósito. Trocar aqui, e não
+     no @theme, é o que separa um do outro. */
+  --color-ouro: hsl(197 75% 58%);
+  --color-ouro-forte: hsl(197 70% 31%);
+  --color-ouro-tint: hsl(197 70% 95%);
   --ncash-verde: hsl(152 60% 62%);
   --ncash-sombra: hsl(203 100% 1% / 0.9);
   --ncash-sombra-folha: hsl(203 100% 1%);
   --ncash-mascara: hsl(0 0% 0% / 0.7);
-  --ncash-halo: hsl(42 74% 62% / 0.1);
+  --ncash-halo: hsl(197 75% 58% / 0.1);
   --ncash-heroi: linear-gradient(150deg, hsl(200 55% 9%), hsl(203 100% 3%));
-  --ncash-heroi-sombra: hsl(42 74% 40% / 0.55);
+  --ncash-heroi-sombra: hsl(197 70% 40% / 0.5);
   --ncash-serie-entrada: var(--color-ciano);
   --ncash-serie-saida: var(--color-accent);
   color-scheme: dark;
@@ -1504,7 +1511,8 @@
   --color-white: hsl(199 75% 16%);
   --color-noite: hsl(200 40% 97%);
   --color-noite-2: hsl(0 0% 100%);
-  --color-ouro: hsl(36 78% 32%);
+  --color-ouro: hsl(197 70% 31%);
+  --color-ouro-forte: hsl(197 72% 26%);
   --color-ciano-claro: hsl(197 70% 31%);
   /* Laranja e amarelo "claros" eram texto sobre a noite; no branco davam 2:1 e 1,6:1.
      Aqui viram as versões que passam AA no fundo claro (5,3:1 ou mais, até sobre os selos). */
@@ -1515,8 +1523,8 @@
   --ncash-sombra-folha: hsl(199 60% 20% / 0.22);
   --ncash-mascara: hsl(199 75% 10% / 0.45);
   --ncash-halo: hsl(197 70% 55% / 0.1);
-  --ncash-heroi: linear-gradient(150deg, hsl(0 0% 100%), hsl(42 70% 95%));
-  --ncash-heroi-sombra: hsl(36 60% 30% / 0.2);
+  --ncash-heroi: linear-gradient(150deg, hsl(0 0% 100%), hsl(197 70% 95%));
+  --ncash-heroi-sombra: hsl(197 60% 30% / 0.2);
   --ncash-serie-entrada: hsl(197 70% 38%);
   --ncash-serie-saida: hsl(16 80% 48%);
   color-scheme: light;
@@ -1538,3 +1546,177 @@
     color: color-mix(in oklab, var(--color-white) 60%, transparent);
   }
 }
+
+/* NOVARECASH · CASCA MODERNA (05/11/2026: "menu lateral com mais funções de modernidade,
+   scroll melhorado e ícones"). Trilho que recolhe, ícones 3D, rolagem fina com fade,
+   cartões refinados. ⚠️ Destaques usam SÓ tokens (`--color-ouro*`, `--color-ciano*`):
+   nada de cor de destaque escrita à mão aqui — a paleta do app pode trocar pelos tokens.
+
+   O trilho: a largura é `--ncash-trilho` (76px; 16rem do `lg` para cima, salvo
+   `data-menu="recolhido"` na casca, que vem do cookie `ncash_menu`). As variantes
+   `trilho-aberto:` e `trilho-fechado:` mostram/escondem rótulos POR CSS: o servidor
+   não sabe a largura da tela, e decidir no React faria o trilho piscar. Só valem
+   dentro de `.ncash-trilho`. */
+@custom-variant trilho-fechado {
+  @media (max-width: 1023.98px) {
+    &:where(.ncash-trilho *) {
+      @slot;
+    }
+  }
+  &:where([data-menu="recolhido"] .ncash-trilho *) {
+    @slot;
+  }
+}
+@custom-variant trilho-aberto {
+  @media (min-width: 1024px) {
+    &:where(.ncash-tema:not([data-menu="recolhido"]) .ncash-trilho *) {
+      @slot;
+    }
+  }
+}
+
+.ncash-tema {
+  --ncash-trilho: 76px;
+  --ncash-icone-halo: color-mix(in oklab, var(--color-ciano) 32%, transparent);
+  --ncash-icone-sombra: hsl(203 100% 1% / 0.65);
+  --ncash-rolagem: color-mix(in oklab, var(--color-white) 16%, transparent);
+  --ncash-rolagem-forte: color-mix(in oklab, var(--color-white) 32%, transparent);
+  --ncash-borda-cartao: color-mix(in oklab, var(--color-white) 9%, transparent);
+  --ncash-luz-cartao: hsl(0 0% 100% / 0.05);
+  --ncash-sombra-curta: hsl(203 100% 1% / 0.45);
+}
+@media (min-width: 1024px) {
+  .ncash-tema:not([data-menu="recolhido"]) {
+    --ncash-trilho: 16rem;
+  }
+}
+.ncash-claro {
+  --ncash-icone-halo: hsl(199 60% 30% / 0.12);
+  --ncash-icone-sombra: hsl(199 60% 20% / 0.24);
+  --ncash-borda-cartao: color-mix(in oklab, var(--color-white) 11%, transparent);
+  --ncash-luz-cartao: hsl(0 0% 100% / 0.9);
+  --ncash-sombra-curta: hsl(199 60% 20% / 0.07);
+}
+
+/* A barra de rolagem da PÁGINA na cor do tema (a do sistema era cinza-claro sobre a noite). */
+html:has(#ncash-casca) {
+  scrollbar-color: hsl(200 30% 26%) var(--color-noite);
+  background-color: var(--color-noite);
+}
+html:has(#ncash-casca.ncash-claro) {
+  scrollbar-color: hsl(199 25% 72%) hsl(200 40% 97%);
+  background-color: hsl(200 40% 97%);
+}
+
+@layer components {
+  .ncash-trilho {
+    width: var(--ncash-trilho);
+  }
+
+  /* Ícone 3D: SEM sombra e SEM halo (05/11/2026, o dono: "muitas sombras, precisa ser
+     limpo e leve"). O ícone já tem volume próprio; o ativo só fica um pouco maior. */
+  .ncash-icone3d {
+    filter: none;
+    transition: transform 200ms ease;
+  }
+  .ncash-icone3d-ativo {
+    filter: none;
+    transform: scale(1.06);
+  }
+
+  /* A pílula do item ativo (trilho, folha "Mais", paleta). */
+  .ncash-item-ativo {
+    background-image: linear-gradient(
+      90deg,
+      color-mix(in oklab, var(--color-ouro) 18%, transparent),
+      color-mix(in oklab, var(--color-ouro) 6%, transparent)
+    );
+    box-shadow:
+      inset 0 0 0 1px color-mix(in oklab, var(--color-ouro) 30%, transparent),
+      0 10px 24px -16px color-mix(in oklab, var(--color-ouro) 80%, transparent);
+  }
+
+  /* Rolagem fina na cor do tema + fade só do lado em que há conteúdo escondido
+     (`data-topo`/`data-fim`, medidos no trilho). */
+  .ncash-rolagem {
+    --ncash-fade-topo: 0px;
+    --ncash-fade-fim: 0px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--ncash-rolagem) transparent;
+    overscroll-behavior: contain;
+    -webkit-mask-image: linear-gradient(to bottom, transparent, #000 var(--ncash-fade-topo), #000 calc(100% - var(--ncash-fade-fim)), transparent);
+    mask-image: linear-gradient(to bottom, transparent, #000 var(--ncash-fade-topo), #000 calc(100% - var(--ncash-fade-fim)), transparent);
+  }
+  .ncash-rolagem[data-topo="1"] {
+    --ncash-fade-topo: 28px;
+  }
+  .ncash-rolagem[data-fim="1"] {
+    --ncash-fade-fim: 28px;
+  }
+  .ncash-rolagem:hover {
+    scrollbar-color: var(--ncash-rolagem-forte) transparent;
+  }
+  .ncash-rolagem::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  .ncash-rolagem::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .ncash-rolagem::-webkit-scrollbar-thumb {
+    background: var(--ncash-rolagem);
+    border-radius: 999px;
+  }
+
+  /* Cartão: borda fina, luz de 1px no topo e sombra em duas camadas (curta + longa). */
+  .ncash-cartao {
+    border-color: var(--ncash-borda-cartao);
+    background-image: linear-gradient(180deg, color-mix(in oklab, var(--color-white) 3%, transparent), transparent 45%);
+    box-shadow:
+      inset 0 1px 0 var(--ncash-luz-cartao),
+      0 1px 2px var(--ncash-sombra-curta),
+      0 22px 44px -30px var(--ncash-sombra);
+  }
+
+  /* O que flutua: menu do usuário, paleta, dica do trilho. */
+  .ncash-flutuante {
+    box-shadow:
+      inset 0 1px 0 var(--ncash-luz-cartao),
+      0 2px 6px var(--ncash-sombra-curta),
+      0 28px 64px -24px var(--ncash-sombra-folha);
+  }
+
+  .ncash-avatar {
+    color: var(--color-noite);
+    background-image: linear-gradient(140deg, var(--color-ouro), color-mix(in oklab, var(--color-ouro) 70%, var(--color-ciano)));
+    box-shadow:
+      0 0 0 2px var(--color-noite-2),
+      0 0 0 3px color-mix(in oklab, var(--color-ouro) 45%, transparent);
+  }
+
+  /* Entradas: a folha sobe, a paleta surge. `backwards` (ver `.surgir`). */
+  .ncash-folha {
+    animation: ncash-sobe 260ms cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+  }
+  .ncash-surge {
+    animation: ncash-surge 180ms cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+  }
+  @keyframes ncash-sobe {
+    from { transform: translateY(24px); opacity: 0; }
+  }
+  @keyframes ncash-surge {
+    from { transform: translateY(-6px) scale(0.98); opacity: 0; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .ncash-folha,
+    .ncash-surge { animation: none; }
+    .ncash-icone3d { transition: none; }
+  }
+}
+
+/* NOVARECASH · os dois conjuntos de ícones (05/11/2026). O escuro é o padrão; o claro
+   aparece só dentro de `.ncash-claro`. `!important` porque o next/image põe `display`
+   inline em alguns casos e a troca tem de ganhar sempre. */
+.ncash-tema .ncash-ic-claro { display: none !important; }
+.ncash-claro .ncash-ic-escuro { display: none !important; }
+.ncash-claro .ncash-ic-claro { display: inline-block !important; }

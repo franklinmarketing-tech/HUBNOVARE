@@ -16,7 +16,7 @@ const TEXTO = [
 
 export function Exemplos() {
   return (
-    <section aria-labelledby="titulo-exemplos" className="space-y-3">
+    <section aria-labelledby="titulo-exemplos" data-guia="whatsapp-exemplos" className="space-y-3">
       <h2 id="titulo-exemplos" className="font-display text-base font-semibold text-white">
         O que mandar
       </h2>

@@ -31,7 +31,7 @@ async function nomeDoDonoSeMembro(eu: string): Promise<string | null> {
 
 function Secao({ id, titulo, texto, children }: { id: string; titulo: string; texto: string; children: React.ReactNode }) {
   return (
-    <section aria-labelledby={id} className="space-y-2">
+    <section aria-labelledby={id} data-guia={id} className="space-y-2">
       <div>
         <h2 id={id} className="font-display text-lg font-semibold text-white">
           {titulo}

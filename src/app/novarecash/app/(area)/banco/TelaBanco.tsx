@@ -173,7 +173,7 @@ export function TelaBanco() {
       {semTabela && <AvisoSemTabela />}
 
       {conexoes.length === 0 || esperandoVolta ? (
-        <Cartao className="p-5 sm:p-6">
+        <Cartao guia="banco-conectar" className="p-5 sm:p-6">
           <h2 className="font-display text-base font-semibold text-white">
             {conexoes.length === 0 ? "Conectar o seu banco" : "Conectar outro banco"}
           </h2>
@@ -241,7 +241,7 @@ export function TelaBanco() {
       )}
 
       {conexoes.length > 0 && (
-        <section aria-labelledby="titulo-conexoes" className="space-y-3">
+        <section aria-labelledby="titulo-conexoes" data-guia="banco-conexoes" className="space-y-3">
           <h2 id="titulo-conexoes" className="font-display text-base font-semibold text-white">
             Bancos conectados
           </h2>

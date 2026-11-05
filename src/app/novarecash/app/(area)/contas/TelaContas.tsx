@@ -146,13 +146,13 @@ export function TelaContas() {
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-2">
-        <Botao Icone={Plus} onClick={() => setEditando("nova")} desabilitado={estado !== "pronto"}>
+        <Botao guia="contas-nova" Icone={Plus} onClick={() => setEditando("nova")} desabilitado={estado !== "pronto"}>
           Nova conta a pagar
         </Botao>
       </div>
 
       {/* O mês, no topo */}
-      <Cartao className="p-3 sm:p-4">
+      <Cartao guia="contas-mes" className="p-3 sm:p-4">
         <div className="flex items-center justify-between gap-2">
           <button
             type="button"
@@ -209,22 +209,23 @@ export function TelaContas() {
         <AvisoErro mensagem="Não consegui ler as contas a pagar agora. O que você registrou continua guardado." onTentar={() => carregar()} />
       ) : cadastradas.length === 0 ? (
         <Vazio
+          guia="contas-lista"
           Icone={CalendarClock}
           titulo="Nenhuma conta cadastrada"
-          texto="Cadastre as contas fixas do mês, como aluguel, luz, internet e escola, e as que vencem uma vez só, como o IPVA. O NovareCash mostra o que vence e avisa no WhatsApp na véspera."
+          texto="Cadastre as contas fixas do mês, como aluguel, luz, internet e escola, e as que vencem uma vez só, como o IPVA. O NovareCash mostra o que vence e o que atrasou; o aviso da véspera pelo WhatsApp chega quando ele for liberado."
         >
           <Botao Icone={Plus} onClick={() => setEditando("nova")}>
             Cadastrar a primeira
           </Botao>
         </Vazio>
       ) : itens.length === 0 ? (
-        <Vazio Icone={CalendarClock} titulo={`Nada vence em ${nomeDoMes(ref, false)}`} texto="Nenhuma conta cadastrada vence neste mês.">
+        <Vazio guia="contas-lista" Icone={CalendarClock} titulo={`Nada vence em ${nomeDoMes(ref, false)}`} texto="Nenhuma conta cadastrada vence neste mês.">
           <Botao variante="contorno" onClick={() => setRef(hoje.slice(0, 7))}>
             Ir para o mês de hoje
           </Botao>
         </Vazio>
       ) : (
-        <div className="space-y-4">
+        <div data-guia="contas-lista" className="space-y-4">
           {GRUPOS.map((g) => {
             const doGrupo = itens.filter((i) => i.situacao === g.situacao);
             if (!doGrupo.length) return null;

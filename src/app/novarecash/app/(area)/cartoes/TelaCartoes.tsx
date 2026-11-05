@@ -134,6 +134,7 @@ export function TelaCartoes() {
     <div className="space-y-4">
       {resumos.length === 0 ? (
         <Vazio
+          guia="cartoes-vazio"
           Icone={CreditCard}
           titulo="Nenhum cartão ainda"
           texto="Cadastre o cartão com o dia em que a fatura fecha e o dia em que vence. Daí em diante, cada compra cai na fatura certa, e as parceladas se espalham pelos meses."
@@ -145,7 +146,7 @@ export function TelaCartoes() {
       ) : (
         <>
           {/* Seletor no topo */}
-          <fieldset>
+          <fieldset data-guia="cartoes-seletor">
             <legend className="sr-only">Escolha o cartão</legend>
             <div className="flex flex-wrap gap-2">
               {resumos.map((r) => {
@@ -288,7 +289,7 @@ function PainelCartao({
   return (
     <div className="space-y-4">
       {/* Limite */}
-      <Caixa className="p-4 sm:p-5">
+      <Caixa guia="cartoes-limite" className="p-4 sm:p-5">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             <p className="truncate font-display text-lg font-semibold text-white">{cartao.nome}</p>
@@ -369,7 +370,7 @@ function PainelCartao({
 
       <BlocoFatura titulo={`Fatura aberta · ${nomeDoMes(aberta.ref, false)}`} f={aberta} hoje={hoje} onDetalhe={onDetalhe} onPagar={onPagar} />
 
-      <section aria-labelledby="titulo-proximas">
+      <section aria-labelledby="titulo-proximas" data-guia="cartoes-proximas">
         <h2 id="titulo-proximas" className="mb-2 flex items-center gap-2 font-display text-base font-semibold text-white">
           <CalendarClock className="h-4 w-4 text-ouro" /> Próximas faturas
         </h2>
@@ -431,7 +432,7 @@ function BlocoFatura({
   const s = ROTULO_SITUACAO[f.situacao];
   const fechou = f.situacao !== "aberta" && f.situacao !== "futura";
   return (
-    <section aria-label={titulo}>
+    <section aria-label={titulo} data-guia="cartoes-fatura">
       <Caixa className="p-4 sm:p-5">
         <div className="flex flex-wrap items-start justify-between gap-2">
           <h2 className="min-w-0 font-display text-base font-semibold capitalize text-white">{titulo}</h2>

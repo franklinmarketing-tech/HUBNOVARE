@@ -134,6 +134,7 @@ export function TelaPatrimonio({
 
       {vazio ? (
         <Vazio
+          guia="patrimonio-total"
           Icone={PiggyBank}
           titulo="Seu patrimônio aparece aqui"
           texto="Informe o saldo das suas contas no Extrato (em Minhas contas) e lance os seus investimentos. O NovareCash soma tudo e desconta as faturas em aberto."
@@ -147,7 +148,7 @@ export function TelaPatrimonio({
         </Vazio>
       ) : (
         <>
-          <Cartao className="p-5">
+          <Cartao guia="patrimonio-total" className="p-5">
             <p className="text-2xs font-semibold uppercase tracking-wider text-white/60">Patrimônio líquido</p>
             <p className={`mt-1 font-display text-3xl font-semibold tabular-nums tracking-[-0.02em] ${p.liquido < 0 ? COR_SAIDA : "text-white"}`}>
               {brl(p.liquido)}
@@ -179,7 +180,7 @@ export function TelaPatrimonio({
           </Cartao>
 
           {p.porClasse.length > 0 && (
-            <Cartao className="p-4 sm:p-5">
+            <Cartao guia="patrimonio-classes" className="p-4 sm:p-5">
               <h2 className="font-display text-base font-semibold text-white">Divisão por classe</h2>
               <ul className="mt-3 space-y-3">
                 {p.porClasse.map((c) => (
@@ -204,7 +205,7 @@ export function TelaPatrimonio({
           )}
 
           {p.ativos.length > 0 && (
-            <section aria-labelledby="pat-tem">
+            <section aria-labelledby="pat-tem" data-guia="patrimonio-tem">
               <h2 id="pat-tem" className="mb-1.5 px-1 text-2xs font-semibold uppercase tracking-wider text-white/55">
                 O que você tem
               </h2>

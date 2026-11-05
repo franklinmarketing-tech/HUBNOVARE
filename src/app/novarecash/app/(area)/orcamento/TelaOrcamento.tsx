@@ -106,12 +106,13 @@ export function TelaOrcamento() {
     <div className="space-y-4">
       {linhas.length === 0 ? (
         <Vazio
+          guia="orcamento-resumo"
           Icone={Target}
           titulo="Nenhum limite ainda"
           texto="Escolha uma categoria abaixo e toque em “+ Limite”. Comece pelas que mais pesam: o quanto já saiu em cada uma neste mês está ao lado do nome."
         />
       ) : (
-        <Cartao className="p-5">
+        <Cartao guia="orcamento-resumo" className="p-5">
           <p className="text-2xs font-semibold uppercase tracking-[0.14em] text-ouro">{nomeDoMes(ref)}</p>
           <p className="mt-1 font-display text-3xl font-semibold tabular-nums text-white">
             {brl(gastoOrcado)} <span className="text-base font-medium text-white/60">de {brl(orcado)}</span>
@@ -140,7 +141,7 @@ export function TelaOrcamento() {
       )}
 
       {linhas.length > 0 && (
-        <section aria-labelledby="titulo-com-limite">
+        <section aria-labelledby="titulo-com-limite" data-guia="orcamento-com-limite">
           <h2 id="titulo-com-limite" className="mb-2 font-display text-base font-semibold text-white">
             Com limite
           </h2>
@@ -158,7 +159,7 @@ export function TelaOrcamento() {
         </section>
       )}
 
-      <section aria-labelledby="titulo-sem-limite">
+      <section aria-labelledby="titulo-sem-limite" data-guia="orcamento-sem-limite">
         <h2 id="titulo-sem-limite" className="mb-2 font-display text-base font-semibold text-white">
           Sem limite
         </h2>

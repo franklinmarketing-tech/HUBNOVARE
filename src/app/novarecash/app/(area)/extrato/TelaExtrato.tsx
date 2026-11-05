@@ -184,16 +184,16 @@ export function TelaExtrato({ abrir, filtroInicial = {} }: { abrir: "novo" | "co
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-2">
-        <Botao Icone={Plus} onClick={() => setEditando("novo")} desabilitado={estado !== "pronto"}>
+        <Botao guia="extrato-novo" Icone={Plus} onClick={() => setEditando("novo")} desabilitado={estado !== "pronto"}>
           Novo lançamento
         </Botao>
-        <Botao variante="contorno" Icone={Wallet} onClick={() => setContasAbertas(true)} desabilitado={estado !== "pronto"}>
+        <Botao guia="extrato-contas" variante="contorno" Icone={Wallet} onClick={() => setContasAbertas(true)} desabilitado={estado !== "pronto"}>
           Minhas contas
         </Botao>
       </div>
 
       {/* O mês: navegação e totais */}
-      <Cartao className="p-3 sm:p-4">
+      <Cartao guia="extrato-mes" className="p-3 sm:p-4">
         <div className="flex items-center justify-between gap-2">
           <button
             type="button"
@@ -235,7 +235,7 @@ export function TelaExtrato({ abrir, filtroInicial = {} }: { abrir: "novo" | "co
       </Cartao>
 
       {/* Filtros */}
-      <div className="grid gap-2 sm:grid-cols-[1fr_16rem]">
+      <div data-guia="extrato-filtros" className="grid gap-2 sm:grid-cols-[1fr_16rem]">
         <label className="relative block">
           <span className="sr-only">Buscar no extrato</span>
           <Search aria-hidden className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/45" />
@@ -283,6 +283,7 @@ export function TelaExtrato({ abrir, filtroInicial = {} }: { abrir: "novo" | "co
         <AvisoErro mensagem="Não consegui ler o extrato agora. O que você registrou continua guardado." onTentar={() => carregar()} />
       ) : transacoes.length === 0 ? (
         <Vazio
+          guia="extrato-lista"
           Icone={ListOrdered}
           titulo={`Nada lançado em ${nomeDoMes(ref, false)}`}
           texto={
@@ -313,7 +314,7 @@ export function TelaExtrato({ abrir, filtroInicial = {} }: { abrir: "novo" | "co
           </Botao>
         </Vazio>
       ) : (
-        <div className="space-y-4">
+        <div data-guia="extrato-lista" className="space-y-4">
           {porDia.map(([dia, itens]) => (
             <section key={dia} aria-label={dataPorExtenso(dia)}>
               <h2 className="mb-1.5 px-1 text-2xs font-semibold uppercase tracking-wider text-white/55">

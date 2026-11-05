@@ -111,12 +111,13 @@ export function TelaAlertas() {
   if (resultado.semDados) {
     return (
       <Vazio
+        guia="alertas-vazio"
         Icone={Bell}
         titulo="Ainda não há o que analisar"
-        texto="Os alertas aparecem quando o extrato tiver lançamentos. Com 2 ou 3 meses de histórico, o NovareCash já encontra assinaturas e gastos fora do padrão."
+        texto="Os alertas aparecem quando o extrato tiver lançamentos. Com 2 ou 3 meses de histórico, o NovareCash já encontra assinaturas e gastos fora do padrão. Importando o extrato do banco, os meses chegam de uma vez."
       >
-        <Botao href="/novarecash/app/banco" variante="contorno">
-          Conectar o banco
+        <Botao href="/novarecash/app/importar" variante="contorno">
+          Importar extrato
         </Botao>
         <Botao href="/novarecash/app/extrato?novo=1">Lançar à mão</Botao>
       </Vazio>
@@ -132,7 +133,7 @@ export function TelaAlertas() {
   return (
     <div className="space-y-4">
       {/* O contador */}
-      <Cartao className="relative overflow-hidden p-5 sm:p-6">
+      <Cartao guia="alertas-contador" className="relative overflow-hidden p-5 sm:p-6">
         <div aria-hidden className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-ouro/10 blur-3xl" />
         <p className="text-2xs font-semibold uppercase tracking-[0.14em] text-ouro">{nomeDoMes(resultado.ref)}</p>
         {contador > 0 ? (
@@ -180,7 +181,7 @@ export function TelaAlertas() {
 
       {/* Filtro no topo, com bolinha de escolha */}
       {alertas.length > 0 && (
-        <fieldset>
+        <fieldset data-guia="alertas-filtro">
           <legend className="sr-only">Filtrar alertas por tipo</legend>
           <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1 [scrollbar-width:none]">
             {FILTROS.filter((f) => f.chave === "todos" || contagem(f.chave) > 0).map((f) => {
@@ -216,6 +217,7 @@ export function TelaAlertas() {
 
       {alertas.length === 0 ? (
         <Vazio
+          guia="alertas-lista"
           Icone={Check}
           titulo="Nenhum alerta agora"
           texto="Tudo em ordem por aqui. O NovareCash confere de novo sempre que você abrir esta tela; mantenha o extrato em dia para os alertas ficarem certeiros."
@@ -225,7 +227,7 @@ export function TelaAlertas() {
           </Botao>
         </Vazio>
       ) : (
-        <ul className="space-y-3">
+        <ul data-guia="alertas-lista" className="space-y-3">
           {visiveis.map((a) => (
             <li key={a.chave}>
               <CartaoDoAlerta

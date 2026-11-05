@@ -29,8 +29,8 @@ export default async function ConviteNovareCash() {
   const perfil = await getPerfil();
   if (!perfil) redirect("/login?proximo=/novarecash/convite");
   const temAcesso = await temAcessoNovareCash();
-  // O mesmo tema do app (claro por padrão; o cookie vale para /novarecash inteiro).
-  const claro = (await cookies()).get(COOKIE_TEMA)?.value !== "escuro";
+  // O mesmo tema do app (escuro por padrão desde 05/11; o cookie vale para /novarecash inteiro).
+  const claro = (await cookies()).get(COOKIE_TEMA)?.value === "claro";
 
   return (
     <div

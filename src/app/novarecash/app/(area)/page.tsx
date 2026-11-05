@@ -5,6 +5,8 @@ import { carregarRetrato } from "@/lib/novarecash/retrato";
 import { usuarioDaSessao } from "@/lib/novarecash/dados";
 import { estadoDoRecurso, ehEquipe, whatsappEnvioConfigurado } from "@/lib/novarecash/recursos";
 import { iaConfigurada } from "@/lib/novarecash/ia";
+import { lerPrimeirosPassos } from "@/lib/novarecash/primeiros-passos";
+import { lerPreferencias } from "@/lib/novarecash/preferencias";
 import { TelaInicio, type CartaoRecurso } from "./TelaInicio";
 
 export const dynamic = "force-dynamic";
@@ -24,7 +26,13 @@ export default async function InicioNovareCash() {
   const supabase = await createClient();
   // O DONO do NovareCash aberto (conta compartilhada), não necessariamente quem está logado.
   const dono = await usuarioDaSessao(supabase).catch(() => perfil.id);
-  const [resultado, assinatura] = await Promise.all([carregarRetrato(supabase, dono), minhaAssinatura()]);
+  // O checklist "Primeiros passos" lê do DONO (o que o par já fez vale); o "dispensei" é da PESSOA logada.
+  const [resultado, assinatura, passos, prefs] = await Promise.all([
+    carregarRetrato(supabase, dono),
+    minhaAssinatura(),
+    lerPrimeirosPassos(supabase, dono),
+    lerPreferencias(supabase, perfil.id),
+  ]);
 
   const ia = estadoDoRecurso("ia", perfil.role);
   const whats = estadoDoRecurso("whatsapp", perfil.role);
@@ -70,8 +78,8 @@ export default async function InicioNovareCash() {
       assinatura={assinatura}
       equipe={ehEquipe(perfil.role)}
       recursos={recursos}
-      bancoLiberado={banco.liberado}
-      bancoLiberaEm={banco.recurso.liberaEm}
+      passos={passos}
+      checklistDispensado={prefs?.checklistDispensado ?? false}
     />
   );
 }

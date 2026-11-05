@@ -289,7 +289,7 @@ export function TelaWhatsApp({ envioLigado }: { envioLigado: boolean }) {
           </div>
         </Cartao>
       ) : (
-        <Cartao className="p-5 sm:p-6">
+        <Cartao guia="whatsapp-ligar" className="p-5 sm:p-6">
           <h2 className="font-display text-base font-semibold text-white">Ligar o seu número</h2>
           <ol className="mt-3 space-y-2 text-xs leading-relaxed text-white/70">
             <li>1. Toque em <strong className="text-white">Gerar código</strong>.</li>
@@ -336,7 +336,7 @@ export function TelaWhatsApp({ envioLigado }: { envioLigado: boolean }) {
         </p>
       )}
 
-      <section aria-labelledby="titulo-recentes">
+      <section aria-labelledby="titulo-recentes" data-guia="whatsapp-recentes">
         <h2 id="titulo-recentes" className="mb-2 font-display text-base font-semibold text-white">
           Registrado pelo WhatsApp
         </h2>

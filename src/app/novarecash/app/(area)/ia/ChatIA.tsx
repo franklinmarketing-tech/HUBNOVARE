@@ -98,7 +98,7 @@ export function ChatIA({ cota }: { cota: number }) {
 
   return (
     <div className="space-y-3">
-      <p className="flex items-start gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-2xs leading-relaxed text-white/70">
+      <p data-guia="ia-aviso" className="flex items-start gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-2xs leading-relaxed text-white/70">
         <Info className="mt-0.5 h-3.5 w-3.5 shrink-0 text-ciano-claro" />
         <span>
           A IA organiza e explica o <strong className="font-semibold text-white">seu</strong> dinheiro. Ela{" "}
@@ -152,7 +152,7 @@ export function ChatIA({ cota }: { cota: number }) {
 
         {/* As sugestões ajudam a começar; depois da primeira pergunta saem do caminho (no celular, era meia tela). */}
         {mensagens.length === 0 && (
-          <div className="mt-3 flex flex-wrap gap-1.5">
+          <div data-guia="ia-sugestoes" className="mt-3 flex flex-wrap gap-1.5">
             {SUGESTOES.map((s) => (
               <button
                 key={s}
@@ -168,6 +168,7 @@ export function ChatIA({ cota }: { cota: number }) {
         )}
 
         <form
+          data-guia="ia-pergunta"
           className="mt-3 flex items-end gap-2"
           onSubmit={(e) => {
             e.preventDefault();

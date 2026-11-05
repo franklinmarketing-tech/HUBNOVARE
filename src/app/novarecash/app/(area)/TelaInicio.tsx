@@ -1,24 +1,16 @@
 import Link from "next/link";
-import {
-  AlertTriangle,
-  ArrowRight,
-  BadgeCheck,
-  Landmark,
-  MessageCircle,
-  PenLine,
-  Plus,
-  Sparkles,
-  Target,
-  Wallet,
-  type LucideIcon,
-} from "lucide-react";
+import { AlertTriangle, ArrowRight, BadgeCheck, Plus, Target } from "lucide-react";
 
 import type { MinhaAssinatura } from "@/lib/novarecash/acesso";
+import type { PrimeirosPassos as Passos } from "@/lib/novarecash/primeiros-passos";
 import type { ResultadoRetrato, Retrato } from "@/lib/novarecash/retrato";
 import { CartaoAlertas } from "./_inicio/CartaoAlertas";
 import { CartaoMetas } from "./_inicio/CartaoMetas";
 import { CartaoPrevisao } from "./_inicio/CartaoPrevisao";
 import { CartaoProximasContas } from "./_inicio/CartaoProximasContas";
+import { PrimeirosPassos } from "./_inicio/PrimeirosPassos";
+import { Icone3D } from "./Icone3D";
+import type { NomeIcone } from "./menu";
 import {
   AvisoErro,
   AvisoSemTabela,
@@ -48,10 +40,10 @@ export type CartaoRecurso = {
   liberaEm?: string;
 };
 
-const ICONE: Record<CartaoRecurso["chave"], LucideIcon> = {
-  ia: Sparkles,
-  whatsapp: MessageCircle,
-  banco: Landmark,
+const ICONE: Record<CartaoRecurso["chave"], NomeIcone> = {
+  ia: "ia",
+  whatsapp: "conversa",
+  banco: "banco",
 };
 
 const dataLonga = (iso: string) =>
@@ -64,16 +56,18 @@ export function TelaInicio({
   assinatura,
   equipe,
   recursos,
-  bancoLiberado,
-  bancoLiberaEm,
+  passos,
+  checklistDispensado,
 }: {
   nome: string | null;
   resultado: ResultadoRetrato;
   assinatura: MinhaAssinatura;
   equipe: boolean;
   recursos: CartaoRecurso[];
-  bancoLiberado: boolean;
-  bancoLiberaEm?: string;
+  /** O checklist "Primeiros passos" (05/11/2026): o que já existe no banco. */
+  passos: Passos;
+  /** A pessoa já dispensou o "Tudo pronto" (lido de `ncash_preferencias`; o navegador confere o localStorage). */
+  checklistDispensado: boolean;
 }) {
   return (
     <div className="surgir space-y-5">
@@ -83,11 +77,15 @@ export function TelaInicio({
         resumo="O seu dinheiro num lugar só: o mês, as contas que vencem e o que dá para melhorar."
       >
         {resultado.estado !== "sem-tabela" && (
-          <Botao href="/novarecash/app/extrato?novo=1" Icone={Plus}>
+          // Do tablet para cima o "Lançar gasto" já está no topo do trilho: aqui só no celular.
+          <Botao guia="lancar" href="/novarecash/app/extrato?novo=1" Icone={Plus} className="md:hidden">
             Lançar gasto
           </Botao>
         )}
       </Cabecalho>
+
+      {/* Guia de primeiro uso: some sozinho quando tudo está feito e a pessoa dispensa. */}
+      {resultado.estado !== "sem-tabela" && <PrimeirosPassos passos={passos} dispensadoNoBanco={checklistDispensado} />}
 
       {resultado.estado === "sem-tabela" ? (
         <AvisoSemTabela />
@@ -97,9 +95,7 @@ export function TelaInicio({
           mensagem="O que você registrou continua guardado. Recarregue a página em instantes."
           href="/novarecash/app"
         />
-      ) : resultado.retrato.vazio ? (
-        <PrimeiroPasso bancoLiberado={bancoLiberado} bancoLiberaEm={bancoLiberaEm} />
-      ) : (
+      ) : resultado.retrato.vazio ? null : (
         <Painel r={resultado.retrato} />
       )}
 
@@ -114,7 +110,7 @@ export function TelaInicio({
         </div>
       )}
 
-      <section aria-labelledby="titulo-recursos">
+      <section aria-labelledby="titulo-recursos" data-guia="inicio-recursos">
         <h2 id="titulo-recursos" className="font-display text-base font-semibold text-white">
           Banco, WhatsApp e IA
         </h2>
@@ -130,70 +126,6 @@ export function TelaInicio({
   );
 }
 
-function PrimeiroPasso({ bancoLiberado, bancoLiberaEm }: { bancoLiberado: boolean; bancoLiberaEm?: string }) {
-  return (
-    <Cartao className="p-5 sm:p-6">
-      <p className="text-2xs font-semibold uppercase tracking-[0.14em] text-ouro">Primeiro passo</p>
-      <p className="mt-1 font-display text-lg font-semibold text-white">Comece por um destes caminhos</p>
-      <p className="mt-1 max-w-prose text-xs leading-relaxed text-white/70">
-        O saldo, o mês e o orçamento aparecem aqui assim que houver uma conta ou um lançamento.
-      </p>
-      <ul className="mt-4 grid gap-3 sm:grid-cols-3">
-        <li>
-          {bancoLiberado ? (
-            <Passo
-              href="/novarecash/app/banco"
-              Icone={Landmark}
-              titulo="Conectar o banco"
-              texto="Saldo e extrato entram sozinhos, pelo Open Finance."
-            />
-          ) : (
-            <div className="h-full rounded-2xl border border-dashed border-white/15 p-4">
-              <Landmark aria-hidden className="h-5 w-5 text-white/50" />
-              <p className="mt-2 text-sm font-semibold text-white/85">Conectar o banco</p>
-              <p className="mt-0.5 text-xs leading-relaxed text-white/60">
-                Em ativação: libera em {bancoLiberaEm ?? "breve"}.
-              </p>
-            </div>
-          )}
-        </li>
-        <li>
-          <Passo
-            href="/novarecash/app/extrato?novo=1"
-            Icone={PenLine}
-            titulo="Lançar à mão"
-            texto="Um gasto ou uma entrada, com a categoria certa."
-          />
-        </li>
-        <li>
-          <Passo
-            href="/novarecash/app/extrato?contas=1"
-            Icone={Wallet}
-            titulo="Criar uma conta"
-            texto="Conta, cartão ou investimento, com o saldo de hoje."
-          />
-        </li>
-      </ul>
-    </Cartao>
-  );
-}
-
-function Passo({ href, Icone, titulo, texto }: { href: string; Icone: LucideIcon; titulo: string; texto: string }) {
-  return (
-    <Link
-      href={href}
-      className="group flex h-full flex-col rounded-2xl border border-white/10 bg-white/[0.03] p-4 outline-none transition-colors hover:border-ouro/50 focus-visible:ring-2 focus-visible:ring-ouro"
-    >
-      <Icone className="h-5 w-5 text-ouro" />
-      <span className="mt-2 text-sm font-semibold text-white">{titulo}</span>
-      <span className="mt-0.5 flex-1 text-xs leading-relaxed text-white/65">{texto}</span>
-      <span className="mt-3 inline-flex items-center gap-1 text-2xs font-semibold text-ouro">
-        Começar <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
-      </span>
-    </Link>
-  );
-}
-
 function Painel({ r }: { r: Retrato }) {
   const m = r.mes;
   const top = r.categorias.slice(0, 5);
@@ -203,7 +135,7 @@ function Painel({ r }: { r: Retrato }) {
 
   return (
     <div className="space-y-3">
-      <div className="relative overflow-hidden rounded-3xl border border-ouro/20 bg-[image:var(--ncash-heroi)] p-5 shadow-[0_30px_60px_-36px_var(--ncash-heroi-sombra)] sm:p-6">
+      <div data-guia="inicio-saldo" className="relative overflow-hidden rounded-3xl border border-ouro/20 bg-[image:var(--ncash-heroi)] p-5 shadow-[0_30px_60px_-36px_var(--ncash-heroi-sombra)] sm:p-6">
         <span
           aria-hidden
           className="pointer-events-none absolute -right-16 -top-20 h-56 w-56 rounded-full bg-ouro/10 blur-3xl"
@@ -338,7 +270,6 @@ const SELO_RECURSO: Record<CartaoRecurso["situacao"], { rotulo: string; tom: Tom
 };
 
 function CartaoDeRecurso({ r }: { r: CartaoRecurso }) {
-  const Icone = ICONE[r.chave];
   const selo = SELO_RECURSO[r.situacao];
   return (
     <Link
@@ -347,12 +278,7 @@ function CartaoDeRecurso({ r }: { r: CartaoRecurso }) {
     >
       <Cartao className="flex h-full flex-col p-4 transition-colors group-hover:border-ouro/40">
         <div className="flex items-center justify-between gap-2">
-          <span
-            aria-hidden
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-ciano/15 text-ciano-claro ring-1 ring-ciano/25"
-          >
-            <Icone className="h-4 w-4" />
-          </span>
+          <Icone3D nome={ICONE[r.chave]} tamanho={40} />
           <Selo tom={selo.tom}>{selo.rotulo}</Selo>
         </div>
         <p className="mt-3 font-display text-sm font-semibold text-white">{r.titulo}</p>
@@ -382,7 +308,7 @@ function Assinatura({ assinatura, equipe }: { assinatura: MinhaAssinatura; equip
     assinatura?.plano === "anual" ? "Anual" : assinatura?.plano === "mensal" ? "Mensal" : assinatura?.plano ?? null;
 
   return (
-    <section aria-labelledby="titulo-assinatura">
+    <section aria-labelledby="titulo-assinatura" data-guia="inicio-assinatura">
       <Cartao className="p-5">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <h2 id="titulo-assinatura" className="flex items-center gap-2 font-display text-sm font-semibold text-white">

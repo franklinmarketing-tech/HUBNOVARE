@@ -300,7 +300,7 @@ export function TelaImportar() {
       )}
 
       {ultima && etapa === "escolher" && (
-        <Cartao className="flex flex-wrap items-center justify-between gap-3 p-4">
+        <Cartao guia="importar-ultima" className="flex flex-wrap items-center justify-between gap-3 p-4">
           <div className="min-w-0">
             <p className="text-2xs font-semibold uppercase tracking-wider text-white/55">Última importação</p>
             <p className="mt-0.5 break-words text-sm font-medium text-white">{ultima.arquivo}</p>
@@ -317,7 +317,7 @@ export function TelaImportar() {
 
       {etapa === "escolher" && (
         <>
-          <Cartao className="p-5 sm:p-6">
+          <Cartao guia="importar-arquivo" className="p-5 sm:p-6">
             <input
               ref={entrada}
               type="file"
@@ -355,6 +355,7 @@ export function TelaImportar() {
 
           {!ultima && (
             <Vazio
+              guia="importar-onde"
               Icone={FileUp}
               titulo="Onde achar o arquivo"
               texto="No app ou no site do banco, abra o extrato, escolha o período e procure “exportar” ou “baixar”. Prefira OFX (às vezes aparece como “Money” ou “gerenciador financeiro”); se não houver, CSV ou Excel salvo como CSV."

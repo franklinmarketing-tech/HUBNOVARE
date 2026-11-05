@@ -19,7 +19,7 @@ export function EmAtivacao({
   children?: React.ReactNode;
 }) {
   return (
-    <div className="rounded-2xl border border-dashed border-ouro/35 bg-ouro/[0.06] p-5 sm:p-6">
+    <div data-guia="ativacao" className="rounded-2xl border border-dashed border-ouro/35 bg-ouro/[0.06] p-5 sm:p-6">
       <div className="flex items-start gap-3">
         <span
           aria-hidden
