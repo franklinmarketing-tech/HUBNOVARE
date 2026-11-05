@@ -1,10 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ArrowRight, Sparkles, X } from "lucide-react";
-import { MarcaNovareCash } from "@/components/novarecash/MarcaNovareCash";
+import { ArrowRight, X } from "lucide-react";
 import { BLACK, faseBlack, GARANTIA_DIAS, NOVARECASH_NOME, type FaseBlack } from "@/lib/novarecash/config";
 import { aPartirDe, avisoPendentes, brl, dataBlack, maiorDesconto, ofertas, textoCompra } from "@/lib/novarecash/oferta";
 
@@ -157,8 +157,6 @@ export function PopupBlack() {
   // 04/11: copy no tom da página (modelo "Black November"): preço ancorado, prazo real, garantia.
   const desde = aPartirDe(lista);
   const cheio = lista.find((o) => o.cheioPorMes != null)?.cheioPorMes ?? null;
-  const chapeu =
-    fase === "aviso" ? `${BLACK.nome} · vem aí` : `${BLACK.nome} · ${desconto ? `${desconto}% OFF ` : ""}só até ${dataBlack("fim")}`;
   const titulo =
     fase === "aviso" ? (
       `O ${NOVARECASH_NOME} chega na ${BLACK.nome}.`
@@ -176,10 +174,18 @@ export function PopupBlack() {
   const pendentes = avisoPendentes();
   const cta = emVenda && fase === "aberta" ? textoCompra(desde) : `Conhecer o ${NOVARECASH_NOME}`;
 
+  /* 05/11/2026 — NO ESTILO DO POP-UP DA NORD (pedido do dono): campanha grande à
+     esquerda, o FUNDADOR recortado à direita saindo do escuro, botão dourado "Quero
+     entrar". O Jefferson é a prova que a Novare tem e a concorrência não copia: gente
+     de verdade, sem comissão. Foto: `public/novarecash/jefferson-popup.webp` (recorte
+     do Magnific, ampliado 2x). No celular ele fica menor, no canto, acima do botão. */
+  const tituloGrande =
+    fase === "aviso" ? `Vem aí a ${BLACK.nome}.` : `Começou a ${BLACK.nome}!`;
+
   return (
     <div
       data-fora-do-guardiao
-      className="fixed inset-0 z-[60] flex items-end justify-center bg-noite/70 backdrop-blur-sm sm:items-center sm:p-4 print:hidden"
+      className="fixed inset-0 z-[60] flex items-end justify-center bg-noite/75 backdrop-blur-sm sm:items-center sm:p-4 print:hidden"
       onClick={fechar}
       role="presentation"
     >
@@ -190,11 +196,14 @@ export function PopupBlack() {
         aria-labelledby="titulo-popup-black"
         aria-describedby="texto-popup-black"
         onClick={(e) => e.stopPropagation()}
-        className="surgir relative w-full max-w-[27rem] overflow-hidden rounded-t-3xl text-white shadow-elevated ring-1 ring-ouro/25 sm:rounded-3xl"
+        className="surgir relative w-full max-w-[46rem] overflow-hidden rounded-t-3xl text-white shadow-elevated ring-1 ring-ouro/25 sm:rounded-3xl"
         style={{
           background: [
-            "radial-gradient(26rem 14rem at 90% -10%, hsl(42 74% 62% / 0.22), transparent 62%)",
-            "linear-gradient(157deg, hsl(200 55% 7%) 0%, hsl(203 100% 2%) 100%)",
+            // o brilho dourado atrás do Jefferson
+            "radial-gradient(22rem 22rem at 78% 40%, hsl(42 74% 62% / 0.20), transparent 65%)",
+            // facetas de "diamante" no pé, bem discretas
+            "conic-gradient(from 210deg at 18% 112%, transparent 0deg, hsl(42 74% 62% / 0.10) 18deg, transparent 36deg, hsl(197 70% 60% / 0.08) 58deg, transparent 80deg, hsl(42 74% 62% / 0.07) 104deg, transparent 130deg)",
+            "linear-gradient(160deg, hsl(203 60% 11%) 0%, hsl(203 90% 5%) 55%, hsl(203 100% 2%) 100%)",
           ].join(","),
         }}
       >
@@ -202,41 +211,87 @@ export function PopupBlack() {
           type="button"
           onClick={fechar}
           aria-label="Fechar"
-          className="absolute right-2.5 top-2.5 z-10 flex h-11 w-11 items-center justify-center rounded-full text-white/60 transition-colors hover:bg-white/10 hover:text-white"
+          className="absolute right-2.5 top-2.5 z-20 flex h-11 w-11 items-center justify-center rounded-full bg-noite/40 text-white/80 backdrop-blur-sm transition-colors hover:bg-white/10 hover:text-white"
         >
           <X className="h-5 w-5" />
         </button>
 
-        <div className="relative px-6 pb-7 pt-8 sm:px-7" style={{ paddingBottom: "max(1.75rem, env(safe-area-inset-bottom))" }}>
-          <MarcaNovareCash tamanho="md" />
-          <p className="mt-4">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-ouro px-3 py-1 text-2xs font-bold uppercase tracking-wider text-noite">
-              <Sparkles className="h-3.5 w-3.5" />
-              {chapeu}
+        {/* O fundador, recortado. Decorativo: quem ele é está escrito no selo abaixo. */}
+        <Image
+          src="/novarecash/jefferson-popup.webp"
+          alt=""
+          aria-hidden
+          width={800}
+          height={1017}
+          priority
+          sizes="(min-width: 640px) 320px, 180px"
+          className="pointer-events-none absolute bottom-[8.5rem] right-0 z-0 h-[12.5rem] w-auto select-none sm:bottom-0 sm:right-2 sm:h-[26rem]"
+          style={{ maskImage: "linear-gradient(to bottom, black 82%, transparent)" }}
+        />
+
+        <div
+          className="relative z-10 px-6 pb-6 pt-8 sm:w-[60%] sm:px-9 sm:pb-9 sm:pt-10"
+          style={{ paddingBottom: "max(1.5rem, env(safe-area-inset-bottom))" }}
+        >
+          {/* A marca da campanha. */}
+          <p className="leading-none">
+            <span className="block font-display text-[1.65rem] font-black uppercase tracking-[0.04em] sm:text-3xl">
+              Black <span className="text-ouro">Novare</span>
+            </span>
+            <span aria-hidden className="mt-1.5 block h-[3px] w-24 rounded-full bg-gradient-to-r from-ouro to-transparent" />
+            <span className="mt-2 block text-[0.62rem] font-bold uppercase tracking-[0.28em] text-white/70">
+              A Black Friday da Novare
             </span>
           </p>
+
           <h2
             id="titulo-popup-black"
-            className="mt-4 pr-6 font-display text-2xl font-semibold leading-tight tracking-[-0.03em] sm:text-[1.75rem]"
+            className="mt-6 max-w-[11ch] font-display text-[2.1rem] font-black leading-[0.98] tracking-[-0.03em] sm:max-w-none sm:text-[3.1rem]"
           >
-            {titulo}
+            {tituloGrande}
           </h2>
-          <p id="texto-popup-black" className="mt-3 text-sm leading-relaxed text-white/75">
-            {texto}
-          </p>
-          {pendentes && <p className="mt-2 text-2xs leading-relaxed text-white/65">{pendentes}</p>}
 
-          <Link href="/novarecash#planos" onClick={fechar} className="btn-cp cta-varredura mt-6 w-full">
-            {cta}
-            <ArrowRight className="h-4 w-4" />
-          </Link>
-          <button
-            type="button"
-            onClick={fechar}
-            className="mt-2 min-h-11 w-full text-center text-2xs font-semibold text-white/65 transition-colors hover:text-white"
-          >
-            Agora não
-          </button>
+          <p className="mt-3 max-w-[13rem] text-[0.95rem] font-semibold leading-snug sm:max-w-none sm:text-lg">
+            {fase === "aberta" && desde != null && cheio != null ? (
+              <>
+                {NOVARECASH_NOME} de <s className="text-white/55">{brl(cheio)}</s> por{" "}
+                <span className="text-ouro">{brl(desde)}</span>/mês
+                {desconto ? <span className="ml-1.5 rounded-full bg-ouro/15 px-2 py-0.5 text-xs text-ouro">{desconto}% OFF</span> : null}
+              </>
+            ) : (
+              titulo
+            )}
+          </p>
+          <p id="texto-popup-black" className="mt-2 max-w-[12.5rem] text-sm leading-relaxed text-white/75 sm:max-w-[22rem]">
+            {fase === "aberta" ? `Seu dinheiro organizado por quem não vende nada. Só até ${dataBlack("fim")}.` : texto}
+          </p>
+          {pendentes && <p className="mt-2 max-w-[12.5rem] text-2xs leading-relaxed text-white/60 sm:max-w-[22rem]">{pendentes}</p>}
+
+          <span className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-white/[0.07] px-2.5 py-1 text-[0.68rem] font-medium text-white/75 ring-1 ring-white/10">
+            Jefferson Freitas · fundador da Novare
+          </span>
+
+          <div className="mt-6 sm:mt-7">
+            <Link
+              href="/novarecash#planos"
+              onClick={fechar}
+              aria-label={cta}
+              className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-ouro px-7 text-sm font-black uppercase tracking-[0.06em] text-noite shadow-[0_14px_30px_-12px_hsl(42_74%_62%/0.7)] transition-transform hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white sm:w-auto"
+            >
+              Quero entrar
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+            <p className="mt-2 text-[0.68rem] text-white/60">
+              {GARANTIA_DIAS} dias de garantia · cancela quando quiser
+            </p>
+            <button
+              type="button"
+              onClick={fechar}
+              className="mt-1 min-h-11 text-2xs font-semibold text-white/60 transition-colors hover:text-white sm:text-left"
+            >
+              Agora não
+            </button>
+          </div>
         </div>
       </div>
     </div>
