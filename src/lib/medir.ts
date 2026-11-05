@@ -45,6 +45,11 @@ export const MODULOS_MEDIDOS = [
   "venda:whatsapp",
   "venda:fecho",
   "venda:fazer-parte",
+  // 05/11/2026 (pedido do Jefferson): o "Ver os 3 planos" do herói e o CTA da carta do fundador.
+  "venda:ver-planos",
+  "venda:carta",
+  // 05/11/2026: a chave Mensal | Anual dos planos (conta só a troca, não a abertura).
+  "venda:prazo",
 ] as const;
 
 /**

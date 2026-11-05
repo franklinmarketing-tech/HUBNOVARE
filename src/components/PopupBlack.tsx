@@ -14,7 +14,7 @@ import {
   urgenciaBlack,
   type FaseBlack,
 } from "@/lib/novarecash/config";
-import { aPartirDe, avisoPendentes, brl, dataBlack, maiorDesconto, maisBarata, ofertas, textoCompra } from "@/lib/novarecash/oferta";
+import { avisoPendentes, brl, dataBlack, maiorDesconto, maisBarata, rotuloPrazo, textoCompra, todasAsOfertas } from "@/lib/novarecash/oferta";
 import { medir } from "@/lib/medir";
 
 /**
@@ -217,17 +217,21 @@ export function PopupBlack() {
 
   const { fase, simulada } = momento;
   const agora = new Date(momento.agora);
-  const lista = ofertas(agora);
+  // 05/11/2026: os seis (3 planos × mensal/anual) — o "a partir de" é o menor por mês, o do anual.
+  const lista = todasAsOfertas(agora);
   const desconto = fase === "aberta" ? maiorDesconto(lista) : null;
   const emVenda = lista.length > 0;
   const urgencia = urgenciaBlack(agora);
 
   // 04/11: copy no tom da página (modelo "Black November"): preço ancorado, prazo real, garantia.
   // 05/11/2026: três planos — o pop-up mostra o MENOR ("a partir de"), com o cheio dele riscado.
-  const desde = aPartirDe(lista);
-  const cheio = maisBarata(lista)?.cheioPorMes ?? null;
+  const menor = maisBarata(lista);
+  const desde = menor?.porMes ?? null;
+  const cheio = menor?.cheioPorMes ?? null;
+  /** "no anual" ao lado do preço, quando o menor é o do anual (pago de uma vez). */
+  const noPrazo = rotuloPrazo(menor?.prazo);
   const pendentes = avisoPendentes();
-  const cta = emVenda && fase === "aberta" ? textoCompra(desde) : `Conhecer o ${NOVARECASH_NOME}`;
+  const cta = emVenda && fase === "aberta" ? textoCompra(desde, menor?.prazo) : `Conhecer o ${NOVARECASH_NOME}`;
 
   /* 05/11/2026 — DIFERENTE DO "BLACK DIAMOND" DA NORD (benchmark do dono): o
      título grande é a PROMESSA da casa, não o nome da campanha; a linha de baixo
@@ -253,7 +257,7 @@ export function PopupBlack() {
     ) : desde != null && cheio != null ? (
       <>
         {NOVARECASH_NOME} a partir de <s className="text-white/55">{brl(cheio)}</s>{" "}
-        <span className="text-ouro">{brl(desde)}</span>/mês
+        <span className="text-ouro">{brl(desde)}</span>/mês{noPrazo ? ` ${noPrazo}` : ""}
         {desconto ? <span className="ml-1.5 rounded-full bg-ouro/15 px-2 py-0.5 text-xs text-ouro">{desconto}% OFF</span> : null}
       </>
     ) : (

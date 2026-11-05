@@ -1,5 +1,7 @@
 import Image from "next/image";
+import { ArrowDown } from "lucide-react";
 import { NOVARECASH_NOME } from "@/lib/novarecash/config";
+import { medirClique } from "@/lib/medir";
 
 /**
  * A CARTA DO FUNDADOR (05/11/2026, benchmark com a Nord): por que o NovareCash
@@ -14,8 +16,13 @@ import { NOVARECASH_NOME } from "@/lib/novarecash/config";
  * A paleta é a da VENDA (ouro sobre claro), não o ciano do app: por isso a
  * assinatura é desenhada aqui, e não o `AssinaturaJefferson` (que tem os
  * ícones ciano e já aparece no bloco "Quem está por trás").
+ *
+ * 05/11/2026 (pedido do Jefferson): fecha com "Conhecer os planos e assinar",
+ * em contorno dourado (secundário: não compete com o laranja), que leva a
+ * #planos — onde a pessoa escolhe Mensal ou Anual. Nunca direto a um checkout.
+ * `comPlanos = false` (nada à venda) tira o botão.
  */
-export function CartaFundador() {
+export function CartaFundador({ comPlanos = true }: { comPlanos?: boolean }) {
   return (
     <section aria-labelledby="carta-fundador-titulo" className="bg-gelo">
       <div className="mx-auto max-w-3xl px-4 py-14 sm:px-6 sm:py-16">
@@ -58,6 +65,15 @@ export function CartaFundador() {
               </span>
             </span>
           </figcaption>
+
+          {comPlanos && (
+            <div className="mt-6 flex justify-center sm:justify-start">
+              <a href="#planos" {...medirClique("venda:carta")} className="ncv-btn-contorno ncv-btn-contorno-claro min-h-12 w-full sm:w-auto">
+                Conhecer os planos e assinar
+                <ArrowDown className="h-4 w-4" />
+              </a>
+            </div>
+          )}
         </figure>
       </div>
     </section>

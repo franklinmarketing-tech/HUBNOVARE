@@ -24,8 +24,11 @@ export const NOVARECASH_NOME = "NovareCash";
 import { falarNoWhatsApp } from "@/lib/contato";
 
 /**
- * OS PLANOS (05/11/2026, aprovado pelo dono): TRÊS MENSAIS, pela quantidade de
- * bancos conectados pelo Open Finance — o modelo do Pierre e do Organizze.
+ * OS PLANOS (05/11/2026, aprovado pelo dono): TRÊS, pela quantidade de bancos
+ * conectados pelo Open Finance — o modelo do Pierre e do Organizze. Cada um em
+ * DOIS PRAZOS: MENSAL (cobrado todo mês) e ANUAL (os 12 meses pagos de uma vez,
+ * mais barato por mês). Todo valor abaixo é POR MÊS; o total do anual sai de
+ * `totalAnual()` (por mês × 12), nunca escrito à mão.
  * ⚠️ TODOS OS PLANOS TÊM TODOS OS RECURSOS: muda SÓ o limite de bancos
  * (`bancos`). Quem aplica o limite no app é `bancosDoPlano()`.
  *
@@ -33,33 +36,50 @@ import { falarNoWhatsApp } from "@/lib/contato";
  * 04/11/2026 dos apps COM Open Finance: Pierre Pro R$ 39/mês · Organizze
  * Conectado R$ 39,90 · Mobills mensal R$ 42,90 · Meu Planner Premium (com
  * WhatsApp) 12x R$ 34,90. Em 05/11 o dono passou o cheio a R$ 59,90 ("de 59,90
- * por 29,90") e, no mesmo dia, para os três planos abaixo.
+ * por 29,90"), no mesmo dia para os três planos e, ainda em 05/11, acrescentou o
+ * prazo ANUAL em cada um.
  *
  * ⚠️ O CHEIO É O PREÇO REAL COBRADO DEPOIS DA BLACK: de 1º/12 em diante a página
- * cobra exatamente esse valor. Riscar um valor que nunca se cobra é preço de
- * referência falso (CDC) — mudou o cheio, mude aqui e ele vale para os dois lugares.
+ * cobra exatamente esse valor, no mensal e no anual. Riscar um valor que nunca se
+ * cobra é preço de referência falso (CDC) — mudou o cheio, mude aqui e ele vale
+ * para os dois lugares. A âncora do anual é o MENSAL cheio do mesmo plano, que
+ * também é preço real (`ancoraPorMes`).
  *
- * ⚠️ PISO DO DONO (04/11): R$ 29,90 é o MENOR preço que se cobra — nenhuma
- * campanha desce disso. Hoje o piso é a Black do Essencial.
+ * ⚠️ PISO DO DONO (04/11, confirmado em 05/11): R$ 29,90 por mês é o MENOR preço
+ * do MENSAL — nenhuma campanha desce disso no mensal. O ANUAL pode ficar abaixo
+ * (o anual da Black do Essencial é R$ 24,90/mês), porque recebe os 12 meses de uma vez.
  *
- * O checkout de cada plano vem da Vercel (para trocar oferta sem deploy):
- * `NEXT_PUBLIC_NOVARECASH_CHECKOUT_ESSENCIAL`, `_PLUS` e `_PREMIUM`. Sem a env,
- * o botão vai ao WhatsApp da casa (`linkDeCompra`). ⚠️ As envs ficam escritas
- * por extenso: o Next só embute no navegador o `process.env.NEXT_PUBLIC_…` literal.
+ * O checkout de cada plano E PRAZO vem da Vercel (para trocar oferta sem deploy):
+ * mensal em `NEXT_PUBLIC_NOVARECASH_CHECKOUT_ESSENCIAL`, `_PLUS` e `_PREMIUM`;
+ * anual em `NEXT_PUBLIC_NOVARECASH_CHECKOUT_ESSENCIAL_ANUAL`, `_PLUS_ANUAL` e
+ * `_PREMIUM_ANUAL`. Sem a env, o botão vai ao WhatsApp da casa (`linkDeCompra`).
+ * ⚠️ As envs ficam escritas por extenso: o Next só embute no navegador o
+ * `process.env.NEXT_PUBLIC_…` literal.
  */
 export type ChavePlano = "essencial" | "plus" | "premium";
 
-export type Plano = {
-  chave: ChavePlano;
-  nome: string;
-  /** Quantos bancos dá para conectar pelo Open Finance. */
-  bancos: number;
+/** Mensal = cobrado todo mês. Anual = os 12 meses pagos de uma vez. */
+export type Prazo = "mensal" | "anual";
+export const PRAZOS: readonly Prazo[] = ["mensal", "anual"];
+/** O prazo marcado quando a página abre (decisão do dono, 05/11/2026). */
+export const PRAZO_INICIAL: Prazo = "anual";
+
+export type PrecoPrazo = {
   /** Preço REAL por mês fora da Black (o que se cobra de 1º/12 em diante). */
   cheio: number;
   /** Preço por mês na Black Novare. `null` = sem preço de campanha. */
   black: number | null;
   /** Link de pagamento da Hotmart. Vazio = o botão vai ao WhatsApp da casa. */
   checkout: string;
+};
+
+export type Plano = {
+  chave: ChavePlano;
+  nome: string;
+  /** Quantos bancos dá para conectar pelo Open Finance. */
+  bancos: number;
+  /** O preço POR MÊS em cada prazo. */
+  precos: Record<Prazo, PrecoPrazo>;
   /** O selo do cartão de destaque. */
   selo?: string;
 };
@@ -69,17 +89,19 @@ export const PLANOS: readonly Plano[] = [
     chave: "essencial",
     nome: "Essencial",
     bancos: 1,
-    cheio: 59.9,
-    black: 29.9,
-    checkout: process.env.NEXT_PUBLIC_NOVARECASH_CHECKOUT_ESSENCIAL ?? "",
+    precos: {
+      mensal: { cheio: 59.9, black: 29.9, checkout: process.env.NEXT_PUBLIC_NOVARECASH_CHECKOUT_ESSENCIAL ?? "" },
+      anual: { cheio: 49.9, black: 24.9, checkout: process.env.NEXT_PUBLIC_NOVARECASH_CHECKOUT_ESSENCIAL_ANUAL ?? "" },
+    },
   },
   {
     chave: "plus",
     nome: "Plus",
     bancos: 3,
-    cheio: 79.9,
-    black: 39.9,
-    checkout: process.env.NEXT_PUBLIC_NOVARECASH_CHECKOUT_PLUS ?? "",
+    precos: {
+      mensal: { cheio: 79.9, black: 39.9, checkout: process.env.NEXT_PUBLIC_NOVARECASH_CHECKOUT_PLUS ?? "" },
+      anual: { cheio: 69.9, black: 34.9, checkout: process.env.NEXT_PUBLIC_NOVARECASH_CHECKOUT_PLUS_ANUAL ?? "" },
+    },
     // ⚠️ Decisão do dono (05/11). Sem clientes ainda, é uma afirmação sem fonte: troque por
     // "Recomendado" se a página tiver de seguir à risca a regra de prova social.
     selo: "Recomendado", // 05/11: "Mais escolhido" sem clientes seria afirmação sem prova (CDC)
@@ -88,9 +110,10 @@ export const PLANOS: readonly Plano[] = [
     chave: "premium",
     nome: "Premium",
     bancos: 10,
-    cheio: 119.9,
-    black: 59.9,
-    checkout: process.env.NEXT_PUBLIC_NOVARECASH_CHECKOUT_PREMIUM ?? "",
+    precos: {
+      mensal: { cheio: 119.9, black: 59.9, checkout: process.env.NEXT_PUBLIC_NOVARECASH_CHECKOUT_PREMIUM ?? "" },
+      anual: { cheio: 109.9, black: 54.9, checkout: process.env.NEXT_PUBLIC_NOVARECASH_CHECKOUT_PREMIUM_ANUAL ?? "" },
+    },
   },
 ];
 
@@ -119,12 +142,14 @@ export const GARANTIA_DIAS = 7;
 /**
  * Para onde vai o botão de assinar um plano. Com o link da Hotmart na Vercel, vai
  * direto ao pagamento. SEM ele, cai no WhatsApp da casa com a mensagem pronta,
- * citando o plano — a venda não espera a integração ficar pronta.
+ * citando o plano (e "anual", no anual) — a venda não espera a integração ficar pronta.
  */
-export function linkDeCompra(chave: ChavePlano): { href: string; peloWhatsApp: boolean } {
+export function linkDeCompra(chave: ChavePlano, prazo: Prazo = "mensal"): { href: string; peloWhatsApp: boolean } {
   const p = planoPorChave(chave);
-  if (p.checkout) return { href: p.checkout, peloWhatsApp: false };
-  return { href: falarNoWhatsApp(`Olá! Quero assinar o NovareCash ${p.nome}.`), peloWhatsApp: true };
+  const checkout = p.precos[prazo].checkout;
+  if (checkout) return { href: checkout, peloWhatsApp: false };
+  const qual = prazo === "anual" ? `${p.nome} anual` : p.nome;
+  return { href: falarNoWhatsApp(`Olá! Quero assinar o NovareCash ${qual}.`), peloWhatsApp: true };
 }
 
 /**
@@ -204,18 +229,47 @@ export function dataSimulada(texto: string | null | undefined): Date | null {
   return d;
 }
 
-/** O preço por mês que vale AGORA para um plano: o da Black dentro da janela, o cheio fora. */
-export function precoAtual(chave: ChavePlano, agora = new Date()): number {
-  const p = planoPorChave(chave);
+/** Centavos certos: 24,90 × 12 dá 298,80, não 298,79999… */
+const centavos = (v: number) => Math.round(v * 100) / 100;
+
+/** O preço POR MÊS que vale AGORA para um plano e prazo: o da Black dentro da janela, o cheio fora. */
+export function precoAtual(chave: ChavePlano, agora = new Date(), prazo: Prazo = "mensal"): number {
+  const p = planoPorChave(chave).precos[prazo];
   if (faseBlack(agora) === "aberta" && p.black != null) return p.black;
   return p.cheio;
 }
 
-/** O % OFF da Black de um plano (cheio → black). `null` sem preço de campanha. */
-export function descontoPercentual(chave: ChavePlano): number | null {
-  const p = planoPorChave(chave);
-  if (p.black == null || p.cheio <= 0 || p.black >= p.cheio) return null;
-  return Math.round((1 - p.black / p.cheio) * 100);
+/** O que o anual cobra de uma vez AGORA: o preço por mês do anual × 12. */
+export function totalAnual(chave: ChavePlano, agora = new Date()): number {
+  return centavos(precoAtual(chave, agora, "anual") * 12);
+}
+
+/**
+ * O valor a riscar (por mês) ao lado do preço de agora: o MENSAL cheio do plano —
+ * no mensal só com a Black aberta; no anual sempre que ele sai mais barato que o
+ * mensal cheio (o que é verdade também fora da Black). `null` = nada a riscar.
+ * ⚠️ É sempre um preço que se cobra de verdade (CDC).
+ */
+export function ancoraPorMes(chave: ChavePlano, prazo: Prazo = "mensal", agora = new Date()): number | null {
+  if (prazo === "mensal" && faseBlack(agora) !== "aberta") return null;
+  const cheioMensal = planoPorChave(chave).precos.mensal.cheio;
+  return cheioMensal > 0 && precoAtual(chave, agora, prazo) < cheioMensal ? cheioMensal : null;
+}
+
+/**
+ * O % OFF de um plano no prazo, AGORA, contra a âncora de `ancoraPorMes`:
+ *   • mensal: a Black contra o mensal cheio (fora da Black, `null`);
+ *   • anual: o anual de agora contra o MENSAL cheio do mesmo plano.
+ */
+export function descontoPercentual(chave: ChavePlano, prazo: Prazo = "mensal", agora = new Date()): number | null {
+  const ancora = ancoraPorMes(chave, prazo, agora);
+  if (ancora == null) return null;
+  return Math.round((1 - precoAtual(chave, agora, prazo) / ancora) * 100);
+}
+
+/** Quanto o anual economiza por ano contra o mensal, no MESMO período: mensal × 12 − anual × 12. */
+export function economiaAnual(chave: ChavePlano, agora = new Date()): number {
+  return Math.max(0, centavos((precoAtual(chave, agora, "mensal") - precoAtual(chave, agora, "anual")) * 12));
 }
 
 export type Recurso = {

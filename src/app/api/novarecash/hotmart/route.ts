@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import { timingSafeEqual } from "node:crypto";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { excedeuLimitePorIp, respostaLimite } from "@/lib/api-security";
-import type { ChavePlano } from "@/lib/novarecash/config";
+import type { Prazo } from "@/lib/novarecash/config";
+import { planoDo, prazoDo, type Payload } from "@/lib/novarecash/hotmart-plano";
 
 /**
  * O AVISO DA HOTMART — é daqui que nasce (e morre) o acesso ao NovareCash.
@@ -54,55 +55,8 @@ function igual(a: string, b: string): boolean {
   return x.length === y.length && timingSafeEqual(x, y);
 }
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-type Payload = Record<string, any>;
-
-/**
- * 'anual' se o nome do plano/oferta disser; senão 'mensal'.
- *
- * ⚠️ PALAVRA INTEIRA (04/11/2026): a regra antiga (`/anual|annual|ano|12/`)
- * achava "ano" dentro de "PLANO" — "Plano Mensal" virava ANUAL e, sem
- * `date_next_charge` no aviso, ganhava 370 dias de acesso pagando um mês.
- */
-function prazoDo(p: Payload): "mensal" | "anual" {
-  const nome = String(p?.data?.subscription?.plan?.name ?? p?.data?.purchase?.offer?.code ?? "")
-    .normalize("NFD")
-    .replace(/\p{M}/gu, "")
-    .toLowerCase();
-  return /\b(anual|annual|yearly|ano)\b|\b12\s*meses\b/.test(nome) ? "anual" : "mensal";
-}
-
-/**
- * QUAL DOS TRÊS PLANOS (05/11/2026): 'essencial', 'plus' ou 'premium', lido do
- * nome do plano da assinatura ou da oferta da Hotmart (sem acento, sem
- * diferenciar maiúsculas, palavra inteira). É ele que define quantos bancos a
- * pessoa conecta (`bancosDoPlano`, em `lib/novarecash/config.ts`).
- *
- * Os campos são lidos em ordem e vale o PRIMEIRO que disser um plano. Nenhum
- * disse? 'essencial' — o menor limite: na dúvida, nunca liberar mais bancos do
- * que foi pago.
- */
-function planoDo(p: Payload): ChavePlano {
-  const campos = [
-    p?.data?.subscription?.plan?.name,
-    p?.data?.purchase?.offer?.name,
-    p?.data?.purchase?.offer?.code,
-    p?.data?.product?.name,
-  ];
-  for (const campo of campos) {
-    const nome = String(campo ?? "")
-      .normalize("NFD")
-      .replace(/\p{M}/gu, "")
-      .toLowerCase();
-    if (/\bpremium\b/.test(nome)) return "premium";
-    if (/\bplus\b/.test(nome)) return "plus";
-    if (/\b(essencial|essential)\b/.test(nome)) return "essencial";
-  }
-  return "essencial";
-}
-
 /** Até quando vale: a próxima cobrança que a Hotmart informa; sem ela, o período do plano + 5 dias de folga. */
-function validade(p: Payload, prazo: "mensal" | "anual"): string {
+function validade(p: Payload, prazo: Prazo): string {
   const ms = Number(p?.data?.purchase?.date_next_charge || p?.data?.subscription?.date_next_charge || 0);
   if (ms > Date.now()) return new Date(ms + 3 * DIA).toISOString(); // 3 dias de carência para a cobrança cair
   return new Date(Date.now() + (prazo === "anual" ? 370 : 35) * DIA).toISOString();
@@ -176,8 +130,10 @@ export async function POST(req: Request) {
         email,
         nome,
         status: "ativa",
-        // 05/11/2026: o PLANO (essencial/plus/premium), não mais o prazo. O prazo
-        // continua lido por `prazoDo` só para a validade (hoje, sempre mensal).
+        // 05/11/2026: o PLANO (essencial/plus/premium) e, à parte, o PRAZO (`prazoDo`,
+        // mensal/anual). Não há coluna de prazo, e não precisa: ele já está na
+        // validade (35 dias no mensal, 370 no anual, sem `date_next_charge`).
+        // Leitura dos dois nomes em `lib/novarecash/hotmart-plano.ts`.
         plano: planoDo(p),
         expira_em: validade(p, prazo),
         assinatura,

@@ -37,6 +37,10 @@ type Props = {
   /** O preço de agora do MENOR plano, por mês ("a partir de"). `null` = nada à venda: o bloco de preço não aparece. */
   desde: number | null;
   desconto: number | null;
+  /** "no anual" quando o menor preço é o do anual (pago de uma vez); `null` no mensal. */
+  rotuloPrazo: string | null;
+  /** Quantos planos há ("Ver os 3 planos"): contado na página, nunca escrito à mão. */
+  totalPlanos: number;
   black: boolean;
   /** O texto do botão, o mesmo da página inteira (`textoCompra`). */
   textoCta: string;
@@ -51,7 +55,7 @@ type Props = {
 
 const atraso = (ms: number) => ({ "--d": `${ms}ms` }) as React.CSSProperties;
 
-export function Heroi({ cheio, desde, desconto, black, textoCta, chapeu, aviso, totalRecursos, comFaixa }: Props) {
+export function Heroi({ cheio, desde, desconto, rotuloPrazo, totalPlanos, black, textoCta, chapeu, aviso, totalRecursos, comFaixa }: Props) {
   return (
     <section
       className={`ncv-heroi relative isolate overflow-hidden text-white ${
@@ -99,7 +103,7 @@ export function Heroi({ cheio, desde, desconto, black, textoCta, chapeu, aviso, 
                       Planos a partir de <s className="decoration-accent-claro/80">{brl(cheio)}</s> por
                     </>
                   ) : (
-                    "Planos mensais a partir de"
+                    "Planos a partir de"
                   )}
                 </p>
                 {desconto != null && (
@@ -111,6 +115,8 @@ export function Heroi({ cheio, desde, desconto, black, textoCta, chapeu, aviso, 
                   {brl(desde)}
                 </strong>
                 <span className="text-sm text-white/70">/mês</span>
+                {/* 05/11/2026: o menor preço é o do anual, pago de uma vez — dizer isso ao lado é a parte honesta. */}
+                {rotuloPrazo && <span className="text-sm font-semibold text-ouro">{rotuloPrazo}</span>}
               </p>
               {black && cheio != null && (
                 <p className="mt-2 flex items-start gap-1.5 border-t border-white/10 pt-2 text-xs font-semibold text-ouro">
@@ -121,11 +127,18 @@ export function Heroi({ cheio, desde, desconto, black, textoCta, chapeu, aviso, 
             </div>
           )}
 
-          <div className="ncv-entra mt-4 flex flex-col gap-3 sm:mt-5 sm:flex-row sm:items-center" style={atraso(340)}>
+          <div className="ncv-entra mt-4 flex flex-col gap-3 sm:mt-5 sm:flex-row sm:flex-wrap sm:items-center" style={atraso(340)}>
             <a href="#planos" {...medirClique("venda:heroi")} className="btn-cp cta-halo cta-varredura min-h-12 w-full px-7 text-[0.95rem] sm:w-auto">
               {textoCta}
               <ArrowRight className="h-4 w-4" />
             </a>
+            {/* 05/11/2026 (pedido do Jefferson): o secundário em contorno dourado, para quem quer comparar antes. */}
+            {desde != null && totalPlanos > 1 && (
+              <a href="#planos" {...medirClique("venda:ver-planos")} className="ncv-btn-contorno min-h-12 w-full px-6 sm:w-auto">
+                Ver os {totalPlanos} planos
+                <ChevronDown className="h-4 w-4" />
+              </a>
+            )}
             <a
               href="#recursos"
               className="hidden min-h-11 items-center justify-center gap-1.5 rounded-full px-3 text-sm font-semibold text-white/80 transition-colors hover:text-white sm:inline-flex"

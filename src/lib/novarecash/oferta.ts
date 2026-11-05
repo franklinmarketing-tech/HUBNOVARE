@@ -1,13 +1,18 @@
 import {
+  ancoraPorMes,
   BLACK,
   linkDeCompra,
   descontoPercentual,
+  economiaAnual,
   faseBlack,
   PLANO_DESTAQUE,
   PLANOS,
+  PRAZOS,
   precoAtual,
   RECURSOS,
+  totalAnual,
   type ChavePlano,
+  type Prazo,
   type Recurso,
 } from "@/lib/novarecash/config";
 
@@ -19,8 +24,10 @@ import {
  * preço?", "qual valor riscar?", "quanto por dia?"). Se uma tela precisar de
  * um número, ele sai daqui ou de lá, nunca de um literal no JSX.
  *
- * 05/11/2026: TRÊS PLANOS MENSAIS (Essencial, Plus, Premium), que só mudam no
- * limite de bancos. Uma `Oferta` por plano, na ordem de `PLANOS`.
+ * 05/11/2026: TRÊS PLANOS (Essencial, Plus, Premium), que só mudam no limite de
+ * bancos, cada um em DOIS PRAZOS (mensal e anual). Uma `Oferta` por plano e
+ * prazo: `ofertas(agora, prazo)` devolve os três de um prazo, na ordem de
+ * `PLANOS`; `todasAsOfertas(agora)` devolve os seis.
  *
  * Sem "use client" e sem nada de servidor: a página (servidor) e o pop-up
  * (navegador) leem a mesma regra.
@@ -29,43 +36,88 @@ import {
 export type Oferta = {
   plano: ChavePlano;
   nome: string;
+  prazo: Prazo;
   /** Quantos bancos o plano conecta pelo Open Finance. */
   bancos: number;
-  /** O selo do cartão ("Mais escolhido"), se houver. */
+  /** O selo do cartão ("Recomendado"), se houver. */
   selo: string | null;
   /** O plano em destaque na página. */
   destaque: boolean;
-  /** O que se paga AGORA por mês (Black dentro da janela, cheio fora). */
+  /** O que se paga AGORA por mês (Black dentro da janela, cheio fora). No anual, por mês do ano pago. */
   porMes: number;
-  /** O cheio por mês, para riscar. Só existe com a Black aberta e o preço dela abaixo do cheio. */
+  /** O valor a riscar, por mês: o MENSAL cheio (`ancoraPorMes`). `null` = nada a riscar. */
   cheioPorMes: number | null;
-  /** % OFF. Só com a Black aberta: fora dela o preço exibido já é o cheio. */
+  /** % OFF contra o valor riscado. `null` quando não há riscado. */
   desconto: number | null;
+  /** Só no anual: o que se paga de uma vez (por mês × 12). */
+  totalAno: number | null;
+  /** Só no anual: quanto ele economiza por ano contra o mensal do mesmo período. */
+  economiaAno: number | null;
+  /**
+   * O preço por mês deste prazo DEPOIS da Black, quando a campanha mexe nele e ele
+   * não é o próprio valor riscado (no anual, o riscado é o mensal). `null` fora disso.
+   */
+  depoisDaBlack: number | null;
   checkout: string;
   /** Sem link da Hotmart ainda: o botão leva ao WhatsApp da casa. */
   peloWhatsApp: boolean;
 };
 
-/** Os três planos, com o preço que vale em `agora`. */
-export function ofertas(agora = new Date()): Oferta[] {
+/** Os três planos de um prazo, com o preço que vale em `agora`. */
+export function ofertas(agora = new Date(), prazo: Prazo = "mensal"): Oferta[] {
   const aberta = faseBlack(agora) === "aberta";
   return PLANOS.map((p) => {
-    const valor = precoAtual(p.chave, agora);
-    const riscar = aberta && p.black != null && p.black < p.cheio ? p.cheio : null;
-    const compra = linkDeCompra(p.chave);
+    const preco = p.precos[prazo];
+    const valor = precoAtual(p.chave, agora, prazo);
+    const riscar = ancoraPorMes(p.chave, prazo, agora);
+    const compra = linkDeCompra(p.chave, prazo);
+    const anual = prazo === "anual";
+    const depois = aberta && preco.black != null && preco.black < preco.cheio && preco.cheio !== riscar ? preco.cheio : null;
     return {
       plano: p.chave,
       nome: p.nome,
+      prazo,
       bancos: p.bancos,
       selo: p.selo ?? null,
       destaque: p.chave === PLANO_DESTAQUE,
       porMes: valor,
       cheioPorMes: riscar,
-      desconto: riscar != null ? descontoPercentual(p.chave) : null,
+      desconto: riscar != null ? descontoPercentual(p.chave, prazo, agora) : null,
+      totalAno: anual ? totalAnual(p.chave, agora) : null,
+      economiaAno: anual ? economiaAnual(p.chave, agora) : null,
+      depoisDaBlack: depois,
       checkout: compra.href,
       peloWhatsApp: compra.peloWhatsApp,
     };
   });
+}
+
+/** As ofertas por prazo — o que a chave "Mensal | Anual" dos planos troca. */
+export function ofertasPorPrazo(agora = new Date()): Record<Prazo, Oferta[]> {
+  return { mensal: ofertas(agora, "mensal"), anual: ofertas(agora, "anual") };
+}
+
+/** As seis ofertas (3 planos × 2 prazos): é delas que sai o "a partir de" do herói, do pop-up e da barra. */
+export function todasAsOfertas(agora = new Date()): Oferta[] {
+  return PRAZOS.flatMap((prazo) => ofertas(agora, prazo));
+}
+
+/**
+ * O selo da chave Mensal | Anual: "economize R$ 60 por ano" — calculado. Se os
+ * planos economizarem valores diferentes, "economize até R$ X por ano".
+ * `null` quando o anual não economiza nada.
+ */
+export function textoEconomia(anuais: Oferta[]): string | null {
+  const vs = anuais.map((o) => o.economiaAno ?? 0).filter((v) => v > 0);
+  if (!vs.length) return null;
+  const maior = Math.max(...vs);
+  const iguais = vs.length === anuais.length && vs.every((v) => v === maior);
+  return `economize ${iguais ? "" : "até "}${brlCurto(maior)} por ano`;
+}
+
+/** "no anual" ao lado do "a partir de" quando o menor preço é o do anual (honestidade: é pago de uma vez). */
+export function rotuloPrazo(prazo: Prazo | null | undefined): string | null {
+  return prazo === "anual" ? "no anual" : null;
 }
 
 /** O maior % OFF entre o que está à venda — o "até X% OFF" da faixa e do pop-up. */
@@ -105,14 +157,22 @@ export function brl(v: number): string {
   return v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 }
 
+/** R$ 60 (sem ",00" quando o valor é inteiro); R$ 60,50 quando não é. */
+export function brlCurto(v: number): string {
+  return Number.isInteger(v) ? brl(v).replace(/,00$/, "") : brl(v);
+}
+
 /**
  * O texto do botão de compra — O MESMO no herói, no fecho e no pop-up (04/11:
  * copy no modelo "Black November"). O valor é o menor plano (`aPartirDe`): com
  * três planos, "por R$ 29,90" sozinho diria que tudo custa isso, então é
  * "a partir de". O botão de cada cartão diz o nome do plano ("Assinar o Plus").
+ * 05/11/2026: com o anual, o menor valor é o do anual — e o botão diz "/mês no anual".
  */
-export function textoCompra(valor: number | null): string {
-  return valor != null ? `Assinar a partir de ${brl(valor)}` : "Assinar o NovareCash";
+export function textoCompra(valor: number | null, prazo?: Prazo | null): string {
+  if (valor == null) return "Assinar o NovareCash";
+  const rotulo = rotuloPrazo(prazo);
+  return `Assinar a partir de ${brl(valor)}${rotulo ? `/mês ${rotulo}` : ""}`;
 }
 
 /**

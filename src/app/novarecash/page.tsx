@@ -44,7 +44,6 @@ import {
 import { medirClique } from "@/lib/medir";
 import { MedirCliques } from "@/components/MedirCliques";
 import {
-  aPartirDe,
   avisoBancos,
   maisBarata,
   avisoPendentes,
@@ -53,8 +52,10 @@ import {
   juntar,
   maiorDesconto,
   NOME_CURTO,
-  ofertas,
+  ofertasPorPrazo,
+  rotuloPrazo,
   statusRecurso,
+  brlCurto,
   textoCompra,
 } from "@/lib/novarecash/oferta";
 import { Heroi } from "./_venda/Heroi";
@@ -90,10 +91,17 @@ import "./_venda/venda.css";
  * ═══ VENDA DIRETA (04/11/2026: "já vamos vender, valor mensal, nada de Lista VIP") ═══
  * O preço sai de `PLANOS` (`config.ts`; 05/11/2026: Essencial, Plus e Premium,
  * que só mudam no limite de bancos): riscado e % OFF só com a Black aberta.
- * Cada botão vai ao checkout da Hotmart do plano (`NEXT_PUBLIC_NOVARECASH_CHECKOUT_ESSENCIAL`,
- * `_PLUS`, `_PREMIUM`
- * na Vercel); enquanto o link não existe, vai ao WhatsApp da casa
- * (`linkDeCompra`). Ninguém troca preço editando esta página.
+ * Cada botão vai ao checkout da Hotmart do plano E PRAZO (mensal em
+ * `NEXT_PUBLIC_NOVARECASH_CHECKOUT_ESSENCIAL`, `_PLUS`, `_PREMIUM`; anual nas
+ * mesmas com `_ANUAL` no fim, na Vercel); enquanto o link não existe, vai ao
+ * WhatsApp da casa (`linkDeCompra`). Ninguém troca preço editando esta página.
+ *
+ * ═══ PLANO ANUAL (05/11/2026, decisão do dono) ═══
+ * Cada plano tem MENSAL e ANUAL (os 12 meses pagos de uma vez, mais barato por
+ * mês). Os planos abrem no ANUAL, com a chave "Mensal | Anual" no topo. Herói,
+ * pop-up, barra fixa, missão e fecho dizem "a partir de" o MENOR preço por mês —
+ * o do anual do Essencial — com "no anual" ao lado. O riscado do anual é o
+ * MENSAL cheio (preço real), e o % OFF é contra ele.
  *
  * ═══ COPY NO MODELO "BLACK NOVEMBER" (04/11/2026) ═══
  * Ancoragem (cheio riscado), garantia repetida, objeções em blocos próprios
@@ -187,12 +195,12 @@ const ZAP_SUPORTE = `https://wa.me/${NUMERO_SUPORTE}?text=${encodeURIComponent(
 )}`;
 
 /** O texto da faixa do topo, depois de "Black Novare:". `null` = nada fora da campanha. */
-function textoFaixa(fase: FaseBlack, desconto: number | null, urgencia: UrgenciaBlack | null): string | null {
+function textoFaixa(fase: FaseBlack, desconto: string | null, urgencia: UrgenciaBlack | null): string | null {
   if (fase === "aviso") return `vem aí, de ${dataBlack("inicio")} a ${dataBlack("fim")}`;
   if (fase !== "aberta") return null;
   // No último dia o rótulo já diz "acaba hoje às 23h59": repetir a data só alongaria a faixa no celular.
-  if (urgencia?.destaque) return desconto ? `${desconto}% OFF` : "preço da campanha";
-  return desconto ? `${desconto}% OFF, só até ${dataBlack("fim")}` : `aberta até ${dataBlack("fim")}`;
+  if (urgencia?.destaque) return desconto ?? "preço da campanha";
+  return desconto ? `${desconto}, só até ${dataBlack("fim")}` : `aberta até ${dataBlack("fim")}`;
 }
 
 /**
@@ -203,11 +211,14 @@ function Preco({
   cheio,
   valor,
   desconto,
+  rotulo,
   centro = false,
 }: {
   cheio: number | null;
   valor: number;
   desconto: number | null;
+  /** "no anual", quando o menor preço é o do anual. */
+  rotulo: string | null;
   centro?: boolean;
 }) {
   return (
@@ -223,6 +234,7 @@ function Preco({
       <p className={`mt-0.5 flex flex-wrap items-baseline gap-x-1.5 gap-y-1 ${centro ? "justify-center" : ""}`}>
         <strong className="font-display text-4xl font-bold tracking-[-0.03em] text-white">{brl(valor)}</strong>
         <span className="text-sm text-white/70">/mês</span>
+        {rotulo && <span className="text-sm font-semibold text-ouro">{rotulo}</span>}
         {desconto && (
           <span className="ml-1 self-center rounded-full bg-accent px-2 py-0.5 text-2xs font-bold text-white">{desconto}% OFF</span>
         )}
@@ -246,19 +258,33 @@ export default async function NovareCashVendaPage({
   const agora = simulada ?? new Date();
   const fase = faseBlack(agora);
   const black = fase === "aberta";
-  const lista = ofertas(agora);
-  const emVenda = lista.length > 0;
-  /** O "a partir de": o menor plano (hoje o Essencial). */
-  const desde = aPartirDe(lista);
-  const desconto = maiorDesconto(lista);
-  /** O cheio do MENOR plano, para riscar ao lado do "a partir de": só existe com a Black aberta (`ofertas()` decide). */
-  const cheio = maisBarata(lista)?.cheioPorMes ?? null;
-  const peloWhatsApp = lista.some((o) => o.peloWhatsApp);
+  /** Os 3 planos em cada prazo (a chave "Mensal | Anual" troca entre eles). */
+  const porPrazo = ofertasPorPrazo(agora);
+  /** Os 3 planos no mensal: a pergunta "qual a diferença entre os planos?". */
+  const lista = porPrazo.mensal;
+  const todas = [...porPrazo.mensal, ...porPrazo.anual];
+  const emVenda = todas.length > 0;
+  /** O "a partir de": o MENOR preço por mês entre os seis (hoje, o Essencial no anual). */
+  const menor = maisBarata(todas);
+  const desde = menor?.porMes ?? null;
+  /** "no anual" ao lado do "a partir de", quando é o anual (pago de uma vez). */
+  const noPrazo = rotuloPrazo(menor?.prazo);
+  const desconto = maiorDesconto(todas);
+  /** "58% OFF" ou, se os planos tiverem % diferentes, "até 58% OFF". */
+  const descontos = new Set(todas.map((o) => o.desconto).filter((d): d is number => d != null && d > 0));
+  const textoDesconto = desconto ? `${descontos.size > 1 ? "até " : ""}${desconto}% OFF` : null;
+  /** O valor riscado do MENOR preço (o mensal cheio do plano, `ancoraPorMes`). */
+  const cheio = menor?.cheioPorMes ?? null;
+  const peloWhatsApp = todas.some((o) => o.peloWhatsApp);
+  /** O anual e o mensal do Essencial (o menor plano), para a pergunta "mensal ou anual?". */
+  const essencialMensal = porPrazo.mensal[0];
+  const essencialAnual = porPrazo.anual[0];
+
   /** "Última semana", "Hoje é Black Friday"... — só com a Black aberta, pela data (`config.ts`). */
   const urgencia = urgenciaBlack(agora);
-  const faixa = textoFaixa(fase, desconto, urgencia);
-  /** O MESMO texto em todo botão de compra: "Quero o NovareCash por R$ X". */
-  const textoCta = textoCompra(desde);
+  const faixa = textoFaixa(fase, textoDesconto, urgencia);
+  /** O MESMO texto em todo botão de compra: "Assinar a partir de R$ X/mês no anual". */
+  const textoCta = textoCompra(desde, menor?.prazo);
   const chapeuCampanha = black ? `${BLACK.nome} · só até ${dataBlack("fim")}` : null;
 
   return (
@@ -360,6 +386,8 @@ export default async function NovareCashVendaPage({
           cheio={emVenda ? cheio : null}
           desde={emVenda ? desde : null}
           desconto={desconto}
+          rotuloPrazo={noPrazo}
+          totalPlanos={lista.length}
           black={black}
           textoCta={textoCta}
           chapeu={chapeuCampanha ?? "Novo app da Novare"}
@@ -405,29 +433,31 @@ export default async function NovareCashVendaPage({
         </section>
 
         {/* 3b · A carta do fundador: por que o app existe, antes do preço. */}
-        <CartaFundador />
+        <CartaFundador comPlanos={emVenda} />
 
         {/* 4 · Os três planos (só muda o limite de bancos), com o riscado e o prazo da campanha. */}
-        <section id="planos" className="scroll-mt-16 text-white" style={PALCO_OURO}>
+        {/* `scroll-mt-20`: o cabeçalho fixo (64px) não cobre o título quando se chega por #planos. */}
+        <section id="planos" className="scroll-mt-20 text-white" style={PALCO_OURO}>
           <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6">
             <div className="mx-auto max-w-2xl text-center">
               <p className="chapeu text-ouro">{fase === "aviso" || black ? BLACK.nome : NOVARECASH_NOME}</p>
               <h2 className="mt-3 font-display text-3xl font-semibold leading-[1.12] tracking-[-0.03em] sm:text-[2.6rem]">
-                {black && desconto
-                  ? `${desconto}% OFF só até ${dataBlack("fim")}`
+                {black && textoDesconto
+                  ? `${textoDesconto.replace(/^./, (c) => c.toUpperCase())} na ${BLACK.nome}`
                   : lista.length > 1
                     ? "Escolha o seu plano"
                     : `Assine o ${NOVARECASH_NOME}`}
               </h2>
               <p className="mt-3 text-base leading-relaxed text-white/70">
                 Todos os planos têm todos os recursos: muda só quantos bancos você conecta.{" "}
-                {black && cheio != null
-                  ? `Depois de ${dataBlack("fim")}, cada plano volta ao preço riscado. ${GARANTIA_DIAS} dias de garantia.`
-                  : `Cobrado todo mês, cancela quando quiser. ${GARANTIA_DIAS} dias de garantia.`}
+                No mensal, cobrado todo mês; no anual, os 12 meses de uma vez e mais barato por mês.{" "}
+                {black
+                  ? `Preços da ${BLACK.nome} só até ${dataBlack("fim")}; depois, cada plano volta ao preço cheio. ${GARANTIA_DIAS} dias de garantia.`
+                  : `${GARANTIA_DIAS} dias de garantia nos dois.`}
               </p>
             </div>
-            <div className="mt-10">
-              <Planos lista={lista} />
+            <div className="mt-8">
+              <Planos porPrazo={porPrazo} fimBlack={black ? dataBlack("fim") : null} />
             </div>
           </div>
         </section>
@@ -567,7 +597,7 @@ export default async function NovareCashVendaPage({
             <div className="mx-auto max-w-3xl px-4 py-16 text-center sm:px-6">
               <p className="chapeu text-ouro">A nossa missão</p>
               <h2 className="mt-3 font-display text-3xl font-semibold leading-[1.12] tracking-[-0.03em] sm:text-[2.6rem]">
-                Por que a partir de só {brl(desde)} por mês?
+                Por que a partir de só {brl(desde)} por mês{noPrazo ? ` ${noPrazo}` : ""}?
               </h2>
               <p className="mx-auto mt-5 max-w-xl text-base leading-relaxed text-white/80">
                 Porque a gente não ganha com o seu dinheiro. A Novare não vende produto financeiro e
@@ -658,7 +688,7 @@ export default async function NovareCashVendaPage({
               {[
                 {
                   p: "E se eu não gostar? Como cancelo?",
-                  r: `Nos primeiros ${GARANTIA_DIAS} dias, peça o reembolso e o valor volta inteiro. Depois disso, cancela quando quiser, sem multa.`,
+                  r: `Nos primeiros ${GARANTIA_DIAS} dias, peça o reembolso e o valor volta inteiro, no mensal e no anual. Depois disso, cancela quando quiser, sem multa: no mensal, para de cobrar no mês seguinte; no anual, a renovação desliga e o acesso vai até o fim do ano já pago.`,
                 },
                 {
                   p: "Preciso começar do zero?",
@@ -687,6 +717,19 @@ export default async function NovareCashVendaPage({
                     AVISO_BANCOS ? ` ${AVISO_BANCOS}` : ""
                   }`,
                 },
+                ...(essencialMensal && essencialAnual?.totalAno != null
+                  ? [
+                      {
+                        // 05/11/2026: o anual. Tudo calculado de `PLANOS` (o exemplo é o Essencial, o menor plano).
+                        p: "Qual a diferença entre mensal e anual?",
+                        r: `Os recursos são os mesmos. No mensal, você paga todo mês. No anual, paga os 12 meses de uma vez e cada mês sai mais barato: o Essencial fica ${brl(
+                          essencialAnual.porMes,
+                        )} por mês no anual (${brl(essencialAnual.totalAno)} cobrados de uma vez), contra ${brl(essencialMensal.porMes)} no mensal${
+                          essencialAnual.economiaAno ? `: ${brlCurto(essencialAnual.economiaAno)} a menos por ano` : ""
+                        }. A garantia de ${GARANTIA_DIAS} dias vale para os dois.`,
+                      },
+                    ]
+                  : []),
                 {
                   // A ÚNICA menção ao app gratuito da casa na página (decisão de 03/11, noite).
                   p: "Já uso o FINCASH. Preciso trocar?",
@@ -774,7 +817,7 @@ export default async function NovareCashVendaPage({
             </ul>
             {emVenda && desde != null && (
               <div className="mt-10 flex flex-col items-center">
-                <Preco cheio={cheio} valor={desde} desconto={desconto} centro />
+                <Preco cheio={cheio} valor={desde} desconto={desconto} rotulo={noPrazo} centro />
                 {black && (
                   <p className="mt-1.5 text-xs font-semibold text-ouro">Preço da {BLACK.nome} só até {dataBlack("fim")}.</p>
                 )}
@@ -808,7 +851,7 @@ export default async function NovareCashVendaPage({
         texto={emVenda ? "Assinar agora" : textoCta}
         apoio={
           emVenda && desde != null
-            ? `a partir de ${brl(desde)}/mês${desconto ? ` (${desconto}% OFF)` : ""} · ${GARANTIA_DIAS} dias de garantia`
+            ? `a partir de ${brl(desde)}/mês${noPrazo ? ` ${noPrazo}` : ""}${desconto ? ` (${desconto}% OFF)` : ""} · ${GARANTIA_DIAS} dias de garantia`
             : fase === "aviso" || black
               ? `${BLACK.nome}: avisamos você primeiro`
               : `Garantia de ${GARANTIA_DIAS} dias`
