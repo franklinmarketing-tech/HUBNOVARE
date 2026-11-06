@@ -149,7 +149,7 @@ export function textoBancos(n: number): string {
 export function avisoBancos(): string | null {
   const banco = RECURSOS.find((r) => r.chave === "banco");
   if (!banco || banco.noAr) return null;
-  return `A conexão com bancos ${banco.liberaEm ? `libera em ${banco.liberaEm}` : "está em preparação"}; até lá, todos os recursos que já funcionam vêm em qualquer plano.`;
+  return `A conexão com bancos ${banco.liberaEm ? `libera em ${banco.liberaEm}` : "está em preparação"}; até lá, o que já funciona vem em qualquer plano (os agentes de IA variam por plano).`;
 }
 
 /** R$ 1.234,56 */

@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Info, RotateCcw, SendHorizontal, Sparkles } from "lucide-react";
+import Link from "next/link";
+import { CalendarClock, Info, Lock, PieChart, Repeat, RotateCcw, SendHorizontal, Sparkles, Target, TrendingDown } from "lucide-react";
 
 import { ANEL, Cartao } from "../pecas";
 
@@ -18,17 +19,32 @@ import { ANEL, Cartao } from "../pecas";
 
 type Mensagem = { papel: "usuario" | "ia"; texto: string; erro?: boolean };
 
-const CHAVE = "novarecash:ia:conversa:v1";
+/** O agente como a tela recebe da página (06/11/2026): `liberado` vem do plano. */
+export type AgenteNaTela = {
+  chave: string;
+  nome: string;
+  resumo: string;
+  sugestoes: string[];
+  liberado: boolean;
+  planoMinimo: string;
+};
 
-const SUGESTOES = [
-  "Posso gastar R$ 300 este mês?",
-  "Onde estou gastando mais?",
-  "Como está o meu orçamento?",
-  "Quanto sobra até o fim do mês?",
-  "Qual o meu saldo nas contas?",
-];
+const ICONE: Record<string, typeof Sparkles> = {
+  gastos: TrendingDown,
+  contas: CalendarClock,
+  orcamento: PieChart,
+  assinaturas: Repeat,
+  metas: Target,
+};
 
-export function ChatIA({ cota }: { cota: number }) {
+/** Uma conversa por agente: trocar de agente não mistura os assuntos. */
+const chaveDaConversa = (agente: string) => `novarecash:ia:conversa:v2:${agente}`;
+
+export function ChatIA({ cota, agentes }: { cota: number; agentes: AgenteNaTela[] }) {
+  const [agente, setAgente] = useState<AgenteNaTela>(agentes.find((a) => a.liberado) ?? agentes[0]);
+  const [bloqueado, setBloqueado] = useState<AgenteNaTela | null>(null);
+  const CHAVE = chaveDaConversa(agente.chave);
+  const SUGESTOES = agente.sugestoes;
   const [mensagens, setMensagens] = useState<Mensagem[]>([]);
   const [texto, setTexto] = useState("");
   const [pensando, setPensando] = useState(false);
@@ -38,15 +54,16 @@ export function ChatIA({ cota }: { cota: number }) {
   useEffect(() => {
     try {
       const cru = sessionStorage.getItem(CHAVE);
-      if (cru) setMensagens(JSON.parse(cru) as Mensagem[]);
+      setMensagens(cru ? (JSON.parse(cru) as Mensagem[]) : []);
     } catch {
       /* armazenamento bloqueado: a conversa só não sobrevive ao recarregar */
+      setMensagens([]);
     }
-  }, []);
+  }, [CHAVE]);
 
   useEffect(() => {
     try {
-      sessionStorage.setItem(CHAVE, JSON.stringify(mensagens.slice(-30)));
+      if (mensagens.length) sessionStorage.setItem(CHAVE, JSON.stringify(mensagens.slice(-30)));
     } catch {}
     // Só desce quando há conversa: com a lista vazia, rolar até o fim escondia o título ao abrir a tela.
     if (mensagens.length === 0) return;
@@ -67,7 +84,7 @@ export function ChatIA({ cota }: { cota: number }) {
       const r = await fetch("/api/novarecash/ia", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ mensagens: historico.map(({ papel, texto }) => ({ papel, texto })) }),
+        body: JSON.stringify({ agente: agente.chave, mensagens: historico.map(({ papel, texto }) => ({ papel, texto })) }),
       });
       const d = (await r.json().catch(() => null)) as { resposta?: string; erro?: string; usadas?: number } | null;
       if (typeof d?.usadas === "number") setUsadas(d.usadas);
@@ -98,6 +115,54 @@ export function ChatIA({ cota }: { cota: number }) {
 
   return (
     <div className="space-y-3">
+      {/* OS AGENTES (06/11/2026): um foco por agente; o cadeado diz em que plano ele vem. */}
+      <div role="radiogroup" aria-label="Escolha o agente" className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
+        {agentes.map((a) => {
+          const Icone = ICONE[a.chave] ?? Sparkles;
+          const marcado = a.chave === agente.chave;
+          return (
+            <button
+              key={a.chave}
+              type="button"
+              role="radio"
+              aria-checked={marcado}
+              disabled={pensando}
+              onClick={() => {
+                if (!a.liberado) return setBloqueado(a);
+                setBloqueado(null);
+                setAgente(a);
+              }}
+              className={`relative flex min-h-[4.5rem] flex-col items-start gap-1 rounded-2xl p-3 text-left transition-colors ${ANEL} ${
+                marcado
+                  ? "bg-ouro/15 ring-1 ring-inset ring-ouro/60"
+                  : a.liberado
+                    ? "bg-white/[0.04] ring-1 ring-inset ring-white/10 hover:ring-ouro/40"
+                    : "bg-white/[0.02] ring-1 ring-inset ring-white/5 opacity-70 hover:opacity-100"
+              }`}
+            >
+              <span className="flex w-full items-center justify-between">
+                <Icone className={`h-4 w-4 ${marcado ? "text-ouro" : "text-ciano-claro"}`} />
+                {!a.liberado && <Lock className="h-3.5 w-3.5 text-white/50" aria-label="Não está no seu plano" />}
+              </span>
+              <span className="text-xs font-semibold leading-tight text-white">{a.nome.replace("Agente de ", "")}</span>
+              <span className="text-2xs leading-snug text-white/55">
+                {a.liberado ? a.resumo : `No plano ${a.planoMinimo}`}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+
+      {bloqueado && (
+        <p role="status" className="flex flex-wrap items-center gap-2 rounded-xl border border-ouro/30 bg-ouro/10 px-4 py-3 text-xs text-white/85">
+          <Lock className="h-3.5 w-3.5 text-ouro" />
+          O {bloqueado.nome} vem no plano {bloqueado.planoMinimo}.
+          <Link href="/novarecash#planos" className="font-semibold text-ouro underline underline-offset-2">
+            Ver os planos
+          </Link>
+        </p>
+      )}
+
       <p data-guia="ia-aviso" className="flex items-start gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-2xs leading-relaxed text-white/70">
         <Info className="mt-0.5 h-3.5 w-3.5 shrink-0 text-ciano-claro" />
         <span>
@@ -117,9 +182,9 @@ export function ChatIA({ cota }: { cota: number }) {
               >
                 <Sparkles className="h-5 w-5" />
               </span>
-              <p className="mt-3 font-display text-sm font-semibold text-white">Pergunte como a uma pessoa</p>
+              <p className="mt-3 font-display text-sm font-semibold text-white">{agente.nome}</p>
               <p className="mx-auto mt-1 max-w-sm text-xs leading-relaxed text-white/70">
-                A resposta sai dos seus números de agora. Experimente uma destas:
+                {agente.resumo} A resposta sai dos seus números de agora. Experimente:
               </p>
             </div>
           )}

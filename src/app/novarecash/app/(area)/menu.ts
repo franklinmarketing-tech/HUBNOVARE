@@ -32,6 +32,8 @@ export type NomeIcone =
 export type Tela = {
   href: string;
   rotulo: string;
+  /** Nome curto para a barra de baixo do celular (06/11/2026). */
+  curto?: string;
   icone: NomeIcone;
   /** Só a rota exata conta como ativa (o Início, que é prefixo de todas). */
   exato?: boolean;
@@ -61,7 +63,7 @@ export const GRUPOS: { titulo: string; telas: Tela[] }[] = [
   {
     titulo: "Inteligência",
     telas: [
-      { href: "/novarecash/app/ia", rotulo: "IA", icone: "ia", palavras: "assistente perguntar chat" },
+      { href: "/novarecash/app/ia", rotulo: "Agentes de IA", curto: "Agentes", icone: "ia", palavras: "ia assistente agente perguntar chat gastos contas orcamento assinaturas metas" },
       { href: "/novarecash/app/alertas", rotulo: "Alertas", icone: "alertas", palavras: "avisos notificações" },
     ],
   },

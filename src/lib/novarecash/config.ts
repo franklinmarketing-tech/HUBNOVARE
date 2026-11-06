@@ -284,8 +284,8 @@ export type Recurso = {
 export const RECURSOS: Recurso[] = [
   {
     chave: "ia",
-    titulo: "IA que conhece o seu dinheiro",
-    texto: "Pergunte em português, como \"posso gastar R$ 300 este mês?\", e a resposta sai dos SEUS lançamentos, não de uma média da internet.",
+    titulo: "Agentes de IA que conhecem o seu dinheiro",
+    texto: "Agentes de Gastos, Contas, Orçamento, Assinaturas e Metas: pergunte em português, como \"posso gastar R$ 300 este mês?\", e a resposta sai dos SEUS lançamentos, não de uma média da internet.",
     noAr: true,
   },
   {

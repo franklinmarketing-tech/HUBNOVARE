@@ -474,7 +474,7 @@ export function NavNovareCashCelular({ nome, plano, tema, sair }: Comum) {
                   <span className={bolha(ativo)}>
                     <Icone3D nome={t.icone} tamanho={26} ativo={ativo} />
                   </span>
-                  <span className="max-w-full truncate">{t.rotulo}</span>
+                  <span className="max-w-full truncate">{t.curto ?? t.rotulo}</span>
                 </Link>
               </li>
             );

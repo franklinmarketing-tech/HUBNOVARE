@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { textoAgentes } from "@/lib/novarecash/agentes";
 import Link from "next/link";
 import type { Metadata } from "next";
 import {
@@ -449,7 +450,7 @@ export default async function NovareCashVendaPage({
                     : `Assine o ${NOVARECASH_NOME}`}
               </h2>
               <p className="mt-3 text-base leading-relaxed text-white/70">
-                Todos os planos têm todos os recursos: muda só quantos bancos você conecta.{" "}
+                Muda quantos bancos você conecta e quantos agentes de IA trabalham para você; o resto vem em todos.{" "}
                 No mensal, cobrado todo mês; no anual, os 12 meses de uma vez e mais barato por mês.{" "}
                 {black
                   ? `Preços da ${BLACK.nome} só até ${dataBlack("fim")}; depois, cada plano volta ao preço cheio. ${GARANTIA_DIAS} dias de garantia.`
@@ -713,7 +714,9 @@ export default async function NovareCashVendaPage({
                 {
                   // 05/11/2026: três planos. A resposta sai de `PLANOS` e de `avisoBancos()`.
                   p: "Qual a diferença entre os planos?",
-                  r: `Só quantos bancos você conecta: ${juntar(lista.map((o) => `${o.nome}, ${o.bancos} ${o.bancos === 1 ? "banco" : "bancos"}`))}. Todos os recursos vêm em todos os planos.${
+                  r: `Quantos bancos você conecta e quantos agentes de IA você tem: ${juntar(
+                    lista.map((o) => `${o.nome}, ${o.bancos} ${o.bancos === 1 ? "banco" : "bancos"} e ${textoAgentes(o.plano).toLowerCase()}`),
+                  )}. Extrato, cartões, contas a pagar, metas, alertas e relatórios vêm em todos os planos.${
                     AVISO_BANCOS ? ` ${AVISO_BANCOS}` : ""
                   }`,
                 },

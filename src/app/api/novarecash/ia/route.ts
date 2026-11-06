@@ -2,7 +2,11 @@ import { NextResponse } from "next/server";
 
 import { excedeuLimite, excedeuLimitePorIp, respostaLimite } from "@/lib/api-security";
 import { createClient } from "@/lib/supabase/server";
-import { temAcessoNovareCash } from "@/lib/novarecash/acesso";
+import { minhaAssinatura, temAcessoNovareCash } from "@/lib/novarecash/acesso";
+import { AGENTES_DO_PLANO, agentePorChave, ehChaveAgente, planoMinimoDoAgente } from "@/lib/novarecash/agentes";
+import { planoPorChave } from "@/lib/novarecash/config";
+import { ehEquipe } from "@/lib/novarecash/recursos";
+import { getPerfil } from "@/lib/perfil";
 import { carregarRetrato, retratoEmTexto } from "@/lib/novarecash/retrato";
 import { usuarioDaSessao } from "@/lib/novarecash/dados";
 import {
@@ -82,8 +86,22 @@ export async function POST(req: Request) {
     return erro("Muitas perguntas seguidas. Espere um minuto e tente de novo.", 429);
   }
 
-  const mensagens = lerMensagens(await req.json().catch(() => null));
+  const corpo = await req.json().catch(() => null);
+  const mensagens = lerMensagens(corpo);
   if (!mensagens) return erro("Não entendi a pergunta. Escreva de novo, por favor.", 400);
+
+  /* O AGENTE (06/11/2026). Trava REAL por plano: agente fora do plano não responde,
+     mesmo que a tela seja burlada. A equipe usa todos. Sem agente = o de Gastos. */
+  const pedido = (corpo as { agente?: unknown } | null)?.agente;
+  const agente = agentePorChave(ehChaveAgente(pedido) ? pedido : "gastos");
+  const [perfilHub, assinatura] = await Promise.all([getPerfil(), minhaAssinatura()]);
+  if (!ehEquipe(perfilHub?.role)) {
+    const plano = planoPorChave(assinatura?.plano);
+    if (!AGENTES_DO_PLANO[plano.chave].includes(agente.chave)) {
+      const minimo = planoPorChave(planoMinimoDoAgente(agente.chave)).nome;
+      return erro(`O ${agente.nome} faz parte do plano ${minimo}. Veja os planos em /novarecash.`, 403);
+    }
+  }
 
   if (!iaConfigurada()) {
     return erro("A IA está sendo ligada. Volte em breve — o seu extrato continua aqui no NovareCash.", 503);
@@ -119,7 +137,7 @@ export async function POST(req: Request) {
     ]);
     const nome = (perfil.data?.nome as string | undefined)?.split(" ")[0] ?? null;
 
-    const resposta = await responder(promptDeSistema(nome, retratoEmTexto(retrato)), mensagens);
+    const resposta = await responder(promptDeSistema(nome, retratoEmTexto(retrato), agente.foco), mensagens);
     return NextResponse.json({ resposta, usadas, cota: COTA_DIARIA_IA });
   } catch (e) {
     // A pergunta não foi respondida por erro nosso: devolve a cota.

@@ -1,7 +1,8 @@
 "use client";
 
 import { useRef, useState, type KeyboardEvent } from "react";
-import { ArrowRight, Check, Clock, Landmark, ShieldCheck } from "lucide-react";
+import { ArrowRight, Check, Clock, Landmark, ShieldCheck, Sparkles } from "lucide-react";
+import { AGENTES, AGENTES_DO_PLANO, textoAgentes } from "@/lib/novarecash/agentes";
 import { GARANTIA_DIAS, NOVARECASH_NOME, PRAZO_INICIAL, PRAZOS, RECURSOS, type Prazo } from "@/lib/novarecash/config";
 import { avisoBancos, brl, statusRecurso, textoBancos, textoEconomia, textoPorDia, type Oferta } from "@/lib/novarecash/oferta";
 import { medirClique } from "@/lib/medir";
@@ -206,9 +207,21 @@ function CartaoPlano({ oferta: o, fimBlack }: { oferta: Oferta; fimBlack: string
           <Landmark className={`h-4 w-4 shrink-0 ${d ? "text-ouro-forte" : "text-ouro"}`} />
           {textoBancos(o.bancos)}
         </li>
+        {/* 06/11/2026: os AGENTES DE IA mudam por plano (`AGENTES_DO_PLANO`); os nomes vêm de `AGENTES`. */}
+        <li className={`flex items-start gap-2.5 font-semibold ${d ? "text-foreground" : "text-white"}`}>
+          <Sparkles className={`mt-0.5 h-4 w-4 shrink-0 ${d ? "text-ouro-forte" : "text-ouro"}`} />
+          <span>
+            {textoAgentes(o.plano)}
+            <span className={`block text-2xs font-normal leading-snug ${apagado}`}>
+              {AGENTES_DO_PLANO[o.plano]
+                .map((c) => AGENTES.find((a) => a.chave === c)?.nome.replace("Agente de ", ""))
+                .join(" · ")}
+            </span>
+          </span>
+        </li>
         <li className={`flex items-center gap-2.5 ${d ? "text-foreground" : "text-white/85"}`}>
           <Check className={`h-4 w-4 shrink-0 ${d ? "text-ouro-forte" : "text-ouro"}`} />
-          Todos os recursos do {NOVARECASH_NOME}
+          Extrato, cartões, contas, metas e alertas
         </li>
         <li className={`flex items-center gap-2.5 ${d ? "text-foreground" : "text-white/85"}`}>
           <Check className={`h-4 w-4 shrink-0 ${d ? "text-ouro-forte" : "text-ouro"}`} />
