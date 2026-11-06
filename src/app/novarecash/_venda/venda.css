@@ -302,4 +302,67 @@
       transition: none;
     }
   }
+
+  /* ── O celular vivo do herói e o movimento ao rolar (06/11/2026) ─────────── */
+
+  /* As duas telas do celular ficam empilhadas; a que sai some com fade curto. */
+  .ncv-tela {
+    transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .ncv-tela-sai {
+    opacity: 0;
+    transform: translate3d(0, 10px, 0);
+    pointer-events: none;
+  }
+  .ncv-ponto {
+    display: inline-block;
+    height: 6px;
+    width: 6px;
+    border-radius: 9999px;
+    background: var(--color-ouro);
+    opacity: 0.5;
+  }
+  .ncv-cursor {
+    display: inline-block;
+    height: 0.95em;
+    width: 2px;
+    margin-left: 1px;
+    vertical-align: -0.12em;
+    background: var(--color-ouro);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .ncv-bolha {
+      animation: ncv-aparece 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+    .ncv-ponto {
+      animation: ncv-pulo 0.9s ease-in-out infinite;
+    }
+    .ncv-cursor {
+      animation: ncv-pisca 0.8s steps(2, start) infinite;
+    }
+    /* Ao rolar: só esconde depois que o JS confirmou que vai revelar (`ncv-revela-pronto`). */
+    .ncv-revela-pronto [data-revela] {
+      opacity: 0;
+      transform: translate3d(0, 28px, 0);
+      transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .ncv-revela-pronto [data-revela].ncv-revelado {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .ncv-tela {
+      transition: none;
+    }
+  }
+
+  @keyframes ncv-pulo {
+    0%, 100% { transform: translate3d(0, 0, 0); opacity: 0.45; }
+    50%      { transform: translate3d(0, -4px, 0); opacity: 1; }
+  }
+  @keyframes ncv-pisca {
+    to { visibility: hidden; }
+  }
 }

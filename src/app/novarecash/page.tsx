@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { textoAgentes } from "@/lib/novarecash/agentes";
+import { Contador, RevelarAoRolar } from "./_venda/Movimento";
 import Link from "next/link";
 import type { Metadata } from "next";
 import {
@@ -381,6 +382,7 @@ export default async function NovareCashVendaPage({
         </div>
       )}
 
+      <RevelarAoRolar />
       <main>
         {/* 2 · O herói: o produto em cena (celular + cartões vivos), o preço ancorado e a garantia. */}
         <Heroi
@@ -407,12 +409,20 @@ export default async function NovareCashVendaPage({
             {[
               {
                 Icone: LayoutGrid,
-                titulo: `${TOTAL_RECURSOS} recursos num app só`,
+                titulo: (
+                  <>
+                    <Contador valor={TOTAL_RECURSOS} /> recursos num app só
+                  </>
+                ),
                 texto: `Extrato, cartões, contas, orçamento, metas, alertas, IA e mais. ${QUANTOS_FUNCIONAM}`,
               },
               {
                 Icone: CreditCard,
-                titulo: `Até ${MAX_PARCELAS} parcelas na fatura certa`,
+                titulo: (
+                  <>
+                    Até <Contador valor={MAX_PARCELAS} /> parcelas na fatura certa
+                  </>
+                ),
                 texto: "Comprou parcelado? Cada parcela cai no mês certo, e você vê quanto vem na próxima fatura.",
               },
               {
@@ -420,8 +430,8 @@ export default async function NovareCashVendaPage({
                 titulo: "Zero comissão de banco",
                 texto: "A Novare não ganha de banco, corretora nem seguradora. O app organiza e explica: não vende investimento.",
               },
-            ].map(({ Icone, titulo, texto }) => (
-              <li key={titulo} className="cartao-cp p-6">
+            ].map(({ Icone, titulo, texto }, i) => (
+              <li key={texto} data-revela style={{ transitionDelay: `${i * 110}ms` }} className="cartao-cp p-6">
                 <span aria-hidden className="absolute inset-x-0 top-0 h-1 bg-ouro" />
                 <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-ouro-tint text-ouro-forte">
                   <Icone className="h-5 w-5" strokeWidth={1.75} />
@@ -438,7 +448,7 @@ export default async function NovareCashVendaPage({
 
         {/* 4 · Os três planos (só muda o limite de bancos), com o riscado e o prazo da campanha. */}
         {/* `scroll-mt-20`: o cabeçalho fixo (64px) não cobre o título quando se chega por #planos. */}
-        <section id="planos" className="scroll-mt-20 text-white" style={PALCO_OURO}>
+        <section data-revela id="planos" className="scroll-mt-20 text-white" style={PALCO_OURO}>
           <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6">
             <div className="mx-auto max-w-2xl text-center">
               <p className="chapeu text-ouro">{fase === "aviso" || black ? BLACK.nome : NOVARECASH_NOME}</p>
@@ -464,7 +474,7 @@ export default async function NovareCashVendaPage({
         </section>
 
         {/* 5 · Os recursos, com o status honesto de cada um. */}
-        <section id="recursos" className="scroll-mt-16 bg-gelo">
+        <section data-revela id="recursos" className="scroll-mt-16 bg-gelo">
           <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
             <div className="mb-8 max-w-2xl sm:mb-10">
               <h2 className="titulo-cp text-[2.1rem] sm:text-5xl">
@@ -479,7 +489,7 @@ export default async function NovareCashVendaPage({
         </section>
 
         {/* 6 · Por dentro do app: ilustração com dados de exemplo (ainda não há tela real para fotografar). */}
-        <section className="text-white" style={PALCO_OURO}>
+        <section data-revela className="text-white" style={PALCO_OURO}>
           <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6">
             <div className="mx-auto mb-12 max-w-2xl text-center">
               <p className="chapeu text-ouro">Por dentro do {NOVARECASH_NOME}</p>
@@ -496,7 +506,7 @@ export default async function NovareCashVendaPage({
         </section>
 
         {/* 7 · Autoridade: quem está por trás (a única prova que existe hoje: a casa). */}
-        <section className="bg-gelo">
+        <section data-revela className="bg-gelo">
           <div className="mx-auto grid max-w-5xl items-center gap-8 px-4 py-16 sm:px-6 md:grid-cols-[0.9fr_1.1fr]">
             <div className="relative mx-auto aspect-[4/5] w-full max-w-sm overflow-hidden rounded-[1.75rem]">
               <Image
@@ -557,7 +567,7 @@ export default async function NovareCashVendaPage({
 
         {/* 8 · Vem aí: o que tem data. Curiosidade honesta, nunca "incluso" (CDC). */}
         {PENDENTES.length > 0 && (
-          <section className="mx-auto max-w-5xl px-4 py-16 sm:px-6">
+          <section data-revela className="mx-auto max-w-5xl px-4 py-16 sm:px-6">
             <div className="mx-auto mb-10 max-w-2xl text-center">
               <p className="chapeu text-ouro-forte">Vem aí</p>
               <h2 className="titulo-cp mt-3 text-3xl sm:text-[2.4rem]">
@@ -594,7 +604,7 @@ export default async function NovareCashVendaPage({
 
         {/* 9 · A objeção do preço, respondida com a missão. */}
         {emVenda && desde != null && (
-          <section className="text-white" style={PALCO_OURO}>
+          <section data-revela className="text-white" style={PALCO_OURO}>
             <div className="mx-auto max-w-3xl px-4 py-16 text-center sm:px-6">
               <p className="chapeu text-ouro">A nossa missão</p>
               <h2 className="mt-3 font-display text-3xl font-semibold leading-[1.12] tracking-[-0.03em] sm:text-[2.6rem]">
@@ -625,7 +635,7 @@ export default async function NovareCashVendaPage({
         )}
 
         {/* 10 · Onde funciona (a objeção da compatibilidade). */}
-        <section className="mx-auto max-w-5xl px-4 py-16 sm:px-6">
+        <section data-revela className="mx-auto max-w-5xl px-4 py-16 sm:px-6">
           <div className="mx-auto mb-10 max-w-2xl text-center">
             <p className="chapeu text-ouro-forte">Onde funciona</p>
             <h2 className="titulo-cp mt-3 text-3xl sm:text-[2.4rem]">Uma conta, no celular e no computador</h2>
@@ -661,7 +671,7 @@ export default async function NovareCashVendaPage({
         </section>
 
         {/* 11 · A garantia (a objeção do risco). */}
-        <section className="px-4 pb-16 sm:px-6">
+        <section data-revela className="px-4 pb-16 sm:px-6">
           <div className="mx-auto flex max-w-3xl flex-col items-center gap-6 rounded-[1.75rem] border-2 border-ouro/40 bg-ouro-tint/60 p-6 text-center sm:flex-row sm:p-8 sm:text-left">
             <span className="flex h-24 w-24 shrink-0 flex-col items-center justify-center rounded-full bg-white text-ouro-forte shadow-[0_8px_30px_-10px_hsl(42_74%_45%/0.45)]">
               <ShieldCheck className="h-7 w-7" />
@@ -679,7 +689,7 @@ export default async function NovareCashVendaPage({
         </section>
 
         {/* 12 · Perguntas frequentes. */}
-        <section className="bg-gelo">
+        <section data-revela className="bg-gelo">
           <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6">
             <div className="mb-8 text-center">
               <p className="chapeu text-ouro-forte">Dúvidas</p>
@@ -776,7 +786,7 @@ export default async function NovareCashVendaPage({
         </section>
 
         {/* 13 · Dúvidas pelo WhatsApp (gente, não robô). */}
-        <section className="px-4 py-16 sm:px-6">
+        <section data-revela className="px-4 py-16 sm:px-6">
           <div className="mx-auto flex max-w-3xl flex-col items-center gap-5 rounded-[1.75rem] bg-noite p-6 text-center text-white sm:flex-row sm:p-8 sm:text-left">
             <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-ouro/12 text-ouro">
               <MessageCircle className="h-7 w-7" />
@@ -795,7 +805,7 @@ export default async function NovareCashVendaPage({
         </section>
 
         {/* 14 · O fecho: o resumo da oferta e o risco zero. */}
-        <section className="text-white" style={PALCO_OURO}>
+        <section data-revela className="text-white" style={PALCO_OURO}>
           <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6">
             <div className="text-center">
               <p className="chapeu text-ouro">{chapeuCampanha ?? "Resumo"}</p>

@@ -37,7 +37,7 @@ function Celular({ rotulo, children }: { rotulo: string; children: React.ReactNo
 }
 
 /** O "NovareCash" de dentro do app, em texto (sem imagem, para não pesar). */
-function TopoApp({ titulo }: { titulo: string }) {
+export function TopoApp({ titulo }: { titulo: string }) {
   return (
     <div className="flex items-center justify-between">
       <p className="font-display text-sm font-semibold tracking-[-0.02em]">
@@ -63,7 +63,12 @@ const ORCAMENTO = [
  *
  * Sem `role` aqui: o palco do herói é que é o `role="img"` com a descrição.
  */
-export function TelaInicio() {
+/**
+ * A MOLDURA DO CELULAR DO HERÓI (06/11/2026: separada do conteúdo para o celular poder
+ * trocar de tela sozinho — ver `CelularVivo`). Barra de status, ilha, botões, a barra de
+ * abas (com a aba `aba` acesa) e o reflexo. Ocupa 100% do pai.
+ */
+export function MolduraCelular({ aba = "inicio", children }: { aba?: "inicio" | "ia"; children: React.ReactNode }) {
   return (
     <div className="ncv-moldura relative h-full w-full rounded-[2.75rem] bg-[hsl(203_60%_5%)] p-[7px]">
       <span aria-hidden className="absolute -left-[3px] top-[18%] h-9 w-[3px] rounded-l-sm bg-ouro/40" />
@@ -79,56 +84,74 @@ export function TelaInicio() {
           </span>
         </div>
 
-        <div className="mt-4">
-          <TopoApp titulo="Novembro" />
-        </div>
+        <div className="relative flex min-h-0 flex-1 flex-col">{children}</div>
 
-        <div className="mt-3 rounded-2xl bg-[linear-gradient(140deg,hsl(42_74%_62%/0.18),hsl(0_0%_100%/0.03)_70%)] px-3 py-2.5 ring-1 ring-ouro/20">
-          <p className="text-[10px] text-white/70">Sobra no mês</p>
-          <p className="font-display text-[1.55rem] font-semibold leading-tight tracking-[-0.03em] text-ouro tabular-nums">
-            R$ 2.340,50
-          </p>
-          <div className="mt-1 flex gap-3 text-[10px] text-white/70">
-            <span>
-              Entrou <strong className="text-emerald-300">R$ 6.200</strong>
-            </span>
-            <span>
-              Saiu <strong className="text-white">R$ 3.859</strong>
-            </span>
-          </div>
-        </div>
-
-        <p className="mt-3.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/65">Orçamento</p>
-        <ul className="mt-1.5 space-y-2">
-          {ORCAMENTO.map((c) => (
-            <li key={c.nome}>
-              <div className="flex items-baseline justify-between text-[11px]">
-                <span className="text-white/90">{c.nome}</span>
-                <span className={c.estourou ? "font-semibold text-accent-claro" : "text-white/70"}>
-                  {c.gasto} <span className="text-white/60">/ {c.teto}</span>
-                </span>
-              </div>
-              <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-white/10">
-                <div className={`h-full rounded-full ${c.estourou ? "bg-accent" : "bg-ouro"}`} style={{ width: `${c.pct}%` }} />
-              </div>
-            </li>
-          ))}
-        </ul>
-        <p className="mt-3 rounded-xl bg-accent/15 px-2.5 py-1.5 text-[10px] leading-snug text-accent-claro">
-          Restaurantes passou R$ 60 do combinado.
-        </p>
-
-        <div className="flex-1" />
         <div className="flex items-center justify-around rounded-2xl bg-white/[0.06] py-2 text-white/55">
-          <House className="h-4 w-4 text-ouro" />
+          <House className={`h-4 w-4 ${aba === "inicio" ? "text-ouro" : ""}`} />
           <ReceiptText className="h-4 w-4" />
-          <Sparkles className="h-4 w-4" />
+          <Sparkles className={`h-4 w-4 ${aba === "ia" ? "text-ouro" : ""}`} />
           <Target className="h-4 w-4" />
         </div>
         <span className="mx-auto mt-2 block h-1 w-20 shrink-0 rounded-full bg-white/30" />
         <span className="pointer-events-none absolute inset-0 rounded-[inherit] bg-[linear-gradient(118deg,hsl(0_0%_100%/0.09)_0%,transparent_30%)]" />
       </div>
     </div>
+  );
+}
+
+/** O conteúdo da tela Início (sobra do mês + orçamento), dentro da `MolduraCelular`. */
+export function ConteudoInicio() {
+  return (
+    <>
+      <div className="mt-4">
+        <TopoApp titulo="Novembro" />
+      </div>
+
+      <div className="mt-3 rounded-2xl bg-[linear-gradient(140deg,hsl(42_74%_62%/0.18),hsl(0_0%_100%/0.03)_70%)] px-3 py-2.5 ring-1 ring-ouro/20">
+        <p className="text-[10px] text-white/70">Sobra no mês</p>
+        <p className="font-display text-[1.55rem] font-semibold leading-tight tracking-[-0.03em] text-ouro tabular-nums">
+          R$ 2.340,50
+        </p>
+        <div className="mt-1 flex gap-3 text-[10px] text-white/70">
+          <span>
+            Entrou <strong className="text-emerald-300">R$ 6.200</strong>
+          </span>
+          <span>
+            Saiu <strong className="text-white">R$ 3.859</strong>
+          </span>
+        </div>
+      </div>
+
+      <p className="mt-3.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/65">Orçamento</p>
+      <ul className="mt-1.5 space-y-2">
+        {ORCAMENTO.map((c) => (
+          <li key={c.nome}>
+            <div className="flex items-baseline justify-between text-[11px]">
+              <span className="text-white/90">{c.nome}</span>
+              <span className={c.estourou ? "font-semibold text-accent-claro" : "text-white/70"}>
+                {c.gasto} <span className="text-white/60">/ {c.teto}</span>
+              </span>
+            </div>
+            <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-white/10">
+              <div className={`h-full rounded-full ${c.estourou ? "bg-accent" : "bg-ouro"}`} style={{ width: `${c.pct}%` }} />
+            </div>
+          </li>
+        ))}
+      </ul>
+      <p className="mt-3 rounded-xl bg-accent/15 px-2.5 py-1.5 text-[10px] leading-snug text-accent-claro">
+        Restaurantes passou R$ 60 do combinado.
+      </p>
+      <div className="flex-1" />
+    </>
+  );
+}
+
+/** A tela Início inteira (moldura + conteúdo), parada. */
+export function TelaInicio() {
+  return (
+    <MolduraCelular aba="inicio">
+      <ConteudoInicio />
+    </MolduraCelular>
   );
 }
 
@@ -185,7 +208,7 @@ export function TelaIA() {
         <div className="max-w-[92%] rounded-2xl rounded-bl-md bg-ouro/12 px-3 py-2 text-white/90 ring-1 ring-ouro/25">
           <span className="mb-1 flex items-center gap-1 text-[10px] font-semibold text-ouro">
             <Sparkles className="h-3 w-3" />
-            IA do NovareCash
+            Agente de Gastos
           </span>
           Restaurantes passou do orçamento: R$ 410 de R$ 350, em 9 pedidos, 6 deles depois das 21h. O resto
           ficou dentro do combinado.

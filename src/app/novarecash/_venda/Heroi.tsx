@@ -3,7 +3,8 @@ import { MarcaNovareCash } from "@/components/novarecash/MarcaNovareCash";
 import { GARANTIA_DIAS, NOVARECASH_NOME, RECURSOS } from "@/lib/novarecash/config";
 import { brl, dataBlack, seloCurto } from "@/lib/novarecash/oferta";
 import { medirClique } from "@/lib/medir";
-import { LegendaExemplo, TelaInicio } from "./TelasExemplo";
+import { LegendaExemplo } from "./TelasExemplo";
+import { CelularVivo } from "./CelularVivo";
 
 /**
  * O HERÓI DA PÁGINA DE VENDA (04/11/2026, "o herói precisa melhorar muito").
@@ -83,8 +84,8 @@ export function Heroi({ cheio, desde, desconto, rotuloPrazo, totalPlanos, black,
           </h1>
 
           <p className="ncv-entra mt-3 max-w-[34rem] text-[0.95rem] leading-relaxed text-white/75 sm:mt-5 sm:text-[1.0625rem]" style={atraso(160)}>
-            Extrato, cartões, contas a pagar, orçamento e metas num app só, com uma IA que responde olhando os seus
-            números.
+            Extrato, cartões, contas a pagar, orçamento e metas num app só, com agentes de IA que respondem olhando os
+            seus números.
           </p>
           {aviso && (
             <p className="ncv-entra mt-2.5 flex max-w-[34rem] items-start gap-2 text-xs leading-relaxed text-white/70" style={atraso(200)}>
@@ -221,8 +222,8 @@ function Flutuante({
  */
 function Palco() {
   const descricao = [
-    "Ilustração com dados de exemplo: a tela Início do NovareCash num celular, com a sobra do mês e o orçamento por categoria.",
-    "Em volta, avisos do app: uma assinatura que ficou mais cara, a fatura do cartão que fecha em 3 dias, uma meta de viagem em 63% e uma resposta curta da IA.",
+    "Ilustração com dados de exemplo: a tela Início do NovareCash num celular, com a sobra do mês e o orçamento por categoria, alternando com uma conversa em que um agente de IA responde perguntas sobre gastos, assinaturas e metas.",
+    "Em volta, avisos do app: uma assinatura que ficou mais cara, a fatura do cartão que fecha em 3 dias, uma meta de viagem em 63% e o Agente de Contas dizendo o que vence na semana.",
     SELO_ZAP
       ? `Também aparece um gasto lançado pelo WhatsApp, recurso que ainda não funciona: ${SELO_ZAP.toLowerCase()}${ZAP?.liberaEm ? ` (${ZAP.liberaEm})` : ""}.`
       : "Também aparece um gasto lançado pelo WhatsApp.",
@@ -252,7 +253,8 @@ function Palco() {
       {/* O celular. */}
       <div className="ncv-celular-entra absolute left-1/2 top-16 z-10 h-[492px] w-[232px] -translate-x-1/2 sm:top-9 sm:h-[572px] sm:w-[270px]">
         <div className="ncv-celular-3d h-full w-full">
-          <TelaInicio />
+          {/* 06/11/2026: o celular alterna sozinho entre o Início e um Agente de IA respondendo. */}
+          <CelularVivo />
         </div>
       </div>
 
@@ -304,14 +306,14 @@ function Palco() {
       {/* IA: embaixo, à esquerda. */}
       <Flutuante className="bottom-0 left-0 z-20 w-[196px] sm:left-[20%] sm:w-[236px]" entrada={1250} periodo={9.5} fase={-4.5}>
         <p className="ml-auto w-fit rounded-xl rounded-br-sm bg-white/10 px-2.5 py-1 text-[11px] text-white/90">
-          Posso gastar R$ 300 no sábado?
+          O que vence esta semana?
         </p>
         <div className="mt-1.5 rounded-xl rounded-bl-sm bg-ouro/12 px-2.5 py-1.5 ring-1 ring-ouro/25">
           <p className="flex items-center gap-1 text-[9.5px] font-semibold text-ouro">
             <Sparkles className="h-3 w-3" />
-            IA do {NOVARECASH_NOME}
+            Agente de Contas
           </p>
-          <p className="mt-0.5 text-[11px] leading-snug text-white/90">Pode. Depois do passeio, ainda sobram R$ 920 no mês.</p>
+          <p className="mt-0.5 text-[11px] leading-snug text-white/90">Luz (R$ 182) na quinta e a fatura no dia 10. Pague a fatura primeiro.</p>
         </div>
       </Flutuante>
     </div>
