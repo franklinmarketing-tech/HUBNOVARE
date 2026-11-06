@@ -21,7 +21,10 @@ import { FormNovaSenha } from "./FormNovaSenha";
 
 export const dynamic = "force-dynamic";
 
-export default async function NovaSenhaPage() {
+export default async function NovaSenhaPage({ searchParams }: { searchParams: Promise<{ depois?: string }> }) {
+  /* Só caminho interno: `depois` vem da URL (ver o mesmo cuidado em `/auth/callback`). */
+  const { depois: pedido } = await searchParams;
+  const depois = pedido && pedido.startsWith("/") && !pedido.startsWith("//") ? pedido : "/";
   const supabase = await createClient();
   const {
     data: { user },
@@ -52,7 +55,7 @@ export default async function NovaSenhaPage() {
         </p>
 
         <div className="card-novare mt-6 p-6">
-          <FormNovaSenha />
+          <FormNovaSenha depois={depois} />
         </div>
       </div>
     </div>

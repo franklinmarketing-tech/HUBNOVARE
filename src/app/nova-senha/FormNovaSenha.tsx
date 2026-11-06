@@ -17,7 +17,17 @@ import { createClient } from "@/lib/supabase/client";
  * quando a senha é trocada, e devolver para a tela de login faria a pessoa
  * digitar a senha que acabou de criar, parecendo que não funcionou.
  */
-export function FormNovaSenha() {
+/** O erro do Supabase em português (chegava em inglês na tela). */
+function emPortugues(m: string): string {
+  const t = m.toLowerCase();
+  if (t.includes("different from the old")) return "A senha nova precisa ser diferente da anterior.";
+  if (t.includes("weak") || t.includes("should be")) return "Essa senha é fraca. Use pelo menos 8 caracteres, misturando letras e números.";
+  if (t.includes("session") || t.includes("jwt")) return "O link expirou. Volte ao login e peça um novo.";
+  return "Não deu certo agora. Tente de novo em instantes.";
+}
+
+/** `depois`: para onde ir com a senha criada (ex.: `/novarecash/app` para quem comprou). */
+export function FormNovaSenha({ depois = "/" }: { depois?: string }) {
   const router = useRouter();
   const [senha, setSenha] = useState("");
   const [repetida, setRepetida] = useState("");
@@ -37,10 +47,10 @@ export function FormNovaSenha() {
     const { error } = await supabase.auth.updateUser({ password: senha });
     setSalvando(false);
 
-    if (error) return setErro(error.message);
+    if (error) return setErro(emPortugues(error.message));
 
     setPronto(true);
-    router.push("/");
+    router.push(depois);
     router.refresh();
   }
 

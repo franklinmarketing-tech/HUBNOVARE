@@ -4,6 +4,8 @@ import { FAIXAS_INVESTIMENTO } from "@/lib/faixas-investimento";
 import { faixaDoInvestimento, investeAlto, oQueFez } from "@/lib/lead-quente";
 import { linkWhatsApp } from "@/lib/lead-whatsapp";
 import { rotuloDoAssunto } from "@/lib/feedback";
+import { CONTATO } from "@/lib/contato";
+import { GARANTIA_DIAS } from "@/lib/novarecash/config";
 
 /**
  * OS E-MAILS DA CASA.
@@ -494,4 +496,59 @@ export async function enviarMensagemDaEquipe(params: {
 
   if (error) throw new Error(error.message);
   return data;
+}
+
+/**
+ * NOVARECASH LIBERADO (06/11/2026) — o e-mail que faltava depois da compra.
+ *
+ * A Kiwify confirma o PAGAMENTO, mas não sabe nada do Hub: quem comprava
+ * recebia o recibo dela e ficava sem saber que precisa entrar (ou criar a
+ * conta) com o MESMO e-mail da compra — que é a chave do acesso
+ * (`ncash_assinantes.email`). Sai do webhook só na PRIMEIRA liberação
+ * (renovação não reenvia; ver `ativar` em `lib/novarecash/assinantes.ts`).
+ *
+ * O botão leva a `/novarecash/bem-vindo`, que serve aos dois casos (já tem
+ * conta → entrar; não tem → criar) sem o e-mail na URL.
+ */
+export async function enviarNovareCashLiberado(params: {
+  email: string;
+  nome: string | null;
+  plano: string;
+  prazo: "mensal" | "anual" | null;
+  validoAte: string;
+}) {
+  const { email, nome, plano, prazo, validoAte } = params;
+  const data = new Date(validoAte).toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" });
+  const nomePlano = `NovareCash ${plano}${prazo === "anual" ? " anual" : prazo === "mensal" ? " mensal" : ""}`;
+
+  const passo = (n: number, texto: string) =>
+    `<tr><td style="vertical-align:top;padding:0 12px 14px 0;width:28px;">
+       <span style="display:inline-block;width:26px;height:26px;line-height:26px;text-align:center;border-radius:13px;background:#16314f;color:#ffffff;font-size:13px;font-weight:700;">${n}</span>
+     </td><td style="vertical-align:top;padding:3px 0 14px;font-size:15px;line-height:1.55;color:#3c4a5c;">${texto}</td></tr>`;
+
+  const { data: enviado, error } = await resend().emails.send({
+    from: REMETENTE,
+    to: email,
+    replyTo: CONTATO.email,
+    subject: "Seu NovareCash está liberado ✅",
+    html: layout({
+      chapeu: "Pagamento confirmado",
+      titulo: `${escapar(primeiroNome(nome))}, o seu NovareCash já está liberado.`,
+      corpo:
+        par(
+          `Obrigado pela assinatura do <strong style="color:#16314f;">${escapar(nomePlano)}</strong>. O acesso vale até <strong style="color:#16314f;">${data}</strong> e renova sozinho enquanto a assinatura estiver ativa.`,
+        ) +
+        `<table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 0 22px;">
+          ${passo(1, "Clique no botão abaixo.")}
+          ${passo(2, `Crie a sua conta (ou entre, se já tiver uma) usando <strong style="color:#16314f;">${escapar(email)}</strong> — o mesmo e-mail da compra.`)}
+          ${passo(3, "Pronto: o NovareCash abre direto.")}
+        </table>`,
+      cta: { texto: "Acessar o meu NovareCash", href: `${SITE}/novarecash/bem-vindo` },
+      nota:
+        `Esqueceu a senha? Na tela de entrar, use “Esqueci a senha”. Dúvidas: responda este e-mail ou chame no WhatsApp <a href="https://wa.me/${CONTATO.whatsapp}" style="color:#e8703a;">${CONTATO.telefone}</a>. Você tem ${GARANTIA_DIAS} dias de garantia pela Kiwify.`,
+    }),
+  });
+
+  if (error) throw new Error(error.message);
+  return enviado;
 }

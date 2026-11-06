@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { timingSafeEqual } from "node:crypto";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
-import type { ChavePlano } from "@/lib/novarecash/config";
+import { planoPorChave, type ChavePlano, type Prazo } from "@/lib/novarecash/config";
+import { enviarNovareCashLiberado } from "@/lib/email";
 
 /**
  * O QUE UM AVISO DE VENDA FAZ EM `ncash_assinantes` — comum às rotas da Kiwify
@@ -42,22 +43,38 @@ export type Ativacao = {
   expiraEm: string;
   assinatura: string | null;
   transacao: string | null;
+  /** Só para o texto do e-mail de boas-vindas ("NovareCash Plus anual"). */
+  prazo?: Prazo | null;
 };
 
 export async function ativar(db: SupabaseClient, a: Ativacao) {
+  const { data: atual } = await db
+    .from("ncash_assinantes")
+    .select("status, expira_em, ultima_transacao")
+    .eq("email", a.email)
+    .maybeSingle();
+
   // REENVIO FORA DE ORDEM: as plataformas repetem avisos, e um "aprovada" antigo
   // que chegue DEPOIS do reembolso/chargeback da MESMA transação religaria o
   // acesso de quem recebeu o dinheiro de volta. Transação nova (outra compra) passa.
-  if (a.transacao) {
-    const { data: atual } = await db
-      .from("ncash_assinantes")
-      .select("status, ultima_transacao")
-      .eq("email", a.email)
-      .maybeSingle();
-    if (atual && (atual.status === "reembolsada" || atual.status === "chargeback") && atual.ultima_transacao === a.transacao) {
-      return NextResponse.json({ ok: true, ignorado: "transacao ja reembolsada" });
-    }
+  if (
+    a.transacao &&
+    atual &&
+    (atual.status === "reembolsada" || atual.status === "chargeback") &&
+    atual.ultima_transacao === a.transacao
+  ) {
+    return NextResponse.json({ ok: true, ignorado: "transacao ja reembolsada" });
   }
+
+  /* BOAS-VINDAS SÓ NA PRIMEIRA LIBERAÇÃO (06/11/2026): quem não tinha acesso
+     válido até agora (nunca comprou, reembolsou, ou deixou vencer). Renovação
+     de quem está ativo, e o MESMO aviso repetido, não reenviam. */
+  const jaTinhaAcesso =
+    !!atual &&
+    ["ativa", "cancelada", "atrasada"].includes(atual.status) &&
+    (!atual.expira_em || new Date(atual.expira_em) > new Date());
+  const avisoRepetido = !!a.transacao && atual?.ultima_transacao === a.transacao;
+
   const agora = new Date().toISOString();
   const { error } = await db.from("ncash_assinantes").upsert(
     {
@@ -76,7 +93,26 @@ export async function ativar(db: SupabaseClient, a: Ativacao) {
     { onConflict: "email" },
   );
   if (error) return naoGravou();
-  return NextResponse.json({ ok: true, acao: "ativou" });
+
+  let email = "nao enviado";
+  if (!jaTinhaAcesso && !avisoRepetido) {
+    /* Falha do e-mail NÃO derruba o aviso: o acesso já está gravado, e um 500
+       aqui faria a plataforma reenviar — e liberar de novo — à toa. */
+    try {
+      await enviarNovareCashLiberado({
+        email: a.email,
+        nome: a.nome,
+        plano: planoPorChave(a.plano).nome,
+        prazo: a.prazo ?? null,
+        validoAte: a.expiraEm,
+      });
+      email = "enviado";
+    } catch (e) {
+      console.error("[novarecash] e-mail de boas-vindas falhou:", e instanceof Error ? e.message : e);
+      email = "falhou";
+    }
+  }
+  return NextResponse.json({ ok: true, acao: "ativou", email });
 }
 
 export type Corte = {

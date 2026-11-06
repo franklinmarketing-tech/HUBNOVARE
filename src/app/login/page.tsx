@@ -44,7 +44,10 @@ function FormularioLogin() {
    * "pague e tenha 7 dias de garantia", ele vai direto para o checkout. Esta
    * rota continua sendo a de quem já comprou e vem entrar pela primeira vez.)
    */
-  const modoInicial: Modo = params.get("modo") === "criar" ? "criar" : "entrar";
+  const pedidoModo = params.get("modo");
+  const modoInicial: Modo = pedidoModo === "criar" || pedidoModo === "recuperar" ? pedidoModo : "entrar";
+  /** Quem vem do NovareCash (botão do e-mail de compra, `/novarecash/bem-vindo`). */
+  const doNovareCash = proximo.startsWith("/novarecash");
 
   /**
    * O que dizer quando a volta do link de e-mail falha.
@@ -63,6 +66,10 @@ function FormularioLogin() {
     "sem-codigo": "O endereço veio incompleto. Peça um link novo abaixo.",
   };
   const erroDaVolta = MOTIVO[params.get("erro") ?? ""] ?? null;
+  /* O link de CONFIRMAR O CADASTRO aberto em outro navegador (ou já gasto): o
+     e-mail FICOU confirmado — o Supabase confirma antes de redirecionar —, só
+     não há como abrir a sessão aqui. Não é erro: é "agora entre com a senha". */
+  const avisoDaVolta = params.get("erro") === "confirmado" ? "E-mail confirmado! Agora entre com a sua senha." : null;
 
   const [modo, setModo] = useState<Modo>(modoInicial);
   const [email, setEmail] = useState("");
@@ -104,7 +111,7 @@ function FormularioLogin() {
        se a pessoa recarregar, o erro reaparece como se fosse novo. */
     window.history.replaceState(null, "", window.location.pathname);
   }, [GASTO]);
-  const [aviso, setAviso] = useState<string | null>(null);
+  const [aviso, setAviso] = useState<string | null>(avisoDaVolta);
   const [enviando, setEnviando] = useState(false);
 
   const trocarModo = (novo: Modo) => {
@@ -138,11 +145,16 @@ function FormularioLogin() {
      * encaminha para o `/auth/callback`. Ver o comentário lá. */
     if (modo === "recuperar") {
       const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
-        redirectTo: `${window.location.origin}/reset-password`,
+        /* `depois` leva quem veio do NovareCash de volta ao app com a senha criada. */
+        redirectTo: `${window.location.origin}/reset-password?proximo=${encodeURIComponent(
+          proximo === "/" ? "/nova-senha" : `/nova-senha?depois=${encodeURIComponent(proximo)}`,
+        )}`,
       });
       setEnviando(false);
       if (error) return setErro(emPortugues(error.message));
-      return setAviso("Enviamos um link de recuperação para o seu e-mail.");
+      return setAviso(
+        `Se ${email.trim()} tiver conta, o link para criar uma nova senha chega em instantes. Abra neste mesmo aparelho (confira também o spam).`,
+      );
     }
 
     // Criar conta: o perfil em hub_profiles nasce sozinho pelo trigger.
@@ -156,16 +168,33 @@ function FormularioLogin() {
         password: senha,
         // `nome` vai para o raw_user_meta_data, de onde o gatilho
         // hub_criar_perfil copia para hub_profiles.nome.
-        options: { emailRedirectTo: `${window.location.origin}${proximo}`, data: { nome: nome.trim() } },
+        /* ⚠️ VOLTA PELO `/auth/callback` (06/11/2026). Apontava direto para `proximo`, onde
+           ninguém trocava o `?code=` por sessão: o e-mail ficava confirmado, mas a pessoa caía
+           deslogada no login sem entender. `tipo=cadastro` diz ao callback que, se a troca
+           falhar (outro navegador), o certo é "e-mail confirmado, entre com a senha". */
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback?tipo=cadastro&proximo=${encodeURIComponent(proximo)}`,
+          data: { nome: nome.trim() },
+        },
       });
       if (error) {
         setEnviando(false);
         return setErro(emPortugues(error.message));
       }
+      /* ⚠️ E-MAIL JÁ CADASTRADO NÃO DÁ ERRO. Com a confirmação ligada, o Supabase responde
+         "sucesso" sem `identities` (para não revelar quem tem conta) e NÃO manda e-mail nenhum.
+         A tela dizia "Conta criada! Confirme o e-mail" e a pessoa ficava esperando à toa. */
+      if (data.user && (data.user.identities?.length ?? 0) === 0) {
+        setEnviando(false);
+        setModo("entrar");
+        return setErro("Este e-mail já tem conta na Novare. Entre com a sua senha — ou use “Esqueci minha senha”.");
+      }
       // Com confirmação de e-mail ligada no Supabase, ainda não há sessão.
       if (!data.session) {
         setEnviando(false);
-        return setAviso("Conta criada! Confirme o e-mail que enviamos para entrar.");
+        return setAviso(
+          `Conta criada! Enviamos um link de confirmação para ${email.trim()}. Abra o e-mail neste mesmo aparelho (confira também o spam e a aba Promoções).`,
+        );
       }
       router.push(proximo);
       router.refresh();
@@ -189,6 +218,11 @@ function FormularioLogin() {
 
   return (
     <form onSubmit={enviar} className="space-y-4">
+      {doNovareCash && (
+        <p className="rounded-lg bg-accent/10 px-3 py-2 text-xs leading-relaxed text-foreground">
+          <strong>Comprou o NovareCash?</strong> Use o <strong>mesmo e-mail da compra</strong> — é ele que libera o acesso.
+        </p>
+      )}
       {modo === "criar" && (
         <div>
           <label htmlFor="nome" className="mb-1.5 block text-xs font-semibold text-muted-foreground">

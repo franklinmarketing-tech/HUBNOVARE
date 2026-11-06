@@ -29,7 +29,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { createClient } from "@/lib/supabase/client";
-import { adivinharCategoria, categoria } from "./categorias";
+import { adivinharCategoria, categoria, semAcento, type ChaveCategoria } from "./categorias";
 import { ErroDados, faltaTabela, usuarioDaSessao } from "./dados";
 
 const FUNCAO = "rapid-responder";
@@ -212,6 +212,19 @@ export async function listarContas(): Promise<ContaBanco[]> {
     .filter((a) => a.id);
 }
 
+/**
+ * O NOME QUE A PESSOA ENTENDE (06/11/2026). Alguns bancos mandam um código no lugar
+ * do nome ("DIGITAL_PRASAUDE", no Mercado Pago). Código = só maiúsculas, números e
+ * `_`: vira "Mercado Pago · Conta 4676…". Nome de verdade ("Conta Corrente",
+ * "Nubank Ultravioleta") passa como veio.
+ */
+export function nomeDaConta(conta: Pick<ContaBanco, "nome" | "numero" | "cartao">, banco: string | null): string {
+  const codigo = /^[A-Z0-9_]+$/.test(conta.nome) && conta.nome.includes("_");
+  if (!codigo) return conta.nome;
+  const tipo = conta.cartao ? "Cartão" : "Conta";
+  return `${banco || tipo}${conta.numero ? ` · ${tipo} ${conta.numero}` : banco ? ` · ${tipo}` : ""}`;
+}
+
 /** Saldo de uma conta, quando a lista não trouxe. `null` = o banco não informou. */
 export async function saldoDaConta(accountId: string): Promise<number | null> {
   const r = await chamar("accounts/balance", { account_id: accountId });
@@ -230,7 +243,18 @@ export type TransacaoBanco = {
   descricao: string;
   valor: number;
   tipo: "entrada" | "saida";
+  /** A categoria que o PROVEDOR do Open Finance já deu (ex.: "Shopping"), quando vem. */
+  categoriaBanco?: string;
+  /** Pix/TED entre contas do MESMO dono (o provedor diz, ou a descrição: bolso, cofrinho…). */
+  mesmoDono?: boolean;
 };
+
+/** Texto de um objeto aninhado (`paymentData.receiver.name`…), sem quebrar se faltar um nível. */
+function aninhado(o: unknown, ...caminho: string[]): string {
+  let v: unknown = o;
+  for (const k of caminho) v = v && typeof v === "object" ? (v as Record<string, unknown>)[k] : undefined;
+  return typeof v === "string" ? v.trim() : "";
+}
 
 /**
  * Uma transação do banco → uma linha do extrato.
@@ -261,7 +285,29 @@ export function paraTransacaoBanco(t: Record<string, unknown>, cartao: boolean):
   else tipo = bruto < 0 ? "saida" : "entrada";
 
   const valor = Math.round(Math.abs(bruto) * 100) / 100;
-  const descricao = (texto(t.description, t.descriptionRaw, t.merchant, t.name, t.descricao) || "Transação do banco").slice(0, 120);
+  /* QUEM RECEBEU / QUEM PAGOU (06/11/2026). O Mercado Pago descreve quase tudo como
+     "Transferência enviada", sem dizer para quem — o extrato virava uma lista igual. Quando o
+     provedor manda o nome (loja ou pessoa), ele entra na descrição. */
+  const loja = aninhado(t, "merchant", "businessName") || aninhado(t, "merchant", "name") || texto(t.merchant_name);
+  const outro =
+    tipo === "saida"
+      ? aninhado(t, "paymentData", "receiver", "name") || aninhado(t, "payment_data", "receiver", "name") || texto(t.receiver_name)
+      : aninhado(t, "paymentData", "payer", "name") || aninhado(t, "payment_data", "payer", "name") || texto(t.payer_name);
+  const base = texto(t.description, t.descriptionRaw, t.name, t.descricao) || "Transação do banco";
+  const generica = /^(transfer[eê]ncia|pix|ted|doc)( pix)?( enviad[ao]| recebid[ao])?(:.*)?$/i.test(base.trim());
+  const contraparte = loja || outro;
+  const descricao = (
+    contraparte && generica
+      ? `${tipo === "saida" ? "Pix para" : "Pix de"} ${contraparte}`
+      : contraparte && !semAcento(base).includes(semAcento(contraparte))
+        ? `${base} · ${contraparte}`
+        : base
+  ).slice(0, 120);
+
+  const categoriaBanco = texto(t.category, t.categoryName, t.category_name);
+  const mesmoDono =
+    /same ?(person|owner)|mesma titularidade|entre contas/i.test(`${categoriaBanco} ${texto(t.categoryId, t.category_id)}`) ||
+    /\b(do|para o|ao) bolso\b|cofrinho|caixinha|reserva de emerg/i.test(semAcento(base));
   const id = texto(t.id, t.transaction_id, t.transactionId);
 
   return {
@@ -270,6 +316,8 @@ export function paraTransacaoBanco(t: Record<string, unknown>, cartao: boolean):
     valor,
     tipo,
     descricao,
+    ...(categoriaBanco ? { categoriaBanco } : {}),
+    ...(mesmoDono ? { mesmoDono } : {}),
   };
 }
 
@@ -306,6 +354,10 @@ async function gravarConta(sb: SupabaseClient, uid: string, conta: ContaBanco, i
     instituicao,
     ...(conta.saldo !== null ? { saldo: conta.saldo, saldo_em: new Date().toISOString() } : {}),
   };
+  /* SALDO ZERO NÃO APAGA O QUE A PESSOA INFORMOU (06/11/2026). Contas digitais (Mercado Pago,
+     PicPay…) guardam o dinheiro rendendo num "bolso" que o Open Finance informa como R$ 0,00.
+     Na conta que JÁ existe, zero do banco não sobrescreve o saldo ajustado em Minhas contas. */
+  const camposAoAtualizar = conta.saldo === 0 ? { nome: campos.nome, tipo: campos.tipo, instituicao } : campos;
 
   const achar = async () => {
     const { data, error } = await sb
@@ -321,7 +373,7 @@ async function gravarConta(sb: SupabaseClient, uid: string, conta: ContaBanco, i
 
   const existente = await achar();
   if (existente) {
-    const { error } = await sb.from("ncash_contas").update({ ...campos, ativa: true }).eq("id", existente).eq("user_id", uid);
+    const { error } = await sb.from("ncash_contas").update({ ...camposAoAtualizar, ativa: true }).eq("id", existente).eq("user_id", uid);
     if (error) falhou(error);
     return existente;
   }
@@ -353,14 +405,59 @@ const PALAVRAS_FATURA = categoria("pagamento_fatura").palavras;
  *     que `adivinharCategoria` não procura (só olha `pagamento_fatura` nas
  *     saídas) — sem isto, ele viraria receita.
  */
-export function categoriaDoBanco(t: Pick<TransacaoBanco, "descricao" | "tipo">, cartao: boolean): string {
-  const d = ` ${t.descricao.toLowerCase()} `;
-  if (PALAVRAS_FATURA.some((p) => d.includes(p))) return "pagamento_fatura";
-  const semAcento = d.normalize("NFD").replace(/\p{M}/gu, "");
-  if (cartao && t.tipo === "entrada" && /\b(pagamento|pagto|pgto|pag)\b/.test(semAcento) && !/estorno|reembolso|cashback/.test(semAcento)) {
+export function categoriaDoBanco(
+  t: Pick<TransacaoBanco, "descricao" | "tipo" | "categoriaBanco" | "mesmoDono">,
+  cartao: boolean,
+): string {
+  const d = ` ${semAcento(t.descricao)} `;
+  if (PALAVRAS_FATURA.some((p) => d.includes(semAcento(p)))) return "pagamento_fatura";
+  if (cartao && t.tipo === "entrada" && /\b(pagamento|pagto|pgto|pag)\b/.test(d) && !/estorno|reembolso|cashback/.test(d)) {
     return "pagamento_fatura";
   }
-  return adivinharCategoria(t.descricao, t.tipo);
+  // Dinheiro que só muda de bolso (06/11/2026): não é gasto nem renda.
+  if (t.mesmoDono) return t.tipo === "entrada" ? "entre_contas" : "investimentos";
+
+  const doProvedor = t.categoriaBanco ? categoriaDoProvedor(t.categoriaBanco, t.tipo) : null;
+  if (doProvedor) return doProvedor;
+  if (t.tipo === "saida" && /^\s*compra\b/.test(d)) return "compras";
+
+  const palpite = adivinharCategoria(t.descricao, t.tipo);
+  /* PIX PARA OUTRA PESSOA É GASTO (06/11/2026). `transferencias` fica FORA das somas de gasto
+     (`NAO_E_GASTO`), e no Mercado Pago quase toda compra sai como "Transferência enviada": tirá-las
+     zeraria o mês. Só o Pix entre contas do MESMO dono (acima) sai das somas; o resto conta como
+     gasto, em "Outros gastos", até a pessoa corrigir. */
+  return palpite === "transferencias" ? "outros" : palpite;
+}
+
+/**
+ * A CATEGORIA QUE O PROVEDOR JÁ DEU → a nossa (06/11/2026). O provedor do Open Finance
+ * (Pluggy) classifica muitas transações em inglês ("Shopping", "Groceries"…). Só entra o que
+ * tem equivalente claro; transferência genérica ("Transfer - PIX") não decide nada.
+ */
+export function categoriaDoProvedor(nome: string, tipo: "entrada" | "saida"): ChaveCategoria | null {
+  const c = semAcento(nome);
+  if (tipo === "entrada") {
+    if (/salary|salario/.test(c)) return "salario";
+    if (/interest|dividend|yield|rendimento/.test(c)) return "rendimentos";
+    return null;
+  }
+  const regras: [RegExp, ChaveCategoria][] = [
+    [/credit card payment|pagamento de fatura/, "pagamento_fatura"],
+    [/groceries|supermarket|supermercado/, "mercado"],
+    [/eating out|restaurant|food delivery|delivery|restaurante/, "restaurantes"],
+    [/taxi|\bride\b|gas station|fuel|parking|toll|transport|mobilidade/, "transporte"],
+    [/pharmac|health|hospital|dentist|clinic|saude|farmacia/, "saude"],
+    [/education|school|course|educacao/, "educacao"],
+    [/streaming|subscription|digital services|assinatura/, "assinaturas"],
+    [/\brent\b|housing|electricity|water|utilities|internet|telecom|moradia/, "moradia"],
+    [/bank fee|interests charged|late payment|tarifa/, "tarifas"],
+    [/\btax|imposto/, "impostos"],
+    [/travel|hotel|leisure|entertainment|tickets|lazer/, "lazer"],
+    [/shopping|clothing|electronics|compras/, "compras"],
+    [/investment|investimento|aplicacao/, "investimentos"],
+  ];
+  for (const [re, chave] of regras) if (re.test(c)) return chave;
+  return null;
 }
 
 /** Grava só as transações que ainda não estão lá. Devolve quantas entraram. */
@@ -449,7 +546,7 @@ export async function sincronizar(args: {
   for (const conta of args.contas) {
     try {
       const instituicao = (conta.itemId && bancoDe.get(conta.itemId)) || unicoBanco;
-      const contaId = await gravarConta(sb, uid, conta, instituicao);
+      const contaId = await gravarConta(sb, uid, { ...conta, nome: nomeDaConta(conta, instituicao) }, instituicao);
       const transacoes = await transacoesDaConta(conta, args.dias ?? 90);
       const novas = await gravarTransacoes(sb, uid, contaId, transacoes, conta.cartao);
       r.contas++;

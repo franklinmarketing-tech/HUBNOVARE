@@ -30,8 +30,9 @@ import {
  * alterado ou token errado = 401. Aceita vários tokens separados por vírgula
  * (mais de um webhook, ou a troca de token).
  *
- * ⚠️ PRODUTO CERTO: são SEIS produtos na Kiwify, um por plano e prazo
- * ("NovareCash Plus Anual"…). Aviso de produto cujo nome não começa com
+ * ⚠️ PRODUTO CERTO: na Kiwify é UM produto "NovareCash" com SEIS planos, um por
+ * plano e prazo ("NovareCash Plus Anual"…) — o nome do PLANO decide o que se
+ * libera (ver `kiwify.ts`). Aviso de produto cujo nome não começa com
  * "NovareCash" — ou, com `KIWIFY_PRODUTO_NOVARECASH` (lista de ids por vírgula),
  * fora da lista — fica no diário e é ignorado.
  *
@@ -87,6 +88,7 @@ export async function POST(req: Request) {
         nome,
         plano: planoKiwify(p),
         expiraEm: validadeKiwify(p, prazoKiwify(p)),
+        prazo: prazoKiwify(p),
         assinatura: codigoAssinatura,
         transacao,
       });

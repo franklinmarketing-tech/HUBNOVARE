@@ -10,6 +10,7 @@ import {
   esquecer,
   listarConexoes,
   listarContas,
+  nomeDaConta,
   reivindicar,
   saldoDaConta,
   sincronizar,
@@ -315,7 +316,12 @@ export function TelaBanco({ limite, nomePlano }: { limite: number; nomePlano: st
                         <Landmark className="h-4 w-4 shrink-0 text-ciano-claro" />
                       )}
                       <span className="min-w-0">
-                        <span className="block truncate text-sm font-semibold text-white">{c.nome}</span>
+                        <span className="block truncate text-sm font-semibold text-white">
+                          {nomeDaConta(
+                            c,
+                            conexoes.find((x) => x.itemId === c.itemId)?.banco ?? (conexoes.length === 1 ? conexoes[0].banco : null),
+                          )}
+                        </span>
                         {c.numero && <span className="block text-2xs text-white/55">{c.numero}</span>}
                       </span>
                     </span>
@@ -323,6 +329,16 @@ export function TelaBanco({ limite, nomePlano }: { limite: number; nomePlano: st
                       <span className="text-right">
                         <span className="block text-2xs text-white/55">{c.cartao ? "Fatura / saldo" : "Saldo no banco"}</span>
                         <span className="block font-display text-base font-semibold tabular-nums text-white">{brl(c.saldo)}</span>
+                        {/* 06/11/2026: conta digital informa R$ 0,00 quando o dinheiro está rendendo num "bolso". */}
+                        {c.saldo === 0 && !c.cartao && (
+                          <span className="mt-0.5 block max-w-[15rem] text-2xs leading-snug text-white/55">
+                            Dinheiro rendendo em cofrinho ou “bolso” nem sempre vem pelo Open Finance. Ajuste em{" "}
+                            <Link href="/novarecash/app/extrato" className="underline underline-offset-2">
+                              Extrato → Minhas contas
+                            </Link>
+                            .
+                          </span>
+                        )}
                       </span>
                     ) : (
                       <Selo>saldo não informado</Selo>

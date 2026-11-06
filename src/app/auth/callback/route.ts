@@ -45,7 +45,15 @@ export async function GET(requisicao: Request) {
   const supabase = await createClient();
   const { error } = await supabase.auth.exchangeCodeForSession(code);
 
-  if (error) return paraLogin("link-gasto");
+  if (error) {
+    /* Link de CONFIRMAR CADASTRO (`tipo=cadastro`, ver `/login`): o Supabase já confirmou o
+       e-mail antes de mandar para cá — o que falhou foi só abrir a sessão (outro navegador,
+       link reaberto). Dizer "link gasto" mandaria a pessoa pedir outro sem precisar. */
+    if (url.searchParams.get("tipo") === "cadastro") {
+      return NextResponse.redirect(new URL(`/login?erro=confirmado&proximo=${encodeURIComponent(proximo)}`, url.origin));
+    }
+    return paraLogin("link-gasto");
+  }
 
   return NextResponse.redirect(new URL(proximo, url.origin));
 }

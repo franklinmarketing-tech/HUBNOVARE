@@ -12,7 +12,7 @@ export type ChaveCategoria =
   | "moradia" | "mercado" | "restaurantes" | "transporte" | "saude" | "educacao" | "lazer"
   | "assinaturas" | "compras" | "tarifas" | "impostos" | "transferencias" | "investimentos" | "outros"
   | "salario" | "renda_extra" | "rendimentos" | "outras_entradas"
-  | "pagamento_fatura";
+  | "pagamento_fatura" | "entre_contas";
 
 export type Categoria = {
   chave: ChaveCategoria;
@@ -42,6 +42,8 @@ export const CATEGORIAS: Categoria[] = [
   { chave: "renda_extra", rotulo: "Renda extra", tipo: "entrada", palavras: ["freela", "comissao", "comissão", "venda", "bico"] },
   { chave: "rendimentos", rotulo: "Rendimentos", tipo: "entrada", palavras: ["rendimento", "dividendo", "juros recebidos", "resgate"] },
   { chave: "outras_entradas", rotulo: "Outras entradas", tipo: "entrada", palavras: ["pix recebido", "transferencia recebida", "ted recebida", "reembolso", "estorno"] },
+  // 06/11/2026 (Open Finance): dinheiro que volta de um "bolso"/cofrinho/caixinha da PRÓPRIA pessoa. Não é renda.
+  { chave: "entre_contas", rotulo: "Entre minhas contas", tipo: "entrada", palavras: ["do bolso", "cofrinho", "caixinha", "mesma titularidade"] },
 ];
 
 const POR_CHAVE = new Map(CATEGORIAS.map((c) => [c.chave, c]));
@@ -50,12 +52,21 @@ export function categoria(chave: string | null | undefined): Categoria {
   return POR_CHAVE.get(chave as ChaveCategoria) ?? POR_CHAVE.get("outros")!;
 }
 
-/** Primeiro palpite pela descrição. Sem acerto: 'outros' (saída) ou 'outras_entradas' (entrada). */
+/** Minúsculas e SEM ACENTO: "Transferência" e "transferencia" são a mesma palavra. */
+export const semAcento = (s: string) => s.toLowerCase().normalize("NFD").replace(/\p{M}/gu, "");
+
+/**
+ * Primeiro palpite pela descrição. Sem acerto: 'outros' (saída) ou 'outras_entradas' (entrada).
+ *
+ * ⚠️ COMPARA SEM ACENTO (06/11/2026). O banco escreve "Transferência enviada" e a lista
+ * tem "transferencia enviada": com acento de um lado só, nada casava e tudo caía em
+ * "Outros gastos" (visto no primeiro teste real com o Mercado Pago).
+ */
 export function adivinharCategoria(descricao: string, tipo: "entrada" | "saida"): ChaveCategoria {
-  const d = ` ${descricao.toLowerCase()} `;
+  const d = ` ${semAcento(descricao)} `;
   for (const c of CATEGORIAS) {
     if (c.tipo !== tipo) continue;
-    if (c.palavras.some((p) => d.includes(p))) return c.chave;
+    if (c.palavras.some((p) => d.includes(semAcento(p)))) return c.chave;
   }
   return tipo === "entrada" ? "outras_entradas" : "outros";
 }
@@ -141,9 +152,10 @@ export function chaveCustomDe(rotulo: string): string {
  *   cartão. Contar os dois soma o mesmo dinheiro duas vezes.
  * - `transferencias`: Pix/TED entre contas.
  * - `investimentos`: aplicação continua sendo dinheiro seu.
+ * - `entre_contas` (06/11/2026): o que volta do cofrinho/bolso da própria pessoa.
  *
  * ⚠️ Vale para os DOIS tipos: o "Pagar fatura" grava uma saída na conta e uma
  * ENTRADA no cartão, ambas `pagamento_fatura` — e essa entrada também não é
  * receita. Todo total de gasto ou de receita deve pular estas chaves.
  */
-export const NAO_E_GASTO = new Set<string>(["pagamento_fatura", "transferencias", "investimentos"]);
+export const NAO_E_GASTO = new Set<string>(["pagamento_fatura", "transferencias", "investimentos", "entre_contas"]);
