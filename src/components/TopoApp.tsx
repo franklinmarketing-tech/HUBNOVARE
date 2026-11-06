@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
-import { BookOpen, Newspaper, PlayCircle, Wallet, Search, Mail, ArrowRight, ChevronRight } from "lucide-react";
+import { BookOpen, Newspaper, PlayCircle, Wallet, Search, Mail, ArrowRight } from "lucide-react";
 import { MenuAreas } from "@/components/MenuAreas";
 import { MenuConta } from "@/components/MenuConta";
 import { SinoNotificacoes } from "@/components/SinoNotificacoes";
@@ -103,7 +103,9 @@ export function TopoApp({
             breakpoint também subiu de `lg` para `sm`: em `lg` os ícones
             sumiam no tablet e no celular, onde a maior parte da audiência
             de rede social está. */}
-        <RedesSociais className="flex shrink-0" tamanho="h-4 w-4 sm:h-[18px] sm:w-[18px]" />
+        {/* 06/11/2026 (menu numa linha só): entre 1024 e 1699px as redes saem do topo para os
+            atalhos escritos caberem; seguem no rodapé e voltam aqui a partir de 1700px. O selo Nord volta em 1800px e o "Bem-vindo" em 2000px. */}
+        <RedesSociais className="hidden shrink-0 max-lg:flex min-[1700px]:flex" tamanho="h-4 w-4 sm:h-[18px] sm:w-[18px]" />
 
         {/* ⚠️ O "INSCREVA-SE" TAMBÉM AQUI, pedido do dono: o Novare News
             tinha esse botão no topo e o Workspace não, embora a seção de
@@ -127,7 +129,7 @@ export function TopoApp({
         {/* Selo de parceria oficial com a Nord Investimentos.
             Só a partir de 2xl: entre 1280 e 1536 ele disputava espaço com o
             menu de áreas e empurrava o botão "Entrar" para fora da tela. */}
-        <div className="hidden shrink-0 items-center gap-2 border-l border-slate-200 pl-3 2xl:flex">
+        <div className="hidden shrink-0 items-center gap-2 border-l border-slate-200 pl-3 min-[1800px]:flex">
           <span className="text-[9px] font-semibold uppercase tracking-wider text-slate-400">
             Parceiro
           </span>
@@ -140,7 +142,7 @@ export function TopoApp({
           />
         </div>
 
-        <div className="hidden min-w-0 shrink-0 border-l border-slate-200 pl-4 2xl:block">
+        <div className="hidden min-w-0 shrink-0 border-l border-slate-200 pl-4 min-[2000px]:block">
           <p className="truncate text-[15px] font-bold text-foreground">
             {primeiroNome ? `Olá, ${primeiroNome}` : "Bem-vindo à Novare"}
           </p>
@@ -154,6 +156,9 @@ export function TopoApp({
         <div className="mx-auto">
           <MenuAreas portais={portais} />
         </div>
+
+        {/* OS ATALHOS COM NOME ESCRITO, NA MESMA LINHA (06/11/2026, pedido do dono). */}
+        <BarraAtalhos />
 
         {/* Novidades (25/10/2026): só o ícone — o topo já é justo em 1280px.
             Fica fora do celular pelo mesmo motivo: em 390px logo, redes,
@@ -208,56 +213,53 @@ export function TopoApp({
           </Link>
         )}
       </div>
-      {/* A FAIXA DE ATALHOS, COM NOME ESCRITO (06/11/2026, pedido do dono: "menu bonito,
-          escrito mesmo"). Os ícones mudos de eBooks/News/Vídeos disputavam a linha de cima com o
-          menu de áreas e só mostravam o nome em telas muito largas; aqui ganham linha própria,
-          com o texto sempre visível. O NovareCash abre a faixa, em ouro. No celular quem faz
-          esse papel é a barra de baixo (`BarraInferior`). */}
-      <BarraAtalhos />
     </header>
   );
 }
 
 const ATALHOS = [
-  { href: "/novare-news", rotulo: "Novare News", Icone: Newspaper, aoVivo: true },
-  { href: "/novare-videos", rotulo: "Novare Vídeos", Icone: PlayCircle },
-  { href: "/ebooks", rotulo: "eBooks grátis", Icone: BookOpen },
+  { href: "/novare-news", rotulo: "News", Icone: Newspaper, aoVivo: true },
+  { href: "/novare-videos", rotulo: "Vídeos", Icone: PlayCircle },
+  { href: "/ebooks", rotulo: "eBooks", Icone: BookOpen },
 ] as const;
 
+/**
+ * Os atalhos do topo, NUMA LINHA SÓ com o menu de áreas. O NovareCash (ouro) tem o nome
+ * sempre a partir do tablet; News, Vídeos e eBooks mostram o nome a partir de 1280px (abaixo,
+ * só o ícone, que o espaço não dá). No celular quem faz esse papel é a `BarraInferior`.
+ */
 function BarraAtalhos() {
   const caminho = usePathname() ?? "";
   const ativo = (href: string) => caminho === href || caminho.startsWith(`${href}/`);
 
   return (
-    <nav aria-label="Atalhos" className="hidden border-t border-slate-200/70 md:block">
-      <ul className="flex h-12 items-center gap-1.5 overflow-x-auto px-4 sm:px-5 [scrollbar-width:none]">
-        <li className="shrink-0">
+    <nav aria-label="Atalhos" className="hidden shrink-0 md:block">
+      <ul className="flex items-center gap-1">
+        <li>
           <Link
             href="/novarecash"
             aria-current={ativo("/novarecash") ? "page" : undefined}
-            className="group inline-flex h-9 items-center gap-2 rounded-full bg-[linear-gradient(135deg,hsl(42_80%_94%),hsl(42_74%_82%))] pl-1.5 pr-3.5 text-[13px] font-bold text-ouro-forte shadow-[0_6px_16px_-10px_hsl(36_78%_32%/0.8)] ring-1 ring-ouro/60 transition-transform hover:-translate-y-px"
+            className="group inline-flex h-10 items-center gap-1.5 rounded-full bg-[linear-gradient(135deg,hsl(42_80%_94%),hsl(42_74%_82%))] pl-1.5 pr-3 text-[13px] font-bold text-ouro-forte shadow-[0_6px_16px_-10px_hsl(36_78%_32%/0.8)] ring-1 ring-ouro/60 transition-transform hover:-translate-y-px"
           >
-            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-ouro-forte text-white">
+            <span className="flex h-7 w-7 items-center justify-center rounded-full bg-ouro-forte text-white">
               <Wallet className="h-3.5 w-3.5" />
             </span>
             NovareCash
-            <span className="rounded-full bg-ouro-forte px-1.5 py-px text-[9.5px] font-black uppercase tracking-wider text-white">
+            <span className="hidden rounded-full bg-ouro-forte px-1.5 py-px text-[9px] font-black uppercase tracking-wider text-white 2xl:inline">
               Novo
             </span>
-            <ChevronRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
           </Link>
         </li>
-
-        <li aria-hidden className="mx-1.5 h-5 w-px shrink-0 bg-slate-200" />
-
         {ATALHOS.map(({ href, rotulo, Icone, ...resto }) => {
           const marcado = ativo(href);
           return (
-            <li key={href} className="shrink-0">
+            <li key={href}>
               <Link
                 href={href}
+                aria-label={rotulo}
+                title={rotulo}
                 aria-current={marcado ? "page" : undefined}
-                className={`inline-flex h-9 items-center gap-2 rounded-full px-3.5 text-[13px] font-semibold transition-colors ${
+                className={`inline-flex h-10 items-center gap-1.5 rounded-full px-2.5 text-[13px] font-semibold transition-colors xl:px-3 ${
                   marcado ? "bg-primary text-white" : "text-slate-600 hover:bg-slate-100 hover:text-primary"
                 }`}
               >
@@ -268,7 +270,7 @@ function BarraAtalhos() {
                   </span>
                 )}
                 <Icone className="h-4 w-4" />
-                {rotulo}
+                <span className="hidden xl:inline">{rotulo}</span>
               </Link>
             </li>
           );

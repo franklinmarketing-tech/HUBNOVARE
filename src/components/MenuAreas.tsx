@@ -67,7 +67,7 @@ export function MenuAreas({ portais }: { portais: Portal[] }) {
               }}
               onClick={() => setAberta(ativa ? null : area.chave)}
               aria-expanded={ativa}
-              className={`flex h-9 items-center gap-1.5 whitespace-nowrap rounded-full px-3.5 text-[13.5px] font-semibold tracking-[-0.01em] transition-all duration-200 ${
+              className={`flex h-9 items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 text-[13px] font-semibold min-[1440px]:px-3.5 min-[1440px]:text-[13.5px] tracking-[-0.01em] transition-all duration-200 ${
                 ativa
                   ? "bg-white text-primary shadow-[0_4px_14px_-6px_hsl(199_75%_16%/0.35)]"
                   : "text-slate-600 hover:bg-white/70 hover:text-primary"
@@ -80,7 +80,7 @@ export function MenuAreas({ portais }: { portais: Portal[] }) {
               />
               {area.curto}
               <ChevronDown
-                className={`h-3.5 w-3.5 transition-transform duration-200 ${
+                className={`hidden h-3.5 w-3.5 transition-transform duration-200 min-[1440px]:block ${
                   ativa ? "rotate-180" : ""
                 }`}
               />
