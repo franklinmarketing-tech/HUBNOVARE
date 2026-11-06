@@ -23,3 +23,6 @@ supabase/.temp
 # Rascunhos, backups e capturas das sessões de trabalho. Nunca versionado:
 # guarda cópia de arquivos removidos e imagens de megabytes.
 scripts/tmp/
+
+# build paralelo (não derruba o localhost)
+/.next-b/

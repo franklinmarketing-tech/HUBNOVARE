@@ -2,9 +2,12 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { ChevronDown, ChevronRight, Lock } from "lucide-react";
+import { ChevronDown, ChevronRight, Lock, type LucideIcon } from "lucide-react";
 import { iconeDe } from "@/lib/icones";
 import type { Portal } from "@/lib/categorias";
+
+/** A área "Conteúdo" do topo (News, Vídeos, eBooks): não é do catálogo, então o painel não leva à /aplicativos. */
+export const CHAVE_CONTEUDO = "conteudo";
 
 /**
  * Menu horizontal com uma porta por área, no molde do Workspace do D7.
@@ -14,7 +17,10 @@ import type { Portal } from "@/lib/categorias";
  * o catálogo inteiro fica a um movimento de distância, de qualquer página,
  * sem ninguém precisar voltar para a home.
  */
-export function MenuAreas({ portais }: { portais: Portal[] }) {
+/** Link direto na cápsula, sem painel (06/11/2026: "Vídeos" no menu). */
+export type LinkDoMenu = { href: string; rotulo: string; Icone: LucideIcon; cor: string };
+
+export function MenuAreas({ portais, links = [], fim }: { portais: Portal[]; links?: LinkDoMenu[]; fim?: React.ReactNode }) {
   const [aberta, setAberta] = useState<string | null>(null);
   const fechamento = useRef<ReturnType<typeof setTimeout> | null>(null);
   const barra = useRef<HTMLElement>(null);
@@ -67,20 +73,22 @@ export function MenuAreas({ portais }: { portais: Portal[] }) {
               }}
               onClick={() => setAberta(ativa ? null : area.chave)}
               aria-expanded={ativa}
-              className={`flex h-9 items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 text-[13px] font-semibold min-[1440px]:px-3.5 min-[1440px]:text-[13.5px] tracking-[-0.01em] transition-all duration-200 ${
+              className={`flex h-9 items-center gap-1.5 whitespace-nowrap rounded-full px-2 text-[13px] font-semibold min-[1440px]:px-3 min-[1440px]:text-[13.5px] tracking-[-0.01em] transition-all duration-200 ${
                 ativa
                   ? "bg-white text-primary shadow-[0_4px_14px_-6px_hsl(199_75%_16%/0.35)]"
-                  : "text-slate-600 hover:bg-white/70 hover:text-primary"
+                  : "text-slate-700 hover:bg-white/70 hover:text-primary"
               }`}
             >
+              {/* 06/11/2026: o pontinho na cor da área diferencia os itens sem gastar a largura do ícone. */}
+              <span aria-hidden className="h-2 w-2 shrink-0 rounded-full min-[1536px]:hidden" style={{ backgroundColor: `hsl(${area.h} ${area.s}% 48%)` }} />
               <Icone
-                className="h-4 w-4"
+                className="hidden h-4 w-4 min-[1536px]:block"
                 strokeWidth={2}
                 style={{ color: `hsl(${area.h} ${area.s}% 45%)` }}
               />
               {area.curto}
               <ChevronDown
-                className={`hidden h-3.5 w-3.5 transition-transform duration-200 min-[1440px]:block ${
+                className={`h-3.5 w-3.5 text-slate-400 transition-transform duration-200 ${
                   ativa ? "rotate-180" : ""
                 }`}
               />
@@ -145,6 +153,7 @@ export function MenuAreas({ portais }: { portais: Portal[] }) {
                   })}
                 </div>
 
+                {(area.chave as string) !== CHAVE_CONTEUDO && (
                 <Link
                   href={`/aplicativos?area=${area.chave}`}
                   onClick={() => setAberta(null)}
@@ -153,11 +162,25 @@ export function MenuAreas({ portais }: { portais: Portal[] }) {
                   Ver todos na página de aplicativos
                   <ChevronRight className="h-4 w-4" />
                 </Link>
+                )}
               </div>
             )}
           </div>
         );
       })}
+
+      {links.map(({ href, rotulo, Icone, cor }) => (
+        <Link
+          key={href}
+          href={href}
+          className="flex h-9 items-center gap-1.5 whitespace-nowrap rounded-full px-2 text-[13px] font-semibold tracking-[-0.01em] text-slate-700 transition-all duration-200 hover:bg-white/70 hover:text-primary min-[1440px]:px-3 min-[1440px]:text-[13.5px]"
+        >
+          <span aria-hidden className="h-2 w-2 shrink-0 rounded-full min-[1536px]:hidden" style={{ backgroundColor: cor }} />
+          <Icone className="hidden h-4 w-4 min-[1536px]:block" strokeWidth={2} style={{ color: cor }} />
+          {rotulo}
+        </Link>
+      ))}
+      {fim}
     </nav>
   );
 }

@@ -69,11 +69,13 @@ export function Stories({ stories }: { stories: Story[] }) {
   if (!stories.length) return null;
 
   return (
-    <section aria-labelledby="stories-titulo" className="-mx-5 -mb-2 sm:mx-0">
+    <section aria-labelledby="stories-titulo" className="-mx-5 -mb-4 -mt-3 sm:mx-0">
       <h2 id="stories-titulo" className="sr-only">
         Histórias rápidas: perguntas e respostas sobre dinheiro
       </h2>
-      <ul className="flex gap-3 overflow-x-auto px-5 py-1.5 [scrollbar-width:none] sm:gap-4 sm:px-0 [&::-webkit-scrollbar]:hidden">
+      {/* 06/11/2026 ("espaço sobrando"): no computador as bolinhas ficam CENTRALIZADAS, com espaço
+          uniforme (o `justify-between` espalhava demais), e crescem; no celular seguem deslizando de lado. */}
+      <ul className="flex gap-3 overflow-x-auto px-5 py-1.5 [scrollbar-width:none] sm:justify-center sm:gap-4 lg:gap-7 [&::-webkit-scrollbar]:hidden">
         {stories.map((s, i) => {
           const visto = vistos.includes(s.id);
           return (
@@ -85,7 +87,7 @@ export function Stories({ stories }: { stories: Story[] }) {
                 type="button"
                 onClick={() => setAberto(i)}
                 aria-label={`Abrir a história “${s.rotulo}”: ${s.titulo}${visto ? " (já vista)" : ""}`}
-                className="group flex w-[4.75rem] flex-col items-center gap-1.5 rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-ciano focus-visible:ring-offset-2"
+                className="group flex w-[6.25rem] flex-col items-center gap-1 rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-ciano focus-visible:ring-offset-2"
               >
                 <span
                   aria-hidden
@@ -96,12 +98,12 @@ export function Stories({ stories }: { stories: Story[] }) {
                   }`}
                 >
                   <span className="block rounded-full bg-background p-[2px]">
-                    <span className="relative block h-16 w-16 overflow-hidden rounded-full bg-noite">
-                      <Image src={s.capa} alt="" fill sizes="64px" className="object-cover" />
+                    <span className="relative block h-14 w-14 overflow-hidden rounded-full bg-noite">
+                      <Image src={s.capa} alt="" fill sizes="56px" className="object-cover" />
                     </span>
                   </span>
                 </span>
-                <span className="line-clamp-2 text-center text-2xs font-semibold leading-tight text-primary">
+                <span className="line-clamp-2 text-center text-[11px] font-semibold leading-tight text-primary">
                   {s.rotulo}
                 </span>
               </button>

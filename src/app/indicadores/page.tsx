@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { portais } from "@/lib/categorias";
 import Link from "next/link";
 import { ArrowRight, CalendarClock } from "lucide-react";
 import { BarraLateral } from "@/components/BarraLateral";
@@ -46,6 +47,7 @@ export default async function IndicadoresPage() {
 
       <div className="flex flex-1 flex-col md:pl-[72px]">
         <TopoApp
+          portais={portais("cliente")}
           nome={perfil?.nome ?? null}
           email={perfil?.email}
           assinante={assinante}

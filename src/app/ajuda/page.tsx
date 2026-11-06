@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { portais } from "@/lib/categorias";
 import Link from "next/link";
 import { BarraLateral } from "@/components/BarraLateral";
 import { BarraInferior } from "@/components/BarraInferior";
@@ -36,6 +37,7 @@ export default async function AjudaPage() {
 
       <div className="flex flex-1 flex-col md:pl-[72px]">
         <TopoApp
+          portais={portais("cliente")}
           nome={perfil?.nome ?? null}
           email={perfil?.email}
           assinante={assinante}

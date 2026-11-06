@@ -55,6 +55,9 @@ import {
   Wallet,
   Zap,
   Wand2,
+  Newspaper,
+  PlayCircle,
+  BookOpen,
   type LucideIcon,
 } from "lucide-react";
 import { APPS, type Familia } from "@/lib/apps";
@@ -69,6 +72,11 @@ import { APPS, type Familia } from "@/lib/apps";
  */
 
 const ICONES: Record<string, LucideIcon> = {
+  // Conteúdo (menu do topo, 06/11/2026)
+  "novare-news": Newspaper,
+  "novare-videos": PlayCircle,
+  ebooks: BookOpen,
+
   // Workspace
   "planejamento": Compass,
   iris: Eye,

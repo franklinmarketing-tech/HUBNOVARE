@@ -1720,3 +1720,24 @@ html:has(#ncash-casca.ncash-claro) {
 .ncash-tema .ncash-ic-claro { display: none !important; }
 .ncash-claro .ncash-ic-escuro { display: none !important; }
 .ncash-claro .ncash-ic-claro { display: inline-block !important; }
+
+
+/* O brilho do botão NovareCash no topo (06/11/2026): uma lâmina dourada passa a cada 6 s. */
+.nc-brilho::after {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 -60%;
+  width: 40%;
+  background: linear-gradient(100deg, transparent, hsl(45 90% 76% / 0.35), transparent);
+  transform: skewX(-18deg);
+  pointer-events: none;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .nc-brilho::after {
+    animation: nc-lamina 6s ease-in-out 1.5s infinite;
+  }
+}
+@keyframes nc-lamina {
+  0%, 70% { left: -60%; }
+  100%    { left: 130%; }
+}

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { portais } from "@/lib/categorias";
 import { ArrowUpRight } from "lucide-react";
 import { BarraLateral } from "@/components/BarraLateral";
 import { BarraInferior } from "@/components/BarraInferior";
@@ -32,6 +33,7 @@ export const metadata: Metadata = {
 
 /** Revalida junto com o feed (30 min): vídeo novo no canal aparece aqui sozinho. */
 export const revalidate = 1800;
+/* `?v=` (vindo do menu Vídeos) torna a página dinâmica; o feed continua em cache de 30 min. */
 
 /**
  * /novare-videos — OS VÍDEOS DO CANAL (06/11/2026, pedido do dono).
@@ -40,7 +42,8 @@ export const revalidate = 1800;
  * `lib/youtube.ts`). Vídeos em 16:9 e Shorts em vertical, em seções separadas. O feed traz os
  * 15 mais recentes; o botão do canal leva ao resto.
  */
-export default async function NovareVideosPage() {
+export default async function NovareVideosPage({ searchParams }: { searchParams: Promise<{ v?: string }> }) {
+  const { v: pedido } = await searchParams;
   const [perfil, notificacoes, todos] = await Promise.all([getPerfil(), getNotificacoes(), videosDoCanal()]);
   const apps = appsParaBusca(perfil?.role ?? "cliente", perfil?.plano ?? "free", !!perfil);
   const assinante = perfil?.plano === "pro" || (!!perfil && perfil.role !== "cliente");
@@ -55,6 +58,7 @@ export default async function NovareVideosPage() {
 
       <div className="md:pl-[72px]">
         <TopoApp
+          portais={portais("cliente")}
           nome={perfil?.nome ?? null}
           email={perfil?.email}
           assinante={assinante}
@@ -86,7 +90,7 @@ export default async function NovareVideosPage() {
 
           <div className="mt-8">
             {todos.length > 0 ? (
-              <GaleriaVideos videos={videos} shorts={shorts} />
+              <GaleriaVideos videos={videos} shorts={shorts} inicial={pedido} />
             ) : (
               <div className="cartao-cp p-8 text-center">
                 <p className="font-semibold text-primary">Não consegui carregar os vídeos agora.</p>

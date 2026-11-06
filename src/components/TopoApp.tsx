@@ -4,8 +4,9 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
-import { BookOpen, Newspaper, PlayCircle, Wallet, Search, Mail, ArrowRight } from "lucide-react";
-import { MenuAreas } from "@/components/MenuAreas";
+import { Search, Mail, ArrowRight, Sparkles } from "lucide-react";
+import { MenuVideos } from "@/components/MenuVideos";
+import { CHAVE_CONTEUDO, MenuAreas } from "@/components/MenuAreas";
 import { MenuConta } from "@/components/MenuConta";
 import { SinoNotificacoes } from "@/components/SinoNotificacoes";
 import type { Portal } from "@/lib/categorias";
@@ -105,7 +106,7 @@ export function TopoApp({
             de rede social está. */}
         {/* 06/11/2026 (menu numa linha só): entre 1024 e 1699px as redes saem do topo para os
             atalhos escritos caberem; seguem no rodapé e voltam aqui a partir de 1700px. O selo Nord volta em 1800px e o "Bem-vindo" em 2000px. */}
-        <RedesSociais className="hidden shrink-0 max-lg:flex min-[1700px]:flex" tamanho="h-4 w-4 sm:h-[18px] sm:w-[18px]" />
+        <RedesSociais className="hidden shrink-0 border-l border-slate-200 pl-3 max-xl:flex min-[1366px]:flex" tamanho="h-4 w-4 sm:h-[18px] sm:w-[18px]" />
 
         {/* ⚠️ O "INSCREVA-SE" TAMBÉM AQUI, pedido do dono: o Novare News
             tinha esse botão no topo e o Workspace não, embora a seção de
@@ -153,12 +154,15 @@ export function TopoApp({
 
         {/* O menu das áreas ocupa o centro; ele some no celular, onde o
             acesso é pela busca e pelos cards. */}
+        {/* O MENU ÚNICO (06/11/2026, "reconstruir com padrão"): as áreas do catálogo e,
+            no fim, "Conteúdo" (News, Vídeos, eBooks), todos no MESMO estilo de cápsula. */}
         <div className="mx-auto">
-          <MenuAreas portais={portais} />
+          <MenuAreas portais={[...portais, CONTEUDO]} fim={<MenuVideos />} />
         </div>
 
-        {/* OS ATALHOS COM NOME ESCRITO, NA MESMA LINHA (06/11/2026, pedido do dono). */}
-        <BarraAtalhos />
+        {/* O único botão de destaque do topo: o NovareCash, em ouro. */}
+        <BotaoNovareCash />
+        <span aria-hidden className="hidden h-6 w-px shrink-0 bg-slate-200 md:block" />
 
         {/* Novidades (25/10/2026): só o ícone — o topo já é justo em 1280px.
             Fica fora do celular pelo mesmo motivo: em 390px logo, redes,
@@ -217,65 +221,57 @@ export function TopoApp({
   );
 }
 
-const ATALHOS = [
-  { href: "/novare-news", rotulo: "News", Icone: Newspaper, aoVivo: true },
-  { href: "/novare-videos", rotulo: "Vídeos", Icone: PlayCircle },
-  { href: "/ebooks", rotulo: "eBooks", Icone: BookOpen },
-] as const;
+/** O item "Conteúdo" do menu: os canais da casa, no mesmo painel das áreas. */
+const CONTEUDO = {
+  chave: CHAVE_CONTEUDO,
+  titulo: "Conteúdo",
+  curto: "Conteúdo",
+  descricao: "Os canais da Novare: artigos, vídeos e eBooks gratuitos.",
+  capa: "",
+  h: 199,
+  s: 75,
+  total: 3,
+  rotuloTotal: "canais",
+  destaques: ["novare-news"],
+  destino: "/novare-news",
+  destinoExterno: false,
+  selo: "Grátis",
+  itens: [
+    { slug: "novare-news", nome: "Novare News", chamada: "Dinheiro explicado, sem letra miúda", href: "/novare-news", aberto: true, externo: false },
+    { slug: "novare-videos", nome: "Novare Vídeos", chamada: "Os vídeos do canal no YouTube", href: "/novare-videos", aberto: true, externo: false },
+    { slug: "ebooks", nome: "eBooks grátis", chamada: "Guias para baixar e ler com calma", href: "/ebooks", aberto: true, externo: false },
+  ],
+} as unknown as Portal;
 
 /**
- * Os atalhos do topo, NUMA LINHA SÓ com o menu de áreas. O NovareCash (ouro) tem o nome
- * sempre a partir do tablet; News, Vídeos e eBooks mostram o nome a partir de 1280px (abaixo,
- * só o ícone, que o espaço não dá). No celular quem faz esse papel é a `BarraInferior`.
+ * O NovareCash no topo (06/11/2026, "ele é especial"): o ÚNICO botão escuro da linha clara —
+ * noite com aro dourado, o ícone num quadrado de ouro, "Novare" + "Cash" como na marca e uma
+ * lâmina de brilho passando de tempos em tempos (`nc-brilho`, em globals.css; parada para quem
+ * pediu menos movimento).
  */
-function BarraAtalhos() {
+function BotaoNovareCash() {
   const caminho = usePathname() ?? "";
-  const ativo = (href: string) => caminho === href || caminho.startsWith(`${href}/`);
-
+  const ativo = caminho === "/novarecash" || caminho.startsWith("/novarecash/");
   return (
-    <nav aria-label="Atalhos" className="hidden shrink-0 md:block">
-      <ul className="flex items-center gap-1">
-        <li>
-          <Link
-            href="/novarecash"
-            aria-current={ativo("/novarecash") ? "page" : undefined}
-            className="group inline-flex h-10 items-center gap-1.5 rounded-full bg-[linear-gradient(135deg,hsl(42_80%_94%),hsl(42_74%_82%))] pl-1.5 pr-3 text-[13px] font-bold text-ouro-forte shadow-[0_6px_16px_-10px_hsl(36_78%_32%/0.8)] ring-1 ring-ouro/60 transition-transform hover:-translate-y-px"
-          >
-            <span className="flex h-7 w-7 items-center justify-center rounded-full bg-ouro-forte text-white">
-              <Wallet className="h-3.5 w-3.5" />
-            </span>
-            NovareCash
-            <span className="hidden rounded-full bg-ouro-forte px-1.5 py-px text-[9px] font-black uppercase tracking-wider text-white 2xl:inline">
-              Novo
-            </span>
-          </Link>
-        </li>
-        {ATALHOS.map(({ href, rotulo, Icone, ...resto }) => {
-          const marcado = ativo(href);
-          return (
-            <li key={href}>
-              <Link
-                href={href}
-                aria-label={rotulo}
-                title={rotulo}
-                aria-current={marcado ? "page" : undefined}
-                className={`inline-flex h-10 items-center gap-1.5 rounded-full px-2.5 text-[13px] font-semibold transition-colors xl:px-3 ${
-                  marcado ? "bg-primary text-white" : "text-slate-600 hover:bg-slate-100 hover:text-primary"
-                }`}
-              >
-                {"aoVivo" in resto && resto.aoVivo && (
-                  <span aria-hidden className="relative flex h-2 w-2">
-                    <span className="absolute inline-flex h-full w-full rounded-full bg-ciano opacity-60 motion-safe:animate-ping" />
-                    <span className="relative inline-flex h-2 w-2 rounded-full bg-ciano" />
-                  </span>
-                )}
-                <Icone className="h-4 w-4" />
-                <span className="hidden xl:inline">{rotulo}</span>
-              </Link>
-            </li>
-          );
-        })}
-      </ul>
-    </nav>
+    <Link
+      href="/novarecash"
+      aria-label="NovareCash"
+      aria-current={ativo ? "page" : undefined}
+      className="nc-brilho group relative hidden h-10 shrink-0 items-center gap-2 overflow-hidden rounded-full bg-[linear-gradient(135deg,hsl(205_55%_12%),hsl(203_70%_6%))] pl-1 pr-4 shadow-[0_10px_24px_-12px_hsl(36_78%_32%/0.9),inset_0_1px_0_hsl(42_74%_62%/0.25)] ring-1 ring-ouro/55 transition-transform hover:-translate-y-px md:inline-flex"
+    >
+      <span className="relative flex h-8 w-8 items-center justify-center rounded-full bg-[conic-gradient(from_210deg,hsl(36_78%_42%),hsl(45_90%_72%),hsl(36_78%_42%))] shadow-[inset_0_1px_0_hsl(0_0%_100%/0.5)]">
+        <span className="flex h-[26px] w-[26px] items-center justify-center rounded-full bg-[hsl(203_70%_7%)]">
+          <Sparkles className="h-3.5 w-3.5 text-ouro" strokeWidth={2.25} />
+        </span>
+      </span>
+      <span aria-hidden className="font-display text-[14px] font-semibold tracking-[-0.02em]">
+        <span className="text-white">Novare</span>
+        <span className="bg-[linear-gradient(90deg,hsl(42_74%_62%),hsl(45_90%_76%))] bg-clip-text text-transparent">Cash</span>
+      </span>
+      <span aria-hidden className="relative ml-0.5 flex h-1.5 w-1.5">
+        <span className="absolute inline-flex h-full w-full rounded-full bg-ouro opacity-70 motion-safe:animate-ping" />
+        <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-ouro" />
+      </span>
+    </Link>
   );
 }
