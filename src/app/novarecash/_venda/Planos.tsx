@@ -231,7 +231,7 @@ function CartaoPlano({ oferta: o, fimBlack }: { oferta: Oferta; fimBlack: string
         <ShieldCheck className="mt-px h-3.5 w-3.5 shrink-0" />
         {o.peloWhatsApp
           ? `${GARANTIA_DIAS} dias de garantia. A equipe da Novare conclui a assinatura pelo WhatsApp.`
-          : `${GARANTIA_DIAS} dias de garantia. Pagamento seguro pela Hotmart.`}
+          : `${GARANTIA_DIAS} dias de garantia. Pagamento seguro pela Kiwify.`}
       </p>
     </div>
   );

@@ -91,7 +91,7 @@ import "./_venda/venda.css";
  * ═══ VENDA DIRETA (04/11/2026: "já vamos vender, valor mensal, nada de Lista VIP") ═══
  * O preço sai de `PLANOS` (`config.ts`; 05/11/2026: Essencial, Plus e Premium,
  * que só mudam no limite de bancos): riscado e % OFF só com a Black aberta.
- * Cada botão vai ao checkout da Hotmart do plano E PRAZO (mensal em
+ * Cada botão vai ao checkout (Kiwify) do plano E PRAZO (mensal em
  * `NEXT_PUBLIC_NOVARECASH_CHECKOUT_ESSENCIAL`, `_PLUS`, `_PREMIUM`; anual nas
  * mesmas com `_ANUAL` no fim, na Vercel); enquanto o link não existe, vai ao
  * WhatsApp da casa (`linkDeCompra`). Ninguém troca preço editando esta página.
@@ -670,7 +670,7 @@ export default async function NovareCashVendaPage({
               <h2 className="font-display text-2xl font-semibold text-primary">Você tem {GARANTIA_DIAS} dias para decidir</h2>
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
                 Assine e use à vontade. Não era para você? Peça o reembolso em até {GARANTIA_DIAS} dias
-                {peloWhatsApp ? " falando com a equipe no WhatsApp" : " pela Hotmart, onde a compra é feita"}, e o
+                {peloWhatsApp ? " falando com a equipe no WhatsApp" : " pela Kiwify, onde a compra é feita"}, e o
                 valor volta inteiro. Sem precisar explicar o motivo.
               </p>
             </div>

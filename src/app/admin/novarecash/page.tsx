@@ -66,7 +66,7 @@ export default async function AdminNovareCashPage() {
   return (
     <div className="space-y-6">
       <Hero etiqueta="Painel da Novare" titulo="NovareCash" destaque={{ valor: comAcesso.length, rotulo: "assinantes com acesso hoje" }}>
-        Quem assinou pela Hotmart. O acesso abre e fecha sozinho com os avisos dela; nada aqui precisa ser mexido à mão.
+        Quem assinou pela Kiwify. O acesso abre e fecha sozinho com os avisos dela; nada aqui precisa ser mexido à mão.
       </Hero>
 
       <section className="grid gap-3 sm:grid-cols-4">
@@ -79,7 +79,7 @@ export default async function AdminNovareCashPage() {
       <section className="cartao-cp p-5 sm:p-6">
         <h2 className="font-display text-lg font-semibold text-primary">Assinantes</h2>
         {todas.length === 0 ? (
-          <p className="mt-3 text-sm text-slate-600">Ninguém assinou ainda. A primeira compra aprovada na Hotmart aparece aqui sozinha.</p>
+          <p className="mt-3 text-sm text-slate-600">Ninguém assinou ainda. A primeira compra aprovada na Kiwify aparece aqui sozinha.</p>
         ) : (
           <div className="mt-4 overflow-x-auto">
             <table className="w-full min-w-[40rem] text-sm">
@@ -112,7 +112,7 @@ export default async function AdminNovareCashPage() {
       </section>
 
       <section className="cartao-cp p-5 sm:p-6">
-        <h2 className="font-display text-lg font-semibold text-primary">Últimos avisos da Hotmart</h2>
+        <h2 className="font-display text-lg font-semibold text-primary">Últimos avisos (Hotmart/Kiwify)</h2>
         <p className="text-sm text-slate-500">Se uma compra não liberou, confira aqui se o aviso chegou.</p>
         {(eventos as Evento[] | null)?.length ? (
           <ul className="mt-3 divide-y divide-border/60 text-sm">

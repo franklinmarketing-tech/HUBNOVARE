@@ -59,7 +59,7 @@ export type Oferta = {
    */
   depoisDaBlack: number | null;
   checkout: string;
-  /** Sem link da Hotmart ainda: o botão leva ao WhatsApp da casa. */
+  /** Sem link de pagamento ainda: o botão leva ao WhatsApp da casa. */
   peloWhatsApp: boolean;
 };
 

@@ -1,16 +1,18 @@
 import { NextResponse } from "next/server";
-import { timingSafeEqual } from "node:crypto";
-import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { excedeuLimitePorIp, respostaLimite } from "@/lib/api-security";
 import type { Prazo } from "@/lib/novarecash/config";
 import { planoDo, prazoDo, type Payload } from "@/lib/novarecash/hotmart-plano";
+import { agendarFim, ativar, cortar, igual, servico } from "@/lib/novarecash/assinantes";
 
 /**
- * O AVISO DA HOTMART — é daqui que nasce (e morre) o acesso ao NovareCash.
+ * O AVISO DA HOTMART — RESERVA desde 05/11/2026: a plataforma principal do
+ * NovareCash é a KIWIFY (`/api/novarecash/kiwify`). Esta rota continua viva e
+ * funcionando, para o caso de uma venda pela Hotmart.
  *
  * A Hotmart chama esta rota a cada compra, renovação, cancelamento e reembolso.
  * Ela grava o estado de hoje em `ncash_assinantes` (uma linha por e-mail) e o
- * aviso cru em `ncash_hotmart_eventos`. Quem decide o acesso depois é a função
+ * aviso cru em `ncash_hotmart_eventos`. O que cada família faz no banco é comum
+ * às duas plataformas e mora em `lib/novarecash/assinantes.ts`. Quem decide o acesso depois é a função
  * `ncash_tem_acesso()` do banco (ver `supabase/novarecash.sql`).
  *
  * AS TRÊS FAMÍLIAS DE EVENTO — a mesma divisão do webhook do D7, que já roda em
@@ -38,22 +40,6 @@ const CORTA = ["PURCHASE_CANCELED", "PURCHASE_REFUNDED", "PURCHASE_CHARGEBACK", 
 const FIM_AGENDADO = ["SUBSCRIPTION_CANCELLATION", "PURCHASE_DELAYED", "PURCHASE_OVERDUE"];
 
 const DIA = 24 * 60 * 60 * 1000;
-
-let cliente: SupabaseClient | null = null;
-function servico(): SupabaseClient | null {
-  if (cliente) return cliente;
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const chave = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!url || !chave) return null;
-  cliente = createClient(url, chave, { auth: { persistSession: false, autoRefreshToken: false } });
-  return cliente;
-}
-
-function igual(a: string, b: string): boolean {
-  const x = Buffer.from(a);
-  const y = Buffer.from(b);
-  return x.length === y.length && timingSafeEqual(x, y);
-}
 
 /** Até quando vale: a próxima cobrança que a Hotmart informa; sem ela, o período do plano + 5 dias de folga. */
 function validade(p: Payload, prazo: Prazo): string {
@@ -107,75 +93,36 @@ export async function POST(req: Request) {
   }
   if (!email) return NextResponse.json({ ok: true, ignorado: "sem e-mail" });
 
-  const agora = new Date().toISOString();
-  const prazo = prazoDo(p);
-  const assinatura = (p?.data?.subscription?.subscriber?.code ?? null) as string | null;
-
   if (ATIVA.includes(evento)) {
-    // REENVIO FORA DE ORDEM: a Hotmart repete avisos, e um "aprovada" antigo que
-    // chegue DEPOIS do reembolso/chargeback da MESMA transação religaria o acesso
-    // de quem recebeu o dinheiro de volta. Transação nova (outra compra) passa.
-    if (transacao) {
-      const { data: atual } = await db
-        .from("ncash_assinantes")
-        .select("status, ultima_transacao")
-        .eq("email", email)
-        .maybeSingle();
-      if (atual && (atual.status === "reembolsada" || atual.status === "chargeback") && atual.ultima_transacao === transacao) {
-        return NextResponse.json({ ok: true, ignorado: "transacao ja reembolsada" });
-      }
-    }
-    const { error } = await db.from("ncash_assinantes").upsert(
-      {
-        email,
-        nome,
-        status: "ativa",
-        // 05/11/2026: o PLANO (essencial/plus/premium) e, à parte, o PRAZO (`prazoDo`,
-        // mensal/anual). Não há coluna de prazo, e não precisa: ele já está na
-        // validade (35 dias no mensal, 370 no anual, sem `date_next_charge`).
-        // Leitura dos dois nomes em `lib/novarecash/hotmart-plano.ts`.
-        plano: planoDo(p),
-        expira_em: validade(p, prazo),
-        assinatura,
-        ultima_transacao: transacao,
-        comprou_em: agora,
-        atualizado_em: agora,
-      },
-      { onConflict: "email" },
-    );
-    if (error) return NextResponse.json({ erro: "nao gravou" }, { status: 500 }); // 500 = a Hotmart tenta de novo
-    return NextResponse.json({ ok: true, acao: "ativou" });
+    return ativar(db, {
+      email,
+      nome,
+      // O PLANO (essencial/plus/premium) e, à parte, o PRAZO (mensal/anual), lidos
+      // dos nomes em `lib/novarecash/hotmart-plano.ts`.
+      plano: planoDo(p),
+      expiraEm: validade(p, prazoDo(p)),
+      assinatura: (p?.data?.subscription?.subscriber?.code ?? null) as string | null,
+      transacao,
+    });
   }
 
   if (CORTA.includes(evento)) {
-    // `expira_em = agora` é o que corta (cancelada com validade no passado não passa em `ncash_tem_acesso`).
     const status =
       evento === "PURCHASE_REFUNDED" ? "reembolsada"
       : evento === "PURCHASE_CHARGEBACK" || evento === "PURCHASE_PROTEST" ? "chargeback"
       : "cancelada";
-    let corte = db
-      .from("ncash_assinantes")
-      .update({ status, expira_em: agora, ultima_transacao: transacao, atualizado_em: agora })
-      .eq("email", email);
-    // CANCELADA/EXPIRADA não devolve dinheiro: é um boleto/Pix que venceu sem
-    // pagar ou uma cobrança recusada. Só corta se for a transação que DEU o
-    // acesso — senão o boleto esquecido de uma 2ª tentativa (ou a renovação
-    // recusada) cortaria na hora quem tem período pago. A renovação que não
-    // entrou acaba sozinha em `expira_em`. Reembolso e chargeback cortam sempre.
-    if (transacao && (evento === "PURCHASE_CANCELED" || evento === "PURCHASE_EXPIRED")) {
-      corte = corte.eq("ultima_transacao", transacao);
-    }
-    const { error } = await corte;
-    if (error) return NextResponse.json({ erro: "nao gravou" }, { status: 500 });
-    return NextResponse.json({ ok: true, acao: "cortou" });
+    // CANCELADA/EXPIRADA não devolve dinheiro (boleto/Pix vencido, cobrança recusada):
+    // só corta se for a transação que DEU o acesso. Reembolso e chargeback cortam sempre.
+    return cortar(db, {
+      email,
+      status,
+      transacao,
+      soSeMesmaTransacao: evento === "PURCHASE_CANCELED" || evento === "PURCHASE_EXPIRED",
+    });
   }
 
   if (FIM_AGENDADO.includes(evento)) {
-    // Não mexe em `expira_em`: o período pago continua valendo até lá.
-    const status = evento === "SUBSCRIPTION_CANCELLATION" ? "cancelada" : "atrasada";
-    const { error } = await db.from("ncash_assinantes").update({ status, atualizado_em: agora }).eq("email", email);
-    if (error) return NextResponse.json({ erro: "nao gravou" }, { status: 500 });
-    return NextResponse.json({ ok: true, acao: "fim agendado" });
+    return agendarFim(db, email, evento === "SUBSCRIPTION_CANCELLATION" ? "cancelada" : "atrasada");
   }
 
   return NextResponse.json({ ok: true, ignorado: evento });

@@ -69,7 +69,7 @@ export type PrecoPrazo = {
   cheio: number;
   /** Preço por mês na Black Novare. `null` = sem preço de campanha. */
   black: number | null;
-  /** Link de pagamento da Hotmart. Vazio = o botão vai ao WhatsApp da casa. */
+  /** Link de pagamento (Kiwify, pay.kiwify.com.br). Vazio = o botão vai ao WhatsApp da casa. */
   checkout: string;
 };
 
@@ -140,7 +140,7 @@ export function bancosDoPlano(chave: string | null | undefined): number {
 export const GARANTIA_DIAS = 7;
 
 /**
- * Para onde vai o botão de assinar um plano. Com o link da Hotmart na Vercel, vai
+ * Para onde vai o botão de assinar um plano. Com o link de pagamento na Vercel, vai
  * direto ao pagamento. SEM ele, cai no WhatsApp da casa com a mensagem pronta,
  * citando o plano (e "anual", no anual) — a venda não espera a integração ficar pronta.
  */

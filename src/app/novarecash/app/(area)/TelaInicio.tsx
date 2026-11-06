@@ -338,7 +338,7 @@ function Assinatura({ assinatura, equipe }: { assinatura: MinhaAssinatura; equip
             )}
             {assinatura.status === "atrasada" && (
               <p className="text-2xs leading-relaxed text-white/65 sm:col-span-2">
-                A cobrança não passou. Regularize pela Hotmart (o e-mail da compra tem o link) para não perder o acesso.
+                A cobrança não passou. Regularize pela Kiwify (o e-mail da compra tem o link) para não perder o acesso.
               </p>
             )}
           </dl>

@@ -7,13 +7,13 @@ import { Cartao, Selo, type TomSelo } from "../pecas";
 
 /**
  * MINHA ASSINATURA: o estado de hoje (de `minhaAssinatura()`, pelo e-mail da
- * conta) e o caminho para cancelar. Quem cobra é a Hotmart, então é lá que se
- * cancela — a central do comprador, em "Assinaturas". O link fica à vista: o
+ * conta) e o caminho para cancelar. Quem cobra é a Kiwify (desde 05/11/2026; a
+ * Hotmart ficou de reserva), então é lá que se cancela — na área do comprador. O link fica à vista: o
  * Código de Defesa do Consumidor pede cancelamento tão fácil quanto a compra.
  */
 
-/** A central do comprador da Hotmart (Minhas compras → Assinaturas). */
-const CENTRAL_HOTMART = "https://consumer.hotmart.com/";
+/** A área do comprador da Kiwify (entra com o e-mail da compra). ⚠️ Conferir o endereço na 1ª compra de teste. */
+const CENTRAL_COMPRADOR = "https://dashboard.kiwify.com.br/";
 
 const STATUS: Record<string, { rotulo: string; tom: TomSelo }> = {
   ativa: { rotulo: "Ativa", tom: "verde" },
@@ -53,13 +53,13 @@ export function MinhaAssinatura({
           <p className="mt-1 text-xs leading-relaxed text-white/75">
             {assinatura.status === "ativa" &&
               (assinatura.expira_em
-                ? `Renova sozinha pela Hotmart. O período pago vai até ${dia(assinatura.expira_em)}.`
-                : "Renova sozinha pela Hotmart.")}
+                ? `Renova sozinha pela Kiwify. O período pago vai até ${dia(assinatura.expira_em)}.`
+                : "Renova sozinha pela Kiwify.")}
             {assinatura.status === "cancelada" &&
               (assinatura.expira_em
                 ? `A renovação foi cancelada. Você continua usando até ${dia(assinatura.expira_em)}.`
                 : "A renovação foi cancelada.")}
-            {assinatura.status === "atrasada" && "A Hotmart não conseguiu cobrar. Atualize o pagamento lá para não perder o acesso."}
+            {assinatura.status === "atrasada" && "A Kiwify não conseguiu cobrar. Atualize o pagamento lá para não perder o acesso."}
             {(assinatura.status === "reembolsada" || assinatura.status === "chargeback") && "Esta assinatura foi encerrada."}
           </p>
           <p className="mt-1 break-all text-2xs text-white/55">E-mail da compra: {email}</p>
@@ -88,13 +88,13 @@ export function MinhaAssinatura({
       <div className="mt-4 flex flex-wrap gap-2">
         {assinatura && (
           <a
-            href={CENTRAL_HOTMART}
+            href={CENTRAL_COMPRADOR}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/20 px-4 text-sm font-semibold text-white hover:border-ouro/60 hover:bg-white/[0.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ouro"
           >
             <ExternalLink className="h-4 w-4" />
-            {assinatura.status === "ativa" || assinatura.status === "atrasada" ? "Cancelar pela Hotmart" : "Abrir a Hotmart"}
+            {assinatura.status === "ativa" || assinatura.status === "atrasada" ? "Cancelar pela Kiwify" : "Abrir a Kiwify"}
           </a>
         )}
         <a
@@ -109,7 +109,7 @@ export function MinhaAssinatura({
       </div>
       {assinatura && (assinatura.status === "ativa" || assinatura.status === "atrasada") && (
         <p className="mt-2 text-2xs leading-relaxed text-white/55">
-          Na Hotmart, entre com o e-mail da compra e abra Assinaturas. Cancelando, você continua usando até o fim do período
+          Na Kiwify, entre com o e-mail da compra e abra a assinatura do NovareCash. Cancelando, você continua usando até o fim do período
           já pago.
         </p>
       )}

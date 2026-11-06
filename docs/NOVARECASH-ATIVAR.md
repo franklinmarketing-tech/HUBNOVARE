@@ -1,7 +1,10 @@
 # NovareCash — como ligar (checklist do dono)
 
 O código está pronto. O que falta são chaves e decisões que só o dono tem. Faça na ordem: cada passo
-funciona sozinho. Sem o link da Hotmart, o botão de assinar abre o WhatsApp da casa.
+funciona sozinho. Sem o link de pagamento, o botão de assinar abre o WhatsApp da casa.
+
+> **Plataforma de venda: KIWIFY** (desde 05/11/2026) — passo 3. A Hotmart ficou de **reserva** (a rota
+> continua no código, ninguém comprou por ela): está no fim deste arquivo.
 
 > FINCASH continua **grátis**. NovareCash é o produto **pago** (IA + WhatsApp + conexão com banco).
 > Preço, datas da Black e "o que está no ar" moram num arquivo só: `src/lib/novarecash/config.ts`.
@@ -12,7 +15,8 @@ funciona sozinho. Sem o link da Hotmart, o botão de assinar abre o WhatsApp da 
 
 Nesta ordem (todos podem ser rodados de novo sem estragar nada):
 
-1. `supabase/novarecash.sql` — assinantes, diário da Hotmart e a regra de acesso.
+1. `supabase/novarecash.sql` — assinantes, diário dos avisos de venda (Kiwify e Hotmart, na mesma tabela
+   `ncash_hotmart_eventos`) e a regra de acesso.
 2. `supabase/novarecash_app.sql` — cota da IA.
 3. `supabase/novarecash_dados.sql` — contas, extrato e orçamento próprios.
 4. `supabase/novarecash_whatsapp.sql` — o WhatsApp gravando no NovareCash.
@@ -63,12 +67,152 @@ Confere: a última consulta de cada arquivo devolve tudo `true`.
   - O limite de bancos de cada assinante sai de `bancosDoPlano(plano)` (plano desconhecido = 1, o do Essencial).
   - Sem Lista VIP. Histórico: em 04/11 era um mensal só (R$ 34,90, Black R$ 29,90), pela pesquisa de mercado
     (Pierre Pro R$ 39, Organizze Conectado R$ 39,90, Mobills mensal R$ 42,90, Meu Planner Premium 12x R$ 34,90).
-- Enquanto o link da Hotmart de um plano não estiver na Vercel, o botão daquele plano abre o **WhatsApp da
+- Enquanto o link da Kiwify de um plano não estiver na Vercel, o botão daquele plano abre o **WhatsApp da
   casa** com a mensagem "Quero assinar o NovareCash {Plano}" (no anual, "… {Plano} anual") — quem atende libera o acesso (Admin → NovareCash
-  mostra quem pagou pela Hotmart; venda pelo WhatsApp precisa do link de pagamento da Hotmart enviado à pessoa).
+  mostra quem pagou; venda pelo WhatsApp precisa do link de pagamento da Kiwify enviado à pessoa).
 - Mudar preço/datas: me passe os números — preço escrito em outro lugar é preço que diverge.
 
-## 3. Hotmart (15 min)
+## 3. Kiwify (recomendada) — 20 min
+
+A Kiwify é a plataforma de venda do NovareCash: checkout simples, **coprodução nativa** com o sócio e
+assinatura mensal e anual. A rota que libera o acesso é `/api/novarecash/kiwify` (código em
+`src/app/api/novarecash/kiwify/route.ts`; leitura do aviso, testável, em `src/lib/novarecash/kiwify.ts`).
+
+> ⚠️ A **chave da API** da Kiwify (client_id/client_secret) **NÃO é necessária** para liberar acesso. Só o
+> **webhook** com o **token** dele.
+
+### 3.1 Criar os SEIS produtos (um por plano e prazo)
+
+Na Kiwify: **Produtos → Criar produto**, seis vezes, cada um com:
+
+- **Tipo:** Assinatura recorrente (mensal nos três "Mensal", anual nos três "Anual");
+- **Entrega:** Área de membros externa, com o link **`https://hub.novareapp.com.br/novarecash/app`**;
+- **Página de vendas:** **`https://hub.novareapp.com.br/novarecash`**;
+- **Garantia:** 7 dias.
+
+O **nome do produto** tem de ser EXATAMENTE um destes (é dele que a rota lê o plano e o prazo):
+
+| Nome do produto na Kiwify | Cobrança | Preço até 30/11 (Black) | Preço de 1º/12 | Env do link na Vercel |
+|---|---|---|---|---|
+| `NovareCash Essencial Mensal` | mensal | R$ 29,90/mês | R$ 59,90/mês | `NEXT_PUBLIC_NOVARECASH_CHECKOUT_ESSENCIAL` |
+| `NovareCash Plus Mensal` | mensal | R$ 39,90/mês | R$ 79,90/mês | `NEXT_PUBLIC_NOVARECASH_CHECKOUT_PLUS` |
+| `NovareCash Premium Mensal` | mensal | R$ 59,90/mês | R$ 119,90/mês | `NEXT_PUBLIC_NOVARECASH_CHECKOUT_PREMIUM` |
+| `NovareCash Essencial Anual` | anual | R$ 298,80/ano | R$ 598,80/ano | `NEXT_PUBLIC_NOVARECASH_CHECKOUT_ESSENCIAL_ANUAL` |
+| `NovareCash Plus Anual` | anual | R$ 418,80/ano | R$ 838,80/ano | `NEXT_PUBLIC_NOVARECASH_CHECKOUT_PLUS_ANUAL` |
+| `NovareCash Premium Anual` | anual | R$ 658,80/ano | R$ 1.318,80/ano | `NEXT_PUBLIC_NOVARECASH_CHECKOUT_PREMIUM_ANUAL` |
+
+- **Plano:** a rota lê, nesta ordem, o nome do produto, o nome do plano da assinatura e o nome da oferta
+  (sem acento, sem diferenciar maiúsculas, palavra inteira) e grava `essencial`, `plus` ou `premium` em
+  `ncash_assinantes.plano`. **Não reconheceu: `essencial`** (o menor limite de bancos).
+- **Prazo:** manda a **frequência da cobrança** que a Kiwify informa (`yearly` = anual, `monthly` = mensal).
+  Sem ela, o nome: com **"Anual"** (palavra inteira) é anual; sem, mensal. Na Kiwify o nome do **produto**
+  vale para o prazo (são seis produtos), ao contrário da Hotmart.
+- **Validade:** a próxima cobrança que a Kiwify informa (+3 dias); sem ela, 35 dias no mensal e 370 no anual.
+- **Produto certo:** a rota só mexe no acesso quando o nome do produto **começa com "NovareCash"**. Venda de
+  outro produto da mesma conta fica no diário e é ignorada. (Opcional: `KIWIFY_PRODUTO_NOVARECASH` com os
+  **ids** dos seis produtos separados por vírgula troca a regra do nome pela lista de ids.)
+- ⚠️ Até 30/11 cada produto tem de COBRAR o preço da Black. Em 1º/12 a página passa sozinha ao cheio, mas a
+  Kiwify não: mude o preço dos seis produtos (ou troque os seis links na Vercel) no mesmo dia, senão a
+  página mostra um preço e o checkout cobra outro.
+- ⚠️ Não mude os nomes depois de vender: produto renomeado sem "NovareCash" no começo deixa de liberar acesso.
+
+### 3.2 Coprodução com o sócio
+
+Configurada **na Kiwify**, em cada um dos seis produtos (**Coprodução → convidar o sócio**, com a
+porcentagem combinada). A Kiwify divide o dinheiro sozinha; **nada no código** depende disso.
+
+### 3.3 Webhook (o que libera o acesso)
+
+Na Kiwify: **Apps → Webhooks → Criar webhook**:
+
+- **Nome:** NovareCash Hub
+- **URL:** `https://hub.novareapp.com.br/api/novarecash/kiwify`
+- **Produtos:** **Todos os produtos** — UM webhook cobre os seis (a API da Kiwify aceita `products: "all"`).
+  Se o painel só deixar escolher um produto por webhook, crie seis com a mesma URL e ponha os seis tokens em
+  `KIWIFY_WEBHOOK_TOKEN`, separados por vírgula.
+- **Eventos a marcar:** Compra aprovada · Compra reembolsada · Chargeback · Assinatura cancelada ·
+  Assinatura atrasada · Assinatura renovada. (Pix gerado, Boleto gerado e Compra recusada podem ficar
+  marcados: só entram no diário.)
+- Copie o **token** do webhook → vai em `KIWIFY_WEBHOOK_TOKEN` na Vercel.
+
+Como a rota confere: a Kiwify manda `?signature=` na URL = HMAC-SHA1 do corpo da requisição com esse token.
+Sem `KIWIFY_WEBHOOK_TOKEN` a rota recusa tudo (503); assinatura errada, 401. Trocar o token: ponha o antigo
+e o novo juntos (`antigo,novo`) por um dia, depois deixe só o novo.
+
+O que cada evento faz:
+
+| Evento | Efeito |
+|---|---|
+| Compra aprovada, Assinatura renovada | **libera/renova** (`ativa`, validade nova) |
+| Compra reembolsada, Chargeback | **corta na hora** |
+| Assinatura cancelada, Assinatura atrasada | **usa até o fim do período pago** (`expira_em`) |
+| Pix/Boleto gerado, Compra recusada | só o diário |
+
+Todo aviso fica em `ncash_hotmart_eventos` com o evento prefixado `KIWIFY:` (ex.: `KIWIFY:order_approved`) e
+aparece em **Admin → NovareCash → Últimos avisos (Hotmart/Kiwify)**. Um "aprovada" antigo reenviado depois
+do reembolso do MESMO pedido não religa o acesso.
+
+### 3.4 Na Vercel (projeto `novare-workspace` → Settings → Environment Variables → Production)
+
+| Variável | O que é |
+|---|---|
+| `KIWIFY_WEBHOOK_TOKEN` | o token do webhook do passo 3.3 — **sem ele a rota recusa tudo** (de propósito) |
+| `KIWIFY_PRODUTO_NOVARECASH` | opcional: ids dos seis produtos, separados por vírgula (sem ela, vale o nome "NovareCash…") |
+| `NEXT_PUBLIC_NOVARECASH_CHECKOUT_ESSENCIAL` | link `https://pay.kiwify.com.br/…` do NovareCash Essencial Mensal |
+| `NEXT_PUBLIC_NOVARECASH_CHECKOUT_PLUS` | link pay.kiwify do NovareCash Plus Mensal |
+| `NEXT_PUBLIC_NOVARECASH_CHECKOUT_PREMIUM` | link pay.kiwify do NovareCash Premium Mensal |
+| `NEXT_PUBLIC_NOVARECASH_CHECKOUT_ESSENCIAL_ANUAL` | link pay.kiwify do NovareCash Essencial Anual |
+| `NEXT_PUBLIC_NOVARECASH_CHECKOUT_PLUS_ANUAL` | link pay.kiwify do NovareCash Plus Anual |
+| `NEXT_PUBLIC_NOVARECASH_CHECKOUT_PREMIUM_ANUAL` | link pay.kiwify do NovareCash Premium Anual |
+
+   (As antigas `NEXT_PUBLIC_NOVARECASH_CHECKOUT_MENSAL` e `NEXT_PUBLIC_NOVARECASH_CHECKOUT_ANUAL`, sem o nome do
+   plano, não são mais lidas: pode apagar.)
+   ⚠️ São `NEXT_PUBLIC_…`: entram no código do navegador **no build**. Criou ou trocou um link? Novo deploy.
+
+### 3.5 Teste de compra
+
+1. Novo deploy depois das envs.
+2. Na Kiwify, no webhook, **Testar webhook**: em **Admin → NovareCash → Últimos avisos** aparece um
+   `KIWIFY:…` (dados fictícios; se o produto de teste não se chamar "NovareCash…", ele fica só no diário —
+   é o esperado). Não apareceu nada? Token errado (401) ou env sem deploy.
+3. Compra de verdade no plano mais barato (a Kiwify não tem sandbox) → o e-mail aparece em **Admin →
+   NovareCash** com o plano certo e, logado com esse e-mail, `/novarecash/app` abre.
+4. Na área do comprador da Kiwify, confira o endereço onde se cancela a assinatura e me passe: o botão
+   "Cancelar pela Kiwify" de Ajustes → Minha assinatura aponta hoje para `https://dashboard.kiwify.com.br/`.
+5. Reembolse a compra de teste → o acesso corta na hora.
+
+**Regra do acesso:** a chave é o **e-mail da compra**. Quem comprou e ainda não tem conta cria a conta com o
+mesmo e-mail e já entra. Cancelou a renovação → usa até o fim do período. Reembolso/chargeback → corta na hora.
+A equipe (admin/equipe) sempre entra, para dar suporte.
+
+## 4. IA
+
+Já funciona com a `OPENAI_API_KEY` que existe. Se quiser o Claude (recomendado), crie `ANTHROPIC_API_KEY`
+na Vercel — o app passa a usá-lo sozinho.
+
+## 5. WhatsApp — "passo no final"
+
+Precisa de: um **número só para o NovareCash** (chip novo, que não esteja no WhatsApp comum) e a conta
+**Meta Business** da Novare. No Meta for Developers: app → WhatsApp → número → token **permanente** de
+usuário de sistema → assinar o campo `messages` → webhook
+`https://hub.novareapp.com.br/api/whatsapp/webhook`.
+
+Variáveis: ver a lista completa no fim deste arquivo. Depois: em `config.ts`, `RECURSOS` → `whatsapp.noAr = true`.
+
+## 6. Conexão com banco (Open Finance) — "passo no final"
+
+Já está integrada pela função `rapid-responder` (Banco MCP), a mesma do Novare App. **O plano atual só
+permite 1 conexão no total.** Pedir ao Banco MCP um plano com uma conexão **por cliente** (e o preço por
+conexão — ele entra no custo de cada assinante). Liberado o plano: em `config.ts`, `banco.noAr = true`.
+Até lá, só a equipe vê a tela funcionando (para testar); o cliente vê "em ativação".
+
+---
+
+## Hotmart (reserva, não usada)
+
+> A venda é pela **Kiwify** (passo 3). A rota `/api/novarecash/hotmart` continua no código e funcionando,
+> mas ninguém comprou por ela. Só configure isto se um dia voltar a vender pela Hotmart.
+
 
 1. Criar o produto **NovareCash** como assinatura, com **seis planos/ofertas** — 3 planos × 2 prazos. O
    **nome** de cada um tem de conter a palavra do plano e, no anual, a palavra **Anual**:
@@ -121,30 +265,7 @@ Confere: a última consulta de cada arquivo devolve tudo `true`.
 5. Novo deploy. Teste: compra de teste na Hotmart → o e-mail aparece em **Admin → NovareCash** e, logado
    com esse e-mail, `/novarecash/app` abre.
 
-**Regra do acesso:** a chave é o **e-mail da compra**. Quem comprou e ainda não tem conta cria a conta com o
-mesmo e-mail e já entra. Cancelou a renovação → usa até o fim do período. Reembolso/chargeback → corta na hora.
-A equipe (admin/equipe) sempre entra, para dar suporte.
-
-## 4. IA
-
-Já funciona com a `OPENAI_API_KEY` que existe. Se quiser o Claude (recomendado), crie `ANTHROPIC_API_KEY`
-na Vercel — o app passa a usá-lo sozinho.
-
-## 5. WhatsApp — "passo no final"
-
-Precisa de: um **número só para o NovareCash** (chip novo, que não esteja no WhatsApp comum) e a conta
-**Meta Business** da Novare. No Meta for Developers: app → WhatsApp → número → token **permanente** de
-usuário de sistema → assinar o campo `messages` → webhook
-`https://hub.novareapp.com.br/api/whatsapp/webhook`.
-
-Variáveis: ver a lista completa no fim deste arquivo. Depois: em `config.ts`, `RECURSOS` → `whatsapp.noAr = true`.
-
-## 6. Conexão com banco (Open Finance) — "passo no final"
-
-Já está integrada pela função `rapid-responder` (Banco MCP), a mesma do Novare App. **O plano atual só
-permite 1 conexão no total.** Pedir ao Banco MCP um plano com uma conexão **por cliente** (e o preço por
-conexão — ele entra no custo de cada assinante). Liberado o plano: em `config.ts`, `banco.noAr = true`.
-Até lá, só a equipe vê a tela funcionando (para testar); o cliente vê "em ativação".
+(A regra do acesso é a mesma da Kiwify, no fim do passo 3.)
 
 ---
 
@@ -152,13 +273,15 @@ Até lá, só a equipe vê a tela funcionando (para testar); o cliente vê "em a
 
 | Variável | Onde | Se faltar |
 |---|---|---|
-| `HOTMART_HOTTOK` | Vercel | a rota da Hotmart recusa tudo (503) — ninguém é liberado |
-| `HOTMART_PRODUTO_NOVARECASH` | Vercel (opcional) | aceita aviso de qualquer produto da conta |
-| `NEXT_PUBLIC_NOVARECASH_CHECKOUT_ESSENCIAL` / `_PLUS` / `_PREMIUM` (mensal) | Vercel | o botão daquele plano abre o WhatsApp da casa em vez do pagamento |
+| `KIWIFY_WEBHOOK_TOKEN` | Vercel | a rota da Kiwify recusa tudo (503) — ninguém é liberado. Vários tokens: separados por vírgula |
+| `KIWIFY_PRODUTO_NOVARECASH` | Vercel (opcional) | vale o nome do produto começando com "NovareCash"; com a env, a lista de ids (por vírgula) |
+| `HOTMART_HOTTOK` | Vercel (só se usar a Hotmart, reserva) | a rota da Hotmart recusa tudo (503) |
+| `HOTMART_PRODUTO_NOVARECASH` | Vercel (opcional, reserva) | aceita aviso de qualquer produto da conta Hotmart |
+| `NEXT_PUBLIC_NOVARECASH_CHECKOUT_ESSENCIAL` / `_PLUS` / `_PREMIUM` (mensal; link pay.kiwify) | Vercel | o botão daquele plano abre o WhatsApp da casa em vez do pagamento |
 | `NEXT_PUBLIC_NOVARECASH_CHECKOUT_ESSENCIAL_ANUAL` / `_PLUS_ANUAL` / `_PREMIUM_ANUAL` | Vercel | o mesmo, no anual ("Quero assinar o NovareCash {Plano} anual") |
 | `ANTHROPIC_API_KEY` | Vercel (opcional) | a IA usa a OpenAI |
 | `OPENAI_API_KEY` | Vercel (já existe) | sem ela E sem a Anthropic, a IA mostra "em ativação"; o WhatsApp não lê áudio/foto |
-| `SUPABASE_SERVICE_ROLE_KEY` | Vercel (já existe) | webhooks da Hotmart e do WhatsApp não gravam |
+| `SUPABASE_SERVICE_ROLE_KEY` | Vercel (já existe) | webhooks da Kiwify, da Hotmart e do WhatsApp não gravam |
 | `WHATSAPP_TOKEN`, `WHATSAPP_PHONE_NUMBER_ID` | Vercel | o assistente recebe mas não responde; o app mostra "sendo ligado" |
 | `WHATSAPP_APP_SECRET`, `WHATSAPP_VERIFY_TOKEN` | Vercel | o webhook da Meta não verifica/não aceita mensagens |
 | `WHATSAPP_API_VERSION`, `WHATSAPP_PROVEDOR`, `FINCASH_MIDIA_TETO_MES` | Vercel (opcionais) | usam o padrão |

@@ -121,7 +121,7 @@ export default function TermosPage() {
           {/* 03/11/2026: o NovareCash é o único produto pago da casa — as regras dele moram aqui. */}
           <Secao titulo="7. NovareCash (assinatura paga)">
             <p>
-              O <strong>NovareCash</strong> é uma assinatura paga, vendida pela Hotmart, que processa o
+              O <strong>NovareCash</strong> é uma assinatura paga, vendida pela Kiwify, que processa o
               pagamento e a renovação automática. O FINCASH e as ferramentas continuam gratuitos.
             </p>
             <p>
