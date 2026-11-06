@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { BookOpen, Newspaper, Search, Mail, ArrowRight} from "lucide-react";
+import { BookOpen, Newspaper, PlayCircle, Wallet, Search, Mail, ArrowRight} from "lucide-react";
 import { MenuAreas } from "@/components/MenuAreas";
 import { MenuConta } from "@/components/MenuConta";
 import { SinoNotificacoes } from "@/components/SinoNotificacoes";
@@ -167,6 +167,18 @@ export function TopoApp({
           <span className="hidden 2xl:inline">eBooks</span>
         </Link>
 
+        {/* O NovareCash em DESTAQUE (06/11/2026): pílula ouro, sempre com o nome a partir de
+            1280px — é o produto pago da casa, não mais um ícone na fila. */}
+        <Link
+          href="/novarecash"
+          aria-label="NovareCash"
+          title="NovareCash"
+          className="hidden h-10 shrink-0 items-center gap-2 rounded-full bg-ouro-tint px-3 text-[13px] font-bold text-ouro-forte ring-1 ring-ouro/50 transition-colors hover:bg-ouro/25 md:flex"
+        >
+          <Wallet className="h-4 w-4" />
+          <span className="hidden xl:inline">NovareCash</span>
+        </Link>
+
         {/* O News com pulso de "ao vivo": o canal publica sempre, e o ponto
             pulsando é o jeito de dizer isso sem mais um botão colorido. */}
         <Link
@@ -181,6 +193,17 @@ export function TopoApp({
           </span>
           <Newspaper className="h-4 w-4 2xl:h-3.5 2xl:w-3.5" />
           <span className="hidden 2xl:inline">News</span>
+        </Link>
+
+        {/* Os vídeos do canal (06/11/2026), ao lado do News. */}
+        <Link
+          href="/novare-videos"
+          aria-label="Novare Vídeos"
+          title="Novare Vídeos"
+          className="hidden h-10 shrink-0 items-center gap-2 rounded-full px-3 text-[13px] font-semibold text-ciano-forte transition-colors hover:bg-ciano-tint md:flex 2xl:px-3.5"
+        >
+          <PlayCircle className="h-4 w-4 2xl:h-3.5 2xl:w-3.5" />
+          <span className="hidden 2xl:inline">Vídeos</span>
         </Link>
 
         {/* Novidades (25/10/2026): só o ícone — o topo já é justo em 1280px.

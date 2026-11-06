@@ -9,22 +9,37 @@ import {
   LayoutGrid,
   Lock,
   Newspaper,
+  PlayCircle,
   Search,
   User,
+  Wallet,
 } from "lucide-react";
 
 /**
  * Trilho lateral de aplicativo: estreito, fixo, só ícones.
  * É o que diferencia um produto de um site — a navegação nunca some.
  */
-const ITENS = [
+type Item = {
+  href: string;
+  rotulo: string;
+  curto: string;
+  icone: typeof Home;
+  /** Produto em destaque: fundo ouro e o selo "novo" (06/11/2026, NovareCash). */
+  destaque?: boolean;
+};
+
+const ITENS: Item[] = [
   // `rotulo` é o nome inteiro, para leitor de tela e `title`. `curto` é o
   // que cabe embaixo do ícone num trilho de 72px sem quebrar linha —
   // "Novare News" não cabe, "News" cabe e ninguém confunde.
   { href: "/", rotulo: "Início", curto: "Início", icone: Home },
+  // 06/11/2026 (pedido do dono): o NovareCash em DESTAQUE no Hub, logo depois do Início.
+  { href: "/novarecash", rotulo: "NovareCash", curto: "Cash", icone: Wallet, destaque: true },
   { href: "/meu-dia", rotulo: "Meu dia", curto: "Meu dia", icone: LayoutDashboard },
   { href: "/aplicativos", rotulo: "Aplicativos", curto: "Apps", icone: LayoutGrid },
   { href: "/novare-news", rotulo: "Novare News", curto: "News", icone: Newspaper },
+  // 06/11/2026: os vídeos do canal do YouTube, lidos do feed (`/novare-videos`).
+  { href: "/novare-videos", rotulo: "Novare Vídeos", curto: "Vídeos", icone: PlayCircle },
   // ⚠️ O item "Workspace" → /assinar SAIU em 20/10/2026: era a página de
   // venda, e tudo é gratuito. O Workspace é o próprio "Início".
 ];
@@ -57,7 +72,9 @@ export function BarraLateral() {
               className={`relative flex w-14 flex-col items-center gap-1 rounded-xl px-1 py-2 transition-all ${
                 ativo
                   ? "bg-primary text-white shadow-[0_8px_20px_-8px_hsl(215_50%_23%_/_0.7)]"
-                  : "text-slate-500 hover:bg-slate-100 hover:text-primary"
+                  : item.destaque
+                    ? "bg-ouro-tint text-ouro-forte ring-1 ring-ouro/50 hover:bg-ouro/25"
+                    : "text-slate-500 hover:bg-slate-100 hover:text-primary"
               }`}
             >
               {/* O traço ciano à esquerda: num trilho só de ícones, a cor de
@@ -68,6 +85,12 @@ export function BarraLateral() {
                   aria-hidden
                   className="absolute -left-2 top-1/2 h-5 w-1 -translate-y-1/2 rounded-full bg-ciano"
                 />
+              )}
+              {item.destaque && !ativo && (
+                <span aria-hidden className="absolute -right-0.5 -top-0.5 flex h-2.5 w-2.5">
+                  <span className="absolute inline-flex h-full w-full rounded-full bg-ouro opacity-70 motion-safe:animate-ping" />
+                  <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-ouro ring-2 ring-white" />
+                </span>
               )}
               <item.icone className="h-5 w-5" strokeWidth={1.75} />
               {/* O nome, sempre visível.

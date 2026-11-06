@@ -6,7 +6,7 @@ import {
   Home,
   LayoutDashboard,
   LayoutGrid,
-  Newspaper,
+  Newspaper, PlayCircle, Wallet,
   Search,
 } from "lucide-react";
 
@@ -32,9 +32,12 @@ import {
  */
 const ITENS = [
   { href: "/", rotulo: "Início", icone: Home },
+  // 06/11/2026: o NovareCash em destaque (cor ouro), logo depois do Início.
+  { href: "/novarecash", rotulo: "Cash", icone: Wallet, destaque: true },
   { href: "/meu-dia", rotulo: "Meu dia", icone: LayoutDashboard },
   { href: "/aplicativos", rotulo: "Apps", icone: LayoutGrid },
   { href: "/novare-news", rotulo: "News", icone: Newspaper },
+  { href: "/novare-videos", rotulo: "Vídeos", icone: PlayCircle },
 ];
 
 export function BarraInferior() {
@@ -48,7 +51,8 @@ export function BarraInferior() {
       className="nao-imprimir fixed inset-x-0 bottom-0 z-30 border-t border-slate-200 bg-white/95 pb-[max(0.25rem,env(safe-area-inset-bottom))] pt-1 backdrop-blur-md md:hidden"
     >
       <ul className="flex items-stretch">
-        {ITENS.map(({ href, rotulo, icone: Icone }) => {
+        {ITENS.map(({ href, rotulo, icone: Icone, ...resto }) => {
+          const destaque = "destaque" in resto && resto.destaque;
           const ativo =
             href === "/" ? pathname === "/" : pathname.startsWith(href);
           return (
@@ -57,7 +61,7 @@ export function BarraInferior() {
                 href={href}
                 aria-current={ativo ? "page" : undefined}
                 className={`flex flex-col items-center gap-0.5 rounded-lg py-1.5 transition-colors ${
-                  ativo ? "text-primary" : "text-muted-foreground"
+                  ativo ? "text-primary" : destaque ? "text-ouro-forte" : "text-muted-foreground"
                 }`}
               >
                 <Icone

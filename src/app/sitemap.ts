@@ -17,6 +17,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/consultoria",
     "/iris",
     "/novare-news",
+    "/novare-videos",
     "/indicadores",
     "/calendario-economico",
     /* ⚠️ `/finplan` SAIU DAQUI EM 18/10/2026, junto com o produto. Ela

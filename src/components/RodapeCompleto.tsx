@@ -56,6 +56,7 @@ export function RodapeCompleto({ aviso = "ferramenta" }: { aviso?: "ferramenta" 
       titulo: "Conteúdo",
       links: [
         { rotulo: "Novare News", href: "/novare-news" },
+        { rotulo: "Novare Vídeos", href: "/novare-videos" },
         { rotulo: "eBooks gratuitos", href: "/ebooks" },
         { rotulo: "Sua profissão", href: "/profissionais" },
       ],
