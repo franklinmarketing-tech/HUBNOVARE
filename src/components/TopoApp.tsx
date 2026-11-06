@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import Image from "next/image";
-import { BookOpen, Newspaper, PlayCircle, Wallet, Search, Mail, ArrowRight} from "lucide-react";
+import { BookOpen, Newspaper, PlayCircle, Wallet, Search, Mail, ArrowRight, ChevronRight } from "lucide-react";
 import { MenuAreas } from "@/components/MenuAreas";
 import { MenuConta } from "@/components/MenuConta";
 import { SinoNotificacoes } from "@/components/SinoNotificacoes";
@@ -154,58 +155,6 @@ export function TopoApp({
           <MenuAreas portais={portais} />
         </div>
 
-        {/* A estante no topo, ao lado do News (pedido do dono, 19/10/2026):
-            com os oito guias de patrimônio ela virou porta de captação e não
-            podia depender só da faixa da home. */}
-        <Link
-          href="/ebooks"
-          aria-label="eBooks"
-          title="eBooks"
-          className="hidden h-10 shrink-0 items-center gap-2 rounded-full px-3 text-[13px] font-semibold text-accent-strong transition-colors hover:bg-accent-tint md:flex 2xl:px-3.5"
-        >
-          <BookOpen className="h-4 w-4 2xl:h-3.5 2xl:w-3.5" />
-          <span className="hidden 2xl:inline">eBooks</span>
-        </Link>
-
-        {/* O NovareCash em DESTAQUE (06/11/2026): pílula ouro, sempre com o nome a partir de
-            1280px — é o produto pago da casa, não mais um ícone na fila. */}
-        <Link
-          href="/novarecash"
-          aria-label="NovareCash"
-          title="NovareCash"
-          className="hidden h-10 shrink-0 items-center gap-2 rounded-full bg-ouro-tint px-3 text-[13px] font-bold text-ouro-forte ring-1 ring-ouro/50 transition-colors hover:bg-ouro/25 md:flex"
-        >
-          <Wallet className="h-4 w-4" />
-          <span className="hidden xl:inline">NovareCash</span>
-        </Link>
-
-        {/* O News com pulso de "ao vivo": o canal publica sempre, e o ponto
-            pulsando é o jeito de dizer isso sem mais um botão colorido. */}
-        <Link
-          href="/novare-news"
-          aria-label="Novare News"
-          title="Novare News"
-          className="hidden h-10 shrink-0 items-center gap-2 rounded-full px-3 text-[13px] font-semibold text-ciano-forte transition-colors hover:bg-ciano-tint md:flex 2xl:px-3.5"
-        >
-          <span className="relative flex h-2 w-2">
-            <span className="absolute inline-flex h-full w-full rounded-full bg-ciano opacity-60 motion-safe:animate-ping" />
-            <span className="relative inline-flex h-2 w-2 rounded-full bg-ciano" />
-          </span>
-          <Newspaper className="h-4 w-4 2xl:h-3.5 2xl:w-3.5" />
-          <span className="hidden 2xl:inline">News</span>
-        </Link>
-
-        {/* Os vídeos do canal (06/11/2026), ao lado do News. */}
-        <Link
-          href="/novare-videos"
-          aria-label="Novare Vídeos"
-          title="Novare Vídeos"
-          className="hidden h-10 shrink-0 items-center gap-2 rounded-full px-3 text-[13px] font-semibold text-ciano-forte transition-colors hover:bg-ciano-tint md:flex 2xl:px-3.5"
-        >
-          <PlayCircle className="h-4 w-4 2xl:h-3.5 2xl:w-3.5" />
-          <span className="hidden 2xl:inline">Vídeos</span>
-        </Link>
-
         {/* Novidades (25/10/2026): só o ícone — o topo já é justo em 1280px.
             Fica fora do celular pelo mesmo motivo: em 390px logo, redes,
             busca, sino e avatar já ocupam a linha toda. */}
@@ -259,6 +208,72 @@ export function TopoApp({
           </Link>
         )}
       </div>
+      {/* A FAIXA DE ATALHOS, COM NOME ESCRITO (06/11/2026, pedido do dono: "menu bonito,
+          escrito mesmo"). Os ícones mudos de eBooks/News/Vídeos disputavam a linha de cima com o
+          menu de áreas e só mostravam o nome em telas muito largas; aqui ganham linha própria,
+          com o texto sempre visível. O NovareCash abre a faixa, em ouro. No celular quem faz
+          esse papel é a barra de baixo (`BarraInferior`). */}
+      <BarraAtalhos />
     </header>
+  );
+}
+
+const ATALHOS = [
+  { href: "/novare-news", rotulo: "Novare News", Icone: Newspaper, aoVivo: true },
+  { href: "/novare-videos", rotulo: "Novare Vídeos", Icone: PlayCircle },
+  { href: "/ebooks", rotulo: "eBooks grátis", Icone: BookOpen },
+] as const;
+
+function BarraAtalhos() {
+  const caminho = usePathname() ?? "";
+  const ativo = (href: string) => caminho === href || caminho.startsWith(`${href}/`);
+
+  return (
+    <nav aria-label="Atalhos" className="hidden border-t border-slate-200/70 md:block">
+      <ul className="flex h-12 items-center gap-1.5 overflow-x-auto px-4 sm:px-5 [scrollbar-width:none]">
+        <li className="shrink-0">
+          <Link
+            href="/novarecash"
+            aria-current={ativo("/novarecash") ? "page" : undefined}
+            className="group inline-flex h-9 items-center gap-2 rounded-full bg-[linear-gradient(135deg,hsl(42_80%_94%),hsl(42_74%_82%))] pl-1.5 pr-3.5 text-[13px] font-bold text-ouro-forte shadow-[0_6px_16px_-10px_hsl(36_78%_32%/0.8)] ring-1 ring-ouro/60 transition-transform hover:-translate-y-px"
+          >
+            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-ouro-forte text-white">
+              <Wallet className="h-3.5 w-3.5" />
+            </span>
+            NovareCash
+            <span className="rounded-full bg-ouro-forte px-1.5 py-px text-[9.5px] font-black uppercase tracking-wider text-white">
+              Novo
+            </span>
+            <ChevronRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+          </Link>
+        </li>
+
+        <li aria-hidden className="mx-1.5 h-5 w-px shrink-0 bg-slate-200" />
+
+        {ATALHOS.map(({ href, rotulo, Icone, ...resto }) => {
+          const marcado = ativo(href);
+          return (
+            <li key={href} className="shrink-0">
+              <Link
+                href={href}
+                aria-current={marcado ? "page" : undefined}
+                className={`inline-flex h-9 items-center gap-2 rounded-full px-3.5 text-[13px] font-semibold transition-colors ${
+                  marcado ? "bg-primary text-white" : "text-slate-600 hover:bg-slate-100 hover:text-primary"
+                }`}
+              >
+                {"aoVivo" in resto && resto.aoVivo && (
+                  <span aria-hidden className="relative flex h-2 w-2">
+                    <span className="absolute inline-flex h-full w-full rounded-full bg-ciano opacity-60 motion-safe:animate-ping" />
+                    <span className="relative inline-flex h-2 w-2 rounded-full bg-ciano" />
+                  </span>
+                )}
+                <Icone className="h-4 w-4" />
+                {rotulo}
+              </Link>
+            </li>
+          );
+        })}
+      </ul>
+    </nav>
   );
 }
