@@ -99,7 +99,7 @@ export function Duvidas() {
               alt="Jefferson Freitas, fundador da Novare"
               fill
               sizes="384px"
-              className="object-cover object-[center_25%]"
+              className="object-cover object-[center_32%]"
             />
           </span>
 

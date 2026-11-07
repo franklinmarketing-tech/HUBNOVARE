@@ -65,7 +65,7 @@ export function ChamadaJefferson() {
             alt="Jefferson Freitas, fundador da Novare"
             fill
             sizes="(max-width: 640px) 100vw, 45vw"
-            className="object-cover object-[50%_18%]"
+            className="object-cover object-[50%_32%]"
           />
           <div aria-hidden className="absolute inset-0 bg-gradient-to-b from-noite to-transparent to-[25%] sm:bg-gradient-to-r sm:to-[22%]" />
         </div>
