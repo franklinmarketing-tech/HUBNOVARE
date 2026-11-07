@@ -38,8 +38,8 @@ export function Planos({ porPrazo, fimBlack }: { porPrazo: Record<Prazo, Oferta[
       <ChavePrazo prazo={prazo} economia={textoEconomia(porPrazo.anual)} aoTrocar={setPrazo} />
 
       <div id="planos-cartoes" className="mx-auto mt-10 grid max-w-md items-stretch gap-5 lg:max-w-none lg:grid-cols-3">
-        {lista.map((o) => (
-          <CartaoPlano key={`${o.plano}-${o.prazo}`} oferta={o} fimBlack={fimBlack} />
+        {lista.map((o, i) => (
+          <CartaoPlano key={`${o.plano}-${o.prazo}`} oferta={o} fimBlack={fimBlack} atraso={o.destaque ? 420 : i * 140} />
         ))}
       </div>
 
@@ -145,12 +145,15 @@ function ChavePrazo({ prazo, economia, aoTrocar }: { prazo: Prazo; economia: str
   );
 }
 
-function CartaoPlano({ oferta: o, fimBlack }: { oferta: Oferta; fimBlack: string | null }) {
+function CartaoPlano({ oferta: o, fimBlack, atraso = 0 }: { oferta: Oferta; fimBlack: string | null; atraso?: number }) {
   const d = o.destaque;
   const anual = o.prazo === "anual";
   const apagado = d ? "text-muted-foreground" : "text-white/60";
   return (
     <div
+      /* 07/11/2026: os cards entram em sequência ao rolar, o recomendado por último (`atraso`). */
+      data-revela
+      style={{ transitionDelay: `${atraso}ms` }}
       className={`relative flex flex-col rounded-[1.75rem] p-6 sm:p-7 ${
         d
           ? "borda-viva bg-white text-foreground ring-2 ring-ouro shadow-[0_18px_44px_-16px_hsl(42_74%_62%/0.5)]"

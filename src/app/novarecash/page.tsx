@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { textoAgentes } from "@/lib/novarecash/agentes";
 import { Contador, RevelarAoRolar } from "./_venda/Movimento";
+import { VideoFundo } from "./_venda/VideoFundo";
 import Link from "next/link";
 import type { Metadata } from "next";
 import {
@@ -448,7 +449,12 @@ export default async function NovareCashVendaPage({
 
         {/* 4 · Os três planos (só muda o limite de bancos), com o riscado e o prazo da campanha. */}
         {/* `scroll-mt-20`: o cabeçalho fixo (64px) não cobre o título quando se chega por #planos. */}
-        <section data-revela id="planos" className="scroll-mt-20 text-white" style={PALCO_OURO}>
+        <section data-revela id="planos" className="relative isolate scroll-mt-20 overflow-hidden text-white" style={PALCO_OURO}>
+          {/* 07/11/2026: o feixe de luz dourada (Magnific/Kling) passa atrás do título dos planos —
+              o "momento da oferta". Toca só enquanto está na tela; esmaece para baixo. */}
+          <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[30rem] opacity-50 mix-blend-screen [mask-image:linear-gradient(to_bottom,black_45%,transparent)]">
+            <VideoFundo src="/novarecash/video/feixe-dourado.mp4" poster="/novarecash/video/feixe-dourado.jpg" quandoVisivel />
+          </div>
           <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6">
             <div className="mx-auto max-w-2xl text-center">
               <p className="chapeu text-ouro">{fase === "aviso" || black ? BLACK.nome : NOVARECASH_NOME}</p>

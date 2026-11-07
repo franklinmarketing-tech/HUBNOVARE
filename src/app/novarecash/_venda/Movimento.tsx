@@ -33,8 +33,21 @@ export function RevelarAoRolar() {
       if (el.getBoundingClientRect().top < window.innerHeight) el.classList.add("ncv-revelado");
       else olho.observe(el);
     });
+    /* PROFUNDIDADE NO HERÓI (07/11/2026): a rolagem vira `--ncv-rolagem` no <html>, e o CSS move o
+       celular e os cartões em velocidades diferentes. Um quadro por vez (rAF), e só no começo da página. */
+    let quadro = 0;
+    const aoRolar = () => {
+      if (quadro) return;
+      quadro = requestAnimationFrame(() => {
+        quadro = 0;
+        raiz.style.setProperty("--ncv-rolagem", String(Math.min(window.scrollY, 1400)));
+      });
+    };
+    window.addEventListener("scroll", aoRolar, { passive: true });
     return () => {
       olho.disconnect();
+      window.removeEventListener("scroll", aoRolar);
+      cancelAnimationFrame(quadro);
       raiz.classList.remove("ncv-revela-pronto");
     };
   }, []);

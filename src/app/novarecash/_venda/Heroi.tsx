@@ -5,6 +5,7 @@ import { brl, dataBlack, seloCurto } from "@/lib/novarecash/oferta";
 import { medirClique } from "@/lib/medir";
 import { LegendaExemplo } from "./TelasExemplo";
 import { CelularVivo } from "./CelularVivo";
+import { VideoFundo } from "./VideoFundo";
 
 /**
  * O HERÓI DA PÁGINA DE VENDA (04/11/2026, "o herói precisa melhorar muito").
@@ -179,6 +180,10 @@ export function Heroi({ cheio, desde, desconto, rotuloPrazo, totalPlanos, black,
 function Atmosfera() {
   return (
     <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
+      {/* 07/11/2026: ouro líquido em movimento (Magnific/Kling), bem apagado, por baixo da luz e do grão. */}
+      <div className="absolute inset-0 opacity-[0.32] mix-blend-screen">
+        <VideoFundo src="/novarecash/video/ouro-liquido.mp4" poster="/novarecash/video/ouro-liquido.jpg" />
+      </div>
       <div className="ncv-luz absolute inset-0" />
       <div className="ncv-feixe absolute inset-0" />
       <div className="ncv-grao absolute inset-0" />

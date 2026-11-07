@@ -365,4 +365,38 @@
   @keyframes ncv-pisca {
     to { visibility: hidden; }
   }
+
+  /* ── Cinema (07/11/2026): profundidade no herói e a luz que corre entre as seções ── */
+  @media (prefers-reduced-motion: no-preference) and (min-width: 768px) {
+    /* `translate` (e não `transform`): as animações de entrada já usam o `transform`. */
+    .ncv-revela-pronto .ncv-celular-3d {
+      translate: 0 calc(var(--ncv-rolagem, 0) * -0.06px);
+    }
+    .ncv-revela-pronto .ncv-cartao-entra {
+      translate: 0 calc(var(--ncv-rolagem, 0) * -0.17px);
+    }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .ncv-revela-pronto section[data-revela] {
+      position: relative;
+    }
+    /* A transição: um fio de ouro que se abre do centro no topo de cada seção que entra. */
+    .ncv-revela-pronto section[data-revela]::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 50%;
+      z-index: 1;
+      height: 1px;
+      width: 0;
+      translate: -50% 0;
+      background: linear-gradient(90deg, transparent, hsl(42 74% 62% / 0.9), transparent);
+      box-shadow: 0 0 14px hsl(42 74% 62% / 0.6);
+      transition: width 1.4s cubic-bezier(0.16, 1, 0.3, 1) 0.15s;
+      pointer-events: none;
+    }
+    .ncv-revela-pronto section[data-revela].ncv-revelado::before {
+      width: min(72%, 56rem);
+    }
+  }
 }
