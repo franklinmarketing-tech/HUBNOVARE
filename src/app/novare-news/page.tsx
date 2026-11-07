@@ -436,7 +436,7 @@ function BannerWorkspace() {
           Workspace Novare
         </p>
         <h3 className="mt-1.5 font-display text-lg font-bold leading-snug sm:text-xl">
-          Todas as ferramentas, a Íris num lugar só
+          Todas as ferramentas e a Íris num lugar só
         </h3>
         <p className="mt-1.5 text-sm leading-relaxed text-white/75">
           De graça, sem cartão e sem pegadinha.

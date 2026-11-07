@@ -110,12 +110,12 @@ export function BotaoManual({ modo }: { modo: "ferramenta" | "fincash" }) {
           onClick={() => setAberta(true)}
           aria-haspopup="dialog"
           aria-label={`Como usar: vídeo de 15 segundos e manual de ${manual.titulo}`}
-          className="flex items-center gap-2.5 rounded-full bg-accent py-1.5 pl-1.5 pr-4 text-left text-white shadow-[0_12px_32px_-10px_hsl(16_80%_40%_/_0.8)] ring-2 ring-white transition-transform hover:-translate-y-0.5 print:hidden"
+          className="flex items-center gap-2.5 rounded-full bg-accent-strong py-1.5 pl-1.5 pr-4 text-left text-white shadow-[0_12px_32px_-10px_hsl(16_80%_40%_/_0.8)] ring-2 ring-white transition-transform hover:-translate-y-0.5 print:hidden"
         >
           {play}
           <span className="leading-tight">
             <span className="block text-sm font-bold">Como usar</span>
-            <span className="block text-[11px] font-medium text-white/85">Vídeo de 15 s + manual</span>
+            <span className="block text-[11px] font-medium text-white/90">Vídeo de 15 s + manual</span>
           </span>
         </button>
       ) : (

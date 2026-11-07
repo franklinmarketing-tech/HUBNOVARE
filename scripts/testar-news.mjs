@@ -52,15 +52,18 @@ conferir("mostra artigos", (await p.locator("main a[href^='/novare-news/']").cou
 conferir("tem filtro de categoria", /trabalho e sal[áa]rio/i.test(corpo));
 conferir("convida para o Planejamento", /ver por dentro/i.test(corpo));
 conferir("cabeçalho do canal tem o Ecossistema", /ecossistema novare/i.test(corpo));
-conferir("CTA do Workspace no topo", /quero meu workspace/i.test(corpo));
-conferir("banner do Workspace no meio da grade", /todas as ferramentas, o planejamento e a íris/i.test(corpo));
+// "Quero meu Workspace" virou "Conhecer o Workspace" (visitante) /
+// "Voltar ao Workspace" (logado) em 20/10/2026 — ver CabecalhoNews.tsx.
+conferir("CTA do Workspace no topo", /(conhecer o|voltar ao) workspace/i.test(corpo));
+conferir("banner do Workspace no meio da grade", /todas as ferramentas e a íris num lugar só/i.test(corpo));
 conferir("sidebar tem as ferramentas mais usadas", /ferramentas mais usadas/i.test(corpo));
 
 // O dropdown do ecossistema abre e lista os produtos.
 await p.hover("header button:has-text('Ecossistema')").catch(() => {});
 await p.waitForTimeout(400);
 const drop = await p.locator("header").first().innerText();
-conferir("dropdown lista Planejamento e Íris", /finplan/i.test(drop) && /íris/i.test(drop));
+// O FINPLAN saiu do menu em 18/10/2026 (ee8ed6a); ficaram Workspace, Íris e Serviços.
+conferir("dropdown lista Workspace e Íris", /workspace/i.test(drop) && /íris/i.test(drop));
 
 // Paginação: com 11 artigos e 6 por página, tem de existir página 2.
 conferir("tem paginação", /próxima|«|»/i.test(corpo) || (await p.locator("nav a").count()) > 0);

@@ -413,7 +413,7 @@ export function InscreverNews({
               </li>
             ))}
             {typeof totalEdicoes === "number" && totalEdicoes > 0 && (
-              <li className="text-2xs text-muted-foreground/70">
+              <li className="text-2xs text-muted-foreground">
                 {totalEdicoes} edições publicadas
               </li>
             )}

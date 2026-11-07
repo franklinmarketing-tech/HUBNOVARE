@@ -50,7 +50,7 @@ export function CascaAnalise({
         <h2 className="titulo-cp mt-2 text-2xl sm:text-[2rem]">{titulo}</h2>
       </div>
       {children}
-      <p className="text-2xs leading-relaxed text-slate-500">{aviso}</p>
+      <p className="text-2xs leading-relaxed text-slate-600">{aviso}</p>
     </section>
   );
 }

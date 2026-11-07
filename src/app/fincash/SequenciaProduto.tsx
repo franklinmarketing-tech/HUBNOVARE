@@ -166,7 +166,7 @@ export default function SequenciaProduto() {
     <div id="por-dentro" ref={secao} className="relative isolate overflow-hidden bg-primary">
       <div className="relative flex min-h-[100dvh] items-center justify-center px-4 py-14 sm:px-6">
         <div className="w-full max-w-5xl">
-          <p className="text-2xs font-semibold uppercase tracking-[0.18em] text-accent">
+          <p className="text-2xs font-semibold uppercase tracking-[0.18em] text-accent-claro">
             O app, por dentro
           </p>
           <h2 className="mt-3 max-w-2xl font-display text-[1.9rem] font-medium leading-[1.08] tracking-[-0.03em] text-white sm:text-[2.4rem]">

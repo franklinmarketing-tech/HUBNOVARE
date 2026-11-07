@@ -27,8 +27,14 @@ for (const rota of ["/ferramentas/salario-liquido", "/ferramentas/juros-composto
   conferir(`${rota}: o botão leva para a home`, new URL(p.url()).pathname === "/", p.url());
 }
 
-/* ---- o perfil abre numa aba ao lado ---- */
-await p.goto(BASE + "/", { waitUntil: "domcontentloaded" });
+/* ---- o perfil abre numa aba ao lado ----
+   A home perdeu a BarraLateral quando o topo foi reconstruído (menu único);
+   o atalho do perfil vive nela, que segue em /aplicativos e nas áreas. */
+const PAGINA_BARRA = "/aplicativos";
+await p.goto(BASE + PAGINA_BARRA, { waitUntil: "domcontentloaded" });
+// Em `next dev` o indicador do Next (canto inferior esquerdo) fica por cima
+// do atalho do perfil e engole o clique. Não existe em produção.
+await p.addStyleTag({ content: "nextjs-portal{display:none!important}" });
 await p.waitForTimeout(1500);
 const perfil = p.locator('a[aria-label*="perfil"]').first();
 conferir("a barra tem o atalho do perfil", (await perfil.count()) > 0);
@@ -47,7 +53,7 @@ conferir(
     (destino.pathname === "/login" && destino.search.includes("perfil")),
   nova.url(),
 );
-conferir("a home continua aberta", new URL(p.url()).pathname === "/", p.url());
+conferir("a página de origem continua aberta", new URL(p.url()).pathname === PAGINA_BARRA, p.url());
 await nova.close();
 
 /* ---- a home começa do topo, sem filtro ---- */

@@ -85,7 +85,7 @@ export function CardProdutoHome({
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
           className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
         />
-        <span className="absolute left-3 top-3 rounded-full bg-accent px-2.5 py-1 text-2xs font-semibold text-white shadow-sm">
+        <span className="absolute left-3 top-3 rounded-full bg-accent-strong px-2.5 py-1 text-2xs font-semibold text-white shadow-sm">
           App gratuito
         </span>
       </span>

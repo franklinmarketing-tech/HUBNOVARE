@@ -52,9 +52,13 @@ export function BannerConsentimento() {
       role="region"
       aria-live="polite"
       aria-label="Aviso de privacidade e cookies"
-      className="fixed inset-x-0 bottom-0 z-50 print:hidden"
+      /* `pointer-events-none` na faixa: ela vai de ponta a ponta da tela, e
+         sem isso as laterais e a margem TRANSPARENTES engoliam o clique em
+         quem estivesse atrás (pego pelo testar-navegacao, 07/11/2026). Só o
+         cartão recebe clique. */
+      className="pointer-events-none fixed inset-x-0 bottom-0 z-50 print:hidden"
     >
-      <div className="mx-auto mb-3 w-[min(100%-1.5rem,42rem)]">
+      <div className="pointer-events-auto mx-auto mb-3 w-[min(100%-1.5rem,42rem)]">
         <div className="flex flex-col gap-3 rounded-2xl border border-border bg-card/95 p-4 text-foreground shadow-elevated backdrop-blur-md sm:flex-row sm:items-center sm:gap-4">
           <p className="text-xs leading-relaxed text-muted-foreground">
             Usamos cookies e armazenamento no seu navegador para manter você
