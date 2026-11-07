@@ -42,7 +42,7 @@ export function CardPortal({ portal }: { portal: Portal }) {
       {/* `sizes` conta ao Next que o cartão é um quarto da largura no
           desktop e a tela inteira no celular — sem isso ele baixaria a
           imagem grande também no telefone. */}
-      <span className="relative block aspect-[4/3] overflow-hidden border-t-[3px] border-ciano">
+      <span className="relative block aspect-[16/9] overflow-hidden border-t-[3px] border-ciano sm:aspect-[4/3]">
         <Image
           src={FOTO_HOME[portal.chave] ?? portal.capa}
           alt=""

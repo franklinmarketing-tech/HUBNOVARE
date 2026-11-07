@@ -15,7 +15,7 @@ import {
 } from "@/lib/icones";
 import { capaDe } from "@/lib/capas";
 import { BotaoLampada, ModalApp } from "@/components/ModalApp";
-import { INTRO_ASSINATURA, INTRO_FAMILIAS, type Familia } from "@/lib/apps";
+import { introAssinatura, INTRO_FAMILIAS, type Familia } from "@/lib/apps";
 import { FILTRO_ASSINATURA, type AppLeve } from "@/lib/navegacao";
 
 /**
@@ -414,7 +414,7 @@ export function CatalogoFiltrado({
                concluir que o Hub inteiro é pago e ir embora. */
             const intro =
               grupo.chave === FILTRO_ASSINATURA
-                ? INTRO_ASSINATURA
+                ? introAssinatura(grupo.apps.length)
                 : INTRO_FAMILIAS[grupo.chave as Familia];
             return (
               <section key={grupo.chave} className="surgir">

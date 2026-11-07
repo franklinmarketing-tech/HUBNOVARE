@@ -71,7 +71,12 @@ export function Recursos() {
 
   return (
     <>
-      <GradeLuz className="grid grid-flow-dense gap-3 sm:grid-cols-2 sm:gap-4 lg:auto-rows-[minmax(14.5rem,auto)] lg:grid-cols-4">
+      {/* 07/11/2026 (varredura): no CELULAR os blocos viram carrossel de deslizar (empilhados davam
+          ~4.000px de rolagem); do tablet para cima, a grade de sempre. */}
+      <p className="mb-3 flex items-center justify-end gap-1 text-xs font-semibold text-muted-foreground sm:hidden">
+        Deslize para ver todos <span aria-hidden>→</span>
+      </p>
+      <GradeLuz className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 [scrollbar-width:none] sm:mx-0 sm:grid sm:grid-flow-dense sm:grid-cols-2 sm:gap-4 sm:overflow-visible sm:px-0 sm:pb-0 lg:auto-rows-[minmax(14.5rem,auto)] lg:grid-cols-4 [&::-webkit-scrollbar]:hidden">
         {noAr.map((r) => (
           <Bloco key={r.chave} recurso={r} />
         ))}
@@ -108,7 +113,7 @@ function Bloco({ recurso: r }: { recurso: Recurso }) {
   return (
     <li
       data-luz
-      className={`ncv-bloco ${fundo} flex flex-col gap-5 rounded-[1.75rem] p-5 text-white sm:p-6 ${LAYOUT[r.chave] ?? ""} ${
+      className={`ncv-bloco ${fundo} flex w-[86%] shrink-0 snap-center flex-col gap-5 rounded-[1.75rem] p-5 text-white sm:w-auto sm:p-6 ${LAYOUT[r.chave] ?? ""} ${
         deitado ? "lg:grid lg:grid-cols-[minmax(0,0.78fr)_minmax(0,1.22fr)] lg:items-center lg:gap-6" : ""
       }`}
     >
@@ -132,7 +137,7 @@ function Bloco({ recurso: r }: { recurso: Recurso }) {
 /** "Vem aí": os recursos com data, juntos, frios e com a data em destaque. */
 function BlocoVemAi({ pendentes }: { pendentes: Recurso[] }) {
   return (
-    <li data-luz className="ncv-bloco ncv-bloco-vem flex flex-col gap-5 rounded-[1.75rem] p-5 text-white sm:col-span-2 sm:p-6">
+    <li data-luz className="ncv-bloco ncv-bloco-vem flex w-[86%] shrink-0 snap-center flex-col gap-5 rounded-[1.75rem] p-5 text-white sm:col-span-2 sm:w-auto sm:p-6">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h3 className="font-display text-lg font-semibold">Vem aí</h3>
         <p className="text-xs text-white/70">{pendentes.length > 1 ? "Quando ligarem, entram" : "Quando ligar, entra"} na mesma assinatura.</p>
@@ -176,7 +181,7 @@ function IlustraIA() {
         <div className="w-fit max-w-[92%] rounded-2xl rounded-bl-md bg-ouro/12 px-3.5 py-2.5 text-white/90 ring-1 ring-ouro/25">
           <span className="mb-1 flex items-center gap-1 text-[11px] font-semibold text-ouro">
             <Sparkles className="h-3.5 w-3.5" />
-            IA do {NOVARECASH_NOME}
+            Agente de Gastos
           </span>
           Restaurantes passou do orçamento: R$ 410 de R$ 350, em 9 pedidos. O resto ficou dentro do combinado.
         </div>

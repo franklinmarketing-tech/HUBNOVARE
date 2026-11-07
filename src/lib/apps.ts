@@ -790,6 +790,9 @@ export const CONTAGEM = {
 
    Lição para a próxima contagem que for a zero: procure o número no HTML de
    produção, não no código. */
-export const INTRO_ASSINATURA =
-  `${CONTAGEM.aplicativos} aplicativos com login, e as ${CONTAGEM.ferramentas} ` +
+/* ⚠️ 07/11/2026 (varredura): dizia "4 aplicativos com login" numa seção que mostra UM (o FINCASH) —
+   `CONTAGEM.aplicativos` conta também os que moram em outras seções. O número agora é o da PRÓPRIA
+   seção (`n`, os cards que ela mostra). */
+export const introAssinatura = (n: number) =>
+  `${n} ${n === 1 ? "aplicativo" : "aplicativos"} com login, e as ${CONTAGEM.ferramentas} ` +
   `ferramentas da casa abertas a qualquer um — e elas continuam assim.`;
