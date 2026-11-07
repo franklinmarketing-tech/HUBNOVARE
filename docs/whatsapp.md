@@ -260,20 +260,19 @@ banco, em vez de conferindo fatura da OpenAI.
   descartados, e que o que fica é o texto extraído. Não editei a política — é
   trabalho de outra pessoa.
 
-### 7.3 Lembrete semanal e alerta fora da conversa
-O alerta de orçamento já sai — mas junto da confirmação, dentro da conversa.
+### 7.3 Nada sai sem a pessoa escrever (DECISÃO, 07/11/2026)
+O alerta de orçamento sai junto da confirmação, dentro da conversa.
 
-Mensagem que a Novare inicia (o lembrete de segunda-feira com as contas a vencer,
-ou o alerta que chega sem a pessoa ter escrito) cai na **regra das 24h da Meta**:
-fora da janela desde a última mensagem da pessoa, só passa **template aprovado**.
-Então falta:
+⚠️ **O sistema NUNCA inicia conversa.** Mensagem que a Novare puxa cai na
+**regra das 24h da Meta** (fora da janela, só template aprovado, e template é
+COBRADO). Dentro da janela, a resposta é grátis. O dono escolheu custo zero:
 
-1. Cadastrar os templates em *Gerenciador do WhatsApp → Modelos de mensagem* e
-   esperar a aprovação (costuma sair em horas).
-2. Uma função de envio de template em `whatsapp-envio.ts` (hoje só existe texto).
-3. Um agendador. A Vercel tem Cron Jobs; a rota nova viveria em
-   `src/app/api/whatsapp/lembretes/` e precisa de segredo próprio — cron sem
-   proteção é rota pública que dispara mensagem para a base inteira.
+- o lembrete das 9h por template (cron em `vercel.json` +
+  `/api/novarecash/lembretes`) foi APAGADO;
+- no lugar, a 1ª mensagem do dia recebe as contas atrasadas, de hoje e de amanhã
+  (`avisarContasDoDia` em `whatsapp-servidor.ts`, uma vez por dia por dono).
+
+Não criar cron, template nem alerta "por gatilho nosso" sem o dono decidir pagar.
 
 ### 7.4 Limite compartilhado entre instâncias
 O teto por IP de `api-security.ts` é por processo — cada instância serverless tem

@@ -35,10 +35,13 @@ function credenciais() {
  *
  * ⚠️ REGRA DA META, e ela decide o desenho do assistente: fora da janela de 24h
  * desde a última mensagem da PESSOA, só passa `template` aprovado. Toda resposta
- * daqui é reativa (a pessoa escreveu, nós respondemos), então cai na janela.
- * Lembrete semanal e alerta de estouro de orçamento NÃO caem — eles nascem de um
- * gatilho nosso e vão precisar de template aprovado. Está anotado no
- * `docs/whatsapp.md`.
+ * daqui é reativa (a pessoa escreveu, nós respondemos), então cai na janela —
+ * e dentro da janela a Meta NÃO COBRA.
+ *
+ * ⚠️ DECISÃO DO DONO (07/11/2026): o sistema NUNCA inicia conversa, para o
+ * WhatsApp custar zero. O lembrete das 9h por template foi apagado; as contas do
+ * dia vão junto da resposta à 1ª mensagem do dia (`avisarContasDoDia`, em
+ * `whatsapp-servidor.ts`). Não criar envio por gatilho nosso (cron, alerta).
  */
 export async function enviarTexto(params: { para: string; texto: string }) {
   const { token, numeroId, versao } = credenciais();

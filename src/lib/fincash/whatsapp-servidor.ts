@@ -42,7 +42,7 @@ import {
   adivinharCategoria,
   categoria as categoriaNcash,
 } from "@/lib/novarecash/categorias";
-import { faturasAbertas } from "@/lib/novarecash/cartoes";
+import { faturasAbertas, somarDias } from "@/lib/novarecash/cartoes";
 import { carregarMesDeContas } from "@/lib/novarecash/contas-pagar";
 import { comSaldos, dataCurta, hojeNoBrasil, lerContas } from "@/lib/novarecash/dados";
 import {
@@ -802,7 +802,7 @@ async function responderConsulta(userId: string, c: Consulta): Promise<string> {
       const hoje = hojeNoBrasil();
       const { itens } = await carregarMesDeContas(s, userId, hoje.slice(0, 7), hoje);
       const faltam = itens.filter((i) => !i.pagamento);
-      if (!itens.length) return `Você ainda não cadastrou contas a pagar. Cadastre em ${linkContas} e eu aviso na véspera.`;
+      if (!itens.length) return `Você ainda não cadastrou contas a pagar. Cadastre em ${linkContas} e, quando você me escrever, eu mostro o que vence hoje e amanhã.`;
       if (!faltam.length) return "Todas as contas deste mês estão pagas.";
       const total = faltam.reduce((soma, i) => soma + i.conta.valor, 0);
       const linhas = faltam
@@ -1282,35 +1282,98 @@ export async function processarMensagem(msg: MensagemRecebida): Promise<void> {
       return;
     }
 
-    if (msg.tipo !== "texto") {
-      // Vídeo e documento continuam de fora: são caros de processar e quase
-      // nunca são comprovante — e o extrato do banco já entra sozinho pelo
-      // Open Finance do NovareCash.
-      if (!tipoProcessavel(msg.tipo) || !midiaInterpretavel()) {
-        await responder({
-          telefone: msg.de,
-          userId: vinculo.user_id,
-          texto: respostaMidiaNaoSuportada(msg.tipo),
-          mensagemId,
-        });
-        return;
-      }
-      await tratarMidia(vinculo, msg, mensagemId);
-      return;
-    }
-
-    // "sim"/"não" só ganham sentido quando há uma foto esperando confirmação.
-    // Vem antes do interpretador porque para ele "sim" é conversa fiada.
-    if (await tratarRespostaAProposta(vinculo, msg, mensagemId)) return;
-
-    const ctx = await carregarContexto(vinculo.dono_id);
-    // O "hoje" do usuário, não o do servidor. A Vercel roda em UTC e, depois
-    // das 21h no Brasil, um gasto de hoje seria gravado amanhã.
-    const intencao = interpretarNoNovareCash(msg.texto, vinculo, ctx, agoraNoBrasil());
-
-    await executar(vinculo, intencao, mensagemId, msg);
+    await tratarDoAssinante(vinculo, msg, mensagemId);
+    // Depois da resposta, e só para assinante: as contas do dia, de graça
+    // porque a pessoa acabou de escrever (ver `avisarContasDoDia`).
+    await avisarContasDoDia(vinculo, msg.de, mensagemId);
   } catch (e) {
     console.error("[whatsapp] falhou ao processar:", e);
+  }
+}
+
+/** A mensagem de quem é vinculado E assinante: mídia, "sim/não" da foto ou texto. */
+async function tratarDoAssinante(vinculo: Vinculo, msg: MensagemRecebida, mensagemId: string) {
+  if (msg.tipo !== "texto") {
+    // Vídeo e documento continuam de fora: são caros de processar e quase
+    // nunca são comprovante — e o extrato do banco já entra sozinho pelo
+    // Open Finance do NovareCash.
+    if (!tipoProcessavel(msg.tipo) || !midiaInterpretavel()) {
+      await responder({
+        telefone: msg.de,
+        userId: vinculo.user_id,
+        texto: respostaMidiaNaoSuportada(msg.tipo),
+        mensagemId,
+      });
+      return;
+    }
+    await tratarMidia(vinculo, msg, mensagemId);
+    return;
+  }
+
+  // "sim"/"não" só ganham sentido quando há uma foto esperando confirmação.
+  // Vem antes do interpretador porque para ele "sim" é conversa fiada.
+  if (await tratarRespostaAProposta(vinculo, msg, mensagemId)) return;
+
+  const ctx = await carregarContexto(vinculo.dono_id);
+  // O "hoje" do usuário, não o do servidor. A Vercel roda em UTC e, depois
+  // das 21h no Brasil, um gasto de hoje seria gravado amanhã.
+  const intencao = interpretarNoNovareCash(msg.texto, vinculo, ctx, agoraNoBrasil());
+
+  await executar(vinculo, intencao, mensagemId, msg);
+}
+
+/**
+ * AS CONTAS DO DIA, DENTRO DA JANELA GRÁTIS (07/11/2026, decisão do dono).
+ *
+ * ⚠️ O SISTEMA NUNCA INICIA CONVERSA. A Meta cobra a mensagem que a EMPRESA
+ * puxa fora da janela de 24 h (template); a resposta a quem acabou de escrever
+ * é de graça. Por isso o lembrete das 9h (cron + template) foi APAGADO, e no
+ * lugar dele a primeira mensagem do dia recebe, logo depois da resposta, o que
+ * está atrasado, vence hoje ou vence amanhã.
+ *
+ * Uma vez por dono por dia: `ncash_lembretes_enviados` (user_id, dia) é a
+ * reserva — gravada ANTES do envio, para dois "oi" seguidos não mandarem duas
+ * listas. Nada a mostrar = nada reservado, e a próxima mensagem confere de novo.
+ * Nunca lança: aviso que falha não pode estragar a resposta que já saiu.
+ */
+async function avisarContasDoDia(vinculo: Vinculo, telefone: string, mensagemId: string) {
+  try {
+    const s = servico();
+    const hoje = hojeNoBrasil();
+    const amanha = somarDias(hoje, 1);
+
+    const { itens } = await carregarMesDeContas(s, vinculo.dono_id, hoje.slice(0, 7), hoje);
+    const urgentes = itens.filter((i) => !i.pagamento && i.dias <= 1);
+    // Dia 30/31: o vencimento de amanhã é do mês seguinte, que a lista de hoje não traz.
+    if (amanha.slice(0, 7) !== hoje.slice(0, 7)) {
+      const proximo = await carregarMesDeContas(s, vinculo.dono_id, amanha.slice(0, 7), hoje);
+      urgentes.push(...proximo.itens.filter((i) => !i.pagamento && i.vence === amanha));
+    }
+    if (!urgentes.length) return;
+
+    const { error: reserva } = await s
+      .from("ncash_lembretes_enviados")
+      .insert({ user_id: vinculo.dono_id, dia: hoje, contas: urgentes.length });
+    if (reserva) return; // 23505 = já avisado hoje; sem o SQL dos cartões, segue sem aviso.
+
+    const quando = (i: (typeof urgentes)[number]) =>
+      i.dias < 0 ? `venceu ${dataCurta(i.vence)}` : i.dias === 0 ? "vence *hoje*" : "vence *amanhã*";
+    const linhas = urgentes.slice(0, 8).map((i) => `• ${i.conta.descricao}: ${formatarBRL(i.conta.valor)}, ${quando(i)}`);
+    if (urgentes.length > 8) linhas.push(`• e mais ${urgentes.length - 8}`);
+    const total = urgentes.reduce((soma, i) => soma + i.conta.valor, 0);
+
+    await responder({
+      telefone,
+      userId: vinculo.user_id,
+      mensagemId,
+      texto: [
+        `*Contas para ficar de olho* (${formatarBRL(total)}):`,
+        ...linhas,
+        `Pagou? Marque em ${SITE_URL}/novarecash/app/contas`,
+      ].join("\n"),
+    });
+  } catch (e) {
+    console.warn("[whatsapp] nao avisou as contas do dia:", e instanceof Error ? e.message : e);
   }
 }
 

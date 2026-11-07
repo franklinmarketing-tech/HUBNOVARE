@@ -319,7 +319,7 @@ export const RECURSOS: Recurso[] = [
   {
     chave: "contas",
     titulo: "Contas a pagar que não passam batido",
-    texto: "Aluguel, luz, escola: veja o que vence, marque como paga e saiba quanto vai sobrar no fim do mês. Quando o WhatsApp ligar, o lembrete do vencimento chega por lá.",
+    texto: "Aluguel, luz, escola: veja o que vence, marque como paga e saiba quanto vai sobrar no fim do mês. Quando o WhatsApp ligar, é só mandar uma mensagem que ele mostra o que vence hoje e amanhã.",
     noAr: true,
   },
   {

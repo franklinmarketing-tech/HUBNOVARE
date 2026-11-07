@@ -27,18 +27,16 @@ Nesta ordem (todos podem ser rodados de novo sem estragar nada):
 
 Confere: a última consulta de cada arquivo devolve tudo `true`.
 
-## 1b. Lembrete de contas no WhatsApp (todo dia às 9h)
+## 1b. Contas do dia no WhatsApp — SEM CUSTO, sem nada para configurar
 
-- Criar **`CRON_SECRET`** na Vercel (qualquer texto longo e secreto). ⚠️ Tem de ser esse nome: é o
-  único que a Vercel manda sozinha para o cron. Sem ele, a rota `/api/novarecash/lembretes` recusa.
-- Pedir à Meta a aprovação do **modelo** (categoria Utilidade, idioma pt_BR, nome sugerido
-  `novarecash_lembrete_contas`):
-  > Olá! Lembrete do NovareCash: amanhã, {{1}}, você tem {{2}} para pagar, no total de {{3}}: {{4}}.
-  > Depois de pagar, marque como paga no app, em Contas a pagar.
+⚠️ **Decisão de 07/11/2026: o sistema NUNCA inicia conversa no WhatsApp.** A Meta cobra só a mensagem
+que a empresa puxa fora da janela de 24 h (template); responder a quem acabou de escrever é grátis.
 
-  Exemplos: {{1}} = 05/11 · {{2}} = 2 contas · {{3}} = R$ 1.680,00 · {{4}} = Aluguel (R$ 1.500,00); Luz (R$ 180,00)
-- Aprovado: criar `WHATSAPP_TEMPLATE_LEMBRETE` com o nome do modelo. Antes disso a rota roda em modo de
-  teste (devolve o que mandaria, sem mandar). Teste manual: `/api/novarecash/lembretes?teste=1`.
+Por isso o antigo lembrete das 9h (cron + modelo `WHATSAPP_TEMPLATE_LEMBRETE` + `CRON_SECRET`) foi
+**apagado**. No lugar: a **primeira mensagem do dia** que a pessoa manda recebe, logo depois da resposta,
+as contas atrasadas, de hoje e de amanhã (`avisarContasDoDia` em `src/lib/fincash/whatsapp-servidor.ts`,
+uma vez por dia, reserva em `ncash_lembretes_enviados`). Não precisa de modelo aprovado nem de cron.
+Se `CRON_SECRET` ou `WHATSAPP_TEMPLATE_LEMBRETE` existirem na Vercel, podem ser apagadas.
 
 ## 2. Preço e datas da Black — `src/lib/novarecash/config.ts`
 
