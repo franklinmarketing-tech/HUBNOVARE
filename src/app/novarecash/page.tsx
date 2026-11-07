@@ -510,11 +510,12 @@ export default async function NovareCashVendaPage({
           <div className="mx-auto grid max-w-5xl items-center gap-8 px-4 py-16 sm:px-6 md:grid-cols-[0.9fr_1.1fr]">
             <div className="relative mx-auto aspect-[4/5] w-full max-w-sm overflow-hidden rounded-[1.75rem]">
               <Image
-                src="/marca/jefferson/sorrindo.webp"
-                alt="Jefferson Freitas, fundador da Novare"
+                src="/novarecash/jefferson-fundador.webp"
+                alt="Jefferson Freitas, fundador da Novare, sorrindo à mesa do escritório"
                 fill
                 sizes="(max-width: 768px) 90vw, 384px"
-                className="object-cover object-[50%_20%]"
+                quality={85}
+                className="object-cover"
               />
             </div>
             <div>

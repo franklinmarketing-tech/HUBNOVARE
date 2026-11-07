@@ -51,11 +51,11 @@ export function CartaFundador({ comPlanos = true }: { comPlanos?: boolean }) {
             {/* Decorativa: o nome está escrito ao lado. */}
             <span className="relative h-16 w-16 shrink-0 overflow-hidden rounded-full ring-2 ring-ouro/60 ring-offset-2 ring-offset-white">
               <Image
-                src="/marca/jefferson/mesa.webp"
+                src="/novarecash/jefferson-rosto.webp"
                 alt=""
                 fill
                 sizes="128px"
-                className="origin-[50%_32%] scale-[1.6] object-cover object-[50%_32%]"
+                className="object-cover"
               />
             </span>
             <span>
