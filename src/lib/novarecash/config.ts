@@ -299,8 +299,10 @@ export const RECURSOS: Recurso[] = [
     chave: "banco",
     titulo: "Conectado ao seu banco",
     texto: "Pelo Open Finance oficial do Banco Central: saldo e extrato entram sozinhos, sem digitar nada.",
-    noAr: false, // ⚠️ liga quando o plano do Banco MCP permitir uma conexão por cliente
-    liberaEm: "dezembro de 2026",
+    /* LIGADO em 12/11/2026: Banco MCP no plano PF Ilimitado (5 bancos inclusos + R$ 9 por banco a mais).
+       A conversa com o Banco MCP é do PRÓPRIO Hub (`/api/novarecash/openfinance`, chave `BANCO_MCP_KEY`
+       na Vercel), com reivindicação segura por cliente, limite do plano no servidor e "Desligar" que revoga. */
+    noAr: true,
   },
   {
     // 03/11 (noite): o NovareCash é um app independente — extrato, contas e orçamento são dele (tabelas ncash_*).

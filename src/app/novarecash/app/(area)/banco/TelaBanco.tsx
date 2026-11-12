@@ -16,6 +16,7 @@ import {
   sincronizar,
   urlParaConectar,
   type Conexao,
+  type CandidataBanco,
   type ContaBanco,
   type ResultadoSincronizacao,
 } from "@/lib/novarecash/openfinance";
@@ -64,6 +65,10 @@ export function TelaBanco({ limite, nomePlano }: { limite: number; nomePlano: st
   const [contas, setContas] = useState<ContaBanco[]>([]);
   const [recado, setRecado] = useState<string | null>(null);
   const [esperandoVolta, setEsperandoVolta] = useState(false);
+  /* 12/11/2026: a hora do toque em "Conectar" (o servidor só aceita banco que nasceu depois dela)
+     e, se aparecer mais de um banco novo, a lista para a pessoa escolher o dela. */
+  const [desde, setDesde] = useState<string | null>(null);
+  const [escolher, setEscolher] = useState<CandidataBanco[] | null>(null);
   const [linkManual, setLinkManual] = useState<string | null>(null);
   const [ocupado, setOcupado] = useState<string | null>(null);
   const [resultado, setResultado] = useState<string | null>(null);
@@ -115,6 +120,8 @@ export function TelaBanco({ limite, nomePlano }: { limite: number; nomePlano: st
       }
       if (janela) janela.location.href = url;
       else setLinkManual(url);
+      setDesde(new Date().toISOString());
+      setEscolher(null);
       setEsperandoVolta(true);
     } catch (e) {
       janela?.close();
@@ -124,14 +131,16 @@ export function TelaBanco({ limite, nomePlano }: { limite: number; nomePlano: st
     }
   }
 
-  async function jaConectei() {
+  async function jaConectei(itemId?: string) {
     setOcupado("claim");
     setRecado(null);
     try {
-      const r = await reivindicar();
+      const r = await reivindicar({ desde, itemId });
       setRecado(r.mensagem);
+      setEscolher(r.escolher ?? null);
       if (r.ok) {
         setEsperandoVolta(false);
+        setDesde(null);
         await carregar();
       }
     } catch (e) {
@@ -145,7 +154,8 @@ export function TelaBanco({ limite, nomePlano }: { limite: number; nomePlano: st
     if (!window.confirm(`Desligar ${c.banco}? O que já entrou no seu extrato continua lá.`)) return;
     setOcupado(`forget:${c.itemId}`);
     try {
-      await esquecer(c.itemId);
+      const revogado = await esquecer(c.itemId);
+      if (!revogado) setRecado(`${c.banco} saiu do NovareCash. Para encerrar também a autorização no banco, fale com a gente.`);
       await carregar();
     } catch (e) {
       setRecado(frase(e));
@@ -213,7 +223,7 @@ export function TelaBanco({ limite, nomePlano }: { limite: number; nomePlano: st
               {ocupado === "conectar" ? "Abrindo…" : "Conectar banco"}
             </Botao>
             {esperandoVolta && (
-              <Botao variante="contorno" Icone={Check} onClick={jaConectei} desabilitado={ocupado !== null}>
+              <Botao variante="contorno" Icone={Check} onClick={() => jaConectei()} desabilitado={ocupado !== null}>
                 {ocupado === "claim" ? "Conferindo…" : "Já conectei"}
               </Botao>
             )}
@@ -245,6 +255,19 @@ export function TelaBanco({ limite, nomePlano }: { limite: number; nomePlano: st
             Atualizar lista
           </Botao>
         </div>
+      )}
+
+      {escolher && escolher.length > 1 && (
+        <Cartao className="space-y-2 p-4">
+          <p className="text-xs font-semibold text-white">Qual destes é o seu banco?</p>
+          {escolher.map((c) => (
+            <Botao key={c.itemId} variante="contorno" Icone={Landmark} onClick={() => jaConectei(c.itemId)} desabilitado={ocupado !== null}>
+              {c.banco}
+              {c.criado ? ` · conectado às ${new Date(c.criado).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}` : ""}
+            </Botao>
+          ))}
+          <p className="text-2xs text-white/55">Escolha só o que você acabou de conectar. Na dúvida, fale com a gente.</p>
+        </Cartao>
       )}
 
       {recado && (

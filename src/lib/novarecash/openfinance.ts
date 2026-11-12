@@ -1,8 +1,9 @@
 /**
  * OPEN FINANCE (Banco MCP) — o lado do NAVEGADOR.
  *
- * A chave do Banco MCP não chega aqui: quem fala com ele é a Edge Function
- * `rapid-responder` do MESMO Supabase (a do Novare App; contrato em
+ * A chave do Banco MCP não chega aqui: quem fala com ele é a rota do próprio Hub,
+ * `/api/novarecash/openfinance` (12/11/2026). Antes era a Edge Function
+ * `rapid-responder` do app antigo, que não é mais usado (contrato antigo em
  * `Desktop\NOVARE\novareapp\supabase\functions\openfinance\index.ts` — só
  * leitura, é outro projeto). Ela confere o token da pessoa e ESCOPA cada
  * consulta às conexões que essa pessoa reivindicou (`claim`).
@@ -32,7 +33,6 @@ import { createClient } from "@/lib/supabase/client";
 import { adivinharCategoria, categoria, semAcento, type ChaveCategoria } from "./categorias";
 import { ErroDados, faltaTabela, usuarioDaSessao } from "./dados";
 
-const FUNCAO = "rapid-responder";
 
 export type MotivoErroBanco = "reativando" | "nao-configurado" | "sessao" | "falha";
 
@@ -66,46 +66,29 @@ function classificar(status: number | null, texto: string, codigo: string): Moti
 
 type Resultado = Record<string, unknown>;
 
+/**
+ * 12/11/2026: fala com a rota do PRÓPRIO Hub (`/api/novarecash/openfinance`), que guarda a chave do
+ * Banco MCP e escopa tudo à pessoa logada. Antes era a Edge Function `rapid-responder` do app antigo.
+ */
 async function chamar(endpoint: string, body: Record<string, unknown> = {}): Promise<Resultado> {
-  const supabase = createClient();
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
-  if (!session) throw new ErroBanco("sessao", FRASE.sessao);
-
-  const { data, error } = await supabase.functions.invoke(FUNCAO, {
-    body: { endpoint, body },
-    headers: { Authorization: `Bearer ${session.access_token}` },
-  });
-
-  if (error) {
-    // O corpo real do erro está em `error.context` (a Response da função).
-    const ctx = (error as { context?: Response }).context;
-    let texto = error.message ?? "";
-    let codigo = "";
-    let status: number | null = null;
-    if (ctx && typeof ctx === "object" && "status" in ctx) {
-      status = ctx.status;
-      try {
-        const j = (await ctx.json()) as Record<string, unknown>;
-        const r = (j?.result ?? {}) as Record<string, unknown>;
-        const e = j?.error;
-        texto = String((typeof e === "string" ? e : (e as { message?: string })?.message) ?? r.message ?? j?.message ?? texto);
-        codigo = String(j?.code ?? r.code ?? (e as { code?: string })?.code ?? "");
-      } catch {
-        /* corpo não é JSON */
-      }
-    }
-    const motivo = classificar(status, texto, codigo);
-    if (motivo === "falha") console.warn(`[open-finance] ${endpoint}:`, status, texto);
-    throw new ErroBanco(motivo, FRASE[motivo], texto, status);
+  let r: Response;
+  try {
+    r = await fetch("/api/novarecash/openfinance", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ endpoint, body }),
+    });
+  } catch {
+    throw new ErroBanco("falha", FRASE.falha);
   }
-
-  const d = (data ?? {}) as Record<string, unknown>;
-  if (d.error) {
-    const e = d.error as { code?: string; message?: string } | string;
-    const motivo = classificar(null, typeof e === "string" ? e : e.message ?? "", typeof e === "string" ? "" : e.code ?? "");
-    throw new ErroBanco(motivo, FRASE[motivo]);
+  const d = ((await r.json().catch(() => ({}))) ?? {}) as Record<string, unknown>;
+  const e = d.error as { code?: string; message?: string } | string | undefined;
+  if (!r.ok || e) {
+    const texto = typeof e === "string" ? e : e?.message ?? "";
+    const codigo = typeof e === "string" ? "" : e?.code ?? "";
+    const motivo = classificar(r.ok ? null : r.status, texto, codigo);
+    if (motivo === "falha") console.warn(`[open-finance] ${endpoint}:`, r.status, texto);
+    throw new ErroBanco(motivo, FRASE[motivo], texto, r.ok ? null : r.status);
   }
   return ((d.result ?? d) as Resultado) ?? {};
 }
@@ -140,14 +123,36 @@ export async function urlParaConectar(): Promise<string | null> {
   return texto(r.url) || null;
 }
 
-/** Associa à conta da pessoa o banco que ela acabou de conectar no Banco MCP. */
-export async function reivindicar(): Promise<{ ok: boolean; mensagem: string }> {
+export type CandidataBanco = { itemId: string; banco: string; criado: number | null };
+
+/**
+ * Associa à conta da pessoa o banco que ela acabou de conectar no Banco MCP.
+ *
+ * 12/11/2026 (vários clientes na mesma conta do Banco MCP): manda `desde` (a hora em que ela
+ * tocou "Conectar") e, quando aparece mais de um banco novo nesse intervalo, o servidor devolve a
+ * lista (`escolher`) para ela apontar o dela — e essa escolha volta aqui em `itemId`.
+ */
+export async function reivindicar(opcoes: { desde?: string | null; itemId?: string } = {}): Promise<{
+  ok: boolean;
+  mensagem: string;
+  escolher?: CandidataBanco[];
+}> {
   try {
-    const r = await chamar("claim");
+    const r = await chamar("claim", {
+      ...(opcoes.desde ? { desde: opcoes.desde } : {}),
+      ...(opcoes.itemId ? { item_id: opcoes.itemId } : {}),
+    });
     if (r.claimed === true) {
-      const n = numero(r.count) ?? 1;
-      return { ok: true, mensagem: n === 1 ? "Banco conectado." : `${n} conexões ligadas à sua conta.` };
+      const banco = texto(r.connector_name);
+      return { ok: true, mensagem: banco ? `${banco} conectado.` : "Banco conectado." };
     }
+    const escolher = lista(r, "escolher")
+      .map((c) => ({ itemId: texto(c.item_id), banco: texto(c.connector_name) || "Banco", criado: numero(c.criado) }))
+      .filter((c) => c.itemId);
+    if (escolher.length > 1) {
+      return { ok: false, escolher, mensagem: "Encontramos mais de um banco conectado agora há pouco. Qual é o seu?" };
+    }
+    if (r.limite === true) return { ok: false, mensagem: `${texto(r.message)} Para conectar mais, mude de plano.` };
     if (/outro usu/i.test(texto(r.message))) {
       return { ok: false, mensagem: "Essa conexão já está ligada a outra conta. Conecte o banco de novo pelo botão “Conectar banco”." };
     }
@@ -165,8 +170,10 @@ export async function reivindicar(): Promise<{ ok: boolean; mensagem: string }> 
   }
 }
 
-export async function esquecer(itemId: string): Promise<void> {
-  await chamar("forget", { item_id: itemId });
+/** Desliga o banco: revoga no Banco MCP e tira do NovareCash. `false` = o app desligou, mas o banco não confirmou a revogação. */
+export async function esquecer(itemId: string): Promise<boolean> {
+  const r = await chamar("forget", { item_id: itemId });
+  return r.revogadoNoBanco !== false;
 }
 
 export async function listarConexoes(): Promise<Conexao[]> {
