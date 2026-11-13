@@ -12,6 +12,8 @@ import {
   Loader2,
   PowerOff,
   RefreshCw,
+  RotateCcw,
+  Trash2,
   Search,
   ShieldCheck,
   X,
@@ -21,18 +23,24 @@ import { ErroDados } from "@/lib/novarecash/dados";
 import {
   ErroBanco,
   abrirJanelaDoBanco,
+  atualizarNoBanco,
+  avisoDoProvedor,
+  bancosComFalha,
   contasComSaldo,
   esquecer,
+  iniciarConexao,
   listarBancos,
   listarConexoes,
   marcarSincronizado,
   nomeDaConta,
   ponteDoBanco,
+  precisaReconectar,
   reivindicar,
   sincronizar,
   statusLegivel,
   trazerTudo,
   urlParaConectar,
+  urlParaReconectar,
   type BancoParaConectar,
   type CandidataBanco,
   type Conexao,
@@ -62,7 +70,14 @@ import { ANEL, AvisoErro, AvisoSemTabela, Botao, Cartao, Esqueleto, Selo, brl, t
  */
 
 /** A conexão em andamento. Fica no `localStorage`: no celular, ir ao app do banco e voltar pode recarregar a aba. */
-type Pendente = { quando: number; banco: string; logo: string | null; url: string | null };
+type Pendente = {
+  quando: number;
+  banco: string;
+  logo: string | null;
+  url: string | null;
+  /** RECONECTAR (13/11/2026): o item que está sendo renovado. Sem claim: espera ele voltar a ficar em dia. */
+  item?: string;
+};
 type Fase = "autorizar" | "trazendo" | "pronto";
 
 const CHAVE_ESPERA = "ncash:open-finance:esperando";
@@ -94,9 +109,22 @@ const esquecerEspera = () => {
 const frase = (e: unknown) =>
   e instanceof ErroBanco ? e.message : "Não consegui falar com o banco agora. Tente de novo em instantes.";
 
-const periodo = (dias: number) => (dias >= 365 ? "nos últimos 12 meses" : `nos últimos ${dias} dias`);
+const periodo = (dias: number | null) =>
+  dias === null ? "desde a última atualização" : dias >= 365 ? "nos últimos 12 meses" : `nos últimos ${dias} dias`;
 
-function textoDoResultado(r: ResultadoSincronizacao, dias: number): string {
+/** "há 5 min", "há 3 h", "ontem", "em 12/11". */
+function haQuanto(ms: number | null): string | null {
+  if (!ms) return null;
+  const min = Math.round((Date.now() - ms) / 60_000);
+  if (min < 1) return "agora há pouco";
+  if (min < 60) return `há ${min} min`;
+  const h = Math.round(min / 60);
+  if (h < 24) return `há ${h} h`;
+  if (h < 48) return "ontem";
+  return `em ${new Date(ms).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })}`;
+}
+
+function textoDoResultado(r: ResultadoSincronizacao, dias: number | null): string {
   const partes: string[] = [];
   if (r.lidas === 0) partes.push(`Nenhuma transação ${periodo(dias)}.`);
   else if (r.novas === 0) partes.push(`Tudo em dia: as ${r.lidas} transações já estavam no seu extrato.`);
@@ -106,12 +134,13 @@ function textoDoResultado(r: ResultadoSincronizacao, dias: number): string {
         r.jaEstavam ? ` (${r.jaEstavam} já estavam lá)` : ""
       }.`,
     );
+  if (r.corrigidas) partes.push(`${r.corrigidas} ${r.corrigidas === 1 ? "lançamento corrigido" : "lançamentos corrigidos"} pelo banco.`);
   if (r.contas) partes.push(`${r.contas === 1 ? "Saldo atualizado" : `Saldos de ${r.contas} contas atualizados`}.`);
   if (r.falhas.length) partes.push(`Não consegui ler: ${r.falhas.join(", ")}. Tente de novo em instantes.`);
   return partes.join(" ");
 }
 
-const TOM_STATUS: Record<string, TomSelo> = { "Em dia": "verde", "Atualizando…": "ouro" };
+const TOM_STATUS: Record<string, TomSelo> = { "Em dia": "verde", "Atualizando…": "ouro", "O banco pede confirmação": "alerta" };
 
 function LogoBanco({ logo, grande = false }: { logo: string | null; grande?: boolean }) {
   const tam = grande ? "h-11 w-11" : "h-6 w-6";
@@ -185,6 +214,18 @@ export function TelaBanco({ limite, nomePlano }: { limite: number; nomePlano: st
   const janela = useRef<JanelaDoBanco | null>(null);
   const concluindo = useRef(false);
   const itemNovo = useRef<string | null>(null);
+  /** O pedido assinado (`iniciar`) precisa chegar ao servidor antes da 1ª conferência. */
+  const iniciando = useRef<Promise<unknown> | null>(null);
+  /** Outro cliente conectou o mesmo banco ao mesmo tempo: confirmar pelo final da conta. */
+  const [confirmar, setConfirmar] = useState<CandidataBanco | null>(null);
+  /** Reinicia a conferência (depois de um "Não é a minha"). */
+  const [rodada, setRodada] = useState(0);
+  /** A janela "Desligar" (manter ou apagar o histórico). */
+  const [desligando, setDesligando] = useState<Conexao | null>(null);
+  /** "Atualizar agora" de um banco: a frase do passo. */
+  const [progressoBanco, setProgressoBanco] = useState<{ item: string; frase: string } | null>(null);
+  const [falhasBanco, setFalhasBanco] = useState<string[]>([]);
+  const [aviso, setAviso] = useState<string | null>(null);
 
   const carregar = useCallback(async () => {
     setCarregando(true);
@@ -193,6 +234,7 @@ export function TelaBanco({ limite, nomePlano }: { limite: number; nomePlano: st
       const cx = await listarConexoes();
       setConexoes(cx);
       setContas(cx.length ? await contasComSaldo() : []);
+      setFalhasBanco(cx.length ? [...bancosComFalha()] : []);
     } catch (e) {
       setErro(frase(e));
     } finally {
@@ -202,6 +244,8 @@ export function TelaBanco({ limite, nomePlano }: { limite: number; nomePlano: st
 
   useEffect(() => {
     carregar();
+    // Instabilidade no Open Finance (incidente aberto no provedor): avisa antes de a pessoa estranhar.
+    avisoDoProvedor().then(setAviso);
   }, [carregar]);
 
   // Uma conexão estava em andamento (a aba recarregou na volta do banco): retoma de onde parou.
@@ -227,16 +271,17 @@ export function TelaBanco({ limite, nomePlano }: { limite: number; nomePlano: st
   }, [busca, conexoes.length, escolhendo, fase, limite]);
 
   /** Traz contas, saldos e 12 meses de lançamentos do banco recém-ligado. Também o "Tentar de novo". */
-  const importar = useCallback(async (itemId: string | null) => {
+  const importar = useCallback(async (itemId: string | null, reconexao = false) => {
     setFalhaImport(null);
     setFase("trazendo");
-    setProgresso("Banco conectado! Preparando a importação…");
+    setProgresso(reconexao ? "Banco reconectado! Buscando o que faltou…" : "Banco conectado! Preparando a importação…");
     try {
-      const r = await trazerTudo({ itemId, dias: 365, aoAvancar: setProgresso });
+      // Reconexão: desde o último lançamento de cada conta (o resto já está no extrato).
+      const r = await trazerTudo({ itemId, dias: reconexao ? undefined : 365, aoAvancar: setProgresso });
       setConexoes(r.conexoes);
       setContas(r.contas);
       setResumo(r.resultado);
-      setResultado(textoDoResultado(r.resultado, 365));
+      setResultado(textoDoResultado(r.resultado, reconexao ? null : 365));
     } catch (e) {
       if (e instanceof ErroDados && e.motivo === "sem-tabela") setSemTabela(true);
       setFalhaImport(
@@ -254,7 +299,7 @@ export function TelaBanco({ limite, nomePlano }: { limite: number; nomePlano: st
 
   /** Achou a conexão: fecha a janelinha do banco e TRAZ TUDO sozinho. */
   const concluir = useCallback(
-    async (itemId: string | null, banco?: string) => {
+    async (itemId: string | null, banco?: string, reconexao = false) => {
       if (concluindo.current) return;
       concluindo.current = true;
       itemNovo.current = itemId;
@@ -262,9 +307,10 @@ export function TelaBanco({ limite, nomePlano }: { limite: number; nomePlano: st
       janela.current = null;
       esquecerEspera();
       setEscolher(null);
+      setConfirmar(null);
       setRecado(null);
       if (banco) setPendente((p) => (p ? { ...p, banco } : p));
-      await importar(itemId);
+      await importar(itemId, reconexao);
     },
     [importar],
   );
@@ -279,16 +325,32 @@ export function TelaBanco({ limite, nomePlano }: { limite: number; nomePlano: st
     let timer: ReturnType<typeof setTimeout> | undefined;
     const inicio = Date.now();
 
+    const item = pendente?.item;
     const conferir = async () => {
       if (parar || rodando) return;
       rodando = true;
       setConferindo(true);
       try {
+        if (item) {
+          // RECONECTAR: o mesmo item volta a ficar em dia (sem claim).
+          const c = (await listarConexoes(true)).find((x) => x.itemId === item);
+          if (parar) return;
+          const renovado = c && !precisaReconectar(c.status) && (c.atualizadoEm === null || c.atualizadoEm > inicio - 5000);
+          if (renovado) {
+            parar = true;
+            void concluir(item, c.banco, true);
+          }
+          return;
+        }
+        await iniciando.current?.catch(() => undefined);
         const r = await reivindicar();
         if (parar) return;
         if (r.ok) {
           parar = true;
           void concluir(r.itemId ?? null, r.banco);
+        } else if (r.confirmar) {
+          parar = true;
+          setConfirmar(r.confirmar);
         } else if (r.escolher) {
           parar = true;
           setEscolher(r.escolher);
@@ -296,8 +358,12 @@ export function TelaBanco({ limite, nomePlano }: { limite: number; nomePlano: st
           parar = true;
           setRecado(r.mensagem);
         }
-      } catch {
-        /* rede oscilando: tenta de novo no próximo ciclo */
+      } catch (e) {
+        // Sessão expirada não se resolve sozinha: para e avisa. O resto (rede oscilando) tenta de novo.
+        if (e instanceof ErroBanco && e.motivo === "sessao") {
+          parar = true;
+          setRecado(e.message);
+        }
       } finally {
         rodando = false;
         setConferindo(false);
@@ -333,7 +399,7 @@ export function TelaBanco({ limite, nomePlano }: { limite: number; nomePlano: st
       document.removeEventListener("visibilitychange", aoVoltar);
       window.removeEventListener("focus", aoVoltar);
     };
-  }, [fase, concluir]);
+  }, [fase, concluir, pendente?.item, rodada]);
 
   function iniciar(p: Pendente, j: JanelaDoBanco | null) {
     janela.current = j;
@@ -346,6 +412,7 @@ export function TelaBanco({ limite, nomePlano }: { limite: number; nomePlano: st
     setFalhaImport(null);
     setProgresso("");
     setEscolher(null);
+    setConfirmar(null);
     setRecado(null);
     setResultado(null);
     setEscolhendo(false);
@@ -364,8 +431,50 @@ export function TelaBanco({ limite, nomePlano }: { limite: number; nomePlano: st
     if (passouDoLimite()) return;
     const j = abrirJanelaDoBanco(b.url);
     iniciar({ quando: Date.now(), banco: b.nome, logo: b.logo, url: b.url }, j);
-    // Renova o pedido assinado (a hora do "Conectar") para agora; a lista vem do cache.
-    void listarBancos().catch(() => {});
+    // O pedido assinado: a hora do toque E o banco escolhido (o claim só aceita conexão desse banco).
+    iniciando.current = iniciarConexao(b.id, b.nome);
+  }
+
+  /** RECONECTAR o mesmo banco: renova a autorização sem criar outra conexão (nada duplica). */
+  async function reconectar(c: Conexao) {
+    const j = abrirJanelaDoBanco(null); // no toque, antes do await
+    setOcupado(`reconectar:${c.itemId}`);
+    try {
+      const url = await urlParaReconectar(c.itemId);
+      if (!url) {
+        j?.fechar();
+        setRecado("A página de conexão não está disponível agora. Tente de novo em instantes.");
+        return;
+      }
+      j?.irPara(url);
+      iniciar({ quando: Date.now(), banco: c.banco, logo: null, url, item: c.itemId }, j);
+    } catch (e) {
+      j?.fechar();
+      setRecado(frase(e));
+    } finally {
+      setOcupado(null);
+    }
+  }
+
+  /** "Atualizar agora": pede ao banco dados novos, espera ele terminar e traz o que faltou. */
+  async function atualizarAgora(c: Conexao) {
+    setOcupado(`atualizar:${c.itemId}`);
+    setResultado(null);
+    setProgressoBanco({ item: c.itemId, frase: "Pedindo dados novos ao banco…" });
+    try {
+      await atualizarNoBanco(c.itemId);
+      const r = await trazerTudo({ itemId: c.itemId, aoAvancar: (f) => setProgressoBanco({ item: c.itemId, frase: f }) });
+      setConexoes(r.conexoes);
+      setContas(r.contas);
+      setFalhasBanco([...bancosComFalha()]);
+      setResultado(textoDoResultado(r.resultado, null));
+    } catch (e) {
+      if (e instanceof ErroDados && e.motivo === "sem-tabela") setSemTabela(true);
+      else setResultado(frase(e));
+    } finally {
+      setProgressoBanco(null);
+      setOcupado(null);
+    }
   }
 
   /** Reserva: a página geral de conexão, quando a busca de bancos não responde. */
@@ -406,6 +515,7 @@ export function TelaBanco({ limite, nomePlano }: { limite: number; nomePlano: st
     setAberta(false);
     setPendente(null);
     setEscolher(null);
+    setConfirmar(null);
     setRecado(null);
   }
 
@@ -429,6 +539,7 @@ export function TelaBanco({ limite, nomePlano }: { limite: number; nomePlano: st
         return;
       }
       setEscolher(r.escolher ?? null);
+      setConfirmar(r.confirmar ?? null);
       setRecado(r.mensagem);
     } catch (e) {
       setRecado(frase(e));
@@ -437,12 +548,26 @@ export function TelaBanco({ limite, nomePlano }: { limite: number; nomePlano: st
     }
   }
 
-  async function desconectar(c: Conexao) {
-    if (!window.confirm(`Desligar ${c.banco}? O que já entrou no seu extrato continua lá.`)) return;
+  function naoEMinha() {
+    setConfirmar(null);
+    setRecado("Tudo bem: continuamos esperando a SUA conexão. Termine a autorização no seu banco.");
+    setRodada((n) => n + 1);
+  }
+
+  /** DESLIGAR: revoga no banco, tira o saldo do NovareCash e, se a pessoa quiser, apaga o histórico. */
+  async function desconectar(c: Conexao, apagar: boolean) {
+    setDesligando(null);
     setOcupado(`forget:${c.itemId}`);
+    setResultado(null);
     try {
-      const revogado = await esquecer(c.itemId);
-      if (!revogado) setRecado(`${c.banco} saiu do NovareCash. Para encerrar também a autorização no banco, fale com a gente.`);
+      const r = await esquecer(c.itemId, apagar);
+      setRecado(
+        `${c.banco} desligado. ` +
+          (apagar
+            ? `${r.apagadas ? `${r.apagadas} lançamentos importados foram apagados` : "Os lançamentos importados foram apagados"} e o saldo saiu das suas contas.`
+            : "O saldo saiu das suas contas; os lançamentos que já entraram continuam no extrato.") +
+          (r.revogado ? "" : " O banco não confirmou o fim da autorização: se ele continuar aparecendo no app do banco, fale com a gente."),
+      );
       await carregar();
     } catch (e) {
       setRecado(frase(e));
@@ -470,7 +595,7 @@ export function TelaBanco({ limite, nomePlano }: { limite: number; nomePlano: st
   // ── A janela do app: o passo a passo da conexão ──────────────────────────
   const janelaDoApp = fase && aberta && (
     <Janela
-      titulo={fase === "autorizar" ? `Conectar ${nome}` : fase === "trazendo" ? "Trazendo os seus dados" : falhaImport ? "Quase lá" : "Banco conectado"}
+      titulo={fase === "autorizar" ? `${pendente?.item ? "Reconectar" : "Conectar"} ${nome}` : fase === "trazendo" ? "Trazendo os seus dados" : falhaImport ? "Quase lá" : "Banco conectado"}
       onFechar={fecharJanela}
     >
       <div className="space-y-4">
@@ -535,6 +660,31 @@ export function TelaBanco({ limite, nomePlano }: { limite: number; nomePlano: st
                   </li>
                 ))}
               </ol>
+            )}
+
+            {confirmar && (
+              <div className="space-y-3 rounded-2xl border border-ouro/30 bg-ouro/[0.06] p-4">
+                <p className="text-sm font-semibold text-white">
+                  {confirmar.final ? (
+                    <>
+                      Encontramos uma conta {confirmar.banco} terminada em <span className="tabular-nums">{confirmar.final}</span>. É a sua?
+                    </>
+                  ) : (
+                    <>Encontramos uma conexão {confirmar.banco} agora há pouco. É a sua?</>
+                  )}
+                </p>
+                <p className="text-2xs leading-relaxed text-white/60">
+                  Outra pessoa conectou o mesmo banco no mesmo minuto. Confira o final da conta no app do seu banco antes de confirmar.
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  <Botao Icone={Check} onClick={() => conferirAgora(confirmar.itemId)} desabilitado={ocupado !== null}>
+                    Sim, é a minha
+                  </Botao>
+                  <Botao variante="contorno" Icone={X} onClick={naoEMinha} desabilitado={ocupado !== null}>
+                    Não é
+                  </Botao>
+                </div>
+              </div>
             )}
 
             {escolher && escolher.length > 1 && (
@@ -678,6 +828,42 @@ export function TelaBanco({ limite, nomePlano }: { limite: number; nomePlano: st
 
       {semTabela && <AvisoSemTabela />}
 
+      {aviso && (
+        <p role="status" className="rounded-xl border border-warning/35 bg-warning/10 px-4 py-3 text-xs leading-relaxed text-white">
+          {aviso}
+        </p>
+      )}
+      {falhasBanco.length > 0 && (
+        <p role="status" className="rounded-xl border border-warning/35 bg-warning/10 px-4 py-3 text-xs leading-relaxed text-white">
+          Não consegui ler {falhasBanco.join(", ")} agora. Os outros bancos seguem em dia; tento de novo na próxima atualização.
+        </p>
+      )}
+
+      {desligando && !fase && (
+        <Janela titulo={`Desligar ${desligando.banco}`} onFechar={() => setDesligando(null)}>
+          <div className="space-y-4">
+            <p className="text-sm leading-relaxed text-white/80">
+              O NovareCash para de ler o {desligando.banco} e a autorização é encerrada no Open Finance. O saldo dele sai das suas
+              contas. E os lançamentos que já entraram no extrato?
+            </p>
+            <div className="grid min-w-0 gap-2">
+              <Botao className="w-full" variante="contorno" Icone={PowerOff} onClick={() => desconectar(desligando, false)} desabilitado={ocupado !== null}>
+                Manter o histórico
+              </Botao>
+              <Botao className="w-full" variante="perigo" Icone={Trash2} onClick={() => desconectar(desligando, true)} desabilitado={ocupado !== null}>
+                Apagar o que foi importado
+              </Botao>
+              <Botao variante="fantasma" onClick={() => setDesligando(null)}>
+                Cancelar
+              </Botao>
+            </div>
+            <p className="text-2xs leading-relaxed text-white/55">
+              Apagar não mexe no que você lançou à mão, pelo WhatsApp ou por importação de extrato. Não dá para desfazer.
+            </p>
+          </div>
+        </Janela>
+      )}
+
       {fase && fase !== "pronto" && !aberta ? (
         /* A janela do app foi fechada no meio: a conferência (ou a importação) continua, e daqui ela volta. */
         <Cartao className="flex flex-wrap items-center justify-between gap-3 p-4">
@@ -786,25 +972,51 @@ export function TelaBanco({ limite, nomePlano }: { limite: number; nomePlano: st
           <ul className="space-y-2">
             {conexoes.map((c) => {
               const status = statusLegivel(c.status);
+              const quando = haQuanto(c.atualizadoEm);
+              const reconectarJa = precisaReconectar(c.status);
+              const atualizando = progressoBanco?.item === c.itemId;
               return (
                 <li key={c.itemId}>
-                  <Cartao className="flex flex-wrap items-center justify-between gap-3 p-4">
-                    <span className="flex min-w-0 items-center gap-2.5">
-                      <span aria-hidden className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-ciano/15 text-ciano-claro">
-                        <Landmark className="h-4 w-4" />
-                      </span>
-                      <span className="min-w-0">
-                        <span className="block truncate text-sm font-semibold text-white">{c.banco}</span>
-                        {status && (
-                          <span className="mt-0.5 block">
-                            <Selo tom={TOM_STATUS[status] ?? "alerta"}>{status}</Selo>
+                  <Cartao className="space-y-3 p-4">
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <span className="flex min-w-0 items-center gap-2.5">
+                        <span aria-hidden className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-ciano/15 text-ciano-claro">
+                          <Landmark className="h-4 w-4" />
+                        </span>
+                        <span className="min-w-0">
+                          <span className="block truncate text-sm font-semibold text-white">{c.banco}</span>
+                          <span className="mt-0.5 flex flex-wrap items-center gap-1.5">
+                            {status && <Selo tom={TOM_STATUS[status] ?? "alerta"}>{status}</Selo>}
+                            {quando && <span className="text-2xs text-white/55">Atualizado {quando}</span>}
                           </span>
-                        )}
+                        </span>
                       </span>
-                    </span>
-                    <Botao variante="contorno" Icone={PowerOff} onClick={() => desconectar(c)} desabilitado={ocupado !== null || fase !== null}>
-                      Desligar
-                    </Botao>
+                      <span className="flex flex-wrap gap-2">
+                        {reconectarJa ? (
+                          <Botao Icone={RotateCcw} onClick={() => reconectar(c)} desabilitado={ocupado !== null || fase !== null}>
+                            {ocupado === `reconectar:${c.itemId}` ? "Abrindo…" : "Reconectar"}
+                          </Botao>
+                        ) : (
+                          <Botao variante="contorno" Icone={RefreshCw} onClick={() => atualizarAgora(c)} desabilitado={ocupado !== null || fase !== null}>
+                            {atualizando ? "Atualizando…" : "Atualizar agora"}
+                          </Botao>
+                        )}
+                        <Botao variante="fantasma" Icone={PowerOff} onClick={() => setDesligando(c)} desabilitado={ocupado !== null || fase !== null}>
+                          Desligar
+                        </Botao>
+                      </span>
+                    </div>
+                    {reconectarJa && (
+                      <p className="text-2xs leading-relaxed text-white/65">
+                        A autorização deste banco venceu ou ele pediu uma confirmação. Reconectar renova a mesma conexão: nada duplica.
+                      </p>
+                    )}
+                    {atualizando && (
+                      <p className="flex items-center gap-2 text-2xs text-white/70" aria-live="polite">
+                        <Loader2 className="h-3.5 w-3.5 animate-spin text-ouro motion-reduce:animate-none" />
+                        {progressoBanco?.frase}
+                      </p>
+                    )}
                   </Cartao>
                 </li>
               );

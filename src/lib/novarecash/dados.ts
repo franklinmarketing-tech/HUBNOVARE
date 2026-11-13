@@ -391,10 +391,16 @@ export function resumoDoMes(transacoes: Pick<Transacao, "tipo" | "valor" | "cate
   let entradas = 0;
   let saidas = 0;
   for (const t of transacoes) {
+    // Estorno no cartão (13/11/2026): não é renda; devolve o que tinha sido gasto.
+    if (t.categoria === "estorno" && t.tipo === "entrada") {
+      saidas -= t.valor;
+      continue;
+    }
     if (NAO_E_GASTO.has(t.categoria)) continue;
     if (t.tipo === "entrada") entradas += t.valor;
     else saidas += t.valor;
   }
+  saidas = Math.max(0, saidas);
   return { entradas: arred(entradas), saidas: arred(saidas), sobra: arred(entradas - saidas) };
 }
 

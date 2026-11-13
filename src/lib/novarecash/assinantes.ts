@@ -3,6 +3,7 @@ import { timingSafeEqual } from "node:crypto";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { planoPorChave, type ChavePlano, type Prazo } from "@/lib/novarecash/config";
 import { enviarNovareCashLiberado } from "@/lib/email";
+import { desligarTodos, usuarioPorEmail } from "@/lib/novarecash/bancomcp-servidor";
 
 /**
  * O QUE UM AVISO DE VENDA FAZ EM `ncash_assinantes` — comum às rotas da Kiwify
@@ -138,6 +139,15 @@ export async function cortar(db: SupabaseClient, c: Corte) {
   if (c.transacao && c.soSeMesmaTransacao) corte = corte.eq("ultima_transacao", c.transacao);
   const { error } = await corte;
   if (error) return naoGravou();
+  // Reembolso/chargeback (13/11/2026): os bancos ligados pelo Open Finance são desligados na hora (LGPD).
+  if (c.status === "reembolsada" || c.status === "chargeback") {
+    try {
+      const uid = await usuarioPorEmail(db, c.email);
+      if (uid) await desligarTodos(db, uid);
+    } catch (e) {
+      console.warn("[novarecash] corte: desligar bancos", e instanceof Error ? e.message : e);
+    }
+  }
   return NextResponse.json({ ok: true, acao: "cortou" });
 }
 

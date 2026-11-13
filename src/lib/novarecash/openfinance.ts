@@ -116,7 +116,13 @@ const numero = (...v: unknown[]): number | null => {
 
 // ── Conexões ────────────────────────────────────────────────────────────────
 
-export type Conexao = { itemId: string; banco: string; status: string | null };
+export type Conexao = {
+  itemId: string;
+  banco: string;
+  status: string | null;
+  /** Quando o banco mandou dados pela última vez (ms), se o Banco MCP informa. */
+  atualizadoEm: number | null;
+};
 
 export type BancoParaConectar = { id: string; nome: string; url: string; logo: string | null };
 
@@ -131,7 +137,15 @@ export async function urlParaConectar(): Promise<string | null> {
   return texto(r.url) || null;
 }
 
-export type CandidataBanco = { itemId: string; banco: string; criado: number | null };
+export type CandidataBanco = { itemId: string; banco: string; criado: number | null; final?: string | null };
+
+/**
+ * A pessoa tocou num banco: grava o PEDIDO no servidor (hora + banco escolhido, cookie assinado).
+ * O claim só aceita conexão daquele banco, criada depois disso. Chamar logo depois de abrir a janelinha.
+ */
+export async function iniciarConexao(conectorId: string, banco: string): Promise<void> {
+  await chamar("iniciar", { connector_id: conectorId, banco });
+}
 
 /**
  * Associa à conta da pessoa o banco que ela acabou de conectar no Banco MCP.
@@ -147,6 +161,8 @@ export async function reivindicar(opcoes: { desde?: string | null; itemId?: stri
   itemId?: string;
   banco?: string;
   escolher?: CandidataBanco[];
+  /** Outro cliente conectou o mesmo banco ao mesmo tempo: a pessoa confirma pelo final da conta. */
+  confirmar?: CandidataBanco;
 }> {
   try {
     const r = await chamar("claim", {
@@ -160,6 +176,15 @@ export async function reivindicar(opcoes: { desde?: string | null; itemId?: stri
     const escolher = lista(r, "escolher")
       .map((c) => ({ itemId: texto(c.item_id), banco: texto(c.connector_name) || "Banco", criado: numero(c.criado) }))
       .filter((c) => c.itemId);
+    const disputa = lista(r, "confirmar")[0];
+    if (disputa && texto(disputa.item_id)) {
+      const final = texto(disputa.final) || null;
+      return {
+        ok: false,
+        confirmar: { itemId: texto(disputa.item_id), banco: texto(disputa.connector_name) || "Banco", criado: numero(disputa.criado), final },
+        mensagem: final ? `Encontramos uma conta terminada em ${final}. É a sua?` : "Encontramos uma conexão nova. É a sua?",
+      };
+    }
     if (escolher.length > 1) {
       return { ok: false, escolher, mensagem: "Encontramos mais de um banco conectado agora há pouco. Qual é o seu?" };
     }
@@ -175,10 +200,42 @@ export async function reivindicar(opcoes: { desde?: string | null; itemId?: stri
   }
 }
 
-/** Desliga o banco: revoga no Banco MCP e tira do NovareCash. `false` = o app desligou, mas o banco não confirmou a revogação. */
-export async function esquecer(itemId: string): Promise<boolean> {
-  const r = await chamar("forget", { item_id: itemId });
-  return r.revogadoNoBanco !== false;
+/**
+ * DESLIGA O BANCO: revoga no Banco MCP, desativa as contas dele no NovareCash (o saldo some do
+ * Início, das Contas e dos Cartões) e, com `apagar`, apaga também os lançamentos importados.
+ */
+export async function esquecer(itemId: string, apagar = false): Promise<{ revogado: boolean; apagadas: number }> {
+  const r = await chamar("forget", { item_id: itemId, apagar });
+  return { revogado: r.revogadoNoBanco !== false, apagadas: numero(r.apagadas) ?? 0 };
+}
+
+/** O link para RECONECTAR o mesmo banco (renova a autorização sem criar outra conexão: nada duplica). */
+export async function urlParaReconectar(itemId: string): Promise<string | null> {
+  const r = await chamar("reconectar", { item_id: itemId });
+  return texto(r.url) || null;
+}
+
+/** Pede ao banco dados novos AGORA (sem isso, o provedor atualiza uma vez por dia). */
+export async function atualizarNoBanco(itemId?: string): Promise<void> {
+  await chamar("atualizar", itemId ? { item_id: itemId } : {});
+}
+
+/** Incidente aberto no Open Finance (instabilidade de banco). `null` = tudo normal ou sem informação. */
+export async function avisoDoProvedor(): Promise<string | null> {
+  try {
+    const r = await chamar("provedor");
+    const incidentes = lista(r, "incidents", "open_incidents", "results", "items");
+    if (!incidentes.length) return null;
+    const nomes = incidentes
+      .map((i) => texto(i.connector_name, i.name, i.title, (i.connector as Record<string, unknown> | undefined)?.name))
+      .filter(Boolean)
+      .slice(0, 3);
+    return nomes.length
+      ? `Instabilidade no Open Finance agora: ${nomes.join(", ")}. A atualização desses bancos pode atrasar.`
+      : "Há instabilidade no Open Finance agora. A atualização de alguns bancos pode atrasar.";
+  } catch {
+    return null;
+  }
 }
 
 /** `fresco`: sem o cache de 60 s do servidor (para acompanhar o banco recém-conectado). */
@@ -189,19 +246,29 @@ export async function listarConexoes(fresco = false): Promise<Conexao[]> {
       itemId: texto(c.item_id, c.id, c.itemId, c.connection_id),
       banco: texto(c.connector_name, (c.connector as Record<string, unknown> | undefined)?.name, c.name, c.connector_id) || "Banco",
       status: texto(c.status) || null,
+      atualizadoEm: numero(c.atualizado_em),
     }))
     .filter((c) => c.itemId);
 }
 
+/** Banco com erro na última leitura (um banco com erro não derruba os outros: vem em `falhas`). */
+let falhasRecentes: string[] = [];
+export const bancosComFalha = () => falhasRecentes;
+
 /** O banco ainda está mandando os dados (logo depois de conectar). Status do provedor (Pluggy). */
-const EM_ANDAMENTO = /UPDATING|CREATING|WAITING|PENDING|SYNC/i;
-const COM_PROBLEMA = /LOGIN_ERROR|OUTDATED|ERROR/i;
+const EM_ANDAMENTO = /UPDATING|CREATING|PENDING|SYNC|WAITING(?!_USER)/i;
+const COM_PROBLEMA = /LOGIN_ERROR|OUTDATED|ERROR|SEM_CONEXAO/i;
+const PEDE_ACAO = /WAITING_USER_INPUT|WAITING_USER_ACTION/i;
+/** Precisa de "Reconectar" (autorização vencida, senha trocada, banco pedindo confirmação). */
+export const precisaReconectar = (status: string | null) => !!status && (COM_PROBLEMA.test(status) || PEDE_ACAO.test(status));
 
 /** O status do provedor em português, para a pessoa (13/11/2026: antes aparecia "UPDATED"). */
 export function statusLegivel(status: string | null): string | null {
   if (!status) return null;
   const s = status.toUpperCase();
   if (s === "UPDATED" || s === "CONNECTED" || s === "ACTIVE") return "Em dia";
+  if (PEDE_ACAO.test(s)) return "O banco pede confirmação";
+  if (s === "SEM_CONEXAO") return "Conexão perdida: conecte de novo";
   if (EM_ANDAMENTO.test(s)) return "Atualizando…";
   if (s.includes("LOGIN_ERROR")) return "Precisa conectar de novo";
   if (s.includes("OUTDATED")) return "Desatualizado: conecte de novo";
@@ -332,6 +399,7 @@ export type ContaBanco = {
 
 export async function listarContas(): Promise<ContaBanco[]> {
   const r = await chamar("accounts/list");
+  falhasRecentes = lista(r, "falhas").map((f) => texto(f.banco) || "um dos bancos");
   return lista(r, "results", "accounts", "items", "data")
     .map((a) => {
       const tipo = texto(a.type, a.subtype).toUpperCase();
@@ -409,11 +477,17 @@ export function paraTransacaoBanco(t: Record<string, unknown>, cartao: boolean):
   const status = texto(t.status).toUpperCase();
   if (status === "PENDING") return null;
 
-  const bruto = numero(t.amount, t.value, t.valor);
+  const original = numero(t.amount, t.value, t.valor);
+  // 13/11/2026: compra em dólar vem com `amount` em US$; o que pesa no bolso é o valor na moeda da conta.
+  const emReal = numero(t.amountInAccountCurrency, t.amount_in_account_currency);
+  const bruto = original !== null && emReal !== null && emReal !== 0 ? Math.sign(original) * Math.abs(emReal) : original;
   /* 12/11/2026: a data vem em UTC ("2026-11-05T01:30:00Z" é dia 4 às 22h30 em Brasília). Com hora, converte
      para America/Sao_Paulo; só a data, usa como veio. */
   const cru = texto(t.date, t.transactionDate, t.bookingDate, t.data);
-  const data = /T\d{2}:\d{2}/.test(cru) && Number.isFinite(Date.parse(cru))
+  /* 13/11/2026: hora EXATAMENTE 00:00:00Z é "só a data" (vários bancos mandam assim). Converter para
+     Brasília jogava para o dia anterior: o salário do dia 1º caía no mês passado. */
+  const soData = /T00:00(:00(\.0+)?)?(Z|\+00:?00)?$/.test(cru);
+  const data = !soData && /T\d{2}:\d{2}/.test(cru) && Number.isFinite(Date.parse(cru))
     ? new Date(cru).toLocaleDateString("en-CA", { timeZone: "America/Sao_Paulo" })
     : cru.slice(0, 10);
   if (bruto === null || bruto === 0 || !/^\d{4}-\d{2}-\d{2}$/.test(data)) return null;
@@ -445,6 +519,13 @@ export function paraTransacaoBanco(t: Record<string, unknown>, cartao: boolean):
         : base
   ).slice(0, 120);
 
+  // Parcela do cartão (13/11/2026): "(3/10)" na descrição, quando o banco informa e ela ainda não tem.
+  const meta = (t.creditCardMetadata ?? t.credit_card_metadata ?? t.card) as Record<string, unknown> | undefined;
+  const parcela = numero(meta?.installmentNumber, meta?.installment_number);
+  const parcelas = numero(meta?.totalInstallments, meta?.total_installments);
+  const comParcela =
+    cartao && parcela && parcelas && parcelas > 1 && !/\d+\s*\/\s*\d+/.test(descricao) ? `${descricao} (${parcela}/${parcelas})`.slice(0, 120) : descricao;
+
   const categoriaBanco = texto(t.category, t.categoryName, t.category_name);
   const mesmoDono =
     /same ?(person|owner)|mesma titularidade|entre contas/i.test(`${categoriaBanco} ${texto(t.categoryId, t.category_id)}`) ||
@@ -457,21 +538,24 @@ export function paraTransacaoBanco(t: Record<string, unknown>, cartao: boolean):
     data,
     valor,
     tipo,
-    descricao,
+    descricao: comParcela,
     ...(categoriaBanco ? { categoriaBanco } : {}),
     ...(mesmoDono ? { mesmoDono } : {}),
   };
 }
 
-export async function transacoesDaConta(conta: ContaBanco, dias = 90): Promise<TransacaoBanco[]> {
+/** `desde`: data inicial (AAAA-MM-DD) ou quantos dias para trás. */
+export async function transacoesDaConta(conta: ContaBanco, desde: number | string = 90): Promise<TransacaoBanco[]> {
   const ate = new Date();
-  const de = new Date(ate.getFullYear(), ate.getMonth(), ate.getDate() - dias);
+  const de = typeof desde === "string" ? desde : isoLocal(new Date(ate.getFullYear(), ate.getMonth(), ate.getDate() - desde));
   const r = await chamar("transactions/list", {
     account_id: conta.id,
-    from: isoLocal(de),
+    from: de,
     to: isoLocal(ate),
-    startDate: isoLocal(de),
+    startDate: de,
     endDate: isoLocal(ate),
+    // Cartão: o "rich" traz parcelas e o valor em real das compras em dólar.
+    ...(conta.cartao ? { detail: "rich" } : {}),
   });
   return lista(r, "results", "transactions", "items", "data")
     .map((t) => paraTransacaoBanco(t, conta.cartao))
@@ -485,55 +569,118 @@ function falhou(error: unknown): never {
   throw new ErroDados(faltaTabela(error) ? "sem-tabela" : "falha", String((error as { message?: unknown })?.message ?? ""));
 }
 
+/** A coluna `item_id` só existe depois do SQL v2 (`supabase/novarecash_openfinance_v2.sql`). */
+const semColunaItem = (error: unknown) => {
+  const e = error as { code?: string; message?: string } | null;
+  return !!e && (e.code === "42703" || e.code === "PGRST204" || /item_id/.test(String(e.message ?? "")));
+};
+
+type ContaGravada = {
+  id: string;
+  /** Conta religada de uma conexão antiga do mesmo banco: só entra o que for DEPOIS desta data. */
+  depoisDe: string | null;
+};
+
 /**
- * A conta do banco em `ncash_contas`: atualiza a que já existe (nome, tipo,
- * saldo de agora) ou cria. Devolve o id local.
+ * A conta do banco em `ncash_contas` (revisto em 13/11/2026):
+ *   - JÁ EXISTE (mesmo id do banco): atualiza nome, tipo, saldo e o `item_id`. NÃO reativa conta que a
+ *     pessoa escondeu — só a que foi desativada pelo "Desligar" (`item_id = 'desligado'`).
+ *   - RECONEXÃO com outra conexão do mesmo banco (ids novos no provedor): acha a conta antiga
+ *     desligada (mesma instituição, tipo e nome), troca o id e importa só o que veio DEPOIS do último
+ *     lançamento dela. Sem isso, reconectar duplicava 12 meses.
+ *   - NOVA: cria.
+ * SALDO ZERO só é ignorado em CONTA (o "bolso" das contas digitais); no CARTÃO, zero é fatura quitada.
  */
-async function gravarConta(sb: SupabaseClient, uid: string, conta: ContaBanco, instituicao: string | null): Promise<string> {
-  const campos = {
+async function gravarConta(
+  sb: SupabaseClient,
+  uid: string,
+  conta: ContaBanco,
+  instituicao: string | null,
+  itemId: string | null,
+): Promise<ContaGravada> {
+  const tipo = conta.cartao ? "cartao" : "conta";
+  const campos: Record<string, unknown> = {
     nome: conta.nome,
-    tipo: conta.cartao ? "cartao" : "conta",
+    tipo,
     instituicao,
     ...(conta.saldo !== null ? { saldo: conta.saldo, saldo_em: new Date().toISOString() } : {}),
   };
-  /* SALDO ZERO NÃO APAGA O QUE A PESSOA INFORMOU (06/11/2026). Contas digitais (Mercado Pago,
-     PicPay…) guardam o dinheiro rendendo num "bolso" que o Open Finance informa como R$ 0,00.
-     Na conta que JÁ existe, zero do banco não sobrescreve o saldo ajustado em Minhas contas. */
-  const camposAoAtualizar = conta.saldo === 0 ? { nome: campos.nome, tipo: campos.tipo, instituicao } : campos;
+  const camposAoAtualizar: Record<string, unknown> =
+    conta.saldo === 0 && !conta.cartao ? { nome: campos.nome, tipo, instituicao } : { ...campos };
+  let comItem = !!itemId;
+
+  const escrever = async (q: (extra: Record<string, unknown>) => PromiseLike<{ error: unknown; data?: unknown }>, extra: Record<string, unknown>) => {
+    let r = await q(comItem ? { ...extra, item_id: itemId } : extra);
+    if (r.error && comItem && semColunaItem(r.error)) {
+      comItem = false;
+      r = await q(extra);
+    }
+    return r;
+  };
 
   const achar = async () => {
-    const { data, error } = await sb
-      .from("ncash_contas")
-      .select("id")
-      .eq("user_id", uid)
-      .eq("origem", "openfinance")
-      .eq("externo_id", conta.id)
-      .maybeSingle();
-    if (error) falhou(error);
-    return (data?.id as string | undefined) ?? null;
+    let r = await sb.from("ncash_contas").select("id, ativa, item_id").eq("user_id", uid).eq("origem", "openfinance").eq("externo_id", conta.id).maybeSingle();
+    if (r.error && semColunaItem(r.error)) {
+      r = (await sb.from("ncash_contas").select("id, ativa").eq("user_id", uid).eq("origem", "openfinance").eq("externo_id", conta.id).maybeSingle()) as typeof r;
+    }
+    if (r.error) falhou(r.error);
+    return (r.data as { id: string; ativa: boolean; item_id?: string | null } | null) ?? null;
   };
 
   const existente = await achar();
   if (existente) {
-    const { error } = await sb.from("ncash_contas").update({ ...camposAoAtualizar, ativa: true }).eq("id", existente).eq("user_id", uid);
+    const reativar = existente.item_id === "desligado";
+    const { error } = await escrever(
+      (x) => sb.from("ncash_contas").update({ ...camposAoAtualizar, ...x }).eq("id", existente.id).eq("user_id", uid),
+      reativar ? { ativa: true } : {},
+    );
     if (error) falhou(error);
-    return existente;
+    return { id: existente.id, depoisDe: null };
   }
 
-  const { data, error } = await sb
-    .from("ncash_contas")
-    .insert({ ...campos, user_id: uid, origem: "openfinance", externo_id: conta.id })
-    .select("id")
-    .single();
-  if (error || !data) {
-    // Outra aba criou no mesmo instante: o índice único recusou; usa a dela.
-    if (codigoDe(error) === "23505") {
-      const outra = await achar();
-      if (outra) return outra;
+  // Reconexão: a mesma conta, desligada, de uma conexão antiga deste banco.
+  if (instituicao) {
+    const { data: antigas, error } = await sb
+      .from("ncash_contas")
+      .select("id")
+      .eq("user_id", uid)
+      .eq("origem", "openfinance")
+      .eq("instituicao", instituicao)
+      .eq("tipo", tipo)
+      .eq("nome", conta.nome)
+      .eq("item_id", "desligado")
+      .limit(1);
+    const antiga = !error ? (antigas ?? [])[0] : undefined;
+    if (antiga) {
+      const { data: ultima } = await sb
+        .from("ncash_transacoes")
+        .select("data")
+        .eq("user_id", uid)
+        .eq("conta_id", antiga.id)
+        .order("data", { ascending: false })
+        .limit(1);
+      const r = await escrever(
+        (x) => sb.from("ncash_contas").update({ ...campos, ...x }).eq("id", antiga.id).eq("user_id", uid),
+        { externo_id: conta.id, ativa: true },
+      );
+      if (r.error) falhou(r.error);
+      return { id: String(antiga.id), depoisDe: (ultima ?? [])[0]?.data ? String(ultima![0].data) : null };
     }
-    falhou(error);
   }
-  return String(data.id);
+
+  const r = await escrever(
+    (x) => sb.from("ncash_contas").insert({ ...campos, ...x, user_id: uid, origem: "openfinance", externo_id: conta.id }).select("id").single(),
+    {},
+  );
+  if (r.error || !r.data) {
+    // Outra aba criou no mesmo instante: o índice único recusou; usa a dela.
+    if (codigoDe(r.error) === "23505") {
+      const outra = await achar();
+      if (outra) return { id: outra.id, depoisDe: null };
+    }
+    falhou(r.error);
+  }
+  return { id: String((r.data as { id: string }).id), depoisDe: null };
 }
 
 const PALAVRAS_FATURA = categoria("pagamento_fatura").palavras;
@@ -556,6 +703,8 @@ export function categoriaDoBanco(
   if (cartao && t.tipo === "entrada" && /\b(pagamento|pagto|pgto|pag)\b/.test(d) && !/estorno|reembolso|cashback/.test(d)) {
     return "pagamento_fatura";
   }
+  // Entrada no CARTÃO que não é pagamento: estorno/devolução (13/11/2026). Não é renda.
+  if (cartao && t.tipo === "entrada") return "estorno";
   // Dinheiro que só muda de bolso (06/11/2026): não é gasto nem renda.
   if (t.mesmoDono) return t.tipo === "entrada" ? "entre_contas" : "investimentos";
 
@@ -602,29 +751,48 @@ export function categoriaDoProvedor(nome: string, tipo: "entrada" | "saida"): Ch
   return null;
 }
 
-/** Grava só as transações que ainda não estão lá. Devolve quantas entraram. */
+type LinhaNova = { id: string; conta_id: string; data: string; valor: number; tipo: "entrada" | "saida"; categoria: string };
+
+/**
+ * Grava as transações (revisto em 13/11/2026):
+ *   - NOVA: entra, com a categoria do primeiro palpite.
+ *   - JÁ ESTAVA: se o banco CORRIGIU valor, data ou sentido, corrige aqui — a CATEGORIA nunca é
+ *     tocada (a que a pessoa corrigiu no Extrato sobrevive).
+ *   - `depoisDe`: conta religada de uma conexão antiga; só entra o que veio depois.
+ * Devolve as linhas que entraram (para casar transferências entre as próprias contas).
+ */
 async function gravarTransacoes(
   sb: SupabaseClient,
   uid: string,
   contaId: string,
   transacoes: TransacaoBanco[],
   cartao: boolean,
-): Promise<number> {
-  const unicas = [...new Map(transacoes.map((t) => [t.externo_id, t])).values()];
+  depoisDe: string | null,
+): Promise<{ novas: LinhaNova[]; corrigidas: number }> {
+  const unicas = [...new Map(transacoes.filter((t) => !depoisDe || t.data > depoisDe).map((t) => [t.externo_id, t])).values()];
 
-  const ja = new Set<string>();
-  for (let i = 0; i < unicas.length; i += 200) {
+  // Lotes de 100: com 200 chaves longas, a URL do `.in()` estourava.
+  const ja = new Map<string, { id: string; valor: number; data: string; tipo: string }>();
+  for (let i = 0; i < unicas.length; i += 100) {
     const { data, error } = await sb
       .from("ncash_transacoes")
-      .select("externo_id")
+      .select("id, externo_id, valor, data, tipo")
       .eq("user_id", uid)
       .eq("origem", "openfinance")
-      .in("externo_id", unicas.slice(i, i + 200).map((t) => t.externo_id));
+      .in("externo_id", unicas.slice(i, i + 100).map((t) => t.externo_id));
     if (error) falhou(error);
-    for (const l of data ?? []) ja.add(String(l.externo_id));
+    for (const l of data ?? []) ja.set(String(l.externo_id), { id: String(l.id), valor: Number(l.valor), data: String(l.data).slice(0, 10), tipo: String(l.tipo) });
   }
 
-  const novas = unicas
+  let corrigidas = 0;
+  for (const t of unicas) {
+    const v = ja.get(t.externo_id);
+    if (!v || (Math.abs(v.valor - t.valor) < 0.005 && v.data === t.data && v.tipo === t.tipo)) continue;
+    const { error } = await sb.from("ncash_transacoes").update({ valor: t.valor, data: t.data, tipo: t.tipo }).eq("id", v.id).eq("user_id", uid);
+    if (!error) corrigidas++;
+  }
+
+  const paraGravar = unicas
     .filter((t) => !ja.has(t.externo_id))
     .map((t) => ({
       user_id: uid,
@@ -638,23 +806,76 @@ async function gravarTransacoes(
       externo_id: t.externo_id,
     }));
 
-  let gravadas = 0;
-  for (let i = 0; i < novas.length; i += 300) {
-    const lote = novas.slice(i, i + 300);
-    const { error } = await sb.from("ncash_transacoes").insert(lote);
-    if (!error) {
-      gravadas += lote.length;
-      continue;
+  const COLUNAS = "id, conta_id, data, valor, tipo, categoria";
+  const novas: LinhaNova[] = [];
+  for (let i = 0; i < paraGravar.length; i += 300) {
+    let lote = paraGravar.slice(i, i + 300);
+    let r = await sb.from("ncash_transacoes").insert(lote).select(COLUNAS);
+    if (r.error && codigoDe(r.error) === "23505") {
+      // Algumas entraram por outro caminho (outra aba) entre a leitura e a gravação: tira essas e grava o resto de uma vez.
+      const { data } = await sb
+        .from("ncash_transacoes")
+        .select("externo_id")
+        .eq("user_id", uid)
+        .eq("origem", "openfinance")
+        .in("externo_id", lote.map((l) => l.externo_id).slice(0, 100));
+      const entrou = new Set((data ?? []).map((l) => String(l.externo_id)));
+      lote = lote.filter((l) => !entrou.has(l.externo_id));
+      r = lote.length ? await sb.from("ncash_transacoes").insert(lote).select(COLUNAS) : { data: [], error: null } as unknown as typeof r;
+      // Ainda repetida (lote > 100): uma a uma, só nesse caso raro.
+      if (r.error && codigoDe(r.error) === "23505") {
+        const uma: LinhaNova[] = [];
+        for (const linha of lote) {
+          const x = await sb.from("ncash_transacoes").insert(linha).select(COLUNAS).single();
+          if (!x.error && x.data) uma.push(x.data as LinhaNova);
+          else if (x.error && codigoDe(x.error) !== "23505") falhou(x.error);
+        }
+        novas.push(...uma);
+        continue;
+      }
     }
-    if (codigoDe(error) !== "23505") falhou(error);
-    // Alguma entrou por outro caminho entre a leitura e a gravação: uma a uma, pulando as repetidas.
-    for (const linha of lote) {
-      const r = await sb.from("ncash_transacoes").insert(linha);
-      if (!r.error) gravadas++;
-      else if (codigoDe(r.error) !== "23505") falhou(r.error);
+    if (r.error) falhou(r.error);
+    novas.push(...((r.data ?? []) as LinhaNova[]));
+  }
+  return { novas, corrigidas };
+}
+
+/**
+ * DINHEIRO QUE SÓ MUDOU DE CONTA (13/11/2026). Saída numa conta + entrada de MESMO valor noutra conta
+ * da pessoa, com até 1 dia de diferença, ainda nas categorias genéricas:
+ *   - entrada num CARTÃO → as duas são `pagamento_fatura` (pagar a fatura não é gasto);
+ *   - entrada noutra CONTA → saída `transferencias` e entrada `entre_contas`.
+ * Sem isto, a TED Itaú → Nubank virava gasto E renda, e o pagamento da fatura somava em dobro.
+ */
+async function casarTransferencias(sb: SupabaseClient, uid: string, novas: LinhaNova[], cartoes: Set<string>) {
+  const GENERICA_SAIDA = new Set(["outros", "transferencias"]);
+  const GENERICA_ENTRADA = new Set(["outras_entradas", "estorno"]);
+  const dia = (d: string) => Date.parse(`${d}T12:00:00Z`) / 86_400_000;
+  const saidas = novas.filter((l) => l.tipo === "saida" && GENERICA_SAIDA.has(l.categoria));
+  const entradas = novas.filter((l) => l.tipo === "entrada" && GENERICA_ENTRADA.has(l.categoria));
+  const usadas = new Set<string>();
+  const mudar = new Map<string, string[]>();
+  const anotar = (cat: string, id: string) => mudar.set(cat, [...(mudar.get(cat) ?? []), id]);
+
+  for (const s of saidas) {
+    const par = entradas.find(
+      (e) => !usadas.has(e.id) && e.conta_id !== s.conta_id && Math.abs(Number(e.valor) - Number(s.valor)) < 0.005 && Math.abs(dia(e.data) - dia(s.data)) <= 1,
+    );
+    if (!par) continue;
+    usadas.add(par.id);
+    if (cartoes.has(par.conta_id)) {
+      anotar("pagamento_fatura", s.id);
+      anotar("pagamento_fatura", par.id);
+    } else if (!cartoes.has(s.conta_id)) {
+      anotar("transferencias", s.id);
+      anotar("entre_contas", par.id);
     }
   }
-  return gravadas;
+  for (const [cat, ids] of mudar) {
+    for (let i = 0; i < ids.length; i += 100) {
+      await sb.from("ncash_transacoes").update({ categoria: cat }).eq("user_id", uid).in("id", ids.slice(i, i + 100));
+    }
+  }
 }
 
 export type ResultadoSincronizacao = {
@@ -663,64 +884,137 @@ export type ResultadoSincronizacao = {
   lidas: number;
   novas: number;
   jaEstavam: number;
-  /** Contas que falharam (nome), sem derrubar as outras. */
+  /** Lançamentos que o banco corrigiu (valor/data) e foram atualizados aqui. */
+  corrigidas: number;
+  /** Contas (ou bancos) que falharam, sem derrubar as outras. */
   falhas: string[];
 };
 
 /**
- * "Sincronizar agora": para cada conta do banco, grava a conta com o saldo e
- * traz as transações dos últimos `dias`. Rodar de novo não duplica nada.
- * Lança `ErroDados("sem-tabela")` se o SQL do app ainda não foi rodado.
+ * Sincroniza: para cada conta do banco, grava a conta com o saldo e traz as transações.
+ *   - `dias` informado: essa janela (12 meses na primeira importação, 90 no "Sincronizar agora").
+ *   - SEM `dias` (a atualização automática): DESDE O ÚLTIMO LANÇAMENTO DA CONTA, com 7 dias de folga
+ *     — quem fica 45 dias sem abrir o app não perde nada; conta sem nada importado busca 12 meses.
+ * Duas contas por vez (cabe no limite do Banco MCP). Rodar de novo não duplica nada.
  */
-export async function sincronizar(args: {
-  contas: ContaBanco[];
-  conexoes: Conexao[];
-  dias?: number;
-}): Promise<ResultadoSincronizacao> {
+export async function sincronizar(args: { contas: ContaBanco[]; conexoes: Conexao[]; dias?: number }): Promise<ResultadoSincronizacao> {
   const sb = createClient();
   const uid = await usuarioDaSessao(sb).catch(() => {
     throw new ErroBanco("sessao", FRASE.sessao);
   });
   const bancoDe = new Map(args.conexoes.map((c) => [c.itemId, c.banco]));
   const unicoBanco = args.conexoes.length === 1 ? args.conexoes[0].banco : null;
+  const unicoItem = args.conexoes.length === 1 ? args.conexoes[0].itemId : null;
 
-  const r: ResultadoSincronizacao = { contas: 0, lidas: 0, novas: 0, jaEstavam: 0, falhas: [] };
-  for (const conta of args.contas) {
+  const r: ResultadoSincronizacao = { contas: 0, lidas: 0, novas: 0, jaEstavam: 0, corrigidas: 0, falhas: [...bancosComFalha()] };
+  const todasNovas: LinhaNova[] = [];
+  const cartoes = new Set<string>();
+  let semTabela: ErroDados | null = null;
+
+  const uma = async (conta: ContaBanco) => {
     try {
       const instituicao = (conta.itemId && bancoDe.get(conta.itemId)) || unicoBanco;
-      const contaId = await gravarConta(sb, uid, { ...conta, nome: nomeDaConta(conta, instituicao) }, instituicao);
-      const transacoes = await transacoesDaConta(conta, args.dias ?? 90);
-      const novas = await gravarTransacoes(sb, uid, contaId, transacoes, conta.cartao);
+      const gravada = await gravarConta(sb, uid, { ...conta, nome: nomeDaConta(conta, instituicao) }, instituicao, conta.itemId || unicoItem);
+      if (conta.cartao) cartoes.add(gravada.id);
+
+      let desde: number | string = args.dias ?? 365;
+      if (args.dias === undefined) {
+        const { data: ultima } = await sb
+          .from("ncash_transacoes")
+          .select("data")
+          .eq("user_id", uid)
+          .eq("conta_id", gravada.id)
+          .eq("origem", "openfinance")
+          .order("data", { ascending: false })
+          .limit(1);
+        const d = (ultima ?? [])[0]?.data;
+        if (d) {
+          const base = new Date(`${String(d).slice(0, 10)}T12:00:00`);
+          base.setDate(base.getDate() - 7);
+          desde = isoLocal(base);
+        }
+      }
+      const transacoes = await transacoesDaConta(conta, desde);
+      const { novas, corrigidas } = await gravarTransacoes(sb, uid, gravada.id, transacoes, conta.cartao, gravada.depoisDe);
       r.contas++;
       r.lidas += transacoes.length;
-      r.novas += novas;
-      r.jaEstavam += transacoes.length - novas;
+      r.novas += novas.length;
+      r.corrigidas += corrigidas;
+      r.jaEstavam += Math.max(0, transacoes.length - novas.length);
+      todasNovas.push(...novas);
     } catch (e) {
       // Tabela que não existe vale para todas: não adianta tentar a próxima.
-      if (e instanceof ErroDados && e.motivo === "sem-tabela") throw e;
+      if (e instanceof ErroDados && e.motivo === "sem-tabela") semTabela = e;
       console.warn("[open-finance] sincronizar", conta.nome, e instanceof Error ? e.message : e);
       r.falhas.push(conta.nome);
     }
-  }
+  };
+
+  const fila = [...args.contas];
+  await Promise.all(
+    Array.from({ length: Math.min(2, fila.length) }, async () => {
+      while (fila.length && !semTabela) await uma(fila.shift()!);
+    }),
+  );
+  if (semTabela) throw semTabela;
+  if (todasNovas.length) await casarTransferencias(sb, uid, todasNovas, cartoes).catch(() => undefined);
   return r;
 }
 
-/** As contas com saldo. O saldo que a lista não trouxe é pedido UM POR VEZ (o limite do Banco MCP é da conta inteira). */
+/**
+ * As contas com saldo. O saldo que a lista não trouxe vem de UMA chamada em lote (`accounts/balance`
+ * com várias contas); se o lote não responder, conta por conta.
+ */
 export async function contasComSaldo(): Promise<ContaBanco[]> {
   const cs = await listarContas();
+  const faltam = cs.filter((c) => c.saldo === null);
+  if (!faltam.length) return cs;
+  const saldos = new Map<string, number>();
+  try {
+    const r = await chamar("accounts/balance");
+    for (const b of lista(r, "results", "balances", "items", "data")) {
+      const id = texto(b.account_id, b.accountId, b.id);
+      const v = numero(b.balance, b.current_balance, b.available_balance, b.current, b.available, b.amount);
+      if (id && v !== null) saldos.set(id, v);
+    }
+  } catch {}
   const comSaldo: ContaBanco[] = [];
-  for (const c of cs) comSaldo.push(c.saldo !== null ? c : { ...c, saldo: await saldoDaConta(c.id).catch(() => null) });
+  for (const c of cs) {
+    if (c.saldo !== null) comSaldo.push(c);
+    else if (saldos.has(c.id)) comSaldo.push({ ...c, saldo: saldos.get(c.id)! });
+    else comSaldo.push({ ...c, saldo: saldos.size ? null : await saldoDaConta(c.id).catch(() => null) });
+  }
   return comSaldo;
 }
 
 const esperar = (ms: number) => new Promise((ok) => setTimeout(ok, ms));
 
+// ── Refazer os 12 meses quando o banco terminar (13/11/2026) ────────────────
+const CHAVE_REFAZER = "ncash:open-finance:refazer";
+/** Bancos cuja primeira importação pegou o banco ainda "atualizando": a próxima atualização refaz 12 meses. */
+export function itensParaRefazer(): string[] {
+  try {
+    return JSON.parse(localStorage.getItem(CHAVE_REFAZER) || "[]") as string[];
+  } catch {
+    return [];
+  }
+}
+function marcarRefazer(itemId: string, sim: boolean) {
+  try {
+    const atual = new Set(itensParaRefazer());
+    if (sim) atual.add(itemId);
+    else atual.delete(itemId);
+    localStorage.setItem(CHAVE_REFAZER, JSON.stringify([...atual]));
+  } catch {}
+}
+export const refeito = (itemId: string) => marcarRefazer(itemId, false);
+
 /**
- * TRAZ TUDO SOZINHO depois de conectar (13/11/2026). Antes a pessoa conectava e ainda tinha que
- * achar o "Sincronizar agora". Agora, assim que o banco é ligado:
+ * TRAZ TUDO SOZINHO depois de conectar (ou reconectar, ou "Atualizar agora"):
  *   1. espera o banco terminar de mandar os dados (UPDATING → UPDATED, até ~2 min);
  *   2. lê contas e cartões com o saldo (de novo, se o banco ainda não listou);
  *   3. grava os lançamentos dos últimos `dias` (12 meses na primeira vez), sem duplicar.
+ * Se o banco AINDA estava atualizando no fim da espera, marca para refazer os 12 meses depois.
  * `aoAvancar` recebe a frase do passo, para a tela mostrar.
  */
 export async function trazerTudo(opcoes: {
@@ -732,12 +1026,20 @@ export async function trazerTudo(opcoes: {
 
   avisar("Conferindo a conexão com o banco…");
   let conexoes = await listarConexoes(true);
+  let aindaAtualizando = false;
   for (let i = 0; opcoes.itemId && i < 24; i++) {
     const status = conexoes.find((c) => c.itemId === opcoes.itemId)?.status ?? "";
-    if (COM_PROBLEMA.test(status)) {
-      throw new ErroBanco("falha", "O banco não liberou o acesso. Toque em Desligar e conecte de novo.", status);
+    if (precisaReconectar(status)) {
+      throw new ErroBanco(
+        "falha",
+        PEDE_ACAO.test(status)
+          ? "O banco está pedindo uma confirmação. Toque em Reconectar e confirme no app do banco."
+          : "O banco não liberou o acesso. Toque em Reconectar para autorizar de novo.",
+        status,
+      );
     }
-    if (!EM_ANDAMENTO.test(status)) break;
+    aindaAtualizando = EM_ANDAMENTO.test(status);
+    if (!aindaAtualizando) break;
     avisar("O banco está enviando os seus dados. Pode levar até 2 minutos…");
     await esperar(5000);
     conexoes = await listarConexoes(true);
@@ -753,7 +1055,8 @@ export async function trazerTudo(opcoes: {
 
   const n = contas.length;
   avisar(n ? `Trazendo os lançamentos de ${n} ${n === 1 ? "conta" : "contas e cartões"}…` : "O banco ainda não mandou as contas…");
-  const resultado = await sincronizar({ contas, conexoes, dias: opcoes.dias ?? 365 });
+  const resultado = await sincronizar({ contas, conexoes, dias: opcoes.dias });
+  if (opcoes.itemId) marcarRefazer(opcoes.itemId, aindaAtualizando || n === 0);
   // Só marca como "em dia" se veio algo: senão a próxima abertura do app tenta de novo.
   if (resultado.lidas > 0 || resultado.contas > 0) marcarSincronizado();
   return { resultado, conexoes, contas };

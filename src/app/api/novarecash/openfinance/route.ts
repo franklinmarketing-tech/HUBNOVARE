@@ -5,53 +5,54 @@ import { excedeuLimitePorIp } from "@/lib/api-security";
 import { createClient } from "@/lib/supabase/server";
 import { temAcessoNovareCash } from "@/lib/novarecash/acesso";
 import { servico } from "@/lib/novarecash/assinantes";
+import { ErroMcp, desligarItem, desligarTodos, lista, mcp, type Qualquer } from "@/lib/novarecash/bancomcp-servidor";
 
 /**
- * OPEN FINANCE DO NOVARECASH, NO PRÓPRIO HUB (12/11/2026; revisado na varredura do mesmo dia).
+ * OPEN FINANCE DO NOVARECASH, NO PRÓPRIO HUB (12/11/2026; v2 em 13/11/2026, depois da varredura).
  *
- * Substitui a Edge Function `rapid-responder` do app antigo: o Hub fala com o Banco MCP daqui, com a
- * chave `BANCO_MCP_KEY` na Vercel (nunca no navegador).
+ * O Hub fala com o Banco MCP daqui, com a chave `BANCO_MCP_KEY` na Vercel (nunca no navegador).
+ * API: https://app.mcp.ai/mcps/openfinance → aba API (19 endpoints).
  *
- * A CONTA DO BANCO MCP É UMA SÓ (a da Novare, plano PF Ilimitado) e guarda os bancos de TODOS os
- * clientes. Cada pessoa só enxerga as conexões que REIVINDICOU (`vidaplan_open_finance`, por
- * `user_id`) — inclusive a equipe.
+ * A CONTA DO BANCO MCP É UMA SÓ (a da Novare) e guarda os bancos de TODOS os clientes. Cada pessoa
+ * só enxerga as conexões que REIVINDICOU (`vidaplan_open_finance`, por `user_id`) — inclusive a equipe.
  *
- * AS REGRAS (todas pensando em vários clientes numa conta só):
+ * AS REGRAS:
  *   1. O NAVEGADOR NUNCA ESCOLHE O BANCO DE QUEM LER: o corpo passa por uma lista branca de campos
  *      (`CAMPOS_LIVRES`) e o `item` vem sempre do servidor, por último.
  *   2. RESPOSTA CONFERIDA: conta/transação/investimento que diga ser de outro `item` é descartada.
- *   3. CLAIM AMARRADO AO SERVIDOR: o "Conectar" grava um cookie ASSINADO com a hora (`PEDIDO`); o
- *      claim só aceita conexão criada DEPOIS dela (`createdAt`), e conexão sem data não entra.
- *      Várias candidatas → a pessoa escolhe entre ELAS (nunca entre todas as sem dono).
+ *   3. CLAIM AMARRADO AO PEDIDO: tocar no banco grava um cookie ASSINADO com a hora E o banco
+ *      escolhido (`iniciar`). O claim só aceita conexão DAQUELE banco, criada depois do toque.
+ *      Se OUTRO cliente pediu o mesmo banco na mesma janela (`ncash_of_pedidos`), ninguém pega
+ *      sozinho: a pessoa confirma pelo final da conta (`confirmar`).
  *   4. CORRIDA: depois de gravar, confere se outro usuário também ficou com o item; se sim, desfaz.
- *   5. NUNCA SEM ITEM quando a conta tem mais de uma conexão.
- *   6. ERRO DO BANCO MCP NÃO VIRA "LISTA VAZIA": 401/403 = chave; 409 = desconectado; 429 = calma.
- *   7. ECONOMIA: a lista de conexões da conta e as contas de cada item ficam em cache curto.
- *   8. FORGET revoga no Banco MCP e guarda a linha como "revogada" (nunca volta a ficar sem dono).
+ *   5. SEM ITEM só quando a conta do Banco MCP tem UMA conexão e ela é a da pessoa.
+ *   6. ERRO DO BANCO MCP NÃO VIRA "LISTA VAZIA". E UM BANCO COM ERRO NÃO DERRUBA OS OUTROS: cada
+ *      item tem seu try/catch e volta em `falhas`.
+ *   7. ECONOMIA: cache curto e UMA chamada em andamento por chave (10 clientes conferindo juntos
+ *      não viram 10 `connections/list`).
+ *   8. DESLIGAR revoga no Banco MCP (`connections/disconnect`), desativa as contas daquele banco no
+ *      NovareCash (o saldo some) e, se a pessoa pedir, apaga os lançamentos importados.
+ *   9. RECONECTAR renova o MESMO item (`update_item` na página de conexão): ids iguais, nada duplica.
  */
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+// Cartão com milhares de lançamentos e 12 meses: a leitura paginada precisa de folga.
+export const maxDuration = 300;
 
 const PERMITIDOS = new Set([
   "connections/list", "accounts/list", "accounts/balance", "transactions/list",
   "investments/list", "credit-card-bills/list", "loans/list", "categories/list",
 ]);
 /** Os únicos campos que o navegador pode mandar (filtros), nunca `item`/`item_id`/`items`. */
-const CAMPOS_LIVRES = ["from", "to", "startDate", "endDate", "account_id", "type", "search_queries"] as const;
+const CAMPOS_LIVRES = ["from", "to", "startDate", "endDate", "account_id", "type", "search_queries", "detail"] as const;
 const LIMITE_PLANO: Record<string, number> = { essencial: 1, plus: 3, premium: 10 };
 const PEDIDO = "ncash_of_pedido";
-const PAGINAS_MAX = 20;
+const PAGINAS_MAX = 40;
+/** Prazo total de uma leitura paginada (a função tem 300 s). */
+const PRAZO_MS = 240_000;
 /** Os bancos que aparecem de cara na escolha (sem digitar). */
 const POPULARES = ["nubank", "itau", "bradesco", "banco do brasil", "caixa", "santander", "inter", "mercado pago", "c6", "picpay", "btg", "sicoob", "sicredi"];
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-type Qualquer = any;
-
-class ErroMcp extends Error {
-  constructor(public http: number, public code: string, msg: string) {
-    super(msg);
-  }
-}
 const resposta = (e: unknown) => {
   if (e instanceof ErroMcp) return NextResponse.json({ error: { message: e.message, code: e.code } }, { status: e.http });
   console.error("[open-finance] erro inesperado", e);
@@ -60,70 +61,88 @@ const resposta = (e: unknown) => {
 const erro = (mensagem: string, status: number, code?: string) => NextResponse.json({ error: { message: mensagem, code } }, { status });
 const ok = (result: unknown) => NextResponse.json({ result });
 
-const lista = (x: Qualquer, ...chaves: string[]): Qualquer[] => {
-  if (Array.isArray(x)) return x;
-  for (const k of chaves) if (Array.isArray(x?.[k])) return x[k];
-  return [];
-};
-
-/** Uma chamada ao Banco MCP. Erro vira `ErroMcp` (regra 6); 429 tenta mais uma vez depois de 2 s. */
-async function mcp(endpoint: string, body: Record<string, unknown>, tentativa = 0): Promise<Qualquer> {
-  const r = await fetch(`https://api.mcp.ai/api/openfinance/${endpoint}`, {
-    method: "POST",
-    headers: { Authorization: `Bearer ${process.env.BANCO_MCP_KEY}`, "Content-Type": "application/json" },
-    body: JSON.stringify(body ?? {}),
-    signal: AbortSignal.timeout(45_000),
-  });
-  const payload: Qualquer = await r.json().catch(() => null);
-  if (r.ok) return payload?.result ?? payload ?? {};
-  if (r.status === 429 && tentativa === 0) {
-    await new Promise((ok) => setTimeout(ok, 2000));
-    return mcp(endpoint, body, 1);
-  }
-  const texto = JSON.stringify(payload ?? {}).slice(0, 300);
-  if (r.status === 409 || /not_connected/i.test(texto)) throw new ErroMcp(409, "not_connected", "not_connected");
-  if (r.status === 401 || r.status === 403) throw new ErroMcp(503, "banco_mcp_key", "chave do Banco MCP recusada");
-  if (r.status === 429) throw new ErroMcp(429, "limite", "muitas chamadas ao Banco MCP");
-  console.warn(`[open-finance] ${endpoint} HTTP ${r.status}`, texto);
-  throw new ErroMcp(502, "falha", `Banco MCP respondeu ${r.status}`);
-}
-
-// ── cache curto (por instância): regra 7 ─────────────────────────────────────
-const cache = new Map<string, { ate: number; valor: unknown }>();
-/** `guardar` (13/11/2026): resposta que não vale guardar (lista vazia logo depois de conectar) não entra no cache. */
-async function emCache<T>(chave: string, segundos: number, buscar: () => Promise<T>, guardar: (v: T) => boolean = () => true): Promise<T> {
+// ── cache curto (por instância), com UMA busca em andamento por chave: regra 7 ──
+type Guardado = { em: number; ate: number; valor: unknown };
+const cache = new Map<string, Guardado>();
+const andamento = new Map<string, Promise<unknown>>();
+/**
+ * `aceitaIdade` (ms): aceita o guardado se for mais novo que isso, mesmo vencido o prazo normal —
+ * é o "fresco" da conferência a cada 3 s: vários clientes juntos dividem a mesma leitura de 4 s.
+ */
+async function emCache<T>(
+  chave: string,
+  segundos: number,
+  buscar: () => Promise<T>,
+  opcoes: { guardar?: (v: T) => boolean; aceitaIdade?: number } = {},
+): Promise<T> {
   const c = cache.get(chave);
-  if (c && c.ate > Date.now()) return c.valor as T;
-  const valor = await buscar();
-  if (guardar(valor)) cache.set(chave, { ate: Date.now() + segundos * 1000, valor });
-  return valor;
+  const agora = Date.now();
+  if (c && (opcoes.aceitaIdade !== undefined ? agora - c.em < opcoes.aceitaIdade : c.ate > agora)) return c.valor as T;
+  const ja = andamento.get(chave);
+  if (ja) return ja as Promise<T>;
+  const p = (async () => {
+    try {
+      const valor = await buscar();
+      if (!opcoes.guardar || opcoes.guardar(valor)) cache.set(chave, { em: Date.now(), ate: Date.now() + segundos * 1000, valor });
+      return valor;
+    } finally {
+      andamento.delete(chave);
+    }
+  })();
+  andamento.set(chave, p);
+  return p;
 }
-const conexoesDaConta = () =>
-  emCache("conexoes", 60, async () => {
-    const box = await mcp("connections/list", {});
-    return { conexoes: lista(box, "connections", "results", "items", "data"), url: box?.add_connection_url || box?.connect_url || null };
-  });
+const esquecerCache = (prefixo: string) => {
+  for (const k of [...cache.keys()]) if (k.startsWith(prefixo)) cache.delete(k);
+};
+const conexoesDaConta = (aceitaIdade?: number) =>
+  emCache(
+    "conexoes",
+    60,
+    async () => {
+      const box = await mcp("connections/list", {});
+      return { conexoes: lista(box, "connections", "results", "items", "data"), url: box?.add_connection_url || box?.connect_url || null };
+    },
+    { aceitaIdade },
+  );
 
 const itemDe = (c: Qualquer) => String(c?.item_id || c?.itemId || c?.id || c?.connection_id || "");
 const bancoDe = (c: Qualquer) => c?.connector_name || c?.connector?.name || c?.connector_id || c?.name || null;
-const criadoDe = (c: Qualquer) => {
-  const t = Date.parse(String(c?.createdAt || c?.created_at || c?.connected_at || c?.connectedAt || ""));
-  return Number.isFinite(t) ? t : null;
+const conectorDe = (c: Qualquer) => String(c?.connector_id ?? c?.connectorId ?? c?.connector?.id ?? "");
+const dataDe = (...v: Qualquer[]) => {
+  for (const x of v) {
+    const t = Date.parse(String(x ?? ""));
+    if (Number.isFinite(t)) return t;
+  }
+  return null;
 };
+const criadoDe = (c: Qualquer) => dataDe(c?.createdAt, c?.created_at, c?.connected_at, c?.connectedAt);
+const atualizadoDe = (c: Qualquer) =>
+  dataDe(c?.lastUpdatedAt, c?.last_updated_at, c?.updatedAt, c?.updated_at, c?.statusDetail?.updatedAt, c?.last_sync_at);
 /** O `item` que a PRÓPRIA resposta diz ter (quando diz). Regra 2. */
 const itemDaResposta = (x: Qualquer) => String(x?.item_id || x?.itemId || x?.item?.id || "");
+const idDaConta = (a: Qualquer) => String(a?.account_id || a?.id || "");
 
 // ── o pedido de conexão assinado (regra 3) ───────────────────────────────────
 const assinar = (texto: string) => createHmac("sha256", `ncash-of:${process.env.BANCO_MCP_KEY}`).update(texto).digest("hex");
-function lerPedido(valor: string | undefined, userId: string): number | null {
+/** Cookie: `uid.quando.conector.assinatura` (conector vazio = pedido sem banco escolhido). */
+function cookiePedido(uid: string, conector = "") {
+  const quando = String(Date.now());
+  const limpo = conector.replace(/[^A-Za-z0-9_-]/g, "").slice(0, 40);
+  return `${uid}.${quando}.${limpo}.${assinar(`${uid}.${quando}.${limpo}`)}`;
+}
+function lerPedido(valor: string | undefined, userId: string): { quando: number; conector: string } | null {
   if (!valor) return null;
-  const [uid, quando, sig] = valor.split(".");
+  const partes = valor.split(".");
+  if (partes.length !== 4) return null;
+  const [uid, quando, conector, sig] = partes;
   if (uid !== userId || !quando || !sig) return null;
-  const esperada = assinar(`${uid}.${quando}`);
+  const esperada = assinar(`${uid}.${quando}.${conector}`);
   if (sig.length !== esperada.length || !timingSafeEqual(Buffer.from(sig), Buffer.from(esperada))) return null;
   const t = Number(quando);
-  return Number.isFinite(t) && Date.now() - t < 60 * 60_000 ? t : null; // vale 1 hora
+  return Number.isFinite(t) && Date.now() - t < 60 * 60_000 ? { quando: t, conector } : null; // vale 1 hora
 }
+const OPCOES_COOKIE = { httpOnly: true, secure: true, sameSite: "lax" as const, path: "/api/novarecash/openfinance", maxAge: 3600 };
 
 export async function POST(req: Request) {
   if (excedeuLimitePorIp(req, "novarecash-openfinance", 90)) return erro("Muitas chamadas seguidas. Espere um minuto.", 429);
@@ -133,10 +152,25 @@ export async function POST(req: Request) {
   const { data: sessao } = await supabase.auth.getUser();
   const usuario = sessao.user;
   if (!usuario) return erro("Sessão expirada", 401);
-  if (!(await temAcessoNovareCash())) return erro("O Open Finance faz parte do NovareCash.", 403);
-
   const db = servico();
   if (!db) return erro("serviço indisponível", 503);
+  if (!(await temAcessoNovareCash())) {
+    // Ex-assinante com banco ainda ligado na conta da Novare: desliga (LGPD). SÓ com prova definitiva
+    // (a checagem de acesso também diz "não" num erro passageiro): assinatura dele, vencida ou
+    // devolvida, e não é da equipe. Sem linha de assinatura (conta compartilhada, equipe): não mexe.
+    try {
+      const [{ data: assin }, { data: perfilEx }] = await Promise.all([
+        db.from("ncash_assinantes").select("status, expira_em").eq("email", String(usuario.email ?? "").toLowerCase()).maybeSingle(),
+        db.from("hub_profiles").select("role").eq("id", usuario.id).maybeSingle(),
+      ]);
+      const daEquipe = ["admin", "equipe"].includes(String(perfilEx?.role ?? ""));
+      // 3 dias de folga: renovação que atrasa algumas horas não pode desligar o banco de quem paga.
+      const venceu = assin?.expira_em ? Date.parse(String(assin.expira_em)) < Date.now() - 3 * 24 * 60 * 60_000 : false;
+      const devolvida = ["reembolsada", "chargeback"].includes(String(assin?.status ?? ""));
+      if (assin && !daEquipe && (venceu || devolvida)) await desligarTodos(db, usuario.id);
+    } catch {}
+    return erro("O Open Finance faz parte do NovareCash.", 403);
+  }
 
   const pedido = (await req.json().catch(() => null)) as { endpoint?: string; body?: Record<string, unknown> } | null;
   const endpoint = String(pedido?.endpoint ?? "");
@@ -148,11 +182,9 @@ export async function POST(req: Request) {
 
     const { data: linhas } = await db.from("vidaplan_open_finance").select("item_id, connector_name, status").eq("user_id", usuario.id);
     const minhas = (linhas ?? []).filter((l: Qualquer) => String(l.status ?? "").toLowerCase() !== "revogada");
+    const ehMinha = (itemId: string) => !!itemId && minhas.some((m: Qualquer) => String(m.item_id) === itemId);
 
-    // ── Os bancos para escolher DENTRO do NovareCash (13/11/2026) ──
-    /* Antes a pessoa caía na página da mcp.ai: "Sign in", oferta de plano PJ e o mesmo banco duas vezes
-       ("Credenciais", que pede CPF e senha, e "Open Finance"). Agora ela escolhe aqui, e o link já vai
-       com o banco certo e o fluxo rápido. Só `open_finance` e pessoa física. */
+    // ── Os bancos para escolher DENTRO do NovareCash ──
     if (endpoint === "bancos") {
       const busca = String(corpo.busca ?? "").trim().slice(0, 40);
       const palavras = busca.length >= 2 ? [busca] : POPULARES;
@@ -165,22 +197,27 @@ export async function POST(req: Request) {
           .map((b) => ({ id: String(b.id ?? ""), nome: String(b.name ?? b.connector_name ?? ""), url: String(b.connect_url ?? ""), logo: b.imageUrl ?? b.image_url ?? b.logo ?? null }))
           .filter((b) => b.url && b.nome && !vistos.has(b.nome.toLowerCase()) && vistos.add(b.nome.toLowerCase()));
       });
-      const quando = String(Date.now());
-      const r = ok({ bancos });
-      r.cookies.set(PEDIDO, `${usuario.id}.${quando}.${assinar(`${usuario.id}.${quando}`)}`, {
-        httpOnly: true, secure: true, sameSite: "lax", path: "/api/novarecash/openfinance", maxAge: 3600,
-      });
+      return ok({ bancos });
+    }
+
+    // ── A pessoa tocou num banco: o pedido assinado, com o banco escolhido (regra 3) ──
+    if (endpoint === "iniciar") {
+      const conector = String(corpo.connector_id ?? "").slice(0, 40);
+      const r = ok({ ok: true });
+      r.cookies.set(PEDIDO, cookiePedido(usuario.id, conector), OPCOES_COOKIE);
+      // Sem o SQL v2 a tabela não existe: segue sem a checagem de disputa.
+      await db
+        .from("ncash_of_pedidos")
+        .upsert({ user_id: usuario.id, connector_id: conector || null, banco: String(corpo.banco ?? "").slice(0, 80) || null, criado_em: new Date().toISOString() })
+        .then(({ error }) => error && console.warn("[open-finance] ncash_of_pedidos", error.message));
       return r;
     }
 
-    // ── Link para conectar um banco (e o pedido assinado) ──
+    // ── Link geral de conexão (reserva, quando a busca de bancos falha) ──
     if (endpoint === "connect-url") {
       const { url } = await conexoesDaConta();
-      const quando = String(Date.now());
       const r = ok({ url });
-      r.cookies.set(PEDIDO, `${usuario.id}.${quando}.${assinar(`${usuario.id}.${quando}`)}`, {
-        httpOnly: true, secure: true, sameSite: "lax", path: "/api/novarecash/openfinance", maxAge: 3600,
-      });
+      r.cookies.set(PEDIDO, cookiePedido(usuario.id), OPCOES_COOKIE);
       return r;
     }
 
@@ -193,24 +230,28 @@ export async function POST(req: Request) {
           return ok({ claimed: false, limite: true, message: `O seu plano conecta até ${limite} banco${limite > 1 ? "s" : ""}.` });
         }
       }
-      const desde = lerPedido((await cookies()).get(PEDIDO)?.value, usuario.id);
-      // Sem o pedido assinado do "Conectar", ninguém reivindica — nem a equipe (pegaria por engano o banco de um cliente).
-      if (desde === null) {
-        return ok({ claimed: false, message: "Toque em “Conectar banco” e conecte de novo — o pedido expirou." });
-      }
+      const ped = lerPedido((await cookies()).get(PEDIDO)?.value, usuario.id);
+      // Sem o pedido assinado, ninguém reivindica — nem a equipe (pegaria por engano o banco de um cliente).
+      if (!ped) return ok({ claimed: false, message: "Toque no seu banco e conecte de novo — o pedido expirou." });
 
-      cache.delete("conexoes"); // a conexão acabou de nascer: lê a lista fresca
-      const { conexoes } = await conexoesDaConta();
-      const [{ data: todas }, { data: doAppAntigo }] = await Promise.all([
-        db.from("vidaplan_open_finance").select("item_id"),
-        db.from("client_connections").select("item_id"),
-      ]);
-      const comDono = new Set([...(todas ?? []), ...(doAppAntigo ?? [])].map((l: Qualquer) => String(l.item_id)));
-      let candidatas = conexoes.filter((c) => itemDe(c) && !comDono.has(itemDe(c)));
-      candidatas = candidatas.filter((c) => {
+      const { conexoes } = await conexoesDaConta(4000); // conexão recém-nascida: no máximo 4 s de idade
+      let candidatas = conexoes.filter((c) => {
         const t = criadoDe(c);
-        return t !== null && t >= desde - 60_000; // sem data não entra: não dá para provar de quem é
+        return itemDe(c) && t !== null && t >= ped.quando - 60_000; // sem data não entra: não dá para provar de quem é
       });
+      // Só o banco que a pessoa escolheu (quando a conexão diz o conector).
+      if (ped.conector) candidatas = candidatas.filter((c) => !conectorDe(c) || conectorDe(c) === ped.conector);
+
+      // Quem já tem dono sai — lendo SÓ as candidatas (antes lia as tabelas inteiras, e o corte de 1.000 linhas mentia).
+      const ids = candidatas.map(itemDe);
+      if (ids.length) {
+        const [{ data: a }, { data: b }] = await Promise.all([
+          db.from("vidaplan_open_finance").select("item_id").in("item_id", ids),
+          db.from("client_connections").select("item_id").in("item_id", ids),
+        ]);
+        const comDono = new Set([...(a ?? []), ...(b ?? [])].map((l: Qualquer) => String(l.item_id)));
+        candidatas = candidatas.filter((c) => !comDono.has(itemDe(c)));
+      }
 
       const escolha = String(corpo.item_id ?? "");
       if (escolha) candidatas = candidatas.filter((c) => itemDe(c) === escolha);
@@ -218,55 +259,105 @@ export async function POST(req: Request) {
         return ok({ claimed: false, escolher: candidatas.map((c) => ({ item_id: itemDe(c), connector_name: bancoDe(c), criado: criadoDe(c) })) });
       }
       if (candidatas.length !== 1) return ok({ claimed: false, message: "Ainda não encontramos a sua conexão." });
-
       const c = candidatas[0];
+
+      // Disputa: OUTRO cliente tocou no mesmo banco nessa janela? Então ninguém pega sozinho.
+      if (!escolha && ped.conector) {
+        const t = criadoDe(c) ?? Date.now();
+        const { data: outros, error: eOutros } = await db
+          .from("ncash_of_pedidos")
+          .select("user_id")
+          .eq("connector_id", ped.conector)
+          .neq("user_id", usuario.id)
+          .gte("criado_em", new Date(t - 30 * 60_000).toISOString())
+          .lte("criado_em", new Date(t + 60_000).toISOString());
+        if (!eOutros && outros?.length) {
+          let final: string | null = null;
+          try {
+            const box = await mcp("accounts/list", { item: itemDe(c), item_id: itemDe(c) });
+            const num = lista(box, "results", "accounts", "items", "data").map((x) => String(x?.number ?? "")).find((n) => n.replace(/\D/g, "").length >= 3);
+            final = num ? num.replace(/\D/g, "").slice(-4) : null;
+          } catch {}
+          return ok({ claimed: false, confirmar: [{ item_id: itemDe(c), connector_name: bancoDe(c), criado: criadoDe(c), final }] });
+        }
+      }
+
       const { error } = await db
         .from("vidaplan_open_finance")
         .insert({ user_id: usuario.id, item_id: itemDe(c), connector_name: bancoDe(c), status: c.status ?? null });
       // Regra 4: alguém mais ficou com o mesmo item (agora ou num toque simultâneo)?
       const { data: donos } = await db.from("vidaplan_open_finance").select("user_id").eq("item_id", itemDe(c));
-      const outros = (donos ?? []).filter((d: Qualquer) => d.user_id !== usuario.id);
-      if (outros.length) {
+      const outrosDonos = (donos ?? []).filter((d: Qualquer) => d.user_id !== usuario.id);
+      if (outrosDonos.length) {
         if (!error) await db.from("vidaplan_open_finance").delete().eq("user_id", usuario.id).eq("item_id", itemDe(c));
         return ok({ claimed: false, message: "Essa conexão já está ligada a outra conta. Conecte o seu banco de novo." });
       }
       if (error && (error as Qualquer).code !== "23505") throw new ErroMcp(500, "falha", error.message);
+      await db.from("ncash_of_pedidos").delete().eq("user_id", usuario.id).then(() => undefined);
       const r = ok({ claimed: true, count: 1, connector_name: bancoDe(c), item_id: itemDe(c) });
       r.cookies.delete({ name: PEDIDO, path: "/api/novarecash/openfinance" });
       return r;
     }
 
-    // ── Desligar: revoga no Banco MCP e guarda como revogada ──
+    // ── Desligar (regra 8) ──
     if (endpoint === "forget") {
       const itemId = String(corpo.item_id ?? "");
-      if (!itemId || !minhas.some((m: Qualquer) => m.item_id === itemId)) return erro("Conexão não encontrada.", 404);
-      let revogado = false;
-      for (const caminho of ["connections/revoke", "connections/disconnect"]) {
-        try {
-          await mcp(caminho, { item: itemId, item_id: itemId });
-          revogado = true;
-          break;
-        } catch (e) {
-          console.warn(`[open-finance] ${caminho} falhou`, e instanceof Error ? e.message : e);
-        }
-      }
-      const { error } = await db.from("vidaplan_open_finance").update({ status: "revogada" }).eq("user_id", usuario.id).eq("item_id", itemId);
-      if (error) throw new ErroMcp(500, "falha", error.message);
-      cache.delete("conexoes");
-      return ok({ ok: true, revogadoNoBanco: revogado });
+      if (!ehMinha(itemId)) return erro("Conexão não encontrada.", 404);
+      const apagar = corpo.apagar === true;
+
+      const r = await desligarItem(db, usuario.id, itemId, apagar);
+      esquecerCache("conexoes");
+      esquecerCache(`contas:${itemId}`);
+      return ok({ ok: true, revogadoNoBanco: r.revogado, contas: r.contas, apagadas: r.apagadas });
+    }
+
+    // ── Reconectar o MESMO banco (regra 9) ──
+    if (endpoint === "reconectar") {
+      const itemId = String(corpo.item_id ?? "");
+      if (!ehMinha(itemId)) return erro("Conexão não encontrada.", 404);
+      const { url } = await conexoesDaConta();
+      if (!url) return erro("Página de conexão indisponível.", 502);
+      const u = new URL(url);
+      u.searchParams.set("update_item", itemId);
+      u.searchParams.set("flow", "quick");
+      return ok({ url: u.toString() });
+    }
+
+    // ── Forçar o banco a buscar dados novos agora ──
+    if (endpoint === "atualizar") {
+      const pedidoItem = String(corpo.item_id ?? "");
+      const itens = pedidoItem ? (ehMinha(pedidoItem) ? [pedidoItem] : []) : minhas.map((m: Qualquer) => String(m.item_id));
+      if (!itens.length) return erro("Conexão não encontrada.", 404);
+      await mcp("connections/sync", { items: itens });
+      esquecerCache("conexoes");
+      itens.forEach((i) => esquecerCache(`contas:${i}`));
+      return ok({ ok: true, itens });
+    }
+
+    // ── O Open Finance do provedor está com incidente? (aviso de instabilidade) ──
+    if (endpoint === "provedor") {
+      return ok(await emCache("provedor", 300, () => mcp("provider/status", {})));
     }
 
     if (!PERMITIDOS.has(endpoint)) return erro(`Endpoint não permitido: ${endpoint}`, 400);
-    if (endpoint === "categories/list") return ok(await mcp(endpoint, {}));
+    if (endpoint === "categories/list") return ok(await emCache("categorias", 3600, () => mcp(endpoint, {})));
 
     if (endpoint === "connections/list") {
       // O status de agora vem do Banco MCP (UPDATED, LOGIN_ERROR, OUTDATED…), não do que foi gravado no claim.
-      // `fresco` (13/11/2026): logo depois de conectar, o app acompanha o UPDATING → UPDATED sem o cache de 60 s.
-      if (corpo.fresco === true && minhas.length) cache.delete("conexoes");
-      const { conexoes } = await conexoesDaConta();
-      const statusDe = new Map(conexoes.map((c) => [itemDe(c), c.status ?? null]));
+      // `fresco`: logo depois de conectar/atualizar, o app acompanha o UPDATING → UPDATED (até 4 s de idade).
+      const { conexoes } = await conexoesDaConta(corpo.fresco === true && minhas.length ? 4000 : undefined);
+      const porItem = new Map(conexoes.map((c) => [itemDe(c), c]));
       return ok({
-        connections: minhas.map((m: Qualquer) => ({ item_id: m.item_id, connector_name: m.connector_name, status: statusDe.get(m.item_id) ?? m.status })),
+        connections: minhas.map((m: Qualquer) => {
+          const c = porItem.get(String(m.item_id));
+          return {
+            item_id: m.item_id,
+            connector_name: m.connector_name,
+            status: c?.status ?? (c ? null : "SEM_CONEXAO"),
+            atualizado_em: c ? atualizadoDe(c) : null,
+            detalhe: c?.error?.message ?? c?.statusDetail?.message ?? null,
+          };
+        }),
         count: minhas.length,
       });
     }
@@ -276,10 +367,11 @@ export async function POST(req: Request) {
     // Regra 1: só os filtros da lista branca.
     const filtros: Record<string, unknown> = {};
     for (const k of CAMPOS_LIVRES) if (corpo[k] !== undefined) filtros[k] = corpo[k];
+    if (filtros.detail !== undefined && !["compact", "rich"].includes(String(filtros.detail))) delete filtros.detail;
 
-    // Regra 5.
+    // Regra 5: sem item só quando a ÚNICA conexão da conta do Banco MCP é a desta pessoa.
     const { conexoes } = await conexoesDaConta();
-    const semItem = minhas.length === 1 && conexoes.length <= 1;
+    const semItem = minhas.length === 1 && conexoes.length === 1 && itemDe(conexoes[0]) === String(minhas[0].item_id);
     const baseDe = (itemId: string): Record<string, unknown> => (semItem ? {} : { item: itemId, item_id: itemId });
 
     const contasDo = (itemId: string) =>
@@ -293,60 +385,96 @@ export async function POST(req: Request) {
             return !dono || dono === itemId; // regra 2
           });
         },
-        // Banco recém-conectado ainda sem contas: não guarda o vazio (a importação automática pergunta de novo).
-        (contas) => contas.length > 0,
+        // Banco recém-conectado ainda sem contas: não guarda o vazio.
+        { guardar: (contas) => contas.length > 0 },
       );
 
     const juntos: Qualquer[] = [];
+    const falhas: { item_id: string; banco: string | null; codigo: string }[] = [];
     const contaPedida = filtros.account_id ? String(filtros.account_id) : null;
     let contaConferida = false;
+    let truncado = false;
+    const inicio = Date.now();
 
     for (const m of minhas) {
       const itemId = String(m.item_id);
       const base = baseDe(itemId);
+      // Regra 6: um banco com erro não derruba os outros.
+      try {
+        if (endpoint === "accounts/list") {
+          (await contasDo(itemId)).forEach((a) => juntos.push({ ...a, item_id: itemId }));
+          continue;
+        }
 
-      if (endpoint === "accounts/list") {
-        (await contasDo(itemId)).forEach((a) => juntos.push({ ...a, item_id: itemId }));
-        continue;
-      }
-
-      if (endpoint === "transactions/list" || endpoint === "credit-card-bills/list" || endpoint === "accounts/balance") {
-        for (const a of await contasDo(itemId)) {
-          const id = String(a.account_id || a.id || "");
-          if (!id || (contaPedida && id !== contaPedida)) continue;
-          if (endpoint === "credit-card-bills/list" && String(a.type || "").toUpperCase() !== "CREDIT") continue;
-          if (contaPedida) contaConferida = true;
+        if (endpoint === "transactions/list" || endpoint === "credit-card-bills/list" || endpoint === "accounts/balance") {
+          const contas = (await contasDo(itemId)).filter((a) => {
+            const id = idDaConta(a);
+            if (!id || (contaPedida && id !== contaPedida)) return false;
+            if (endpoint === "credit-card-bills/list" && String(a.type || "").toUpperCase() !== "CREDIT") return false;
+            return true;
+          });
+          if (contaPedida && contas.length) contaConferida = true;
 
           if (endpoint === "accounts/balance") {
-            const box = await mcp(endpoint, { ...filtros, account_id: id, account_ids: [id], ...base });
-            const itens = lista(box, "balances", "results", "items", "data");
-            (itens.length ? itens : [box]).forEach((b) => juntos.push({ ...b, account_id: b.account_id ?? id, item_id: itemId }));
+            // Em LOTE (1-50 por chamada): antes era uma chamada por conta.
+            const ids = contas.map(idDaConta);
+            for (let i = 0; i < ids.length; i += 50) {
+              const lote = ids.slice(i, i + 50);
+              const box = await mcp(endpoint, { account_ids: lote, ...base });
+              const itens = lista(box, "balances", "results", "items", "data");
+              (itens.length ? itens : lote.length === 1 ? [{ ...box, account_id: lote[0] }] : []).forEach((b) =>
+                juntos.push({ ...b, account_id: b.account_id ?? b.id ?? lote[0], item_id: itemId }),
+              );
+            }
             continue;
           }
 
-          // Transações e faturas: TODAS as páginas (antes vinha só a primeira e o resto sumia).
-          for (let pagina = 1; pagina <= PAGINAS_MAX; pagina++) {
-            const box = await mcp(endpoint, { ...filtros, page: pagina, page_size: endpoint === "transactions/list" ? 500 : 100, account_id: id, ...base });
-            lista(box, "transactions", "bills", "results", "items", "data").forEach((x) => juntos.push({ ...x, account_id: x.account_id ?? id, item_id: itemId }));
-            const total = Number(box?.totalPages ?? box?.total_pages ?? box?.pagination?.totalPages ?? 1);
-            if (!Number.isFinite(total) || pagina >= total) break;
+          // Transações e faturas: TODAS as páginas, com prazo total.
+          const tamanho = endpoint === "transactions/list" ? 500 : 100;
+          for (const a of contas) {
+            const id = idDaConta(a);
+            for (let pagina = 1; pagina <= PAGINAS_MAX; pagina++) {
+              if (Date.now() - inicio > PRAZO_MS) {
+                truncado = true;
+                break;
+              }
+              const box = await mcp(endpoint, { ...filtros, page: pagina, page_size: tamanho, account_id: id, ...base });
+              const itens = lista(box, "transactions", "bills", "results", "items", "data");
+              itens.forEach((x) => juntos.push({ ...x, account_id: x.account_id ?? id, item_id: itemId }));
+              const total = Number(box?.totalPages ?? box?.total_pages ?? box?.pagination?.totalPages ?? NaN);
+              // Sem `totalPages`: continua enquanto a página vier cheia.
+              if (Number.isFinite(total) && total > 0 ? pagina >= total : itens.length < tamanho) break;
+              if (pagina === PAGINAS_MAX) truncado = true;
+            }
           }
+          continue;
         }
-        continue;
-      }
 
-      // investments/list e loans/list: por item, resposta conferida.
-      const box = await mcp(endpoint, { ...filtros, ...base, items: [itemId] });
-      lista(box, "investments", "loans", "results", "items", "data")
-        .flatMap((x) => (x && Array.isArray(x.results) ? x.results : [x]))
-        .filter((x) => {
-          const dono = itemDaResposta(x);
-          return !dono || dono === itemId;
-        })
-        .forEach((x) => juntos.push({ ...x, item_id: itemId }));
+        // investments/list e loans/list: por item, resposta conferida.
+        const box =
+          endpoint === "loans/list"
+            ? await mcp(endpoint, { items: [itemId] })
+            : await mcp(endpoint, { ...filtros, ...base, items: [itemId] });
+        lista(box, "investments", "loans", "results", "items", "data")
+          .flatMap((x) => (x && Array.isArray(x.results) ? x.results : [x]))
+          .filter((x) => {
+            const dono = itemDaResposta(x);
+            return !dono || dono === itemId;
+          })
+          .forEach((x) => juntos.push({ ...x, item_id: itemId }));
+      } catch (e) {
+        const codigo = e instanceof ErroMcp ? e.code : "falha";
+        console.warn(`[open-finance] ${endpoint} item ${itemId}:`, e instanceof Error ? e.message : e);
+        falhas.push({ item_id: itemId, banco: m.connector_name ?? null, codigo });
+      }
     }
-    if (contaPedida && !contaConferida) return erro("Conta não encontrada.", 404);
-    return ok({ results: juntos });
+    if (contaPedida && !contaConferida && !falhas.length) return erro("Conta não encontrada.", 404);
+    // Tudo falhou: devolve o erro do primeiro (a tela mostra a frase certa).
+    if (falhas.length && falhas.length === minhas.length && !juntos.length) {
+      const c = falhas[0].codigo;
+      throw new ErroMcp(c === "not_connected" ? 409 : c === "banco_mcp_key" ? 503 : c === "limite" ? 429 : 502, c, c);
+    }
+    return ok({ results: juntos, falhas, truncado });
   } catch (e) {
     return resposta(e);
   }

@@ -12,7 +12,7 @@ export type ChaveCategoria =
   | "moradia" | "mercado" | "restaurantes" | "transporte" | "saude" | "educacao" | "lazer"
   | "assinaturas" | "compras" | "tarifas" | "impostos" | "transferencias" | "investimentos" | "outros"
   | "salario" | "renda_extra" | "rendimentos" | "outras_entradas"
-  | "pagamento_fatura" | "entre_contas";
+  | "pagamento_fatura" | "entre_contas" | "estorno";
 
 export type Categoria = {
   chave: ChaveCategoria;
@@ -36,7 +36,7 @@ export const CATEGORIAS: Categoria[] = [
   { chave: "transferencias", rotulo: "Transferências e Pix enviados", tipo: "saida", palavras: ["pix enviado", "transferencia enviada", "ted enviada", "doc enviado"] },
   { chave: "investimentos", rotulo: "Aplicações", tipo: "saida", palavras: ["aplicacao", "aplicação", "cdb", "tesouro", "corretora"] },
   // 04/11/2026 (cartões): a saída da conta corrente que PAGA a fatura. Não é gasto — os gastos são as compras do cartão.
-  { chave: "pagamento_fatura", rotulo: "Pagamento de fatura", tipo: "saida", palavras: ["pagamento fatura", "pag fatura", "pgto cartao", "pagamento de fatura", "pgto cartão", "pgto fatura"] },
+  { chave: "pagamento_fatura", rotulo: "Pagamento de fatura", tipo: "saida", palavras: ["pagamento fatura", "pag fatura", "pgto cartao", "pagamento de fatura", "pgto cartão", "pgto fatura", "pagamento cartao", "pagamento cartão", "pagto cartao", "pagto fatura", "pag fat ", "pagamento de cartao", "fatura cartao", "fatura do cartao"] },
   { chave: "outros", rotulo: "Outros gastos", tipo: "saida", palavras: [] },
   { chave: "salario", rotulo: "Salário", tipo: "entrada", palavras: ["salario", "salário", "folha", "pagamento empresa", "pro-labore", "pró-labore"] },
   { chave: "renda_extra", rotulo: "Renda extra", tipo: "entrada", palavras: ["freela", "comissao", "comissão", "venda", "bico"] },
@@ -44,6 +44,8 @@ export const CATEGORIAS: Categoria[] = [
   { chave: "outras_entradas", rotulo: "Outras entradas", tipo: "entrada", palavras: ["pix recebido", "transferencia recebida", "ted recebida", "reembolso", "estorno"] },
   // 06/11/2026 (Open Finance): dinheiro que volta de um "bolso"/cofrinho/caixinha da PRÓPRIA pessoa. Não é renda.
   { chave: "entre_contas", rotulo: "Entre minhas contas", tipo: "entrada", palavras: ["do bolso", "cofrinho", "caixinha", "mesma titularidade"] },
+  // 13/11/2026 (Open Finance): devolução no CARTÃO. Não é renda: abate o gasto do mês (`resumoDoMes`).
+  { chave: "estorno", rotulo: "Estornos e devoluções", tipo: "entrada", palavras: [] },
 ];
 
 const POR_CHAVE = new Map(CATEGORIAS.map((c) => [c.chave, c]));
@@ -158,4 +160,4 @@ export function chaveCustomDe(rotulo: string): string {
  * ENTRADA no cartão, ambas `pagamento_fatura` — e essa entrada também não é
  * receita. Todo total de gasto ou de receita deve pular estas chaves.
  */
-export const NAO_E_GASTO = new Set<string>(["pagamento_fatura", "transferencias", "investimentos", "entre_contas"]);
+export const NAO_E_GASTO = new Set<string>(["pagamento_fatura", "transferencias", "investimentos", "entre_contas", "estorno"]);

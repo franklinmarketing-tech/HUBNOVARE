@@ -2,13 +2,30 @@
 
 import { useEffect } from "react";
 
-import { contasComSaldo, listarConexoes, marcarSincronizado, precisaSincronizar, sincronizar } from "@/lib/novarecash/openfinance";
+import {
+  contasComSaldo,
+  itensParaRefazer,
+  listarConexoes,
+  marcarSincronizado,
+  precisaReconectar,
+  precisaSincronizar,
+  refeito,
+  sincronizar,
+} from "@/lib/novarecash/openfinance";
 import { Toast, useToast } from "./Toast";
 
+const CHAVE_TRAVA = "ncash:open-finance:sincronizando";
+
 /**
- * ATUALIZA SOZINHO (13/11/2026). Quem tem banco conectado não precisa lembrar do "Sincronizar agora":
- * ao abrir o NovareCash, se a última atualização (neste aparelho) passou de 6 h, traz os saldos e os
- * últimos 30 dias em segundo plano, sem duplicar. Silencioso: só avisa quando entra lançamento novo.
+ * ATUALIZA SOZINHO (13/11/2026; revisto na varredura do mesmo dia). Quem tem banco conectado não
+ * precisa lembrar do "Sincronizar agora": ao abrir o NovareCash, se a última atualização (neste
+ * aparelho) passou de 6 h, traz os saldos e os lançamentos DESDE O ÚLTIMO de cada conta (sem buraco,
+ * mesmo depois de semanas sem abrir), sem duplicar. Banco cuja 1ª importação pegou o banco ainda
+ * "atualizando" refaz os 12 meses. Silencioso: só avisa quando entra lançamento novo ou quando um
+ * banco precisa ser reconectado.
+ *
+ * Trava de 10 min (outra aba não roda junto); "em dia" só é marcado quando dá certo — antes marcava
+ * antes de rodar, e uma falha esperava 6 h para tentar de novo.
  *
  * Só é montado (na casca) para quem tem o recurso "banco" liberado.
  */
@@ -18,24 +35,50 @@ export function AtualizaBanco() {
 
   useEffect(() => {
     if (!precisaSincronizar()) return;
-    // Marca ANTES: outra aba não roda junto e uma falha não insiste a cada tela.
-    marcarSincronizado();
+    try {
+      if (Date.now() - Number(localStorage.getItem(CHAVE_TRAVA) || 0) < 10 * 60_000) return;
+      localStorage.setItem(CHAVE_TRAVA, String(Date.now()));
+    } catch {
+      return;
+    }
     let vivo = true;
     (async () => {
       try {
         const conexoes = await listarConexoes();
         if (!conexoes.length) return;
+        const reconectar = conexoes.filter((c) => precisaReconectar(c.status));
         const contas = await contasComSaldo();
-        if (!contas.length) return;
-        const r = await sincronizar({ contas, conexoes, dias: 30 });
-        if (vivo && r.novas > 0) {
+        if (contas.length) {
+          const refazer = new Set(itensParaRefazer());
+          const doze = contas.filter((c) => c.itemId && refazer.has(c.itemId));
+          const resto = contas.filter((c) => !(c.itemId && refazer.has(c.itemId)));
+          let novas = 0;
+          if (doze.length) {
+            novas += (await sincronizar({ contas: doze, conexoes, dias: 365 })).novas;
+            for (const id of refazer) refeito(id);
+          }
+          if (resto.length) novas += (await sincronizar({ contas: resto, conexoes })).novas;
+          marcarSincronizado();
+          if (vivo && novas > 0) {
+            mostrar({
+              texto: `Banco atualizado: ${novas} ${novas === 1 ? "lançamento novo" : "lançamentos novos"} no extrato.`,
+              acao: { rotulo: "Ver", fazer: () => window.location.assign("/novarecash/app/extrato") },
+            });
+            return;
+          }
+        }
+        if (vivo && reconectar.length) {
           mostrar({
-            texto: `Banco atualizado: ${r.novas} ${r.novas === 1 ? "lançamento novo" : "lançamentos novos"} no extrato.`,
-            acao: { rotulo: "Ver", fazer: () => window.location.assign("/novarecash/app/extrato") },
+            texto: `${reconectar.map((c) => c.banco).join(", ")} precisa ser reconectado para continuar atualizando.`,
+            acao: { rotulo: "Reconectar", fazer: () => window.location.assign("/novarecash/app/banco") },
           });
         }
       } catch {
-        /* silencioso: a tela Banco tem o "Sincronizar agora" */
+        /* silencioso: a tela Banco tem o "Sincronizar agora"; tenta de novo na próxima abertura */
+      } finally {
+        try {
+          localStorage.removeItem(CHAVE_TRAVA);
+        } catch {}
       }
     })();
     return () => {
