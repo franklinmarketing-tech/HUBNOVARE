@@ -84,12 +84,11 @@ export function TelaBanco({ limite, nomePlano }: { limite: number; nomePlano: st
         return;
       }
       const cs = await listarContas();
-      // Saldo que a lista não trouxe: pede um a um, sem derrubar a tela se falhar.
-      setContas(
-        await Promise.all(
-          cs.map(async (c) => (c.saldo !== null ? c : { ...c, saldo: await saldoDaConta(c.id).catch(() => null) })),
-        ),
-      );
+      // Saldo que a lista não trouxe: pede UM POR VEZ (12/11/2026: em paralelo, uma pessoa com 6 contas
+      // disparava 6 chamadas juntas no Banco MCP, cujo limite é da conta da Novare inteira).
+      const comSaldo: ContaBanco[] = [];
+      for (const c of cs) comSaldo.push(c.saldo !== null ? c : { ...c, saldo: await saldoDaConta(c.id).catch(() => null) });
+      setContas(comSaldo);
     } catch (e) {
       setErro(frase(e));
     } finally {

@@ -153,19 +153,13 @@ export async function reivindicar(opcoes: { desde?: string | null; itemId?: stri
       return { ok: false, escolher, mensagem: "Encontramos mais de um banco conectado agora há pouco. Qual é o seu?" };
     }
     if (r.limite === true) return { ok: false, mensagem: `${texto(r.message)} Para conectar mais, mude de plano.` };
-    if (/outro usu/i.test(texto(r.message))) {
-      return { ok: false, mensagem: "Essa conexão já está ligada a outra conta. Conecte o banco de novo pelo botão “Conectar banco”." };
-    }
+    const msg = texto(r.message);
+    if (msg && !/ainda não encontramos/i.test(msg)) return { ok: false, mensagem: msg };
     return {
       ok: false,
       mensagem: "Ainda não encontramos a sua conexão. Termine a autorização no seu banco e toque em “Já conectei” de novo.",
     };
   } catch (e) {
-    // Conta administradora do Banco MCP (equipe da Novare): a função responde 400
-    // "Admin não precisa reivindicar." — ela já enxerga as conexões da casa.
-    if (e instanceof ErroBanco && e.status === 400 && /admin/i.test(e.detalhe)) {
-      return { ok: true, mensagem: "Conta da equipe: as conexões da Novare já aparecem sem reivindicar." };
-    }
     throw e;
   }
 }
@@ -281,7 +275,12 @@ export function paraTransacaoBanco(t: Record<string, unknown>, cartao: boolean):
   if (status === "PENDING") return null;
 
   const bruto = numero(t.amount, t.value, t.valor);
-  const data = texto(t.date, t.transactionDate, t.bookingDate, t.data).slice(0, 10);
+  /* 12/11/2026: a data vem em UTC ("2026-11-05T01:30:00Z" é dia 4 às 22h30 em Brasília). Com hora, converte
+     para America/Sao_Paulo; só a data, usa como veio. */
+  const cru = texto(t.date, t.transactionDate, t.bookingDate, t.data);
+  const data = /T\d{2}:\d{2}/.test(cru) && Number.isFinite(Date.parse(cru))
+    ? new Date(cru).toLocaleDateString("en-CA", { timeZone: "America/Sao_Paulo" })
+    : cru.slice(0, 10);
   if (bruto === null || bruto === 0 || !/^\d{4}-\d{2}-\d{2}$/.test(data)) return null;
 
   const tipoBanco = texto(t.type, t.creditDebitType, t.credit_debit_type).toUpperCase();
@@ -318,7 +317,8 @@ export function paraTransacaoBanco(t: Record<string, unknown>, cartao: boolean):
   const id = texto(t.id, t.transaction_id, t.transactionId);
 
   return {
-    externo_id: (id || `h:${data}|${valor.toFixed(2)}|${tipo}|${descricao.toLowerCase()}`).slice(0, 200),
+    // Chave reserva com a descrição CRUA (12/11/2026): com o nome do recebedor dentro, mudaria se o provedor passasse a mandá-lo.
+    externo_id: (id || `h:${data}|${valor.toFixed(2)}|${tipo}|${base.toLowerCase()}`).slice(0, 200),
     data,
     valor,
     tipo,
