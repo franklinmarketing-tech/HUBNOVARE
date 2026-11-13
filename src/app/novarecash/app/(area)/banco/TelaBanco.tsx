@@ -28,6 +28,7 @@ import {
   bancosComFalha,
   contasComSaldo,
   esquecer,
+  zerarEImportar,
   faturaAtual,
   iniciarConexao,
   listarCartoesDoBanco,
@@ -277,6 +278,8 @@ export function TelaBanco({ limite, nomePlano }: { limite: number; nomePlano: st
   const [rodada, setRodada] = useState(0);
   /** A janela "Desligar" (manter ou apagar o histórico). */
   const [desligando, setDesligando] = useState<Conexao | null>(null);
+  /** A janela "Zerar e importar de novo" (conserta extrato duplicado). */
+  const [zerando, setZerando] = useState(false);
   /** "Atualizar agora" de um banco: a frase do passo. */
   const [progressoBanco, setProgressoBanco] = useState<{ item: string; frase: string } | null>(null);
   const [falhasBanco, setFalhasBanco] = useState<string[]>([]);
@@ -645,6 +648,25 @@ export function TelaBanco({ limite, nomePlano }: { limite: number; nomePlano: st
     }
   }
 
+  /** ZERAR: apaga o que veio do banco e traz os 12 meses de novo, limpos (conserta duplicados). */
+  async function zerar() {
+    setZerando(false);
+    setOcupado("zerar");
+    setResultado(null);
+    try {
+      const r = await zerarEImportar((f) => setResultado(f));
+      setResultado(
+        `Pronto: ${r.apagadas} lançamentos antigos do banco saíram e ${r.resultado.novas} entraram de novo, sem duplicar.`,
+      );
+      await carregar();
+    } catch (e) {
+      if (e instanceof ErroDados && e.motivo === "sem-tabela") setSemTabela(true);
+      else setResultado(frase(e));
+    } finally {
+      setOcupado(null);
+    }
+  }
+
   async function sincronizarAgora() {
     setOcupado("sincronizar");
     setResultado(null);
@@ -990,7 +1012,33 @@ export function TelaBanco({ limite, nomePlano }: { limite: number; nomePlano: st
           <Botao variante="fantasma" Icone={RefreshCw} onClick={carregar} desabilitado={ocupado !== null || fase !== null}>
             Atualizar lista
           </Botao>
+          <Botao variante="fantasma" Icone={RotateCcw} onClick={() => setZerando(true)} desabilitado={ocupado !== null || fase !== null}>
+            {ocupado === "zerar" ? "Zerando…" : "Zerar e importar de novo"}
+          </Botao>
         </div>
+      )}
+
+      {zerando && (
+        <Janela titulo="Zerar e importar de novo" onFechar={() => setZerando(false)}>
+          <div className="space-y-4">
+            <p className="text-sm leading-relaxed text-white/80">
+              Apaga <strong className="text-white">todos os lançamentos que vieram do banco</strong> e traz os últimos 12 meses de
+              novo, limpos. Use quando o extrato estiver com valores duplicados.
+            </p>
+            <p className="text-xs leading-relaxed text-white/60">
+              O que você lançou à mão, pelo WhatsApp ou por importação de extrato fica. Categorias que você corrigiu nos
+              lançamentos do banco voltam ao palpite automático.
+            </p>
+            <div className="grid min-w-0 gap-2">
+              <Botao Icone={RotateCcw} onClick={zerar} className="w-full">
+                Zerar e importar
+              </Botao>
+              <Botao variante="contorno" onClick={() => setZerando(false)} className="w-full">
+                Cancelar
+              </Botao>
+            </div>
+          </div>
+        </Janela>
       )}
 
       {recado && !aberta && (

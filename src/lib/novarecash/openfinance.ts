@@ -817,7 +817,34 @@ async function gravarTransacoes(
       .limit(5000);
     const livres = (proprios ?? []).map((l) => ({ id: String(l.id), data: String(l.data).slice(0, 10), valor: Number(l.valor), tipo: String(l.tipo) }));
     const usados = new Set<string>();
+
+    /* RELIGOU O BANCO (13/11/2026): uma conexão nova manda as MESMAS transações com ids NOVOS — elas
+       entravam de novo e o extrato dobrava. Lançamento do Open Finance já gravado com outro id (de uma
+       conexão antiga), com mesma data, valor, sentido e descrição, é o mesmo: o novo não entra.
+       Cada antigo casa com um só novo (dois cafés iguais no mesmo dia continuam dois). */
+    const idsDoLote = new Set(unicas.map((t) => t.externo_id));
+    const { data: doBanco } = await sb
+      .from("ncash_transacoes")
+      .select("id, externo_id, data, valor, tipo, descricao")
+      .eq("user_id", uid)
+      .eq("origem", "openfinance")
+      .gte("data", datas[0])
+      .lte("data", datas[datas.length - 1])
+      .limit(10000);
+    const antigos = (doBanco ?? [])
+      .filter((l) => !idsDoLote.has(String(l.externo_id)))
+      .map((l) => ({ id: String(l.id), data: String(l.data).slice(0, 10), valor: Number(l.valor), tipo: String(l.tipo), desc: semAcento(String(l.descricao ?? "")).trim() }));
     for (const t of faltam) {
+      const desc = semAcento(t.descricao).trim();
+      const par = antigos.find((l) => !usados.has(l.id) && l.tipo === t.tipo && l.data === t.data && Math.abs(l.valor - t.valor) < 0.005 && l.desc === desc);
+      if (par) {
+        usados.add(par.id);
+        jaLancado.add(t.externo_id);
+      }
+    }
+
+    for (const t of faltam) {
+      if (jaLancado.has(t.externo_id)) continue;
       const par = livres.find(
         (l) => !usados.has(l.id) && l.tipo === t.tipo && Math.abs(l.valor - t.valor) < 0.005 && (l.data === t.data || l.data === umDia(t.data, -1) || l.data === umDia(t.data, 1)),
       );
@@ -1098,6 +1125,21 @@ export async function trazerTudo(opcoes: {
   // Só marca como "em dia" se veio algo: senão a próxima abertura do app tenta de novo.
   if (resultado.lidas > 0 || resultado.contas > 0) marcarSincronizado();
   return { resultado, conexoes, contas };
+}
+
+/**
+ * ZERAR O BANCO (13/11/2026): apaga TODOS os lançamentos que vieram do Open Finance (os lançados à mão,
+ * pelo WhatsApp ou por importação ficam) e traz de novo os 12 meses das conexões ativas, limpos.
+ * Conserta extrato duplicado. A categoria corrigida à mão nesses lançamentos volta ao palpite.
+ */
+export async function zerarEImportar(aoAvancar?: (frase: string) => void): Promise<{ apagadas: number; resultado: ResultadoSincronizacao }> {
+  const sb = createClient();
+  const uid = await usuarioDaSessao(sb);
+  aoAvancar?.("Apagando os lançamentos que vieram do banco…");
+  const { count, error } = await sb.from("ncash_transacoes").delete({ count: "exact" }).eq("user_id", uid).eq("origem", "openfinance");
+  if (error) falhou(error);
+  const r = await trazerTudo({ dias: 365, aoAvancar });
+  return { apagadas: count ?? 0, resultado: r.resultado };
 }
 
 // ── Investimentos (Patrimônio, 04/11/2026) ──────────────────────────────────
