@@ -792,8 +792,41 @@ async function gravarTransacoes(
     if (!error) corrigidas++;
   }
 
+  /* SEM DUPLICAR O QUE A PESSOA JÁ LANÇOU (13/11/2026): lançamento à mão, pelo WhatsApp ou por
+     importação de extrato com o MESMO valor e sentido, até 1 dia de diferença, conta como o mesmo —
+     o do banco não entra (cada lançamento dela "casa" com um só do banco). */
+  const faltam = unicas.filter((t) => !ja.has(t.externo_id));
+  const jaLancado = new Set<string>();
+  if (faltam.length) {
+    const datas = faltam.map((t) => t.data).sort();
+    const umDia = (d: string, n: number) => {
+      const x = new Date(`${d}T12:00:00`);
+      x.setDate(x.getDate() + n);
+      return isoLocal(x);
+    };
+    const { data: proprios } = await sb
+      .from("ncash_transacoes")
+      .select("id, data, valor, tipo")
+      .eq("user_id", uid)
+      .neq("origem", "openfinance")
+      .gte("data", umDia(datas[0], -1))
+      .lte("data", umDia(datas[datas.length - 1], 1))
+      .limit(5000);
+    const livres = (proprios ?? []).map((l) => ({ id: String(l.id), data: String(l.data).slice(0, 10), valor: Number(l.valor), tipo: String(l.tipo) }));
+    const usados = new Set<string>();
+    for (const t of faltam) {
+      const par = livres.find(
+        (l) => !usados.has(l.id) && l.tipo === t.tipo && Math.abs(l.valor - t.valor) < 0.005 && (l.data === t.data || l.data === umDia(t.data, -1) || l.data === umDia(t.data, 1)),
+      );
+      if (par) {
+        usados.add(par.id);
+        jaLancado.add(t.externo_id);
+      }
+    }
+  }
+
   const paraGravar = unicas
-    .filter((t) => !ja.has(t.externo_id))
+    .filter((t) => !ja.has(t.externo_id) && !jaLancado.has(t.externo_id))
     .map((t) => ({
       user_id: uid,
       conta_id: contaId,
@@ -958,6 +991,8 @@ export async function sincronizar(args: { contas: ContaBanco[]; conexoes: Conexa
   );
   if (semTabela) throw semTabela;
   if (todasNovas.length) await casarTransferencias(sb, uid, todasNovas, cartoes).catch(() => undefined);
+  // Cartão se configura sozinho (limite, fechamento, vencimento), só onde a pessoa não preencheu.
+  if (cartoes.size) await listarCartoesDoBanco().then(configurarCartoes).catch(() => undefined);
   return r;
 }
 
@@ -1105,4 +1140,132 @@ export async function listarInvestimentos(): Promise<InvestimentoBanco[]> {
       valor: valorDe(i.balance, i.netWorth, i.value, i.amount, i.grossValue, i.marketValue) ?? 0,
     }))
     .filter((i) => i.valor > 0);
+}
+
+// ── Cartões: faturas reais e detalhe (fase 2, 13/11/2026) ──────────────────
+
+export type FaturaBanco = {
+  id: string;
+  /** Vencimento (AAAA-MM-DD). */
+  vence: string | null;
+  total: number | null;
+  minimo: number | null;
+  /** "paga" | "aberta" | "atrasada" | "futura" | null (derivado pelo Banco MCP: `payment_status`). */
+  situacao: "paga" | "aberta" | "atrasada" | "futura" | null;
+};
+
+export type CartaoBanco = {
+  accountId: string;
+  itemId: string | null;
+  limite: number | null;
+  disponivel: number | null;
+  /** Dia do mês em que a fatura fecha / vence (do próprio banco). */
+  fechaDia: number | null;
+  venceDia: number | null;
+  faturas: FaturaBanco[];
+};
+
+const dataIso = (...v: unknown[]) => {
+  const t = texto(...v);
+  return /^\d{4}-\d{2}-\d{2}/.test(t) ? t.slice(0, 10) : null;
+};
+const diaDe = (iso: string | null) => (iso ? Number(iso.slice(8, 10)) || null : null);
+
+function situacaoDa(f: Record<string, unknown>, vence: string | null): FaturaBanco["situacao"] {
+  const s = semAcento(texto(f.payment_status, f.paymentStatus, f.status)).toLowerCase();
+  if (/paid|paga|quitad/.test(s)) return "paga";
+  if (/overdue|late|atras|vencid/.test(s)) return "atrasada";
+  if (/future|futur|next|proxim/.test(s)) return "futura";
+  if (/open|aberta|pending|unpaid|partial/.test(s)) return "aberta";
+  if (!vence) return null;
+  const hoje = new Date().toISOString().slice(0, 10);
+  return vence < hoje ? "atrasada" : "aberta";
+}
+
+/** Por cartão do banco: limite, disponível, dias de fechamento/vencimento e as últimas faturas. */
+export async function listarCartoesDoBanco(): Promise<CartaoBanco[]> {
+  const r = await chamar("cartoes");
+  return lista(r, "results").map((c) => {
+    const d = (c.detalhe ?? {}) as Record<string, unknown>;
+    const cred = ((d.creditData ?? d.credit_data ?? d.credit ?? {}) as Record<string, unknown>) || {};
+    const faturas = lista(c, "faturas")
+      .map((f) => {
+        const vence = dataIso(f.dueDate, f.due_date, f.vencimento);
+        return {
+          id: texto(f.id, f.bill_id),
+          vence,
+          total: valorDe(f.totalAmount, f.total_amount, f.amount, f.total),
+          minimo: valorDe(f.minimumPaymentAmount, f.minimum_payment_amount, f.minimumPayment),
+          situacao: situacaoDa(f, vence),
+        } satisfies FaturaBanco;
+      })
+      .filter((f) => f.id || f.vence)
+      .sort((a, b) => String(b.vence ?? "").localeCompare(String(a.vence ?? "")));
+    const fecha = dataIso(cred.balanceCloseDate, cred.balance_close_date, d.balanceCloseDate);
+    const vence = dataIso(cred.balanceDueDate, cred.balance_due_date, d.balanceDueDate) ?? faturas[0]?.vence ?? null;
+    return {
+      accountId: texto(c.account_id),
+      itemId: texto(c.item_id) || null,
+      limite: valorDe(cred.creditLimit, cred.credit_limit, d.creditLimit),
+      disponivel: valorDe(cred.availableCreditLimit, cred.available_credit_limit, d.availableCreditLimit),
+      fechaDia: diaDe(fecha),
+      venceDia: diaDe(vence),
+      faturas,
+    };
+  });
+}
+
+/** A fatura que importa agora: a aberta/atrasada mais próxima; senão a mais recente. */
+export function faturaAtual(c: CartaoBanco): FaturaBanco | null {
+  const pendentes = c.faturas.filter((f) => f.situacao === "aberta" || f.situacao === "atrasada");
+  return pendentes.sort((a, b) => String(a.vence ?? "").localeCompare(String(b.vence ?? "")))[0] ?? c.faturas[0] ?? null;
+}
+
+/**
+ * O CARTÃO SE CONFIGURA SOZINHO: grava limite e dias de fechamento/vencimento que o banco informa
+ * nos cartões do NovareCash — só onde a pessoa ainda não preencheu (o que ela digitou manda).
+ */
+export async function configurarCartoes(cartoes: CartaoBanco[]): Promise<void> {
+  if (!cartoes.length) return;
+  const sb = createClient();
+  const uid = await usuarioDaSessao(sb).catch(() => null);
+  if (!uid) return;
+  const { data, error } = await sb
+    .from("ncash_contas")
+    .select("id, externo_id, fecha_dia, vence_dia, limite")
+    .eq("user_id", uid)
+    .eq("origem", "openfinance")
+    .eq("tipo", "cartao")
+    .in("externo_id", cartoes.map((c) => c.accountId));
+  if (error) return; // SQL dos cartões ainda não rodado: segue sem.
+  for (const linha of data ?? []) {
+    const c = cartoes.find((x) => x.accountId === linha.externo_id);
+    if (!c) continue;
+    const campos: Record<string, number> = {};
+    if (linha.fecha_dia == null && c.fechaDia) campos.fecha_dia = c.fechaDia;
+    if (linha.vence_dia == null && c.venceDia) campos.vence_dia = c.venceDia;
+    if (linha.limite == null && c.limite) campos.limite = c.limite;
+    if (Object.keys(campos).length) await sb.from("ncash_contas").update(campos).eq("id", linha.id).eq("user_id", uid);
+  }
+}
+
+// ── Empréstimos e financiamentos (fase 2) ───────────────────────────────────
+
+export type EmprestimoBanco = { id: string; nome: string; saldoDevedor: number; parcelasRestantes: number | null };
+
+/** Contratos de empréstimo/financiamento do banco, com o SALDO DEVEDOR (vai para as Dívidas do Patrimônio). */
+export async function listarEmprestimos(): Promise<EmprestimoBanco[]> {
+  const r = await chamar("loans/list");
+  return lista(r, "results", "loans", "items", "data")
+    .map((l) => {
+      const parc = (l.installments ?? {}) as Record<string, unknown>;
+      return {
+        id: texto(l.id, l.loan_id, l.contractNumber),
+        nome: texto(l.productName, l.product_name, l.name, l.type) || "Empréstimo",
+        saldoDevedor:
+          valorDe(l.outstandingBalance, l.outstanding_balance, l.contractOutstandingBalance, l.saldo_devedor, l.balance) ?? 0,
+        parcelasRestantes: numero(parc.dueInstallments, parc.due_installments, l.remainingInstallments),
+      };
+    })
+    .filter((l) => l.saldoDevedor > 0);
 }

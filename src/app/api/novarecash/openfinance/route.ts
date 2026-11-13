@@ -42,6 +42,8 @@ export const maxDuration = 300;
 const PERMITIDOS = new Set([
   "connections/list", "accounts/list", "accounts/balance", "transactions/list",
   "investments/list", "credit-card-bills/list", "loans/list", "categories/list",
+  // 13/11/2026 (fase 2): por cartão, o detalhe (limite, fechamento, vencimento) + as últimas faturas.
+  "cartoes",
 ]);
 /** Os únicos campos que o navegador pode mandar (filtros), nunca `item`/`item_id`/`items`. */
 const CAMPOS_LIVRES = ["from", "to", "startDate", "endDate", "account_id", "type", "search_queries", "detail"] as const;
@@ -446,6 +448,32 @@ export async function POST(req: Request) {
               if (Number.isFinite(total) && total > 0 ? pagina >= total : itens.length < tamanho) break;
               if (pagina === PAGINAS_MAX) truncado = true;
             }
+          }
+          continue;
+        }
+
+        // CARTÕES (fase 2): detalhe em lote (accounts/detail) + as 6 últimas faturas de cada um.
+        if (endpoint === "cartoes") {
+          const cartoes = (await contasDo(itemId)).filter((a) => String(a.type || "").toUpperCase() === "CREDIT");
+          const ids = cartoes.map(idDaConta).filter(Boolean);
+          if (!ids.length) continue;
+          let detalhes: Qualquer[] = [];
+          try {
+            const box = await mcp("accounts/detail", { account_ids: ids.slice(0, 50), ...base });
+            detalhes = lista(box, "accounts", "results", "items", "data");
+          } catch (e) {
+            console.warn("[open-finance] accounts/detail", e instanceof Error ? e.message : e);
+          }
+          for (const id of ids) {
+            let faturas: Qualquer[] = [];
+            try {
+              const box = await mcp("credit-card-bills/list", { account_id: id, page: 1, page_size: 6, ...base });
+              faturas = lista(box, "bills", "results", "items", "data");
+            } catch (e) {
+              console.warn("[open-finance] credit-card-bills/list", e instanceof Error ? e.message : e);
+            }
+            const detalhe = detalhes.find((d) => idDaConta(d) === id) ?? cartoes.find((c) => idDaConta(c) === id) ?? null;
+            juntos.push({ account_id: id, item_id: itemId, detalhe, faturas });
           }
           continue;
         }

@@ -116,6 +116,8 @@ export function montarPatrimonio(
   contas: ContaComSaldo[],
   manuais: Investimento[],
   doBanco: InvestimentoBanco[],
+  /** Fase 2 (13/11/2026): empréstimos e financiamentos do Open Finance (saldo devedor). */
+  emprestimos: { id: string; nome: string; saldoDevedor: number; parcelasRestantes: number | null }[] = [],
 ): Patrimonio {
   const ativos: ItemAtivo[] = [];
   const dividas: ItemDivida[] = [];
@@ -147,6 +149,14 @@ export function montarPatrimonio(
     }
   }
 
+  emprestimos.forEach((e, n) =>
+    dividas.push({
+      chave: `e-${e.id || n}`,
+      nome: e.nome,
+      detalhe: e.parcelasRestantes ? `Banco (Open Finance) · ${e.parcelasRestantes} parcelas restantes` : "Banco (Open Finance)",
+      valor: arred(e.saldoDevedor),
+    }),
+  );
   doBanco.forEach((i, n) =>
     ativos.push({ chave: `b-${i.id || n}`, nome: i.nome, detalhe: "Banco (Open Finance)", classe: classeDoBanco(i), valor: arred(i.valor), fonte: "banco" }),
   );

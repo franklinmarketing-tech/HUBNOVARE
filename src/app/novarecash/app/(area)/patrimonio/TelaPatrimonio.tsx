@@ -5,7 +5,7 @@ import { Check, Landmark, Pencil, PiggyBank, Plus, Scale, Trash2, Wallet } from 
 
 import { createClient } from "@/lib/supabase/client";
 import { ErroDados, comSaldos, dataCurta, hojeNoBrasil, lerContas, usuarioDaSessao, type ContaComSaldo } from "@/lib/novarecash/dados";
-import { ErroBanco, listarInvestimentos, type InvestimentoBanco } from "@/lib/novarecash/openfinance";
+import { ErroBanco, listarEmprestimos, listarInvestimentos, type EmprestimoBanco, type InvestimentoBanco } from "@/lib/novarecash/openfinance";
 import { lerValor } from "@/lib/novarecash/importar";
 import {
   CLASSES_INVESTIMENTO,
@@ -58,6 +58,7 @@ export function TelaPatrimonio({
   const [manuais, setManuais] = useState<Investimento[]>([]);
   const [semTabelaInvest, setSemTabelaInvest] = useState(false);
   const [doBanco, setDoBanco] = useState<InvestimentoBanco[]>([]);
+  const [emprestimos, setEmprestimos] = useState<EmprestimoBanco[]>([]);
   const [erroBanco, setErroBanco] = useState<string | null>(null);
   const [editando, setEditando] = useState<Investimento | "novo" | null>(null);
   const [apagar, setApagar] = useState<Investimento | null>(null);
@@ -85,6 +86,8 @@ export function TelaPatrimonio({
       if (bancoLiberado) {
         try {
           setDoBanco(await listarInvestimentos());
+          // Empréstimos e financiamentos: entram nas Dívidas. Falhar aqui não derruba os investimentos.
+          setEmprestimos(await listarEmprestimos().catch(() => []));
         } catch (e) {
           setDoBanco([]);
           setErroBanco(e instanceof ErroBanco ? e.message : "Não consegui ler os investimentos do banco agora.");
@@ -100,7 +103,7 @@ export function TelaPatrimonio({
     carregar();
   }, [carregar]);
 
-  const p = useMemo(() => montarPatrimonio(contas, manuais, doBanco), [contas, manuais, doBanco]);
+  const p = useMemo(() => montarPatrimonio(contas, manuais, doBanco, emprestimos), [contas, manuais, doBanco, emprestimos]);
 
   async function confirmarApagar() {
     if (!uid || !apagar) return;

@@ -28,7 +28,9 @@ import {
   bancosComFalha,
   contasComSaldo,
   esquecer,
+  faturaAtual,
   iniciarConexao,
+  listarCartoesDoBanco,
   listarBancos,
   listarConexoes,
   marcarSincronizado,
@@ -42,6 +44,7 @@ import {
   urlParaConectar,
   urlParaReconectar,
   type BancoParaConectar,
+  type CartaoBanco,
   type CandidataBanco,
   type Conexao,
   type ContaBanco,
@@ -182,6 +185,35 @@ function Passos({ atual }: { atual: 0 | 1 | 2 }) {
   );
 }
 
+const ROTULO_FATURA = { paga: "Paga", aberta: "Aberta", atrasada: "Atrasada", futura: "Próxima" } as const;
+const TOM_FATURA: Record<string, TomSelo> = { paga: "verde", aberta: "ouro", atrasada: "perigo", futura: "neutro" };
+const dataCurta = (iso: string | null) => (iso ? `${iso.slice(8, 10)}/${iso.slice(5, 7)}` : null);
+
+/** FASE 2: a fatura REAL do cartão (valor, vencimento, situação) e o limite disponível, do próprio banco. */
+function InfoCartao({ cartao, saldo }: { cartao: CartaoBanco; saldo: number | null }) {
+  const f = faturaAtual(cartao);
+  return (
+    <span className="text-right">
+      <span className="block text-2xs text-white/55">
+        {f?.vence ? `Fatura · vence ${dataCurta(f.vence)}` : "Fatura / saldo"}
+      </span>
+      <span className="block font-display text-base font-semibold tabular-nums text-white">
+        {brl(f?.total ?? saldo ?? 0)}
+      </span>
+      <span className="mt-0.5 flex flex-wrap items-center justify-end gap-1.5">
+        {f?.situacao && <Selo tom={TOM_FATURA[f.situacao]}>{ROTULO_FATURA[f.situacao]}</Selo>}
+        {f?.minimo ? <span className="text-2xs text-white/55">mínimo {brl(f.minimo)}</span> : null}
+      </span>
+      {cartao.limite ? (
+        <span className="mt-0.5 block text-2xs text-white/55">
+          Limite {brl(cartao.limite)}
+          {cartao.disponivel !== null ? ` · livre ${brl(cartao.disponivel)}` : ""}
+        </span>
+      ) : null}
+    </span>
+  );
+}
+
 /**
  * `limite` (05/11/2026): quantos bancos o PLANO do dono permite (Essencial 1, Plus 3,
  * Premium 10 — `bancosDoPlano` em config.ts). Chegou no limite, o "Conectar" vira o
@@ -226,6 +258,8 @@ export function TelaBanco({ limite, nomePlano }: { limite: number; nomePlano: st
   const [progressoBanco, setProgressoBanco] = useState<{ item: string; frase: string } | null>(null);
   const [falhasBanco, setFalhasBanco] = useState<string[]>([]);
   const [aviso, setAviso] = useState<string | null>(null);
+  /** Fase 2: limite, disponível e faturas reais de cada cartão (por id da conta no banco). */
+  const [cartoesBanco, setCartoesBanco] = useState<Map<string, CartaoBanco>>(new Map());
 
   const carregar = useCallback(async () => {
     setCarregando(true);
@@ -235,6 +269,11 @@ export function TelaBanco({ limite, nomePlano }: { limite: number; nomePlano: st
       setConexoes(cx);
       setContas(cx.length ? await contasComSaldo() : []);
       setFalhasBanco(cx.length ? [...bancosComFalha()] : []);
+      // Faturas e limites: em segundo plano (a tela não espera).
+      if (cx.length)
+        listarCartoesDoBanco()
+          .then((l) => setCartoesBanco(new Map(l.map((c) => [c.accountId, c]))))
+          .catch(() => undefined);
     } catch (e) {
       setErro(frase(e));
     } finally {
@@ -1052,7 +1091,9 @@ export function TelaBanco({ limite, nomePlano }: { limite: number; nomePlano: st
                         {c.numero && <span className="block text-2xs text-white/55">{c.numero}</span>}
                       </span>
                     </span>
-                    {c.saldo !== null ? (
+                    {c.cartao && cartoesBanco.get(c.id) ? (
+                      <InfoCartao cartao={cartoesBanco.get(c.id)!} saldo={c.saldo} />
+                    ) : c.saldo !== null ? (
                       <span className="text-right">
                         <span className="block text-2xs text-white/55">{c.cartao ? "Fatura / saldo" : "Saldo no banco"}</span>
                         <span className="block font-display text-base font-semibold tabular-nums text-white">{brl(c.saldo)}</span>

@@ -4,7 +4,9 @@ import { useEffect } from "react";
 
 import {
   contasComSaldo,
+  faturaAtual,
   itensParaRefazer,
+  listarCartoesDoBanco,
   listarConexoes,
   marcarSincronizado,
   precisaReconectar,
@@ -66,6 +68,21 @@ export function AtualizaBanco() {
             });
             return;
           }
+        }
+        // Fatura do cartão vencendo em até 3 dias (e ainda não paga): avisa.
+        const hoje = new Date().toISOString().slice(0, 10);
+        const em3 = new Date(Date.now() + 3 * 86_400_000).toISOString().slice(0, 10);
+        const vencendo = (await listarCartoesDoBanco().catch(() => []))
+          .map((c) => ({ c, f: faturaAtual(c) }))
+          .find(({ f }) => f && f.vence && f.situacao !== "paga" && f.vence >= hoje && f.vence <= em3);
+        if (vivo && vencendo?.f) {
+          const conexao = conexoes.find((x) => x.itemId === vencendo.c.itemId);
+          const valor = vencendo.f.total ? ` de ${vencendo.f.total.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}` : "";
+          mostrar({
+            texto: `Fatura${conexao ? ` do ${conexao.banco}` : ""}${valor} vence em ${vencendo.f.vence!.slice(8, 10)}/${vencendo.f.vence!.slice(5, 7)}.`,
+            acao: { rotulo: "Ver", fazer: () => window.location.assign("/novarecash/app/banco") },
+          });
+          return;
         }
         if (vivo && reconectar.length) {
           mostrar({
