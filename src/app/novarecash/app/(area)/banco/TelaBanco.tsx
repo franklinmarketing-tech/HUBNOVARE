@@ -157,6 +157,23 @@ function LogoBanco({ logo, grande = false }: { logo: string | null; grande?: boo
   );
 }
 
+/** Uma mensagem do assistente na conversa de conexão. `digitando`: ainda em andamento; `ok`: concluída. */
+function Bolha({ children, digitando, ok }: { children: React.ReactNode; digitando?: boolean; ok?: boolean }) {
+  return (
+    <div className="flex items-start gap-2">
+      <span
+        aria-hidden
+        className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full ${ok ? "bg-[hsl(152_55%_41%/0.18)] text-[var(--ncash-verde)]" : "bg-ouro/15 text-ouro"}`}
+      >
+        {ok ? <Check className="h-3.5 w-3.5" /> : digitando ? <Loader2 className="h-3.5 w-3.5 animate-spin motion-reduce:animate-none" /> : <Landmark className="h-3.5 w-3.5" />}
+      </span>
+      <div className="min-w-0 max-w-[92%] rounded-2xl rounded-tl-sm border border-white/10 bg-white/[0.05] px-3.5 py-2.5 text-xs leading-relaxed text-white/85">
+        {children}
+      </div>
+    </div>
+  );
+}
+
 /** As três etapas no alto da janela: Autorizar → Trazer dados → Pronto. */
 function Passos({ atual }: { atual: 0 | 1 | 2 }) {
   const rotulos = ["Autorizar", "Importar", "Pronto"];
@@ -237,7 +254,13 @@ export function TelaBanco({ limite, nomePlano }: { limite: number; nomePlano: st
   const [pendente, setPendente] = useState<Pendente | null>(null);
   const [fase, setFase] = useState<Fase | null>(null);
   const [aberta, setAberta] = useState(false);
-  const [progresso, setProgresso] = useState("");
+  const [progresso, setProgressoBruto] = useState("");
+  /** A conversa: cada passo da importação vira uma mensagem (as anteriores ficam com ✓). */
+  const [historico, setHistorico] = useState<string[]>([]);
+  const setProgresso = useCallback((f: string) => {
+    setProgressoBruto(f);
+    setHistorico((h) => (!f ? [] : h[h.length - 1] === f ? h : [...h, f]));
+  }, []);
   const [resumo, setResumo] = useState<ResultadoSincronizacao | null>(null);
   const [falhaImport, setFalhaImport] = useState<string | null>(null);
   const [conferindo, setConferindo] = useState(false);
@@ -334,7 +357,7 @@ export function TelaBanco({ limite, nomePlano }: { limite: number; nomePlano: st
     } finally {
       setFase("pronto");
     }
-  }, []);
+  }, [setProgresso]);
 
   /** Achou a conexão: fecha a janelinha do banco e TRAZ TUDO sozinho. */
   const concluir = useCallback(
@@ -344,6 +367,11 @@ export function TelaBanco({ limite, nomePlano }: { limite: number; nomePlano: st
       itemNovo.current = itemId;
       janela.current?.fechar();
       janela.current = null;
+      // CHAMA O APP DE VOLTA: fechada a janela do banco, o NovareCash volta para a frente (onde o navegador deixa).
+      try {
+        window.focus();
+      } catch {}
+      setAberta(true);
       esquecerEspera();
       setEscolher(null);
       setConfirmar(null);
@@ -639,114 +667,143 @@ export function TelaBanco({ limite, nomePlano }: { limite: number; nomePlano: st
       titulo={fase === "autorizar" ? `${pendente?.item ? "Reconectar" : "Conectar"} ${nome}` : fase === "trazendo" ? "Trazendo os seus dados" : falhaImport ? "Quase lá" : "Banco conectado"}
       onFechar={fecharJanela}
     >
-      <div className="space-y-4">
-        {/* Importação que falhou fica na etapa 2 (não marca "Pronto"). */}
+      <div className="space-y-3">
         <Passos atual={fase === "autorizar" ? 0 : fase === "trazendo" || falhaImport ? 1 : 2} />
 
-        {fase === "autorizar" && (
-          <>
-            <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.03] p-4">
-              <LogoBanco logo={pendente?.logo ?? null} grande />
-              <div className="min-w-0">
-                <p className="truncate text-sm font-semibold text-white">{pendente?.banco || "Seu banco"}</p>
-                <p className="mt-0.5 flex items-center gap-1.5 text-xs text-white/65" aria-live="polite">
-                  <Loader2 className="h-3.5 w-3.5 shrink-0 animate-spin text-ouro motion-reduce:animate-none" />
-                  {conferindo ? "Conferindo…" : "Esperando a sua autorização"}
-                </p>
-              </div>
-            </div>
+        {/* A CONVERSA (13/11/2026): o passo a passo vira mensagens que aparecem conforme a autorização anda. */}
+        <div className="space-y-2.5" aria-live="polite">
+          <Bolha>
+            {pendente?.item ? (
+              <>
+                Vamos renovar a autorização do <strong className="text-white">{nome}</strong>. Nada se duplica.
+              </>
+            ) : (
+              <>
+                Abri o <strong className="text-white">{nome}</strong> numa janelinha. Autorize lá (no celular pode abrir o app
+                do banco) e volte para cá: <strong className="text-white">eu acompanho daqui</strong>.
+              </>
+            )}
+          </Bolha>
 
-            {bloqueada ? (
-              <div className="space-y-3">
-                <p className="text-xs leading-relaxed text-white/75">
-                  O navegador segurou a janela do banco. Toque abaixo para abrir.
-                </p>
+          {fase === "autorizar" && bloqueada && (
+            <Bolha>
+              O navegador segurou a janela do banco. Toque para abrir:
+              <span className="mt-2 flex flex-wrap gap-2">
                 <Botao Icone={ExternalLink} onClick={reabrir}>
                   Abrir o {nome}
                 </Botao>
-                {pendente?.url && (
-                  <a
-                    href={ponteDoBanco(pendente.url)}
-                    target="_blank"
-                    rel="noopener"
-                    className={`block text-2xs font-semibold text-ouro underline underline-offset-2 ${ANEL}`}
-                  >
-                    Não abriu? Toque aqui
-                  </a>
-                )}
-              </div>
-            ) : janelaFechou ? (
-              <p className="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-xs leading-relaxed text-white/80">
-                A janela do banco fechou. Se você terminou a autorização, espere uns segundos: estamos conferindo. Se não
-                terminou, toque em <strong className="text-white">Abrir o banco de novo</strong>.
-              </p>
-            ) : (
-              <ol className="space-y-2.5 text-xs leading-relaxed text-white/75">
-                {[
-                  <>
-                    Autorize no <strong className="text-white">{nome}</strong> (no celular, o app do banco abre sozinho).
-                  </>,
-                  <>
-                    Autorizou? <strong className="text-white">Volte para o NovareCash</strong>. Pode deixar a outra tela
-                    para trás: o resto é com a gente.
-                  </>,
-                  <>Contas, saldos e 12 meses de lançamentos entram sozinhos no seu extrato.</>,
-                ].map((texto, i) => (
-                  <li key={i} className="flex gap-2.5">
-                    <span aria-hidden className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-white/10 text-2xs font-bold text-white">
-                      {i + 1}
-                    </span>
-                    <span>{texto}</span>
-                  </li>
-                ))}
-              </ol>
-            )}
+              </span>
+              {pendente?.url && (
+                <a
+                  href={ponteDoBanco(pendente.url)}
+                  target="_blank"
+                  rel="noopener"
+                  className={`mt-2 block text-2xs font-semibold text-ouro underline underline-offset-2 ${ANEL}`}
+                >
+                  Não abriu? Toque aqui
+                </a>
+              )}
+            </Bolha>
+          )}
 
-            {confirmar && (
-              <div className="space-y-3 rounded-2xl border border-ouro/30 bg-ouro/[0.06] p-4">
-                <p className="text-sm font-semibold text-white">
-                  {confirmar.final ? (
-                    <>
-                      Encontramos uma conta {confirmar.banco} terminada em <span className="tabular-nums">{confirmar.final}</span>. É a sua?
-                    </>
-                  ) : (
-                    <>Encontramos uma conexão {confirmar.banco} agora há pouco. É a sua?</>
-                  )}
-                </p>
-                <p className="text-2xs leading-relaxed text-white/60">
-                  Outra pessoa conectou o mesmo banco no mesmo minuto. Confira o final da conta no app do seu banco antes de confirmar.
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  <Botao Icone={Check} onClick={() => conferirAgora(confirmar.itemId)} desabilitado={ocupado !== null}>
-                    Sim, é a minha
-                  </Botao>
-                  <Botao variante="contorno" Icone={X} onClick={naoEMinha} desabilitado={ocupado !== null}>
-                    Não é
-                  </Botao>
-                </div>
-              </div>
-            )}
+          {fase === "autorizar" && janelaFechou && !bloqueada && (
+            <Bolha>
+              A janela do banco fechou. Se você autorizou, já estou conferindo. Se não, toque em{" "}
+              <strong className="text-white">Abrir o banco de novo</strong>.
+            </Bolha>
+          )}
 
-            {escolher && escolher.length > 1 && (
-              <div className="space-y-2 rounded-2xl border border-ouro/30 bg-ouro/[0.06] p-4">
-                <p className="text-xs font-semibold text-white">Qual destes é o seu banco?</p>
+          {fase === "autorizar" && confirmar && (
+            <Bolha>
+              {confirmar.final ? (
+                <>
+                  Achei uma conta {confirmar.banco} terminada em <strong className="tabular-nums text-white">{confirmar.final}</strong>. É a
+                  sua?
+                </>
+              ) : (
+                <>Achei uma conexão {confirmar.banco} agora há pouco. É a sua?</>
+              )}
+              <span className="mt-1 block text-2xs text-white/55">
+                Outra pessoa conectou o mesmo banco no mesmo minuto: confira o final da conta.
+              </span>
+              <span className="mt-2 flex flex-wrap gap-2">
+                <Botao Icone={Check} onClick={() => conferirAgora(confirmar.itemId)} desabilitado={ocupado !== null}>
+                  Sim, é a minha
+                </Botao>
+                <Botao variante="contorno" Icone={X} onClick={naoEMinha} desabilitado={ocupado !== null}>
+                  Não é
+                </Botao>
+              </span>
+            </Bolha>
+          )}
+
+          {fase === "autorizar" && escolher && escolher.length > 1 && (
+            <Bolha>
+              Qual destes você acabou de conectar?
+              <span className="mt-2 grid gap-2">
                 {escolher.map((c) => (
                   <Botao key={c.itemId} variante="contorno" Icone={Landmark} onClick={() => conferirAgora(c.itemId)} desabilitado={ocupado !== null}>
                     {c.banco}
-                    {c.criado ? ` · conectado às ${new Date(c.criado).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}` : ""}
+                    {c.criado ? ` · ${new Date(c.criado).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}` : ""}
                   </Botao>
                 ))}
-                <p className="text-2xs text-white/55">Escolha só o que você acabou de conectar. Na dúvida, fale com a gente.</p>
-              </div>
-            )}
+              </span>
+            </Bolha>
+          )}
 
-            {recado && (
-              <p role="status" className="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-xs leading-relaxed text-white">
-                {recado}
-              </p>
-            )}
+          {fase === "autorizar" && recado && <Bolha>{recado}</Bolha>}
 
-            <div className="flex flex-wrap gap-2">
+          {fase === "autorizar" && !confirmar && !(escolher && escolher.length > 1) && (
+            <Bolha digitando>{conferindo ? "Conferindo com o banco…" : "Esperando a sua autorização…"}</Bolha>
+          )}
+
+          {fase && fase !== "autorizar" && (
+            <>
+              <Bolha ok>
+                <strong className="text-white">
+                  {nome} {pendente?.item ? "reconectado" : "conectado"}!
+                </strong>
+              </Bolha>
+              {historico.map((h, i) =>
+                i === historico.length - 1 && fase === "trazendo" ? (
+                  <Bolha key={i} digitando>
+                    {h}
+                  </Bolha>
+                ) : (
+                  <Bolha key={i} ok>
+                    {h}
+                  </Bolha>
+                ),
+              )}
+              {fase === "trazendo" && !historico.length && <Bolha digitando>{progresso || "Trazendo os seus dados…"}</Bolha>}
+            </>
+          )}
+
+          {fase === "pronto" && falhaImport && <Bolha>{falhaImport}</Bolha>}
+
+          {fase === "pronto" && !falhaImport && resumo && (
+            <Bolha ok>
+              {resumo.contas === 0
+                ? "O banco ainda não listou as contas: elas chegam sozinhas nas próximas horas. "
+                : `${resumo.contas} ${resumo.contas === 1 ? "conta com saldo" : "contas e cartões com saldo"} em dia. `}
+              {resumo.lidas === 0
+                ? "Os lançamentos ainda não chegaram; busco de novo sozinho."
+                : resumo.novas > 0
+                  ? `${resumo.novas} lançamentos no seu extrato, já com categoria.`
+                  : `${resumo.lidas} lançamentos conferidos: já estavam no extrato.`}
+              {resumo.falhas.length > 0 && (
+                <span className="mt-1 block text-2xs text-white/60">Não consegui ler: {resumo.falhas.join(", ")}.</span>
+              )}
+            </Bolha>
+          )}
+          {fase === "pronto" && !falhaImport && (
+            <Bolha>Pronto! Daqui para a frente eu atualizo sozinho sempre que você abrir o NovareCash.</Bolha>
+          )}
+        </div>
+
+        <div className="flex flex-wrap gap-2 pt-1">
+          {fase === "autorizar" && (
+            <>
               {!bloqueada && pendente?.url && (
                 <Botao variante="contorno" Icone={ExternalLink} onClick={reabrir} desabilitado={ocupado !== null}>
                   Abrir o banco de novo
@@ -758,78 +815,25 @@ export function TelaBanco({ limite, nomePlano }: { limite: number; nomePlano: st
               <Botao variante="fantasma" Icone={X} onClick={cancelar} desabilitado={ocupado !== null}>
                 Cancelar
               </Botao>
-            </div>
-          </>
-        )}
-
-        {fase === "trazendo" && (
-          <div className="flex flex-col items-center gap-3 py-6 text-center">
-            <Loader2 className="h-9 w-9 animate-spin text-ouro motion-reduce:animate-none" />
-            <p className="font-display text-base font-semibold text-white">{pendente?.banco ? `${pendente.banco} conectado!` : "Banco conectado!"}</p>
-            <p className="max-w-xs text-xs leading-relaxed text-white/70" aria-live="polite">
-              {progresso}
-            </p>
-            <p className="text-2xs text-white/50">Pode fechar esta janela: a importação continua.</p>
-          </div>
-        )}
-
-        {fase === "pronto" && (
-          <>
-            {falhaImport ? (
-              <p role="status" className="rounded-xl border border-warning/35 bg-warning/10 px-4 py-3 text-xs leading-relaxed text-white">
-                {falhaImport}
-              </p>
-            ) : (
-              <>
-                <div className="flex flex-col items-center gap-2 pt-2 text-center">
-                  <span className="flex h-14 w-14 items-center justify-center rounded-full bg-[hsl(152_55%_41%/0.15)] text-[var(--ncash-verde)]">
-                    <Check className="h-7 w-7" />
-                  </span>
-                  <p className="font-display text-lg font-semibold text-white">Pronto! {nome} conectado.</p>
-                </div>
-                {resumo && (
-                  <ul className="space-y-2 rounded-2xl border border-white/10 bg-white/[0.03] p-4 text-sm text-white/85">
-                    <li className="flex gap-2">
-                      <Check className="mt-0.5 h-4 w-4 shrink-0 text-[var(--ncash-verde)]" />
-                      {resumo.contas === 0
-                        ? "O banco ainda não listou as contas. Elas chegam sozinhas nas próximas horas."
-                        : `${resumo.contas} ${resumo.contas === 1 ? "conta com saldo atualizado" : "contas e cartões com saldo atualizado"}`}
-                    </li>
-                    <li className="flex gap-2">
-                      <Check className="mt-0.5 h-4 w-4 shrink-0 text-[var(--ncash-verde)]" />
-                      {resumo.lidas === 0
-                        ? "Os lançamentos ainda não chegaram. O NovareCash busca de novo sozinho."
-                        : resumo.novas > 0
-                          ? `${resumo.novas} lançamentos dos últimos 12 meses no seu extrato, já com categoria`
-                          : `${resumo.lidas} lançamentos conferidos: já estavam no seu extrato`}
-                    </li>
-                    <li className="flex gap-2">
-                      <Check className="mt-0.5 h-4 w-4 shrink-0 text-[var(--ncash-verde)]" />
-                      Daqui para a frente, atualiza sozinho quando você abre o NovareCash
-                    </li>
-                    {resumo.falhas.length > 0 && (
-                      <li className="text-xs text-white/65">Não consegui ler: {resumo.falhas.join(", ")}. Tente “Sincronizar agora” daqui a pouco.</li>
-                    )}
-                  </ul>
-                )}
-              </>
-            )}
-            <div className="flex flex-wrap gap-2">
-              {falhaImport ? (
-                <Botao Icone={RefreshCw} onClick={() => importar(itemNovo.current)}>
-                  Tentar de novo
-                </Botao>
-              ) : (
-                <Botao href="/novarecash/app/extrato" Icone={ArrowRight}>
-                  Ver meu extrato
-                </Botao>
-              )}
-              <Botao variante="contorno" onClick={fecharJanela}>
-                Fechar
+            </>
+          )}
+          {fase === "trazendo" && <p className="text-2xs text-white/50">Pode fechar: a importação continua.</p>}
+          {fase === "pronto" &&
+            (falhaImport ? (
+              <Botao Icone={RefreshCw} onClick={() => importar(itemNovo.current)}>
+                Tentar de novo
               </Botao>
-            </div>
-          </>
-        )}
+            ) : (
+              <Botao href="/novarecash/app/extrato" Icone={ArrowRight}>
+                Ver meu extrato
+              </Botao>
+            ))}
+          {fase === "pronto" && (
+            <Botao variante="contorno" onClick={fecharJanela}>
+              Fechar
+            </Botao>
+          )}
+        </div>
 
         <p className="flex items-start gap-1.5 text-2xs leading-relaxed text-white/50">
           <ShieldCheck className="mt-px h-3.5 w-3.5 shrink-0 text-[var(--ncash-verde)]" />
