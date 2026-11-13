@@ -143,6 +143,9 @@ export type CandidataBanco = { itemId: string; banco: string; criado: number | n
 export async function reivindicar(opcoes: { desde?: string | null; itemId?: string } = {}): Promise<{
   ok: boolean;
   mensagem: string;
+  /** O banco que acabou de ser ligado (para a importação automática acompanhar só ele). */
+  itemId?: string;
+  banco?: string;
   escolher?: CandidataBanco[];
 }> {
   try {
@@ -152,7 +155,7 @@ export async function reivindicar(opcoes: { desde?: string | null; itemId?: stri
     });
     if (r.claimed === true) {
       const banco = texto(r.connector_name);
-      return { ok: true, mensagem: banco ? `${banco} conectado.` : "Banco conectado." };
+      return { ok: true, mensagem: banco ? `${banco} conectado.` : "Banco conectado.", itemId: texto(r.item_id) || undefined, banco: banco || undefined };
     }
     const escolher = lista(r, "escolher")
       .map((c) => ({ itemId: texto(c.item_id), banco: texto(c.connector_name) || "Banco", criado: numero(c.criado) }))
@@ -178,8 +181,9 @@ export async function esquecer(itemId: string): Promise<boolean> {
   return r.revogadoNoBanco !== false;
 }
 
-export async function listarConexoes(): Promise<Conexao[]> {
-  const r = await chamar("connections/list");
+/** `fresco`: sem o cache de 60 s do servidor (para acompanhar o banco recém-conectado). */
+export async function listarConexoes(fresco = false): Promise<Conexao[]> {
+  const r = await chamar("connections/list", fresco ? { fresco: true } : {});
   return lista(r, "connections", "results", "items", "data")
     .map((c) => ({
       itemId: texto(c.item_id, c.id, c.itemId, c.connection_id),
@@ -187,6 +191,129 @@ export async function listarConexoes(): Promise<Conexao[]> {
       status: texto(c.status) || null,
     }))
     .filter((c) => c.itemId);
+}
+
+/** O banco ainda está mandando os dados (logo depois de conectar). Status do provedor (Pluggy). */
+const EM_ANDAMENTO = /UPDATING|CREATING|WAITING|PENDING|SYNC/i;
+const COM_PROBLEMA = /LOGIN_ERROR|OUTDATED|ERROR/i;
+
+/** O status do provedor em português, para a pessoa (13/11/2026: antes aparecia "UPDATED"). */
+export function statusLegivel(status: string | null): string | null {
+  if (!status) return null;
+  const s = status.toUpperCase();
+  if (s === "UPDATED" || s === "CONNECTED" || s === "ACTIVE") return "Em dia";
+  if (EM_ANDAMENTO.test(s)) return "Atualizando…";
+  if (s.includes("LOGIN_ERROR")) return "Precisa conectar de novo";
+  if (s.includes("OUTDATED")) return "Desatualizado: conecte de novo";
+  if (COM_PROBLEMA.test(s)) return "Com problema: conecte de novo";
+  return null;
+}
+
+// ── A janela do banco (13/11/2026) ──────────────────────────────────────────
+
+/**
+ * A JANELINHA DO BANCO (13/11/2026): a autorização abre por cima do NovareCash (no celular, o
+ * navegador abre uma aba) e o app a FECHA sozinho assim que a conexão aparece.
+ *
+ * Quem abre a janelinha é um QUADRO INVISÍVEL do próprio app (`#ncash-abridor`), não a aba. Motivo:
+ * a página da mcp.ai, 10 s depois de "Connected", faz `window.opener.location.href = claude.ai`.
+ * Com a aba como opener, o NovareCash ia parar no Claude. Com o quadro, o navegador barra
+ * ("does not have permission to navigate the target frame") e a aba fica intacta — e o quadro, por
+ * ser o opener, ainda pode fechar a janelinha. Testado no Chromium com o bloqueador de pop-up ligado.
+ * Sem o quadro (reserva), a janelinha sai da aba e a ponte `/novarecash/conectar-banco` corta o opener.
+ *
+ * Chamar DENTRO do toque (sem `await` antes), senão o navegador bloqueia. `null` = bloqueada.
+ * Sem `url` ainda (vai buscar depois de um `await`): abre em branco e depois `irPara`.
+ */
+export const ponteDoBanco = (url: string) => `/novarecash/conectar-banco?u=${encodeURIComponent(url)}`;
+
+export type JanelaDoBanco = { fechada: () => boolean; fechar: () => void; irPara: (url: string) => void };
+
+type Abridor = Window & {
+  abrir?: (u: string, alvo: string, recursos: string) => boolean;
+  fechar?: () => void;
+  fechou?: () => boolean;
+  ir?: (u: string) => void;
+};
+
+function abridor(): Abridor | null {
+  try {
+    let quadro = document.getElementById("ncash-abridor") as HTMLIFrameElement | null;
+    if (!quadro) {
+      quadro = document.createElement("iframe");
+      quadro.id = "ncash-abridor";
+      quadro.title = "Apoio da conexão com o banco";
+      quadro.tabIndex = -1;
+      quadro.setAttribute("aria-hidden", "true");
+      quadro.style.display = "none";
+      document.body.appendChild(quadro);
+    }
+    const w = quadro.contentWindow as Abridor | null;
+    if (w && !w.abrir) {
+      // As funções moram NO quadro: é ele que abre (vira o opener) e que pode fechar.
+      const doc = w.document;
+      const s = doc.createElement("script");
+      s.textContent =
+        "var j=null;" +
+        "window.abrir=function(u,a,r){j=window.open(u,a,r);return !!j};" +
+        "window.fechar=function(){try{if(j&&!j.closed)j.close()}catch(e){}};" +
+        "window.fechou=function(){try{return !j||j.closed}catch(e){return true}};" +
+        "window.ir=function(u){try{if(j)j.location.href=u}catch(e){}};";
+      (doc.body ?? doc.documentElement).appendChild(s);
+    }
+    return w?.abrir ? w : null;
+  } catch {
+    return null;
+  }
+}
+
+export function abrirJanelaDoBanco(url: string | null): JanelaDoBanco | null {
+  const destino = url ? ponteDoBanco(url) : "about:blank";
+  const celular = window.matchMedia("(pointer: coarse)").matches || window.innerWidth < 768;
+  const [w, h] = [480, 720];
+  const esquerda = Math.round(window.screenX + Math.max(0, (window.outerWidth - w) / 2));
+  const topo = Math.round(window.screenY + Math.max(0, (window.outerHeight - h) / 2));
+  const alvo = celular ? "_blank" : "ncash-banco";
+  const recursos = celular ? "" : `popup=yes,width=${w},height=${h},left=${esquerda},top=${topo}`;
+
+  const a = abridor();
+  if (a?.abrir) {
+    if (!a.abrir(destino, alvo, recursos)) return null;
+    return { fechada: () => a.fechou?.() ?? true, fechar: () => a.fechar?.(), irPara: (u) => a.ir?.(ponteDoBanco(u)) };
+  }
+  const j = window.open(destino, alvo, recursos);
+  if (!j) return null;
+  return {
+    fechada: () => j.closed,
+    fechar: () => {
+      try {
+        j.close();
+      } catch {}
+    },
+    irPara: (u) => {
+      j.location.href = ponteDoBanco(u);
+    },
+  };
+}
+
+// ── Atualização automática ──────────────────────────────────────────────────
+
+const CHAVE_ULTIMA_SYNC = "ncash:open-finance:ultima-sync";
+/** De quanto em quanto tempo o NovareCash atualiza sozinho ao abrir o app. */
+export const INTERVALO_SYNC = 6 * 60 * 60_000;
+
+export function marcarSincronizado() {
+  try {
+    localStorage.setItem(CHAVE_ULTIMA_SYNC, String(Date.now()));
+  } catch {}
+}
+
+export function precisaSincronizar(): boolean {
+  try {
+    return Date.now() - Number(localStorage.getItem(CHAVE_ULTIMA_SYNC) || 0) > INTERVALO_SYNC;
+  } catch {
+    return false;
+  }
 }
 
 // ── Contas e saldos ─────────────────────────────────────────────────────────
@@ -576,6 +703,60 @@ export async function sincronizar(args: {
     }
   }
   return r;
+}
+
+/** As contas com saldo. O saldo que a lista não trouxe é pedido UM POR VEZ (o limite do Banco MCP é da conta inteira). */
+export async function contasComSaldo(): Promise<ContaBanco[]> {
+  const cs = await listarContas();
+  const comSaldo: ContaBanco[] = [];
+  for (const c of cs) comSaldo.push(c.saldo !== null ? c : { ...c, saldo: await saldoDaConta(c.id).catch(() => null) });
+  return comSaldo;
+}
+
+const esperar = (ms: number) => new Promise((ok) => setTimeout(ok, ms));
+
+/**
+ * TRAZ TUDO SOZINHO depois de conectar (13/11/2026). Antes a pessoa conectava e ainda tinha que
+ * achar o "Sincronizar agora". Agora, assim que o banco é ligado:
+ *   1. espera o banco terminar de mandar os dados (UPDATING → UPDATED, até ~2 min);
+ *   2. lê contas e cartões com o saldo (de novo, se o banco ainda não listou);
+ *   3. grava os lançamentos dos últimos `dias` (12 meses na primeira vez), sem duplicar.
+ * `aoAvancar` recebe a frase do passo, para a tela mostrar.
+ */
+export async function trazerTudo(opcoes: {
+  itemId?: string | null;
+  dias?: number;
+  aoAvancar?: (frase: string) => void;
+}): Promise<{ resultado: ResultadoSincronizacao; conexoes: Conexao[]; contas: ContaBanco[] }> {
+  const avisar = opcoes.aoAvancar ?? (() => {});
+
+  avisar("Conferindo a conexão com o banco…");
+  let conexoes = await listarConexoes(true);
+  for (let i = 0; opcoes.itemId && i < 24; i++) {
+    const status = conexoes.find((c) => c.itemId === opcoes.itemId)?.status ?? "";
+    if (COM_PROBLEMA.test(status)) {
+      throw new ErroBanco("falha", "O banco não liberou o acesso. Toque em Desligar e conecte de novo.", status);
+    }
+    if (!EM_ANDAMENTO.test(status)) break;
+    avisar("O banco está enviando os seus dados. Pode levar até 2 minutos…");
+    await esperar(5000);
+    conexoes = await listarConexoes(true);
+  }
+
+  avisar("Lendo as suas contas e cartões…");
+  let contas: ContaBanco[] = [];
+  for (let i = 0; i < 6; i++) {
+    contas = await contasComSaldo();
+    if (contas.length) break;
+    await esperar(5000);
+  }
+
+  const n = contas.length;
+  avisar(n ? `Trazendo os lançamentos de ${n} ${n === 1 ? "conta" : "contas e cartões"}…` : "O banco ainda não mandou as contas…");
+  const resultado = await sincronizar({ contas, conexoes, dias: opcoes.dias ?? 365 });
+  // Só marca como "em dia" se veio algo: senão a próxima abertura do app tenta de novo.
+  if (resultado.lidas > 0 || resultado.contas > 0) marcarSincronizado();
+  return { resultado, conexoes, contas };
 }
 
 // ── Investimentos (Patrimônio, 04/11/2026) ──────────────────────────────────

@@ -90,11 +90,12 @@ async function mcp(endpoint: string, body: Record<string, unknown>, tentativa = 
 
 // ── cache curto (por instância): regra 7 ─────────────────────────────────────
 const cache = new Map<string, { ate: number; valor: unknown }>();
-async function emCache<T>(chave: string, segundos: number, buscar: () => Promise<T>): Promise<T> {
+/** `guardar` (13/11/2026): resposta que não vale guardar (lista vazia logo depois de conectar) não entra no cache. */
+async function emCache<T>(chave: string, segundos: number, buscar: () => Promise<T>, guardar: (v: T) => boolean = () => true): Promise<T> {
   const c = cache.get(chave);
   if (c && c.ate > Date.now()) return c.valor as T;
   const valor = await buscar();
-  cache.set(chave, { ate: Date.now() + segundos * 1000, valor });
+  if (guardar(valor)) cache.set(chave, { ate: Date.now() + segundos * 1000, valor });
   return valor;
 }
 const conexoesDaConta = () =>
@@ -230,7 +231,7 @@ export async function POST(req: Request) {
         return ok({ claimed: false, message: "Essa conexão já está ligada a outra conta. Conecte o seu banco de novo." });
       }
       if (error && (error as Qualquer).code !== "23505") throw new ErroMcp(500, "falha", error.message);
-      const r = ok({ claimed: true, count: 1, connector_name: bancoDe(c) });
+      const r = ok({ claimed: true, count: 1, connector_name: bancoDe(c), item_id: itemDe(c) });
       r.cookies.delete({ name: PEDIDO, path: "/api/novarecash/openfinance" });
       return r;
     }
@@ -260,6 +261,8 @@ export async function POST(req: Request) {
 
     if (endpoint === "connections/list") {
       // O status de agora vem do Banco MCP (UPDATED, LOGIN_ERROR, OUTDATED…), não do que foi gravado no claim.
+      // `fresco` (13/11/2026): logo depois de conectar, o app acompanha o UPDATING → UPDATED sem o cache de 60 s.
+      if (corpo.fresco === true && minhas.length) cache.delete("conexoes");
       const { conexoes } = await conexoesDaConta();
       const statusDe = new Map(conexoes.map((c) => [itemDe(c), c.status ?? null]));
       return ok({
@@ -280,13 +283,19 @@ export async function POST(req: Request) {
     const baseDe = (itemId: string): Record<string, unknown> => (semItem ? {} : { item: itemId, item_id: itemId });
 
     const contasDo = (itemId: string) =>
-      emCache(`contas:${itemId}`, 120, async () => {
-        const box = await mcp("accounts/list", { ...baseDe(itemId) });
-        return lista(box, "results", "accounts", "items", "data").filter((a) => {
-          const dono = itemDaResposta(a);
-          return !dono || dono === itemId; // regra 2
-        });
-      });
+      emCache(
+        `contas:${itemId}`,
+        120,
+        async () => {
+          const box = await mcp("accounts/list", { ...baseDe(itemId) });
+          return lista(box, "results", "accounts", "items", "data").filter((a) => {
+            const dono = itemDaResposta(a);
+            return !dono || dono === itemId; // regra 2
+          });
+        },
+        // Banco recém-conectado ainda sem contas: não guarda o vazio (a importação automática pergunta de novo).
+        (contas) => contas.length > 0,
+      );
 
     const juntos: Qualquer[] = [];
     const contaPedida = filtros.account_id ? String(filtros.account_id) : null;

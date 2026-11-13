@@ -5,11 +5,12 @@ import type { Metadata } from "next";
 import { getPerfil } from "@/lib/perfil";
 import { sair } from "@/lib/acoes-sessao";
 import { minhaAssinatura } from "@/lib/novarecash/acesso";
-import { ehEquipe } from "@/lib/novarecash/recursos";
+import { ehEquipe, estadoDoRecurso } from "@/lib/novarecash/recursos";
 import { planoPorChave } from "@/lib/novarecash/config";
 import { MarcaNovareCash } from "@/components/novarecash/MarcaNovareCash";
 import { BarraLateralNovareCash, BotaoBusca, NavNovareCashCelular } from "./NavNovareCash";
 import { MenuUsuario } from "./MenuUsuario";
+import { AtualizaBanco } from "./AtualizaBanco";
 import { BoasVindas } from "./BoasVindas";
 import { Paleta } from "./Paleta";
 import { TourNovareCash } from "./TourNovareCash";
@@ -99,6 +100,8 @@ export default async function CascaNovareCash({ children }: { children: React.Re
           Depois da barra do polegar no DOM: a janela pinta por cima dela. */}
       <BoasVindas />
       <TourNovareCash />
+      {/* 13/11/2026: banco conectado atualiza sozinho ao abrir o app (a cada 6 h, em segundo plano). */}
+      {estadoDoRecurso("banco", perfil?.role).liberado && <AtualizaBanco />}
     </div>
   );
 }
