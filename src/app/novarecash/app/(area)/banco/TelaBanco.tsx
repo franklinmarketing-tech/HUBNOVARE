@@ -431,7 +431,9 @@ export function TelaBanco({ limite, nomePlano }: { limite: number; nomePlano: st
     };
     document.addEventListener("visibilitychange", aoVoltar);
     window.addEventListener("focus", aoVoltar);
+    window.addEventListener("pageshow", aoVoltar);
     return () => {
+      window.removeEventListener("pageshow", aoVoltar);
       parar = true;
       clearTimeout(timer);
       clearInterval(olho);
@@ -682,14 +684,13 @@ export function TelaBanco({ limite, nomePlano }: { limite: number; nomePlano: st
               <ol className="space-y-2.5 text-xs leading-relaxed text-white/75">
                 {[
                   <>
-                    Na janela do <strong className="text-white">{nome}</strong>, confirme o compartilhamento. No celular, o
-                    app do banco abre sozinho.
+                    Autorize no <strong className="text-white">{nome}</strong> (no celular, o app do banco abre sozinho).
                   </>,
                   <>
-                    Quando o banco disser que deu certo, volte para o NovareCash. Se aparecer uma página em inglês
-                    (“Connected”), é só fechar.
+                    Autorizou? <strong className="text-white">Volte para o NovareCash</strong>. Pode deixar a outra tela
+                    para trás: o resto é com a gente.
                   </>,
-                  <>A gente percebe sozinho e traz contas, saldos e lançamentos para o seu extrato.</>,
+                  <>Contas, saldos e 12 meses de lançamentos entram sozinhos no seu extrato.</>,
                 ].map((texto, i) => (
                   <li key={i} className="flex gap-2.5">
                     <span aria-hidden className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-white/10 text-2xs font-bold text-white">

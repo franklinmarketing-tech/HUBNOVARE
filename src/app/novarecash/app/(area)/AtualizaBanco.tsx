@@ -12,11 +12,15 @@ import {
   precisaReconectar,
   precisaSincronizar,
   refeito,
+  reivindicar,
   sincronizar,
+  trazerTudo,
 } from "@/lib/novarecash/openfinance";
 import { Toast, useToast } from "./Toast";
 
 const CHAVE_TRAVA = "ncash:open-finance:sincronizando";
+/** A mesma chave da TelaBanco: a conexão em andamento. */
+const CHAVE_ESPERA = "ncash:open-finance:esperando";
 
 /**
  * ATUALIZA SOZINHO (13/11/2026; revisto na varredura do mesmo dia). Quem tem banco conectado não
@@ -34,6 +38,43 @@ const CHAVE_TRAVA = "ncash:open-finance:sincronizando";
 export function AtualizaBanco() {
   const toast = useToast();
   const { mostrar } = toast;
+
+  // CONEXÃO QUE FICOU PELA METADE (13/11/2026): o banco devolveu o cliente em outra aba/app e ele
+  // reabriu o NovareCash por outro caminho. Em qualquer tela (fora da Banco, que cuida disso sozinha),
+  // confere a autorização e traz os 12 meses — sem o cliente precisar voltar àquela janela.
+  useEffect(() => {
+    if (window.location.pathname.includes("/novarecash/app/banco")) return;
+    let espera: { quando?: number; banco?: string; url?: string; item?: string } | null = null;
+    try {
+      const bruto = localStorage.getItem(CHAVE_ESPERA);
+      espera = bruto && !/^\d+$/.test(bruto) ? JSON.parse(bruto) : null;
+    } catch {
+      return;
+    }
+    if (!espera?.url || espera.item || Date.now() - Number(espera.quando) > 60 * 60_000) return;
+    let vivo = true;
+    (async () => {
+      try {
+        const r = await reivindicar();
+        if (!r.ok) return; // dúvida (confirmar/escolher) ou ainda não autorizou: a tela Banco resolve
+        try {
+          localStorage.removeItem(CHAVE_ESPERA);
+        } catch {}
+        const t = await trazerTudo({ itemId: r.itemId ?? null, dias: 365 });
+        marcarSincronizado();
+        if (vivo)
+          mostrar({
+            texto: `${r.banco || espera?.banco || "Banco"} conectado! ${t.resultado.novas} lançamentos entraram no extrato.`,
+            acao: { rotulo: "Ver", fazer: () => window.location.assign("/novarecash/app/banco") },
+          });
+      } catch {
+        /* a tela Banco retoma */
+      }
+    })();
+    return () => {
+      vivo = false;
+    };
+  }, [mostrar]);
 
   useEffect(() => {
     if (!precisaSincronizar()) return;

@@ -340,8 +340,11 @@ export function abrirJanelaDoBanco(url: string | null): JanelaDoBanco | null {
   const [w, h] = [480, 720];
   const esquerda = Math.round(window.screenX + Math.max(0, (window.outerWidth - w) / 2));
   const topo = Math.round(window.screenY + Math.max(0, (window.outerHeight - h) / 2));
-  const alvo = celular ? "_blank" : "ncash-banco";
-  const recursos = celular ? "" : `popup=yes,width=${w},height=${h},left=${esquerda},top=${topo}`;
+  // Sempre a MESMA janela nomeada e sempre como pop-up (13/11/2026): no computador, uma janelinha por cima
+  // do app; no celular com o app instalado (Android), abre sobreposta ao app e, ao fechar, volta para ele;
+  // e reabrir não empilha abas. A aba do app nunca sai do lugar.
+  const alvo = "ncash-banco";
+  const recursos = celular ? "popup=yes" : `popup=yes,width=${w},height=${h},left=${esquerda},top=${topo}`;
 
   const a = abridor();
   if (a?.abrir) {
