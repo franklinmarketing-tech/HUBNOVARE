@@ -9,7 +9,8 @@ import { ANEL } from "./pecas";
  * A janela do NovareCash: folha que sobe de baixo no celular e caixa no centro
  * do tablet para cima.
  *
- * Fica ACIMA da barra do polegar (z-50 contra z-30), trava a rolagem da página
+ * Fica ACIMA da barra do polegar: z-[60] contra z-50 (13/11/2026 — antes as duas eram z-50 e a
+ * barra, que vem depois no DOM, cobria o pé da janela no celular, com os botões). Trava a rolagem da página
  * e fecha com Esc, com o X ou tocando fora. O foco entra no campo marcado com
  * `data-autofoco` (o valor, num lançamento novo: o teclado numérico já sobe) ou,
  * sem ele, no primeiro campo; e o Tab fica preso dentro da janela.
@@ -70,7 +71,7 @@ export function Janela({
   }, []);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center sm:p-6">
+    <div className="fixed inset-0 z-[60] flex items-end justify-center sm:items-center sm:p-6">
       <button
         type="button"
         aria-label="Fechar"

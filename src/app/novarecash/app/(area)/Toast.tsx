@@ -73,7 +73,7 @@ export function Toast({ toast, fechar, agir }: { toast: ToastVivo | null; fechar
     <div
       role="status"
       aria-live="polite"
-      className="nao-imprimir pointer-events-none fixed inset-x-0 bottom-[calc(4.75rem+env(safe-area-inset-bottom))] z-[60] flex justify-center px-4 md:bottom-6 md:left-[76px] lg:left-64"
+      className="nao-imprimir pointer-events-none fixed inset-x-0 bottom-[calc(4.75rem+env(safe-area-inset-bottom))] z-[65] flex justify-center px-4 md:bottom-6 md:left-[76px] lg:left-64"
     >
       {toast && (
         <div

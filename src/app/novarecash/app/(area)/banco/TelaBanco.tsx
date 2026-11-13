@@ -71,9 +71,11 @@ function lerEspera(): Pendente | null {
   try {
     const bruto = localStorage.getItem(CHAVE_ESPERA);
     if (!bruto) return null;
-    // Até 13/11 a chave guardava só a hora.
-    const p: Pendente = /^\d+$/.test(bruto) ? { quando: Number(bruto), banco: "", logo: null, url: null } : JSON.parse(bruto);
-    return p && Date.now() - Number(p.quando) < 60 * 60_000 ? p : null;
+    // A versão anterior guardava só a hora: espera dessa época é descartada (ela abria uma janela "Conectar seu banco" do nada).
+    const p: Pendente | null = /^\d+$/.test(bruto) ? null : JSON.parse(bruto);
+    if (p?.url && Date.now() - Number(p.quando) < 60 * 60_000) return p;
+    localStorage.removeItem(CHAVE_ESPERA);
+    return null;
   } catch {
     return null;
   }
@@ -208,7 +210,9 @@ export function TelaBanco({ limite, nomePlano }: { limite: number; nomePlano: st
     if (!p) return;
     setPendente(p);
     setFase("autorizar");
-    setAberta(true);
+    // Recente (a pessoa acabou de voltar do banco): mostra o passo a passo. Mais antiga: só o aviso na
+    // tela, com "Ver o passo a passo" e "Cancelar" — sem janela abrindo sozinha.
+    setAberta(Date.now() - p.quando < 15 * 60_000);
   }, []);
 
   // A lista de bancos: os mais usados de cara; digitando, a busca (com uma pausa entre as letras).
