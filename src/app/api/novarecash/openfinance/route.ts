@@ -41,6 +41,8 @@ const CAMPOS_LIVRES = ["from", "to", "startDate", "endDate", "account_id", "type
 const LIMITE_PLANO: Record<string, number> = { essencial: 1, plus: 3, premium: 10 };
 const PEDIDO = "ncash_of_pedido";
 const PAGINAS_MAX = 20;
+/** Os bancos que aparecem de cara na escolha (sem digitar). */
+const POPULARES = ["nubank", "itau", "bradesco", "banco do brasil", "caixa", "santander", "inter", "mercado pago", "c6", "picpay", "btg", "sicoob", "sicredi"];
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 type Qualquer = any;
@@ -145,6 +147,30 @@ export async function POST(req: Request) {
 
     const { data: linhas } = await db.from("vidaplan_open_finance").select("item_id, connector_name, status").eq("user_id", usuario.id);
     const minhas = (linhas ?? []).filter((l: Qualquer) => String(l.status ?? "").toLowerCase() !== "revogada");
+
+    // ── Os bancos para escolher DENTRO do NovareCash (13/11/2026) ──
+    /* Antes a pessoa caía na página da mcp.ai: "Sign in", oferta de plano PJ e o mesmo banco duas vezes
+       ("Credenciais", que pede CPF e senha, e "Open Finance"). Agora ela escolhe aqui, e o link já vai
+       com o banco certo e o fluxo rápido. Só `open_finance` e pessoa física. */
+    if (endpoint === "bancos") {
+      const busca = String(corpo.busca ?? "").trim().slice(0, 40);
+      const palavras = busca.length >= 2 ? [busca] : POPULARES;
+      const bancos = await emCache(`bancos:${palavras.join("|").toLowerCase()}`, 1800, async () => {
+        const box = await mcp("connectors/search", { keywords: palavras });
+        const vistos = new Set<string>();
+        return lista(box, "banks", "results", "connectors", "items", "data")
+          .filter((b) => String(b.access ?? "open_finance").toLowerCase() === "open_finance")
+          .filter((b) => !b.audience || String(b.audience).toLowerCase() === "pf")
+          .map((b) => ({ id: String(b.id ?? ""), nome: String(b.name ?? b.connector_name ?? ""), url: String(b.connect_url ?? ""), logo: b.imageUrl ?? b.image_url ?? b.logo ?? null }))
+          .filter((b) => b.url && b.nome && !vistos.has(b.nome.toLowerCase()) && vistos.add(b.nome.toLowerCase()));
+      });
+      const quando = String(Date.now());
+      const r = ok({ bancos });
+      r.cookies.set(PEDIDO, `${usuario.id}.${quando}.${assinar(`${usuario.id}.${quando}`)}`, {
+        httpOnly: true, secure: true, sameSite: "lax", path: "/api/novarecash/openfinance", maxAge: 3600,
+      });
+      return r;
+    }
 
     // ── Link para conectar um banco (e o pedido assinado) ──
     if (endpoint === "connect-url") {

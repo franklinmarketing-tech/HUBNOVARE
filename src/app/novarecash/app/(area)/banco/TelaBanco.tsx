@@ -2,13 +2,14 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import { Check, CreditCard, ExternalLink, Landmark, Link2, PowerOff, RefreshCw, ShieldCheck } from "lucide-react";
+import { Check, CreditCard, ExternalLink, Landmark, Link2, Loader2, PowerOff, RefreshCw, Search, ShieldCheck, X } from "lucide-react";
 
 import { ErroDados } from "@/lib/novarecash/dados";
 import {
   ErroBanco,
   esquecer,
   listarConexoes,
+  listarBancos,
   listarContas,
   nomeDaConta,
   reivindicar,
@@ -16,6 +17,7 @@ import {
   sincronizar,
   urlParaConectar,
   type Conexao,
+  type BancoParaConectar,
   type CandidataBanco,
   type ContaBanco,
   type ResultadoSincronizacao,
@@ -33,6 +35,13 @@ import { ANEL, AvisoErro, AvisoSemTabela, Botao, Cartao, Esqueleto, Selo, brl } 
  * Nenhum erro técnico chega à tela: tudo passa por `ErroBanco`, que já vem com
  * a frase certa ("a integração está sendo reativada", etc.).
  */
+
+const CHAVE_ESPERA = "ncash:open-finance:esperando";
+const esquecerEspera = () => {
+  try {
+    localStorage.removeItem(CHAVE_ESPERA);
+  } catch {}
+};
 
 const frase = (e: unknown) =>
   e instanceof ErroBanco ? e.message : "Não consegui falar com o banco agora. Tente de novo em instantes.";
@@ -70,6 +79,13 @@ export function TelaBanco({ limite, nomePlano }: { limite: number; nomePlano: st
   const [desde, setDesde] = useState<string | null>(null);
   const [escolher, setEscolher] = useState<CandidataBanco[] | null>(null);
   const [linkManual, setLinkManual] = useState<string | null>(null);
+  /* 13/11/2026: a ESCOLHA DO BANCO dentro do app e a ESPERA que sobrevive à volta. No celular, ir ao app
+     do banco e voltar recarrega a aba: o "Já conectei" sumia e a pessoa ficava perdida. A espera fica no
+     `localStorage` e, ao voltar, o app confere sozinho. */
+  const [bancos, setBancos] = useState<BancoParaConectar[] | null>(null);
+  const [busca, setBusca] = useState("");
+  const [conferindo, setConferindo] = useState(false);
+  const [escolhendo, setEscolhendo] = useState(false);
   const [ocupado, setOcupado] = useState<string | null>(null);
   const [resultado, setResultado] = useState<string | null>(null);
 
@@ -100,6 +116,98 @@ export function TelaBanco({ limite, nomePlano }: { limite: number; nomePlano: st
     carregar();
   }, [carregar]);
 
+  // A lista de bancos: os mais usados de cara; digitando, a busca (com uma pausa entre as letras).
+  useEffect(() => {
+    if (!(conexoes.length === 0 || escolhendo) || esperandoVolta || conexoes.length >= limite) return;
+    const t = setTimeout(() => {
+      listarBancos(busca.trim().length >= 2 ? busca.trim() : "")
+        .then(setBancos)
+        .catch(() => setBancos([]));
+    }, busca ? 400 : 0);
+    return () => clearTimeout(t);
+  }, [busca, conexoes.length, escolhendo, esperandoVolta, limite]);
+
+  // Voltou à aba (ou a aba recarregou) com uma conexão em andamento: confere sozinho.
+  useEffect(() => {
+    let marcado = 0;
+    try {
+      marcado = Number(localStorage.getItem(CHAVE_ESPERA) || 0);
+    } catch {}
+    if (marcado && Date.now() - marcado < 60 * 60_000) setEsperandoVolta(true);
+  }, []);
+  useEffect(() => {
+    if (!esperandoVolta) return;
+    let tentativas = 0;
+    let parar = false;
+    const conferir = async () => {
+      if (parar || document.visibilityState !== "visible") return;
+      tentativas++;
+      setConferindo(true);
+      try {
+        const r = await reivindicar({});
+        if (r.ok) {
+          parar = true;
+          esquecerEspera();
+          setRecado(r.mensagem);
+          setEsperandoVolta(false);
+          await carregar();
+        } else if (r.escolher) {
+          parar = true;
+          setEscolher(r.escolher);
+          setRecado(r.mensagem);
+        } else if (!/ainda não encontramos/i.test(r.mensagem)) {
+          parar = true;
+          setRecado(r.mensagem);
+        }
+      } catch {
+        /* rede oscilando: tenta de novo no próximo ciclo */
+      } finally {
+        setConferindo(false);
+      }
+    };
+    conferir();
+    const ciclo = setInterval(() => {
+      if (tentativas < 12) conferir();
+    }, 6000);
+    const aoVoltar = () => {
+      if (document.visibilityState === "visible") {
+        tentativas = 0;
+        conferir();
+      }
+    };
+    document.addEventListener("visibilitychange", aoVoltar);
+    return () => {
+      parar = true;
+      clearInterval(ciclo);
+      document.removeEventListener("visibilitychange", aoVoltar);
+    };
+  }, [esperandoVolta, carregar]);
+
+  /** Abre a autorização do banco escolhido (a janela abre JÁ, no toque, para o navegador não bloquear). */
+  function abrirBanco(b: BancoParaConectar) {
+    setRecado(null);
+    setEscolher(null);
+    if (conexoes.length >= limite) {
+      setRecado(`O plano ${nomePlano} conecta até ${limite} banco${limite > 1 ? "s" : ""}. Para conectar mais, mude de plano.`);
+      return;
+    }
+    try {
+      localStorage.setItem(CHAVE_ESPERA, String(Date.now()));
+    } catch {}
+    const janela = window.open(b.url, "_blank");
+    if (!janela) setLinkManual(b.url);
+    setDesde(new Date().toISOString());
+    setEscolhendo(false);
+    setEsperandoVolta(true);
+  }
+
+  function cancelarEspera() {
+    esquecerEspera();
+    setEsperandoVolta(false);
+    setEscolher(null);
+    setLinkManual(null);
+  }
+
   async function conectar() {
     setRecado(null);
     if (conexoes.length >= limite) {
@@ -119,6 +227,10 @@ export function TelaBanco({ limite, nomePlano }: { limite: number; nomePlano: st
       }
       if (janela) janela.location.href = url;
       else setLinkManual(url);
+      try {
+        localStorage.setItem(CHAVE_ESPERA, String(Date.now()));
+      } catch {}
+      setEscolhendo(false);
       setDesde(new Date().toISOString());
       setEscolher(null);
       setEsperandoVolta(true);
@@ -138,6 +250,7 @@ export function TelaBanco({ limite, nomePlano }: { limite: number; nomePlano: st
       setRecado(r.mensagem);
       setEscolher(r.escolher ?? null);
       if (r.ok) {
+        esquecerEspera();
         setEsperandoVolta(false);
         setDesde(null);
         await carregar();
@@ -203,29 +316,27 @@ export function TelaBanco({ limite, nomePlano }: { limite: number; nomePlano: st
 
       {semTabela && <AvisoSemTabela />}
 
-      {conexoes.length === 0 || esperandoVolta ? (
+      {esperandoVolta ? (
+        /* A ESPERA (13/11/2026): a pessoa foi ao banco. O app confere sozinho a cada 6 s e quando a aba volta. */
         <Cartao guia="banco-conectar" className="p-5 sm:p-6">
-          <h2 className="font-display text-base font-semibold text-white">
-            {conexoes.length === 0 ? "Conectar o seu banco" : "Conectar outro banco"}
-          </h2>
-          <ol className="mt-3 space-y-2 text-xs leading-relaxed text-white/70">
-            <li>
-              1. Toque em <strong className="text-white">Conectar banco</strong>: abre a página segura do Open Finance.
-            </li>
-            <li>2. Escolha o seu banco e autorize no app ou site dele.</li>
-            <li>
-              3. Volte para cá e toque em <strong className="text-white">Já conectei</strong>.
-            </li>
-          </ol>
+          <div className="flex items-start gap-3">
+            <Loader2 className="mt-0.5 h-5 w-5 shrink-0 animate-spin text-ouro motion-reduce:animate-none" />
+            <div>
+              <h2 className="font-display text-base font-semibold text-white">Esperando o seu banco…</h2>
+              <p className="mt-1 text-xs leading-relaxed text-white/70">
+                Confirme no app ou no site do seu banco. Quando aparecer <strong className="text-white">“Pronto”</strong> ou{" "}
+                <strong className="text-white">“Connected”</strong>, é só voltar para esta tela: a gente confere sozinho.
+                {conferindo ? " Conferindo agora…" : ""}
+              </p>
+            </div>
+          </div>
           <div className="mt-4 flex flex-wrap gap-2">
-            <Botao Icone={Link2} onClick={conectar} desabilitado={ocupado !== null}>
-              {ocupado === "conectar" ? "Abrindo…" : "Conectar banco"}
+            <Botao variante="contorno" Icone={Check} onClick={() => jaConectei()} desabilitado={ocupado !== null}>
+              {ocupado === "claim" ? "Conferindo…" : "Já voltei, conferir agora"}
             </Botao>
-            {esperandoVolta && (
-              <Botao variante="contorno" Icone={Check} onClick={() => jaConectei()} desabilitado={ocupado !== null}>
-                {ocupado === "claim" ? "Conferindo…" : "Já conectei"}
-              </Botao>
-            )}
+            <Botao variante="fantasma" Icone={X} onClick={cancelarEspera} desabilitado={ocupado !== null}>
+              Cancelar
+            </Botao>
           </div>
           {linkManual && (
             <a
@@ -234,8 +345,64 @@ export function TelaBanco({ limite, nomePlano }: { limite: number; nomePlano: st
               rel="noopener noreferrer"
               className="mt-3 inline-flex min-h-11 items-center gap-2 text-xs font-semibold text-ouro underline"
             >
-              <ExternalLink className="h-3.5 w-3.5" /> Abrir a página do Open Finance
+              <ExternalLink className="h-3.5 w-3.5" /> Abrir a autorização do banco
             </a>
+          )}
+        </Cartao>
+      ) : conexoes.length === 0 || escolhendo ? (
+        /* A ESCOLHA DO BANCO dentro do app (13/11/2026): só Open Finance, sem a página confusa da mcp.ai. */
+        <Cartao guia="banco-conectar" className="p-5 sm:p-6">
+          <div className="flex items-start justify-between gap-3">
+            <h2 className="font-display text-base font-semibold text-white">
+              {conexoes.length === 0 ? "Qual é o seu banco?" : "Conectar outro banco"}
+            </h2>
+            {escolhendo && (
+              <button type="button" onClick={() => setEscolhendo(false)} aria-label="Fechar" className={`rounded-lg p-1 text-white/60 hover:text-white ${ANEL}`}>
+                <X className="h-4 w-4" />
+              </button>
+            )}
+          </div>
+          <p className="mt-1 text-xs leading-relaxed text-white/70">
+            Toque no seu banco: você confirma no app dele (leva 1 minuto) e volta para cá. Ninguém vê a sua senha.
+          </p>
+          <label className="mt-4 flex items-center gap-2 rounded-xl border border-white/15 bg-noite px-3">
+            <Search className="h-4 w-4 shrink-0 text-white/50" />
+            <span className="sr-only">Buscar banco</span>
+            <input
+              value={busca}
+              onChange={(e) => setBusca(e.target.value.slice(0, 40))}
+              placeholder="Buscar outro banco…"
+              className="ncash-campo min-h-11 w-full bg-transparent text-base text-white outline-none placeholder:text-white/40 sm:text-sm"
+            />
+          </label>
+          <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
+            {bancos === null
+              ? Array.from({ length: 6 }).map((_, i) => <span key={i} className="h-12 animate-pulse rounded-xl bg-white/[0.06]" />)
+              : bancos.map((b) => (
+                  <button
+                    key={b.id || b.nome}
+                    type="button"
+                    onClick={() => abrirBanco(b)}
+                    className={`flex min-h-12 items-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-3 text-left text-sm font-semibold text-white transition-colors hover:border-ouro/50 ${ANEL}`}
+                  >
+                    {b.logo ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={b.logo} alt="" className="h-6 w-6 shrink-0 rounded-md bg-white object-contain" />
+                    ) : (
+                      <Landmark className="h-5 w-5 shrink-0 text-ouro" />
+                    )}
+                    <span className="truncate">{b.nome}</span>
+                  </button>
+                ))}
+          </div>
+          {bancos !== null && bancos.length === 0 && (
+            <div className="mt-3 space-y-2">
+              <p className="text-xs text-white/60">Não achei esse banco. Tente outro nome (ex.: “Nubank”, “Itaú”) ou abra a lista completa.</p>
+              {/* Reserva: a página geral de conexão, caso a busca de bancos não responda. */}
+              <Botao variante="contorno" Icone={Link2} onClick={conectar} desabilitado={ocupado !== null}>
+                {ocupado === "conectar" ? "Abrindo…" : "Ver todos os bancos"}
+              </Botao>
+            </div>
           )}
         </Cartao>
       ) : (
@@ -247,7 +414,7 @@ export function TelaBanco({ limite, nomePlano }: { limite: number; nomePlano: st
           >
             {ocupado === "sincronizar" ? "Sincronizando…" : "Sincronizar agora"}
           </Botao>
-          <Botao variante="contorno" Icone={Link2} onClick={conectar} desabilitado={ocupado !== null}>
+          <Botao variante="contorno" Icone={Link2} onClick={() => setEscolhendo(true)} desabilitado={ocupado !== null}>
             Conectar outro banco
           </Botao>
           <Botao variante="fantasma" Icone={RefreshCw} onClick={carregar} desabilitado={ocupado !== null}>

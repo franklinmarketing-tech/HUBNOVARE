@@ -118,6 +118,14 @@ const numero = (...v: unknown[]): number | null => {
 
 export type Conexao = { itemId: string; banco: string; status: string | null };
 
+export type BancoParaConectar = { id: string; nome: string; url: string; logo: string | null };
+
+/** Os bancos (só Open Finance, pessoa física) para escolher dentro do app. Sem `busca`: os mais usados. */
+export async function listarBancos(busca = ""): Promise<BancoParaConectar[]> {
+  const r = await chamar("bancos", busca ? { busca } : {});
+  return lista(r, "bancos").map((b) => ({ id: texto(b.id), nome: texto(b.nome), url: texto(b.url), logo: texto(b.logo) || null })).filter((b) => b.url);
+}
+
 export async function urlParaConectar(): Promise<string | null> {
   const r = await chamar("connect-url");
   return texto(r.url) || null;
