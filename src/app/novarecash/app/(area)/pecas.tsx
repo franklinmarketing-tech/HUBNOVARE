@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { CarregandoNovare } from "@/components/novarecash/CarregandoNovare";
 import { AlertTriangle, Database, RefreshCw, type LucideIcon } from "lucide-react";
 
 import type { OrigemTransacao } from "@/lib/novarecash/dados";
@@ -137,7 +138,15 @@ export function Botao({
     );
   }
   return (
-    <button type={type} onClick={onClick} disabled={desabilitado} data-guia={guia} className={classes}>
+    // "Salvando…", "Conferindo…": botão em espera vira aria-busy e acende o selo da Novare (IndicadorCarregando).
+    <button
+      type={type}
+      onClick={onClick}
+      disabled={desabilitado}
+      data-guia={guia}
+      aria-busy={typeof children === "string" && children.endsWith("…") ? true : undefined}
+      className={classes}
+    >
       {miolo}
     </button>
   );
@@ -172,11 +181,12 @@ export function SeloOrigem({ origem }: { origem: OrigemTransacao }) {
 
 export function Esqueleto({ linhas = 3 }: { linhas?: number }) {
   return (
-    <div role="status" aria-label="Carregando" className="space-y-3">
-      {Array.from({ length: linhas }, (_, i) => (
-        <div key={i} className="h-20 animate-pulse rounded-2xl bg-white/[0.06] motion-reduce:animate-none" />
+    // 13/11/2026: a espera mostra o logo da Novare (o dono quer saber, sempre, que algo está carregando).
+    <div className="space-y-3">
+      <CarregandoNovare />
+      {Array.from({ length: Math.max(0, linhas - 2) }, (_, i) => (
+        <div key={i} aria-hidden className="h-20 animate-pulse rounded-2xl bg-white/[0.06] motion-reduce:animate-none" />
       ))}
-      <span className="sr-only">Carregando…</span>
     </div>
   );
 }

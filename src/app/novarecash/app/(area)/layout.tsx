@@ -11,6 +11,8 @@ import { MarcaNovareCash } from "@/components/novarecash/MarcaNovareCash";
 import { BarraLateralNovareCash, BotaoBusca, NavNovareCashCelular } from "./NavNovareCash";
 import { MenuUsuario } from "./MenuUsuario";
 import { AtualizaBanco } from "./AtualizaBanco";
+import { IndicadorCarregando } from "./IndicadorCarregando";
+import { Suspense } from "react";
 import { BoasVindas } from "./BoasVindas";
 import { Paleta } from "./Paleta";
 import { TourNovareCash } from "./TourNovareCash";
@@ -94,6 +96,9 @@ export default async function CascaNovareCash({ children }: { children: React.Re
         </main>
       </div>
 
+      <Suspense fallback={null}>
+        <IndicadorCarregando />
+      </Suspense>
       <NavNovareCashCelular {...usuario} />
       <Paleta tema={tema} />
       {/* Guia de primeiro uso (05/11/2026): boas-vindas uma vez por pessoa e o tour (app e "?" de cada tela).
