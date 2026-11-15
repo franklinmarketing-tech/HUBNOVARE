@@ -41,11 +41,24 @@ export function IndicadorCarregando() {
 
   // Esperas dentro da tela: qualquer elemento marcado aria-busy.
   useEffect(() => {
-    const olhar = () => setOcupado(!!document.querySelector('#ncash-conteudo [aria-busy="true"]'));
+    // VELOCIDADE (15/11/2026): observa só o conteúdo (não o body inteiro) e confere no máximo 1x por
+    // quadro — o relógio de 1 s do WhatsApp e o chat da IA disparavam um querySelector a cada mudança.
+    const raiz = document.getElementById("ncash-conteudo") ?? document.body;
+    let quadro = 0;
+    const olhar = () => {
+      if (quadro) return;
+      quadro = requestAnimationFrame(() => {
+        quadro = 0;
+        setOcupado(!!raiz.querySelector('[aria-busy="true"]'));
+      });
+    };
     const obs = new MutationObserver(olhar);
-    obs.observe(document.body, { subtree: true, attributes: true, attributeFilter: ["aria-busy"], childList: true });
+    obs.observe(raiz, { subtree: true, attributes: true, attributeFilter: ["aria-busy"], childList: true });
     olhar();
-    return () => obs.disconnect();
+    return () => {
+      obs.disconnect();
+      if (quadro) cancelAnimationFrame(quadro);
+    };
   }, []);
 
   if (!indo && !ocupado) return null;

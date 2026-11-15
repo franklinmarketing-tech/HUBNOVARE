@@ -11,8 +11,7 @@ import { useAtalhoPaleta } from "@/lib/atalho";
 import { Icone3D } from "./Icone3D";
 import { CONSULTOR, GRUPOS, LANCAR_GASTO, NA_BARRA, TODAS, estaAtivo } from "./menu";
 import { MenuUsuario } from "./MenuUsuario";
-import { abrirPaleta } from "./Paleta";
-import { EVENTO_TOUR } from "./TourNovareCash";
+import { EVENTO_TOUR, abrirPaleta } from "./eventos";
 import { COOKIE_MENU, COOKIE_OPCOES, type Tema } from "./tema";
 
 /**

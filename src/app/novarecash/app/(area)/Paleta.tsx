@@ -5,7 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { CornerDownLeft, Search, X } from "lucide-react";
 
 import { Icone3D } from "./Icone3D";
-import { iniciarTour } from "./TourNovareCash";
+import { EVENTO_ABRIR_PALETA, iniciarTour } from "./eventos";
 import { guiaDaRota } from "@/lib/novarecash/guias";
 import { CONSULTOR, GRUPOS, LANCAR_GASTO, estaAtivo, telaDaRota, type NomeIcone } from "./menu";
 import type { Tema } from "./tema";
@@ -24,11 +24,6 @@ import { useTema } from "./TrocaTema";
  * Montada na raiz da casca, fora de qualquer `backdrop-blur`/`transform`.
  */
 
-export const EVENTO_ABRIR_PALETA = "ncash:abrir-paleta";
-
-export function abrirPaleta() {
-  window.dispatchEvent(new Event(EVENTO_ABRIR_PALETA));
-}
 
 type Item = {
   id: string;

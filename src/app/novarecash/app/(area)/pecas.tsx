@@ -180,6 +180,16 @@ export function SeloOrigem({ origem }: { origem: OrigemTransacao }) {
 }
 
 export function Esqueleto({ linhas = 3 }: { linhas?: number }) {
+  /* 15/11/2026 (UX): UM cartão (Início) = um bloco do tamanho do cartão com o selo pequeno dentro —
+     antes eram dois logos grandes girando juntos e a página pulando quando os dados chegavam. */
+  if (linhas <= 1) {
+    return (
+      <div role="status" aria-live="polite" className="flex h-32 items-center justify-center rounded-2xl bg-white/[0.04] ring-1 ring-white/[0.06]">
+        <CarregandoNovare compacta />
+        <span className="sr-only">Carregando…</span>
+      </div>
+    );
+  }
   return (
     // 13/11/2026: a espera mostra o logo da Novare (o dono quer saber, sempre, que algo está carregando).
     <div className="space-y-3">

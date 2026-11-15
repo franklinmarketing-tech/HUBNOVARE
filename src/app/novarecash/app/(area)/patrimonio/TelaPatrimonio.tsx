@@ -37,6 +37,7 @@ import {
 } from "../pecas";
 import { Toast, useToast } from "../Toast";
 
+import { useAoMudarDados } from "../dadosMudaram";
 type Estado = "carregando" | "pronto" | "sem-tabela" | "erro";
 
 const AVISO_CVM =
@@ -71,27 +72,27 @@ export function TelaPatrimonio({
     try {
       const eu = await usuarioDaSessao(sb);
       setUid(eu);
-      const cs = await comSaldos(sb, eu, await lerContas(sb, eu));
+      // VELOCIDADE (15/11/2026): as leituras saem JUNTAS (eram 5 a 6 em fila).
+      const [cs, manuais, banco, emprestimosBanco] = await Promise.all([
+        lerContas(sb, eu).then((c) => comSaldos(sb, eu, c)),
+        lerInvestimentos(sb, eu).then(
+          (m) => ({ ok: true as const, m }),
+          (e) => {
+            if (!(e instanceof ErroDados && e.motivo === "sem-tabela")) throw e;
+            return { ok: false as const, m: [] as Investimento[] };
+          },
+        ),
+        bancoLiberado ? listarInvestimentos().then((d) => ({ d, erro: null as string | null }), (e) => ({ d: [] as InvestimentoBanco[], erro: e instanceof ErroBanco ? e.message : "Não consegui ler os investimentos do banco agora." })) : null,
+        // Empréstimos e financiamentos: entram nas Dívidas. Falhar aqui não derruba os investimentos.
+        bancoLiberado ? listarEmprestimos().catch(() => [] as EmprestimoBanco[]) : null,
+      ]);
       setContas(cs);
-
-      try {
-        setManuais(await lerInvestimentos(sb, eu));
-        setSemTabelaInvest(false);
-      } catch (e) {
-        if (!(e instanceof ErroDados && e.motivo === "sem-tabela")) throw e;
-        setManuais([]);
-        setSemTabelaInvest(true);
-      }
-
-      if (bancoLiberado) {
-        try {
-          setDoBanco(await listarInvestimentos());
-          // Empréstimos e financiamentos: entram nas Dívidas. Falhar aqui não derruba os investimentos.
-          setEmprestimos(await listarEmprestimos().catch(() => []));
-        } catch (e) {
-          setDoBanco([]);
-          setErroBanco(e instanceof ErroBanco ? e.message : "Não consegui ler os investimentos do banco agora.");
-        }
+      setManuais(manuais.m);
+      setSemTabelaInvest(!manuais.ok);
+      if (banco) {
+        setDoBanco(banco.d);
+        setErroBanco(banco.erro);
+        setEmprestimos(emprestimosBanco ?? []);
       }
       setEstado("pronto");
     } catch (e) {
@@ -102,6 +103,8 @@ export function TelaPatrimonio({
   useEffect(() => {
     carregar();
   }, [carregar]);
+  // 15/11/2026: o banco atualizou em segundo plano → recarrega sem piscar.
+  useAoMudarDados(() => carregar());
 
   const p = useMemo(() => montarPatrimonio(contas, manuais, doBanco, emprestimos), [contas, manuais, doBanco, emprestimos]);
 

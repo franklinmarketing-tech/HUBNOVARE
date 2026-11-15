@@ -10,7 +10,7 @@ import { gravarLocal, lerLocal, marcarPreferencia } from "@/lib/novarecash/prefe
 import { Icone3D } from "../Icone3D";
 import type { NomeIcone } from "../menu";
 import { ANEL, Barra, Cartao } from "../pecas";
-import { iniciarTour } from "../TourNovareCash";
+import { iniciarTour } from "../eventos";
 
 /**
  * O CHECKLIST "PRIMEIROS PASSOS" DO INÍCIO (05/11/2026; substitui o antigo

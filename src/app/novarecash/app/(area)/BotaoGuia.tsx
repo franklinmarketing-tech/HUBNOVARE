@@ -3,7 +3,7 @@
 import { usePathname } from "next/navigation";
 
 import { guiaDaRota } from "@/lib/novarecash/guias";
-import { iniciarTour } from "./TourNovareCash";
+import { iniciarTour } from "./eventos";
 
 /**
  * O "?" ao lado do título de cada tela (o `Cabecalho` de `pecas.tsx`): abre o tour

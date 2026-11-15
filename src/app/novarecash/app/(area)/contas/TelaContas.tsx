@@ -48,6 +48,7 @@ import {
 import { AvisoInstalar } from "../cartoes/AvisoInstalar";
 import { Toast, useToast } from "../Toast";
 
+import { useAoMudarDados } from "../dadosMudaram";
 type Estado = "carregando" | "pronto" | "sem-tabela" | "sem-sql" | "erro";
 
 const GRUPOS: { situacao: SituacaoConta; titulo: string }[] = [
@@ -94,14 +95,15 @@ export function TelaContas() {
       try {
         const eu = await usuarioDaSessao(sb);
         setUid(eu);
-        let cs: Conta[];
-        try {
-          cs = await lerContas(sb, eu);
-        } catch (e) {
-          if (e instanceof ErroDados && e.motivo === "sem-tabela") return setEstado("sem-tabela");
-          throw e;
+        // VELOCIDADE (15/11/2026): as duas leituras saem juntas.
+        const [rc, rm] = await Promise.allSettled([lerContas(sb, eu), carregarMesDeContas(sb, eu, ref, hoje)]);
+        if (rc.status === "rejected") {
+          if (rc.reason instanceof ErroDados && rc.reason.motivo === "sem-tabela") return setEstado("sem-tabela");
+          throw rc.reason;
         }
-        const mes = await carregarMesDeContas(sb, eu, ref, hoje);
+        if (rm.status === "rejected") throw rm.reason;
+        const cs: Conta[] = rc.value;
+        const mes = rm.value;
         if (vez !== pedido.current) return;
         setContas(cs);
         setCadastradas(mes.contas);
@@ -119,6 +121,8 @@ export function TelaContas() {
   useEffect(() => {
     carregar();
   }, [carregar]);
+  // 15/11/2026: o banco atualizou em segundo plano → recarrega sem piscar.
+  useAoMudarDados(() => carregar(true));
 
   // O "Desfazer" do aviso roda segundos depois: recarrega o mês que está na tela AGORA.
   const carregarAgora = useRef(carregar);

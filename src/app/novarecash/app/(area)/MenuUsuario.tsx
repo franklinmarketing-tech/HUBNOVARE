@@ -10,7 +10,7 @@ import { Icone3D } from "./Icone3D";
 import { CONSULTOR, iniciais } from "./menu";
 import type { Tema } from "./tema";
 import { useTema } from "./TrocaTema";
-import { iniciarTour } from "./TourNovareCash";
+import { iniciarTour } from "./eventos";
 
 /**
  * O CARTÃO DO USUÁRIO e o menu dele (05/11/2026): tema claro/escuro, consultor,

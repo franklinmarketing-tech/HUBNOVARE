@@ -136,11 +136,40 @@ export async function lerTodasAsPaginas<T>(
  * Sem sessão = falha (a porta do app já exige login).
  */
 export async function usuarioDaSessao(sb: SupabaseClient): Promise<string> {
-  const { data } = await sb.auth.getUser();
-  if (!data.user) throw new ErroDados("falha", "sem sessão");
-  const { data: dono, error } = await sb.rpc("ncash_dono_atual");
-  return !error && typeof dono === "string" && dono ? dono : data.user.id;
+  /* VELOCIDADE (15/11/2026): eram 2 idas e voltas EM SÉRIE (auth/v1/user ~400 ms + o RPC) em
+     CADA tela e em cada cartão do Início — 21 lugares. Agora:
+       · no NAVEGADOR, `getSession()` lê a sessão local (sem rede). Seguro: quem decide o acesso é
+         a RLS no banco, que confere o token de verdade a cada leitura;
+       · a resposta fica guardada por cliente (o do navegador é um só, singleton) por 60 s, e
+         chamadas simultâneas dividem a MESMA promessa.
+     No SERVIDOR continua `getUser()` (lá o cookie não é confiável sem conferir), sem guardar. */
+  const navegador = typeof window !== "undefined";
+  if (navegador) {
+    const guardado = DONO_GUARDADO.get(sb);
+    if (guardado && Date.now() - guardado.quando < 60_000) return guardado.promessa;
+  }
+  const promessa = (async () => {
+    let uid: string | null = null;
+    if (navegador) {
+      const { data } = await sb.auth.getSession();
+      uid = data.session?.user.id ?? null;
+    }
+    if (!uid) {
+      const { data } = await sb.auth.getUser();
+      uid = data.user?.id ?? null;
+    }
+    if (!uid) throw new ErroDados("falha", "sem sessão");
+    const { data: dono, error } = await sb.rpc("ncash_dono_atual");
+    return !error && typeof dono === "string" && dono ? dono : uid;
+  })();
+  if (navegador) {
+    DONO_GUARDADO.set(sb, { quando: Date.now(), promessa });
+    promessa.catch(() => DONO_GUARDADO.delete(sb));
+  }
+  return promessa;
 }
+
+const DONO_GUARDADO = new WeakMap<SupabaseClient, { quando: number; promessa: Promise<string> }>();
 
 // ── Datas (sempre no fuso de São Paulo) ─────────────────────────────────────
 

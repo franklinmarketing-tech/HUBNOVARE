@@ -12,7 +12,7 @@ import { Icone3D } from "./Icone3D";
 import { Janela } from "./Janela";
 import type { NomeIcone } from "./menu";
 import { ANEL } from "./pecas";
-import { iniciarTour } from "./TourNovareCash";
+import { iniciarTour } from "./eventos";
 
 /**
  * AS BOAS-VINDAS DO NOVARECASH (05/11/2026): três passos curtos na primeira vez

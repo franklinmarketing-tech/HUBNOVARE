@@ -1,6 +1,11 @@
 "use client";
 
 import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+
+import { hojeNoBrasil } from "@/lib/novarecash/dados";
+import { somarDias } from "@/lib/novarecash/cartoes";
+import { avisarDadosMudaram, useRefazerServidorAoMudar } from "./dadosMudaram";
 
 import {
   contasComSaldo,
@@ -38,6 +43,9 @@ const CHAVE_ESPERA = "ncash:open-finance:esperando";
 export function AtualizaBanco() {
   const toast = useToast();
   const { mostrar } = toast;
+  const router = useRouter();
+  // Início (servidor) também se refaz quando o banco traz dado novo.
+  useRefazerServidorAoMudar();
 
   // CONEXÃO QUE FICOU PELA METADE (13/11/2026): o banco devolveu o cliente em outra aba/app e ele
   // reabriu o NovareCash por outro caminho. Em qualquer tela (fora da Banco, que cuida disso sozinha),
@@ -62,10 +70,11 @@ export function AtualizaBanco() {
         } catch {}
         const t = await trazerTudo({ itemId: r.itemId ?? null, dias: 365 });
         marcarSincronizado();
+        avisarDadosMudaram();
         if (vivo)
           mostrar({
             texto: `${r.banco || espera?.banco || "Banco"} conectado! ${t.resultado.novas} lançamentos entraram no extrato.`,
-            acao: { rotulo: "Ver", fazer: () => window.location.assign("/novarecash/app/banco") },
+            acao: { rotulo: "Ver", fazer: () => router.push("/novarecash/app/banco") },
           });
       } catch {
         /* a tela Banco retoma */
@@ -74,7 +83,7 @@ export function AtualizaBanco() {
     return () => {
       vivo = false;
     };
-  }, [mostrar]);
+  }, [mostrar, router]);
 
   useEffect(() => {
     if (!precisaSincronizar()) return;
@@ -102,17 +111,20 @@ export function AtualizaBanco() {
           }
           if (resto.length) novas += (await sincronizar({ contas: resto, conexoes })).novas;
           marcarSincronizado();
+          // As telas abertas (Extrato, Início…) recarregam sozinhas — antes só um F5 mostrava o novo.
+          if (novas > 0) avisarDadosMudaram();
           if (vivo && novas > 0) {
             mostrar({
               texto: `Banco atualizado: ${novas} ${novas === 1 ? "lançamento novo" : "lançamentos novos"} no extrato.`,
-              acao: { rotulo: "Ver", fazer: () => window.location.assign("/novarecash/app/extrato") },
+              acao: { rotulo: "Ver", fazer: () => router.push("/novarecash/app/extrato") },
             });
             return;
           }
         }
         // Fatura do cartão vencendo em até 3 dias (e ainda não paga): avisa.
-        const hoje = new Date().toISOString().slice(0, 10);
-        const em3 = new Date(Date.now() + 3 * 86_400_000).toISOString().slice(0, 10);
+        // 15/11/2026: o "hoje" do Brasil (o de UTC virava amanhã depois das 21h).
+        const hoje = hojeNoBrasil();
+        const em3 = somarDias(hoje, 3);
         const vencendo = (await listarCartoesDoBanco().catch(() => []))
           .map((c) => ({ c, f: faturaAtual(c) }))
           .find(({ f }) => f && f.vence && f.situacao !== "paga" && f.vence >= hoje && f.vence <= em3);
@@ -121,14 +133,16 @@ export function AtualizaBanco() {
           const valor = vencendo.f.total ? ` de ${vencendo.f.total.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}` : "";
           mostrar({
             texto: `Fatura${conexao ? ` do ${conexao.banco}` : ""}${valor} vence em ${vencendo.f.vence!.slice(8, 10)}/${vencendo.f.vence!.slice(5, 7)}.`,
-            acao: { rotulo: "Ver", fazer: () => window.location.assign("/novarecash/app/banco") },
+            tom: "alerta",
+            acao: { rotulo: "Ver", fazer: () => router.push("/novarecash/app/banco") },
           });
           return;
         }
         if (vivo && reconectar.length) {
           mostrar({
             texto: `${reconectar.map((c) => c.banco).join(", ")} precisa ser reconectado para continuar atualizando.`,
-            acao: { rotulo: "Reconectar", fazer: () => window.location.assign("/novarecash/app/banco") },
+            tom: "alerta",
+            acao: { rotulo: "Reconectar", fazer: () => router.push("/novarecash/app/banco") },
           });
         }
       } catch {
@@ -142,7 +156,7 @@ export function AtualizaBanco() {
     return () => {
       vivo = false;
     };
-  }, [mostrar]);
+  }, [mostrar, router]);
 
   return <Toast {...toast} />;
 }

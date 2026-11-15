@@ -53,6 +53,7 @@ import { FormLancamento } from "../extrato/FormLancamento";
 import { Toast, useToast } from "../Toast";
 import { AvisoInstalar } from "./AvisoInstalar";
 
+import { useAoMudarDados } from "../dadosMudaram";
 type Estado = "carregando" | "pronto" | "sem-tabela" | "sem-sql" | "erro";
 
 const ROTULO_SITUACAO: Record<Fatura["situacao"], { texto: string; tom: TomSelo }> = {
@@ -85,20 +86,19 @@ export function TelaCartoes() {
       try {
         const eu = await usuarioDaSessao(sb);
         setUid(eu);
-        let cs;
-        try {
-          cs = await lerContas(sb, eu);
-        } catch (e) {
-          if (e instanceof ErroDados && e.motivo === "sem-tabela") return setEstado("sem-tabela");
-          throw e;
+        // VELOCIDADE (15/11/2026): as duas leituras saem juntas; os erros são lidos na mesma ordem de antes.
+        const [rc, rk] = await Promise.allSettled([lerContas(sb, eu), lerCartoes(sb, eu)]);
+        const semTabela = (e: unknown) => e instanceof ErroDados && e.motivo === "sem-tabela";
+        if (rc.status === "rejected") {
+          if (semTabela(rc.reason)) return setEstado("sem-tabela");
+          throw rc.reason;
         }
-        let cartoes: Cartao[];
-        try {
-          cartoes = await lerCartoes(sb, eu);
-        } catch (e) {
-          if (e instanceof ErroDados && e.motivo === "sem-tabela") return setEstado("sem-sql");
-          throw e;
+        if (rk.status === "rejected") {
+          if (semTabela(rk.reason)) return setEstado("sem-sql");
+          throw rk.reason;
         }
+        const cs = rc.value;
+        const cartoes: Cartao[] = rk.value;
         const desde = `${mesVizinho(hoje.slice(0, 7), -3)}-01`;
         const [comSaldo, movimentos] = await Promise.all([
           comSaldos(sb, eu, cs),
@@ -120,6 +120,8 @@ export function TelaCartoes() {
   useEffect(() => {
     carregar();
   }, [carregar]);
+  // 15/11/2026: o banco atualizou em segundo plano → recarrega sem piscar.
+  useAoMudarDados(() => carregar(true));
 
   const atual = resumos.find((r) => r.cartao.id === escolhido) ?? null;
 

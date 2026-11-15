@@ -45,6 +45,7 @@ import { Toast, useToast } from "../Toast";
 import { FormLancamento } from "./FormLancamento";
 import { MinhasContas } from "./MinhasContas";
 
+import { useAoMudarDados } from "../dadosMudaram";
 type Estado = "carregando" | "pronto" | "sem-tabela" | "erro";
 
 /** Busca sem acento e sem caixa: "farmacia" acha "Farmácia". */
@@ -109,6 +110,8 @@ export function TelaExtrato({ abrir, filtroInicial = {} }: { abrir: "novo" | "co
   useEffect(() => {
     carregar();
   }, [carregar]);
+  // 15/11/2026: o banco atualizou em segundo plano → recarrega sem piscar.
+  useAoMudarDados(() => carregar(true));
 
   // O "Desfazer" e o apagar adiado rodam segundos depois: recarregam o mês que está na tela AGORA.
   const carregarAgora = useRef(carregar);

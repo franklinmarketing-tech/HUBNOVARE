@@ -13,9 +13,7 @@ import { MenuUsuario } from "./MenuUsuario";
 import { AtualizaBanco } from "./AtualizaBanco";
 import { IndicadorCarregando } from "./IndicadorCarregando";
 import { Suspense } from "react";
-import { BoasVindas } from "./BoasVindas";
-import { Paleta } from "./Paleta";
-import { TourNovareCash } from "./TourNovareCash";
+import { ExtrasCasca } from "./ExtrasCasca";
 import { COOKIE_MENU, COOKIE_TEMA, type Tema } from "./tema";
 
 export const metadata: Metadata = {
@@ -100,11 +98,8 @@ export default async function CascaNovareCash({ children }: { children: React.Re
         <IndicadorCarregando />
       </Suspense>
       <NavNovareCashCelular {...usuario} />
-      <Paleta tema={tema} />
-      {/* Guia de primeiro uso (05/11/2026): boas-vindas uma vez por pessoa e o tour (app e "?" de cada tela).
-          Depois da barra do polegar no DOM: a janela pinta por cima dela. */}
-      <BoasVindas />
-      <TourNovareCash />
+      {/* Busca (Ctrl K), boas-vindas e tour (app e "?" de cada tela): carregam à parte (velocidade). */}
+      <ExtrasCasca tema={tema} />
       {/* 13/11/2026: banco conectado atualiza sozinho ao abrir o app (a cada 6 h, em segundo plano). */}
       {estadoDoRecurso("banco", perfil?.role).liberado && <AtualizaBanco />}
     </div>

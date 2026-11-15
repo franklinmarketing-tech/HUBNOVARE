@@ -9,6 +9,7 @@ import { TOUR_APP, guiaDaRota, type PassoGuia } from "@/lib/novarecash/guias";
 import { registrarUso } from "@/lib/uso";
 import { GRUPOS } from "./menu";
 
+import { EVENTO_TOUR, type QualTour } from "./eventos";
 /**
  * O TOUR GUIADO DO NOVARECASH (05/11/2026). Dois tours, um componente:
  *   • `app`  — a casca: Lançar gasto, busca, as telas principais e o menu da conta
@@ -28,12 +29,6 @@ import { GRUPOS } from "./menu";
  * — que não tem `transform` nem `backdrop-blur`, então o `fixed` vale a tela toda.
  */
 
-export const EVENTO_TOUR = "ncash:tour";
-export type QualTour = "app" | "tela";
-
-export function iniciarTour(qual: QualTour) {
-  window.dispatchEvent(new CustomEvent<QualTour>(EVENTO_TOUR, { detail: qual }));
-}
 
 const INICIO = "/novarecash/app";
 const rotaLimpa = (r: string) => r.replace(/\/$/, "");

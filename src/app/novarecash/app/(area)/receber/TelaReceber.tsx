@@ -40,6 +40,7 @@ import {
 } from "../pecas";
 import { Toast, useToast } from "../Toast";
 
+import { useAoMudarDados } from "../dadosMudaram";
 type Estado = "carregando" | "pronto" | "sem-tabela" | "sem-sql" | "erro";
 
 const GRUPOS: { situacao: SituacaoReceber; titulo: string }[] = [
@@ -91,14 +92,15 @@ export function TelaReceber() {
       try {
         const eu = await usuarioDaSessao(sb);
         setUid(eu);
-        let cs: Conta[];
-        try {
-          cs = await lerContas(sb, eu);
-        } catch (e) {
-          if (e instanceof ErroDados && e.motivo === "sem-tabela") return setEstado("sem-tabela");
-          throw e;
+        // VELOCIDADE (15/11/2026): as duas leituras saem juntas.
+        const [rc, rl] = await Promise.allSettled([lerContas(sb, eu), carregarReceber(sb, eu, hoje)]);
+        if (rc.status === "rejected") {
+          if (rc.reason instanceof ErroDados && rc.reason.motivo === "sem-tabela") return setEstado("sem-tabela");
+          throw rc.reason;
         }
-        const ls = await carregarReceber(sb, eu, hoje);
+        if (rl.status === "rejected") throw rl.reason;
+        const cs: Conta[] = rc.value;
+        const ls = rl.value;
         if (vez !== pedido.current) return;
         setContas(cs.filter((c) => c.tipo === "conta"));
         setLinhas(ls);
@@ -114,6 +116,8 @@ export function TelaReceber() {
   useEffect(() => {
     carregar();
   }, [carregar]);
+  // 15/11/2026: o banco atualizou em segundo plano → recarrega sem piscar.
+  useAoMudarDados(() => carregar(true));
 
   const totais = totaisReceber(linhas);
   const abertas = linhas.filter((l) => l.situacao !== "recebido");

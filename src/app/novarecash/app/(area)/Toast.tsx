@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { CircleCheck, X } from "lucide-react";
+import { AlertTriangle, CircleCheck, X } from "lucide-react";
 
 import { ANEL } from "./pecas";
 
@@ -22,6 +22,8 @@ import { ANEL } from "./pecas";
 
 export type DadosToast = {
   texto: string;
+  /** 15/11/2026: "alerta" troca o ✓ verde pelo triângulo âmbar (reconectar banco, fatura vencendo). */
+  tom?: "ok" | "alerta";
   acao?: { rotulo: string; fazer: () => void };
   aoSumir?: () => void;
 };
@@ -84,7 +86,11 @@ export function Toast({ toast, fechar, agir }: { toast: ToastVivo | null; fechar
           onBlur={() => setParado(false)}
           className="pointer-events-auto flex w-full max-w-md items-center gap-3 rounded-2xl border border-white/15 bg-noite-2 py-1.5 pl-4 pr-1.5 text-white shadow-[0_18px_40px_-16px_var(--ncash-sombra-folha)]"
         >
-          <CircleCheck aria-hidden className="h-5 w-5 shrink-0 text-[var(--ncash-verde)]" />
+          {toast.tom === "alerta" ? (
+            <AlertTriangle aria-hidden className="h-5 w-5 shrink-0 text-warning" />
+          ) : (
+            <CircleCheck aria-hidden className="h-5 w-5 shrink-0 text-[var(--ncash-verde)]" />
+          )}
           <p className="min-w-0 flex-1 py-2 text-sm leading-snug">{toast.texto}</p>
           {toast.acao && (
             <button

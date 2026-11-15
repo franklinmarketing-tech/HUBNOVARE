@@ -27,10 +27,13 @@ export function CartaoProximasContas({ maximo = 5 }: { maximo?: number }) {
     try {
       const uid = await usuarioDaSessao(sb);
       const hoje = hojeNoBrasil();
-      const mes = await carregarMesDeContas(sb, uid, hoje.slice(0, 7), hoje);
+      // VELOCIDADE (15/11/2026): contas e A receber saem juntas.
+      const [mes, receber] = await Promise.all([
+        carregarMesDeContas(sb, uid, hoje.slice(0, 7), hoje),
+        carregarReceber(sb, uid, hoje).catch(() => [] as LinhaReceber[]),
+      ]);
       setTemCadastro(mes.contas.length > 0);
       setItens(proximasContas(mes.itens, 7));
-      const receber = await carregarReceber(sb, uid, hoje).catch(() => [] as LinhaReceber[]);
       setCobrar(receber.filter((l) => l.situacao === "atrasado" || l.situacao === "hoje" || l.situacao === "semana"));
       setEstado("pronto");
     } catch (e) {
