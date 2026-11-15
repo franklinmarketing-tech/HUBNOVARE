@@ -138,6 +138,50 @@ categoriaDe("freela 800 recebi", "receita:renda_extra");
   console.log((ok ? "  ok  " : "FALHOU") + `  palpite pela descrição sem o valor ("${desc}")`);
 }
 
+/* ── 15/11/2026: OS COMANDOS NOVOS (comparação com a Concentra Finanças) ──
+   Parcelado, conta a pagar, fiado, limite, corrigir, hoje e criar categoria.
+   O mais importante aqui é o que NÃO pode mudar: "paguei 50 no mercado" e
+   "recebi 5000 de salário" continuam sendo lançamento comum. */
+console.log("\nComandos novos (15/11/2026)");
+console.log("───────────────────────────");
+const PEND = {
+  ...NCASH,
+  cartoes: [{ id: "k1", nome: "Nubank" }],
+  contasAPagar: [{ id: "cp1|2026-10", nome: "Conta de luz" }, { id: "cp2|2026-10", nome: "Aluguel" }],
+  aReceber: [{ id: "r1", nome: "João" }, { id: "r2", nome: "Dona Cida" }],
+};
+const veja = (frase, teste, rotulo, ctx = PEND) => {
+  const i = interpretar(frase, ctx);
+  let ok = false;
+  try { ok = teste(i); } catch { ok = false; }
+  if (!ok) falhas++;
+  console.log((ok ? "  ok  " : "FALHOU") + `  "${frase}" → ${rotulo}` + (ok ? "" : `   (veio ${JSON.stringify(i)})`));
+};
+veja("geladeira 1200 em 10x", (i) => i.tipo === "registrar" && i.rascunho.parcelas === 10 && i.rascunho.valor === 1200 && i.rascunho.cartao_id === "k1", "10x de 1200 no único cartão");
+veja("tenis 10x de 120", (i) => i.tipo === "registrar" && i.rascunho.parcelas === 10 && i.rascunho.valor === 1200 && i.rascunho.descricao === "Tenis", "10x de 120 = 1200");
+veja("geladeira 1200 em 10x", (i) => i.tipo === "indefinido" && i.motivo === "parcela-sem-cartao", "sem cartão: pergunta", NCASH);
+veja("luz 180 vence dia 20", (i) => i.tipo === "conta-pagar" && i.conta.recorrencia === "unica" && i.conta.vence_em === "2026-10-20" && i.conta.descricao === "Luz" && i.conta.categoria_id === "moradia", "conta única dia 20");
+veja("aluguel 1500 todo dia 5", (i) => i.tipo === "conta-pagar" && i.conta.recorrencia === "mensal" && i.conta.vence_dia === 5 && i.conta.descricao === "Aluguel", "conta mensal dia 5");
+veja("luz 180 vence dia 10", (i) => i.tipo === "conta-pagar" && i.conta.vence_em === "2026-11-10", "dia que já passou = mês que vem");
+veja("paguei a luz", (i) => i.tipo === "pagar-conta" && i.alvo === "cp1|2026-10" && i.valor === null, "baixa na conta de luz");
+veja("paguei o aluguel 1520", (i) => i.tipo === "pagar-conta" && i.alvo === "cp2|2026-10" && i.valor === 1520, "baixa com valor");
+veja("paguei 50 no mercado", (i) => i.tipo === "registrar", "gasto comum continua gasto", { ...PEND, contas: [{ id: "c1", nome: "Itaú" }], cartoes: [] });
+veja("vendi 150 fiado pro João, cobrar dia 25", (i) => i.tipo === "a-receber" && i.item.pessoa === "João" && i.item.valor === 150 && i.item.vence_em === "2026-10-25" && i.item.descricao === "Venda fiado", "fiado com cobrança");
+veja("Maria me deve 80", (i) => i.tipo === "a-receber" && i.item.pessoa === "Maria" && i.item.vence_em === null, "me deve");
+veja("o joao pagou", (i) => i.tipo === "receber" && i.alvo === "r1" && i.valor === null, "baixa total do João");
+veja("recebi 50 da dona cida", (i) => i.tipo === "receber" && i.alvo === "r2" && i.valor === 50, "baixa parcial da Dona Cida");
+veja("recebi 5000 de salario", (i) => i.tipo === "registrar" && i.rascunho.categoria_id === "salario", "salário continua receita", { ...PEND, contas: [{ id: "c1", nome: "Itaú" }], cartoes: [] });
+veja("limite mercado 800", (i) => i.tipo === "limite" && i.categoria_id === "mercado" && i.valor === 800, "limite por categoria");
+veja("limite 800", (i) => i.tipo === "indefinido" && i.motivo === "limite-sem-categoria", "limite sem categoria pergunta");
+veja("corrigir 15", (i) => i.tipo === "corrigir" && i.valor === 15 && i.categoria_id === null, "corrige o valor");
+veja("corrigir para lazer", (i) => i.tipo === "corrigir" && i.valor === null && i.categoria_id === "lazer", "corrige a categoria");
+veja("hoje", (i) => i.tipo === "consulta" && i.consulta.escopo === "hoje", "lançamentos de hoje");
+veja("quanto gastei hoje", (i) => i.tipo === "consulta" && i.consulta.escopo === "hoje", "gasto de hoje");
+veja("quem me deve", (i) => i.tipo === "consulta" && i.consulta.escopo === "receber", "lista de quem deve");
+veja("criar categoria pet", (i) => i.tipo === "criar-categoria" && i.nome === "Pet" && i.tipoCategoria === "despesa", "cria categoria");
+veja("nova categoria de receita Aluguéis", (i) => i.tipo === "criar-categoria" && i.nome === "Aluguéis" && i.tipoCategoria === "receita", "cria categoria de receita");
+veja("conta de luz 180", (i) => i.tipo === "registrar", "sem 'vence' é gasto", { ...NCASH, contas: [{ id: "c1", nome: "Nubank" }] });
+
 console.log("\nNovareCash: nenhum texto fala em FINCASH");
 console.log("────────────────────────────────────────");
 {

@@ -57,6 +57,37 @@ export type RascunhoLancamento = {
   cartao_id: string | null;
   /** Nome da conta ou do cartão, só para a mensagem de confirmação. */
   origem_nome: string | null;
+  /**
+   * PARCELADO (15/11/2026): "geladeira 1200 em 10x no nubank". Só no CARTÃO.
+   * Ausente ou 1 = à vista. `valor` continua sendo o TOTAL da compra; quem
+   * divide em parcelas (uma por fatura) é o servidor, com `lancarCompra`.
+   */
+  parcelas?: number;
+};
+
+/**
+ * CONTA A PAGAR pelo WhatsApp (15/11/2026): "luz 180 vence dia 10".
+ * MENSAL quando a frase diz que repete ("todo dia 10", "todo mês"); senão
+ * ÚNICA, na próxima vez que o dia chegar.
+ */
+export type RascunhoConta = {
+  descricao: string;
+  valor: number;
+  categoria_id: string | null;
+  categoria_nome: string | null;
+  recorrencia: "mensal" | "unica";
+  vence_dia: number | null;
+  /** yyyy-mm-dd (só a única) */
+  vence_em: string | null;
+};
+
+/** A RECEBER / FIADO (15/11/2026): "vendi 150 fiado pro João, cobrar dia 10". */
+export type RascunhoReceber = {
+  pessoa: string;
+  descricao: string;
+  valor: number;
+  /** yyyy-mm-dd, ou null quando a frase não diz quando cobrar. */
+  vence_em: string | null;
 };
 
 export type Consulta = {
@@ -70,7 +101,7 @@ export type Consulta = {
    * nas 1.000 mensagens de serviço gratuitas do mês. Daí a regra: a casa
    * não avisa pelo WhatsApp, a casa RESPONDE.
    */
-  escopo: "categoria" | "total" | "saldo" | "resumo" | "contas" | "fatura";
+  escopo: "categoria" | "total" | "saldo" | "resumo" | "contas" | "fatura" | "hoje" | "receber";
   categoria_id: string | null;
   categoria_nome: string | null;
   /** "2026-09" */
@@ -87,14 +118,37 @@ export type Motivo =
   | "sem-valor"
   | "sem-descricao"
   | "conta-ambigua"
-  | "nao-entendi";
+  | "nao-entendi"
+  // 15/11/2026, os comandos novos:
+  | "parcela-sem-cartao"
+  | "limite-sem-categoria"
+  | "conta-sem-data"
+  | "receber-sem-pessoa"
+  | "qual-conta-pagar"
+  | "qual-pessoa"
+  | "corrigir-vazio";
 
 export type Intencao =
   | { tipo: "registrar"; rascunho: RascunhoLancamento }
   | { tipo: "consulta"; consulta: Consulta }
   | { tipo: "desfazer" }
   | { tipo: "ajuda" }
-  | { tipo: "indefinido"; motivo: Motivo; opcoes?: string[] };
+  | { tipo: "indefinido"; motivo: Motivo; opcoes?: string[] }
+  // ── 15/11/2026 ─────────────────────────────────────────────────────────
+  /** "luz 180 vence dia 10" → cadastra em Contas a pagar. */
+  | { tipo: "conta-pagar"; conta: RascunhoConta }
+  /** "paguei a luz" → dá baixa na conta pendente. `alvo` = id de `contasAPagar`. */
+  | { tipo: "pagar-conta"; alvo: string; nome: string; valor: number | null }
+  /** "vendi 150 fiado pro João" → um item em A receber. */
+  | { tipo: "a-receber"; item: RascunhoReceber }
+  /** "o João pagou" → baixa (total ou parcial). `alvo` = id de `aReceber`. */
+  | { tipo: "receber"; alvo: string; nome: string; valor: number | null }
+  /** "limite mercado 800" → orçamento mensal da categoria. */
+  | { tipo: "limite"; categoria_id: string; categoria_nome: string; valor: number }
+  /** "corrigir 15" / "corrigir lazer" → muda o ÚLTIMO lançamento do assistente. */
+  | { tipo: "corrigir"; valor: number | null; categoria_id: string | null; categoria_nome: string | null }
+  /** "criar categoria Pet" → categoria personalizada. */
+  | { tipo: "criar-categoria"; nome: string; tipoCategoria: TipoLancamento };
 
 export type ContextoInterpretacao = {
   categorias: CategoriaAlvo[];
@@ -105,6 +159,13 @@ export type ContextoInterpretacao = {
   cartaoPadraoId: string | null;
   /** Injetado para o interpretador continuar puro e testável. */
   hoje: Date;
+  /**
+   * As contas a pagar PENDENTES (15/11/2026), para "paguei a luz". `id` é do
+   * servidor (conta + competência); `nome` é a descrição. Ausente = nenhuma.
+   */
+  contasAPagar?: OrigemAlvo[];
+  /** Os itens A RECEBER em aberto, para "o João pagou". `nome` = a pessoa. */
+  aReceber?: OrigemAlvo[];
 };
 
 // ── Texto ───────────────────────────────────────────────────────────────────
@@ -506,7 +567,7 @@ const RECEITA = /\b(recebi|receber|recebimento|salario|entrou|ganhei|rendeu|rend
  * WhatsApp.
  */
 const CONSULTA =
-  /\b(quanto|quanta|quantos|qual|quais|saldo|resumo|extrato|balanco|relatorio|sobrou|gastei|gastos|contas?|pagar|fatura|vencer|vencem|vencendo|fecha|fechamento)\b/;
+  /\b(quanto|quanta|quantos|qual|quais|quem|saldo|resumo|extrato|balanco|relatorio|sobrou|gastei|gastos|contas?|pagar|fatura|vencer|vencem|vencendo|fecha|fechamento|deve|devem|devendo|receber|fiados?)\b/;
 /**
  * O que faz uma mensagem ser PERGUNTA e não lançamento.
  *
@@ -521,7 +582,7 @@ const CONSULTA =
  * ser generosa sem transformar relato em consulta.
  */
 const PERGUNTA_DE_CONSULTA =
-  /\b(quanto|quanta|quantos|qual|quais|saldo|resumo|extrato|balanco|relatorio|sobrou|contas?|pagar|fatura|vencer|vencendo|fecha|fechamento)\b/;
+  /\b(quanto|quanta|quantos|qual|quais|quem|saldo|resumo|extrato|balanco|relatorio|sobrou|contas?|pagar|fatura|vencer|vencendo|fecha|fechamento|deve|devem|devendo|receber|fiados?)\b/;
 
 /**
  * O código de 6 dígitos do vínculo.
@@ -552,8 +613,35 @@ export function interpretar(texto: string, ctx: ContextoInterpretacao): Intencao
   if (AJUDA.test(t)) return { tipo: "ajuda" };
   if (DESFAZER.test(t)) return { tipo: "desfazer" };
 
-  const valor = interpretarValor(cru);
+  // ── Comandos que começam a frase (15/11/2026) ────────────────────────────
+  const criar = montarCriarCategoria(cru, t);
+  if (criar) return criar;
+  const corrigir = montarCorrecao(cru, t, ctx);
+  if (corrigir) return corrigir;
+  const limite = montarLimite(cru, t, ctx);
+  if (limite) return limite;
+  if (HOJE.test(t)) {
+    return { tipo: "consulta", consulta: { escopo: "hoje", categoria_id: null, categoria_nome: null, ref: refDoMesLocal(ctx.hoje) } };
+  }
+
+  // ── Baixas: só valem quando casam com algo PENDENTE de verdade ───────────
+  const recebeu = montarRecebimento(cru, t, ctx);
+  if (recebeu) return recebeu;
+  const pagou = montarPagamentoDeConta(cru, t, ctx);
+  if (pagou) return pagou;
+
+  // PARCELADO: o "10x" sai do texto ANTES do valor, senão "10x de 120" vira R$ 10.
+  const parc = interpretarParcelas(cru);
+  const semParcela = parc ? cru.replace(new RegExp(escaparRegex(parc.trecho), "i"), " ") : cru;
+  const valor = parc?.total
+    ? { valor: parc.total, trecho: "" }
+    : interpretarValor(semParcela);
   const ehPergunta = PERGUNTA_DE_CONSULTA.test(t) || cru.includes("?");
+
+  // A RECEBER e CONTA A PAGAR: frases com valor E com a palavra que as separa
+  // de um gasto comum ("fiado", "me deve"; "vence", "todo dia").
+  if (valor && A_RECEBER.test(t)) return montarAReceber(cru, t, valor, ctx);
+  if (valor && (VENCE.test(t) || TODO_DIA.test(t))) return montarContaPagar(cru, valor, ctx);
 
   // Consulta: pergunta sem valor, ou pergunta com valor que não é um relato
   // ("quanto gastei de 500 pra cá" não existe na prática; "gastei 35 no uber"
@@ -568,7 +656,255 @@ export function interpretar(texto: string, ctx: ContextoInterpretacao): Intencao
     return { tipo: "indefinido", motivo: t.length > 3 ? "sem-valor" : "nao-entendi" };
   }
 
-  return montarRegistro(cru, valor, ctx);
+  return montarRegistro(semParcela, valor, ctx, parc?.n ?? 1);
+}
+
+// ── Os comandos novos (15/11/2026, comparação com a Concentra Finanças) ────
+//
+// Cada um é uma função pura que devolve a intenção ou `null` ("não é comigo").
+// A ORDEM em `interpretar` é a regra: o comando explícito (criar, corrigir,
+// limite) sai na frente; a baixa ("paguei a luz", "o João pagou") só existe
+// quando o nome casa com algo PENDENTE que o servidor entregou no contexto —
+// sem isso, "paguei 50 no mercado" e "recebi 5000 de salário" continuam sendo
+// lançamentos comuns.
+
+/** "hoje", "gastos de hoje", "quanto gastei hoje" → o que entrou no extrato hoje. */
+const HOJE =
+  /^(hoje|o que (eu )?(gastei|lancei) hoje|quanto (eu )?gastei hoje|gastos? (de|do dia de) hoje|lancamentos? (de|do dia de) hoje|extrato (de|do dia de) hoje|movimento (de|do dia de) hoje|resumo (de|do dia de) hoje)$/;
+
+/** O que separa um fiado de uma venda à vista. */
+const A_RECEBER = /\b(fiado|me deve|ficou (me )?devendo|vai me pagar|a receber|pra receber|para receber)\b/;
+
+/** O que separa uma conta a pagar de um gasto que já aconteceu. */
+const VENCE = /\b(vence|vencem|vencimento|vence em|vai vencer)\b/;
+const TODO_DIA = /\btodo dia \d{1,2}\b|\btodo (o )?mes\b|\btodos os meses\b/;
+
+/** Palavras de nome de conta/pessoa que não identificam nada sozinhas. */
+const VAZIAS = new Set(["conta", "contas", "de", "da", "do", "das", "dos", "para", "com", "mensal", "pagar", "pagamento", "boleto", "fixa"]);
+
+/**
+ * Qual dos `alvos` o texto menciona. Casa por PALAVRA (3+ letras) do nome —
+ * "paguei a luz" acha "Conta de luz". Empate entre dois = ambíguo (volta os
+ * dois para a pergunta).
+ */
+function casarNome(t: string, alvos: OrigemAlvo[]): { unico: OrigemAlvo | null; empate: OrigemAlvo[] } {
+  const pontos = alvos
+    .map((a) => {
+      const palavras = normalizarTexto(a.nome)
+        .split(" ")
+        .filter((p) => p.length >= 3 && !VAZIAS.has(p));
+      const n = palavras.filter((p) => new RegExp(`\\b${escaparRegex(p)}\\b`).test(t)).length;
+      return { a, n };
+    })
+    .filter((x) => x.n > 0)
+    .sort((x, y) => y.n - x.n);
+  if (!pontos.length) return { unico: null, empate: [] };
+  const topo = pontos.filter((x) => x.n === pontos[0].n);
+  // O MESMO nome duas vezes (luz atrasada + luz do mês) é a mesma conta para a pessoa: o servidor manda a mais antiga primeiro.
+  const nomes = new Set(topo.map((x) => normalizarTexto(x.a.nome)));
+  if (nomes.size === 1) return { unico: topo[0].a, empate: [] };
+  return { unico: null, empate: topo.map((x) => x.a) };
+}
+
+/** "Pet", "Ração do Thor" — o nome como a pessoa escreveu, com a 1ª letra maiúscula. */
+function capitalizar(s: string): string {
+  const limpo = s.replace(/\s+/g, " ").trim();
+  return limpo ? limpo[0].toUpperCase() + limpo.slice(1) : "";
+}
+
+/** "criar categoria pet" / "nova categoria de receita Aluguéis". */
+function montarCriarCategoria(cru: string, t: string): Intencao | null {
+  if (!/^(criar|crie|cria|nova|novo|adicionar|adiciona|cadastrar|cadastra) (uma |a )?categoria\b/.test(t)) return null;
+  const receita = /\b(de )?(receita|entrada|ganho)s?\b/.test(t);
+  const nome = cru
+    .replace(/^\s*\S+\s+(uma\s+|a\s+)?categoria\s*/i, "")
+    .replace(/^(de\s+)?(receitas?|entradas?|ganhos?|gastos?|despesas?)\s*/i, "")
+    .replace(/^(chamada|com o nome|nome|de)\s+/i, "")
+    .replace(/["“”]/g, "")
+    .trim()
+    .slice(0, 40);
+  if (!nome) return { tipo: "indefinido", motivo: "nao-entendi" };
+  return { tipo: "criar-categoria", nome: capitalizar(nome), tipoCategoria: receita ? "receita" : "despesa" };
+}
+
+/** "corrigir 15", "era 15", "corrigir para lazer", "o certo é 42,90 em mercado". */
+function montarCorrecao(cru: string, t: string, ctx: ContextoInterpretacao): Intencao | null {
+  const m = /^(corrigir|corrige|corrija|correcao|era|o certo e|o certo era|valor certo|valor correto|na verdade (foi|era)|muda (para|pra)|mudar (para|pra)|trocar (para|pra)|troca (para|pra))\b(.*)$/.exec(t);
+  if (!m) return null;
+  const resto = m[m.length - 1].replace(/^\s*(para|pra|o valor|valor|a categoria|categoria)\b/g, " ").trim();
+  const valor = interpretarValor(resto);
+  const cat = casarCategoria(resto, ctx.categorias);
+  if (!valor && !cat) return { tipo: "indefinido", motivo: "corrigir-vazio" };
+  return {
+    tipo: "corrigir",
+    valor: valor?.valor ?? null,
+    categoria_id: cat?.id ?? null,
+    categoria_nome: cat?.nome ?? null,
+  };
+}
+
+/** "limite mercado 800", "orçamento de lazer 300", "teto restaurantes 600". */
+function montarLimite(cru: string, t: string, ctx: ContextoInterpretacao): Intencao | null {
+  if (!/^(limite|limitar|orcamento|teto)\b/.test(t)) return null;
+  // "limite do cartão" não é orçamento de categoria.
+  if (/\bcartao\b/.test(t)) return null;
+  const valor = interpretarValor(cru);
+  if (!valor) return { tipo: "indefinido", motivo: "sem-valor" };
+  const cat = casarCategoria(cru.replace(new RegExp(escaparRegex(valor.trecho), "i"), " "), ctx.categorias, "despesa");
+  if (!cat) return { tipo: "indefinido", motivo: "limite-sem-categoria" };
+  return { tipo: "limite", categoria_id: cat.id, categoria_nome: cat.nome, valor: valor.valor };
+}
+
+/**
+ * "10x", "em 10 vezes", "12 parcelas", "10x de 120".
+ * Com "de <valor>", o valor é o da PARCELA e o total sai da multiplicação.
+ */
+export function interpretarParcelas(texto: string): { n: number; trecho: string; total: number | null } | null {
+  const t = normalizarTexto(texto);
+  const m = /\b(?:em\s+)?(\d{1,2})\s*(?:x|vezes|parcelas)\b(?:\s+(?:de|sem juros de)\s+((?:r\$\s*)?\d[\d.,]*))?/.exec(t);
+  if (!m) return null;
+  const n = Number(m[1]);
+  if (n < 2 || n > 24) return null;
+  let total: number | null = null;
+  if (m[2]) {
+    const v = interpretarValor(m[2]);
+    if (v) total = Math.round(v.valor * n * 100) / 100;
+  }
+  return { n, trecho: m[0], total };
+}
+
+/** Próxima vez que o dia `dia` chega (hoje conta). Dia 31 em mês curto = último dia. */
+function proximoDia(dia: number, hoje: Date): string {
+  const ultimo = (a: number, m: number) => new Date(a, m + 1, 0).getDate();
+  let ano = hoje.getFullYear();
+  let mes = hoje.getMonth();
+  if (dia < hoje.getDate()) {
+    mes += 1;
+    if (mes > 11) {
+      mes = 0;
+      ano += 1;
+    }
+  }
+  return iso(new Date(ano, mes, Math.min(dia, ultimo(ano, mes))));
+}
+
+/**
+ * A data FUTURA da frase (vencimento, cobrança): "dia 10", "10/12", "amanhã",
+ * "semana que vem". Diferente de `interpretarData`, que olha para TRÁS.
+ */
+export function interpretarDataFutura(texto: string, hoje: Date): { data: string; dia: number | null; trecho: string } | null {
+  const t = normalizarTexto(texto);
+  if (/\bamanha\b/.test(t)) {
+    const d = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate() + 1);
+    return { data: iso(d), dia: null, trecho: "amanha" };
+  }
+  if (/\bhoje\b/.test(t)) return { data: iso(hoje), dia: null, trecho: "hoje" };
+  if (/\bsemana que vem\b|\bproxima semana\b/.test(t)) {
+    const d = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate() + 7);
+    return { data: iso(d), dia: null, trecho: /semana que vem/.test(t) ? "semana que vem" : "proxima semana" };
+  }
+  const barra = /\b(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?\b/.exec(t);
+  if (barra) {
+    const dia = Number(barra[1]);
+    const mes = Number(barra[2]);
+    let ano = barra[3] ? Number(barra[3]) : hoje.getFullYear();
+    if (ano < 100) ano += 2000;
+    if (dia >= 1 && dia <= 31 && mes >= 1 && mes <= 12) {
+      let d = new Date(ano, mes - 1, dia);
+      // "10/01" escrito em dezembro é janeiro do ano que vem.
+      if (!barra[3] && d < new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate() - 31)) d = new Date(ano + 1, mes - 1, dia);
+      return { data: iso(d), dia: null, trecho: barra[0] };
+    }
+  }
+  const diaDoMes = /\b(?:todo )?dia\s+(\d{1,2})\b/.exec(t);
+  if (diaDoMes) {
+    const dia = Number(diaDoMes[1]);
+    if (dia >= 1 && dia <= 31) return { data: proximoDia(dia, hoje), dia, trecho: diaDoMes[0] };
+  }
+  return null;
+}
+
+/** "luz 180 vence dia 10", "aluguel 1500 todo dia 5", "IPVA 900 vence 15/03". */
+function montarContaPagar(cru: string, valor: { valor: number; trecho: string }, ctx: ContextoInterpretacao): Intencao {
+  const t = normalizarTexto(cru);
+  const quando = interpretarDataFutura(cru, ctx.hoje);
+  if (!quando) return { tipo: "indefinido", motivo: "conta-sem-data" };
+
+  const mensal = quando.dia !== null && TODO_DIA.test(t);
+  let descricao = cru;
+  for (const trecho of [valor.trecho, quando.trecho]) {
+    if (trecho) descricao = descricao.replace(new RegExp(escaparRegex(trecho), "i"), " ");
+  }
+  descricao = descricao
+    .replace(/\b(vai vencer|vence em|vencimento|vencem|vence|todo (o )?m[eê]s|todos os meses|mensal|todo|a pagar|para pagar|pra pagar|no dia|dia)\b/gi, " ")
+    .replace(/[,;:]+/g, " ");
+  descricao = capitalizar(aparar(descricao).slice(0, 120)) || "Conta";
+  const cat = casarCategoria(descricao, ctx.categorias, "despesa");
+
+  return {
+    tipo: "conta-pagar",
+    conta: {
+      descricao,
+      valor: valor.valor,
+      categoria_id: cat?.id ?? null,
+      categoria_nome: cat?.nome ?? null,
+      recorrencia: mensal ? "mensal" : "unica",
+      vence_dia: mensal ? quando.dia : null,
+      vence_em: mensal ? null : quando.data,
+    },
+  };
+}
+
+/** "paguei a luz", "paguei o aluguel 1520" → a conta pendente que casa. */
+function montarPagamentoDeConta(cru: string, t: string, ctx: ContextoInterpretacao): Intencao | null {
+  if (!ctx.contasAPagar?.length) return null;
+  if (!/^(ja )?(paguei|pago|quitei|pagamos|paga)\b/.test(t)) return null;
+  const { unico, empate } = casarNome(t, ctx.contasAPagar);
+  if (empate.length) return { tipo: "indefinido", motivo: "qual-conta-pagar", opcoes: [...new Set(empate.map((e) => e.nome))] };
+  if (!unico) return null; // não é conta cadastrada: segue como gasto comum ("paguei 50 no mercado").
+  return { tipo: "pagar-conta", alvo: unico.id, nome: unico.nome, valor: interpretarValor(cru)?.valor ?? null };
+}
+
+/** "o João pagou", "recebi 100 do João", "Maria acertou o fiado". */
+function montarRecebimento(cru: string, t: string, ctx: ContextoInterpretacao): Intencao | null {
+  if (!ctx.aReceber?.length) return null;
+  if (!/\b(pagou|pagaram|recebi|acertou|quitou|devolveu|me pagou|depositou|fez o pix|mandou o pix)\b/.test(t)) return null;
+  const { unico, empate } = casarNome(t, ctx.aReceber);
+  if (empate.length) return { tipo: "indefinido", motivo: "qual-pessoa", opcoes: [...new Set(empate.map((e) => e.nome))] };
+  if (!unico) return null; // "recebi 5000 de salário" continua sendo receita.
+  return { tipo: "receber", alvo: unico.id, nome: unico.nome, valor: interpretarValor(cru)?.valor ?? null };
+}
+
+/** Palavra que vem depois de "pro"/"pra" e NÃO é nome de gente. */
+const NAO_E_NOME = new Set(["cobrar", "dia", "receber", "pagar", "semana", "mes", "amanha", "hoje", "ele", "ela", "mim", "voce", "vc", "cliente"]);
+
+/** "vendi 150 fiado pro João, cobrar dia 10", "Maria me deve 80", "fiado 45 Dona Cida". */
+function montarAReceber(cru: string, t: string, valor: { valor: number; trecho: string }, ctx: ContextoInterpretacao): Intencao {
+  let pessoa = "";
+  // 1. "pro João", "pra Dona Cida", "para o Pedro", "ao Seu Zé"
+  const pro = /\b(?:pro|pra|para o|para a|para|ao|a)\s+((?:dona|seu|sr|sra)\.?\s+)?([\p{L}]+(?:\s+[\p{Lu}][\p{L}]+)?)/iu.exec(cru);
+  if (pro && !NAO_E_NOME.has(normalizarTexto(pro[2].split(" ")[0]))) pessoa = `${pro[1] ?? ""}${pro[2]}`;
+  // 2. "João me deve", "a Maria ficou devendo"
+  if (!pessoa) {
+    const antes = /^(?:o\s+|a\s+)?((?:dona|seu)\s+)?([\p{L}]+(?:\s+[\p{Lu}][\p{L}]+)?)\s+(?:me deve|ficou (?:me )?devendo|vai me pagar)/iu.exec(cru);
+    if (antes) pessoa = `${antes[1] ?? ""}${antes[2]}`;
+  }
+  pessoa = capitalizar(pessoa.replace(/\s+(cobrar|dia|em|no|na)$/i, "")).slice(0, 60);
+  if (!pessoa) return { tipo: "indefinido", motivo: "receber-sem-pessoa" };
+
+  const quando = interpretarDataFutura(cru, ctx.hoje);
+  let descricao = cru;
+  for (const trecho of [valor.trecho, quando?.trecho, pessoa]) {
+    if (trecho) descricao = descricao.replace(new RegExp(escaparRegex(trecho), "i"), " ");
+  }
+  descricao = descricao
+    .replace(/\b(fiado|me deve|ficou (me )?devendo|vai me pagar|a receber|pra receber|para receber|cobrar( em| no| dia)?|pro|pra|para o|para a|ao|dona|seu)\b/gi, " ")
+    .replace(/[,;:]+/g, " ");
+  descricao = capitalizar(aparar(descricao).slice(0, 120));
+  if (!descricao || /^(vendi|venda)$/i.test(descricao)) descricao = /\bvend/.test(t) ? "Venda fiado" : "A receber";
+  else if (/^vendi\b/i.test(descricao)) descricao = capitalizar(descricao.replace(/^vendi\s+/i, "Venda de "));
+
+  return { tipo: "a-receber", item: { pessoa, descricao, valor: valor.valor, vence_em: quando?.data ?? null } };
 }
 
 function montarConsulta(t: string, ctx: ContextoInterpretacao): Consulta {
@@ -604,6 +940,15 @@ function montarConsulta(t: string, ctx: ContextoInterpretacao): Consulta {
     return { escopo: "fatura", categoria_id: null, categoria_nome: null, ref };
   }
 
+  // 15/11/2026: quem me deve / fiados / a receber.
+  if (/\b(quem (me )?deve|me devem|devendo|a receber|fiados?|tenho (pra|para|a) receber)\b/.test(t)) {
+    return { escopo: "receber", categoria_id: null, categoria_nome: null, ref };
+  }
+  // 15/11/2026: "quanto gastei hoje" era o total do MÊS. Agora é o de hoje.
+  if (/\bhoje\b/.test(t)) {
+    return { escopo: "hoje", categoria_id: null, categoria_nome: null, ref };
+  }
+
   if (/\bresumo\b|\bbalanco\b|\bextrato\b|\bsobrou\b|\bcomo estou\b/.test(t)) {
     return { escopo: "resumo", categoria_id: null, categoria_nome: null, ref };
   }
@@ -618,6 +963,7 @@ function montarRegistro(
   cru: string,
   valor: { valor: number; trecho: string },
   ctx: ContextoInterpretacao,
+  parcelas = 1,
 ): Intencao {
   const t = normalizarTexto(cru);
 
@@ -649,6 +995,19 @@ function montarRegistro(
   let conta_id = origem?.conta_id ?? null;
   let cartao_id = origem?.cartao_id ?? null;
   let origem_nome = origem?.nome ?? null;
+
+  // PARCELADO só existe no cartão. Sem cartão dito: o único que ela tem, o
+  // padrão (se for cartão), ou a pergunta. Nunca parcela numa conta corrente.
+  if (parcelas > 1 && tipo === "despesa" && !cartao_id) {
+    const padrao = ctx.cartaoPadraoId ? ctx.cartoes.find((c) => c.id === ctx.cartaoPadraoId) : undefined;
+    const unico = padrao ?? (ctx.cartoes.length === 1 ? ctx.cartoes[0] : undefined);
+    if (!unico) {
+      return { tipo: "indefinido", motivo: "parcela-sem-cartao", opcoes: ctx.cartoes.map((c) => c.nome) };
+    }
+    conta_id = null;
+    cartao_id = unico.id;
+    origem_nome = unico.nome;
+  }
 
   if (!conta_id && !cartao_id) {
     if (ctx.contaPadraoId) {
@@ -686,6 +1045,7 @@ function montarRegistro(
       conta_id,
       cartao_id,
       origem_nome,
+      ...(parcelas > 1 && tipo === "despesa" ? { parcelas } : {}),
     },
   };
 }
@@ -710,8 +1070,11 @@ function formatarDia(data: string): string {
 }
 
 export function respostaDeRegistro(r: RascunhoLancamento): string {
+  const n = r.parcelas ?? 1;
   const linhas = [
-    `${r.tipo === "receita" ? "Receita anotada" : "Anotado"}: *${r.descricao}* — ${formatarBRL(r.valor)}`,
+    n > 1
+      ? `Compra parcelada anotada: *${r.descricao}* — ${formatarBRL(r.valor)} em ${n}x de ${formatarBRL(Math.round((r.valor / n) * 100) / 100)}`
+      : `${r.tipo === "receita" ? "Receita anotada" : "Anotado"}: *${r.descricao}* — ${formatarBRL(r.valor)}`,
   ];
 
   // Sem categoria, o NovareCash grava em "Outros" (a coluna não é anulável lá)
@@ -724,8 +1087,15 @@ export function respostaDeRegistro(r: RascunhoLancamento): string {
   ].filter(Boolean);
   linhas.push(detalhe.join(" · "));
 
+  if (n > 1) linhas.push("Cada parcela entrou na fatura do mês dela.");
   if (!r.categoria_nome) {
-    linhas.push(`Não achei a categoria e deixei em *${outros}*. Troque no extrato do NovareCash quando puder.`);
+    // 15/11/2026: em vez de só avisar, oferece o comando que resolve na hora.
+    const sugestao = capitalizar(normalizarTexto(r.descricao).split(" ").find((p) => p.length >= 3) ?? "");
+    linhas.push(
+      sugestao
+        ? `Não achei a categoria e deixei em *${outros}*. Quer uma só para isso? Responda *criar categoria ${sugestao}*.`
+        : `Não achei a categoria e deixei em *${outros}*. Troque no extrato do NovareCash quando puder.`,
+    );
   }
   linhas.push("Errei? Responda *desfazer*.");
   return linhas.join("\n");
@@ -737,9 +1107,14 @@ export function respostaDeAjuda(): string {
     "",
     "*Registrar um gasto* — “Uber 35” ou “mercado R$ 280 ontem”",
     "*Registrar uma entrada* — “recebi 5000 de salário”",
-    "*Consultar* — “quanto gastei com alimentação esse mês?”",
+    "*Parcelado no cartão* — “geladeira 1200 em 10x no nubank”",
+    "*Conta a pagar* — “luz 180 vence dia 10” ou “aluguel 1500 todo dia 5”; depois, “paguei a luz”",
+    "*Fiado / a receber* — “vendi 150 fiado pro João, cobrar dia 10”; depois, “o João pagou”",
+    "*Limite do mês* — “limite mercado 800” (eu aviso nos 80% e quando passar)",
+    "*Consultar* — “quanto gastei com mercado?”, “hoje”, “resumo”, “quem me deve”, “contas a pagar”",
     "*Ver saldo* — “saldo”",
-    "*Corrigir* — “desfazer” apaga o último lançamento que eu criei",
+    "*Corrigir* — “corrigir 15” ou “corrigir para lazer” muda o último; “desfazer” apaga",
+    "*Nova categoria* — “criar categoria Pet”",
     "",
     "*Mandar áudio* — fala o gasto e eu registro",
     "*Mandar foto do comprovante* — eu leio o valor e te pergunto antes de lançar",
@@ -761,6 +1136,22 @@ export function respostaIndefinida(motivo: Motivo, opcoes?: string[]): string {
         "",
         "Escreva junto (“mercado 280 no nubank”) ou escolha uma conta padrão no NovareCash, na tela *WhatsApp* — aí eu paro de perguntar.",
       ].join("\n");
+    case "parcela-sem-cartao":
+      return (opcoes ?? []).length
+        ? ["Parcelado é no cartão. Em qual?", (opcoes ?? []).map((o) => `• ${o}`).join("\n"), "", "Mande de novo com o nome: “geladeira 1200 em 10x no nubank”."].join("\n")
+        : "Parcelado é no cartão, e você ainda não tem cartão no NovareCash. Cadastre em *Cartões* no app (ou conecte o banco) e mande de novo.";
+    case "limite-sem-categoria":
+      return "De qual categoria é esse limite? Ex.: “limite mercado 800” ou “limite lazer 300”.";
+    case "conta-sem-data":
+      return "Quando ela vence? Ex.: “luz 180 vence dia 10”, “IPVA 900 vence 15/03” ou, se repete, “aluguel 1500 todo dia 5”.";
+    case "receber-sem-pessoa":
+      return "Quem te deve? Ex.: “vendi 150 fiado pro João, cobrar dia 10” ou “Maria me deve 80”.";
+    case "qual-conta-pagar":
+      return ["Qual delas você pagou?", (opcoes ?? []).map((o) => `• ${o}`).join("\n"), "", "Responda com o nome: “paguei o aluguel”."].join("\n");
+    case "qual-pessoa":
+      return ["Quem pagou?", (opcoes ?? []).map((o) => `• ${o}`).join("\n"), "", "Responda com o nome inteiro: “a Dona Cida pagou”."].join("\n");
+    case "corrigir-vazio":
+      return "Corrigir para quê? Mande o valor certo (“corrigir 15”) ou a categoria (“corrigir para lazer”).";
     default:
       return "Não entendi. Responda *ajuda* para ver o que eu sei fazer.";
   }
