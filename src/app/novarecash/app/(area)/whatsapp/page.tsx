@@ -2,6 +2,7 @@ import { getPerfil } from "@/lib/perfil";
 import { estadoDoRecurso, whatsappEnvioConfigurado } from "@/lib/novarecash/recursos";
 import { AvisoModoEquipe, EmAtivacao } from "../EmAtivacao";
 import { Cabecalho } from "../pecas";
+import { CartaoTelegram } from "./CartaoTelegram";
 import { Exemplos } from "./Exemplos";
 import { TelaWhatsApp } from "./TelaWhatsApp";
 
@@ -25,9 +26,11 @@ export default async function WhatsAppNovareCash() {
   return (
     <div className="surgir space-y-5">
       <Cabecalho
-        titulo="WhatsApp"
-        resumo="Lance um gasto mandando uma mensagem: texto, áudio ou a foto da nota. Ele entende, registra no seu extrato e confirma."
+        titulo="WhatsApp e Telegram"
+        resumo="Lance um gasto mandando uma mensagem: texto, áudio ou a foto da nota. Ele entende, registra no seu extrato e confirma. Funciona no WhatsApp e no Telegram."
       />
+      {/* 15/11/2026: o Telegram não depende da Meta — fica no ar sozinho, mesmo com o WhatsApp em ativação. */}
+      <CartaoTelegram />
       {estado.liberado ? (
         <>
           {estado.modoEquipe && <AvisoModoEquipe liberaEm={estado.recurso.liberaEm} />}

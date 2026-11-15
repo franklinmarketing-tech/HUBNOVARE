@@ -56,7 +56,8 @@ export type Orcamento = { categoria: string; limite: number };
 
 export const ORIGEM_ROTULO: Record<OrigemTransacao, string> = {
   manual: "Manual",
-  whatsapp: "WhatsApp",
+  // 15/11/2026: o assistente atende WhatsApp E Telegram (a origem no banco continua "whatsapp").
+  whatsapp: "Mensagem",
   openfinance: "Banco",
   importacao: "Importado",
 };

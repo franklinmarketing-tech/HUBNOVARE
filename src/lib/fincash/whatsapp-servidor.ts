@@ -109,6 +109,7 @@ import {
   type Proposta,
 } from "@/lib/fincash/whatsapp-foto";
 import { enviarTexto, whatsappConfigurado } from "@/lib/fincash/whatsapp-envio";
+import { chatDoTelegram, ehTelegram, enviarTelegram, telegramConfigurado } from "@/lib/fincash/telegram";
 import {
   variantesTelefone,
   type MensagemRecebida,
@@ -193,6 +194,7 @@ type Vinculo = {
 };
 
 async function acharVinculo(telefone: string): Promise<Vinculo | null> {
+  if (ehTelegram(telefone)) return acharVinculoTelegram(telefone);
   const consulta = (colunas: string) =>
     servico()
       .from("fin_whatsapp_contas")
@@ -220,6 +222,86 @@ async function acharVinculo(telefone: string): Promise<Vinculo | null> {
     telefone: linha.telefone ?? telefone,
     ncash_conta_padrao_id: linha.ncash_conta_padrao_id ?? null,
   };
+}
+
+/**
+ * O VÍNCULO DO TELEGRAM (15/11/2026): `ncash_telegram.chat_id` → usuário.
+ * A conta padrão é a escolhida para o Telegram; sem ela, a do WhatsApp (a
+ * pessoa que usa os dois não precisa escolher duas vezes).
+ * Sem a tabela (SQL não rodou), ninguém está ligado — e o robô explica.
+ */
+async function acharVinculoTelegram(de: string): Promise<Vinculo | null> {
+  try {
+    const { data, error } = await servico()
+      .from("ncash_telegram")
+      .select("user_id, ncash_conta_padrao_id")
+      .eq("chat_id", chatDoTelegram(de))
+      .not("confirmado_em", "is", null)
+      .maybeSingle();
+    if (error || !data?.user_id) return null;
+    let padrao = (data.ncash_conta_padrao_id as string | null) ?? null;
+    if (!padrao) {
+      const { data: w } = await servico()
+        .from("fin_whatsapp_contas")
+        .select("ncash_conta_padrao_id")
+        .eq("user_id", data.user_id)
+        .not("confirmado_em", "is", null)
+        .limit(1);
+      padrao = ((w?.[0] as { ncash_conta_padrao_id?: string | null } | undefined)?.ncash_conta_padrao_id) ?? null;
+    }
+    return {
+      id: String(data.user_id),
+      user_id: String(data.user_id),
+      dono_id: await donoEfetivo(String(data.user_id)),
+      telefone: de,
+      ncash_conta_padrao_id: padrao,
+    };
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * O LINK DE VÍNCULO DO TELEGRAM: o botão "Ligar no Telegram" abre o robô com
+ * `/start <código>`. O código é de uso único, vale 15 minutos e é gerado pela
+ * rota `/api/telegram/vincular` (com a sessão da pessoa). O `chat_id` só é
+ * carimbado aqui, com o chat que REALMENTE mandou — prova de posse, como o
+ * telefone no WhatsApp. Um chat escreve num NovareCash só: se ele estava
+ * ligado a outra conta, sai de lá.
+ */
+async function vincularTelegram(
+  de: string,
+  codigo: string,
+  nome: string | null,
+  recentes: number,
+): Promise<{ ok: boolean; user_id?: string; semAssinatura?: boolean }> {
+  if (recentes > TETO_TENTATIVAS_CODIGO) return { ok: false };
+  const s = servico();
+  const { data } = await s
+    .from("ncash_telegram")
+    .select("user_id")
+    .eq("codigo", codigo)
+    .gt("codigo_expira_em", new Date().toISOString())
+    .maybeSingle();
+  const uid = (data as { user_id?: string } | null)?.user_id;
+  if (!uid) return { ok: false };
+  if (!(await temNovareCash(uid))) return { ok: false, user_id: uid, semAssinatura: true };
+
+  const chat = chatDoTelegram(de);
+  await s.from("ncash_telegram").update({ chat_id: null, confirmado_em: null }).eq("chat_id", chat).neq("user_id", uid);
+  const { error } = await s
+    .from("ncash_telegram")
+    .update({
+      chat_id: chat,
+      nome_telegram: nome?.slice(0, 60) ?? null,
+      confirmado_em: new Date().toISOString(),
+      codigo: null,
+      codigo_expira_em: null,
+    })
+    .eq("user_id", uid)
+    .eq("codigo", codigo);
+  if (error) return { ok: false };
+  return { ok: true, user_id: uid };
 }
 
 /**
@@ -320,7 +402,7 @@ async function temNovareCash(userId: string): Promise<boolean> {
    `/novarecash/app/...`: quem recebe esta mensagem NÃO é assinante, e a área
    do app só mostraria a porta fechada. */
 const TEXTO_SEM_ASSINATURA = [
-  "Oi! O assistente de WhatsApp da Novare agora faz parte do NovareCash.",
+  "Oi! O assistente da Novare (WhatsApp e Telegram) faz parte do NovareCash.",
   `Para lançar gastos por aqui, conheça o plano: ${SITE_URL}/novarecash`,
 ].join("\n");
 
@@ -472,8 +554,20 @@ async function responder(params: {
 
   let erro: string | null = null;
   let provedorMsgId: string | null = null;
+  const telegram = ehTelegram(telefone);
 
-  if (whatsappConfigurado()) {
+  if (telegram) {
+    if (telegramConfigurado()) {
+      try {
+        provedorMsgId = await enviarTelegram(chatDoTelegram(telefone), texto);
+      } catch (e) {
+        erro = e instanceof Error ? e.message : String(e);
+        console.warn("[telegram] nao enviou:", erro);
+      }
+    } else {
+      erro = "envio nao configurado";
+    }
+  } else if (whatsappConfigurado()) {
     try {
       provedorMsgId = await enviarTexto({ para: telefone, texto });
     } catch (e) {
@@ -490,7 +584,7 @@ async function responder(params: {
     user_id: userId,
     telefone,
     direcao: "saida",
-    provedor: "meta",
+    provedor: telegram ? "telegram" : "meta",
     provedor_msg_id: provedorMsgId,
     tipo: "texto",
     texto,
@@ -1487,7 +1581,7 @@ async function tratarMidia(
   // arquivo em disco, nada de URL pública. O que sobra no banco é o extraído.
   let midia;
   try {
-    midia = await baixarMidia(msg.midiaId);
+    midia = await baixarMidia(msg.midiaId, fetch, msg.midiaMime);
   } catch (e) {
     console.warn("[whatsapp] midia nao baixou:", e);
     await responder({ ...base, texto: respostaFalhaMidia("download-falhou", tipo) });
@@ -1652,7 +1746,11 @@ async function tratarRespostaAProposta(
  * senão o provedor reenvia — e reenvio é justamente o que a idempotência está
  * aqui para conter. O erro vai para o log e para o console.
  */
-export async function processarMensagem(msg: MensagemRecebida): Promise<void> {
+export async function processarMensagem(
+  msg: MensagemRecebida,
+  /** Só o Telegram: o nome de quem escreveu e o código do link "Ligar no Telegram". */
+  extra?: { nome?: string | null; codigoInicio?: string | null },
+): Promise<void> {
   try {
     const vinculo = await acharVinculo(msg.de);
 
@@ -1668,6 +1766,39 @@ export async function processarMensagem(msg: MensagemRecebida): Promise<void> {
     // teto de tráfego e para o teto de chute de código.
     const recentes = await mensagensNaHora(msg.de);
     if (recentes > TETO_POR_HORA) return;
+
+    // TELEGRAM: o vínculo é pelo link (/start <código>), não pelo código de 6 dígitos.
+    if (ehTelegram(msg.de) && (extra?.codigoInicio || !vinculo)) {
+      if (extra?.codigoInicio) {
+        const t = await vincularTelegram(msg.de, extra.codigoInicio, extra.nome ?? null, recentes);
+        if (t.semAssinatura) return void (await responderSemAssinatura(msg.de, t.user_id ?? null, mensagemId));
+        await responder({
+          telefone: msg.de,
+          userId: t.user_id ?? null,
+          mensagemId,
+          texto: t.ok
+            ? [
+                `Pronto${extra.nome ? `, ${extra.nome.split(" ")[0]}` : ""}! Este Telegram está ligado ao seu NovareCash.`,
+                "",
+                "Manda um gasto para testar: “Uber 35”. Também vale áudio e foto da nota.",
+                "Os botões aqui embaixo são atalhos. E todo dia, de manhã, eu aviso as contas que vencem e quem você tem para cobrar.",
+              ].join("\n")
+            : `Esse link já foi usado ou venceu. Abra o NovareCash e toque de novo em *Ligar no Telegram*: ${SITE_URL}/novarecash/app/whatsapp`,
+        });
+        return;
+      }
+      await responder({
+        telefone: msg.de,
+        userId: null,
+        mensagemId,
+        texto: [
+          "Oi! Sou o assistente do NovareCash.",
+          "",
+          `Para eu lançar no seu extrato, ligue este Telegram à sua conta: abra o NovareCash na tela *WhatsApp e Telegram* (${SITE_URL}/novarecash/app/whatsapp) e toque em *Ligar no Telegram*.`,
+        ].join("\n"),
+      });
+      return;
+    }
 
     if (!vinculo) {
       const tentativa = await tentarVincular(msg.de, msg.texto, recentes);

@@ -73,7 +73,7 @@ export const GRUPOS: { titulo: string; telas: Tela[] }[] = [
     titulo: "Conectar",
     telas: [
       { href: "/novarecash/app/banco", rotulo: "Banco", icone: "banco", palavras: "open finance conectar" },
-      { href: "/novarecash/app/whatsapp", rotulo: "WhatsApp", icone: "conversa", palavras: "mensagem áudio foto nota" },
+      { href: "/novarecash/app/whatsapp", rotulo: "WhatsApp e Telegram", curto: "Mensagens", icone: "conversa", palavras: "whatsapp telegram mensagem áudio foto nota robô bot assistente" },
       { href: "/novarecash/app/importar", rotulo: "Importar extrato", icone: "importar", palavras: "ofx csv arquivo" },
       { href: "/novarecash/app/ajustes", rotulo: "Ajustes", icone: "ajustes", palavras: "categorias assinatura compartilhar" },
     ],

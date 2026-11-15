@@ -18,6 +18,7 @@
  */
 
 import { provedorAtual } from "@/lib/fincash/whatsapp-provedor";
+import { PREFIXO_TG, baixarDoTelegram } from "@/lib/fincash/telegram";
 
 export type MidiaBaixada = {
   bytes: ArrayBuffer;
@@ -125,7 +126,12 @@ export function midiaAceitavel(
 export async function baixarMidia(
   midiaId: string,
   buscar: typeof fetch = fetch,
+  mimeSugerido: string | null = null,
 ): Promise<MidiaBaixada> {
+  // 15/11/2026: mídia do TELEGRAM vem marcada com "tg:" (ver `telegram.ts`).
+  if (midiaId.startsWith(PREFIXO_TG)) {
+    return baixarDoTelegram(midiaId.slice(PREFIXO_TG.length), MAXIMO_BYTES, mimeSugerido, buscar);
+  }
   if (provedorAtual() !== "meta") {
     throw new Error(`download de midia nao implementado para ${provedorAtual()}`);
   }

@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 
 import { enviarLembreteNovareCash } from "@/lib/email";
+import { enviarTelegram, telegramConfigurado } from "@/lib/fincash/telegram";
+import { SITE_URL } from "@/lib/site";
 import { servico } from "@/lib/novarecash/assinantes";
 import { somarDias } from "@/lib/novarecash/cartoes";
 import { carregarMesDeContas, type ItemDoMes } from "@/lib/novarecash/contas-pagar";
@@ -18,6 +20,12 @@ import { carregarReceber, linkCobranca, mensagemDeCobranca, type LinhaReceber } 
  * gravada ANTES do envio). Quem desligou em Ajustes não recebe.
  *
  * Só assinante (ou equipe) — a mesma regra do app (`ncash_tem_acesso_email`).
+ *
+ * TELEGRAM (15/11/2026): quem ligou o Telegram recebe o MESMO aviso lá (no
+ * Telegram o robô pode iniciar conversa sem custo; no WhatsApp, não). A
+ * reserva do Telegram é `ncash_lembretes_enviados` (a mesma do aviso que sai
+ * na 1ª mensagem do dia), para a pessoa não receber a lista duas vezes.
+ * E-mail e Telegram desligam separados (Ajustes / tela do Telegram).
  *
  * ⚠️ Precisa de `CRON_SECRET` (a Vercel manda `Authorization: Bearer <ela>`) e de
  * `RESEND_API_KEY`. Sem a primeira, 503 e nada acontece.
@@ -47,7 +55,9 @@ export async function GET(req: Request) {
   const segredo = process.env.CRON_SECRET;
   if (!segredo) return NextResponse.json({ erro: "CRON_SECRET não configurado" }, { status: 503 });
   if (req.headers.get("authorization") !== `Bearer ${segredo}`) return NextResponse.json({ erro: "não autorizado" }, { status: 401 });
-  if (!process.env.RESEND_API_KEY) return NextResponse.json({ erro: "RESEND_API_KEY não configurada" }, { status: 503 });
+  const comEmail = Boolean(process.env.RESEND_API_KEY);
+  const comTelegram = telegramConfigurado();
+  if (!comEmail && !comTelegram) return NextResponse.json({ erro: "nem RESEND_API_KEY nem TELEGRAM_BOT_TOKEN" }, { status: 503 });
   const db = servico();
   if (!db) return NextResponse.json({ erro: "serviço indisponível" }, { status: 503 });
 
@@ -62,19 +72,13 @@ export async function GET(req: Request) {
   const donos = [...new Set([...(cp.data ?? []), ...(rc.data ?? [])].map((l) => String((l as { user_id: unknown }).user_id)))];
 
   let enviados = 0;
+  let telegramas = 0;
   let pulados = 0;
   const falhas: string[] = [];
 
   for (const uid of donos) {
     try {
-      // 1. Desligou em Ajustes? (sem a coluna/tabela, segue ligado.)
-      const { data: pref } = await db.from("ncash_preferencias").select("lembretes_email").eq("user_id", uid).maybeSingle();
-      if (pref && (pref as { lembretes_email?: unknown }).lembretes_email === false) {
-        pulados++;
-        continue;
-      }
-
-      // 2. O que pede atenção hoje.
+      // 1. O que pede atenção hoje.
       const mes = await carregarMesDeContas(db, uid, hoje.slice(0, 7), hoje).catch(() => null);
       const contas = (mes?.itens ?? []).filter((i) => !i.pagamento && DIAS_CONTA.has(i.dias));
       if (amanha.slice(0, 7) !== hoje.slice(0, 7)) {
@@ -100,8 +104,30 @@ export async function GET(req: Request) {
         }
       }
 
-      // 4. Reserva ANTES do envio: dois disparos no mesmo dia não mandam dois e-mails.
-      const { error: reserva } = await db.from("ncash_lembretes_email").insert({ user_id: uid, dia: hoje, itens: contas.length + cobrar.length });
+      contas.sort((a, b) => a.vence.localeCompare(b.vence));
+      const itens = contas.length + cobrar.length;
+
+      // 4. TELEGRAM, para quem ligou e não desligou o lembrete. Reserva antes do envio.
+      if (comTelegram) {
+        const { data: tg } = await db.from("ncash_telegram").select("chat_id, lembretes").eq("user_id", uid).not("confirmado_em", "is", null).maybeSingle();
+        const chat = (tg as { chat_id?: string | null; lembretes?: boolean } | null)?.chat_id;
+        if (chat && (tg as { lembretes?: boolean }).lembretes !== false) {
+          const { error: r } = await db.from("ncash_lembretes_enviados").insert({ user_id: uid, dia: hoje, contas: itens });
+          if (!r) {
+            await enviarTelegram(chat, textoTelegram(contas, cobrar)).catch((e) => falhas.push(`tg: ${e instanceof Error ? e.message.slice(0, 80) : "falha"}`));
+            telegramas++;
+          }
+        }
+      }
+
+      // 5. E-MAIL: desligado em Ajustes? (sem a coluna, segue ligado.) Reserva ANTES do envio.
+      if (!comEmail) continue;
+      const { data: pref } = await db.from("ncash_preferencias").select("lembretes_email").eq("user_id", uid).maybeSingle();
+      if (pref && (pref as { lembretes_email?: unknown }).lembretes_email === false) {
+        pulados++;
+        continue;
+      }
+      const { error: reserva } = await db.from("ncash_lembretes_email").insert({ user_id: uid, dia: hoje, itens });
       if (reserva) {
         pulados++;
         continue;
@@ -112,7 +138,6 @@ export async function GET(req: Request) {
         email,
         nome,
         contas: contas
-          .sort((a, b) => a.vence.localeCompare(b.vence))
           .slice(0, 15)
           .map((i) => ({ descricao: i.conta.descricao, valor: brl(i.conta.valor), quando: quandoConta(i), atrasada: i.dias < 0 })),
         cobrancas: cobrar.slice(0, 15).map((l) => ({
@@ -130,5 +155,29 @@ export async function GET(req: Request) {
   }
 
   if (falhas.length) console.warn("[lembretes] falhas:", falhas.slice(0, 5));
-  return NextResponse.json({ ok: true, donos: donos.length, enviados, pulados, falhas: falhas.length });
+  return NextResponse.json({ ok: true, donos: donos.length, enviados, telegramas, pulados, falhas: falhas.length });
+}
+
+/** O aviso das 8h no Telegram: as contas, as cobranças (com o link de cobrar pronto) e o atalho de baixa. */
+function textoTelegram(contas: ItemDoMes[], cobrar: LinhaReceber[]): string {
+  const partes: string[] = ["*Bom dia! O NovareCash de hoje:*"];
+  if (contas.length) {
+    const total = contas.reduce((s, i) => s + i.conta.valor, 0);
+    partes.push("", `*Contas* (${brl(total)}):`);
+    for (const i of contas.slice(0, 10)) partes.push(`• ${i.conta.descricao}: ${brl(i.conta.valor)} — ${quandoConta(i).toLowerCase()}`);
+    if (contas.length > 10) partes.push(`• e mais ${contas.length - 10}`);
+    partes.push("Pagou? Me diga “paguei a …”.");
+  }
+  if (cobrar.length) {
+    const total = cobrar.reduce((s, l) => s + l.falta, 0);
+    partes.push("", `*Para cobrar* (${brl(total)}):`);
+    for (const l of cobrar.slice(0, 10)) {
+      const link = linkCobranca(l) ?? `https://wa.me/?text=${encodeURIComponent(mensagemDeCobranca(l))}`;
+      partes.push(`• ${l.item.pessoa}: ${brl(l.falta)} — [cobrar no WhatsApp](${link})`);
+    }
+    if (cobrar.length > 10) partes.push(`• e mais ${cobrar.length - 10}`);
+    partes.push("Recebeu? Me diga “o … pagou”.");
+  }
+  partes.push("", `Tudo em ${SITE_URL}/novarecash/app`);
+  return partes.join("\n");
 }

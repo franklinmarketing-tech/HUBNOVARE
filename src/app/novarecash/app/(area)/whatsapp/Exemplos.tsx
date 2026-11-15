@@ -10,8 +10,12 @@ const TEXTO = [
   { frase: "Uber 35", efeito: "Gasto de R$ 35 hoje, em Transporte." },
   { frase: "mercado 280 ontem", efeito: "Gasto com a data de ontem." },
   { frase: "recebi 5000 de salário", efeito: "Entrada, não gasto." },
-  { frase: "resumo", efeito: "Entrou, saiu e o que sobrou no mês." },
-  { frase: "desfazer", efeito: "Apaga o último lançamento que ele criou." },
+  { frase: "geladeira 1200 em 10x no nubank", efeito: "10 parcelas, cada uma na fatura certa." },
+  { frase: "luz 180 vence dia 10", efeito: "Conta a pagar; depois, “paguei a luz” dá baixa." },
+  { frase: "vendi 150 fiado pro João, cobrar dia 10", efeito: "A receber; “o João pagou” dá baixa." },
+  { frase: "limite mercado 800", efeito: "Limite do mês, com aviso nos 80%." },
+  { frase: "resumo · hoje · quem me deve", efeito: "O mês, o dia e o que você tem a receber." },
+  { frase: "corrigir 15 · desfazer", efeito: "Muda ou apaga o último lançamento." },
 ];
 
 export function Exemplos() {
@@ -56,7 +60,7 @@ export function Exemplos() {
         </Cartao>
       </div>
       <p className="text-2xs text-white/55">
-        Tudo o que ele registra entra no seu Extrato com o selo WhatsApp, e você pode corrigir lá.
+        Tudo o que ele registra entra no seu Extrato com o selo do assistente, e você pode corrigir lá. Mande “ajuda” para ver tudo.
       </p>
     </section>
   );
