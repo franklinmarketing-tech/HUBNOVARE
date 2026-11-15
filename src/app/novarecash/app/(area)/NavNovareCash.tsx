@@ -459,8 +459,8 @@ export function NavNovareCashCelular({ nome, plano, tema, sair }: Comum) {
       )}
 
       {/* 15/11/2026 (auditoria UX): "Lançar gasto" em TODA tela do celular — antes só no Início.
-          Some onde já há o botão grande (Início e Extrato) e com a folha "Mais" aberta. */}
-      {!mais && caminho !== "/novarecash/app" && !caminho.startsWith("/novarecash/app/extrato") && (
+          Some onde já há o botão grande (Início e Extrato), no chat da IA (cobria o enviar) e com a folha "Mais" aberta. */}
+      {!mais && caminho !== "/novarecash/app" && !caminho.startsWith("/novarecash/app/extrato") && !caminho.startsWith("/novarecash/app/ia") && (
         <Link
           href={LANCAR_GASTO}
           aria-label="Lançar gasto"
