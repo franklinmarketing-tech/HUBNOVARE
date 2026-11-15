@@ -10,7 +10,7 @@ import { falarNoWhatsApp } from "@/lib/contato";
  * Módulo COMUM (sem "use client"): serve ao servidor e ao navegador.
  */
 
-/** Os 16 ícones 3D de `public/novarecash/icones/` (Magnific, 04/11/2026). */
+/** Os 17 ícones 3D de `public/novarecash/icones/` (Magnific, 04/11/2026). */
 export type NomeIcone =
   | "inicio"
   | "extrato"
@@ -27,7 +27,9 @@ export type NomeIcone =
   | "importar"
   | "ajustes"
   | "consultor"
-  | "compartilhada";
+  | "compartilhada"
+  /** 15/11/2026: mão recebendo a moeda (Magnific, mesmo estilo dos outros). */
+  | "receber";
 
 export type Tela = {
   href: string;
@@ -49,8 +51,8 @@ export const GRUPOS: { titulo: string; telas: Tela[] }[] = [
       { href: "/novarecash/app/extrato", rotulo: "Extrato", icone: "extrato", palavras: "lançamentos gastos entradas" },
       { href: "/novarecash/app/cartoes", rotulo: "Cartões", icone: "cartoes", palavras: "fatura crédito" },
       { href: "/novarecash/app/contas", rotulo: "Contas a pagar", icone: "contas", palavras: "boletos vencimento fixas" },
-      // 15/11/2026: fiado, serviço a receber, dinheiro emprestado. Ícone 3D próprio ainda não existe: usa o de Patrimônio.
-      { href: "/novarecash/app/receber", rotulo: "A receber", icone: "patrimonio", palavras: "fiado receber cobrar devendo emprestei cliente deve" },
+      // 15/11/2026: fiado, serviço a receber, dinheiro emprestado.
+      { href: "/novarecash/app/receber", rotulo: "A receber", icone: "receber", palavras: "fiado receber cobrar devendo emprestei cliente deve" },
     ],
   },
   {

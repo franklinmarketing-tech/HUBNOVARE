@@ -20,11 +20,14 @@ export function Icone3D({
   tamanho,
   ativo = false,
   className = "",
+  ja = false,
 }: {
   nome: NomeIcone;
   tamanho: number;
   ativo?: boolean;
   className?: string;
+  /** 15/11/2026: carrega na hora (o do cabeçalho e o da barra: à vista desde o 1º quadro). */
+  ja?: boolean;
 }) {
   /* 05/11/2026 ("limpo e leve"): ícones foscos, sem brilho. Há DOIS conjuntos com o
      mesmo desenho — `icones/` (petróleo, para o fundo claro) e `icones-escuro/` (corpo
@@ -40,6 +43,7 @@ export function Icone3D({
         width={tamanho}
         height={tamanho}
         draggable={false}
+        loading={ja ? "eager" : "lazy"}
         className={`ncash-ic-escuro ${classe}`}
       />
       <Image
@@ -49,6 +53,7 @@ export function Icone3D({
         width={tamanho}
         height={tamanho}
         draggable={false}
+        loading={ja ? "eager" : "lazy"}
         className={`ncash-ic-claro ${classe}`}
       />
     </>

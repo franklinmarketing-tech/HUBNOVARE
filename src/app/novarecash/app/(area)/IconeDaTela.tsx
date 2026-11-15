@@ -13,5 +13,5 @@ import { telaDaRota } from "./menu";
 export function IconeDaTela() {
   const tela = telaDaRota(usePathname());
   if (!tela) return null;
-  return <Icone3D nome={tela.icone} tamanho={46} className="h-10 w-10 sm:h-[46px] sm:w-[46px]" />;
+  return <Icone3D nome={tela.icone} tamanho={46} ja className="h-10 w-10 sm:h-[46px] sm:w-[46px]" />;
 }

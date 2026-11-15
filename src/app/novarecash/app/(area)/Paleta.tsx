@@ -206,7 +206,7 @@ export function Paleta({ tema }: { tema: Tema }) {
             placeholder="Buscar telas e ações…"
             className="h-14 min-w-0 flex-1 bg-transparent text-base text-white outline-none placeholder:text-white/45 sm:text-[15px]"
           />
-          <kbd className="hidden shrink-0 rounded-md border border-white/15 px-1.5 py-0.5 text-[11px] font-semibold text-white/55 sm:block">
+          <kbd className="hidden shrink-0 rounded-md border border-white/15 px-1.5 py-0.5 text-2xs font-semibold text-white/55 sm:block">
             Esc
           </kbd>
           <button
@@ -231,7 +231,7 @@ export function Paleta({ tema }: { tema: Tema }) {
             return (
               <li key={item.id} role="presentation">
                 {novaSecao && (
-                  <p aria-hidden className={`px-3 pb-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-white/45 ${i === 0 ? "pt-1" : "pt-3"}`}>
+                  <p aria-hidden className={`px-3 pb-1.5 text-2xs font-semibold uppercase tracking-[0.14em] text-white/45 ${i === 0 ? "pt-1" : "pt-3"}`}>
                     {item.secao}
                   </p>
                 )}
@@ -257,7 +257,7 @@ export function Paleta({ tema }: { tema: Tema }) {
           })}
         </ul>
 
-        <p aria-hidden className="hidden shrink-0 items-center gap-4 border-t border-white/10 px-4 py-2 text-[11px] text-white/50 sm:flex">
+        <p aria-hidden className="hidden shrink-0 items-center gap-4 border-t border-white/10 px-4 py-2 text-2xs text-white/50 sm:flex">
           <span><kbd className="font-sans font-semibold">↑ ↓</kbd> navegar</span>
           <span><kbd className="font-sans font-semibold">Enter</kbd> abrir</span>
           <span><kbd className="font-sans font-semibold">Esc</kbd> fechar</span>

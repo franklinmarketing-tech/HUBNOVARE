@@ -126,7 +126,7 @@ export function CartaoTelegram() {
   return (
     <Cartao className="p-4 sm:p-5">
       <div className="flex flex-wrap items-center gap-2">
-        <span aria-hidden className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#229ED9]/15 text-[#5fc0ec] ring-1 ring-[#229ED9]/30">
+        <span aria-hidden className="flex h-9 w-9 items-center justify-center rounded-xl bg-ciano-claro/15 text-ciano-claro ring-1 ring-ciano-claro/30">
           <Send className="h-4 w-4" />
         </span>
         <p className="font-display text-base font-semibold text-white">Telegram</p>
@@ -195,7 +195,7 @@ export function CartaoTelegram() {
                 rel="noopener noreferrer"
                 className={`inline-flex min-h-11 items-center gap-2 rounded-xl border border-white/15 px-4 text-sm font-semibold text-white hover:border-ouro/50 ${ANEL}`}
               >
-                <Send className="h-4 w-4 text-[#5fc0ec]" /> Abrir conversa
+                <Send className="h-4 w-4 text-ciano-claro" /> Abrir conversa
               </a>
             )}
             <button

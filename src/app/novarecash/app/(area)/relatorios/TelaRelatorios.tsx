@@ -693,7 +693,7 @@ function GraficoMeses({ linhas }: { linhas: LinhaMes[] }) {
         </li>
       </ul>
       <div className="flex">
-        <div className="relative h-44 w-11 shrink-0 text-[11px] tabular-nums text-white/55" aria-hidden>
+        <div className="relative h-44 w-11 shrink-0 text-2xs tabular-nums text-white/55" aria-hidden>
           {[1, 0.5, 0].map((f) => (
             <span key={f} className="absolute right-1.5 -translate-y-1/2" style={{ top: `${(1 - f) * 100}%` }}>
               {compacto(teto * f)}
@@ -848,7 +848,7 @@ function MiniEvolucao({ c, meses }: { c: EvolucaoCategoria; meses: string[] }) {
       </div>
       <div className="mt-1 flex gap-1.5" aria-hidden>
         {meses.map((m) => (
-          <span key={m} className="min-w-0 flex-1 text-center text-[11px] text-white/55">
+          <span key={m} className="min-w-0 flex-1 text-center text-2xs text-white/55">
             {mesCurto(m).slice(0, 3)}
           </span>
         ))}

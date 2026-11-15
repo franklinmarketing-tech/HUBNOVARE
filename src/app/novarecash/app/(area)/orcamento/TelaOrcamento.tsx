@@ -176,6 +176,7 @@ export function TelaOrcamento() {
                 <button
                   type="button"
                   onClick={() => setEditando({ ...c, limite: null })}
+                  aria-label={`Definir limite de ${c.rotulo}`}
                   className={`inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-xl border border-white/15 px-3 text-xs font-semibold text-white hover:border-ouro/50 ${ANEL}`}
                 >
                   <Plus className="h-3.5 w-3.5 text-ouro" /> Limite

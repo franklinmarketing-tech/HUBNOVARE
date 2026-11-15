@@ -205,7 +205,7 @@ export function BarraLateralNovareCash({ nome, plano, tema, sair, recolhidoInici
         >
           <Search aria-hidden className="h-4 w-4 shrink-0" />
           <span className="flex-1 truncate text-left trilho-fechado:hidden">Buscar…</span>
-          <kbd className="shrink-0 rounded-md border border-white/15 bg-white/[0.04] px-1.5 py-0.5 font-sans text-[11px] font-semibold text-white/60 trilho-fechado:hidden">
+          <kbd className="shrink-0 rounded-md border border-white/15 bg-white/[0.04] px-1.5 py-0.5 font-sans text-2xs font-semibold text-white/60 trilho-fechado:hidden">
             {atalho}
           </kbd>
         </button>
@@ -230,7 +230,7 @@ export function BarraLateralNovareCash({ nome, plano, tema, sair, recolhidoInici
                   aria-expanded={!fechado}
                   aria-controls={idLista}
                   data-guia={`grupo-${g.titulo}`}
-                  className={`flex min-h-11 w-full items-center justify-between rounded-lg px-2.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-white/50 transition-colors hover:text-white/80 motion-reduce:transition-none trilho-fechado:hidden ${ANEL}`}
+                  className={`flex min-h-11 w-full items-center justify-between rounded-lg px-2.5 text-2xs font-semibold uppercase tracking-[0.14em] text-white/50 transition-colors hover:text-white/80 motion-reduce:transition-none trilho-fechado:hidden ${ANEL}`}
                 >
                   {g.titulo}
                   <ChevronDown
@@ -267,7 +267,7 @@ export function BarraLateralNovareCash({ nome, plano, tema, sair, recolhidoInici
                             ativo={ativo}
                             className="h-7 w-7 transition-transform duration-200 group-hover/item:scale-110 motion-reduce:transition-none motion-reduce:group-hover/item:scale-100 trilho-fechado:h-8 trilho-fechado:w-8"
                           />
-                          <span className="min-w-0 flex-1 truncate trilho-fechado:hidden">{t.rotulo}</span>
+                          <span className="line-clamp-2 min-w-0 flex-1 leading-tight trilho-fechado:hidden">{t.rotulo}</span>
                         </Link>
                       </li>
                     );
@@ -369,7 +369,7 @@ export function NavNovareCashCelular({ nome, plano, tema, sair }: Comum) {
   }
 
   const item = (ativo: boolean) =>
-    `relative flex min-h-[60px] w-full flex-col items-center justify-center gap-1 px-0.5 pb-1.5 pt-2 text-[11px] font-medium outline-none transition-colors active:bg-white/[0.06] focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ouro motion-reduce:transition-none ${
+    `relative flex min-h-[60px] w-full flex-col items-center justify-center gap-1 px-0.5 pb-1.5 pt-2 text-2xs font-medium outline-none transition-colors active:bg-white/[0.06] focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ouro motion-reduce:transition-none ${
       ativo ? "text-ouro" : "text-white/70"
     }`;
   const bolha = (ativo: boolean) =>
@@ -418,7 +418,7 @@ export function NavNovareCashCelular({ nome, plano, tema, sair }: Comum) {
 
             {GRUPOS.map((g) => (
               <section key={g.titulo} aria-label={g.titulo} className="mt-5">
-                <h2 className="px-1 pb-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-white/50">{g.titulo}</h2>
+                <h2 className="px-1 pb-2 text-2xs font-semibold uppercase tracking-[0.14em] text-white/50">{g.titulo}</h2>
                 <ul className="grid grid-cols-4 gap-2">
                   {g.telas.map((t) => {
                     const ativo = estaAtivo(caminho, t);
@@ -483,7 +483,7 @@ export function NavNovareCashCelular({ nome, plano, tema, sair }: Comum) {
                 <Link href={t.href} aria-current={ativo ? "page" : undefined} data-guia={`tela-${t.icone}`} className={item(ativo)}>
                   {ativo && <span aria-hidden className="absolute inset-x-4 top-0 h-0.5 rounded-b-full bg-ouro" />}
                   <span className={bolha(ativo)}>
-                    <Icone3D nome={t.icone} tamanho={26} ativo={ativo} />
+                    <Icone3D nome={t.icone} tamanho={26} ativo={ativo} ja />
                   </span>
                   <span className="max-w-full truncate">{t.curto ?? t.rotulo}</span>
                 </Link>

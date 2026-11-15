@@ -958,7 +958,7 @@ export function TelaBanco({ limite, nomePlano }: { limite: number; nomePlano: st
               {conexoes.length === 0 ? "Qual é o seu banco?" : "Conectar outro banco"}
             </h2>
             {escolhendo && (
-              <button type="button" onClick={() => setEscolhendo(false)} aria-label="Fechar" className={`rounded-lg p-1 text-white/60 hover:text-white ${ANEL}`}>
+              <button type="button" onClick={() => setEscolhendo(false)} aria-label="Fechar" className={`-m-2 flex h-11 w-11 items-center justify-center rounded-lg text-white/60 hover:text-white ${ANEL}`}>
                 <X className="h-4 w-4" />
               </button>
             )}
@@ -967,7 +967,7 @@ export function TelaBanco({ limite, nomePlano }: { limite: number; nomePlano: st
             Toque no seu banco: você confirma com ele (leva 1 minuto) e o NovareCash traz contas, saldos e 12 meses de
             lançamentos sozinho. Ninguém vê a sua senha.
           </p>
-          <label className="mt-4 flex items-center gap-2 rounded-xl border border-white/15 bg-noite px-3">
+          <label className="mt-4 flex items-center gap-2 rounded-xl border border-white/15 bg-noite px-3 focus-within:border-ouro focus-within:ring-2 focus-within:ring-ouro/25">
             <Search className="h-4 w-4 shrink-0 text-white/50" />
             <span className="sr-only">Buscar banco</span>
             <input
