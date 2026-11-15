@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 
 import { getPerfil } from "@/lib/perfil";
 import { SITE_URL } from "@/lib/site";
-import { configurarRobo, telegramConfigurado } from "@/lib/fincash/telegram";
+import { configurarRobo, segredoDoWebhook, telegramConfigurado } from "@/lib/fincash/telegram";
 
 /**
  * LIGA O ROBÔ DO TELEGRAM (15/11/2026): registra o webhook, os comandos do
@@ -20,7 +20,7 @@ export async function GET() {
   if (!perfil || (perfil.role !== "admin" && perfil.role !== "equipe")) {
     return NextResponse.json({ erro: "não encontrado" }, { status: 404 });
   }
-  const segredo = process.env.TELEGRAM_WEBHOOK_SECRET;
+  const segredo = segredoDoWebhook();
   if (!telegramConfigurado() || !segredo) {
     return NextResponse.json({ erro: "Falta TELEGRAM_BOT_TOKEN e/ou TELEGRAM_WEBHOOK_SECRET na Vercel." }, { status: 503 });
   }

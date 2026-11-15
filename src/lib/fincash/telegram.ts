@@ -21,12 +21,24 @@
  *                              `X-Telegram-Bot-Api-Secret-Token` de todo update
  */
 
+import { createHash } from "node:crypto";
+
 import type { MensagemRecebida, TipoMidia } from "@/lib/fincash/whatsapp-provedor";
 
 export const PREFIXO_TG = "tg:";
 
 export const ehTelegram = (de: string) => de.startsWith(PREFIXO_TG);
 export const chatDoTelegram = (de: string) => de.slice(PREFIXO_TG.length);
+
+/**
+ * O SEGREDO DO WEBHOOK no formato que o Telegram aceita (só A–Z, a–z, 0–9, _ e -).
+ * A senha da Vercel pode ter qualquer caractere: daqui sai o SHA-256 dela, em
+ * hex. O mesmo valor vai no `setWebhook` e é conferido no webhook (15/11/2026).
+ */
+export function segredoDoWebhook(): string | null {
+  const bruto = (process.env.TELEGRAM_WEBHOOK_SECRET ?? "").trim();
+  return bruto ? createHash("sha256").update(bruto).digest("hex") : null;
+}
 
 export function telegramConfigurado(): boolean {
   return Boolean(process.env.TELEGRAM_BOT_TOKEN);

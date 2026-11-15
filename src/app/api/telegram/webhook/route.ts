@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 
 import { excedeuLimitePorIp, respostaLimite } from "@/lib/api-security";
 import { igual } from "@/lib/novarecash/assinantes";
-import { traduzirTelegram } from "@/lib/fincash/telegram";
+import { segredoDoWebhook, traduzirTelegram } from "@/lib/fincash/telegram";
 import { faxinaEventual, processarMensagem, servicoDisponivel } from "@/lib/fincash/whatsapp-servidor";
 
 /**
@@ -25,7 +25,7 @@ export const maxDuration = 30;
 export async function POST(req: Request) {
   if (excedeuLimitePorIp(req, "telegram-webhook", 120)) return respostaLimite();
 
-  const segredo = process.env.TELEGRAM_WEBHOOK_SECRET;
+  const segredo = segredoDoWebhook();
   const veio = req.headers.get("x-telegram-bot-api-secret-token") ?? "";
   if (!segredo || !igual(veio, segredo)) {
     return NextResponse.json({ erro: "não autorizado" }, { status: 401 });
