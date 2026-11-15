@@ -6,6 +6,7 @@
     }
   },
   "crons": [
-    { "path": "/api/novarecash/openfinance/limpeza", "schedule": "0 7 * * *" }
+    { "path": "/api/novarecash/openfinance/limpeza", "schedule": "0 7 * * *" },
+    { "path": "/api/novarecash/lembretes", "schedule": "0 11 * * *" }
   ]
 }

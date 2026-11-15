@@ -49,6 +49,8 @@ export const GRUPOS: { titulo: string; telas: Tela[] }[] = [
       { href: "/novarecash/app/extrato", rotulo: "Extrato", icone: "extrato", palavras: "lançamentos gastos entradas" },
       { href: "/novarecash/app/cartoes", rotulo: "Cartões", icone: "cartoes", palavras: "fatura crédito" },
       { href: "/novarecash/app/contas", rotulo: "Contas a pagar", icone: "contas", palavras: "boletos vencimento fixas" },
+      // 15/11/2026: fiado, serviço a receber, dinheiro emprestado. Ícone 3D próprio ainda não existe: usa o de Patrimônio.
+      { href: "/novarecash/app/receber", rotulo: "A receber", icone: "patrimonio", palavras: "fiado receber cobrar devendo emprestei cliente deve" },
     ],
   },
   {

@@ -41,9 +41,26 @@ import {
   NAO_E_GASTO,
   adivinharCategoria,
   categoria as categoriaNcash,
+  todasAsCategorias,
+  type CategoriaDaLista,
 } from "@/lib/novarecash/categorias";
-import { faturasAbertas, somarDias } from "@/lib/novarecash/cartoes";
-import { carregarMesDeContas } from "@/lib/novarecash/contas-pagar";
+import {
+  datasDasParcelas,
+  descricaoDaParcela,
+  dividirEmParcelas,
+  faturasAbertas,
+  lerCartao,
+  somarDias,
+} from "@/lib/novarecash/cartoes";
+import {
+  carregarMesDeContas,
+  marcarComoPaga,
+  salvarContaPagar,
+  type ItemDoMes,
+} from "@/lib/novarecash/contas-pagar";
+import { criarCategoriaCustom, lerCategoriasCustomOuNada } from "@/lib/novarecash/ajustes";
+import { ErroDados } from "@/lib/novarecash/dados";
+import { carregarReceber, darBaixa, salvarReceber, type LinhaReceber } from "@/lib/novarecash/receber";
 import { comSaldos, dataCurta, hojeNoBrasil, lerContas } from "@/lib/novarecash/dados";
 import {
   interpretar,
@@ -531,6 +548,14 @@ type Contexto = {
   contas: OrigemAlvo[];
   /** `ncash_contas` com tipo 'cartao'. */
   cartoes: OrigemAlvo[];
+  /** 15/11/2026: as contas a pagar pendentes ("paguei a luz") e o fiado em aberto ("o João pagou"). */
+  contasAPagar: OrigemAlvo[];
+  aReceber: OrigemAlvo[];
+  /** O que está por trás de cada id acima, para o servidor executar a baixa. */
+  itensPagar: Map<string, ItemDoMes>;
+  itensReceber: Map<string, LinhaReceber>;
+  /** Fixas + personalizadas: o rótulo certo nas respostas. */
+  listaCategorias: CategoriaDaLista[];
 };
 
 /**
@@ -548,10 +573,40 @@ async function carregarContexto(userId: string): Promise<Contexto> {
     .eq("ativa", true);
 
   const contas = (data ?? []) as Pick<ContaNcash, "id" | "nome" | "tipo">[];
+  const s = servico();
+  const hoje = hojeNoBrasil();
+
+  /* 15/11/2026: as CATEGORIAS PRÓPRIAS (Ajustes) também casam pelo WhatsApp, e
+     as pendências entram para "paguei a luz" / "o João pagou". Cada leitura é
+     opcional: sem o SQL, ou com falha, o assistente segue com o que tem. */
+  const [custom, mesDeContas, receber] = await Promise.all([
+    lerCategoriasCustomOuNada(s, userId),
+    carregarMesDeContas(s, userId, hoje.slice(0, 7), hoje).catch(() => null),
+    carregarReceber(s, userId, hoje).catch(() => [] as LinhaReceber[]),
+  ]);
+  const listaCategorias = todasAsCategorias(custom);
+  const minhas: CategoriaAlvo[] = custom
+    .filter((c) => !c.arquivada)
+    .map((c) => ({ id: c.chave, nome: c.rotulo, tipo: c.tipo === "entrada" ? "receita" : "despesa" }));
+
+  // A conta MAIS ANTIGA sem pagar primeiro: "paguei a luz" quita a atrasada antes da do mês.
+  const itensPagar = new Map<string, ItemDoMes>();
+  for (const i of [...(mesDeContas?.itens ?? [])].filter((x) => !x.pagamento).sort((a, b) => a.vence.localeCompare(b.vence))) {
+    itensPagar.set(`${i.conta.id}|${i.competencia}`, i);
+  }
+  const itensReceber = new Map<string, LinhaReceber>();
+  for (const l of receber.filter((x) => x.situacao !== "recebido")) itensReceber.set(l.item.id, l);
+
   return {
-    categorias: CATEGORIAS_ALVO,
+    // As próprias ANTES das fixas: quem criou "Pet" quer "ração 80" lá, não em Outros.
+    categorias: [...minhas, ...CATEGORIAS_ALVO],
     contas: contas.filter((c) => c.tipo === "conta").map(({ id, nome }) => ({ id, nome })),
     cartoes: contas.filter((c) => c.tipo === "cartao").map(({ id, nome }) => ({ id, nome })),
+    contasAPagar: [...itensPagar.entries()].map(([id, i]) => ({ id, nome: i.conta.descricao })),
+    aReceber: [...itensReceber.entries()].map(([id, l]) => ({ id, nome: l.item.pessoa })),
+    itensPagar,
+    itensReceber,
+    listaCategorias,
   };
 }
 
@@ -585,6 +640,13 @@ function interpretarNoNovareCash(
     hoje,
   });
 
+  if (intencao.tipo === "conta-pagar" && !intencao.conta.categoria_id) {
+    const chave = adivinharCategoria(intencao.conta.descricao, "saida");
+    if (chave !== "outros") {
+      return { ...intencao, conta: { ...intencao.conta, categoria_id: chave, categoria_nome: categoriaNcash(chave).rotulo } };
+    }
+    return intencao;
+  }
   if (intencao.tipo !== "registrar" || intencao.rascunho.categoria_id) return intencao;
 
   const r = intencao.rascunho;
@@ -659,6 +721,57 @@ async function gravarTransacao(
 }
 
 /**
+ * PARCELADO PELO WHATSAPP (15/11/2026): as N parcelas, uma por fatura, com o
+ * mesmo `compra_id` — as MESMAS regras do "Lançar compra" da tela Cartões
+ * (`dividirEmParcelas`, `datasDasParcelas`). Num insert só: ou entram todas, ou
+ * nenhuma. `externo_id` = id da mensagem + "#n", para o índice único recusar a
+ * mensagem reenviada. Devolve o id da 1ª parcela (é o que o log guarda; o
+ * "desfazer" apaga a compra inteira pelo `compra_id`).
+ */
+async function gravarParcelado(userId: string, r: RascunhoLancamento, externoId: string): Promise<string | null> {
+  const s = servico();
+  const n = r.parcelas ?? 1;
+  if (!r.cartao_id || n < 2) return gravarTransacao(userId, r, externoId);
+  const cartao = await lerCartao(s, userId, r.cartao_id).catch(() => null);
+  if (!cartao) return null;
+
+  const valores = dividirEmParcelas(r.valor, n);
+  const datas = datasDasParcelas(r.data, n, cartao);
+  const compra_id = crypto.randomUUID();
+  const linhas = valores.map((valor, i) => ({
+    user_id: userId,
+    conta_id: r.cartao_id,
+    data: datas[i],
+    descricao: descricaoDaParcela(r.descricao, i + 1, n),
+    valor,
+    tipo: "saida",
+    categoria: chaveDaCategoria(r),
+    origem: "whatsapp",
+    externo_id: i === 0 ? externoId : `${externoId}#${i + 1}`,
+    parcela: i + 1,
+    parcelas: n,
+    compra_id,
+  }));
+  const { data, error } = await s.from("ncash_transacoes").insert(linhas).select("id, parcela");
+  if (!error) {
+    const primeira = (data ?? []).find((l) => Number(l.parcela) === 1);
+    return primeira ? String(primeira.id) : null;
+  }
+  if (error.code === "23505") {
+    const { data: existente } = await s
+      .from("ncash_transacoes")
+      .select("id")
+      .eq("user_id", userId)
+      .eq("origem", "whatsapp")
+      .eq("externo_id", externoId)
+      .maybeSingle();
+    if (existente?.id) return existente.id as string;
+  }
+  console.warn("[whatsapp] nao gravou parcelado:", error.message);
+  return null;
+}
+
+/**
  * Total de saídas do mês, opcionalmente de uma categoria. Sempre com `user_id`.
  *
  * Sem categoria ("quanto gastei?"), fica de fora o que NÃO é gasto
@@ -723,11 +836,22 @@ async function alertaDeOrcamento(
   if (!limite) return null;
 
   const total = gastos.total;
-  const antes = total - r.valor;
-  if (antes > limite || total <= limite) return null;
-
+  // Parcelado: o que entrou NESTE mês é só a 1ª parcela.
+  const n = r.parcelas ?? 1;
+  const agora = n > 1 ? Math.round((r.valor / n) * 100) / 100 : r.valor;
+  const antes = total - agora;
   const nome = r.categoria_nome ?? categoriaNcash(chave).rotulo;
-  return `Atenção: com este gasto você passou o orçamento de *${nome}* (${formatarBRL(limite)}). Já são ${formatarBRL(total)} no mês.`;
+
+  // Cruzou os 100% com ESTE gasto.
+  if (antes <= limite && total > limite) {
+    return `Atenção: com este gasto você passou o limite de *${nome}* (${formatarBRL(limite)}). Já são ${formatarBRL(total)} no mês.`;
+  }
+  // 15/11/2026: cruzou os 80% com ESTE gasto (um aviso só, como o de 100%).
+  const oitenta = limite * 0.8;
+  if (antes <= oitenta && total > oitenta && total <= limite) {
+    return `Atenção: você já usou ${Math.round((total / limite) * 100)}% do limite de *${nome}*. Sobram ${formatarBRL(limite - total)} até o fim do mês.`;
+  }
+  return null;
 }
 
 /**
@@ -737,8 +861,53 @@ async function alertaDeOrcamento(
  * NovareCash não tem contas fixas nem data de fechamento de cartão: a resposta
  * diz isso e aponta o que ele SABE responder, em vez de inventar.
  */
-async function responderConsulta(userId: string, c: Consulta): Promise<string> {
+async function responderConsulta(userId: string, c: Consulta, ctx?: Contexto): Promise<string> {
   const s = servico();
+
+  if (c.escopo === "hoje") {
+    const hoje = hojeNoBrasil();
+    const { data } = await s
+      .from("ncash_transacoes")
+      .select("descricao, valor, tipo, categoria")
+      .eq("user_id", userId)
+      .eq("data", hoje)
+      .order("criado_em", { ascending: true })
+      .limit(50);
+    const linhas = (data ?? []).filter((l) => !NAO_E_GASTO.has(String(l.categoria)));
+    if (!linhas.length) return "Nada lançado hoje ainda. Manda um gasto: “Uber 35”.";
+    let saiu = 0;
+    let entrou = 0;
+    const lista = linhas.slice(0, 12).map((l) => {
+      const v = Number(l.valor);
+      if (l.tipo === "entrada") entrou += v;
+      else saiu += v;
+      return `• ${l.descricao}: ${l.tipo === "entrada" ? "+" : ""}${formatarBRL(v)}`;
+    });
+    for (const l of linhas.slice(12)) {
+      if (l.tipo === "entrada") entrou += Number(l.valor);
+      else saiu += Number(l.valor);
+    }
+    if (linhas.length > 12) lista.push(`• e mais ${linhas.length - 12}`);
+    return [
+      `*Hoje* (${dataCurta(hoje)})`,
+      ...lista,
+      "",
+      `Saiu: ${formatarBRL(saiu)}${entrou > 0 ? ` · Entrou: ${formatarBRL(entrou)}` : ""}`,
+    ].join("\n");
+  }
+
+  if (c.escopo === "receber") {
+    const link = `${SITE_URL}/novarecash/app/receber`;
+    const abertas = ctx ? [...ctx.itensReceber.values()] : (await carregarReceber(s, userId).catch(() => [])).filter((l) => l.situacao !== "recebido");
+    if (!abertas.length) return `Ninguém te deve nada anotado. Para anotar: “vendi 150 fiado pro João, cobrar dia 10”. A lista fica em ${link}`;
+    const total = abertas.reduce((soma, l) => soma + l.falta, 0);
+    const linhas = abertas.slice(0, 10).map((l) => {
+      const quando = !l.item.vence_em ? "" : l.dias !== null && l.dias < 0 ? `, atrasado desde ${dataCurta(l.item.vence_em)}` : `, cobrar ${dataCurta(l.item.vence_em)}`;
+      return `• ${l.item.pessoa}: ${formatarBRL(l.falta)}${quando}`;
+    });
+    if (abertas.length > 10) linhas.push(`• e mais ${abertas.length - 10}`);
+    return [`*A receber*: ${formatarBRL(total)}`, ...linhas, "", `Quando pagarem, me diga: “o ${abertas[0].item.pessoa.split(" ")[0]} pagou”.`].join("\n");
+  }
 
   if (c.escopo === "saldo" || c.escopo === "fatura") {
     const linkBanco = `${SITE_URL}/novarecash/app/banco`;
@@ -884,13 +1053,27 @@ async function desfazerUltimo(userId: string, donoId: string): Promise<string> {
 
   const { data: transacao } = await s
     .from("ncash_transacoes")
-    .select("descricao, valor")
+    .select("descricao, valor, compra_id, parcelas")
     .eq("id", alvo.ncash_transacao_id)
     .eq("user_id", donoId)
     .eq("origem", "whatsapp")
     .maybeSingle();
 
   if (!transacao) return respostaNadaParaDesfazer();
+
+  // 15/11/2026: compra PARCELADA sai inteira (todas as parcelas, pelo `compra_id`).
+  if (transacao.compra_id && Number(transacao.parcelas) > 1) {
+    const { error } = await s
+      .from("ncash_transacoes")
+      .delete()
+      .eq("user_id", donoId)
+      .eq("compra_id", transacao.compra_id)
+      .eq("origem", "whatsapp");
+    if (error) return "Não consegui apagar agora. Tente pelo extrato do NovareCash.";
+    await s.from("fin_whatsapp_mensagens").update({ ncash_transacao_id: null }).eq("id", alvo.id);
+    const nome = String(transacao.descricao).replace(/\s*\(\d+\/\d+\)$/, "");
+    return `Apaguei a compra parcelada: *${nome}* (${transacao.parcelas} parcelas).`;
+  }
 
   /* `delete` de verdade: o NovareCash não tem lixeira (não há `apagado_em` em
      `ncash_transacoes`). O que protege é o filtro triplo — id, dono e origem. */
@@ -911,6 +1094,241 @@ async function desfazerUltimo(userId: string, donoId: string): Promise<string> {
     .eq("id", alvo.id);
 
   return respostaDesfeito(transacao.descricao as string, Number(transacao.valor));
+}
+
+/**
+ * O último lançamento que o ASSISTENTE criou para esta pessoa (24 h), com as
+ * mesmas travas do "desfazer": log de quem mandou + transação do dono com
+ * `origem = 'whatsapp'`. Base do "corrigir" e do "criar categoria".
+ */
+async function ultimoDoAssistente(userId: string, donoId: string) {
+  const s = servico();
+  const desde = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+  const { data } = await s
+    .from("fin_whatsapp_mensagens")
+    .select("ncash_transacao_id")
+    .eq("user_id", userId)
+    .eq("direcao", "entrada")
+    .not("ncash_transacao_id", "is", null)
+    .gte("criado_em", desde)
+    .order("criado_em", { ascending: false })
+    .limit(1);
+  const id = (data?.[0] as { ncash_transacao_id: string } | undefined)?.ncash_transacao_id;
+  if (!id) return null;
+  const { data: t } = await s
+    .from("ncash_transacoes")
+    .select("id, descricao, valor, tipo, categoria, compra_id, parcelas, observacao")
+    .eq("id", id)
+    .eq("user_id", donoId)
+    .eq("origem", "whatsapp")
+    .maybeSingle();
+  return t as
+    | { id: string; descricao: string; valor: number; tipo: string; categoria: string; compra_id: string | null; parcelas: number | null; observacao: string | null }
+    | null;
+}
+
+/** "corrigir 15" / "corrigir para lazer": muda o último lançamento do assistente. */
+async function corrigirUltimo(
+  vinculo: Vinculo,
+  i: Extract<Intencao, { tipo: "corrigir" }>,
+  ctx: Contexto,
+): Promise<string> {
+  const t = await ultimoDoAssistente(vinculo.user_id, vinculo.dono_id);
+  if (!t) return "Não achei nenhum lançamento recente meu para corrigir. Corrija pelo extrato do NovareCash.";
+  if (i.valor !== null && t.compra_id && Number(t.parcelas) > 1) {
+    return "Essa foi uma compra parcelada. Para mudar o valor, responda *desfazer* e mande de novo com o valor certo.";
+  }
+  if (i.valor !== null && t.observacao === "A receber · baixa") {
+    return "Esse lançamento foi um recebimento de fiado. Para mudar o valor, responda *desfazer* e mande de novo.";
+  }
+  const campos: Record<string, unknown> = {};
+  if (i.valor !== null) campos.valor = i.valor;
+  if (i.categoria_id) {
+    const cat = ctx.listaCategorias.find((c) => c.chave === i.categoria_id);
+    const tipoCerto = t.tipo === "entrada" ? "entrada" : "saida";
+    if (cat && cat.tipo !== tipoCerto) {
+      return `*${cat.rotulo}* é categoria de ${cat.tipo === "entrada" ? "entrada" : "gasto"}, e o último lançamento é ${tipoCerto === "entrada" ? "uma entrada" : "um gasto"}. Escolha outra.`;
+    }
+    campos.categoria = i.categoria_id;
+  }
+  const s = servico();
+  let q = s.from("ncash_transacoes").update(campos).eq("user_id", vinculo.dono_id).eq("origem", "whatsapp");
+  // Categoria de compra parcelada muda em TODAS as parcelas.
+  q = t.compra_id && Number(t.parcelas) > 1 && i.valor === null ? q.eq("compra_id", t.compra_id) : q.eq("id", t.id);
+  const { error } = await q;
+  if (error) return "Não consegui corrigir agora. Tente pelo extrato do NovareCash.";
+
+  const valor = i.valor ?? Number(t.valor);
+  const rotulo = ctx.listaCategorias.find((c) => c.chave === (i.categoria_id ?? t.categoria))?.rotulo ?? categoriaNcash(i.categoria_id ?? t.categoria).rotulo;
+  return `Corrigido: *${t.descricao}* — ${formatarBRL(valor)} · ${rotulo}.`;
+}
+
+/** "criar categoria Pet": cria e, se o último lançamento caiu em Outros, já o move para ela. */
+async function criarCategoriaPeloZap(
+  vinculo: Vinculo,
+  i: Extract<Intencao, { tipo: "criar-categoria" }>,
+): Promise<string> {
+  const s = servico();
+  const tipo = i.tipoCategoria === "receita" ? "entrada" : "saida";
+  const existentes = await lerCategoriasCustomOuNada(s, vinculo.dono_id);
+  const fixa = CATEGORIAS.find((c) => c.rotulo.toLowerCase() === i.nome.toLowerCase());
+  if (fixa) return `*${fixa.rotulo}* já existe no NovareCash. Use-a direto: “${i.nome.toLowerCase()} 50”.`;
+
+  let chave: string;
+  const ja = existentes.find((c) => c.rotulo.toLowerCase() === i.nome.toLowerCase() && c.tipo === tipo);
+  if (ja) {
+    chave = ja.chave;
+    if (ja.arquivada) await s.from("ncash_categorias_custom").update({ arquivada: false }).eq("user_id", vinculo.dono_id).eq("chave", chave);
+  } else {
+    try {
+      const r = await criarCategoriaCustom(s, vinculo.dono_id, i.nome, tipo, existentes);
+      if (!r.ok) return r.mensagem;
+      chave = r.chave;
+    } catch (e) {
+      if (e instanceof ErroDados && e.motivo === "sem-tabela") return "Categorias próprias ainda não estão ligadas na sua conta. Crie em *Ajustes* no app.";
+      return "Não consegui criar agora. Tente de novo em instantes, ou crie em *Ajustes* no app.";
+    }
+  }
+
+  // O último lançamento do assistente que ficou em "Outros" vai para a categoria nova.
+  const t = await ultimoDoAssistente(vinculo.user_id, vinculo.dono_id);
+  const resto = tipo === "entrada" ? "outras_entradas" : "outros";
+  const tipoT = t?.tipo === "entrada" ? "entrada" : "saida";
+  if (t && t.categoria === resto && tipoT === tipo) {
+    let q = s.from("ncash_transacoes").update({ categoria: chave }).eq("user_id", vinculo.dono_id).eq("origem", "whatsapp");
+    q = t.compra_id ? q.eq("compra_id", t.compra_id) : q.eq("id", t.id);
+    const { error } = await q;
+    if (!error) return `Categoria *${i.nome}* criada. Já mudei *${t.descricao}* (${formatarBRL(Number(t.valor))}) para ela. Daqui em diante, é só escrever “${i.nome.toLowerCase()} 50”.`;
+  }
+  return `Categoria *${i.nome}* criada${ja ? " (ela já existia, reativei)" : ""}. Daqui em diante, é só escrever “${i.nome.toLowerCase()} 50”.`;
+}
+
+/** "limite mercado 800": o orçamento mensal da categoria, com o retrato do mês. */
+async function definirLimite(donoId: string, i: Extract<Intencao, { tipo: "limite" }>, hoje: Date): Promise<string> {
+  const { error } = await servico()
+    .from("ncash_orcamentos")
+    .upsert({ user_id: donoId, categoria: i.categoria_id, limite: i.valor }, { onConflict: "user_id,categoria" });
+  if (error) return "Não consegui salvar o limite agora. Defina em *Orçamento* no app.";
+  const ref = refDoMes(hoje);
+  const { total } = await saidasDoMes(donoId, ref, i.categoria_id);
+  const pct = i.valor > 0 ? Math.round((total / i.valor) * 100) : 0;
+  return [
+    `Limite de *${i.categoria_nome}*: ${formatarBRL(i.valor)} por mês.`,
+    `Neste mês: ${formatarBRL(total)} (${pct}%)${total > i.valor ? " — já passou" : `, sobram ${formatarBRL(i.valor - total)}`}.`,
+    "Eu aviso quando chegar em 80% e se passar.",
+  ].join("\n");
+}
+
+/** "luz 180 vence dia 10": cadastra em Contas a pagar. */
+async function anotarContaPagar(donoId: string, i: Extract<Intencao, { tipo: "conta-pagar" }>): Promise<string> {
+  const c = i.conta;
+  try {
+    await salvarContaPagar(servico(), donoId, null, {
+      descricao: c.descricao,
+      valor: c.valor,
+      categoria: c.categoria_id ?? "outros",
+      recorrencia: c.recorrencia,
+      vence_dia: c.vence_dia,
+      vence_em: c.vence_em,
+      conta_id: null,
+      ativa: true,
+    });
+  } catch (e) {
+    if (e instanceof ErroDados && e.motivo === "sem-tabela") return "Contas a pagar ainda não estão ligadas na sua conta. Cadastre em *Contas* no app.";
+    return "Não consegui anotar a conta agora. Tente de novo em instantes.";
+  }
+  const quando = c.recorrencia === "mensal" ? `todo dia ${c.vence_dia}` : `vence ${dataCurta(c.vence_em ?? "")}`;
+  const nome = c.descricao.toLowerCase();
+  return [
+    `Conta anotada: *${c.descricao}* — ${formatarBRL(c.valor)}, ${quando}.`,
+    c.categoria_nome ? `Categoria: ${c.categoria_nome}.` : "",
+    `Eu te lembro na véspera e no dia. Quando pagar, me diga: “paguei ${/^(a|o) /.test(nome) ? nome : `a ${nome}`}”.`,
+    c.recorrencia === "unica" ? "Se ela repete todo mês, mande assim: “" + nome + " " + c.valor + " todo dia " + Number((c.vence_em ?? "").slice(8, 10)) + "”." : "",
+  ]
+    .filter(Boolean)
+    .join("\n");
+}
+
+/** "paguei a luz": baixa na conta pendente, com o lançamento no Extrato. */
+async function pagarContaPeloZap(vinculo: Vinculo, i: Extract<Intencao, { tipo: "pagar-conta" }>, ctx: Contexto): Promise<string> {
+  const item = ctx.itensPagar.get(i.alvo);
+  if (!item) return "Não achei essa conta pendente. Veja em *Contas* no app.";
+  const valor = i.valor ?? item.conta.valor;
+  const padrao = vinculo.ncash_conta_padrao_id;
+  const contaId = item.conta.conta_id ?? (padrao && ctx.contas.some((c) => c.id === padrao) ? padrao : ctx.contas.length === 1 ? ctx.contas[0].id : null);
+  try {
+    await marcarComoPaga(servico(), vinculo.dono_id, item, { valor, data: hojeNoBrasil(), conta_id: contaId });
+  } catch (e) {
+    if (e instanceof ErroDados && e.message === "ja-paga") return `*${item.conta.descricao}* deste mês já estava paga.`;
+    return "Não consegui dar baixa agora. Marque em *Contas* no app.";
+  }
+  const competencia = `${item.competencia.slice(5, 7)}/${item.competencia.slice(0, 4)}`;
+  const outras = ctx.contasAPagar.length - 1;
+  return [
+    `Pago: *${item.conta.descricao}* (${competencia}) — ${formatarBRL(valor)}. Já entrou no extrato.`,
+    outras > 0 ? `Ainda ${outras === 1 ? "falta 1 conta" : `faltam ${outras} contas`} este mês. Responda “contas a pagar” para ver.` : "Todas as contas do mês estão pagas.",
+    "Desfazer: em *Contas* no app, na aba Pagas.",
+  ].join("\n");
+}
+
+/** "vendi 150 fiado pro João, cobrar dia 10": um item em A receber. */
+async function anotarAReceber(donoId: string, i: Extract<Intencao, { tipo: "a-receber" }>): Promise<string> {
+  const it = i.item;
+  try {
+    await salvarReceber(servico(), donoId, null, {
+      pessoa: it.pessoa,
+      telefone: null,
+      descricao: it.descricao,
+      valor: it.valor,
+      categoria: "renda_extra",
+      vence_em: it.vence_em,
+      origem: "whatsapp",
+    });
+  } catch (e) {
+    if (e instanceof ErroDados && e.motivo === "sem-tabela") return "O *A receber* ainda está sendo ligado na sua conta. Tente de novo mais tarde.";
+    return "Não consegui anotar agora. Tente de novo em instantes.";
+  }
+  const primeiro = it.pessoa.split(" ")[0];
+  return [
+    `Anotado: *${it.pessoa}* te deve ${formatarBRL(it.valor)} (${it.descricao}).`,
+    it.vence_em ? `Cobrar em ${dataCurta(it.vence_em)} — eu te lembro no dia, com a mensagem de cobrança pronta.` : "Sem data de cobrança. Quer uma? Edite em *A receber* no app.",
+    `Quando pagar, me diga: “o ${primeiro} pagou” (ou “recebi 50 do ${primeiro}”, se for só uma parte).`,
+  ].join("\n");
+}
+
+/** "o João pagou" / "recebi 50 do João": baixa total ou parcial, com a entrada no Extrato. */
+async function receberPeloZap(vinculo: Vinculo, i: Extract<Intencao, { tipo: "receber" }>, ctx: Contexto, externoId: string): Promise<{ texto: string; transacaoId: string | null }> {
+  const linha = ctx.itensReceber.get(i.alvo);
+  if (!linha) return { texto: "Não achei esse valor em aberto. Veja em *A receber* no app.", transacaoId: null };
+  const padrao = vinculo.ncash_conta_padrao_id;
+  const contaId = padrao && ctx.contas.some((c) => c.id === padrao) ? padrao : ctx.contas.length === 1 ? ctx.contas[0].id : null;
+  try {
+    const r = await darBaixa(servico(), vinculo.dono_id, linha, {
+      valor: i.valor ?? linha.falta,
+      data: hojeNoBrasil(),
+      conta_id: contaId,
+      externo_id: externoId,
+    });
+    const sobra = Math.max(0, linha.falta - r.valor);
+    return {
+      transacaoId: r.transacaoId,
+      texto: [
+        `Recebido: ${formatarBRL(r.valor)} de *${linha.item.pessoa}*. Entrou no extrato.`,
+        r.quitou ? "Quitado." : `Ainda falta ${formatarBRL(sobra)}.`,
+        i.valor !== null && i.valor > linha.falta + 0.004 ? `(Faltavam só ${formatarBRL(linha.falta)}; dei baixa nisso.)` : "",
+        "Errei? Responda *desfazer*.",
+      ]
+        .filter(Boolean)
+        .join("\n"),
+    };
+  } catch {
+    return { texto: "Não consegui dar baixa agora. Marque em *A receber* no app.", transacaoId: null };
+  }
+}
+
+/** "2026-11" a partir de uma data local. */
+function refDoMes(d: Date): string {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
 }
 
 /**
@@ -1319,7 +1737,7 @@ async function tratarDoAssinante(vinculo: Vinculo, msg: MensagemRecebida, mensag
   // das 21h no Brasil, um gasto de hoje seria gravado amanhã.
   const intencao = interpretarNoNovareCash(msg.texto, vinculo, ctx, agoraNoBrasil());
 
-  await executar(vinculo, intencao, mensagemId, msg);
+  await executar(vinculo, intencao, mensagemId, msg, undefined, ctx);
 }
 
 /**
@@ -1349,12 +1767,21 @@ async function avisarContasDoDia(vinculo: Vinculo, telefone: string, mensagemId:
       const proximo = await carregarMesDeContas(s, vinculo.dono_id, amanha.slice(0, 7), hoje);
       urgentes.push(...proximo.itens.filter((i) => !i.pagamento && i.vence === amanha));
     }
-    if (!urgentes.length) return;
+    // 15/11/2026: as COBRANÇAS do dia (fiado que vence hoje ou atrasou) entram no mesmo aviso.
+    const cobrar = (await carregarReceber(s, vinculo.dono_id, hoje).catch(() => [] as LinhaReceber[])).filter(
+      (l) => l.situacao === "atrasado" || l.situacao === "hoje",
+    );
+    if (!urgentes.length && !cobrar.length) return;
 
     const { error: reserva } = await s
       .from("ncash_lembretes_enviados")
-      .insert({ user_id: vinculo.dono_id, dia: hoje, contas: urgentes.length });
+      .insert({ user_id: vinculo.dono_id, dia: hoje, contas: urgentes.length + cobrar.length });
     if (reserva) return; // 23505 = já avisado hoje; sem o SQL dos cartões, segue sem aviso.
+
+    if (!urgentes.length) {
+      await responder({ telefone, userId: vinculo.user_id, mensagemId, texto: textoDeCobrancas(cobrar) });
+      return;
+    }
 
     const quando = (i: (typeof urgentes)[number]) =>
       i.dias < 0 ? `venceu ${dataCurta(i.vence)}` : i.dias === 0 ? "vence *hoje*" : "vence *amanhã*";
@@ -1369,12 +1796,29 @@ async function avisarContasDoDia(vinculo: Vinculo, telefone: string, mensagemId:
       texto: [
         `*Contas para ficar de olho* (${formatarBRL(total)}):`,
         ...linhas,
-        `Pagou? Marque em ${SITE_URL}/novarecash/app/contas`,
-      ].join("\n"),
+        "Pagou? Me diga “paguei a …” ou marque em " + `${SITE_URL}/novarecash/app/contas`,
+        cobrar.length ? `\n${textoDeCobrancas(cobrar)}` : "",
+      ]
+        .filter(Boolean)
+        .join("\n"),
     });
   } catch (e) {
     console.warn("[whatsapp] nao avisou as contas do dia:", e instanceof Error ? e.message : e);
   }
+}
+
+/** "Para cobrar hoje": quem deve, quanto, e o caminho para a mensagem de cobrança pronta. */
+function textoDeCobrancas(cobrar: LinhaReceber[]): string {
+  const total = cobrar.reduce((soma, l) => soma + l.falta, 0);
+  const linhas = cobrar
+    .slice(0, 8)
+    .map((l) => `• ${l.item.pessoa}: ${formatarBRL(l.falta)}${l.situacao === "atrasado" && l.item.vence_em ? `, desde ${dataCurta(l.item.vence_em)}` : ", *hoje*"}`);
+  if (cobrar.length > 8) linhas.push(`• e mais ${cobrar.length - 8}`);
+  return [
+    `*Para cobrar* (${formatarBRL(total)}):`,
+    ...linhas,
+    `A mensagem de cobrança pronta está em ${SITE_URL}/novarecash/app/receber`,
+  ].join("\n");
 }
 
 async function executar(
@@ -1387,6 +1831,7 @@ async function executar(
      alguém conseguir explicar, meses depois, por que o gasto foi parar naquela
      categoria. */
   audio?: { transcricao: string; custoCentavos: number },
+  ctxPronto?: Contexto,
 ) {
   const base = {
     telefone: msg.de,
@@ -1402,10 +1847,47 @@ async function executar(
   const comAudio = (texto: string) =>
     audio ? respostaDoAudio(audio.transcricao, texto) : texto;
 
+  // Os comandos novos precisam do contexto (pendências, categorias). O texto já o
+  // carregou; o áudio carrega aqui, só quando precisa.
+  const ctx = async () => ctxPronto ?? (await carregarContexto(vinculo.dono_id));
+
   switch (intencao.tipo) {
+    case "conta-pagar":
+      await responder({ ...base, texto: comAudio(await anotarContaPagar(vinculo.dono_id, intencao)) });
+      return;
+
+    case "pagar-conta":
+      await responder({ ...base, texto: comAudio(await pagarContaPeloZap(vinculo, intencao, await ctx())) });
+      return;
+
+    case "a-receber":
+      await responder({ ...base, texto: comAudio(await anotarAReceber(vinculo.dono_id, intencao)) });
+      return;
+
+    case "receber": {
+      const r = await receberPeloZap(vinculo, intencao, await ctx(), msg.idMensagem);
+      // O log guarda a entrada: "desfazer" apaga o lançamento e, junto (cascade), a baixa.
+      await responder({ ...base, transacaoId: r.transacaoId, texto: comAudio(r.texto) });
+      return;
+    }
+
+    case "limite":
+      await responder({ ...base, texto: comAudio(await definirLimite(vinculo.dono_id, intencao, agoraNoBrasil())) });
+      return;
+
+    case "corrigir":
+      await responder({ ...base, texto: comAudio(await corrigirUltimo(vinculo, intencao, await ctx())) });
+      return;
+
+    case "criar-categoria":
+      await responder({ ...base, texto: comAudio(await criarCategoriaPeloZap(vinculo, intencao)) });
+      return;
+
     case "registrar": {
       // `externo_id` = id DESTA mensagem no provedor (texto ou áudio).
-      const id = await gravarTransacao(vinculo.dono_id, intencao.rascunho, msg.idMensagem);
+      const id = (intencao.rascunho.parcelas ?? 1) > 1
+        ? await gravarParcelado(vinculo.dono_id, intencao.rascunho, msg.idMensagem)
+        : await gravarTransacao(vinculo.dono_id, intencao.rascunho, msg.idMensagem);
       if (!id) {
         await responder({
           ...base,
@@ -1427,7 +1909,7 @@ async function executar(
     case "consulta":
       await responder({
         ...base,
-        texto: comAudio(await responderConsulta(vinculo.dono_id, intencao.consulta)),
+        texto: comAudio(await responderConsulta(vinculo.dono_id, intencao.consulta, ctxPronto)),
       });
       return;
 

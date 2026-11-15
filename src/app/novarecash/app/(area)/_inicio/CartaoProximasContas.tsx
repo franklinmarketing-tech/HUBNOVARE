@@ -7,6 +7,7 @@ import { CalendarClock, ChevronRight } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { ErroDados, dataCurta, hojeNoBrasil, usuarioDaSessao } from "@/lib/novarecash/dados";
 import { carregarMesDeContas, proximasContas, type ItemDoMes } from "@/lib/novarecash/contas-pagar";
+import { carregarReceber, type LinhaReceber } from "@/lib/novarecash/receber";
 import { AvisoInstalacao, ANEL, AvisoErro, Botao, COR_SAIDA, Cartao, Esqueleto, Selo, brl } from "../pecas";
 
 /**
@@ -18,6 +19,8 @@ export function CartaoProximasContas({ maximo = 5 }: { maximo?: number }) {
   const [estado, setEstado] = useState<"carregando" | "pronto" | "sem-tabela" | "erro">("carregando");
   const [itens, setItens] = useState<ItemDoMes[]>([]);
   const [temCadastro, setTemCadastro] = useState(false);
+  /** 15/11/2026: as cobranças dos próximos 7 dias (A receber). Opcional: sem o SQL, some calado. */
+  const [cobrar, setCobrar] = useState<LinhaReceber[]>([]);
 
   const carregar = useCallback(async () => {
     setEstado("carregando");
@@ -27,6 +30,8 @@ export function CartaoProximasContas({ maximo = 5 }: { maximo?: number }) {
       const mes = await carregarMesDeContas(sb, uid, hoje.slice(0, 7), hoje);
       setTemCadastro(mes.contas.length > 0);
       setItens(proximasContas(mes.itens, 7));
+      const receber = await carregarReceber(sb, uid, hoje).catch(() => [] as LinhaReceber[]);
+      setCobrar(receber.filter((l) => l.situacao === "atrasado" || l.situacao === "hoje" || l.situacao === "semana"));
       setEstado("pronto");
     } catch (e) {
       setEstado(e instanceof ErroDados && e.motivo === "sem-tabela" ? "sem-tabela" : "erro");
@@ -58,7 +63,7 @@ export function CartaoProximasContas({ maximo = 5 }: { maximo?: number }) {
       {!temCadastro ? (
         <>
           <p className="mt-1 text-xs leading-relaxed text-white/70">
-            Cadastre aluguel, luz, escola: o NovareCash mostra o que vence e lembra no WhatsApp na véspera.
+            Cadastre aluguel, luz, escola: o NovareCash mostra o que vence e lembra por e-mail na véspera e no dia.
           </p>
           <div className="mt-3">
             <Botao href="/novarecash/app/contas">Cadastrar contas</Botao>
@@ -81,6 +86,33 @@ export function CartaoProximasContas({ maximo = 5 }: { maximo?: number }) {
             </li>
           ))}
         </ul>
+      )}
+
+      {cobrar.length > 0 && (
+        <div className="mt-3 border-t border-white/10 pt-3">
+          <p className="flex items-center justify-between text-2xs font-semibold uppercase tracking-wider text-white/55">
+            Para receber <span className="tabular-nums text-white">{brl(cobrar.reduce((s, l) => s + l.falta, 0))}</span>
+          </p>
+          <ul className="mt-1 divide-y divide-white/[0.07]">
+            {cobrar.slice(0, 3).map((l) => (
+              <li key={l.item.id} className="flex items-center gap-3 py-2">
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-sm text-white">{l.item.pessoa}</span>
+                  <span className={`block text-2xs ${l.situacao === "atrasado" ? COR_SAIDA : "text-white/60"}`}>
+                    {l.situacao === "atrasado" && l.item.vence_em ? `Atrasado desde ${dataCurta(l.item.vence_em)}` : l.situacao === "hoje" ? "Cobrar hoje" : `Cobrar ${dataCurta(l.item.vence_em ?? "")}`}
+                  </span>
+                </span>
+                <span className="shrink-0 text-sm font-semibold tabular-nums text-white">{brl(l.falta)}</span>
+              </li>
+            ))}
+          </ul>
+          <Link
+            href="/novarecash/app/receber"
+            className={`mt-1 inline-flex min-h-11 items-center gap-1 rounded-lg text-xs font-semibold text-ouro hover:underline ${ANEL}`}
+          >
+            Ver a receber <ChevronRight className="h-4 w-4" />
+          </Link>
+        </div>
       )}
 
       {temCadastro && (

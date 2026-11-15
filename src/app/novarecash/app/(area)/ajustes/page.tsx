@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { Cabecalho } from "../pecas";
 import { CategoriasPersonalizadas } from "./CategoriasPersonalizadas";
 import { ContaCompartilhada } from "./ContaCompartilhada";
+import { LembretesEmail } from "./LembretesEmail";
 import { MinhaAssinatura } from "./MinhaAssinatura";
 
 export const dynamic = "force-dynamic";
@@ -65,6 +66,14 @@ export default async function AjustesNovareCash() {
         texto="Divida o NovareCash com o seu par ou a família: quem você convidar vê e lança tudo junto com você, no mesmo extrato."
       >
         {perfil && <ContaCompartilhada eu={perfil.id} meuEmail={perfil.email} />}
+      </Secao>
+
+      <Secao
+        id="ajustes-lembretes"
+        titulo="Lembretes por e-mail"
+        texto="O NovareCash avisa por e-mail as contas que vencem e as cobranças do A receber. Pelo WhatsApp, o mesmo aviso chega quando você manda a primeira mensagem do dia."
+      >
+        <LembretesEmail />
       </Secao>
 
       <Secao id="ajustes-assinatura" titulo="Minha assinatura" texto="O estado da sua assinatura e como cancelar.">

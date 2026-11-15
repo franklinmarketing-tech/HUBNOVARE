@@ -223,6 +223,21 @@ export const GUIAS: Record<string, Guia> = {
       },
     ],
   },
+  "/novarecash/app/receber": {
+    titulo: "A receber",
+    passos: [
+      {
+        alvo: "receber-novo",
+        titulo: "Novo a receber",
+        explica: "Anote uma venda fiado, um serviço a receber ou um empréstimo: quem deve, quanto e quando cobrar.",
+      },
+      {
+        alvo: "receber-lista",
+        titulo: "Quem te deve",
+        explica: "Separado por situação. “Cobrar” abre o WhatsApp com a mensagem pronta; “Recebi” (total ou parte) lança a entrada no Extrato.",
+      },
+    ],
+  },
   "/novarecash/app/orcamento": {
     titulo: "Orçamento",
     passos: [

@@ -212,7 +212,7 @@ export function TelaContas() {
           guia="contas-lista"
           Icone={CalendarClock}
           titulo="Nenhuma conta cadastrada"
-          texto="Cadastre as contas fixas do mês, como aluguel, luz, internet e escola, e as que vencem uma vez só, como o IPVA. O NovareCash mostra o que vence e o que atrasou; o aviso da véspera pelo WhatsApp chega quando ele for liberado."
+          texto="Cadastre as contas fixas do mês, como aluguel, luz, internet e escola, e as que vencem uma vez só, como o IPVA. O NovareCash mostra o que vence e o que atrasou, e avisa por e-mail na véspera e no dia. Pelo WhatsApp também dá: “luz 180 vence dia 10”."
         >
           <Botao Icone={Plus} onClick={() => setEditando("nova")}>
             Cadastrar a primeira

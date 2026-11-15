@@ -552,3 +552,82 @@ export async function enviarNovareCashLiberado(params: {
   if (error) throw new Error(error.message);
   return enviado;
 }
+
+/**
+ * O LEMBRETE DIÁRIO DO NOVARECASH (15/11/2026, comparação com a Concentra).
+ *
+ * Contas a pagar na véspera, no dia e no atraso; cobranças do A receber no dia
+ * e no atraso. Por e-mail (de graça) — o WhatsApp não inicia conversa (custa
+ * por mensagem na Meta); lá o mesmo aviso sai quando a pessoa escreve.
+ *
+ * Cada cobrança leva o link do WhatsApp com a MENSAGEM PRONTA para encaminhar
+ * a quem deve — o que a Concentra não faz. Quem monta as linhas é
+ * `/api/novarecash/lembretes`; aqui só a moldura.
+ */
+export async function enviarLembreteNovareCash(params: {
+  email: string;
+  nome: string | null;
+  contas: { descricao: string; valor: string; quando: string; atrasada: boolean }[];
+  cobrancas: { pessoa: string; valor: string; quando: string; atrasada: boolean; link: string }[];
+}) {
+  const { email, nome, contas, cobrancas } = params;
+  const linha = (esquerda: string, direita: string, detalhe: string, alerta: boolean, extra = "") =>
+    `<tr>
+       <td style="padding:10px 0;border-bottom:1px solid #eef1f4;font-size:15px;color:#1a2433;">
+         <strong>${esquerda}</strong><br>
+         <span style="font-size:13px;color:${alerta ? "#c2410c" : "#6b7684"};">${detalhe}</span>${extra}
+       </td>
+       <td style="padding:10px 0;border-bottom:1px solid #eef1f4;font-size:15px;font-weight:700;color:#16314f;text-align:right;white-space:nowrap;vertical-align:top;">${direita}</td>
+     </tr>`;
+  const tabela = (titulo: string, linhas: string) =>
+    `<p style="font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:#6b7684;font-weight:700;margin:0 0 4px;">${titulo}</p>
+     <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;margin:0 0 24px;">${linhas}</table>`;
+
+  const blocoContas = contas.length
+    ? tabela(
+        "Contas a pagar",
+        contas.map((c) => linha(escapar(c.descricao), escapar(c.valor), escapar(c.quando), c.atrasada)).join(""),
+      )
+    : "";
+  const blocoCobrar = cobrancas.length
+    ? tabela(
+        "Para cobrar",
+        cobrancas
+          .map((c) =>
+            linha(
+              escapar(c.pessoa),
+              escapar(c.valor),
+              escapar(c.quando),
+              c.atrasada,
+              `<br><a href="${escapar(c.link)}" style="font-size:13px;color:#e8703a;font-weight:700;text-decoration:none;">Cobrar no WhatsApp com a mensagem pronta →</a>`,
+            ),
+          )
+          .join(""),
+      )
+    : "";
+
+  const partes = [
+    contas.length ? `${contas.length} ${contas.length === 1 ? "conta" : "contas"}` : "",
+    cobrancas.length ? `${cobrancas.length} ${cobrancas.length === 1 ? "cobrança" : "cobranças"}` : "",
+  ].filter(Boolean);
+
+  const { data: enviado, error } = await resend().emails.send({
+    from: REMETENTE,
+    to: email,
+    replyTo: CONTATO.email,
+    subject: `NovareCash: ${partes.join(" e ")} para hoje`,
+    html: layout({
+      chapeu: "Lembrete do NovareCash",
+      titulo: `${escapar(primeiroNome(nome))}, ${partes.join(" e ")} pedindo atenção.`,
+      corpo:
+        blocoContas +
+        blocoCobrar +
+        par("Pagou ou recebeu? Marque no app — ou mande no WhatsApp do NovareCash: “paguei a luz”, “o João pagou”."),
+      cta: { texto: "Abrir o NovareCash", href: `${SITE}/novarecash/app/${contas.length ? "contas" : "receber"}` },
+      nota: `Você recebe este lembrete porque tem contas ou cobranças com data no NovareCash. Para não receber mais, desligue em <a href="${SITE}/novarecash/app/ajustes" style="color:#e8703a;">Ajustes → Lembretes por e-mail</a>.`,
+    }),
+  });
+
+  if (error) throw new Error(error.message);
+  return enviado;
+}
