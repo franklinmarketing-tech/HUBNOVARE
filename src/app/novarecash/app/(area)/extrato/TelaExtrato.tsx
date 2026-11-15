@@ -191,7 +191,7 @@ export function TelaExtrato({ abrir, filtroInicial = {} }: { abrir: "novo" | "co
           Novo lançamento
         </Botao>
         <Botao guia="extrato-contas" variante="contorno" Icone={Wallet} onClick={() => setContasAbertas(true)} desabilitado={estado !== "pronto"}>
-          Minhas contas
+          Contas e saldos
         </Botao>
       </div>
 
@@ -206,7 +206,7 @@ export function TelaExtrato({ abrir, filtroInicial = {} }: { abrir: "novo" | "co
           >
             <ChevronLeft className="h-5 w-5" />
           </button>
-          <p className="min-w-0 truncate text-center font-display text-base font-semibold capitalize text-white" aria-live="polite">
+          <p className="min-w-0 truncate text-center font-display text-base font-semibold first-letter:uppercase text-white" aria-live="polite">
             {nomeDoMes(ref)}
           </p>
           <button
@@ -221,15 +221,15 @@ export function TelaExtrato({ abrir, filtroInicial = {} }: { abrir: "novo" | "co
         <dl className="mt-3 grid grid-cols-3 gap-2 border-t border-white/10 pt-3 text-xs">
           <div className="min-w-0">
             <dt className="text-white/60">Entradas</dt>
-            <dd className={`truncate font-semibold tabular-nums ${COR_ENTRADA}`}>{brl(totais.entradas)}</dd>
+            <dd className={`break-words text-[clamp(0.75rem,3.4vw,0.875rem)] font-semibold leading-snug tabular-nums ${COR_ENTRADA}`}>{brl(totais.entradas)}</dd>
           </div>
           <div className="min-w-0">
             <dt className="text-white/60">Saídas</dt>
-            <dd className={`truncate font-semibold tabular-nums ${COR_SAIDA}`}>{brl(totais.saidas)}</dd>
+            <dd className={`break-words text-[clamp(0.75rem,3.4vw,0.875rem)] font-semibold leading-snug tabular-nums ${COR_SAIDA}`}>{brl(totais.saidas)}</dd>
           </div>
           <div className="min-w-0">
             <dt className="text-white/60">Sobra</dt>
-            <dd className={`truncate font-semibold tabular-nums ${totais.sobra < 0 ? COR_SAIDA : "text-white"}`}>
+            <dd className={`break-words text-[clamp(0.75rem,3.4vw,0.875rem)] font-semibold leading-snug tabular-nums ${totais.sobra < 0 ? COR_SAIDA : "text-white"}`}>
               {brl(totais.sobra)}
             </dd>
           </div>
@@ -295,7 +295,7 @@ export function TelaExtrato({ abrir, filtroInicial = {} }: { abrir: "novo" | "co
               : "Lance um gasto ou uma entrada à mão. O que vier do banco e do WhatsApp aparece aqui sozinho."
           }
         >
-          <Botao Icone={Plus} onClick={() => setEditando("novo")}>
+          <Botao variante="contorno" Icone={Plus} onClick={() => setEditando("novo")}>
             Lançar à mão
           </Botao>
           {contas.length === 0 && (

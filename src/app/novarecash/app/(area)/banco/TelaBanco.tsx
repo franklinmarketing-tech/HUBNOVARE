@@ -1155,7 +1155,7 @@ export function TelaBanco({ limite, nomePlano }: { limite: number; nomePlano: st
                           <span className="mt-0.5 block max-w-[15rem] text-2xs leading-snug text-white/55">
                             Dinheiro rendendo em cofrinho ou “bolso” nem sempre vem pelo Open Finance. Ajuste em{" "}
                             <Link href="/novarecash/app/extrato" className="underline underline-offset-2">
-                              Extrato → Minhas contas
+                              Extrato → Contas e saldos
                             </Link>
                             .
                           </span>

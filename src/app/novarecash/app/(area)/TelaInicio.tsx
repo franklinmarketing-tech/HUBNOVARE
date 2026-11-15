@@ -153,15 +153,15 @@ function Painel({ r }: { r: Retrato }) {
         <dl className="mt-5 grid grid-cols-3 gap-3 border-t border-white/10 pt-4 text-xs">
           <div className="min-w-0">
             <dt className="text-white/65">Entrou</dt>
-            <dd className={`truncate font-semibold tabular-nums ${COR_ENTRADA}`}>{brl(m.entradas)}</dd>
+            <dd className={`break-words text-[clamp(0.75rem,3.4vw,0.875rem)] font-semibold leading-snug tabular-nums ${COR_ENTRADA}`}>{brl(m.entradas)}</dd>
           </div>
           <div className="min-w-0">
             <dt className="text-white/65">Saiu</dt>
-            <dd className={`truncate font-semibold tabular-nums ${COR_SAIDA}`}>{brl(m.saidas)}</dd>
+            <dd className={`break-words text-[clamp(0.75rem,3.4vw,0.875rem)] font-semibold leading-snug tabular-nums ${COR_SAIDA}`}>{brl(m.saidas)}</dd>
           </div>
           <div className="min-w-0">
             <dt className="text-white/65">Sobra</dt>
-            <dd className={`truncate font-semibold tabular-nums ${m.sobra < 0 ? COR_SAIDA : "text-white"}`}>
+            <dd className={`break-words text-[clamp(0.75rem,3.4vw,0.875rem)] font-semibold leading-snug tabular-nums ${m.sobra < 0 ? COR_SAIDA : "text-white"}`}>
               {brl(m.sobra)}
             </dd>
           </div>

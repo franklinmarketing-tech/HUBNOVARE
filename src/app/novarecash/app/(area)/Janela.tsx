@@ -85,9 +85,12 @@ export function Janela({
         role="dialog"
         aria-modal="true"
         aria-labelledby={id}
-        className="relative max-h-[92dvh] w-full overflow-y-auto rounded-t-3xl border border-white/10 bg-noite-2 px-4 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-4 text-white shadow-[0_-20px_60px_-20px_var(--ncash-sombra-folha)] sm:max-w-lg sm:rounded-3xl sm:px-6 sm:pb-6"
+        /* 15/11/2026 (auditoria UX): o título e o X ficam FIXOS no alto, e a última linha de botões
+           do formulário (Salvar/Cancelar) fixa no pé — antes rolavam junto, e no celular o teclado
+           cobria o "Salvar". `scroll-pb` deixa o campo focado acima da linha de botões. */
+        className="relative max-h-[92dvh] w-full scroll-pb-24 overflow-y-auto rounded-t-3xl border border-white/10 bg-noite-2 px-4 pb-[max(1.25rem,env(safe-area-inset-bottom))] text-white shadow-[0_-20px_60px_-20px_var(--ncash-sombra-folha)] sm:max-w-lg sm:rounded-3xl sm:px-6 sm:pb-6 [&_form>div:last-child]:sticky [&_form>div:last-child]:-bottom-5 [&_form>div:last-child]:z-10 [&_form>div:last-child]:-mx-4 [&_form>div:last-child]:border-t [&_form>div:last-child]:border-white/10 [&_form>div:last-child]:bg-noite-2 [&_form>div:last-child]:px-4 [&_form>div:last-child]:py-3 sm:[&_form>div:last-child]:-bottom-6 sm:[&_form>div:last-child]:-mx-6 sm:[&_form>div:last-child]:px-6"
       >
-        <div className="mb-4 flex items-center justify-between gap-3">
+        <div className="sticky top-0 z-10 -mx-4 mb-4 flex items-center justify-between gap-3 bg-noite-2 px-4 pb-2 pt-4 sm:-mx-6 sm:px-6">
           <h2 id={id} className="min-w-0 font-display text-lg font-semibold text-white">
             {titulo}
           </h2>

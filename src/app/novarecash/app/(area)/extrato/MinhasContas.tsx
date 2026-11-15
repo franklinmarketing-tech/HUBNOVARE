@@ -17,6 +17,7 @@ import {
 import { Janela } from "../Janela";
 import { ANEL, Botao, CAMPO, ROTULO_CAMPO, Selo, brl } from "../pecas";
 
+import { useConfirmar } from "../Confirmacao";
 /**
  * "Minhas contas": as contas do banco (só leitura, o saldo vem de lá) e as
  * manuais, que a pessoa cria, edita e apaga.
@@ -43,7 +44,7 @@ export function MinhasContas({
   const { disponivel, faturas } = totaisDasContas(contas);
 
   return (
-    <Janela titulo={editando ? (editando === "nova" ? "Nova conta" : "Editar conta") : "Minhas contas"} onFechar={onFechar}>
+    <Janela titulo={editando ? (editando === "nova" ? "Nova conta" : "Editar conta") : "Contas e saldos"} onFechar={onFechar}>
       {editando ? (
         <FormConta
           sb={sb}
@@ -142,6 +143,7 @@ function FormConta({
   const [saldo, setSaldo] = useState(saldoInicial);
   const [erro, setErro] = useState<string | null>(null);
   const [salvando, setSalvando] = useState(false);
+  const { confirmar, caixa } = useConfirmar("dentro");
 
   async function salvar(e: React.FormEvent) {
     e.preventDefault();
@@ -171,7 +173,7 @@ function FormConta({
 
   async function apagar() {
     if (!inicial) return;
-    if (!window.confirm(`Apagar a conta “${inicial.nome}”? Os lançamentos dela continuam no extrato, sem conta.`)) return;
+    if (!(await confirmar(`Apagar a conta “${inicial.nome}”? Os lançamentos dela continuam no extrato, sem conta.`, "Apagar"))) return;
     setSalvando(true);
     try {
       await apagarConta(sb, uid, inicial.id);
@@ -189,7 +191,7 @@ function FormConta({
         onClick={onVoltar}
         className={`-ml-2 inline-flex min-h-11 items-center gap-1.5 rounded-xl px-2 text-xs font-semibold text-white/75 hover:text-white ${ANEL}`}
       >
-        <ArrowLeft className="h-4 w-4" /> Minhas contas
+        <ArrowLeft className="h-4 w-4" /> Contas e saldos
       </button>
 
       <label className="block">
@@ -246,6 +248,8 @@ function FormConta({
           {erro}
         </p>
       )}
+
+      {caixa}
 
       <div className="flex flex-wrap items-center justify-between gap-2">
         {inicial ? (

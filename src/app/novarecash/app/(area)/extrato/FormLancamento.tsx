@@ -26,6 +26,7 @@ import {
 import { Janela } from "../Janela";
 import { ANEL, Botao, CAMPO, ROTULO_CAMPO } from "../pecas";
 
+import { useConfirmar } from "../Confirmacao";
 /**
  * Lançar, editar e apagar.
  *
@@ -86,6 +87,7 @@ export function FormLancamento({
   const [parcelas, setParcelas] = useState(1);
   const [erro, setErro] = useState<string | null>(null);
   const [salvando, setSalvando] = useState(false);
+  const { confirmar, caixa } = useConfirmar("dentro");
 
   function mudarTipo(t: TipoTransacao) {
     setTipo(t);
@@ -146,7 +148,7 @@ export function FormLancamento({
 
   async function apagar() {
     if (inicial && onApagar) return onApagar(inicial);
-    if (!inicial || !window.confirm(`Apagar “${inicial.descricao}”? Não dá para desfazer.`)) return;
+    if (!inicial || !(await confirmar(`Apagar “${inicial.descricao}”? Não dá para desfazer.`, "Apagar"))) return;
     setSalvando(true);
     try {
       await apagarLancamento(sb, uid, inicial.id);
@@ -332,6 +334,8 @@ export function FormLancamento({
             {erro}
           </p>
         )}
+
+        {caixa}
 
         <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
           {inicial && !doBanco ? (

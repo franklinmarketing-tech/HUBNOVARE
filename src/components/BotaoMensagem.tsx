@@ -78,6 +78,9 @@ export function BotaoMensagem() {
   }, [aberta, fechar]);
 
   if (SEM_BOTAO.some((p) => caminho === p || caminho.startsWith(`${p}/`))) return null;
+  /* 15/11/2026 (auditoria UX): no APP do NovareCash, no celular, a aba cobria os cartões na borda
+     direita. Lá o caminho para falar com a gente já está no "Mais" (Consultor). No computador fica. */
+  const soComputador = caminho.startsWith("/novarecash/app") ? "max-md:hidden " : "";
 
   return (
     <>
@@ -85,7 +88,7 @@ export function BotaoMensagem() {
         type="button"
         onClick={() => setAberta(true)}
         aria-label="Fale com a gente: mande uma mensagem para a Novare"
-        className="fixed right-0 top-1/2 z-30 flex -translate-y-1/2 items-center gap-2 rounded-l-2xl bg-primary px-2.5 py-3 text-white shadow-[0_12px_30px_-12px_hsl(215_50%_15%_/_0.7)] transition-[padding] hover:pr-3.5 print:hidden sm:py-4"
+        className={`${soComputador}fixed right-0 top-1/2 z-30 flex -translate-y-1/2 items-center gap-2 rounded-l-2xl bg-primary px-2.5 py-3 text-white shadow-[0_12px_30px_-12px_hsl(215_50%_15%_/_0.7)] transition-[padding] hover:pr-3.5 print:hidden sm:py-4`}
       >
         <MessageSquareText className="h-5 w-5 shrink-0" />
         <span className="hidden text-xs font-semibold tracking-wide [writing-mode:vertical-rl] sm:block sm:rotate-180">
@@ -95,7 +98,7 @@ export function BotaoMensagem() {
 
       {/* O balão "Oi! Quer falar com alguém…?" (05/11/2026): uma vez por sessão, ao lado da
           aba. Some enquanto a janela de mensagem está aberta. Regras no componente. */}
-      {!aberta && <BotaoMensagemBalao />}
+      {!aberta && (soComputador ? <div className="max-md:hidden"><BotaoMensagemBalao /></div> : <BotaoMensagemBalao />)}
 
       {aberta &&
         montado &&

@@ -66,6 +66,9 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
+  // 15/11/2026: com o teclado do celular aberto, a página ENCOLHE (em vez de o teclado cobrir os
+  // botões de "Salvar" das janelas do NovareCash). Android/Chrome; o iOS ignora sem efeito colateral.
+  interactiveWidget: "resizes-content",
 };
 
 export const metadata: Metadata = {

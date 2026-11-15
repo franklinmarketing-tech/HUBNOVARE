@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/client";
 import { lerContas, usuarioDaSessao, type Conta } from "@/lib/novarecash/dados";
 import { ANEL, Botao, CAMPO, Cartao, ROTULO_CAMPO, Selo } from "../pecas";
 
+import { useConfirmar } from "../Confirmacao";
 /**
  * O TELEGRAM DO NOVARECASH (15/11/2026): o mesmo assistente do WhatsApp —
  * texto, áudio, foto, parcelado, contas, fiado, limite — e, de bônus, o
@@ -36,6 +37,7 @@ export function CartaoTelegram() {
   const [esperando, setEsperando] = useState(false);
   const [ocupado, setOcupado] = useState(false);
   const [recado, setRecado] = useState<string | null>(null);
+  const { confirmar, caixa } = useConfirmar("janela");
 
   const ler = useCallback(async (): Promise<Estado | null> => {
     try {
@@ -108,7 +110,7 @@ export function CartaoTelegram() {
   }
 
   async function desligar() {
-    if (!window.confirm("Desligar o Telegram? O que ele já lançou continua no Extrato.")) return;
+    if (!(await confirmar("Desligar o Telegram? O que ele já lançou continua no Extrato.", "Desligar"))) return;
     setOcupado(true);
     try {
       await fetch("/api/telegram/vincular", { method: "DELETE" });
@@ -213,6 +215,7 @@ export function CartaoTelegram() {
           <Check className="h-3.5 w-3.5 text-ouro" aria-hidden /> {recado}
         </p>
       )}
+      {caixa}
     </Cartao>
   );
 }

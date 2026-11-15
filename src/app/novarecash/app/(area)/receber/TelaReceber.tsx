@@ -41,6 +41,7 @@ import {
 import { Toast, useToast } from "../Toast";
 
 import { useAoMudarDados } from "../dadosMudaram";
+import { useConfirmar } from "../Confirmacao";
 type Estado = "carregando" | "pronto" | "sem-tabela" | "sem-sql" | "erro";
 
 const GRUPOS: { situacao: SituacaoReceber; titulo: string }[] = [
@@ -83,6 +84,7 @@ export function TelaReceber() {
   const [verRecebidos, setVerRecebidos] = useState(false);
   const [recado, setRecado] = useState<string | null>(null);
   const toast = useToast();
+  const { confirmar, caixa } = useConfirmar("janela");
 
   const pedido = useRef(0);
   const carregar = useCallback(
@@ -126,7 +128,7 @@ export function TelaReceber() {
 
   async function desfazer(l: LinhaReceber, b: BaixaReceber) {
     if (!uid) return;
-    if (!window.confirm(`Desfazer o recebimento de ${brl(b.valor)} de ${l.item.pessoa}? O lançamento sai do Extrato.`)) return;
+    if (!(await confirmar(`Desfazer o recebimento de ${brl(b.valor)} de ${l.item.pessoa}? O lançamento sai do Extrato.`, "Desfazer"))) return;
     try {
       await desfazerBaixa(sb, uid, b);
       setRecado(null);
@@ -138,7 +140,8 @@ export function TelaReceber() {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center gap-2">
+      {/* Lista vazia: o botão fica só no meio da tela (eram dois laranjas para a mesma ação). */}
+      <div className={`flex flex-wrap items-center gap-2 ${estado === "pronto" && linhas.length === 0 ? "hidden" : ""}`}>
         <Botao guia="receber-novo" Icone={Plus} onClick={() => setEditando("novo")} desabilitado={estado !== "pronto"}>
           Novo a receber
         </Botao>
@@ -311,6 +314,7 @@ export function TelaReceber() {
         />
       )}
 
+      {caixa}
       <Toast {...toast} />
     </div>
   );
@@ -390,6 +394,7 @@ function FormReceber({
   const [cat, setCat] = useState(it ? categoria(it.categoria).chave : "renda_extra");
   const [erro, setErro] = useState<string | null>(null);
   const [salvando, setSalvando] = useState(false);
+  const { confirmar, caixa } = useConfirmar("dentro");
 
   async function salvar(e: React.FormEvent) {
     e.preventDefault();
@@ -411,7 +416,7 @@ function FormReceber({
   }
 
   async function arquivar() {
-    if (!inicial || !window.confirm(`Tirar ${inicial.item.pessoa} da lista? O que já foi recebido continua no Extrato.`)) return;
+    if (!inicial || !(await confirmar(`Tirar ${inicial.item.pessoa} da lista? O que já foi recebido continua no Extrato.`, "Tirar da lista"))) return;
     setSalvando(true);
     try {
       await onArquivar();
@@ -471,6 +476,8 @@ function FormReceber({
         </p>
 
         <Erro texto={erro} />
+
+        {caixa}
 
         <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
           {inicial ? (

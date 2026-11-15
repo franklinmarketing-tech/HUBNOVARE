@@ -153,7 +153,7 @@ export const GUIAS: Record<string, Guia> = {
       },
       {
         alvo: "extrato-contas",
-        titulo: "Minhas contas",
+        titulo: "Contas e saldos",
         explica: "Crie as suas contas e cartões com o saldo de hoje. O saldo acompanha cada lançamento.",
       },
       {

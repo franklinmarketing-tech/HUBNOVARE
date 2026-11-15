@@ -6,6 +6,7 @@ import type { OrigemTransacao } from "@/lib/novarecash/dados";
 import { ORIGEM_ROTULO } from "@/lib/novarecash/dados";
 import { BotaoGuia } from "./BotaoGuia";
 import { IconeDaTela } from "./IconeDaTela";
+import { ResumoTela } from "./ResumoTela";
 
 export { brl } from "@/lib/calculos";
 
@@ -78,13 +79,14 @@ export function Cabecalho({
         <div className="flex items-center gap-3 sm:gap-3.5">
           <IconeDaTela />
           <div className="min-w-0">
-            <p className="text-2xs font-semibold uppercase tracking-[0.14em] text-ouro">NovareCash</p>
             <h1 className="font-display text-2xl font-semibold leading-tight tracking-[-0.02em] text-white sm:text-3xl">{titulo}</h1>
           </div>
           {/* O "?": o tour desta tela (05/11/2026, guia de primeiro uso). */}
           <BotaoGuia />
         </div>
-        {resumo && <p className="mt-3 max-w-prose text-xs leading-relaxed text-white/70">{resumo}</p>}
+        {/* 15/11/2026: sem o "NOVARECASH" em cima do título (a marca já está no topo) e a frase com
+            "ver mais" no celular — o conteúdo sobe para a primeira dobra. */}
+        {resumo && <ResumoTela texto={resumo} />}
       </div>
       {children && <div className="flex flex-wrap gap-2">{children}</div>}
     </header>

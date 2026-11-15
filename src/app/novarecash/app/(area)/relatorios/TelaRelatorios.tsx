@@ -182,7 +182,7 @@ export function TelaRelatorios() {
           >
             <ChevronLeft className="h-5 w-5" />
           </button>
-          <p aria-live="polite" className="min-w-0 truncate px-1 text-center font-display text-base font-semibold capitalize text-white">
+          <p aria-live="polite" className="min-w-0 truncate px-1 text-center font-display text-base font-semibold first-letter:uppercase text-white">
             {nomeDoMes(ref)}
           </p>
           <button
@@ -491,7 +491,8 @@ function TabelaAno({
             <th scope="col" className="py-1 text-right font-semibold">Entradas</th>
             <th scope="col" className="py-1 text-right font-semibold">Gastos</th>
             <th scope="col" className="py-1 text-right font-semibold">Sobra</th>
-            {temAnt && <th scope="col" className="py-1 text-right font-semibold">Sobra {ano - 1}</th>}
+            {/* No celular a 5ª coluna não cabe sem quebrar o valor: some abaixo de `sm`. */}
+            {temAnt && <th scope="col" className="hidden py-1 text-right font-semibold sm:table-cell">Sobra {ano - 1}</th>}
           </tr>
         </thead>
         <tbody className="divide-y divide-white/[0.07]">
@@ -499,13 +500,13 @@ function TabelaAno({
             const futuro = i + 1 > ateMes;
             return (
               <tr key={l.ref} className={futuro ? "opacity-40" : ""}>
-                <th scope="row" className="py-1.5 text-left font-medium capitalize text-white/80">
+                <th scope="row" className="py-1.5 text-left font-medium first-letter:uppercase text-white/80">
                   {mesCurto(l.ref)}
                 </th>
                 <td className={`py-1.5 text-right ${COR_ENTRADA}`}>{futuro ? "—" : brl(l.entradas, 0)}</td>
                 <td className={`py-1.5 text-right ${COR_SAIDA}`}>{futuro ? "—" : brl(l.saidas, 0)}</td>
                 <td className="py-1.5 text-right font-semibold text-white">{futuro ? "—" : brl(l.sobra, 0)}</td>
-                {temAnt && <td className="py-1.5 text-right text-white/60">{brl(anteriores[i]?.sobra ?? 0, 0)}</td>}
+                {temAnt && <td className="hidden py-1.5 text-right text-white/60 sm:table-cell">{brl(anteriores[i]?.sobra ?? 0, 0)}</td>}
               </tr>
             );
           })}
@@ -519,7 +520,7 @@ function TabelaAno({
             <td className={`py-2 text-right font-semibold ${COR_SAIDA}`}>{brl(total.saidas, 0)}</td>
             <td className="py-2 text-right font-semibold text-white">{brl(total.sobra, 0)}</td>
             {temAnt && (
-              <td className="py-2 text-right font-semibold text-white/60">
+              <td className="hidden py-2 text-right font-semibold text-white/60 sm:table-cell">
                 {brl(
                   anteriores.slice(0, ateMes).reduce((s, l) => s + l.sobra, 0),
                   0,
@@ -752,7 +753,7 @@ function GraficoMeses({ linhas }: { linhas: LinhaMes[] }) {
               className="pointer-events-none absolute top-1 z-10 w-44 -translate-x-1/2 rounded-xl border border-white/15 bg-noite px-3 py-2 text-2xs shadow-lg"
               style={{ left: `${Math.min(80, Math.max(20, ((ativo + 0.5) / linhas.length) * 100))}%` }}
             >
-              <p className="font-semibold capitalize text-white">{nomeDoMes(t.ref)}</p>
+              <p className="font-semibold first-letter:uppercase text-white">{nomeDoMes(t.ref)}</p>
               <p className="mt-1 flex items-center justify-between gap-2 text-white/75">
                 <span className="flex items-center gap-1.5">
                   <span className="h-2 w-2 rounded-sm" style={{ background: COR_SERIE_ENTRADA }} /> Entradas
@@ -799,7 +800,7 @@ function TabelaMeses({ linhas }: { linhas: LinhaMes[] }) {
       <tbody className="divide-y divide-white/[0.07]">
         {[...linhas].reverse().map((l) => (
           <tr key={l.ref}>
-            <th scope="row" className="py-1.5 text-left font-medium capitalize text-white/80">
+            <th scope="row" className="py-1.5 text-left font-medium first-letter:uppercase text-white/80">
               {mesCurto(l.ref)}/{l.ref.slice(2, 4)}
             </th>
             <td className={`py-1.5 text-right ${COR_ENTRADA}`}>{brl(l.entradas, 0)}</td>

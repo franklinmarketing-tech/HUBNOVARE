@@ -49,6 +49,7 @@ import { AvisoInstalar } from "../cartoes/AvisoInstalar";
 import { Toast, useToast } from "../Toast";
 
 import { useAoMudarDados } from "../dadosMudaram";
+import { useConfirmar } from "../Confirmacao";
 type Estado = "carregando" | "pronto" | "sem-tabela" | "sem-sql" | "erro";
 
 const GRUPOS: { situacao: SituacaoConta; titulo: string }[] = [
@@ -86,6 +87,7 @@ export function TelaContas() {
   // Só a leitura MAIS RECENTE vale (troca rápida de mês = respostas fora de ordem).
   const pedido = useRef(0);
   const toast = useToast();
+  const { confirmar, caixa } = useConfirmar("janela");
   // A última lista lida: o "Desfazer" do aviso de "Paguei" acha nela o pagamento recém-criado.
   const ultimos = useRef<ItemDoMes[]>([]);
   const carregar = useCallback(
@@ -137,7 +139,7 @@ export function TelaContas() {
 
   async function desfazer(i: ItemDoMes) {
     if (!uid || !i.pagamento) return;
-    if (!window.confirm(`Desfazer o pagamento de “${i.conta.descricao}”? O lançamento sai do Extrato.`)) return;
+    if (!(await confirmar(`Desfazer o pagamento de “${i.conta.descricao}”? O lançamento sai do Extrato.`, "Desfazer"))) return;
     try {
       await desfazerPagamento(sb, uid, i.pagamento);
       setRecado(null);
@@ -149,7 +151,8 @@ export function TelaContas() {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center gap-2">
+      {/* Nada cadastrado: o botão fica só no meio da tela (eram dois laranjas para a mesma ação). */}
+      <div className={`flex flex-wrap items-center gap-2 ${estado === "pronto" && cadastradas.length === 0 ? "hidden" : ""}`}>
         <Botao guia="contas-nova" Icone={Plus} onClick={() => setEditando("nova")} desabilitado={estado !== "pronto"}>
           Nova conta a pagar
         </Botao>
@@ -166,7 +169,7 @@ export function TelaContas() {
           >
             <ChevronLeft className="h-5 w-5" />
           </button>
-          <p className="min-w-0 truncate text-center font-display text-base font-semibold capitalize text-white" aria-live="polite">
+          <p className="min-w-0 truncate text-center font-display text-base font-semibold first-letter:uppercase text-white" aria-live="polite">
             {nomeDoMes(ref)}
           </p>
           <button
@@ -315,6 +318,7 @@ export function TelaContas() {
         />
       )}
 
+      {caixa}
       <Toast {...toast} />
     </div>
   );
@@ -422,6 +426,7 @@ function FormContaPagar({
   const [ativa, setAtiva] = useState(inicial?.ativa ?? true);
   const [erro, setErro] = useState<string | null>(null);
   const [salvando, setSalvando] = useState(false);
+  const { confirmar, caixa } = useConfirmar("dentro");
 
   async function salvar(e: React.FormEvent) {
     e.preventDefault();
@@ -450,7 +455,7 @@ function FormContaPagar({
   }
 
   async function apagar() {
-    if (!inicial || !window.confirm(`Apagar “${inicial.descricao}” e o histórico de pagamentos dela? Os gastos já lançados continuam no Extrato.`)) return;
+    if (!inicial || !(await confirmar(`Apagar “${inicial.descricao}” e o histórico de pagamentos dela? Os gastos já lançados continuam no Extrato.`, "Apagar"))) return;
     setSalvando(true);
     try {
       await onApagar();
@@ -556,6 +561,8 @@ function FormContaPagar({
         )}
 
         <Erro texto={erro} />
+
+        {caixa}
 
         <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
           {inicial ? (

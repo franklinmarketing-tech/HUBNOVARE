@@ -54,6 +54,7 @@ import { Toast, useToast } from "../Toast";
 import { AvisoInstalar } from "./AvisoInstalar";
 
 import { useAoMudarDados } from "../dadosMudaram";
+import { useConfirmar } from "../Confirmacao";
 type Estado = "carregando" | "pronto" | "sem-tabela" | "sem-sql" | "erro";
 
 const ROTULO_SITUACAO: Record<Fatura["situacao"], { texto: string; tom: TomSelo }> = {
@@ -392,7 +393,7 @@ function PainelCartao({
                       className={`flex min-h-11 cursor-pointer list-none items-center gap-3 px-3 py-2.5 sm:px-4 [&::-webkit-details-marker]:hidden ${ANEL}`}
                     >
                       <span className="min-w-0 flex-1">
-                        <span className="block truncate text-sm font-medium capitalize text-white">
+                        <span className="block truncate text-sm font-medium first-letter:uppercase text-white">
                           {i === 0 ? "Próxima · " : ""}
                           {nomeDoMes(f.ref)}
                         </span>
@@ -437,7 +438,7 @@ function BlocoFatura({
     <section aria-label={titulo} data-guia="cartoes-fatura">
       <Caixa className="p-4 sm:p-5">
         <div className="flex flex-wrap items-start justify-between gap-2">
-          <h2 className="min-w-0 font-display text-base font-semibold capitalize text-white">{titulo}</h2>
+          <h2 className="min-w-0 font-display text-base font-semibold first-letter:uppercase text-white">{titulo}</h2>
           <Selo tom={s.tom}>{s.texto}</Selo>
         </div>
         <p className="mt-2 font-display text-3xl font-semibold tabular-nums text-white">{brl(f.total)}</p>
@@ -769,12 +770,13 @@ function FormPagarFatura({
 function DetalheLancamento({ t, onFechar, onApagar }: { t: TransacaoCartao; onFechar: () => void; onApagar: () => Promise<void> }) {
   const [erro, setErro] = useState<string | null>(null);
   const [apagando, setApagando] = useState(false);
+  const { confirmar, caixa } = useConfirmar("dentro");
   const pagamento = t.categoria === "pagamento_fatura";
   const podeApagar = t.origem !== "openfinance";
   const oQue = pagamento ? "o pagamento (as duas pontas: conta e cartão)" : t.parcelas ? `as ${t.parcelas} parcelas desta compra` : "esta compra";
 
   async function apagar() {
-    if (!window.confirm(`Apagar ${oQue}? Não dá para desfazer.`)) return;
+    if (!(await confirmar(`Apagar ${oQue}? Não dá para desfazer.`, "Apagar"))) return;
     setErro(null);
     setApagando(true);
     try {
@@ -811,6 +813,8 @@ function DetalheLancamento({ t, onFechar, onApagar }: { t: TransacaoCartao; onFe
         </p>
 
         <Erro texto={erro} />
+
+        {caixa}
 
         <div className="flex flex-wrap items-center justify-between gap-2">
           {podeApagar ? (

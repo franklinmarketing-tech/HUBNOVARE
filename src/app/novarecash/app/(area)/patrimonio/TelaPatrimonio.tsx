@@ -143,7 +143,7 @@ export function TelaPatrimonio({
           guia="patrimonio-total"
           Icone={PiggyBank}
           titulo="Seu patrimônio aparece aqui"
-          texto="Informe o saldo das suas contas no Extrato (em Minhas contas) e lance os seus investimentos. O NovareCash soma tudo e desconta as faturas em aberto."
+          texto="Informe o saldo das suas contas no Extrato (em Contas e saldos) e lance os seus investimentos. O NovareCash soma tudo e desconta as faturas em aberto."
         >
           <Botao Icone={Plus} onClick={() => setEditando("novo")} desabilitado={semTabelaInvest}>
             Lançar um investimento

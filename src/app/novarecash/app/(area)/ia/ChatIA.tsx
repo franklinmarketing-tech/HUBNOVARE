@@ -116,7 +116,13 @@ export function ChatIA({ cota, agentes }: { cota: number; agentes: AgenteNaTela[
   return (
     <div className="space-y-3">
       {/* OS AGENTES (06/11/2026): um foco por agente; o cadeado diz em que plano ele vem. */}
-      <div role="radiogroup" aria-label="Escolha o agente" className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
+      {/* 15/11/2026 (auditoria UX): no celular os agentes viram uma FILA rolável, só com o nome — antes
+          a grade + o aviso empurravam a caixa de pergunta para baixo da dobra. */}
+      <div
+        role="radiogroup"
+        aria-label="Escolha o agente"
+        className="ncash-rolagem -mx-4 flex snap-x gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:grid sm:grid-cols-3 sm:overflow-visible sm:px-0 sm:pb-0 lg:grid-cols-5"
+      >
         {agentes.map((a) => {
           const Icone = ICONE[a.chave] ?? Sparkles;
           const marcado = a.chave === agente.chave;
@@ -132,7 +138,7 @@ export function ChatIA({ cota, agentes }: { cota: number; agentes: AgenteNaTela[
                 setBloqueado(null);
                 setAgente(a);
               }}
-              className={`relative flex min-h-[4.5rem] flex-col items-start gap-1 rounded-2xl p-3 text-left transition-colors ${ANEL} ${
+              className={`relative flex min-h-[3.25rem] min-w-[8.5rem] shrink-0 snap-start flex-col items-start gap-1 rounded-2xl p-3 text-left transition-colors sm:min-h-[4.5rem] sm:min-w-0 ${ANEL} ${
                 marcado
                   ? "bg-ouro/15 ring-1 ring-inset ring-ouro/60"
                   : a.liberado
@@ -145,7 +151,7 @@ export function ChatIA({ cota, agentes }: { cota: number; agentes: AgenteNaTela[
                 {!a.liberado && <Lock className="h-3.5 w-3.5 text-white/50" aria-label="Não está no seu plano" />}
               </span>
               <span className="text-xs font-semibold leading-tight text-white">{a.nome.replace("Agente de ", "")}</span>
-              <span className="text-2xs leading-snug text-white/55">
+              <span className={`text-2xs leading-snug text-white/55 ${a.liberado ? "hidden sm:block" : ""}`}>
                 {a.liberado ? a.resumo : `No plano ${a.planoMinimo}`}
               </span>
             </button>
@@ -167,12 +173,15 @@ export function ChatIA({ cota, agentes }: { cota: number; agentes: AgenteNaTela[
         <Info className="mt-0.5 h-3.5 w-3.5 shrink-0 text-ciano-claro" />
         <span>
           A IA organiza e explica o <strong className="font-semibold text-white">seu</strong> dinheiro. Ela{" "}
-          <strong className="font-semibold text-white">não é recomendação de investimento</strong> e não indica
-          produto, fundo nem corretora. Para investir, fale com um consultor da Novare.
+          <strong className="font-semibold text-white">não é recomendação de investimento</strong>
+          <span className="hidden sm:inline">
+            {" "}e não indica produto, fundo nem corretora. Para investir, fale com um consultor da Novare
+          </span>
+          .
         </span>
       </p>
 
-      <Cartao className="flex min-h-[22rem] flex-col p-3 sm:p-4">
+      <Cartao className="flex min-h-[16rem] flex-col sm:min-h-[22rem] p-3 sm:p-4">
         <div className="flex-1 space-y-3" aria-live="polite">
           {mensagens.length === 0 && (
             <div className="px-1 py-4 text-center">

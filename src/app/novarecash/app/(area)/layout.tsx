@@ -88,7 +88,7 @@ export default async function CascaNovareCash({ children }: { children: React.Re
         <main
           id="ncash-conteudo"
           tabIndex={-1}
-          className="mx-auto max-w-5xl px-4 pb-[calc(7rem+env(safe-area-inset-bottom))] pt-6 outline-none sm:px-6 md:pb-14 md:pt-10"
+          className="mx-auto max-w-5xl px-4 pb-[calc(9rem+env(safe-area-inset-bottom))] pt-6 outline-none sm:px-6 md:pb-14 md:pt-10"
         >
           {children}
         </main>
