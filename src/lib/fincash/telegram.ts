@@ -33,7 +33,8 @@ export function telegramConfigurado(): boolean {
 }
 
 function token(): string {
-  const t = process.env.TELEGRAM_BOT_TOKEN;
+  // Colado com espaço, quebra de linha, aspas ou com "bot" na frente: limpa (15/11/2026).
+  const t = (process.env.TELEGRAM_BOT_TOKEN ?? "").trim().replace(/^["']|["']$/g, "").replace(/^bot(?=\d)/i, "");
   if (!t) throw new Error("TELEGRAM_BOT_TOKEN nao foi configurada");
   return t;
 }
