@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { CheckCircle2, Download, Flame, Mail, Megaphone, Phone, Users } from "lucide-react";
+import { CheckCircle2, Download, Flame, Mail, Megaphone, Phone, Snowflake, Users } from "lucide-react";
 import { AcoesLead } from "./AcoesLead";
 import { createClient } from "@/lib/supabase/server";
 import { getPerfil } from "@/lib/perfil";
@@ -76,6 +76,25 @@ const NIVEL: Record<Nivel, { rotulo: string; cls: string }> = {
    a ordem serve para decidir quem chamar agora. */
 const EM_ABERTO = new Set(["novo", "falando"]);
 
+/**
+ * ESFRIANDO (15/11/2026, ideia do "Radar" do DeskcommCRM): quem corre risco de morrer sem resposta.
+ *   - NOVO, quente ou morno, que ninguém chamou há mais de 1 dia;
+ *   - FALANDO, com a conversa parada há mais de 3 dias (desde a última marcação).
+ * Devolve quantos dias está parado, ou null se está em dia.
+ */
+const DIA = 86_400_000;
+function esfriou(l: Lead, nivel: Nivel, agora: number): number | null {
+  if (l.situacao === "novo" && nivel !== "frio") {
+    const d = Math.floor((agora - Date.parse(l.criado_em)) / DIA);
+    return d >= 1 ? d : null;
+  }
+  if (l.situacao === "falando") {
+    const d = Math.floor((agora - Date.parse(l.tratado_em ?? l.criado_em)) / DIA);
+    return d >= 3 ? d : null;
+  }
+  return null;
+}
+
 function resumo(l: Lead): string {
   const p = l.payload ?? {};
   if (l.tipo === "saude-financeira" && p.score != null) return `Nota ${p.score}/100`;
@@ -95,13 +114,16 @@ function resumo(l: Lead): string {
 export default async function AdminLeadsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; tipo?: string; dias?: string; situacao?: string; ordem?: string }>;
+  searchParams: Promise<{ q?: string; tipo?: string; dias?: string; situacao?: string; ordem?: string; ver?: string; esfriando?: string }>;
 }) {
   const perfil = await getPerfil();
   if (!perfil) redirect("/login?proximo=/admin/leads");
   if (perfil.role !== "admin" && perfil.role !== "equipe") notFound();
 
-  const { q, tipo: tipoFiltro, dias: diasBruto, situacao: sitFiltro, ordem: ordemBruta } = await searchParams;
+  const { q, tipo: tipoFiltro, dias: diasBruto, situacao: sitFiltro, ordem: ordemBruta, ver: verBruto, esfriando: esfBruto } = await searchParams;
+  // Lista (a tabela) ou Funil (colunas por situação, ideia do kanban do DeskcommCRM).
+  const ver = verBruto === "funil" ? "funil" : "lista";
+  const soEsfriando = esfBruto === "1";
   // Abre nos mais quentes (pedido do dono, 21/10/2026); "recentes" é a ordem de chegada.
   const ordem = ordemBruta === "recentes" ? "recentes" : "quentes";
   const busca = (q ?? "").trim().toLowerCase();
@@ -142,10 +164,15 @@ export default async function AdminLeadsPage({
   const notas = temperaturaPorEmail(todos);
   const notaDe = (l: Lead) => notas.get(l.email.trim().toLowerCase())!;
 
+  const agora = Date.now();
+  const parado = (l: Lead) => esfriou(l, notaDe(l).nivel, agora);
+  const esfriando = todos.filter((l) => parado(l) !== null);
+  const base = soEsfriando ? filtrados.filter((l) => parado(l) !== null) : filtrados;
+
   const leads =
     ordem === "recentes"
-      ? filtrados
-      : [...filtrados].sort(
+      ? base
+      : [...base].sort(
           (a, b) =>
             Number(EM_ABERTO.has(b.situacao)) - Number(EM_ABERTO.has(a.situacao)) ||
             notaDe(b).pontos - notaDe(a).pontos ||
@@ -169,6 +196,8 @@ export default async function AdminLeadsPage({
     if (tipoFiltro) p.set("tipo", tipoFiltro);
     if (sitFiltro) p.set("situacao", sitFiltro);
     if (ordem === "recentes") p.set("ordem", "recentes");
+    if (ver === "funil") p.set("ver", "funil");
+    if (soEsfriando) p.set("esfriando", "1");
     for (const [k, v] of Object.entries(extra)) {
       if (v) p.set(k, v);
       else p.delete(k);
@@ -215,6 +244,24 @@ export default async function AdminLeadsPage({
 
         <div
           role="group"
+          aria-label="Visão"
+          className="flex flex-wrap items-center gap-1.5 rounded-2xl border border-border bg-white p-1.5 shadow-sm"
+        >
+          <Bolinha href={paraUrl({ ver: undefined })} ativo={ver === "lista"} rotulo="Lista" />
+          <Bolinha href={paraUrl({ ver: "funil" })} ativo={ver === "funil"} rotulo="Funil" />
+        </div>
+
+        <div
+          role="group"
+          aria-label="Esfriando"
+          className="flex flex-wrap items-center gap-1.5 rounded-2xl border border-border bg-white p-1.5 shadow-sm"
+        >
+          <Bolinha href={paraUrl({ esfriando: undefined })} ativo={!soEsfriando} rotulo="Todos" />
+          <Bolinha href={paraUrl({ esfriando: "1" })} ativo={soEsfriando} rotulo={`Só esfriando (${esfriando.length})`} />
+        </div>
+
+        <div
+          role="group"
           aria-label="Situação"
           className="flex flex-wrap items-center gap-1.5 rounded-2xl border border-border bg-white p-1.5 shadow-sm"
         >
@@ -230,7 +277,15 @@ export default async function AdminLeadsPage({
         </div>
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+        <Numero
+          rotulo="Esfriando"
+          valor={esfriando.length}
+          Icone={Snowflake}
+          detalhe="quente sem contato há 1 dia ou conversa parada há 3 — retome antes de perder"
+          tom={esfriando.length > 0 ? "atencao" : "normal"}
+          href={paraUrl({ esfriando: "1", situacao: undefined })}
+        />
         <Numero
           rotulo="Quentes sem contato"
           valor={quentesSemContato}
@@ -261,6 +316,8 @@ export default async function AdminLeadsPage({
         <input type="hidden" name="dias" value={dias} />
         {sitFiltro && <input type="hidden" name="situacao" value={sitFiltro} />}
         {ordem === "recentes" && <input type="hidden" name="ordem" value="recentes" />}
+        {ver === "funil" && <input type="hidden" name="ver" value="funil" />}
+        {soEsfriando && <input type="hidden" name="esfriando" value="1" />}
         <input
           type="search"
           name="q"
@@ -305,6 +362,8 @@ export default async function AdminLeadsPage({
               : "Tente limpar a busca ou escolher outra situação."}
           </p>
         </div>
+      ) : ver === "funil" ? (
+        <Funil leads={leads} notaDe={notaDe} parado={parado} />
       ) : (
         <>
           <p className="text-xs text-muted-foreground">
@@ -411,6 +470,7 @@ export default async function AdminLeadsPage({
                             situacao={l.situacao}
                             anotacao={l.anotacao}
                           />
+                          <Parado dias={parado(l)} />
                         </td>
 
                         <td className="px-4 py-3">
@@ -420,6 +480,7 @@ export default async function AdminLeadsPage({
                             email={l.email}
                             telefone={l.telefone}
                             oQueFez={oQueFez(l)}
+                            retomar={parado(l) !== null}
                           />
                         </td>
                       </tr>
@@ -431,6 +492,85 @@ export default async function AdminLeadsPage({
           </div>
         </>
       )}
+    </div>
+  );
+}
+
+/** "Esfriando · parado há 5 dias": o aviso na linha (e no cartão do funil). */
+function Parado({ dias }: { dias: number | null }) {
+  if (dias === null) return null;
+  return (
+    <p className="mt-1.5 inline-flex items-center gap-1 rounded-full bg-ciano-tint px-2 py-0.5 text-2xs font-semibold text-ciano-forte">
+      <Snowflake className="h-3 w-3" aria-hidden />
+      Esfriando · parado há {dias} {dias === 1 ? "dia" : "dias"}
+    </p>
+  );
+}
+
+/**
+ * O FUNIL (15/11/2026, ideia do kanban do DeskcommCRM): uma coluna por situação, na ordem da
+ * conversa. Mudar a situação no cartão o move de coluna (a página recarrega). No celular, as
+ * colunas empilham.
+ */
+function Funil({
+  leads,
+  notaDe,
+  parado,
+}: {
+  leads: Lead[];
+  notaDe: (l: Lead) => { nivel: Nivel; pontos: number };
+  parado: (l: Lead) => number | null;
+}) {
+  return (
+    <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      {SITUACOES.map((s) => {
+        const daqui = leads.filter((l) => l.situacao === s.valor);
+        return (
+          <section key={s.valor} aria-label={s.rotulo} className="min-w-0 rounded-2xl border border-border bg-slate-50/70 p-3">
+            <h2 className="mb-3 flex items-center justify-between px-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              <span className={`rounded-full px-2 py-0.5 ${s.cls}`}>{s.rotulo}</span>
+              <span className="tabular-nums">{daqui.length}</span>
+            </h2>
+            <div className="space-y-2.5">
+              {daqui.length === 0 && <p className="px-1 text-2xs text-muted-foreground">Ninguém aqui.</p>}
+              {daqui.slice(0, 60).map((l) => {
+                const nota = notaDe(l);
+                const n = NIVEL[nota.nivel];
+                const t = TIPO[(l.tipo ?? "ferramenta") as keyof typeof TIPO] ?? TIPO.ferramenta;
+                return (
+                  <article key={l.id} className="min-w-0 rounded-xl border border-border bg-white p-3 shadow-sm">
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-2xs font-semibold ${n.cls}`}>
+                        {nota.nivel === "quente" && <Flame className="h-3 w-3" strokeWidth={2.4} />}
+                        {n.rotulo} · {nota.pontos}
+                      </span>
+                      <span className={`rounded-full px-2 py-0.5 text-2xs font-semibold ${t.cls}`}>{t.rotulo}</span>
+                    </div>
+                    <p className="mt-1.5 truncate text-sm font-semibold text-foreground">{l.nome || l.email}</p>
+                    {l.nome && <p className="truncate text-2xs text-muted-foreground">{l.email}</p>}
+                    <p className="mt-1 text-2xs text-muted-foreground">{resumo(l)}</p>
+                    <Parado dias={parado(l)} />
+                    <div className="mt-2.5 space-y-2">
+                      <MarcarSituacao id={l.id} situacao={l.situacao} anotacao={l.anotacao} />
+                      <AcoesLead
+                        id={l.id}
+                        nome={l.nome}
+                        email={l.email}
+                        telefone={l.telefone}
+                        oQueFez={oQueFez(l)}
+                        retomar={parado(l) !== null}
+                      />
+                    </div>
+                  </article>
+                );
+              })}
+              {daqui.length > 60 && (
+                <p className="px-1 text-2xs text-muted-foreground">+{daqui.length - 60} — use a Lista ou a busca para ver todos.</p>
+              )}
+            </div>
+          </section>
+        );
+      })}
     </div>
   );
 }

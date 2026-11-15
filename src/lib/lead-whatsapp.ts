@@ -26,3 +26,21 @@ export function linkWhatsApp(
   const texto = `Olá${primeiro ? `, ${primeiro}` : ""}! Aqui é da Novare. Vi que você ${oQueFez}. Como posso te ajudar?`;
   return `https://wa.me/${numero}?text=${encodeURIComponent(texto)}`;
 }
+
+/**
+ * RETOMAR A CONVERSA (15/11/2026, ideia do DeskcommCRM): para o lead que ESFRIOU — chamado e parado,
+ * ou quente que ninguém chamou. A mensagem não repete a apresentação: puxa de volta pelo que a
+ * pessoa usou e oferece o próximo passo.
+ */
+export function linkRetomada(
+  telefone: string | null | undefined,
+  nome?: string | null,
+  oQueFez = "usou uma das nossas ferramentas",
+) {
+  const d = (telefone ?? "").replace(/\D/g, "");
+  if (d.length < 10) return null;
+  const numero = d.length >= 12 && d.startsWith("55") ? d : `55${d}`;
+  const primeiro = (nome ?? "").trim().split(" ")[0];
+  const texto = `Oi${primeiro ? `, ${primeiro}` : ""}, tudo bem? Aqui é da Novare. Lembrei de você porque ${oQueFez}. Ficou alguma dúvida? Se quiser, te ajudo a dar o próximo passo em 10 minutos.`;
+  return `https://wa.me/${numero}?text=${encodeURIComponent(texto)}`;
+}

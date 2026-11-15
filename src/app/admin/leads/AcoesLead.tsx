@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { AlertTriangle, Loader2, Mail, MessageCircle, Pencil, Trash2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-import { linkWhatsApp } from "@/lib/lead-whatsapp";
+import { linkRetomada, linkWhatsApp } from "@/lib/lead-whatsapp";
 import { EscreverEmail } from "../EscreverEmail";
 import { CAMPO, Campo, Janela } from "../Janela";
 
@@ -26,6 +26,7 @@ export function AcoesLead({
   email,
   telefone,
   oQueFez,
+  retomar,
 }: {
   id: string;
   nome: string | null;
@@ -33,6 +34,8 @@ export function AcoesLead({
   telefone: string | null;
   /** "baixou o nosso eBook …" — a mensagem do WhatsApp cita o que a pessoa usou. */
   oQueFez?: string;
+  /** Esfriou: o WhatsApp leva a mensagem de RETOMADA (não a de apresentação). */
+  retomar?: boolean;
 }) {
   const router = useRouter();
   const [escrevendo, setEscrevendo] = useState(false);
@@ -40,7 +43,7 @@ export function AcoesLead({
   const [apagando, setApagando] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
 
-  const zap = linkWhatsApp(telefone, nome, oQueFez);
+  const zap = retomar ? linkRetomada(telefone, nome, oQueFez) : linkWhatsApp(telefone, nome, oQueFez);
 
   async function apagar() {
     if (
@@ -90,11 +93,15 @@ export function AcoesLead({
             target="_blank"
             rel="noopener noreferrer"
             aria-label={`Chamar ${nome ?? email} no WhatsApp`}
-            title={`Abre o WhatsApp com a mensagem pronta: "Vi que você ${oQueFez ?? "usou uma das nossas ferramentas"}…"`}
+            title={
+              retomar
+                ? "Abre o WhatsApp com uma mensagem de retomada (a conversa esfriou)"
+                : `Abre o WhatsApp com a mensagem pronta: "Vi que você ${oQueFez ?? "usou uma das nossas ferramentas"}…"`
+            }
             className="flex h-9 items-center gap-1.5 rounded-xl border border-success/40 bg-success/10 px-3 text-xs font-semibold text-success transition-colors hover:bg-success hover:text-white"
           >
             <MessageCircle className="h-3.5 w-3.5" strokeWidth={2.2} />
-            WhatsApp
+            {retomar ? "Retomar" : "WhatsApp"}
           </a>
         ) : (
           <span title="Sem telefone" className={`${botao} cursor-not-allowed opacity-35`}>
