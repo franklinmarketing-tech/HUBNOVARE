@@ -15,7 +15,9 @@
  * O NovareCash confere o banco a cada 3 s e FECHA a janelinha assim que a conexão aparece
  * (`TelaBanco`).
  *
- * Só aceita destino `https://app.mcp.ai/connect/…` (nada de redirecionamento aberto).
+ * Só aceita destino `https://app.mcp.ai/…` (nada de redirecionamento aberto: o domínio é fixo).
+ * 21/11/2026: era só `/connect/…`; o link da connect session (`lib/novarecash/sessao-banco.ts`) vem
+ * da própria mcp.ai e o caminho dele não é documentado — o domínio é o que protege.
  */
 export const dynamic = "force-dynamic";
 
@@ -23,7 +25,7 @@ function destinoValido(u: string | null): string | null {
   if (!u) return null;
   try {
     const url = new URL(u);
-    return url.protocol === "https:" && url.hostname === "app.mcp.ai" && url.pathname.startsWith("/connect/") ? url.toString() : null;
+    return url.protocol === "https:" && url.hostname === "app.mcp.ai" && !url.username && !url.password ? url.toString() : null;
   } catch {
     return null;
   }

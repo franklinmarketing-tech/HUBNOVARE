@@ -8,7 +8,7 @@
  * leitura, é outro projeto). Ela confere o token da pessoa e ESCOPA cada
  * consulta às conexões que essa pessoa reivindicou (`claim`).
  *
- * Endpoints usados: `connect-url`, `claim`, `forget`, `connections/list`,
+ * Endpoints usados: `sessao` e `sessao-status` (connect session, 21/11/2026), `connect-url`, `claim`, `forget`, `connections/list`,
  * `accounts/list`, `accounts/balance`, `transactions/list`. Os dados vêm em
  * `payload.result.*`.
  *
@@ -138,6 +138,37 @@ export async function urlParaConectar(): Promise<string | null> {
 }
 
 export type CandidataBanco = { itemId: string; banco: string; criado: number | null; final?: string | null };
+
+/**
+ * CONNECT SESSION (21/11/2026): o link de conexão SÓ desta pessoa, de uso único, que no fim volta
+ * para o NovareCash (e não para o claude.ai). O banco nasce ligado a ela: nada de `claim`.
+ * `null` = o servidor não conseguiu criar a sessão (SQL ainda não rodado, mcp.ai fora): quem chamou
+ * usa o caminho antigo. `limite` = o plano não deixa conectar mais um.
+ */
+export async function criarSessaoBanco(
+  conectorId: string,
+  banco: string,
+): Promise<{ cs: string; url: string } | { limite: string } | null> {
+  try {
+    const r = await chamar("sessao", { connector_id: conectorId, banco });
+    if (r.limite === true) return { limite: `${texto(r.message)} Para conectar mais, mude de plano.` };
+    const cs = texto(r.cs);
+    const url = texto(r.url);
+    return cs && url ? { cs, url } : null;
+  } catch (e) {
+    if (e instanceof ErroBanco && e.motivo === "sessao") throw e;
+    return null;
+  }
+}
+
+/** A sessão já virou conexão? `status`: pending | connected | expired | canceled | conflito. */
+export async function statusDaSessao(cs: string): Promise<{ conectado: boolean; itemId?: string; banco?: string; status: string; mensagem?: string }> {
+  const r = await chamar("sessao-status", { cs });
+  if (r.conectado === true) {
+    return { conectado: true, itemId: texto(r.item_id) || undefined, banco: texto(r.connector_name) || undefined, status: "connected" };
+  }
+  return { conectado: false, status: texto(r.status) || "pending", mensagem: texto(r.message) || undefined };
+}
 
 /**
  * A pessoa tocou num banco: grava o PEDIDO no servidor (hora + banco escolhido, cookie assinado).

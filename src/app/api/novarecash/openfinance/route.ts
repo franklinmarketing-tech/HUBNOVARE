@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { temAcessoNovareCash } from "@/lib/novarecash/acesso";
 import { servico } from "@/lib/novarecash/assinantes";
 import { ErroMcp, desligarItem, desligarTodos, lista, mcp, type Qualquer } from "@/lib/novarecash/bancomcp-servidor";
+import { conferirSessao, criarSessao, sessaoPorCs } from "@/lib/novarecash/sessao-banco";
 
 /**
  * OPEN FINANCE DO NOVARECASH, NO PRÓPRIO HUB (12/11/2026; v2 em 13/11/2026, depois da varredura).
@@ -33,6 +34,9 @@ import { ErroMcp, desligarItem, desligarTodos, lista, mcp, type Qualquer } from 
  *   8. DESLIGAR revoga no Banco MCP (`connections/disconnect`), desativa as contas daquele banco no
  *      NovareCash (o saldo some) e, se a pessoa pedir, apaga os lançamentos importados.
  *   9. RECONECTAR renova o MESMO item (`update_item` na página de conexão): ids iguais, nada duplica.
+ *  10. CONNECT SESSION (21/11/2026): conectar um banco novo cria uma sessão SÓ da pessoa (`sessao`),
+ *      e a conexão nasce com o `client_ref` dela — sem adivinhar (`lib/novarecash/sessao-banco.ts`).
+ *      O `claim` (regras 3–5) ficou só de reserva, e ignora conexão que nasceu de sessão.
  */
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -202,6 +206,41 @@ export async function POST(req: Request) {
       return ok({ bancos });
     }
 
+    // ── Conectar um banco novo: a sessão SÓ desta pessoa (regra 10) ──
+    if (endpoint === "sessao") {
+      if (!equipe) {
+        const { data: assin } = await db.from("ncash_assinantes").select("plano").eq("email", String(usuario.email ?? "").toLowerCase()).maybeSingle();
+        const limite = LIMITE_PLANO[String(assin?.plano ?? "").toLowerCase()] ?? 1;
+        if (minhas.length >= limite) {
+          return ok({ limite: true, message: `O seu plano conecta até ${limite} banco${limite > 1 ? "s" : ""}.` });
+        }
+      }
+      const s = await criarSessao(db, {
+        userId: usuario.id,
+        origem: new URL(req.url).origin,
+        connectorId: String(corpo.connector_id ?? ""),
+        banco: String(corpo.banco ?? ""),
+      });
+      return ok({ cs: s.cs, url: s.url });
+    }
+
+    // ── A sessão já virou conexão? (a conferência a cada 3 s do app) ──
+    if (endpoint === "sessao-status") {
+      const linha = await sessaoPorCs(db, String(corpo.cs ?? ""));
+      if (!linha || linha.user_id !== usuario.id) return erro("Conexão não encontrada.", 404);
+      // Já resolvida (pela página de volta, pelo webhook ou por uma conferência anterior): só o banco.
+      // Pendente: no máximo UMA pergunta à mcp.ai a cada 8 s por sessão (o limite da conta é 60/min).
+      const r =
+        linha.status === "pending"
+          ? await emCache(`sessao:${linha.cs}`, 8, () => conferirSessao(db, linha))
+          : await conferirSessao(db, linha);
+      if (r.ok) {
+        esquecerCache("conexoes");
+        return ok({ conectado: true, item_id: r.itemId, connector_name: r.banco });
+      }
+      return ok({ conectado: false, status: r.status, message: r.mensagem ?? null });
+    }
+
     // ── A pessoa tocou num banco: o pedido assinado, com o banco escolhido (regra 3) ──
     if (endpoint === "iniciar") {
       const conector = String(corpo.connector_id ?? "").slice(0, 40);
@@ -239,6 +278,8 @@ export async function POST(req: Request) {
       const { conexoes } = await conexoesDaConta(4000); // conexão recém-nascida: no máximo 4 s de idade
       let candidatas = conexoes.filter((c) => {
         const t = criadoDe(c);
+        // Conexão que nasceu de uma connect session já tem dono (o `client_ref`): nunca entra aqui.
+        if (c?.client_ref || c?.clientRef) return false;
         return itemDe(c) && t !== null && t >= ped.quando - 60_000; // sem data não entra: não dá para provar de quem é
       });
       // Só o banco que a pessoa escolheu (quando a conexão diz o conector).
@@ -247,11 +288,12 @@ export async function POST(req: Request) {
       // Quem já tem dono sai — lendo SÓ as candidatas (antes lia as tabelas inteiras, e o corte de 1.000 linhas mentia).
       const ids = candidatas.map(itemDe);
       if (ids.length) {
-        const [{ data: a }, { data: b }] = await Promise.all([
+        const [{ data: a }, { data: b }, { data: s }] = await Promise.all([
           db.from("vidaplan_open_finance").select("item_id").in("item_id", ids),
           db.from("client_connections").select("item_id").in("item_id", ids),
+          db.from("ncash_of_sessoes").select("item_id").in("item_id", ids),
         ]);
-        const comDono = new Set([...(a ?? []), ...(b ?? [])].map((l: Qualquer) => String(l.item_id)));
+        const comDono = new Set([...(a ?? []), ...(b ?? []), ...(s ?? [])].map((l: Qualquer) => String(l.item_id)));
         candidatas = candidatas.filter((c) => !comDono.has(itemDe(c)));
       }
 

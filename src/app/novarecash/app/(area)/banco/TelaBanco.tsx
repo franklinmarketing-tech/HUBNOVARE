@@ -27,6 +27,7 @@ import {
   avisoDoProvedor,
   bancosComFalha,
   contasComSaldo,
+  criarSessaoBanco,
   esquecer,
   zerarEImportar,
   faturaAtual,
@@ -40,6 +41,7 @@ import {
   precisaReconectar,
   reivindicar,
   sincronizar,
+  statusDaSessao,
   statusLegivel,
   trazerTudo,
   urlParaConectar,
@@ -61,7 +63,11 @@ import { ANEL, AvisoErro, AvisoSemTabela, Botao, Cartao, Esqueleto, Selo, brl, t
  *   2. Abre uma JANELINHA do banco por cima do NovareCash (no celular, uma aba) e, no app, a janela
  *      "passo a passo" (Autorizar → Trazer dados → Pronto).
  *   3. O app confere sozinho a cada 3 s (e quando a pessoa volta à aba). Achou a conexão: FECHA a
- *      janelinha do banco e liga o banco à conta (`claim`).
+ *      janelinha do banco e liga o banco à conta.
+ *      21/11/2026: conectar cria uma CONNECT SESSION só da pessoa (`criarSessaoBanco`) e a conferência
+ *      pergunta por ELA (`statusDaSessao`) — o banco já nasce dela, sem adivinhar. No fim a mcp.ai
+ *      devolve a pessoa para `/novarecash/banco-conectado` (em português), não para o claude.ai.
+ *      Sem sessão (SQL não rodado, mcp.ai fora), cai no caminho antigo: link geral + `claim`.
  *   4. TRAZ TUDO SOZINHO (`trazerTudo`): espera o banco terminar de mandar, lê contas, cartões e
  *      saldos e grava 12 meses de lançamentos, sem duplicar.
  *   5. Depois, o `AtualizaBanco` (na casca) atualiza sozinho ao abrir o app, a cada 6 h.
@@ -81,6 +87,8 @@ type Pendente = {
   url: string | null;
   /** RECONECTAR (13/11/2026): o item que está sendo renovado. Sem claim: espera ele voltar a ficar em dia. */
   item?: string;
+  /** CONNECT SESSION (21/11/2026): a sessão desta conexão. Com ela, a conferência é exata (sem claim). */
+  cs?: string;
 };
 type Fase = "autorizar" | "trazendo" | "pronto";
 
@@ -109,6 +117,15 @@ const esquecerEspera = () => {
     localStorage.removeItem(CHAVE_ESPERA);
   } catch {}
 };
+
+/** A sessão terminou sem conexão: a frase para a pessoa (21/11/2026). */
+const fraseDaSessao = (status: string, mensagem?: string) =>
+  mensagem ||
+  (status === "expired"
+    ? "O link de conexão expirou (por segurança, ele vale por pouco tempo). Toque no seu banco de novo."
+    : status === "canceled"
+      ? "A conexão foi cancelada. Quando quiser, toque no seu banco de novo."
+      : "A conexão não foi concluída. Toque no seu banco de novo.");
 
 const frase = (e: unknown) =>
   e instanceof ErroBanco ? e.message : "Não consegui falar com o banco agora. Tente de novo em instantes.";
@@ -396,11 +413,25 @@ export function TelaBanco({ limite, nomePlano }: { limite: number; nomePlano: st
     const inicio = Date.now();
 
     const item = pendente?.item;
+    const cs = pendente?.cs;
     const conferir = async () => {
       if (parar || rodando) return;
       rodando = true;
       setConferindo(true);
       try {
+        if (cs) {
+          // CONNECT SESSION: a sessão diz se virou conexão — e de quem é, sem adivinhar.
+          const r = await statusDaSessao(cs);
+          if (parar) return;
+          if (r.conectado) {
+            parar = true;
+            void concluir(r.itemId ?? null, r.banco);
+          } else if (r.status !== "pending") {
+            parar = true;
+            setRecado(fraseDaSessao(r.status, r.mensagem));
+          }
+          return;
+        }
         if (item) {
           // RECONECTAR: o mesmo item volta a ficar em dia (sem claim).
           const c = (await listarConexoes(true)).find((x) => x.itemId === item);
@@ -471,7 +502,7 @@ export function TelaBanco({ limite, nomePlano }: { limite: number; nomePlano: st
       document.removeEventListener("visibilitychange", aoVoltar);
       window.removeEventListener("focus", aoVoltar);
     };
-  }, [fase, concluir, pendente?.item, rodada]);
+  }, [fase, concluir, pendente?.item, pendente?.cs, rodada]);
 
   function iniciar(p: Pendente, j: JanelaDoBanco | null) {
     janela.current = j;
@@ -498,13 +529,36 @@ export function TelaBanco({ limite, nomePlano }: { limite: number; nomePlano: st
     return true;
   }
 
-  /** Tocou no banco: a janelinha abre JÁ, no toque (depois de um `await` o navegador bloqueia). */
-  function abrirBanco(b: BancoParaConectar) {
+  /**
+   * Tocou no banco: a janelinha abre JÁ, no toque (depois de um `await` o navegador bloqueia), e só
+   * então recebe o link da sessão desta pessoa. Sem sessão, o caminho antigo (link geral + claim).
+   */
+  async function abrirBanco(b: BancoParaConectar) {
     if (passouDoLimite()) return;
-    const j = abrirJanelaDoBanco(b.url);
-    iniciar({ quando: Date.now(), banco: b.nome, logo: b.logo, url: b.url }, j);
-    // O pedido assinado: a hora do toque E o banco escolhido (o claim só aceita conexão desse banco).
-    iniciando.current = iniciarConexao(b.id, b.nome);
+    const j = abrirJanelaDoBanco(null);
+    setOcupado(`banco:${b.id}`);
+    try {
+      const s = await criarSessaoBanco(b.id, b.nome);
+      if (s && "limite" in s) {
+        j?.fechar();
+        setRecado(s.limite);
+        return;
+      }
+      if (s) {
+        j?.irPara(s.url);
+        iniciar({ quando: Date.now(), banco: b.nome, logo: b.logo, url: s.url, cs: s.cs }, j);
+        return;
+      }
+      j?.irPara(b.url);
+      iniciar({ quando: Date.now(), banco: b.nome, logo: b.logo, url: b.url }, j);
+      // O pedido assinado: a hora do toque E o banco escolhido (o claim só aceita conexão desse banco).
+      iniciando.current = iniciarConexao(b.id, b.nome);
+    } catch (e) {
+      j?.fechar();
+      setRecado(frase(e));
+    } finally {
+      setOcupado(null);
+    }
   }
 
   /** RECONECTAR o mesmo banco: renova a autorização sem criar outra conexão (nada duplica). */
@@ -555,6 +609,17 @@ export function TelaBanco({ limite, nomePlano }: { limite: number; nomePlano: st
     const j = abrirJanelaDoBanco(null);
     setOcupado("conectar");
     try {
+      const s = await criarSessaoBanco("", "");
+      if (s && "limite" in s) {
+        j?.fechar();
+        setRecado(s.limite);
+        return;
+      }
+      if (s) {
+        j?.irPara(s.url);
+        iniciar({ quando: Date.now(), banco: "", logo: null, url: s.url, cs: s.cs }, j);
+        return;
+      }
       const url = await urlParaConectar();
       if (!url) {
         j?.fechar();
@@ -604,6 +669,20 @@ export function TelaBanco({ limite, nomePlano }: { limite: number; nomePlano: st
     setOcupado("claim");
     setRecado(null);
     try {
+      if (pendente?.cs && !itemId) {
+        const s = await statusDaSessao(pendente.cs);
+        if (s.conectado) {
+          setOcupado(null);
+          await concluir(s.itemId ?? null, s.banco);
+          return;
+        }
+        setRecado(
+          s.status === "pending"
+            ? "O banco ainda não confirmou. Termine a autorização na janela do banco e toque em “Já autorizei” de novo."
+            : fraseDaSessao(s.status, s.mensagem),
+        );
+        return;
+      }
       const r = await reivindicar(itemId ? { itemId } : {});
       if (r.ok) {
         setOcupado(null);
@@ -985,9 +1064,14 @@ export function TelaBanco({ limite, nomePlano }: { limite: number; nomePlano: st
                     key={b.id || b.nome}
                     type="button"
                     onClick={() => abrirBanco(b)}
-                    className={`flex min-h-12 items-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-3 text-left text-sm font-semibold text-white transition-colors hover:border-ouro/50 ${ANEL}`}
+                    disabled={ocupado !== null}
+                    className={`flex min-h-12 items-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-3 text-left text-sm font-semibold text-white transition-colors hover:border-ouro/50 disabled:opacity-60 ${ANEL}`}
                   >
-                    <LogoBanco logo={b.logo} />
+                    {ocupado === `banco:${b.id}` ? (
+                      <Loader2 aria-hidden className="h-6 w-6 shrink-0 animate-spin text-ouro motion-reduce:animate-none" />
+                    ) : (
+                      <LogoBanco logo={b.logo} />
+                    )}
                     <span className="truncate">{b.nome}</span>
                   </button>
                 ))}

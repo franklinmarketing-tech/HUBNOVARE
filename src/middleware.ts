@@ -12,6 +12,6 @@ export const config = {
      * (webhooks e rotinas agendadas): nenhuma delas tem sessão de gente, e
      * cada passagem aqui era processamento cobrado à toa (21/11/2026).
      */
-    "/((?!_next/static|_next/image|favicon.ico|api/whatsapp/webhook|api/telegram/webhook|api/novarecash/hotmart|api/novarecash/kiwify|api/novarecash/lembretes|api/novarecash/openfinance/limpeza|.*\\.(?:svg|png|jpg|jpeg|gif|webp|avif|ico|pdf|mp4|webm|woff2?|txt|xml|webmanifest)$).*)",
+    "/((?!_next/static|_next/image|favicon.ico|api/whatsapp/webhook|api/telegram/webhook|api/novarecash/hotmart|api/novarecash/kiwify|api/novarecash/lembretes|api/novarecash/openfinance/limpeza|api/novarecash/openfinance/webhook|.*\\.(?:svg|png|jpg|jpeg|gif|webp|avif|ico|pdf|mp4|webm|woff2?|txt|xml|webmanifest)$).*)",
   ],
 };
