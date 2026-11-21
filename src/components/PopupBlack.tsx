@@ -370,7 +370,7 @@ export function PopupBlack() {
 
           <div className="mt-6 sm:mt-7">
             <Link
-              href={simulada ? `/novarecash?simular=${simulada}#planos` : "/novarecash#planos"}
+              href={simulada ? `/novarecash/previa?simular=${simulada}#planos` : "/novarecash#planos"}
               onClick={aceitar}
               aria-label={cta}
               className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-ouro px-7 text-sm font-black uppercase tracking-[0.06em] text-noite shadow-[0_14px_30px_-12px_hsl(42_74%_62%/0.7)] transition-transform hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white sm:w-auto"

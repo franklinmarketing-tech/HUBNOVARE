@@ -13,10 +13,9 @@
  *    não vê nada e a tela não trava. Medição que quebra produto é medição
  *    que vai ser arrancada na primeira sexta-feira.
  *
- * 2. **`keepalive`, e não `await`.** O evento costuma ser disparado quando a
- *    tela ABRE, e uma requisição comum morre se a pessoa navegar antes de
- *    ela terminar — justamente o caso de quem abre e sai, que é o que mais
- *    interessa medir.
+ * 2. **Nada de `await` no caminho da tela.** O evento sai em segundo plano
+ *    e a tela nunca espera por ele. (Até 21/11/2026 ia por `/api/uso` com
+ *    `keepalive`; agora vai direto ao Supabase — ver `gravarEvento`.)
  *
  * 3. ⚠️ **Nada de conteúdo.** Vai o slug do módulo e a ação, nunca o que foi
  *    digitado, nem valor, nem nome de arquivo. Do outro lado está o dinheiro
@@ -53,15 +52,42 @@ export function registrarUso(modulo: string, acao: AcaoUso = "abriu") {
     jaRegistrado.add(chave);
   }
 
-  try {
-    void fetch("/api/uso", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ modulo, acao }),
-      /* Sobrevive à navegação — ver a regra 2 no topo. */
-      keepalive: true,
-    }).catch(() => {});
-  } catch {
-    /* Silêncio de propósito: ver a regra 1. */
-  }
+  gravarEvento(modulo, acao);
+}
+
+/**
+ * ⚠️ DIRETO DO NAVEGADOR PARA O SUPABASE (21/11/2026).
+ *
+ * Até aqui todo evento passava pela rota `/api/uso` — e como TODA página
+ * aberta grava um "abriu", cada visita custava uma chamada de servidor na
+ * Vercel (a rota ainda perguntava ao Supabase quem era a pessoa). Com as
+ * páginas saindo prontas, isso virou quase todo o processamento que sobrava.
+ *
+ * A gravação é a MESMA que a rota fazia: mesma chave pública, mesma tabela,
+ * mesmas regras do banco (RLS, o check de `acao` e o gatilho
+ * `hub_eventos_barra_equipe`, que descarta a equipe pelo `usuario_id`). A
+ * rota nunca usou chave de servidor — ela só repassava.
+ *
+ * O que a rota tinha e isto não tem: o `keepalive` (regra 2). Para "abriu" e
+ * "usou" não faz falta — a pessoa continua na página. O clique que leva
+ * embora (botão de venda) segue pela rota, em `lib/medir.ts`, com `sendBeacon`.
+ *
+ * O cliente do Supabase entra por `import()` porque este arquivo também é
+ * lido pela rota (`ACOES_USO`), que roda no servidor.
+ */
+export function gravarEvento(modulo: string, acao: AcaoUso) {
+  const m = modulo.trim().slice(0, 60);
+  if (!m) return;
+  void (async () => {
+    try {
+      const { createClient } = await import("@/lib/supabase/client");
+      const sb = createClient();
+      const {
+        data: { session },
+      } = await sb.auth.getSession();
+      await sb.from("hub_eventos").insert({ usuario_id: session?.user?.id ?? null, modulo: m, acao });
+    } catch {
+      /* Silêncio de propósito: ver a regra 1. */
+    }
+  })();
 }

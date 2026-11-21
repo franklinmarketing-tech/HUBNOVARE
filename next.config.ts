@@ -16,6 +16,27 @@ const nextConfig: NextConfig = {
   distDir: process.env.NEXT_DIST_DIR || ".next",
 
   /**
+   * ⚠️ IMAGENS: MENOS TRABALHO DE SERVIDOR (21/11/2026).
+   *
+   * A otimização de imagem da Vercel é cobrada à parte, e cada "encolher
+   * esta imagem para este tamanho" conta. Com o padrão do Next a cópia
+   * otimizada valia só 60 segundos — a mesma imagem era refeita o dia todo.
+   *
+   *   • `minimumCacheTTL` de 7 dias: cada tamanho é feito uma vez por semana.
+   *     ⚠️ TROCOU UMA IMAGEM? TROQUE O NOME DO ARQUIVO (ou ponha `?v=2` no
+   *     src): com o mesmo nome, a versão antiga pode aparecer por até 7 dias.
+   *   • `deviceSizes` sem 750, 2048 e 3840: três tamanhos a menos por foto,
+   *     sem perda visível (tela 4K recebe a de 1920).
+   *
+   * NÃO é `unoptimized`: os ícones 3D em PNG têm 400–650 KB e o celular
+   * passaria a baixar o arquivo inteiro para desenhar 48px.
+   */
+  images: {
+    minimumCacheTTL: 60 * 60 * 24 * 7,
+    deviceSizes: [640, 828, 1080, 1200, 1920],
+  },
+
+  /**
    * O App Novare Planejamento Financeiro passou a ser construído aqui dentro,
    * em `/finplan`. Antes o Workspace apenas reescrevia `/vidaplan` para o
    * SPA publicado pelo Lovable — junto com `/assets/*`, `/icons/*` e
@@ -210,6 +231,17 @@ const nextConfig: NextConfig = {
         has: [{ type: "query", key: "categoria", value: "(?<categoria>[a-z-]+)" }],
         destination: "/novare-news/categoria/:categoria",
         permanent: true,
+      },
+
+      /* ── A PRÉVIA DA BLACK GANHOU ENDEREÇO PRÓPRIO (21/11/2026) ─────────
+         `/novarecash?simular=AAAA-MM-DD` obrigava a página de venda a ser
+         montada a cada visita; a prévia (só equipe) foi para
+         `/novarecash/previa`. 307: é ferramenta interna, não endereço público. */
+      {
+        source: "/novarecash",
+        has: [{ type: "query", key: "simular" }],
+        destination: "/novarecash/previa",
+        permanent: false,
       },
 
       /* ── OS PDFs DOS eBOOKS SAÍRAM DE /public (21/10/2026) ──────────────

@@ -1,4 +1,4 @@
-import type { AcaoUso } from "@/lib/uso";
+import { gravarEvento, type AcaoUso } from "@/lib/uso";
 import type { ModuloQuiz } from "@/lib/quiz-comeco";
 
 /**
@@ -10,7 +10,7 @@ import type { ModuloQuiz } from "@/lib/quiz-comeco";
  * e qual botão do `/novarecash` leva gente ao checkout. Sem isso, toda mudança
  * de texto ou de lugar é palpite.
  *
- * Vai para a MESMA tabela (`hub_eventos`, via `/api/uso`): só o nome do bloco
+ * Vai para a MESMA tabela (`hub_eventos`; o clique via `/api/uso`, o resto direto): só o nome do bloco
  * e a ação. ⚠️ NADA DE DADO PESSOAL NO EVENTO: nem e-mail, nem texto digitado,
  * nem preço, nem URL com parâmetro. O `usuario_id` de quem está logado é posto
  * pela rota, a partir da sessão (como em todo `hub_eventos`), e é ele que deixa
@@ -83,6 +83,16 @@ export function medir(modulo: ModuloMedido, acao: AcaoMedida): void {
     if (!localStorage.getItem(CHAVE_CONSENTIMENTO)) return;
   } catch {
     return; // sem storage não há como saber do aceite: não mede
+  }
+
+  /* ⚠️ 21/11/2026: só o CLIQUE passa pelo servidor. É o único evento que
+     costuma vir logo antes de a página ir embora (o botão que leva ao
+     checkout), e o `sendBeacon` garante a entrega mesmo assim. Janela que
+     abriu ou fechou grava direto do navegador (`gravarEvento`), sem custo de
+     servidor na Vercel. */
+  if (acao !== "clicou") {
+    gravarEvento(modulo, acao);
+    return;
   }
 
   const corpo = JSON.stringify({ modulo, acao });
