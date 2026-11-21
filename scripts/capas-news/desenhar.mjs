@@ -13,6 +13,8 @@
 // `*palavra*` no título sai em laranja. `x` empurra a arte para a direita quando o objeto dela
 // está no centro e ficaria embaixo do texto. `baixo` desce o texto quando a arte cruza o meio da capa.
 // `arte` reaproveita a arte de outro slug, para matéria nova sem gastar crédito de imagem.
+// `arquivo` troca o NOME do arquivo de saída: capa refeita precisa de nome novo, porque o cache de
+// imagens do site guarda cada endereço por 7 dias (next.config). O `capa` da matéria segue o nome.
 import { chromium } from "playwright";
 import sharp from "sharp";
 import { readFileSync, existsSync } from "node:fs";
@@ -23,6 +25,15 @@ const AQUI = dirname(fileURLToPath(import.meta.url));
 const RAIZ = join(AQUI, "..", "..");
 
 const CAPAS = {
+  // A leva de 21/11/2026: artes novas (Magnific), uma por matéria.
+  "nvidia-sem-o-fundador-o-que-o-preco-ja-embute": { chamada: "Sem Jensen Huang", titulo: "Nvidia: o que o preço *já embute*", x: 0 },
+  "acao-barata-pode-ser-armadilha-itau-e-banco-do-brasil": { chamada: "P/L de 8 vezes", titulo: "Quando a ação barata é *armadilha*", x: 40 },
+  "vendas-no-varejo-o-que-o-consumo-diz-sobre-os-juros": { chamada: "Varejo +0,2%", titulo: "O que o consumo diz sobre os *juros*", x: 40 },
+  "consultoria-de-investimentos-em-sumare": { chamada: "Como escolher", titulo: "Consultoria de investimentos em *Sumaré*", x: 240 },
+  "consultoria-de-investimentos-em-hortolandia": { chamada: "Antes de assinar", titulo: "Consultoria de investimentos em *Hortolândia*", x: 220 },
+  "o-que-faz-um-consultor-de-investimentos-independente": { chamada: "Sem comissão", titulo: "O que faz um consultor *independente*", x: 0 },
+  "gestao-patrimonial-o-que-e-quem-precisa": { chamada: "As 4 frentes", titulo: "Gestão patrimonial *não é só investir*", x: 160 },
+  "investir-pelo-btg-o-que-olhar-antes": { chamada: "Antes de abrir a conta", titulo: "Investir pelo BTG: *o que olhar*", x: 60 },
   // A quarta leva (03/11/2026) reaproveita artes já guardadas: ver `arte`.
   "bolsa-depois-da-eleicao-o-que-2014-ensina": { chamada: "Ibovespa −13,88% num dia", titulo: "O que *2014* ensina sobre a queda", x: 260, arte: "copom-pode-parar-de-cortar-a-selic" },
   "renda-fixa-depois-da-eleicao-juros-futuros-tesouro-e-cdi": { chamada: "Prefixado a 15,4%", titulo: "Renda fixa *depois da eleição*", x: 120, arte: "cdi-ganhou-de-tudo-desde-2021-e-agora" },
@@ -39,7 +50,8 @@ const CAPAS = {
   "prefixado-ou-ipca-em-ano-de-eleicao": { chamada: "Ano de eleição", titulo: "*Prefixado* ou *IPCA+*?", x: 300 },
   "voce-investe-ou-torce-politica-e-carteira": { chamada: "Política x carteira", titulo: "Você *investe* ou *torce*?", x: 200 },
   "copom-pode-parar-de-cortar-a-selic": { chamada: "IPCA 0,82% em setembro", titulo: "A Selic pode *parar de cair*", x: 260 },
-  "relatorio-focus-o-que-o-mercado-espera": { chamada: "Inflação 5,22%", titulo: "O que o mercado espera para *2026*", x: 220 },
+  // Refeita com o Focus de 16/11 (era "Inflação 5,22%" / "...para *2026*"), por isso o `arquivo` novo.
+  "relatorio-focus-o-que-o-mercado-espera": { chamada: "Selic 2027: 12,75%", titulo: "O que o mercado espera para os *juros*", x: 220, arquivo: "relatorio-focus-o-que-o-mercado-espera-2026-11-16" },
   "bolha-dos-mares-do-sul-o-erro-de-newton": { chamada: "Até Newton perdeu", titulo: "A bolha que enganou *um gênio*", x: 320 },
   "a-ia-vai-substituir-o-planejador-financeiro": { chamada: "IA x planejador", titulo: "A IA vai cuidar do *seu dinheiro*?", x: 160, baixo: true },
 };
@@ -94,7 +106,8 @@ for (const slug of slugs) {
   const altura = await pagina.evaluate(() => document.querySelector("#txt h1").getBoundingClientRect().height);
   if (altura > 92 * 1.02 * 4 + 4) throw new Error(`Título longo demais em "${slug}" (${Math.round(altura)}px)`);
   const png = await pagina.screenshot({ type: "png" });
-  await sharp(png).webp({ quality: 84 }).toFile(join(RAIZ, "public", "news", `${slug}.webp`));
-  console.log("ok", slug);
+  const saida = capa.arquivo ?? slug;
+  await sharp(png).webp({ quality: 84 }).toFile(join(RAIZ, "public", "news", `${saida}.webp`));
+  console.log("ok", saida);
 }
 await navegador.close();

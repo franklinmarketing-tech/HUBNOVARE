@@ -193,6 +193,529 @@ export type Artigo = {
 };
 
 export const ARTIGOS: Artigo[] = [
+  /* ── A LEVA DE 21/11/2026: três da Nord + cinco do site da Novare ────────
+     O Jefferson pediu para "subir no Hub" quatro matérias da Nord e cinco
+     textos do site novareinvestimentos.com.
+
+     ⚠️ NORD: a regra de sempre — texto da Novare, números creditados em
+     `fonte`. A Nord dá nota às ações ("Neutra" para a Nvidia; "preferência"
+     por um dos bancos) e isso NÃO entra: recomendar ação é atividade de
+     analista credenciado na CVM. As duas viraram explicador (P/L de hoje ×
+     P/L projetado; armadilha de valor). A renúncia de Jensen Huang entra
+     como fato, sem os detalhes pessoais do caso. O Focus não virou matéria
+     nova: a de 19/10 foi ATUALIZADA (ver `atualizado` nela).
+
+     ⚠️ SITE DA NOVARE: RESUMO + LINK, NUNCA O TEXTO INTEIRO. O mesmo texto
+     nos dois sites faria o Hub competir no Google com o próprio site —
+     justamente nas páginas de Sumaré e Hortolândia, feitas para a busca
+     local. O guia completo fica lá (bloco `cta` + `fonte`).
+
+     ⚠️ O site descreve a relação com a CVM de jeitos diferentes (Sumaré:
+     "autorizada pela CVM"; outras: "parceira contratual da Nord Wealth").
+     Aqui não se afirma registro da Novare: fala-se da regra (consultoria é
+     regulada pela CVM, confira o cadastro) e da parceria com a Nord, como no
+     resto do Hub. Números sem fonte do site (o custo médio de "1,30% ao ano",
+     o crescimento de 22% da categoria) ficaram de fora. */
+  {
+    slug: "nvidia-sem-o-fundador-o-que-o-preco-ja-embute",
+    titulo: "Nvidia sem o fundador: o que o preço da ação já embute",
+    resumo:
+      "Jensen Huang deixou o comando da Nvidia em 11 de novembro. Para entender o que muda para a ação, vale olhar duas contas que dizem coisas bem diferentes: o lucro de hoje e o lucro que o mercado espera.",
+    categoria: "investimentos",
+    tags: ["bolsa", "inteligencia-artificial", "economia-americana"],
+    data: "2026-11-21",
+    tempoLeituraMin: 5,
+    capa: "/news/nvidia-sem-o-fundador-o-que-o-preco-ja-embute.webp",
+    corpo: [
+      "Em 11 de novembro, Jensen Huang renunciou ao cargo de CEO e à cadeira no conselho da Nvidia, a empresa que cofundou em 1993 e que virou a principal fornecedora de chips para inteligência artificial. A saída do fundador de uma empresa desse tamanho levanta a pergunta que todo investidor faz nessas horas: a ação ficou barata ou cara?",
+      "A resposta depende de qual lucro você coloca na conta.",
+      { tipo: "titulo", texto: "Da placa de vídeo ao centro da IA" },
+      "Em poucos anos, a empresa que fazia placas de vídeo para games passou a vender o equipamento que treina e roda os modelos de inteligência artificial. Os números mostram o tamanho da virada:",
+      {
+        tipo: "tabela",
+        cabecalho: ["", "2022", "2026"],
+        linhas: [
+          ["Receita", "US$ 26,9 bi", "US$ 215,9 bi"],
+          ["Lucro operacional", "US$ 10,0 bi", "US$ 130,4 bi"],
+          ["Margem operacional", "37,3%", "60,4%"],
+        ],
+        legenda: "Anos fiscais da Nvidia. Dados compilados pela Nord Investimentos.",
+      },
+      { tipo: "titulo", texto: "Duas contas, duas respostas" },
+      "O indicador mais usado para dizer se uma ação está cara é o P/L: o preço da ação dividido pelo lucro por ação. Um P/L de 30 quer dizer, grosso modo, que o preço equivale a 30 anos do lucro atual.",
+      "Pelo lucro do ano fiscal de 2026, já realizado, a Nvidia negocia a cerca de 34,8 vezes. Pelo lucro que os analistas esperam para o ano seguinte, a cerca de 17,8 vezes — e o múltiplo cai ainda mais nos anos depois, porque a projeção é de lucro crescendo muito rápido.",
+      {
+        tipo: "tabela",
+        cabecalho: ["Ano fiscal", "Lucro líquido ajustado", "P/L aproximado"],
+        linhas: [
+          ["2026 (realizado)", "US$ 117 bi", "34,8x"],
+          ["2027 (projeção)", "US$ 227 bi", "17,8x"],
+          ["2028 (projeção)", "US$ 382 bi", "10,5x"],
+          ["2029 (projeção)", "US$ 509 bi", "7,8x"],
+        ],
+        legenda: "Projeções do consenso de mercado (Bloomberg), com cálculos da Nord. Projeção não é garantia.",
+      },
+      { tipo: "destaque", texto: "Uma ação que parece barata pelo lucro de amanhã só é barata se o amanhã acontecer. O P/L projetado já embute o crescimento — e cobra caro se ele não vier." },
+      { tipo: "titulo", texto: "O que pode fazer a projeção não se confirmar" },
+      {
+        tipo: "lista",
+        itens: [
+          "Clientes virando concorrentes: Google, Amazon e Microsoft, que estão entre os maiores compradores, desenvolvem chips próprios.",
+          "A vantagem do software: parte da força da Nvidia está no CUDA, o conjunto de ferramentas que prende os programadores aos chips dela. Num teste citado pela Nord, a Anthropic adaptou o seu modelo de IA, o Claude, a chips da AMD em cerca de três dias — trabalho que levaria de 6 a 12 meses pelo caminho tradicional. Se essa barreira cair, a concorrência fica mais fácil.",
+          "A troca de comando: a saída do fundador traz risco de execução, mesmo numa empresa com estrutura grande.",
+          "O retorno dos data centers: as empresas estão investindo fortunas em infraestrutura de IA. Se esse dinheiro demorar a dar retorno, as encomendas podem desacelerar.",
+        ],
+      },
+      { tipo: "titulo", texto: "O que levar disso para qualquer ação" },
+      "A Nvidia é um bom exemplo de uma regra que vale para qualquer empresa: o preço de hoje já carrega uma aposta sobre o futuro. A pergunta útil não é “a empresa é boa?” — quase sempre é — e sim “quanto do futuro já está no preço, e o que acontece se ele vier menor?”.",
+      "Este texto não é recomendação de compra ou venda. Ação de uma única empresa, ainda mais em outra moeda, pede que se pense também no tamanho da posição dentro da carteira.",
+    ],
+    ferramenta: {
+      slug: "consultoria-revisao-carteira",
+      nome: "Pedir uma análise independente da carteira",
+      href: "https://diagnostico.novareapp.com.br/carteira-pontual",
+      externo: true,
+    },
+    fonte: {
+      nome: "Nord Investimentos",
+      titulo: "Nvidia (NVDA) sem Jensen Huang: vale comprar as ações?",
+      href: "https://www.nordinvestimentos.com.br/blog/nvidia-nvda-sem-jensen-huang-vale-comprar-as-acoes/",
+      data: "2026-11-15",
+    },
+  },
+  {
+    slug: "acao-barata-pode-ser-armadilha-itau-e-banco-do-brasil",
+    titulo: "Ação barata pode ser armadilha: o que os balanços do Itaú e do Banco do Brasil ensinam",
+    resumo:
+      "O Banco do Brasil negocia a cerca de 8 vezes o lucro, abaixo do Itaú. Parece pechincha — até você olhar o que aconteceu com o lucro no trimestre.",
+    categoria: "investimentos",
+    tags: ["bolsa", "comportamento"],
+    data: "2026-11-21",
+    tempoLeituraMin: 5,
+    capa: "/news/acao-barata-pode-ser-armadilha-itau-e-banco-do-brasil.webp",
+    corpo: [
+      "Itaú Unibanco (ITUB4) e Banco do Brasil (BBAS3) estão entre as ações mais comuns na carteira do investidor brasileiro, e os dois acabam de divulgar os resultados do 3º trimestre de 2026. Pelo preço, o Banco do Brasil parece o mais barato dos dois. Pelo balanço, a história é outra.",
+      { tipo: "titulo", texto: "O trimestre lado a lado" },
+      {
+        tipo: "tabela",
+        cabecalho: ["3º trimestre de 2026", "Itaú", "Banco do Brasil"],
+        linhas: [
+          ["Lucro líquido", "R$ 12,6 bi (+6%)", "R$ 1,27 bi (−66,5%)"],
+          ["Retorno sobre o patrimônio (ROE)", "23,6%", "2,8%"],
+          ["Inadimplência", "2,0%", "6,08%"],
+          ["Carteira de crédito", "R$ 1,54 tri (+10%)", "R$ 1,31 tri (+2%)"],
+          ["Projeção de lucro para 2026", "Mantida", "Cortada: de R$ 18–22 bi para R$ 9–11 bi"],
+        ],
+        legenda: "Variações contra o mesmo trimestre de 2025; inadimplência pelo critério que cada banco divulga. Dados dos bancos, compilados pela Nord Investimentos.",
+      },
+      "No Banco do Brasil, o problema veio do crédito: a inadimplência chegou a 6,92% no agronegócio e a 9,14% na pessoa física, e o banco precisou reservar muito mais dinheiro para cobrir perdas. Com isso, também reduziu a parte do lucro que distribui aos acionistas (de 30% para 25% em 2026 e 2027) e cancelou os proventos previstos para novembro.",
+      { tipo: "titulo", texto: "Por que o P/L baixo engana" },
+      "O P/L compara o preço da ação com o lucro. O Banco do Brasil negocia a cerca de 8 vezes o lucro e à metade do valor patrimonial (P/VP de 0,5); o Itaú, a cerca de 9 vezes. Pela régua, um parece mais barato que o outro.",
+      "Só que o P/L usa um lucro que pode estar mudando. Se o lucro cai pela metade, o mesmo preço passa a equivaler ao dobro de anos de lucro — e o “barato” some. É o que o mercado chama de armadilha de valor (value trap): a ação parece barata porque o negócio está piorando, e não porque o mercado se esqueceu dela.",
+      { tipo: "destaque", texto: "Barato e caro não estão no preço. Estão na relação entre o preço e o que a empresa vai conseguir lucrar daqui para a frente." },
+      { tipo: "titulo", texto: "O que olhar antes do múltiplo" },
+      {
+        tipo: "lista",
+        ordenada: true,
+        itens: [
+          "O lucro está subindo, estável ou caindo? Múltiplo baixo com lucro em queda é sinal de alerta, não de oportunidade.",
+          "O ROE: quanto a empresa gera de lucro sobre o próprio patrimônio. 23,6% e 2,8% são negócios em momentos muito diferentes.",
+          "A qualidade do crédito, no caso de bancos: inadimplência subindo costuma vir antes de lucro caindo.",
+          "O que a própria empresa projeta: corte de projeção é a empresa dizendo que o ano vai ser pior do que ela imaginava.",
+          "Os dividendos: rendimento alto calculado sobre dividendos que podem ser cortados é promessa, não fato.",
+        ],
+      },
+      "Nada disso diz qual ação comprar ou vender, e este texto não faz essa recomendação. O ponto é outro: preço baixo é o começo da análise, não a conclusão.",
+    ],
+    ferramenta: {
+      slug: "consultoria-revisao-carteira",
+      nome: "Pedir uma análise independente da carteira",
+      href: "https://diagnostico.novareapp.com.br/carteira-pontual",
+      externo: true,
+    },
+    fonte: {
+      nome: "Nord Investimentos",
+      titulo: "Itaú (ITUB4) ou Banco do Brasil (BBAS3): qual banco é melhor para investir?",
+      href: "https://www.nordinvestimentos.com.br/blog/itub4-ou-bbas3-qual-banco-e-melhor-para-investir/",
+      data: "2026-11-14",
+    },
+  },
+  {
+    slug: "vendas-no-varejo-o-que-o-consumo-diz-sobre-os-juros",
+    titulo: "Varejo sobe 0,2% em setembro: o que o consumo diz sobre os juros",
+    resumo:
+      "As vendas no varejo surpreenderam: o mercado esperava queda e veio alta. Por dentro, porém, o número mostra um consumo andando de lado — e não muda a expectativa para a Selic.",
+    categoria: "investimentos",
+    tags: ["indicadores", "selic-e-juros"],
+    data: "2026-11-21",
+    tempoLeituraMin: 4,
+    capa: "/news/vendas-no-varejo-o-que-o-consumo-diz-sobre-os-juros.webp",
+    corpo: [
+      "Todo mês o IBGE publica a Pesquisa Mensal de Comércio, a PMC, que mede quanto o varejo vendeu, já descontada a inflação. É um dos termômetros mais diretos do consumo das famílias — e consumo é o que o Banco Central observa para saber se a economia está aquecida demais para os juros caírem.",
+      { tipo: "titulo", texto: "O que veio em setembro" },
+      "As vendas subiram 0,2% em relação a agosto, quando o mercado esperava queda de 0,4%. Contra setembro do ano passado, a alta foi de 1,7%. Cinco das oito atividades pesquisadas cresceram.",
+      {
+        tipo: "tabela",
+        cabecalho: ["Atividade", "Setembro (contra agosto)"],
+        linhas: [
+          ["Informática e comunicação", "+7,6%"],
+          ["Combustíveis", "+2,8%"],
+          ["Vestuário e calçados", "+2,5%"],
+          ["Supermercados", "−0,5%"],
+          ["Móveis e eletrodomésticos", "−2,6%"],
+        ],
+        legenda: "Pesquisa Mensal de Comércio (IBGE), setembro de 2026: as principais altas e quedas.",
+      },
+      "Móveis e eletrodomésticos caíram pela terceira vez seguida — o IBGE atribui parte disso ao fechamento de lojas físicas — e, em 12 meses, recuam 12,3%, a maior queda desde 2022. Supermercados também caíram pelo terceiro mês.",
+      { tipo: "titulo", texto: "Surpresa boa, consumo de lado" },
+      "A alta veio acima do esperado, mas é pequena. O varejo acumula 1,7% de crescimento em 2026 e segue 1% abaixo do recorde de março: as altas de agosto e setembro recuperaram menos da metade do que se perdeu em julho. No varejo ampliado, que inclui veículos e material de construção, a alta do mês também foi de 0,2%, com veículos caindo 1,5% e material de construção, 4,6%.",
+      { tipo: "destaque", texto: "Os setores que dependem de crédito — móveis, eletrodomésticos, veículos, construção — são os que mais caem. É o juro alto aparecendo onde se compra a prazo." },
+      { tipo: "titulo", texto: "E os juros?" },
+      "Na reunião de 4 de novembro, o Copom interrompeu os cortes e manteve a Selic em 13,75%, com a inflação projetada para 2026 ainda acima do teto da meta. O mercado não espera novos cortes neste ano, e um varejo andando de lado não muda essa leitura. A próxima decisão é em 9 de dezembro.",
+      "Para quem investe, juro parado em patamar alto mantém o pós-fixado rendendo bem por mais tempo. Para quem pensa em financiar uma compra grande, o recado é o oposto: o crédito segue caro.",
+    ],
+    ferramenta: {
+      slug: "calendario-economico",
+      nome: "Ver as datas do Copom e dos próximos indicadores",
+      href: "/calendario-economico",
+    },
+    fonte: {
+      nome: "Nord Investimentos",
+      titulo: "Vendas no varejo sobem 0,2% em setembro e contrariam expectativa de queda, mostra IBGE",
+      href: "https://www.nordinvestimentos.com.br/blog/vendas-no-varejo-hoje/",
+      data: "2026-11-13",
+    },
+  },
+  {
+    slug: "consultoria-de-investimentos-em-sumare",
+    titulo: "Consultoria de investimentos em Sumaré: como escolher e o que perguntar antes de contratar",
+    resumo:
+      "Muita gente que já juntou patrimônio em Sumaré ainda decide tudo com o gerente do banco. Um guia curto do que separa consultoria de venda de produto — e das perguntas que mostram de que lado o profissional está.",
+    categoria: "investimentos",
+    tags: ["consultoria-independente", "planejamento-financeiro"],
+    data: "2026-11-21",
+    tempoLeituraMin: 4,
+    capa: "/news/consultoria-de-investimentos-em-sumare.webp",
+    corpo: [
+      "Sumaré é uma das maiores cidades da Região Metropolitana de Campinas, com uma economia movida por indústria, comércio e muitos pequenos e médios empresários. Mesmo assim, boa parte de quem já juntou patrimônio na cidade tem um único conselheiro financeiro: o gerente do banco.",
+      "Nada contra o gerente. O ponto é o arranjo: quem é remunerado pela instituição que fabrica o produto tem um incentivo embutido na recomendação.",
+      { tipo: "titulo", texto: "Consultor, assessor e gerente não são a mesma coisa" },
+      {
+        tipo: "lista",
+        itens: [
+          "Gerente de banco: funcionário da instituição, oferece os produtos da casa e costuma ter metas de venda.",
+          "Assessor de investimentos: representa uma corretora e pode ser remunerado pelos produtos que distribui.",
+          "Consultor de investimentos: analisa o seu caso e recomenda o que faz sentido para o seu objetivo. No modelo sem comissão (fee-only), é pago só por você.",
+        ],
+      },
+      { tipo: "titulo", texto: "Como contratar, em seis passos" },
+      {
+        tipo: "lista",
+        ordenada: true,
+        itens: [
+          "Confira o registro: consultoria de valores mobiliários é atividade regulada pela CVM, e o cadastro de quem pode exercê-la é público, no site da CVM.",
+          "Pergunte como o profissional é remunerado — e se recebe algo de banco, corretora ou emissor.",
+          "Peça a análise de perfil (suitability): recomendação feita sem conhecer o seu perfil de risco e o seu prazo não é recomendação.",
+          "Entenda o que está incluído: só a carteira, ou também imposto, sucessão e planejamento?",
+          "Compare duas ou três opções. O diagnóstico inicial costuma ser gratuito.",
+          "Leia o contrato com atenção: escopo, custo e como encerrar.",
+        ],
+      },
+      {
+        tipo: "cta",
+        titulo: "O guia completo está no site da Novare",
+        texto: "Com o que perguntar antes de fechar, a diferença entre atendimento presencial e por vídeo e um capítulo para o empresário de Sumaré.",
+        href: "https://novareinvestimentos.com/consultoria-de-investimentos-em-sumare/",
+        rotulo: "Ler o guia completo",
+      },
+      { tipo: "titulo", texto: "Para o empresário, o cuidado é dobrado" },
+      "Quem tem empresa costuma misturar o caixa do negócio com o dinheiro da família. Antes de escolher investimento, vale separar as duas coisas, montar uma reserva pessoal proporcional à oscilação do faturamento e acertar com o contador como o dinheiro sai da empresa: pró-labore ou distribuição de lucros.",
+      { tipo: "destaque", texto: "A primeira pergunta para qualquer consultor não é quanto ele rende. É quem paga o salário dele." },
+      "Presencial ou por vídeo, a qualidade da consultoria está no método e na independência, não na distância. A Novare atende Sumaré e região nos dois formatos, sem comissão de banco ou corretora.",
+    ],
+    ferramenta: {
+      slug: "consultoria-diagnostico",
+      nome: "Agendar o diagnóstico gratuito",
+      href: "https://diagnostico.novareapp.com.br/gratuito",
+      externo: true,
+    },
+    fonte: {
+      nome: "Novare Investimentos",
+      titulo: "Consultoria de Investimentos em Sumaré: Como Contratar?",
+      href: "https://novareinvestimentos.com/consultoria-de-investimentos-em-sumare/",
+      data: "2026-10-13",
+    },
+  },
+  {
+    slug: "consultoria-de-investimentos-em-hortolandia",
+    titulo: "Consultoria de investimentos em Hortolândia: o que verificar antes de contratar",
+    resumo:
+      "A cidade cresceu e o patrimônio das famílias também, mas a oferta de consultoria independente na região ainda é pequena. O que olhar para não trocar um vendedor por outro.",
+    categoria: "investimentos",
+    tags: ["consultoria-independente", "planejamento-financeiro"],
+    data: "2026-11-21",
+    tempoLeituraMin: 4,
+    capa: "/news/consultoria-de-investimentos-em-hortolandia.webp",
+    corpo: [
+      "Hortolândia, emancipada de Sumaré em 1991, tem cerca de 250 mil habitantes e um PIB por pessoa acima da média do estado de São Paulo, segundo o IBGE. É uma cidade de renda formal, indústria e serviços — e de muita gente que já acumulou algum patrimônio sem nunca ter tido um plano para ele.",
+      { tipo: "titulo", texto: "O custo que não aparece no extrato" },
+      "Quem investe pelo banco ou por assessor comissionado costuma pagar mais do que imagina: taxa de administração de fundos, taxa de performance e a remuneração que a instituição recebe por distribuir o produto. Nada disso chega como boleto — sai do rendimento.",
+      "Desde novembro de 2024, a Resolução CVM 179 obriga as instituições a informar quanto ganham com os valores mobiliários que você compra por elas. Vale ler esse extrato com atenção, porque ele mostra o tamanho do custo embutido. Só que nem tudo entra: CDB, LCI e LCA ficam fora dessa regra.",
+      { tipo: "titulo", texto: "Três formas de pagar uma consultoria" },
+      {
+        tipo: "lista",
+        itens: [
+          "Percentual sobre o patrimônio, em geral entre 0,5% e 1,5% ao ano.",
+          "Valor fixo mensal, mais comum para quem ainda está construindo patrimônio.",
+          "Por hora ou por projeto, para uma decisão pontual, como revisar a carteira ou planejar uma venda.",
+        ],
+      },
+      "Qualquer que seja o formato, o que importa é que o valor seja claro, combinado por escrito, e que seja o único — sem comissão escondida do outro lado.",
+      {
+        tipo: "cta",
+        titulo: "O guia completo está no site da Novare",
+        texto: "Com a comparação entre gerente, assessor e consultor, as etapas do atendimento e para quem a consultoria faz mais sentido em Hortolândia.",
+        href: "https://novareinvestimentos.com/consultoria-de-investimentos-em-hortolandia/",
+        rotulo: "Ler o guia completo",
+      },
+      { tipo: "titulo", texto: "O que verificar antes de assinar" },
+      {
+        tipo: "lista",
+        ordenada: true,
+        itens: [
+          "O registro na CVM de quem presta a consultoria — a consulta é pública, no site da CVM.",
+          "Como o profissional é remunerado, por escrito, e se recebe algo de terceiros.",
+          "Se a recomendação vem depois de um diagnóstico do seu perfil, dos seus objetivos e do seu fluxo de caixa — e não antes.",
+          "Se as ordens dependem da sua aprovação. O consultor recomenda; quem decide e executa é você, na corretora que escolher.",
+        ],
+      },
+      { tipo: "destaque", texto: "Trocar o gerente por um consultor comissionado é trocar um vendedor por outro. O que muda o jogo é quem paga a conta da recomendação." },
+      "A Novare atende Hortolândia presencialmente, na Rua Carlos Roberto de Mello, 475, sala 503, ou por vídeo, sem comissão de banco ou corretora.",
+    ],
+    ferramenta: {
+      slug: "consultoria-diagnostico",
+      nome: "Agendar o diagnóstico gratuito",
+      href: "https://diagnostico.novareapp.com.br/gratuito",
+      externo: true,
+    },
+    fonte: {
+      nome: "Novare Investimentos",
+      titulo: "Consultoria de Investimentos em Hortolândia: Guia para Investir com Estratégia na RMC",
+      href: "https://novareinvestimentos.com/consultoria-de-investimentos-em-hortolandia/",
+      data: "2026-11-06",
+    },
+  },
+  {
+    slug: "o-que-faz-um-consultor-de-investimentos-independente",
+    titulo: "O que faz um consultor de investimentos independente — e como reconhecer um de verdade",
+    resumo:
+      "Não vende produto, não executa ordem e não ganha comissão. Então o que ele entrega? Seis coisas — e três perguntas que separam o independente de verdade de quem só usa a palavra.",
+    categoria: "investimentos",
+    tags: ["consultoria-independente", "planejamento-financeiro"],
+    data: "2026-11-21",
+    tempoLeituraMin: 4,
+    capa: "/news/o-que-faz-um-consultor-de-investimentos-independente.webp",
+    corpo: [
+      "“Independente” virou palavra de propaganda no mercado financeiro. Na prática, quer dizer uma coisa bem específica: o consultor não tem vínculo com banco, corretora ou distribuidora, e é pago só pelo cliente. A consultoria de valores mobiliários é uma atividade regulada pela CVM, pela Resolução CVM 19.",
+      "Isso também define o que ele não faz: não vende produto e não executa ordens. Quem compra e vende é você, na corretora que escolher, a partir da recomendação.",
+      { tipo: "titulo", texto: "O que ele entrega" },
+      {
+        tipo: "lista",
+        ordenada: true,
+        itens: [
+          "Diagnóstico do patrimônio inteiro: onde está cada real, quanto custa e quanto rende de verdade.",
+          "Plano com objetivos concretos — aposentadoria, imóvel, estudo dos filhos —, cada um com prazo e valor.",
+          "Escolha de produtos sem conflito: o critério é o seu objetivo, não a comissão que o produto paga.",
+          "Revisão periódica: a carteira muda porque a vida muda, e porque o mercado muda.",
+          "Olhar tributário integrado à carteira, junto com o contador.",
+          "Planejamento sucessório, para quem precisa, junto com o advogado.",
+        ],
+      },
+      { tipo: "titulo", texto: "Consultor ou assessor?" },
+      {
+        tipo: "tabela",
+        cabecalho: ["", "Assessor de investimentos", "Consultor independente"],
+        linhas: [
+          ["Representa", "A corretora", "O cliente"],
+          ["Quem paga", "Comissões dos produtos e da corretora", "Só o cliente"],
+          ["Vende produto", "Sim", "Não"],
+          ["Ordens", "Pode transmiti-las à corretora", "Não executa: o cliente executa"],
+        ],
+        legenda: "As duas são atividades regulamentadas pela CVM. A diferença está em quem remunera — e, portanto, em para quem o profissional trabalha.",
+      },
+      {
+        tipo: "cta",
+        titulo: "O texto completo está no site da Novare",
+        texto: "Com para quem o consultor independente faz mais sentido — empresário, profissional liberal, quem recebeu uma herança — e o que o crescimento da categoria diz sobre o mercado.",
+        href: "https://novareinvestimentos.com/o-que-um-consultor-de-investimento-independente-faz/",
+        rotulo: "Ler o texto completo",
+      },
+      { tipo: "titulo", texto: "Três perguntas para reconhecer um de verdade" },
+      {
+        tipo: "lista",
+        ordenada: true,
+        itens: [
+          "Qual é o seu registro na CVM? A consulta é pública e leva um minuto no site da CVM.",
+          "Como você é remunerado, e recebe algo de quem emite ou distribui os produtos que recomenda?",
+          "Posso ver o contrato antes de qualquer recomendação?",
+        ],
+      },
+      { tipo: "destaque", texto: "Independente de verdade é quem responde às três perguntas sem rodeio — e põe as respostas no contrato." },
+      "A Novare trabalha nesse modelo: sem comissão de banco, corretora ou seguradora, e com a parceria de research da Nord Investimentos.",
+    ],
+    ferramenta: {
+      slug: "consultoria-diagnostico",
+      nome: "Agendar o diagnóstico gratuito",
+      href: "https://diagnostico.novareapp.com.br/gratuito",
+      externo: true,
+    },
+    fonte: {
+      nome: "Novare Investimentos",
+      titulo: "O que um Consultor de Investimento Independente Faz?",
+      href: "https://novareinvestimentos.com/o-que-um-consultor-de-investimento-independente-faz/",
+      data: "2026-10-21",
+    },
+  },
+  {
+    slug: "gestao-patrimonial-o-que-e-quem-precisa",
+    titulo: "Gestão patrimonial: o que é, quem precisa e como contratar sem errar",
+    resumo:
+      "Não é só para quem tem R$ 10 milhões, e não é o mesmo que escolher investimentos. É olhar tudo junto — bens, dívidas, impostos e sucessão — antes que os pedaços comecem a brigar entre si.",
+    categoria: "investimentos",
+    tags: ["planejamento-financeiro", "consultoria-independente"],
+    data: "2026-11-21",
+    tempoLeituraMin: 5,
+    capa: "/news/gestao-patrimonial-o-que-e-quem-precisa.webp",
+    corpo: [
+      "Gestão patrimonial é cuidar do patrimônio como um todo: investimentos, imóveis, empresa, dívidas, impostos e o que acontece com tudo isso numa sucessão. A gestão de investimentos é uma parte dela — a mais visível, mas não a única.",
+      { tipo: "titulo", texto: "As quatro frentes" },
+      {
+        tipo: "lista",
+        itens: [
+          "Proteção: reserva, seguros e liquidez para não precisar vender no pior momento.",
+          "Crescimento: a carteira de investimentos, alinhada a objetivos e prazos.",
+          "Eficiência fiscal: pagar o imposto certo, na hora certa, pela estrutura certa.",
+          "Sucessão: decidir antes como o patrimônio passa adiante, em vez de deixar a decisão para um inventário.",
+        ],
+      },
+      { tipo: "titulo", texto: "Erros que aparecem quando ninguém olha o conjunto" },
+      {
+        tipo: "lista",
+        itens: [
+          "Patrimônio espalhado em vários bancos, sem ninguém enxergando o total.",
+          "Renda que cresce sem estrutura fiscal: paga-se mais imposto do que o necessário.",
+          "Renda que oscila sem planejamento de liquidez.",
+          "Imóvel tratado como investimento sem a conta real: um imóvel de R$ 500 mil alugado por R$ 2.000 rende 0,4% ao mês — antes do imposto, da manutenção e dos meses vazio.",
+          "Sucessão deixada para depois.",
+          "Produto financeiro vendido com o nome de gestão patrimonial.",
+        ],
+      },
+      {
+        tipo: "cta",
+        titulo: "O guia completo está no site da Novare",
+        texto: "Com cada modelo de gestão patrimonial em detalhe, os cinco passos para contratar e as perguntas mais frequentes sobre o serviço.",
+        href: "https://novareinvestimentos.com/gestao-patrimonial/",
+        rotulo: "Ler o guia completo",
+      },
+      { tipo: "titulo", texto: "Os modelos e para quem servem" },
+      {
+        tipo: "tabela",
+        cabecalho: ["Modelo", "Patrimônio mínimo usual", "Como é pago"],
+        linhas: [
+          ["Banco private", "De R$ 3 a 10 milhões", "Taxas e spreads embutidos nos produtos"],
+          ["Family office", "De R$ 20 a 30 milhões", "Taxa da estrutura"],
+          ["Assessor de investimentos", "Nenhum", "Comissão dos produtos"],
+          ["Consultoria independente", "Em geral, nenhum", "Só pelo cliente: percentual ou valor fixo"],
+        ],
+        legenda: "Faixas aproximadas, que variam de instituição para instituição.",
+      },
+      { tipo: "titulo", texto: "Como contratar sem errar" },
+      {
+        tipo: "lista",
+        ordenada: true,
+        itens: [
+          "Entenda como o profissional é remunerado, antes de tudo.",
+          "Exija um diagnóstico antes de qualquer recomendação de produto.",
+          "Confira se o trabalho vai além dos investimentos: imposto, imóveis, sucessão.",
+          "Confirme se ele pode recomendar produtos de qualquer instituição.",
+          "Peça clareza total sobre custo e entregas, por escrito.",
+        ],
+      },
+      { tipo: "destaque", texto: "Quem cuida de um pedaço do patrimônio otimiza o pedaço. A gestão patrimonial existe para que alguém otimize o todo." },
+      "Na Novare, a frente de investimentos é feita pela casa, sem comissão, e as frentes tributária, jurídica e imobiliária são coordenadas com especialistas de cada área.",
+    ],
+    ferramenta: {
+      slug: "consultoria-diagnostico",
+      nome: "Agendar o diagnóstico gratuito",
+      href: "https://diagnostico.novareapp.com.br/gratuito",
+      externo: true,
+    },
+    fonte: {
+      nome: "Novare Investimentos",
+      titulo: "Gestão Patrimonial para Investidores: o Que É, Quem Precisa e Como Contratar Sem Errar",
+      href: "https://novareinvestimentos.com/gestao-patrimonial/",
+      data: "2026-11-06",
+    },
+  },
+  {
+    slug: "investir-pelo-btg-o-que-olhar-antes",
+    titulo: "Investir pelo BTG: o que a plataforma oferece e o que olhar antes",
+    resumo:
+      "Banco grande, prateleira enorme, renda fixa forte. Antes de abrir a conta, vale entender três pontos que quase ninguém explica — e por que a plataforma não responde a pergunta mais importante.",
+    categoria: "investimentos",
+    tags: ["renda-fixa", "consultoria-independente"],
+    data: "2026-11-21",
+    tempoLeituraMin: 4,
+    capa: "/news/investir-pelo-btg-o-que-olhar-antes.webp",
+    corpo: [
+      "O BTG Pactual é um dos maiores bancos de investimento da América Latina e uma das plataformas mais completas do país para quem investe. A pergunta “vale a pena investir pelo BTG?” é comum, e a resposta honesta é que ela depende menos do banco e mais do que você vai fazer lá dentro.",
+      { tipo: "titulo", texto: "O que a plataforma oferece" },
+      {
+        tipo: "lista",
+        itens: [
+          "Renda fixa: CDBs do próprio banco — pós-fixados, prefixados e atrelados à inflação — e acesso a CRIs, CRAs e debêntures.",
+          "Fundos: centenas de fundos da gestora do banco e de outras casas.",
+          "Fundos imobiliários e ações na B3.",
+          "Conta em dólar para investir no exterior.",
+        ],
+      },
+      { tipo: "titulo", texto: "Três pontos de atenção" },
+      {
+        tipo: "lista",
+        ordenada: true,
+        itens: [
+          "O modelo de assessoria: o assessor ligado à plataforma pode ser remunerado pelos produtos que distribui, como fundos, previdência e seguros. Não é ilegal nem desonesto — mas é um incentivo que vale conhecer.",
+          "Banco grande paga menos: o CDB de um banco do porte do BTG costuma render menos que o de bancos menores. A diferença existe porque o risco é diferente.",
+          "Prateleira grande confunde: quanto mais opções, mais fácil escolher pelo rótulo, e não pelo objetivo.",
+        ],
+      },
+      "Sobre o risco, vale saber o que o FGC cobre: CDBs, LCIs e LCAs, até R$ 250 mil por CPF em cada instituição, com limite total de R$ 1 milhão a cada quatro anos. Fundos, ações e debêntures ficam de fora — nesses, o risco é do próprio investimento.",
+      {
+        tipo: "cta",
+        titulo: "A análise completa está no site da Novare",
+        texto: "Com os detalhes da renda fixa, dos fundos e da conta global, e as perguntas mais frequentes sobre investir pelo BTG.",
+        href: "https://novareinvestimentos.com/vale-a-pena-investir-no-banco-btg/",
+        rotulo: "Ler a análise completa",
+      },
+      { tipo: "titulo", texto: "Plataforma e consultoria fazem coisas diferentes" },
+      "A plataforma é onde o dinheiro fica e por onde as ordens passam. Ela não responde a pergunta que decide o resultado: o que comprar, quanto e por quanto tempo, no seu caso. Uma corretora boa com uma carteira mal montada continua sendo uma carteira mal montada.",
+      { tipo: "destaque", texto: "Escolher o banco é escolher a loja. A decisão que mais pesa é o que vai para o carrinho." },
+      "Este texto não é avaliação de crédito nem recomendação de produto. A ideia é que você abra qualquer conta — no BTG ou em outro lugar — sabendo o que perguntar.",
+    ],
+    ferramenta: {
+      slug: "consultoria-diagnostico",
+      nome: "Agendar o diagnóstico gratuito",
+      href: "https://diagnostico.novareapp.com.br/gratuito",
+      externo: true,
+    },
+    fonte: {
+      nome: "Novare Investimentos",
+      titulo: "Vale a Pena Investir no Banco BTG?",
+      href: "https://novareinvestimentos.com/vale-a-pena-investir-no-banco-btg/",
+      data: "2026-10-23",
+    },
+  },
+
   /* ── A QUARTA LEVA (03/11/2026), depois do 2º turno ──────────────────────
      Os TEMAS são os de quatro posts da Nord, mas aqui nada vem da Nord: nem
      texto nem número. O dono pediu os mesmos assuntos, e os textos de lá nem
@@ -849,25 +1372,31 @@ export const ARTIGOS: Artigo[] = [
     categoria: "investimentos",
     tags: ["indicadores", "selic-e-juros", "inflacao"],
     data: "2026-10-19",
-    tempoLeituraMin: 3,
-    capa: "/news/relatorio-focus-o-que-o-mercado-espera.webp",
+    /* 21/11/2026: números trocados pelo boletim de 16/11 — a Nord publica o
+       Focus novo no MESMO endereço, e a matéria mostrava a Selic de 2026
+       caindo a 13,25%, que o mercado já não espera. A capa ganhou nome novo
+       (`-2026-11-16`): o cache de imagens guarda 7 dias pelo nome. */
+    atualizado: "2026-11-21",
+    tempoLeituraMin: 4,
+    capa: "/news/relatorio-focus-o-que-o-mercado-espera-2026-11-16.webp",
     corpo: [
       "O Focus é um boletim que o Banco Central divulga toda segunda-feira. Ele reúne as projeções de bancos, corretoras e consultorias para inflação, juros, crescimento e dólar. Não é previsão do governo — é a média do que o mercado espera.",
       "Ele serve como termômetro: quando as projeções mudam de uma semana para outra, mostram para que lado o mercado está ajustando as apostas.",
-      { tipo: "titulo", texto: "O que veio no Focus desta semana" },
+      { tipo: "titulo", texto: "O que veio no Focus mais recente" },
       {
         tipo: "tabela",
-        cabecalho: ["", "2026", "2027"],
+        cabecalho: ["", "2026", "2027", "2028"],
         linhas: [
-          ["Inflação (IPCA)", "5,22% (estável)", "4,32% (era 4,30%)"],
-          ["Selic no fim do ano", "13,25% (estável)", "12,00% (estável)"],
-          ["Crescimento (PIB)", "1,83% (era 1,85%)", "1,32% (era 1,40%)"],
+          ["Inflação (IPCA)", "5,11% (era 5,22%)", "5,00% (era 4,90%)", "4,00% (estável)"],
+          ["Selic no fim do ano", "13,75% (estável)", "12,75% (era 12,50%)", "11,00% (estável)"],
+          ["Crescimento (PIB)", "1,72% (era 1,75%)", "1,02% (era 1,15%)", "1,80% (estável)"],
         ],
-        legenda: "Boletim Focus de 19 de outubro de 2026.",
+        legenda: "Boletim Focus de 16 de novembro de 2026, comparado com a semana anterior.",
       },
-      "Lido em conjunto: o mercado espera inflação ainda acima da meta neste ano, uma economia crescendo menos em 2027, e juros caindo devagar. Com a Selic hoje em 13,75%, a expectativa de terminar 2026 em 13,25% indica mais meio ponto de corte até dezembro.",
+      "Lido em conjunto: o mercado espera que a Selic termine 2026 onde está, em 13,75% — ou seja, sem novos cortes neste ano, depois de o Copom ter interrompido a sequência de quedas em novembro. Para 2027, a aposta de juro subiu e a de crescimento caiu: a economia deve crescer só cerca de 1%.",
+      "Há um detalhe que pesa mais do que parece: a inflação esperada para 2028 e 2029 está parada em 4%, acima do centro da meta, de 3%. Quando a expectativa fica acima da meta por vários anos seguidos, os economistas dizem que ela está desancorada — e isso dificulta o trabalho do Banco Central de baixar os juros.",
       { tipo: "destaque", texto: "O Focus não diz o que vai acontecer. Diz o que o mercado acha que vai acontecer — e é com base nisso que os preços dos investimentos são formados hoje." },
-      "Por isso, quando a realidade sai diferente do Focus, os preços se mexem. Inflação acima do esperado, por exemplo, faz a aposta de juros mais baixos perder força.",
+      "Por isso, quando a realidade sai diferente do Focus, os preços se mexem. Foi o que aconteceu entre outubro e novembro: com a inflação acima do esperado, a aposta de juros mais baixos perdeu força. No boletim de 19 de outubro, o mercado ainda esperava a Selic em 13,25% no fim de 2026 e em 12% no fim de 2027.",
     ],
     ferramenta: {
       slug: "rentabilidade-real",
@@ -876,9 +1405,9 @@ export const ARTIGOS: Artigo[] = [
     },
     fonte: {
       nome: "Nord Investimentos",
-      titulo: "Relatório Focus: inflação de 2026 fica em 5,22% e PIB de 2027 cai para 1,32%",
+      titulo: "Relatório Focus: mercado eleva projeção da Selic para 2027 e reduz inflação de 2026",
       href: "https://www.nordinvestimentos.com.br/blog/relatorio-focus-projecoes-para-2026/",
-      data: "2026-10-19",
+      data: "2026-11-16",
     },
   },
   {
@@ -1912,7 +2441,11 @@ export function artigoPorSlug(slug: string): Artigo | undefined {
 
 /** Mais recentes primeiro — é a ordem que a listagem usa. */
 export function artigosOrdenados(): Artigo[] {
-  return [...ARTIGOS].sort((a, b) => (a.data < b.data ? 1 : -1));
+  // ⚠️ `localeCompare`, e não `a.data < b.data ? 1 : -1` (21/11/2026): aquele
+  // nunca devolvia 0, e matérias da MESMA data saíam em ordem invertida — a
+  // última do bloco virava manchete, e não a primeira, que é a escolhida.
+  // Com 0 no empate, o sort (estável) mantém a ordem em que estão aqui.
+  return [...ARTIGOS].sort((a, b) => b.data.localeCompare(a.data));
 }
 
 /**
