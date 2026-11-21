@@ -27,9 +27,21 @@ export const dynamic = "force-dynamic";
  *   - `espera`: a mcp.ai ainda não confirmou. Gira e se confere de novo a cada 3 s, até 6 vezes.
  *   - `fim`: cancelou, deu erro ou expirou. Para e mostra o que fazer.
  */
-type Tela = { titulo: string; texto: string; modo: "ok" | "espera" | "fim" };
+type Tela = { titulo: string; texto: string; modo: "ok" | "espera" | "fim" | "voltar" };
 
-function tela(c: Conclusao | null, statusUrl: string): Tela {
+/**
+ * `voltar`: chegou aqui sem sessão para conferir — é a volta do banco pelo `oauthRedirectUri` do
+ * Pluggy (pedido à mcp.ai em 21/11/2026), que pode não trazer o `cs`. Não há o que girar: o app
+ * confere a conexão sozinho quando a pessoa volta para ele.
+ */
+function tela(c: Conclusao | null, statusUrl: string, temSessao: boolean): Tela {
+  if (!temSessao && !statusUrl) {
+    return {
+      modo: "voltar",
+      titulo: "Autorização concluída",
+      texto: "Volte ao NovareCash: ele confere a conexão com o seu banco e traz os seus dados.",
+    };
+  }
   if (c?.ok) {
     return { modo: "ok", titulo: `${c.banco || "Banco"} conectado!`, texto: "Pronto! O NovareCash já está trazendo os seus dados." };
   }
@@ -52,6 +64,9 @@ function tela(c: Conclusao | null, statusUrl: string): Tela {
 /** Quantas vezes a página de espera se confere sozinha (a cada 3 s) antes de entregar o botão. */
 const MAX_CONFERIR = 6;
 
+/** Para onde a pessoa volta: a tela do Banco do NovareCash. */
+const APP = "/novarecash/app/banco";
+
 const escapar = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
 export async function GET(req: Request) {
@@ -71,7 +86,7 @@ export async function GET(req: Request) {
       console.warn("[open-finance] volta do banco", e instanceof Error ? e.message : e);
     }
   }
-  const t = tela(conclusao, statusUrl);
+  const t = tela(conclusao, statusUrl, !!cs);
   // A espera tem limite: depois de 6 conferências, para de girar e entrega o botão.
   const desistiu = t.modo === "espera" && vez >= MAX_CONFERIR;
   const texto = desistiu
@@ -103,6 +118,8 @@ export async function GET(req: Request) {
   p{margin:0;max-width:22rem;font-size:14px;line-height:1.55;color:rgba(255,255,255,.75)}
   a.botao{display:inline-flex;min-height:44px;align-items:center;justify-content:center;padding:0 22px;border-radius:999px;background:hsl(42 74% 62%);color:hsl(203 100% 4%);font-weight:700;font-size:14px;text-decoration:none}
   small{font-size:12px;color:rgba(255,255,255,.5)}
+  .nota{font-size:12px;color:rgba(255,255,255,.6)}
+  [hidden]{display:none!important}
 </style>
 </head>
 <body>
@@ -113,24 +130,54 @@ export async function GET(req: Request) {
       ? '<div class="selo ok" aria-hidden="true">✓</div>'
       : t.modo === "espera" && !desistiu
         ? '<div class="giro" aria-hidden="true"></div>'
-        : '<div class="selo espera" aria-hidden="true">!</div>'
+        : t.modo === "voltar"
+          ? '<div class="selo ok" aria-hidden="true">✓</div>'
+          : '<div class="selo espera" aria-hidden="true">!</div>'
   }
   <h1>${escapar(titulo)}</h1>
   <p role="status" aria-live="polite">${escapar(texto)}</p>
   ${t.modo === "ok" ? '<span class="linha" id="voltando"><span class="giro-p" aria-hidden="true"></span>Voltando ao NovareCash…</span>' : ""}
-  ${t.modo === "espera" && !desistiu ? "" : '<a class="botao" href="/novarecash/app/banco">Voltar ao NovareCash</a>'}
+  ${
+    t.modo === "espera" && !desistiu
+      ? ""
+      : `<a class="botao" id="voltar" href="${APP}"${t.modo === "ok" ? " hidden" : ""}>Voltar ao NovareCash</a>
+  <span class="nota" id="nota" hidden>Depois, pode fechar esta aba.</span>`
+  }
   <small>Open Finance · só leitura · ninguém vê a sua senha</small>
 </main>
 <script>
   (function () {
     var modo = ${JSON.stringify(desistiu ? "fim" : t.modo)};
     var vez = ${vez};
-    if (modo === "ok") {
-      // Janelinha do app (computador): fecha — o app já está trazendo os dados.
-      // Aba solta (o banco devolveu a pessoa numa aba nova, no celular): vai para a tela do Banco.
+    var APP = ${JSON.stringify(APP)};
+    var janelinha = false;
+    try { janelinha = !!window.opener; } catch (e) {}
+    var dentroDoApp = window.matchMedia && window.matchMedia("(display-mode: standalone)").matches;
+    // ABA DO CHROME NO ANDROID, FORA DO APP INSTALADO (o app do banco devolve a pessoa assim).
+    // Link comum para o próprio site continuaria no Chrome; o "intent:" pede ao Android quem abre
+    // este endereço — e quem abre é o NovareCash instalado. Sem ele instalado, cai no próprio site.
+    // Só funciona com um toque da pessoa (o Chrome bloqueia sem gesto): por isso é um botão.
+    var abaDoAndroid = /Android/i.test(navigator.userAgent) && !dentroDoApp && !janelinha;
+    var botao = document.getElementById("voltar");
+    if (botao && abaDoAndroid) {
+      var site = window.location.origin + APP;
+      botao.href = "intent://" + window.location.host + APP + "#Intent;scheme=https;S.browser_fallback_url=" + encodeURIComponent(site) + ";end";
+      botao.textContent = "Abrir o NovareCash";
+      var nota = document.getElementById("nota");
+      if (nota) nota.hidden = false;
+    }
+    if (modo === "ok" || modo === "voltar") {
+      if (abaDoAndroid) {
+        // Não leva sozinho: abriria o NovareCash DENTRO do Chrome. Mostra o botão que abre o app.
+        var voltando = document.getElementById("voltando");
+        if (voltando) voltando.hidden = true;
+        if (botao) botao.hidden = false;
+        return;
+      }
+      // Janelinha do app: fecha (o app já está trazendo os dados). Dentro do app ou no computador: vai ao Banco.
       setTimeout(function () {
-        try { if (window.opener) { window.close(); return; } } catch (e) {}
-        window.location.replace("/novarecash/app/banco");
+        if (janelinha) { try { window.close(); return; } catch (e) {} }
+        window.location.replace(APP);
       }, 1800);
     } else if (modo === "espera") {
       setTimeout(function () {
