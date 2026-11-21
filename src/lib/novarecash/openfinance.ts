@@ -366,7 +366,8 @@ function abridor(): Abridor | null {
 }
 
 export function abrirJanelaDoBanco(url: string | null): JanelaDoBanco | null {
-  const destino = url ? ponteDoBanco(url) : "about:blank";
+  // Sem o link ainda: a tela "preparando" da ponte (21/11/2026: era about:blank, uma janela em branco).
+  const destino = url ? ponteDoBanco(url) : "/novarecash/conectar-banco";
   const celular = window.matchMedia("(pointer: coarse)").matches || window.innerWidth < 768;
   const [w, h] = [480, 720];
   const esquerda = Math.round(window.screenX + Math.max(0, (window.outerWidth - w) / 2));

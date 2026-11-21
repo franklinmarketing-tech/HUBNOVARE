@@ -52,7 +52,7 @@ async function api(metodo: "GET" | "POST", caminho: string, corpo?: Record<strin
     signal: AbortSignal.timeout(20_000),
   });
   const payload: Qualquer = await r.json().catch(() => null);
-  if (r.ok) return payload?.result ?? payload ?? {};
+  if (r.ok) return payload ?? {};
   const texto = JSON.stringify(payload ?? {}).slice(0, 300);
   console.warn(`[open-finance] sessão ${metodo} ${caminho.split("/").slice(0, 2).join("/")} HTTP ${r.status}`, texto);
   if (r.status === 401 || r.status === 403) throw new ErroMcp(503, "banco_mcp_key", "chave do Banco MCP recusada para sessões");
@@ -64,6 +64,32 @@ const texto = (...v: Qualquer[]) => {
   for (const x of v) if (typeof x === "string" && x.trim()) return x.trim();
   return "";
 };
+
+/**
+ * O objeto da sessão dentro da resposta, onde quer que ele venha (`result`, `session`, `data` ou
+ * solto). 21/11/2026: no 1º teste real a sessão veio com `id`, `status`, `expires_at`… mas o
+ * `connect_url` NÃO estava junto dela — por isso o link é procurado na resposta inteira (`acharLink`).
+ */
+function acharSessao(p: Qualquer): Qualquer {
+  for (const c of [p?.session, p?.result?.session, p?.data?.session, p?.result, p?.data, p]) {
+    if (c && typeof c === "object" && (c.id || c.cs || c.client_ref)) return c;
+  }
+  return p ?? {};
+}
+
+/** O link de conexão: o primeiro campo de link https da mcp.ai, em qualquer nível da resposta. */
+function acharLink(x: Qualquer, nivel = 0): string {
+  if (!x || typeof x !== "object" || nivel > 4) return "";
+  for (const k of ["connect_url", "connectUrl", "url", "link", "href"]) {
+    const v = x[k];
+    if (typeof v === "string" && /^https:\/\/app\.mcp\.ai\//.test(v)) return v;
+  }
+  for (const v of Object.values(x)) {
+    const achou = acharLink(v, nivel + 1);
+    if (achou) return achou;
+  }
+  return "";
+}
 
 /**
  * Cria a sessão e guarda de quem ela é. Devolve o link de uso único.
@@ -84,11 +110,13 @@ export async function criarSessao(
     expires_in: 3600,
     ...(conector ? { bank_id: conector } : {}),
   });
-  const s = r?.session ?? r;
-  const url = texto(s?.connect_url, s?.connectUrl, s?.url);
-  const cs = texto(s?.id, s?.cs, s?.session_id, s?.connect_session_id) || (url ? texto(new URL(url).searchParams.get("cs")) : "");
+  const s = acharSessao(r);
+  const url = acharLink(r);
+  const cs = texto(s?.id, s?.cs, s?.session_id, s?.connect_session_id);
   if (!url || !cs) {
-    console.warn("[open-finance] sessão sem connect_url/id", Object.keys(s ?? {}).join(","));
+    // Só os NOMES dos campos (nunca os valores): para ajustar a leitura se a mcp.ai mudar o formato.
+    const chaves = (o: Qualquer) => (o && typeof o === "object" ? Object.keys(o).join(",") : typeof o);
+    console.warn("[open-finance] sessão sem connect_url/id", `raiz: ${chaves(r)}`, `sessão: ${chaves(s)}`, `result: ${chaves(r?.result)}`);
     throw new ErroMcp(502, "falha", "sessão sem link");
   }
   const { error } = await db.from("ncash_of_sessoes").insert({
@@ -106,7 +134,7 @@ export async function criarSessao(
 /** O que a mcp.ai diz da sessão agora: `pending | connected (+ connection_id) | expired | canceled`. */
 export async function statusNaMcp(cs: string): Promise<{ status: string; itemId: string }> {
   const r = await api("GET", `connect-sessions/${encodeURIComponent(cs)}`);
-  const s = r?.session ?? r;
+  const s = acharSessao(r);
   return {
     status: texto(s?.status).toLowerCase() || "pending",
     itemId: texto(s?.connection_id, s?.connectionId, s?.connection?.id, s?.item_id),

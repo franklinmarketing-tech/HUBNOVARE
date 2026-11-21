@@ -15,6 +15,10 @@
  * O NovareCash confere o banco a cada 3 s e FECHA a janelinha assim que a conexão aparece
  * (`TelaBanco`).
  *
+ * 21/11/2026 — SEM `u`, É A TELA "PREPARANDO": o app abre a janelinha JÁ no toque (senão o
+ * navegador bloqueia) e só depois recebe o link da sessão do servidor. Antes ela ficava em branco
+ * nesse meio-tempo; agora mostra a marca e "Preparando a conexão segura…", e o app a leva ao banco.
+ *
  * Só aceita destino `https://app.mcp.ai/…` (nada de redirecionamento aberto: o domínio é fixo).
  * 21/11/2026: era só `/connect/…`; o link da connect session (`lib/novarecash/sessao-banco.ts`) vem
  * da própria mcp.ai e o caminho dele não é documentado — o domínio é o que protege.
@@ -32,7 +36,16 @@ function destinoValido(u: string | null): string | null {
 }
 
 export function GET(req: Request) {
-  const destino = destinoValido(new URL(req.url).searchParams.get("u"));
+  const params = new URL(req.url).searchParams;
+  const destino = destinoValido(params.get("u"));
+  // Sem `u`: o app ainda está buscando o link (tela "preparando"). Com `u` inválido: erro.
+  const preparando = !params.has("u");
+  const invalido = !destino && !preparando;
+  const frase = destino
+    ? "Abrindo o seu banco com segurança…"
+    : preparando
+      ? "Preparando a conexão segura com o seu banco…"
+      : "Este link de conexão não é válido. Feche esta janela e tente de novo pelo NovareCash.";
   // JSON dentro de <script>: `<` escapado para ninguém fechar a tag por dentro.
   const alvo = JSON.stringify(destino).replace(/</g, "\\u003c");
 
@@ -42,7 +55,7 @@ export function GET(req: Request) {
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
-<title>Abrindo o seu banco… · NovareCash</title>
+<title>${preparando ? "Preparando a conexão…" : "Abrindo o seu banco…"} · NovareCash</title>
 <style>
   html,body{margin:0;height:100%;background:hsl(203 100% 2%);color:#fff;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
   main{min-height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:24px;text-align:center}
@@ -58,8 +71,8 @@ export function GET(req: Request) {
 <body>
 <main>
   <div class="marca">Novare<b>Cash</b></div>
-  <div class="giro" aria-hidden="true"></div>
-  <p id="texto">${destino ? "Abrindo o seu banco com segurança…" : "Este link de conexão não é válido. Feche esta janela e tente de novo pelo NovareCash."}</p>
+  ${invalido ? "" : '<div class="giro" aria-hidden="true"></div>'}
+  <p id="texto" role="status" aria-live="polite">${frase}</p>
   <small>Open Finance · só leitura · ninguém vê a sua senha</small>
 </main>
 <script>
@@ -73,6 +86,15 @@ export function GET(req: Request) {
       try { window.opener = null; } catch (e2) {}
     }
     if (destino) window.location.replace(destino);
+    // "Preparando" que não sai do lugar (rede caiu, app fechado): depois de 20 s, diz o que fazer.
+    if (${preparando ? "true" : "false"}) {
+      setTimeout(function () {
+        var t = document.getElementById("texto");
+        if (t) t.textContent = "Está demorando mais que o normal. Feche esta janela e toque no seu banco de novo no NovareCash.";
+        var g = document.querySelector(".giro");
+        if (g) g.remove();
+      }, 20000);
+    }
   })();
 </script>
 </body>

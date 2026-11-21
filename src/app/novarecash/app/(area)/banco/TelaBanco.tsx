@@ -118,6 +118,32 @@ const esquecerEspera = () => {
   } catch {}
 };
 
+/**
+ * UMA IMPORTAÇÃO POR BANCO, MESMO COM DUAS ABAS (21/11/2026). No celular o banco devolve a pessoa
+ * numa aba nova, e a página de volta a leva para esta tela — enquanto a aba original do app, que
+ * ficou conferindo, já está trazendo os dados. Duas importações juntas não duplicam (índice único),
+ * mas dobram as chamadas e estouram o limite da mcp.ai (60/min). A aba que chega depois só avisa.
+ */
+const ESTA_ABA = Math.random().toString(36).slice(2);
+const CHAVE_IMPORTANDO = "ncash:open-finance:importando";
+function outraAbaImportando(itemId: string): boolean {
+  try {
+    const v = JSON.parse(localStorage.getItem(CHAVE_IMPORTANDO) || "null") as { item: string; aba: string; em: number } | null;
+    return !!v && v.item === itemId && v.aba !== ESTA_ABA && Date.now() - v.em < 3 * 60_000;
+  } catch {
+    return false;
+  }
+}
+function marcarImportando(itemId: string | null, ligar: boolean) {
+  try {
+    if (ligar && itemId) localStorage.setItem(CHAVE_IMPORTANDO, JSON.stringify({ item: itemId, aba: ESTA_ABA, em: Date.now() }));
+    if (!ligar) {
+      const v = JSON.parse(localStorage.getItem(CHAVE_IMPORTANDO) || "null") as { aba?: string } | null;
+      if (v?.aba === ESTA_ABA) localStorage.removeItem(CHAVE_IMPORTANDO);
+    }
+  } catch {}
+}
+
 /** A sessão terminou sem conexão: a frase para a pessoa (21/11/2026). */
 const fraseDaSessao = (status: string, mensagem?: string) =>
   mensagem ||
@@ -357,6 +383,7 @@ export function TelaBanco({ limite, nomePlano }: { limite: number; nomePlano: st
     setFalhaImport(null);
     setFase("trazendo");
     setProgresso(reconexao ? "Banco reconectado! Buscando o que faltou…" : "Banco conectado! Preparando a importação…");
+    marcarImportando(itemId, true);
     try {
       // Reconexão: desde o último lançamento de cada conta (o resto já está no extrato).
       const r = await trazerTudo({ itemId, dias: reconexao ? undefined : 365, aoAvancar: setProgresso });
@@ -375,6 +402,7 @@ export function TelaBanco({ limite, nomePlano }: { limite: number; nomePlano: st
         setConexoes(await listarConexoes(true));
       } catch {}
     } finally {
+      marcarImportando(itemId, false);
       setFase("pronto");
     }
   }, [setProgresso]);
@@ -397,9 +425,18 @@ export function TelaBanco({ limite, nomePlano }: { limite: number; nomePlano: st
       setConfirmar(null);
       setRecado(null);
       if (banco) setPendente((p) => (p ? { ...p, banco } : p));
+      // A outra aba do NovareCash já está trazendo os dados deste banco: aqui só mostra o resultado.
+      if (itemId && outraAbaImportando(itemId)) {
+        setAberta(false);
+        setFase(null);
+        setPendente(null);
+        setRecado(`${banco || "Banco"} conectado! Os seus dados estão chegando pela outra janela do NovareCash e aparecem aqui em instantes.`);
+        void carregar();
+        return;
+      }
       await importar(itemId, reconexao);
     },
-    [importar],
+    [importar, carregar],
   );
 
   // ESPERANDO A AUTORIZAÇÃO: confere sozinho (3 s nos primeiros 3 min, depois 10 s, até 20 min), quando a

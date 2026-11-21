@@ -25,7 +25,14 @@ export const lista = (x: Qualquer, ...chaves: string[]): Qualquer[] => {
   return [];
 };
 
-/** Uma chamada ao Banco MCP. Erro vira `ErroMcp`; 429 tenta mais uma vez depois de 2 s. */
+/**
+ * Espera antes de cada nova tentativa num 429. A conta da mcp.ai aceita 60 chamadas por minuto, e
+ * importar 12 meses de dois bancos passa disso (21/11/2026: o 1º teste real perdeu os lançamentos
+ * dos dois bancos por desistir depois de UMA espera de 2 s). Até ~17 s no total, dentro dos 300 s.
+ */
+const ESPERAS_429 = [2000, 5000, 10_000];
+
+/** Uma chamada ao Banco MCP. Erro vira `ErroMcp`; 429 tenta de novo, esperando cada vez mais. */
 export async function mcp(endpoint: string, body: Record<string, unknown>, tentativa = 0): Promise<Qualquer> {
   const r = await fetch(`https://api.mcp.ai/api/openfinance/${endpoint}`, {
     method: "POST",
@@ -35,9 +42,12 @@ export async function mcp(endpoint: string, body: Record<string, unknown>, tenta
   });
   const payload: Qualquer = await r.json().catch(() => null);
   if (r.ok) return payload?.result ?? payload ?? {};
-  if (r.status === 429 && tentativa === 0) {
-    await new Promise((ok) => setTimeout(ok, 2000));
-    return mcp(endpoint, body, 1);
+  if (r.status === 429 && tentativa < ESPERAS_429.length) {
+    // Se a mcp.ai disser quanto esperar (Retry-After, em segundos), respeita — até 20 s.
+    const pedido = Number(r.headers.get("retry-after"));
+    const espera = Number.isFinite(pedido) && pedido > 0 ? Math.min(pedido * 1000, 20_000) : ESPERAS_429[tentativa];
+    await new Promise((ok) => setTimeout(ok, espera));
+    return mcp(endpoint, body, tentativa + 1);
   }
   const texto = JSON.stringify(payload ?? {}).slice(0, 300);
   if (r.status === 409 || /not_connected/i.test(texto)) throw new ErroMcp(409, "not_connected", "not_connected");
