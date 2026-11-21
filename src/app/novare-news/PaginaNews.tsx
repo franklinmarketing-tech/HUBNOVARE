@@ -1,0 +1,428 @@
+import Image from "next/image";
+import Link from "next/link";
+import { ArrowRight, ChevronLeft, ChevronRight, Mail } from "lucide-react";
+import { CabecalhoNews } from "@/components/CabecalhoNews";
+import { UltimosVideos } from "@/components/UltimosVideos";
+import { SigaInstagram } from "@/components/SigaInstagram";
+import { RodapeNovare } from "@/components/RodapeNovare";
+import { InscreverNews } from "@/components/InscreverNews";
+import { CardArtigo, MetaArtigo, dataCurtaNews } from "@/components/CardArtigoNews";
+import { DadosEstruturados } from "@/components/DadosEstruturados";
+import { artigosOrdenados, type Artigo } from "@/lib/news";
+import { FAMILIAS, ORDEM_FAMILIAS, type Familia } from "@/lib/apps";
+import { CONTAGEM } from "@/lib/apps";
+import { jsonLdBlog } from "@/lib/dados-estruturados";
+import { FitaMercado } from "@/components/FitaMercado";
+
+export const DESCRICAO =
+  "Conteúdo educativo da Novare sobre salário, rescisão, investimentos e o dia a dia do dinheiro — sempre ligado à ferramenta que resolve o que acabou de ser explicado.";
+
+/**
+ * O CORPO DO NOVARE NEWS, com ou sem categoria (21/11/2026).
+ *
+ * Era o `page.tsx` lendo `?categoria=` — e ler o endereço obrigava a página a
+ * ser montada a cada visita. Agora cada categoria tem endereço próprio
+ * (`/novare-news/categoria/<chave>`, como já era com as tags), todas saem
+ * PRONTAS, e o `?categoria=` antigo vira redirect (next.config).
+ */
+export function PaginaNews({ categoriaAtiva }: { categoriaAtiva: Familia | "todos" }) {
+
+  const todos = artigosOrdenados();
+
+  // A vitrine de destaque só existe na home do canal, sem filtro — é o
+  // convite de entrada. Filtrando por categoria, vai direto para a lista.
+  const semFiltro = categoriaAtiva === "todos";
+
+  // Manchete = a publicação mais recente. As duas chamadas ao lado são os
+  // destaques marcados na fonte.
+  const principal = semFiltro ? todos[0] : undefined;
+  const secundarias = principal
+    ? todos.filter((a) => a.destaque && a.slug !== principal.slug).slice(0, 2)
+    : [];
+  const noTopo = new Set([principal?.slug, ...secundarias.map((a) => a.slug)]);
+  const mostrarTopo = true;
+
+  const listaBase = semFiltro
+    ? todos.filter((a) => !noTopo.has(a.slug))
+    : todos.filter((a) => a.categoria === categoriaAtiva);
+
+  const rotuloLista = semFiltro
+    ? "Mais publicações"
+    : (FAMILIAS[categoriaAtiva as Familia] ?? "Publicações");
+
+  // Tudo numa tela só: sem fatia, sem "página 2".
+  const pagina_ = listaBase;
+
+  const linkFiltro = (cat: string) =>
+    cat === "todos" ? "/novare-news" : `/novare-news/categoria/${cat}`;
+
+  return (
+    <div className="min-h-dvh bg-white">
+      {/* O acervo inteiro, e não a lista filtrada: as páginas de categoria
+          apontam o canônico para /novare-news, e o Google lê uma página só. */}
+      <DadosEstruturados dados={jsonLdBlog(todos, DESCRICAO)} />
+      <CabecalhoNews />
+      <FitaMercado />
+
+      <main className="mx-auto max-w-6xl px-4 pb-20 pt-10 sm:pt-14">
+        {/* Topo noite, como o das ferramentas (pedido do dono, 20/10/2026). */}
+        <header className="topo-ferramenta secao-noite !mt-0">
+          <p className="flex items-center gap-3 text-2xs font-semibold uppercase tracking-[0.2em] text-accent-claro">
+            Novare News
+            <span aria-hidden className="h-px w-10 bg-accent-soft" />
+          </p>
+          <h1 className="mt-4 max-w-2xl text-balance font-display text-3xl font-medium leading-[1.06] tracking-[-0.03em] text-white sm:text-5xl">
+            Dinheiro explicado, sem letra miúda
+          </h1>
+          <p className="mt-4 max-w-2xl text-base leading-relaxed text-white/75">
+            Salário, rescisão, investimento e o dia a dia das contas — cada
+            artigo termina na ferramenta que resolve o que você acabou de ler.
+          </p>
+        </header>
+
+        {/* Categorias: mesmas áreas do catálogo, para não inventar um
+            segundo vocabulário de navegação. */}
+        <nav
+          aria-label="Categorias"
+          className="mt-8 border-y border-border sm:mt-10"
+        >
+          <div className="-mx-4 overflow-x-auto px-4">
+            <div className="flex w-max gap-1 py-2.5">
+              <FiltroChip href={linkFiltro("todos")} ativo={semFiltro}>
+                Tudo
+              </FiltroChip>
+              {ORDEM_FAMILIAS.map((f) => (
+                <FiltroChip key={f} href={linkFiltro(f)} ativo={categoriaAtiva === f}>
+                  {FAMILIAS[f]}
+                </FiltroChip>
+              ))}
+            </div>
+          </div>
+        </nav>
+
+        {/* A primeira dobra é uma capa de jornal: uma manchete grande e
+            duas chamadas ao lado — não uma parede de cards iguais. */}
+        {mostrarTopo && principal && <Manchete artigo={principal} />}
+
+        {mostrarTopo && secundarias.length > 0 && (
+          <section className="mt-10 grid gap-x-10 gap-y-8 border-t border-border pt-8 sm:grid-cols-2">
+            {secundarias.map((a) => (
+              <ChamadaSecundaria key={a.slug} artigo={a} />
+            ))}
+          </section>
+        )}
+
+        <div className="mt-12 grid gap-12 lg:mt-16 lg:grid-cols-[minmax(0,1fr)_19rem] lg:gap-14">
+          <div className="min-w-0">
+            <h2 className="flex flex-wrap items-baseline gap-x-3 gap-y-1 border-b border-border pb-3 font-display text-lg font-semibold tracking-[-0.03em] text-primary">
+              {rotuloLista}
+              <span className="text-2xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+                {listaBase.length} {listaBase.length === 1 ? "artigo" : "artigos"}
+              </span>
+            </h2>
+
+            {pagina_.length > 0 ? (
+              <section className="mt-8 grid gap-6 sm:grid-cols-2 sm:gap-7">
+                {pagina_.slice(0, 4).map((a) => (
+                  <CardArtigo key={a.slug} artigo={a} />
+                ))}
+
+                {/* O CTA no meio da leitura, não no rodapé: é onde o olho
+                    ainda está. Só na primeira dobra de cada página. */}
+                <div className="sm:col-span-2">
+                  <BannerWorkspace />
+                </div>
+
+                {pagina_.slice(4).map((a) => (
+                  <CardArtigo key={a.slug} artigo={a} />
+                ))}
+              </section>
+            ) : (
+              <p className="mt-8 rounded-[1.5rem] border border-border bg-card p-10 text-center text-sm text-muted-foreground">
+                Ainda não tem artigo nessa categoria. Volte em breve.
+              </p>
+            )}
+
+          </div>
+
+          <SidebarNews />
+        </div>
+
+        {/* A INSCRIÇÃO FICA NO FIM DA LISTA, e não em pop-up.
+
+            É aqui que a pessoa acabou de percorrer as chamadas e já sabe se
+            o assunto serve para ela — pedir o e-mail antes disso é pedir
+            sem ter entregue nada. É também como a Nord faz (seção inline no
+            corpo da página, nunca modal), que foi a referência pedida. */}
+        <div className="mx-auto mt-16 max-w-6xl px-4 sm:mt-20">
+          {/* Os assuntos, a contagem e a amostra saem dos artigos de
+              verdade — nada escrito à mão. Lista vazia ou zero artigos e a
+              seção simplesmente não mostra essas partes. */}
+          <InscreverNews
+            assuntos={ORDEM_FAMILIAS.map((f) => ({
+              chave: f,
+              rotulo: FAMILIAS[f],
+            }))}
+            totalEdicoes={todos.length}
+            ultimaEdicao={todos[0]?.titulo}
+            ultimaEdicaoHref={
+              todos[0] ? `/novare-news/${todos[0].slug}` : undefined
+            }
+          />
+        </div>
+      </main>
+
+      <RodapeNovare />
+    </div>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+
+function FiltroChip({
+  href,
+  ativo,
+  children,
+}: {
+  href: string;
+  ativo: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <Link
+      href={href}
+      aria-current={ativo ? "page" : undefined}
+      className={`shrink-0 rounded-full px-3.5 py-1.5 text-xs font-semibold transition-colors ${
+        ativo
+          ? "bg-primary text-white"
+          : "text-muted-foreground hover:bg-muted hover:text-primary"
+      }`}
+    >
+      {children}
+    </Link>
+  );
+}
+
+/**
+ * A manchete: a publicação mais recente ocupa a primeira dobra inteira,
+ * capa de um lado e texto do outro. É o que separa uma capa de jornal de
+ * uma grade de cards todos do mesmo tamanho.
+ */
+function Manchete({ artigo }: { artigo: Artigo }) {
+  return (
+    <section className="mt-10 sm:mt-12">
+      <Link
+        href={`/novare-news/${artigo.slug}`}
+        className="group grid gap-6 lg:grid-cols-[1.15fr_1fr] lg:items-center lg:gap-12"
+      >
+        <div className="relative aspect-[16/10] overflow-hidden rounded-[1.5rem] border border-border bg-muted">
+          <Image
+            src={artigo.capa}
+            alt=""
+            fill
+            priority
+            sizes="(min-width: 1024px) 620px, 100vw"
+            className="object-cover transition-transform duration-700 group-hover:scale-[1.03]"
+          />
+        </div>
+
+        <div className="min-w-0">
+          <p className="flex items-center gap-2 text-2xs font-semibold uppercase tracking-[0.16em] text-accent-strong">
+            <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-accent" />
+            {FAMILIAS[artigo.categoria]}
+          </p>
+          <h2 className="mt-3 text-balance font-display text-2xl font-medium leading-[1.12] tracking-[-0.03em] text-primary underline-offset-[6px] group-hover:underline sm:text-3xl lg:text-[2.25rem] lg:leading-[1.1]">
+            {artigo.titulo}
+          </h2>
+          <p className="mt-4 text-base leading-relaxed text-muted-foreground">
+            {artigo.resumo}
+          </p>
+          <p className="mt-5 flex flex-wrap items-center gap-x-2 gap-y-1 text-2xs text-muted-foreground">
+            <MetaArtigo artigo={artigo} />
+          </p>
+          <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-bold text-accent-strong">
+            Ler a matéria
+            <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5" />
+          </span>
+        </div>
+      </Link>
+    </section>
+  );
+}
+
+/** Chamada de apoio: texto na frente, miniatura como âncora visual. */
+function ChamadaSecundaria({ artigo }: { artigo: Artigo }) {
+  return (
+    <Link href={`/novare-news/${artigo.slug}`} className="group flex gap-4">
+      <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl border border-border bg-muted sm:h-24 sm:w-24">
+        <Image
+          src={artigo.capa}
+          alt=""
+          fill
+          sizes="96px"
+          // object-right: as capas novas trazem o título na esquerda; no quadrado, a arte é que aparece
+          className="object-cover object-right transition-transform duration-500 group-hover:scale-105"
+        />
+      </div>
+      <div className="min-w-0">
+        <p className="text-2xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+          {FAMILIAS[artigo.categoria]}
+        </p>
+        <h3 className="mt-1.5 font-display text-base font-semibold leading-snug tracking-[-0.025em] text-primary underline-offset-4 group-hover:underline">
+          {artigo.titulo}
+        </h3>
+        <p className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-2xs text-muted-foreground">
+          <MetaArtigo artigo={artigo} />
+        </p>
+      </div>
+    </Link>
+  );
+}
+
+function SidebarNews() {
+  const recentes = artigosOrdenados().slice(0, 5);
+
+  return (
+    <aside className="min-w-0 space-y-6">
+      {/* ⚠️ CTA NA SIDEBAR, ACIMA DA LISTA — o dono pediu mais chamadas no
+          News. Ele NÃO repete o formulário: dois campos de e-mail na mesma
+          tela competem entre si e dividem o clique. Este é um atalho para a
+          seção de verdade, lá embaixo. */}
+      <a
+        href="#inscrever"
+        className="flex items-center gap-3 rounded-[1.5rem] border border-accent/30 bg-accent-tint/50 p-4 transition-colors hover:border-accent/50 hover:bg-accent-tint"
+      >
+        <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-white text-accent-strong shadow-subtle">
+          <Mail className="h-4 w-4" />
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="block text-xs font-bold text-primary">
+            Receba por e-mail
+          </span>
+          <span className="block text-2xs text-muted-foreground">
+            Grátis, e você escolhe os assuntos
+          </span>
+        </span>
+        <ArrowRight className="h-4 w-4 shrink-0 text-accent-strong" />
+      </a>
+
+      <div className="rounded-[1.5rem] border border-border bg-card p-5 shadow-subtle">
+        <h2 className="font-display text-2xs font-semibold uppercase tracking-[0.16em] text-primary">
+          Últimas publicações
+        </h2>
+        <ol className="mt-4 space-y-4">
+          {recentes.map((a, i) => (
+            <li
+              key={a.slug}
+              className="flex gap-3 border-t border-border pt-4 first:border-0 first:pt-0"
+            >
+              <span
+                aria-hidden
+                className="font-display text-xs font-semibold tabular-nums text-muted-foreground"
+              >
+                {String(i + 1).padStart(2, "0")}
+              </span>
+              <div className="min-w-0">
+                <Link
+                  href={`/novare-news/${a.slug}`}
+                  className="block text-sm font-semibold leading-snug text-primary underline-offset-4 hover:underline"
+                >
+                  {a.titulo}
+                </Link>
+                <time
+                  dateTime={a.data}
+                  className="mt-1 block text-2xs text-muted-foreground"
+                >
+                  {dataCurtaNews(a.data)}
+                </time>
+              </div>
+            </li>
+          ))}
+        </ol>
+      </div>
+
+      <UltimosVideos />
+      <SigaInstagram />
+
+      <div className="glass-card overflow-hidden rounded-[1.75rem] bg-noite p-5 text-white">
+        <p className="text-2xs font-semibold uppercase tracking-[0.16em] text-accent-claro">
+          Sem cadastro
+        </p>
+        <h2 className="mt-1.5 font-display text-lg font-semibold">
+          Veja para onde vai o seu dinheiro
+        </h2>
+        <p className="mt-1.5 text-xs leading-relaxed text-white/75">
+          Cole o seu extrato e a Íris mostra assinatura esquecida, tarifa
+          repetida e juro escondido. Sem cadastro.
+        </p>
+        <a
+          href="/iris"
+          className="mt-4 inline-flex items-center gap-1.5 btn-cp min-h-10 px-4 text-xs"
+        >
+          Ver por dentro
+          <ArrowRight className="h-3.5 w-3.5" />
+        </a>
+      </div>
+
+      <div className="rounded-[1.5rem] border border-accent-soft bg-accent-tint p-5">
+        <h2 className="font-display text-2xs font-semibold uppercase tracking-[0.16em] text-primary">
+          Ferramentas mais usadas
+        </h2>
+        <div className="mt-3.5 flex flex-wrap gap-1.5">
+          {[
+            { nome: "Salário Líquido", href: "/ferramentas/salario-liquido" },
+            { nome: "Rescisão", href: "/ferramentas/rescisao" },
+            { nome: "Juros Compostos", href: "/ferramentas/juros-compostos" },
+            { nome: "Financiamento", href: "/ferramentas/financiamento?tipo=casa" },
+            { nome: "13º Salário", href: "/ferramentas/decimo-terceiro" },
+            { nome: "Férias", href: "/ferramentas/ferias" },
+          ].map((f) => (
+            <Link
+              key={f.nome}
+              href={f.href}
+              className="rounded-full border border-accent/25 bg-white px-3 py-1.5 text-2xs font-semibold text-muted-foreground transition-colors hover:border-accent hover:text-accent-strong"
+            >
+              {f.nome}
+            </Link>
+          ))}
+        </div>
+        <Link
+          href="/aplicativos"
+          className="mt-4 inline-flex items-center gap-1.5 text-xs font-semibold text-accent-strong hover:underline"
+        >
+          Ver as {CONTAGEM.ferramentas} ferramentas
+          <ArrowRight className="h-3.5 w-3.5" />
+        </Link>
+      </div>
+    </aside>
+  );
+}
+
+/**
+ * O banner do Workspace no meio da grade: é o "inscreva-se" dos portais,
+ * traduzido para o que a casa realmente vende.
+ */
+function BannerWorkspace() {
+  return (
+    <div className="glass-card flex flex-wrap items-center justify-between gap-5 rounded-[1.75rem] bg-noite p-6 text-white shadow-ciano sm:p-7">
+      <div className="min-w-0">
+        <p className="text-2xs font-semibold uppercase tracking-[0.16em] text-accent-claro">
+          Workspace Novare
+        </p>
+        <h3 className="mt-1.5 font-display text-lg font-bold leading-snug sm:text-xl">
+          Todas as ferramentas e a Íris num lugar só
+        </h3>
+        <p className="mt-1.5 text-sm leading-relaxed text-white/75">
+          De graça, sem cartão e sem pegadinha.
+        </p>
+      </div>
+      <Link
+        href="/"
+        className="btn-cp shrink-0"
+      >
+        Conhecer o Workspace
+        <ArrowRight className="h-4 w-4" />
+      </Link>
+    </div>
+  );
+}

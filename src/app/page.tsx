@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight, ArrowUpRight, ChevronDown } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 import { BuscaDestaque } from "@/components/BuscaDestaque";
 import { BarraLateral } from "@/components/BarraLateral";
 import { BarraInferior } from "@/components/BarraInferior";
-import { TopoApp } from "@/components/TopoApp";
-import { PaletaComandos } from "@/components/PaletaComandos";
+import { PaletaComandosSessao, TopoAppSessao } from "@/components/SessaoNoNavegador";
+import { CardFincashHomeSessao, SegundaParteHome, SetaPainelHome, TituloHome } from "@/components/HomeSessao";
 import { QuemEstaPorTras } from "@/components/QuemEstaPorTras";
 import { ComoTrabalhamos } from "@/components/ComoTrabalhamos";
 import { TudoDeGraca } from "@/components/TudoDeGraca";
@@ -18,22 +18,15 @@ import { getCalendarioEconomico } from "@/lib/calendario-economico";
 import { ChamadaJefferson } from "@/components/ChamadaJefferson";
 import { buildTrackingUrl, CARTEIRA_PONTUAL_LP } from "@/lib/consultoria";
 import { CardPortal } from "@/components/CardPortal";
-import { CardFincashHome } from "@/components/CardFincashHome";
 import { BannerEbooks } from "@/components/BannerEbooks";
 import { BannerNews } from "@/components/BannerNews";
 import { BannerIris } from "@/components/BannerIris";
-import { PainelMeuDia } from "@/components/PainelMeuDia";
 import { Rodape } from "@/components/Rodape";
 import { InscreverNews } from "@/components/InscreverNews";
 import { RevelarAoRolar } from "@/components/RevelarAoRolar";
 import { portais } from "@/lib/categorias";
 import { artigosOrdenados } from "@/lib/news";
 import { FAMILIAS, ORDEM_FAMILIAS } from "@/lib/apps";
-import { appsParaBusca } from "@/lib/navegacao";
-import { getPerfil, temFichaPreenchida } from "@/lib/perfil";
-import { getNotificacoes } from "@/lib/notificacoes";
-import { estadoDaAssinatura } from "@/lib/assinatura-servidor";
-import { ASSINATURA_GARANTIA, ASSINATURA_OFERTA_CURTA } from "@/lib/assinatura";
 import { FitaMercado } from "@/components/FitaMercado";
 import { Stories } from "@/components/Stories";
 import { getStories } from "@/lib/stories";
@@ -51,55 +44,21 @@ export const metadata: Metadata = {
   alternates: { canonical: "/" },
 };
 
+/* ⚠️ A HOME SAI PRONTA (21/11/2026). Ela era montada no servidor a cada visita
+   — lia perfil, avisos e assinatura de quem abria, inclusive de robô — e era a
+   página que mais gastava processamento na Vercel. Agora é igual para todos e
+   remontada no máximo a cada 30 min (vídeo do canal e calendário); o que é de
+   cada pessoa se completa no navegador (`components/HomeSessao.tsx`). */
+export const revalidate = 1800;
+
 /**
  * A home no formato "hub limpo": quatro vitrines grandes com a ação num
  * rodapé branco, uma fileira de calculadoras-isca, duas faixas finas (Íris e
  * eBooks) e a faixa de assinatura. Poucas fileiras, um só botão colorido.
  * O catálogo completo vive em /aplicativos; os eBooks, em /ebooks.
  */
-export default async function Home() {
-  // As duas primeiras não dependem uma da outra: em série eram dois
-  // round-trips ao Supabase antes de a home começar a pintar, e a tela ficava
-  // no "Carregando…" por mais tempo do que precisava.
-  const [perfil, notificacoes] = await Promise.all([
-    getPerfil(),
-    getNotificacoes(),
-  ]);
-
-  // Esta depende do id, então fica de fora do paralelo. Quem já respondeu a
-  // trilha inteira não pode ser tratado como quem nunca abriu o app — ver o
-  // convite do painel, no fim do arquivo.
-  const temFicha = perfil ? await temFichaPreenchida(perfil.id) : false;
-  // Sem/teste/ativa: é o que decide se o card do FINCASH — o primeiro da
-  // fileira — pode falar em preço, e para onde ele leva. Ver
-  // `assinatura-servidor.ts`.
-  const assinatura = await estadoDaAssinatura();
-  // "cliente"/"free" continua o padrão para visitante anônimo; logado=!!perfil
-  // é o que diferencia um cliente em teste de um visitante sem conta — sem
-  // isso o FINPLAN aparecia bloqueado até para quem já tinha acesso.
-  const apps = appsParaBusca(perfil?.role ?? "cliente", perfil?.plano ?? "free", !!perfil);
+export default function Home() {
   const areas = portais("cliente");
-  const assinante =
-    perfil?.plano === "pro" || (!!perfil && perfil.role !== "cliente");
-
-  // Saudação pela hora de Brasília: a página é dinâmica (perfil vem de
-  // cookie), então o horário renderiza fresco a cada visita.
-  const hora = Number(
-    new Intl.DateTimeFormat("pt-BR", {
-      timeZone: "America/Sao_Paulo",
-      hour: "numeric",
-      hour12: false,
-    }).format(new Date()),
-  );
-  const saudacao = hora < 6 || hora >= 18 ? "Boa noite" : hora < 12 ? "Bom dia" : "Boa tarde";
-
-  // Só sauda pelo nome quando parece nome de gente. Handle de login
-  // ("franklin.trader", "ana_c88") vira saudação sem nome — pior que não
-  // personalizar é chamar a pessoa pelo usuário do sistema.
-  const primeiraPalavra = perfil?.nome?.trim().split(/\s+/)[0] ?? "";
-  const primeiroNome = /^[a-záàâãéêíóôõúüç]{2,15}$/i.test(primeiraPalavra)
-    ? primeiraPalavra[0].toUpperCase() + primeiraPalavra.slice(1).toLowerCase()
-    : undefined;
 
   return (
     // Fundo gelo, não creme (20/10/2026): é o `#F4F8FB` da página da Carteira
@@ -107,7 +66,7 @@ export default async function Home() {
     // demais ao lado das seções noite.
     <div className="aurora-clara flex min-h-dvh flex-col bg-background pb-14 md:pb-0">
       <RevelarAoRolar />
-      <PaletaComandos apps={apps} />
+      <PaletaComandosSessao />
       <BarraLateral />
       <BarraInferior />
 
@@ -115,15 +74,7 @@ export default async function Home() {
           (o pai já tem) somava altura que não dava para rolar, e os últimos
           pixels do rodapé ficavam fora de alcance no celular. */}
       <div className="flex flex-1 flex-col md:pl-[72px]">
-        <TopoApp
-          nome={perfil?.nome ?? null}
-          email={perfil?.email}
-          assinante={assinante}
-          admin={perfil?.role === "admin"}
-          logado={!!perfil}
-          portais={areas}
-          notificacoes={notificacoes}
-        />
+        <TopoAppSessao portais={areas} />
         {/* A fita do mercado, logo abaixo do topo (TradeMap, 21/10/2026). */}
         <FitaMercado />
 
@@ -160,22 +111,7 @@ export default async function Home() {
           <div className="grid items-center gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:gap-10">
             <div>
               <p className="chapeu chapeu-claro">Novare Workspace</p>
-              <h1 className="mt-3 font-display text-[2rem] font-medium leading-[1.08] tracking-[-0.03em] text-white sm:text-5xl lg:text-[2.6rem]">
-                {/* Palavra por palavra (`.cine-palavra`, globals.css): a saudação
-                    entra primeiro e a pergunta assenta logo depois. */}
-                {palavras(primeiroNome ? `${saudacao}, ${primeiroNome}!` : `${saudacao}!`, 0)}
-                <span className="text-accent-claro">
-                  {palavras("O que você quer resolver hoje?", 3)}
-                </span>
-              </h1>
-              {/* Não some mais em tela baixa: escondê-lo era parte da mesma
-                  corrida por caber numa tela, e a página perdia a única
-                  linha que diz o que a Novare faz. */}
-              <p className="mt-4 max-w-xl text-base leading-relaxed text-white/75 lg:mt-3">
-                {perfil
-                  ? "Tudo o que você usa, num lugar só — e a gente por perto se precisar."
-                  : "Ferramentas gratuitas e independentes para organizar o seu dinheiro."}
-              </p>
+              <TituloHome />
               <div className="mt-6 max-w-md lg:mt-5">
                 <BuscaDestaque />
               </div>
@@ -276,7 +212,7 @@ export default async function Home() {
               <div className="h-full rounded-3xl">
                 {/* O destino e o preço saem da `assinatura`: quem já paga
                     entra direto no app, e não vê preço nenhum. */}
-                <CardFincashHome assinatura={assinatura} />
+                <CardFincashHomeSessao />
               </div>
             </div>
             {areas
@@ -363,18 +299,7 @@ export default async function Home() {
           {/* A seta que avisa que a página continua. Sem ela, quem chega numa
               tela cheia e sem barra de rolagem visível acredita que acabou —
               e o painel inteiro deixa de existir para essa pessoa. */}
-          {perfil && (
-            <a
-              href="#meu-painel"
-              className="mx-auto -mb-1 mt-1 flex w-fit items-center gap-1.5 rounded-full px-3 py-1 text-2xs font-semibold text-muted-foreground transition-colors hover:text-primary"
-            >
-              {/* Quem não assina encontra lá embaixo um convite de
-                  assinatura, não um painel: prometer o que a rolagem não
-                  entrega gasta a confiança de quem clica. */}
-              {assinante ? "Seu painel logo abaixo" : "Veja o que tem mais abaixo"}
-              <ChevronDown className="h-3.5 w-3.5 motion-safe:animate-bounce" />
-            </a>
-          )}
+          <SetaPainelHome />
         </main>
 
         {/* ================================= A SEGUNDA PARTE: O SEU PAINEL
@@ -386,13 +311,7 @@ export default async function Home() {
             convite, porque para ele ainda não existe painel. Visitante
             deslogado não entra aqui: a casca vazia seria pior do que não
             mostrar nada. */}
-        {perfil && (
-          <SegundaParte
-            assinante={assinante}
-            primeiroNome={primeiroNome}
-            temFicha={temFicha}
-          />
-        )}
+        <SegundaParteHome />
 
         {/* A INSCRIÇÃO NO NEWS TAMBÉM AQUI, pedido do dono.
 
@@ -427,114 +346,6 @@ export default async function Home() {
       </div>
     </div>
   );
-}
-
-/* ========================================================= SEGUNDA PARTE */
-
-/**
- * A parte de baixo da home: o painel de quem está logado.
- *
- * Vive FORA do `<main>` da vitrine de propósito — aquele bloco é medido
- * para caber numa tela, e enfiar o painel dentro dele estouraria a conta de
- * altura que mantém a primeira dobra inteira.
- *
- * Quem assina vê os próprios números; quem está no plano free vê o convite,
- * porque para ele não existe painel nenhum ainda.
- */
-function SegundaParte({
-  assinante,
-  primeiroNome,
-  temFicha,
-}: {
-  assinante: boolean;
-  primeiroNome?: string;
-  /** Já respondeu a trilha do FINPLAN — muda o convite, não o acesso. */
-  temFicha: boolean;
-}) {
-  return (
-    <section
-      id="meu-painel"
-      className="scroll-mt-4 border-t border-primary/8 bg-white/40"
-    >
-      <div className="mx-auto w-full max-w-7xl px-5 pb-10 pt-8 md:px-5">
-        <header className="cine">
-          <p className="text-2xs font-semibold uppercase tracking-[0.16em] text-ciano-forte">
-            Seu Workspace
-          </p>
-          <h2 className="titulo-secao mt-1 text-xl sm:text-2xl">
-            {primeiroNome ? `A vida financeira de ${primeiroNome}` : "Sua vida financeira"}
-          </h2>
-        </header>
-
-        {/* `resumo`: só a primeira seção do painel. O painel inteiro são
-            seis, e as seis aqui fariam da home uma cópia de /meu-dia — que
-            é a página que existe justamente para isso. */}
-        {assinante ? (
-          <PainelMeuDia resumo />
-        ) : (
-          <ConvitePainelHome temFicha={temFicha} />
-        )}
-      </div>
-    </section>
-  );
-}
-
-/**
- * Logado sem painel: o convite leva ao que existe e é grátis.
- *
- * ⚠️ ATÉ 20/10/2026 ESTE CARTÃO DIZIA QUE O PAINEL "abre com a assinatura",
- * com o botão "Liberar meus números" para /assinar — numa casa em que tudo
- * passou a ser gratuito, e com um link para o FINPLAN, que saiu do ar. Agora
- * ele leva ao FINCASH (onde o painel do mês de fato nasce) e ao Exame.
- */
-function ConvitePainelHome(_: { temFicha: boolean }) {
-  return (
-    <div className="cine cartao-cp mt-5 grid sm:grid-cols-[0.9fr_1.1fr]">
-      <div className="relative aspect-[16/10] sm:aspect-auto">
-        <Image src="/home/fincash.webp" alt="" fill sizes="(max-width: 640px) 100vw, 40vw" className="object-cover" />
-      </div>
-      <div className="p-6 sm:p-8">
-        <h3 className="titulo-cp text-2xl sm:text-3xl">
-          Seu painel nasce no <span className="text-accent-strong">FINCASH</span>
-        </h3>
-        <p className="mt-3 max-w-lg text-sm leading-relaxed text-muted-foreground">
-          Lance as contas do mês — é grátis — e acompanhe o saldo, os cartões, as
-          metas e quanto ainda dá para gastar. Quer começar pelo retrato geral? O
-          Exame de Saúde Financeira dá a sua nota e o que melhorar primeiro.
-        </p>
-        <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-3">
-          <Link
-            href="/fincash/app"
-            className="group btn-petroleo"
-          >
-            Abrir meu FINCASH
-            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-          </Link>
-          <Link
-            href="/exame-saude-financeira"
-            className="text-sm font-semibold text-accent-strong underline-offset-4 hover:underline"
-          >
-            Fazer o Exame de Saúde Financeira
-          </Link>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/**
- * Fatia um texto em palavras para a entrada em cascata (`.cine-palavra`).
- * `inicio` desloca o atraso, para uma frase continuar a cascata da anterior.
- * O espaço fica FORA do span: com inline-block, espaço dentro dele sumiria.
- */
-function palavras(texto: string, inicio: number) {
-  return texto.split(" ").map((p, i) => (
-    <span key={i}>
-      <span className="cine-palavra" style={{ "--i": inicio + i } as React.CSSProperties}>
-        {p}
-      </span>{" "}
-    </span>
-  ));
 }
 
 /**

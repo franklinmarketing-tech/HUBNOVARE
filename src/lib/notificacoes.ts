@@ -1,19 +1,13 @@
 import { createClient } from "@/lib/supabase/server";
+import {
+  COLUNAS_NOTIFICACAO,
+  LIMITE_NOTIFICACOES,
+  lerNotificacao,
+  type Notificacao,
+  type TipoNotificacao,
+} from "@/lib/perfil-regras";
 
-export type TipoNotificacao = "aviso" | "novidade" | "conta" | "alerta";
-
-export type Notificacao = {
-  id: string;
-  titulo: string;
-  texto: string | null;
-  href: string | null;
-  tipo: TipoNotificacao;
-  lida: boolean;
-  criadoEm: string;
-};
-
-/** Quantas o sino mostra. Passou disso, a pessoa vai para /notificacoes. */
-const LIMITE = 8;
+export type { Notificacao, TipoNotificacao };
 
 /**
  * As notificações do usuário logado, das mais novas para as mais velhas.
@@ -21,6 +15,8 @@ const LIMITE = 8;
  * Devolve lista vazia sem sessão e também quando a tabela ainda não existe
  * (supabase/hub_notificacoes.sql não foi rodado): o sino some em vez de
  * quebrar a home inteira por causa de um recurso que ainda não foi ligado.
+ *
+ * As páginas que saem prontas leem o mesmo pelo navegador (`lib/quem-sou.ts`).
  */
 export async function getNotificacoes(): Promise<Notificacao[]> {
   const supabase = await createClient();
@@ -33,19 +29,11 @@ export async function getNotificacoes(): Promise<Notificacao[]> {
 
   const { data, error } = await supabase
     .from("hub_notificacoes")
-    .select("id, titulo, texto, href, tipo, lida_em, criado_em")
+    .select(COLUNAS_NOTIFICACAO)
     .order("criado_em", { ascending: false })
-    .limit(LIMITE);
+    .limit(LIMITE_NOTIFICACOES);
 
   if (error || !data) return [];
 
-  return data.map((n) => ({
-    id: n.id as string,
-    titulo: n.titulo as string,
-    texto: (n.texto as string | null) ?? null,
-    href: (n.href as string | null) ?? null,
-    tipo: (n.tipo as TipoNotificacao) ?? "aviso",
-    lida: !!n.lida_em,
-    criadoEm: n.criado_em as string,
-  }));
+  return data.map((n) => lerNotificacao(n as Record<string, unknown>));
 }

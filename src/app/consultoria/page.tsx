@@ -11,7 +11,7 @@ import {
   CONSULTORIAS,
   ROTULO_PRIMEIRA_ANALISE,
 } from "@/lib/consultoria";
-import { getPerfil } from "@/lib/perfil";
+import { LinkVoltarOuEntrar } from "@/components/SessaoNoNavegador";
 import { AssinaturaJefferson } from "@/components/AssinaturaJefferson";
 
 export const metadata: Metadata = {
@@ -40,19 +40,13 @@ export const metadata: Metadata = {
  * e manda para a página real. O mesmo padrão visual de `/profissionais`,
  * de propósito — consistência entre as duas vitrines do site.
  */
-export default async function ConsultoriaPage() {
-  const perfil = await getPerfil();
+export default function ConsultoriaPage() {
 
   return (
     <div className="min-h-dvh bg-white text-slate-900">
       <Cabecalho
         direita={
-          <Link
-            href={perfil ? "/" : "/login"}
-            className="text-xs font-medium text-muted-foreground transition-colors hover:text-primary"
-          >
-            {perfil ? "Voltar ao Workspace" : "Entrar"}
-          </Link>
+          <LinkVoltarOuEntrar />
         }
       />
 

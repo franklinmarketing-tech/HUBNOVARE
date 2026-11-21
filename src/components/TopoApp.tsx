@@ -31,7 +31,10 @@ export function TopoApp({
   portais = [],
   notificacoes = [],
   comBusca = false,
+  carregando = false,
 }: {
+  /** Página pronta ainda lendo a sessão no navegador: o "Entrar" guarda o lugar sem aparecer. */
+  carregando?: boolean;
   nome: string | null;
   email?: string;
   assinante: boolean;
@@ -211,7 +214,9 @@ export function TopoApp({
         ) : (
           <Link
             href="/login"
-            className="btn-petroleo shrink-0 min-h-10 px-4 text-xs"
+            aria-hidden={carregando || undefined}
+            tabIndex={carregando ? -1 : undefined}
+            className={`btn-petroleo shrink-0 min-h-10 px-4 text-xs transition-opacity duration-200 ${carregando ? "invisible opacity-0" : "opacity-100"}`}
           >
             Entrar
           </Link>

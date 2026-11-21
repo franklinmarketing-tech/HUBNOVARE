@@ -1,17 +1,14 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import { portais } from "@/lib/categorias";
 import { ArrowUpRight } from "lucide-react";
 import { BarraLateral } from "@/components/BarraLateral";
 import { BarraInferior } from "@/components/BarraInferior";
-import { TopoApp } from "@/components/TopoApp";
-import { PaletaComandos } from "@/components/PaletaComandos";
+import { PaletaComandosSessao, TopoAppSessao } from "@/components/SessaoNoNavegador";
 import { YoutubeLogo } from "@/components/LogosSociais";
-import { appsParaBusca } from "@/lib/navegacao";
-import { getPerfil } from "@/lib/perfil";
-import { getNotificacoes } from "@/lib/notificacoes";
 import { CANAL_YOUTUBE_URL, videosDoCanal } from "@/lib/youtube";
 import { urlAbsoluta } from "@/lib/site";
-import { GaleriaVideos } from "./GaleriaVideos";
+import { GaleriaVideos, GaleriaVideosDoEndereco } from "./GaleriaVideos";
 
 const DESCRICAO =
   "Os vídeos do canal da Novare no YouTube: aposentadoria, INSS, sucessão patrimonial, controle financeiro e investimentos, explicados sem letra miúda.";
@@ -42,29 +39,20 @@ export const revalidate = 1800;
  * `lib/youtube.ts`). Vídeos em 16:9 e Shorts em vertical, em seções separadas. O feed traz os
  * 15 mais recentes; o botão do canal leva ao resto.
  */
-export default async function NovareVideosPage({ searchParams }: { searchParams: Promise<{ v?: string }> }) {
-  const { v: pedido } = await searchParams;
-  const [perfil, notificacoes, todos] = await Promise.all([getPerfil(), getNotificacoes(), videosDoCanal()]);
-  const apps = appsParaBusca(perfil?.role ?? "cliente", perfil?.plano ?? "free", !!perfil);
-  const assinante = perfil?.plano === "pro" || (!!perfil && perfil.role !== "cliente");
+export default async function NovareVideosPage() {
+  const todos = await videosDoCanal();
   const videos = todos.filter((v) => v.tipo === "video");
   const shorts = todos.filter((v) => v.tipo === "short");
 
   return (
     <div className="aurora-clara min-h-dvh pb-14 md:pb-0">
-      <PaletaComandos apps={apps} />
+      <PaletaComandosSessao />
       <BarraLateral />
       <BarraInferior />
 
       <div className="md:pl-[72px]">
-        <TopoApp
+        <TopoAppSessao
           portais={portais("cliente")}
-          nome={perfil?.nome ?? null}
-          email={perfil?.email}
-          assinante={assinante}
-          admin={perfil?.role === "admin"}
-          logado={!!perfil}
-          notificacoes={notificacoes}
         />
 
         <main className="mx-auto max-w-6xl px-5 pb-16 pt-8">
@@ -90,7 +78,9 @@ export default async function NovareVideosPage({ searchParams }: { searchParams:
 
           <div className="mt-8">
             {todos.length > 0 ? (
-              <GaleriaVideos videos={videos} shorts={shorts} inicial={pedido} />
+              <Suspense fallback={<GaleriaVideos videos={videos} shorts={shorts} />}>
+                <GaleriaVideosDoEndereco videos={videos} shorts={shorts} />
+              </Suspense>
             ) : (
               <div className="cartao-cp p-8 text-center">
                 <p className="font-semibold text-primary">Não consegui carregar os vídeos agora.</p>

@@ -3,13 +3,9 @@ import { portais } from "@/lib/categorias";
 import type { Metadata } from "next";
 import { BarraLateral } from "@/components/BarraLateral";
 import { BarraInferior } from "@/components/BarraInferior";
-import { TopoApp } from "@/components/TopoApp";
-import { PaletaComandos } from "@/components/PaletaComandos";
-import { CatalogoFiltrado } from "@/components/CatalogoFiltrado";
-import { appsParaBusca, filtrosDoTopo } from "@/lib/navegacao";
+import { CatalogoFiltradoSessao, PaletaComandosSessao, TopoAppSessao } from "@/components/SessaoNoNavegador";
+import { filtrosDoTopo } from "@/lib/navegacao";
 import { CONTAGEM } from "@/lib/apps";
-import { getPerfil } from "@/lib/perfil";
-import { getNotificacoes } from "@/lib/notificacoes";
 import { FitaMercado } from "@/components/FitaMercado";
 import { QuizComeco } from "@/components/QuizComeco";
 
@@ -21,29 +17,18 @@ export const metadata: Metadata = {
 };
 
 /** O catálogo completo. Os portais da home entram aqui já filtrados. */
-export default async function AplicativosPage() {
-  const perfil = await getPerfil();
-  const notificacoes = await getNotificacoes();
-  const apps = appsParaBusca(perfil?.role ?? "cliente", perfil?.plano ?? "free", !!perfil);
+export default function AplicativosPage() {
   const filtros = filtrosDoTopo("cliente");
-  const assinante =
-    perfil?.plano === "pro" || (!!perfil && perfil.role !== "cliente");
 
   return (
     <div className="aurora-clara min-h-dvh pb-14 md:pb-0">
-      <PaletaComandos apps={apps} />
+      <PaletaComandosSessao />
       <BarraLateral />
       <BarraInferior />
 
       <div className="md:pl-[72px]">
-        <TopoApp
+        <TopoAppSessao
           portais={portais("cliente")}
-          nome={perfil?.nome ?? null}
-          email={perfil?.email}
-          assinante={assinante}
-          admin={perfil?.role === "admin"}
-          logado={!!perfil}
-          notificacoes={notificacoes}
         />
         {/* A fita do mercado, logo abaixo do topo (TradeMap, 21/10/2026). */}
         <FitaMercado />
@@ -85,7 +70,7 @@ export default async function AplicativosPage() {
 
           <div className="mt-7">
             <Suspense fallback={null}>
-              <CatalogoFiltrado apps={apps} filtros={filtros} />
+              <CatalogoFiltradoSessao filtros={filtros} />
             </Suspense>
           </div>
         </main>

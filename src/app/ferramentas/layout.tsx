@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { AssistenteFerramentas } from "@/components/AssistenteFerramentas";
+import { AssistenteFerramentasSessao } from "@/components/SessaoNoNavegador";
 import { AvaliarFerramenta } from "@/components/AvaliarFerramenta";
 import { CapturaLead } from "@/components/CapturaLead";
 import { BotaoManual } from "@/components/BotaoManual";
@@ -9,8 +9,6 @@ import { DicasCampos } from "@/components/DicasCampos";
 import { RegistrarVisita } from "@/components/RegistrarVisita";
 import { RodapeNovare } from "@/components/RodapeNovare";
 import { VoltarAoWorkspace } from "@/components/VoltarAoWorkspace";
-import { appsParaBusca } from "@/lib/navegacao";
-import { getPerfil } from "@/lib/perfil";
 
 export const metadata: Metadata = {
   title: { default: "Ferramentas", template: "%s · Novare Workspace" },
@@ -26,13 +24,15 @@ export const metadata: Metadata = {
  * assim ferramenta nova já nasce com o convite da consultoria e com a
  * saída para a home — sem ninguém lembrar de colar.
  */
-export default async function LayoutFerramentas({
+/* ⚠️ SEM `getPerfil` AQUI (21/11/2026): esta moldura lia a sessão no servidor
+   só para a busca — e isso obrigava as 23 ferramentas a serem montadas a cada
+   visita. A busca agora descobre quem está logado no navegador
+   (`AssistenteFerramentasSessao`) e as ferramentas saem prontas. */
+export default function LayoutFerramentas({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const perfil = await getPerfil();
-  const apps = appsParaBusca(perfil?.role ?? "cliente", perfil?.plano ?? "free", !!perfil);
 
   return (
     <>
@@ -61,7 +61,7 @@ export default async function LayoutFerramentas({
       {/* "Esta ferramenta te ajudou?" — a nota de 1 a 5 (21/10/2026). */}
       <AvaliarFerramenta />
       <RodapeNovare />
-      <AssistenteFerramentas apps={apps} />
+      <AssistenteFerramentasSessao />
     </>
   );
 }

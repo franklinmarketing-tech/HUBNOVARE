@@ -5,7 +5,7 @@ import {
 } from "@/components/CardProdutoHome";
 import {
 } from "@/lib/assinatura";
-import type { EstadoAssinatura } from "@/lib/assinatura-servidor";
+import type { EstadoAssinatura } from "@/lib/perfil-regras";
 
 /**
  * O PRIMEIRO CARD DA HOME — o produto-âncora da casa.

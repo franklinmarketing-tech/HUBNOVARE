@@ -5,12 +5,8 @@ import { BarraLateral } from "@/components/BarraLateral";
 import { BarraInferior } from "@/components/BarraInferior";
 import { CentralAjuda } from "@/components/CentralAjuda";
 import { FitaMercado } from "@/components/FitaMercado";
-import { PaletaComandos } from "@/components/PaletaComandos";
+import { PaletaComandosSessao, TopoAppSessao } from "@/components/SessaoNoNavegador";
 import { Rodape } from "@/components/Rodape";
-import { TopoApp } from "@/components/TopoApp";
-import { appsParaBusca } from "@/lib/navegacao";
-import { getNotificacoes } from "@/lib/notificacoes";
-import { getPerfil } from "@/lib/perfil";
 
 export const metadata: Metadata = {
   title: "Central de ajuda",
@@ -24,26 +20,17 @@ export const metadata: Metadata = {
  * a busca e a janela ficam em `CentralAjuda` (cliente). Moldura igual à do
  * /calendario-economico.
  */
-export default async function AjudaPage() {
-  const [perfil, notificacoes] = await Promise.all([getPerfil(), getNotificacoes()]);
-  const apps = appsParaBusca(perfil?.role ?? "cliente", perfil?.plano ?? "free", !!perfil);
-  const assinante = perfil?.plano === "pro" || (!!perfil && perfil.role !== "cliente");
+export default function AjudaPage() {
 
   return (
     <div className="aurora-clara flex min-h-dvh flex-col bg-background pb-14 md:pb-0">
-      <PaletaComandos apps={apps} />
+      <PaletaComandosSessao />
       <BarraLateral />
       <BarraInferior />
 
       <div className="flex flex-1 flex-col md:pl-[72px]">
-        <TopoApp
+        <TopoAppSessao
           portais={portais("cliente")}
-          nome={perfil?.nome ?? null}
-          email={perfil?.email}
-          assinante={assinante}
-          admin={perfil?.role === "admin"}
-          logado={!!perfil}
-          notificacoes={notificacoes}
         />
         <FitaMercado />
 

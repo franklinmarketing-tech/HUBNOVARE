@@ -201,6 +201,17 @@ const nextConfig: NextConfig = {
         permanent: true,
       })),
 
+      /* ── O FILTRO DO NEWS GANHOU ENDEREÇO PRÓPRIO (21/11/2026) ──────────
+         `/novare-news?categoria=x` obrigava o News a ser montado a cada
+         visita; agora cada área é uma página pronta. O link antigo segue
+         funcionando por aqui. */
+      {
+        source: "/novare-news",
+        has: [{ type: "query", key: "categoria", value: "(?<categoria>[a-z-]+)" }],
+        destination: "/novare-news/categoria/:categoria",
+        permanent: true,
+      },
+
       /* ── OS PDFs DOS eBOOKS SAÍRAM DE /public (21/10/2026) ──────────────
          O link antigo (`/novare-….pdf`), que já circulou em grupo e e-mail,
          vai para a rota que confere a trava (`src/lib/ebooks.ts`). 307 e não

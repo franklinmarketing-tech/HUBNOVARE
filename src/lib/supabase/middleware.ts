@@ -15,7 +15,37 @@ const PROTEGIDAS = [
   "/fincash/app",
 ];
 
+/**
+ * ⚠️ SEM COOKIE DE SESSÃO, NÃO PERGUNTA NADA AO SUPABASE (21/11/2026).
+ *
+ * Este middleware roda em toda página. Até aqui ele chamava `getUser()` em
+ * cada uma — inclusive para robô e visitante sem conta, que são a maior parte
+ * das visitas — e isso era processamento cobrado pela Vercel sem servir para
+ * nada: sem o cookie `sb-…-auth-token` não existe sessão para renovar.
+ *
+ * Com o cookie, segue tudo como antes: renova o token e protege as rotas.
+ * O cookie pode vir fatiado (`.0`, `.1`), por isso o `includes`.
+ */
+function temCookieDeSessao(request: NextRequest) {
+  return request.cookies
+    .getAll()
+    .some(({ name }) => name.startsWith("sb-") && name.includes("-auth-token"));
+}
+
 export async function atualizarSessao(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+  const exigeLogin = PROTEGIDAS.some(
+    (rota) => pathname === rota || pathname.startsWith(`${rota}/`),
+  );
+
+  if (!temCookieDeSessao(request)) {
+    if (!exigeLogin) return NextResponse.next({ request });
+    const url = request.nextUrl.clone();
+    url.pathname = "/login";
+    url.searchParams.set("proximo", pathname);
+    return NextResponse.redirect(url);
+  }
+
   let response = NextResponse.next({ request });
 
   const supabase = createServerClient(
@@ -44,11 +74,6 @@ export async function atualizarSessao(request: NextRequest) {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-
-  const { pathname } = request.nextUrl;
-  const exigeLogin = PROTEGIDAS.some(
-    (rota) => pathname === rota || pathname.startsWith(`${rota}/`),
-  );
 
   if (!user && exigeLogin) {
     const url = request.nextUrl.clone();

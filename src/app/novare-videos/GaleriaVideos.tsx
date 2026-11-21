@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { Play } from "lucide-react";
 import type { VideoDoCanal } from "@/lib/youtube";
 
@@ -93,4 +94,15 @@ function Cartao({ video, tocando, destaque, aoTocar }: { video: VideoDoCanal; to
       </p>
     </div>
   );
+}
+
+/**
+ * A galeria lendo o `?v=` do endereço no NAVEGADOR (21/11/2026): assim a página
+ * sai pronta em vez de ser montada a cada visita. Vai dentro de um `<Suspense>`
+ * cujo reserva é a galeria sem vídeo escolhido — o HTML pronto já traz a lista.
+ * O `key` reinicia a escolha quando o menu do topo troca de vídeo.
+ */
+export function GaleriaVideosDoEndereco(props: { videos: VideoDoCanal[]; shorts: VideoDoCanal[] }) {
+  const v = useSearchParams().get("v") ?? undefined;
+  return <GaleriaVideos key={v ?? ""} {...props} inicial={v} />;
 }

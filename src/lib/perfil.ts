@@ -1,23 +1,16 @@
 import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
-import type { Role, PlanoCliente } from "@/lib/apps";
+import { montarPerfil, type Perfil } from "@/lib/perfil-regras";
 
-export type Perfil = {
-  id: string;
-  email: string;
-  nome: string;
-  role: Role;
-  plano: PlanoCliente;
-};
-
-const ROLES_VALIDAS: Role[] = ["admin", "equipe", "cliente"];
-const PLANOS_VALIDOS: PlanoCliente[] = ["free", "pro"];
+export type { Perfil };
 
 /**
  * Perfil do usuário logado, ou null se não houver sessão.
  *
  * Se a linha em `hub_profiles` ainda não existir (ou a tabela não tiver sido
- * criada), o usuário cai em `cliente` — menor privilégio por padrão.
+ * criada), o usuário cai em `cliente` — menor privilégio por padrão. A regra
+ * mora em `lib/perfil-regras.ts`, a mesma que o navegador usa
+ * (`lib/quem-sou.ts`) nas páginas que saem prontas.
  */
 /* ⚠️ `cache` (21/10/2026): o layout do admin e a página chamam getPerfil na
    MESMA requisição — eram duas idas ao Supabase por clique de aba. */
@@ -36,27 +29,7 @@ export const getPerfil = cache(async function getPerfil(): Promise<Perfil | null
     .eq("id", user.id)
     .maybeSingle();
 
-  const role: Role =
-    data?.role && ROLES_VALIDAS.includes(data.role as Role)
-      ? (data.role as Role)
-      : "cliente";
-
-  // Plano expirado vale o mesmo que free — a data manda sobre o campo.
-  const expirou =
-    !!data?.plano_expira_em && new Date(data.plano_expira_em) < new Date();
-
-  const plano: PlanoCliente =
-    !expirou && data?.plano && PLANOS_VALIDOS.includes(data.plano as PlanoCliente)
-      ? (data.plano as PlanoCliente)
-      : "free";
-
-  return {
-    id: user.id,
-    email: user.email ?? "",
-    nome: data?.nome || user.user_metadata?.nome || user.email?.split("@")[0] || "",
-    role,
-    plano,
-  };
+  return montarPerfil(user, data);
 });
 
 /**

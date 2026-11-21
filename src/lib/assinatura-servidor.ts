@@ -1,4 +1,9 @@
 import { createClient } from "@/lib/supabase/server";
+import {
+  faseDaAssinatura,
+  perfilJaAtiva,
+  type EstadoAssinatura,
+} from "@/lib/perfil-regras";
 
 /**
  * Em que ponto da assinatura a pessoa está — lido no SERVIDOR.
@@ -13,16 +18,11 @@ import { createClient } from "@/lib/supabase/server";
  * Este módulo só LÊ. Quem cria o teste continua sendo `garantirTeste()`, no
  * cliente, na primeira vez que a pessoa abre o produto — começar o relógio a
  * partir de uma visita à home queimaria dias de quem só passou pela porta.
+ *
+ * ⚠️ 21/11/2026: a home saiu pronta e passou a ler isto NO NAVEGADOR
+ * (`lib/quem-sou.ts`). As regras são as mesmas, em `lib/perfil-regras.ts`.
  */
-export type EstadoAssinatura =
-  /** Nunca teve nada: vê a oferta. */
-  | { fase: "sem" }
-  /** Está no teste grátis. `dias` é quanto falta (mínimo 1). */
-  | { fase: "teste"; dias: number }
-  /** Pagante, admin ou equipe: nenhum preço aparece. */
-  | { fase: "ativa" };
-
-const DIA_MS = 24 * 60 * 60 * 1000;
+export type { EstadoAssinatura };
 
 export async function estadoDaAssinatura(): Promise<EstadoAssinatura> {
   const supabase = await createClient();
@@ -31,20 +31,13 @@ export async function estadoDaAssinatura(): Promise<EstadoAssinatura> {
   } = await supabase.auth.getUser();
   if (!user) return { fase: "sem" };
 
-  // Mesma ordem de `trial.ts`: o Hub manda, o teste é o segundo critério.
   const { data: perfil } = await supabase
     .from("hub_profiles")
     .select("role, plano, plano_expira_em")
     .eq("id", user.id)
     .maybeSingle();
 
-  if (perfil) {
-    const expirou =
-      !!perfil.plano_expira_em && new Date(perfil.plano_expira_em) < new Date();
-    const proValido = perfil.plano === "pro" && !expirou;
-    const equipe = perfil.role === "admin" || perfil.role === "equipe";
-    if (proValido || equipe) return { fase: "ativa" };
-  }
+  if (perfilJaAtiva(perfil)) return { fase: "ativa" };
 
   const { data: assinatura } = await supabase
     .from("vidaplan_subscriptions")
@@ -52,16 +45,5 @@ export async function estadoDaAssinatura(): Promise<EstadoAssinatura> {
     .eq("user_id", user.id)
     .maybeSingle();
 
-  if (!assinatura) return { fase: "sem" };
-  if (assinatura.status === "active") return { fase: "ativa" };
-
-  if (assinatura.status === "trial" && assinatura.trial_until) {
-    const dias = Math.ceil(
-      (new Date(assinatura.trial_until).getTime() - Date.now()) / DIA_MS,
-    );
-    // Zero ou negativo é teste vencido, e vencido volta a ver a oferta.
-    if (dias > 0) return { fase: "teste", dias };
-  }
-
-  return { fase: "sem" };
+  return faseDaAssinatura(assinatura);
 }

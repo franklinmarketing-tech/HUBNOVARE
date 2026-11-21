@@ -18,7 +18,7 @@ import { lerExtrato, resumirExtrato } from "@/lib/extrato";
 import { brl } from "@/lib/calculos";
 import { OQueSignifica } from "@/components/OQueSignifica";
 import { RodapeNovare } from "@/components/RodapeNovare";
-import { getPerfil } from "@/lib/perfil";
+import { LinkVoltarOuEntrar } from "@/components/SessaoNoNavegador";
 
 export const metadata: Metadata = {
   title: "Íris, sua IA financeira",
@@ -137,28 +137,17 @@ const ENTENDA = [
   },
 ];
 
-export default async function IrisPage({
-  searchParams,
-}: {
-  /** `?p=` é a pergunta digitada na barra da home. */
-  searchParams: Promise<{ p?: string }>;
-}) {
-  const { p } = await searchParams;
-  // Teto de 300 caracteres: o campo da home já limita, mas a URL é digitável
-  // por qualquer um e não é aqui que se confia no que vem de fora.
-  const perguntaInicial = p?.slice(0, 300);
-  const perfil = await getPerfil();
+/* ⚠️ SAI PRONTA (21/11/2026): o `?p=` da home era lido aqui e não ia a lugar
+   nenhum, e o `getPerfil` só escolhia o texto do link do canto — os dois
+   obrigavam a página a ser montada a cada visita. O link agora se resolve no
+   navegador (`LinkVoltarOuEntrar`). */
+export default function IrisPage() {
 
   return (
     <div className="min-h-dvh bg-background">
       <Cabecalho
         direita={
-          <Link
-            href={perfil ? "/" : "/login"}
-            className="text-xs font-medium text-muted-foreground transition-colors hover:text-primary"
-          >
-            {perfil ? "Voltar ao Workspace" : "Entrar"}
-          </Link>
+          <LinkVoltarOuEntrar />
         }
       />
 

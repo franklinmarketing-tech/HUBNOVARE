@@ -4,12 +4,8 @@ import Link from "next/link";
 import { ArrowRight, CalendarClock } from "lucide-react";
 import { BarraLateral } from "@/components/BarraLateral";
 import { BarraInferior } from "@/components/BarraInferior";
-import { TopoApp } from "@/components/TopoApp";
-import { PaletaComandos } from "@/components/PaletaComandos";
+import { PaletaComandosSessao, TopoAppSessao } from "@/components/SessaoNoNavegador";
 import { Rodape } from "@/components/Rodape";
-import { appsParaBusca } from "@/lib/navegacao";
-import { getPerfil } from "@/lib/perfil";
-import { getNotificacoes } from "@/lib/notificacoes";
 import { GRUPOS, getCartoesIndicadores, type CartaoIndicador } from "@/lib/indicadores";
 import { Minigrafico } from "@/components/Minigrafico";
 import { formatarPontos, getIndicesBolsa, type IndiceBolsa } from "@/lib/indices-bolsa";
@@ -23,6 +19,10 @@ export const metadata: Metadata = {
   alternates: { canonical: "/indicadores" },
 };
 
+/* A página sai PRONTA e é remontada no máximo uma vez por hora (as fontes já
+   guardam por 6 h em `lib/indicadores.ts`). Antes era montada a cada visita. */
+export const revalidate = 3600;
+
 /**
  * OS INDICADORES DA ECONOMIA, EM PORTUGUÊS (pedido do Jefferson, 20/10/2026,
  * no molde da página de índices da Nord). Os dados vêm de
@@ -30,30 +30,20 @@ export const metadata: Metadata = {
  * grupo, um cartão por índice com o minigráfico dos últimos 12 meses.
  */
 export default async function IndicadoresPage() {
-  const [perfil, notificacoes, cartoes, bolsas] = await Promise.all([
-    getPerfil(),
-    getNotificacoes(),
+  const [cartoes, bolsas] = await Promise.all([
     getCartoesIndicadores(),
     getIndicesBolsa(),
   ]);
-  const apps = appsParaBusca(perfil?.role ?? "cliente", perfil?.plano ?? "free", !!perfil);
-  const assinante = perfil?.plano === "pro" || (!!perfil && perfil.role !== "cliente");
 
   return (
     <div className="aurora-clara flex min-h-dvh flex-col bg-background pb-14 md:pb-0">
-      <PaletaComandos apps={apps} />
+      <PaletaComandosSessao />
       <BarraLateral />
       <BarraInferior />
 
       <div className="flex flex-1 flex-col md:pl-[72px]">
-        <TopoApp
+        <TopoAppSessao
           portais={portais("cliente")}
-          nome={perfil?.nome ?? null}
-          email={perfil?.email}
-          assinante={assinante}
-          admin={perfil?.role === "admin"}
-          logado={!!perfil}
-          notificacoes={notificacoes}
         />
         {/* A fita do mercado, logo abaixo do topo (TradeMap, 21/10/2026). */}
         <FitaMercado />
