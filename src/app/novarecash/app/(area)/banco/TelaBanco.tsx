@@ -823,6 +823,20 @@ export function TelaBanco({ limite, nomePlano }: { limite: number; nomePlano: st
             )}
           </Bolha>
 
+          {/* NO CELULAR, A VOLTA DO BANCO (21/11/2026, 1º teste real): depois de autorizar, o app do banco
+              pode mostrar "Esse compartilhamento já foi processado" e, no "Voltar", abrir no navegador uma
+              página de erro do provedor (Pluggy, `missing code or state`). Não é nossa, não dá para trocar
+              — e a conexão JÁ FOI FEITA. Avisar antes evita o susto. Só em tela de celular. */}
+          {fase === "autorizar" && !pendente?.item && (
+            <div className="sm:hidden">
+              <Bolha>
+                <strong className="text-white">No celular:</strong> depois de autorizar, o app do banco pode dizer que o
+                compartilhamento “já foi processado” ou abrir uma página de erro no navegador. Está tudo certo: feche essa tela e{" "}
+                <strong className="text-white">volte para o NovareCash</strong>. Eu termino daqui.
+              </Bolha>
+            </div>
+          )}
+
           {fase === "autorizar" && bloqueada && (
             <Bolha>
               O navegador segurou a janela do banco. Toque para abrir:
